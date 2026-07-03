@@ -25,13 +25,10 @@ export function SavesGrid({ saves, onRoll }: { saves: SaveVM[]; onRoll?: (key: O
       {saves.map((s) => (
         <StatPlaque
           key={s.key}
-          className="fvtt-save"
-          stampClassName="sk"
+          variant="save"
           stampKey={saveStamp(s.label)}
           value={s.target}
           caption={s.label}
-          valueClassName="sv"
-          captionClassName="sn"
           onActivate={onRoll && (() => onRoll(s.key))}
           title={onRoll ? `Roll ${s.label} save (≥ ${s.target})` : undefined}
           data-testid={`save-${s.key}`}

@@ -4,46 +4,41 @@ import { Stamp } from "./Stamp";
 import { rollable } from "./rollable";
 
 /** An "ink-stamp key · big value · caption" stat cell, optionally wired to a
- *  roll. Shared by the ability plaques (`.rs-abil`) and the saves grid
- *  (`.fvtt-save`). Class-preserving: the wrapper/value/caption/stamp classes are
- *  passed through so the existing per-context SCSS keeps applying; the `.plaque`
- *  base only carries what both call sites already share (see components.css).
+ *  roll. Two vellum variants (see `.plaque` in components.css):
+ *    • `ability` — gold-framed plaque with a bottom mod pill.
+ *    • `save` — inked surface card with a 22px stamp.
+ *  Sub-elements are styled by the variant via generic `.pk`/`.pv`/`.pc` classes.
  *  When `onActivate` is set the cell becomes a keyboard-accessible button and
  *  gains the `rollable` class. */
 export function StatPlaque({
+  variant,
   stampKey,
   value,
   caption,
   onActivate,
   className,
-  valueClassName,
-  captionClassName,
-  stampClassName,
   title,
   "data-testid": dataTestid,
 }: {
+  variant: "ability" | "save";
   stampKey: ReactNode;
   value: ReactNode;
   caption?: ReactNode;
   onActivate?: () => void;
-  /** wrapper class (e.g. "rs-abil" | "fvtt-save") */
   className?: string;
-  valueClassName?: string;
-  captionClassName?: string;
-  stampClassName?: string;
   title?: string;
   "data-testid"?: string;
 }) {
   return (
     <div
-      className={cx("plaque", className, onActivate && "rollable")}
+      className={cx("plaque", `plaque-${variant}`, onActivate && "rollable", className)}
       title={title}
       data-testid={dataTestid}
       {...rollable(onActivate)}
     >
-      <Stamp className={stampClassName}>{stampKey}</Stamp>
-      <div className={valueClassName}>{value}</div>
-      {caption != null && <div className={captionClassName}>{caption}</div>}
+      <Stamp className="pk">{stampKey}</Stamp>
+      <div className="pv">{value}</div>
+      {caption != null && <div className="pc">{caption}</div>}
     </div>
   );
 }
