@@ -213,6 +213,7 @@ export default function SheetShell() {
             vitals={vitals}
             onSetHp={onSetHp}
             onPortraitContextMenu={() => showTokenVariantsPortraitPicker(actor)}
+            canEditPortrait={actor.isOwner}
           />
         }
         minibar={
