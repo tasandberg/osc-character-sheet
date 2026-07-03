@@ -15,15 +15,23 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const vellum = path.join(root, "src/ReactorSheet/styles/vellum");
 const stylesDir = path.join(root, "src/ReactorSheet/styles");
 
-async function scope(file) {
-  const css = readFileSync(file, "utf8");
+async function scopeCss(css, from) {
   // postcss-prefix-selector keys off the `from` path (must contain /styles/vellum/).
-  const res = await postcss([scopeVellum]).process(css, { from: file });
+  const res = await postcss([scopeVellum]).process(css, { from });
   return res.css;
+}
+const scope = (file) => scopeCss(readFileSync(file, "utf8"), file);
+// utilities.scss is generated (token maps → @each); compile with dart-sass first,
+// then scope through the same postcss prefixer (from-path stays under vellum/).
+function sass(file) {
+  return execFileSync(path.join(root, "node_modules/.bin/sass"), ["--no-source-map", file], {
+    encoding: "utf8",
+  });
 }
 
 const tokens = await scope(path.join(vellum, "tokens.css"));
-const utilities = await scope(path.join(vellum, "utilities.css"));
+const utilitiesScss = path.join(vellum, "utilities.scss");
+const utilities = await scopeCss(sass(utilitiesScss), utilitiesScss);
 const components = await scope(path.join(vellum, "components.css"));
 const scss = execFileSync(
   path.join(root, "node_modules/.bin/sass"),
