@@ -63,3 +63,26 @@ values (var() fallbacks excluded from hex).
 ```json
 {"inlineApp":{"files":4,"styleProps":15,"cssProps":19,"hex":0,"px":0},"inlineStories":{"files":28,"styleProps":61,"cssProps":179,"hex":3,"px":1},"scss":{"files":11,"ruleLines":2049,"hex":17,"px":636}}
 ```
+
+---
+
+## After B2 (OLD-8/9)
+
+- **Commit:** 64fe6b2 (branch `feat/ui-consolidation-p1`)
+- **Note:** inline app + story counts stay flat — OLD-8 replaced inline HP logic
+  with a hook (no `style={{}}` involved), and the new StatPlaque story uses `u-*`
+  utilities. The only movement is **+1 non-vellum SCSS rule / +1 px**, entirely
+  from the one documented `.fvtt-save .stamp.sk` reconciliation in `actions.scss`
+  (the §2.1 saves-stamp consistency fix — re-asserts the 22px square now that
+  `.sk` is a `<Stamp>`; the +1 px is the `12px` in its `var(--fs-xs, 12px)`
+  fallback). The StatPlaque `.plaque` base lives under `vellum/`, so it doesn't
+  count here.
+
+| Checkpoint | inline app (files/props/decls) | inline stories | non-vellum scss (rules/hex/px) |
+| ---------- | ------------------------------ | -------------- | ------------------------------ |
+| After B1 (6a7abb0) | 4 / 15 / 19 | 28 / 61 / 179 | 2049 / 17 / 636 |
+| After B2 (64fe6b2) | 4 / 15 / 19 | 28 / 61 / 179 | 2050 / 17 / 637 |
+
+```json
+{"inlineApp":{"files":4,"styleProps":15,"cssProps":19,"hex":0,"px":0},"inlineStories":{"files":28,"styleProps":61,"cssProps":179,"hex":3,"px":1},"scss":{"files":11,"ruleLines":2050,"hex":17,"px":637}}
+```
