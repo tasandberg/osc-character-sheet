@@ -13,7 +13,12 @@ const config: StorybookConfig = {
   addons: [
     "@storybook/addon-a11y", // accessibility audit panel — catches contrast/aria
   ],
-  framework: { name: "@storybook/react-vite", options: {} },
+  framework: {
+    name: "@storybook/react-vite",
+    // Don't auto-load the root vite.config.ts — its foundry-vtt-react plugin
+    // proxies module requests to Foundry (:30000), breaking `storybook dev`.
+    options: { builder: { viteConfigPath: ".storybook/vite.config.ts" } },
+  },
   // Storybook auto-loads root postcss.config.mjs (the Vellum scoper) — nothing to wire.
   viteFinal: (cfg) =>
     mergeConfig(cfg, {
