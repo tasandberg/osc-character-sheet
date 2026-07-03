@@ -71,13 +71,13 @@ Component owns: `sortKey` state (default "category"), collapse `Set<string>`, dn
 `sortInventory(inventory.items, sortKey)`.
 
 ## CSS class names (`styles/inventory.scss`) — owner: inv-style
-Qualify everything under `.rs-inv` (beats the `all: unset` reset, 0,1,1).
-- `.rs-inv-sort` — sort-by control (in `.rs-inv-head`)
-- `.rs-inv-row` (exists) + modifiers `.is-container`, `.is-dragging`, `.is-drop-target`
-- `.rs-inv-cat` is the existing section label — use a new `.rs-inv-rowcat` for the per-row category badge
-- `.rs-inv-children` — nested list; indentation via `--rs-inv-depth` custom property
-- `.rs-inv-collapse` — chevron button; `.collapsed` rotates it
-- `.rs-inv-drag` — drag handle
+Qualify everything under `.osc-inv` (beats the `all: unset` reset, 0,1,1).
+- `.osc-inv-sort` — sort-by control (in `.osc-inv-head`)
+- `.osc-inv-row` (exists) + modifiers `.is-container`, `.is-dragging`, `.is-drop-target`
+- `.osc-inv-cat` is the existing section label — use a new `.osc-inv-rowcat` for the per-row category badge
+- `.osc-inv-children` — nested list; indentation via `--osc-inv-depth` custom property
+- `.osc-inv-collapse` — chevron button; `.collapsed` rotates it
+- `.osc-inv-drag` — drag handle
 
 ## SheetShell wiring — owner: inv-style
 ```ts

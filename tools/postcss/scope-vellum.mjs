@@ -1,6 +1,6 @@
 import prefixer from "postcss-prefix-selector";
 
-const ROOT = ".reactor-sheet";
+const ROOT = ".osc-sheet";
 
 // One global PostCSS plugin (Vite resolves postcss config once, not per file),
 // so it self-filters by filePath — only files under styles/vellum/ are scoped.
@@ -15,7 +15,7 @@ export const scopeVellum = prefixer({
       return prefix;
     }
     if (selector.startsWith("[data-theme")) {
-      // e.g. [data-theme="cream"] → .reactor-sheet[data-theme="cream"]
+      // e.g. [data-theme="cream"] → .osc-sheet[data-theme="cream"]
       return `${prefix}${selector}`;
     }
     return prefixedSelector;

@@ -8,7 +8,7 @@ unmounted legacy tree (kept for reference) is explicitly out of scope.
 The sheet has two style systems coexisting in the tree:
 
 - **Vellum (live)** — CSS-variable tokens (`styles/vellum/tokens.css`,
-  `components.css`) + `.rs-*`/`.fvtt-*` SCSS classes. This is everything mounted
+  `components.css`) + `.osc-*`/`.fvtt-*` SCSS classes. This is everything mounted
   via `index.tsx → SheetShell → Shell`.
 - **Legacy (dead, kept for reference)** — `styled-components` + the
   `shared/elements-vars.tsx` token object (`colors.bgDark = "#222"`, Foundry
@@ -71,19 +71,19 @@ but underused; live components hand-roll instead. Order by payoff:
 
 1. **Buttons (~13 live one-offs)** — `.sp-cast`/`.sp-trash` (spells),
    `.fvtt-atk`/`.wstat`/`.kind-seg` (AttacksTable),
-   `.ft-title`/`.ft-chev`/`.ft-del`/`.rs-feat-add` (Abilities),
-   `.rs-lang-go`/`.rs-lang-x`, `.rs-tb-btn` (Topbar),
-   `.rs-tab`/`.rs-htab`/`.rs-botbtn` (shell), `.rs-link`, `.rs-inv-equip`.
+   `.ft-title`/`.ft-chev`/`.ft-del`/`.osc-feat-add` (Abilities),
+   `.osc-lang-go`/`.osc-lang-x`, `.osc-tb-btn` (Topbar),
+   `.osc-tab`/`.osc-htab`/`.osc-botbtn` (shell), `.osc-link`, `.osc-inv-equip`.
    - Add a missing **`IconButton`** primitive; fold the ~7 icon-only buttons in.
    - Map the rest to canonical `Button` variants (`primary / ghost / danger / link`).
 2. **Headings (3 systems)** — `.section-title` (most), modal `.ttl`, ad-hoc
-   `.rs-inv-sec-title` / `.rs-spellhead`. Route all through `<SectionTitle>`,
+   `.osc-inv-sec-title` / `.osc-spellhead`. Route all through `<SectionTitle>`,
    including the modal head.
-3. **Tags / pills** — `.fvtt-tag`, `.rs-inv-tag`, `.ft-tag`, `.rs-lang`, ability
-   mod-pill `.am`, `.rs-inv-count` all reinvent `.tag`. Collapse into `<Tag>`
+3. **Tags / pills** — `.fvtt-tag`, `.osc-inv-tag`, `.ft-tag`, `.osc-lang`, ability
+   mod-pill `.am`, `.osc-inv-count` all reinvent `.tag`. Collapse into `<Tag>`
    variants (+ a count/pill variant).
-4. *(optional, deeper)* **Stat rows** — `.fvtt-save` / `.fvtt-skill` / `.rs-weapon`
-   / `.rs-spell` are near-duplicate grids; factor a shared `stat-row` pattern.
+4. *(optional, deeper)* **Stat rows** — `.fvtt-save` / `.fvtt-skill` / `.osc-weapon`
+   / `.osc-spell` are near-duplicate grids; factor a shared `stat-row` pattern.
 
 ## Phase 3 — Guardrails
 
@@ -91,7 +91,7 @@ but underused; live components hand-roll instead. Order by payoff:
   (allow in `vellum/`).
 - **ESLint**: flag `style={{}}` with literal color/px (exempt dynamic
   width/transform).
-- **CLAUDE.md** note: reach for `ui/` primitives before writing a new `.rs-*` class.
+- **CLAUDE.md** note: reach for `ui/` primitives before writing a new `.osc-*` class.
 
 ---
 

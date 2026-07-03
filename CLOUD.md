@@ -28,7 +28,7 @@ These are the real gates a cloud agent can run:
 
 - **Dev:** Vite injects the sheet CSS on mount — styles only appear once a sheet opens.
 - **Prod:** `dist/main.css` (listed in `module.json` `styles`) loads globally.
-- All Vellum tokens/reset are **scoped to `.reactor-sheet-app`** (the React content) via `postcss.config.mjs` → `tools/postcss/scope-vellum.mjs`. The Foundry window titlebar/frame is intentionally untouched.
+- All Vellum tokens/reset are **scoped to `.osc-sheet-app`** (the React content) via `postcss.config.mjs` → `tools/postcss/scope-vellum.mjs`. The Foundry window titlebar/frame is intentionally untouched.
 
 ## Branch model
 
@@ -39,7 +39,7 @@ These are the real gates a cloud agent can run:
 ## Planning docs are mostly local
 
 - `.gitignore` ignores `docs/plans/` (local planning). Other `docs/**` paths can be committed.
-- A plan a cloud agent must execute has to be **committed explicitly** — e.g. the P2 plan at `docs/superpowers/plans/2026-06-15-reactor-sheet-ui-library.md`.
+- A plan a cloud agent must execute has to be **committed explicitly** — e.g. a committed plan under `docs/superpowers/plans/`.
 - This `CLOUD.md` is committed precisely because cloud agents need it at the repo root.
 
 ## Preview / deploy

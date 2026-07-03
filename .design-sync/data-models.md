@@ -1,4 +1,4 @@
-# Reactor-Sheet Data Models
+# OSC Sheet Data Models
 
 Reference for designers/prototypers. Describes the data the OSE character sheet renders so
 mockups use real field names, value sets, and shapes. The game system is **OSE** (Old-School

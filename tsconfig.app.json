@@ -23,16 +23,16 @@
     "erasableSyntaxOnly": false,
     "paths": {
       "@src/*": ["./src/*"],
-      "@app": ["./src/ReactorSheet/app"],
-      "@app/*": ["./src/ReactorSheet/app/*"],
-      "@layout": ["./src/ReactorSheet/layout"],
-      "@layout/*": ["./src/ReactorSheet/layout/*"],
-      "@features": ["./src/ReactorSheet/features"],
-      "@features/*": ["./src/ReactorSheet/features/*"],
-      "@domain": ["./src/ReactorSheet/domain"],
-      "@domain/*": ["./src/ReactorSheet/domain/*"],
-      "@ui": ["./src/ReactorSheet/components/ui"],
-      "@ui/*": ["./src/ReactorSheet/components/ui/*"]
+      "@app": ["./src/OscSheet/app"],
+      "@app/*": ["./src/OscSheet/app/*"],
+      "@layout": ["./src/OscSheet/layout"],
+      "@layout/*": ["./src/OscSheet/layout/*"],
+      "@features": ["./src/OscSheet/features"],
+      "@features/*": ["./src/OscSheet/features/*"],
+      "@domain": ["./src/OscSheet/domain"],
+      "@domain/*": ["./src/OscSheet/domain/*"],
+      "@ui": ["./src/OscSheet/components/ui"],
+      "@ui/*": ["./src/OscSheet/components/ui/*"]
     }
   },
   // tools/e2e is a standalone Playwright package compiled by its own toolchain.

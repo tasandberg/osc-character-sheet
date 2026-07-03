@@ -25,9 +25,9 @@ export async function joinAsGM(page: Page): Promise<void> {
 }
 
 /**
- * Open the seeded actor's sheet and return its root locator. The reactor sheet
- * registers under `ose.ReactorSheet` with makeDefault, and global-setup pins the
- * actor's core.sheetClass flag, so render() shows the reactor sheet.
+ * Open the seeded actor's sheet and return its root locator. The OSC sheet
+ * registers under `ose.OscSheet` with makeDefault, and global-setup pins the
+ * actor's core.sheetClass flag, so render() shows the OSC sheet.
  */
 export async function openCharacterSheet(page: Page): Promise<Locator> {
   await page.evaluate(async (name) => {
@@ -55,14 +55,14 @@ export async function openCharacterSheet(page: Page): Promise<Locator> {
     // Force the wide (large) layout tier so the horizontal tab bar renders.
     actor.sheet.setPosition?.({ width: 920, height: 820 });
   }, ACTOR_NAME);
-  const sheet = page.locator(".reactor-sheet").first();
+  const sheet = page.locator(".osc-sheet").first();
   await sheet.waitFor({ state: "visible", timeout: 30_000 });
   return sheet;
 }
 
 /**
  * Reset between specs that share one booted page + one open sheet: close any roll
- * dialogs left over from a spec, but leave the reactor sheet itself open (so the
+ * dialogs left over from a spec, but leave the OSC sheet itself open (so the
  * next spec reuses the render) and Foundry's core UI alone.
  */
 export async function closeDialogs(page: Page): Promise<void> {

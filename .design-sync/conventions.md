@@ -3,13 +3,13 @@
 Vellum is the **Old School Chronicle** character-sheet design system: an OSE/B-X
 tabletop aesthetic — dark "inked parchment" surfaces, brass + teal + crimson accents,
 `IM Fell English` display serif over an Inter sans body. Components are the real
-`reactor-sheet` React library, rendered from `window.ReactorSheet.*`.
+`osc-character-sheet` React library, rendered from `window.OscSheet.*`.
 
 ## Wrapping (required)
 
 Every component reads its theme tokens from a scoped root. **Wrap your whole tree in
-`<VellumRoot>`** (exported from the bundle) — it provides the `.reactor-sheet` /
-`.reactor-sheet-app` containers the styles are scoped under. Without it, components
+`<VellumRoot>`** (exported from the bundle) — it provides the `.osc-sheet` /
+`.osc-sheet-app` containers the styles are scoped under. Without it, components
 render unstyled (no tokens, no fonts).
 
 ```jsx
@@ -19,7 +19,7 @@ render unstyled (no tokens, no fonts).
 ```
 
 The default theme is dark. The cream/parchment theme is opt-in via a `data-theme="cream"`
-attribute on a `.reactor-sheet` ancestor.
+attribute on a `.osc-sheet` ancestor.
 
 ## Styling idiom — props on components, tokens for your own glue
 

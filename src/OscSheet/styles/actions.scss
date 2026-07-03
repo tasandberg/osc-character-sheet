@@ -1,0 +1,668 @@
+@use "mixins" as *;
+// Display-layout helpers for the Actions tab + chrome (pass 1).
+// Pure layout on top of the Vellum component classes; colors come from tokens.
+
+// --- topbar (ported from prototype .fvtt-topbar) ---
+// Always dark: --ink and the stamp-* text tokens are constant across themes, so
+// the bar reads identically in dark and cream.
+.osc-topbar {
+  background: var(--ink, #070605);
+  border-bottom: 1px solid var(--border, #3a342c);
+  // top · sides · bottom — a touch more breathing room under the bar.
+  padding: var(--spacer-1) var(--spacer-3) var(--spacer-2);
+}
+.osc-topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-2);
+  flex-wrap: wrap;
+}
+.osc-tb-lv {
+  display: flex; flex-direction: column; align-items: center;
+  line-height: 1.05; flex-shrink: 0; white-space: nowrap;
+}
+.osc-tb-lv b {
+  font-family: var(--display); font-size: var(--fs-sm, 13px);
+  letter-spacing: 0.05em; color: var(--gold);
+}
+.osc-tb-lv.next b { color: var(--stamp-text-dim, #b5ad97); }
+.osc-tb-lv .cur {
+  font-family: var(--mono); font-size: var(--fs-3xs, 10px);
+  color: var(--stamp-text-faint, rgba(229, 222, 200, 0.35)); margin-top: 1px;
+}
+.osc-tb-xp { flex: 1; min-width: 44px; max-width: 50%; }
+.osc-tb-bar {
+  position: relative; height: 16px;
+  border: 1px solid rgba(229, 222, 200, 0.22);
+  border-radius: 999px; background: rgba(0, 0, 0, 0.35);
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+}
+.osc-tb-bar i {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--gold-dim, var(--gold)), var(--gold));
+  border-radius: 999px;
+}
+.osc-tb-bar .v {
+  position: relative; z-index: 1;
+  font-family: var(--mono); font-size: var(--fs-3xs, 10px);
+  color: var(--stamp-text, #e5dec8); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+// XS overflow toggle: hidden by default, shown only at XS. Qualified with
+// `.osc-tb-btn.osc-tb-overflow` (0,3,0) so it beats `.osc-topbar .osc-tb-btn`
+// (0,2,0, defined below) — otherwise the inline-flex on every button wins and
+// the ⋮ shows at all widths.
+.osc-topbar .osc-tb-btn.osc-tb-overflow { display: none; }
+// Inline action buttons group; hidden at XS, visible otherwise.
+.osc-tb-actions { display: contents; }
+// Push the action cluster (and the trailing theme toggle) to the right edge,
+// leaving the level chips + XP bar left. .osc-tb-actions is display:contents, so
+// the auto-margin goes on its first button (a direct flex item of the topbar).
+.osc-tb-actions > .osc-tb-btn:first-child { margin-left: auto; }
+
+// Buttons qualified with .osc-topbar to beat the `.osc-sheet-app button`
+// reset (0,1,1) — same fix as .osc-tabrail .osc-tab (see shell.scss).
+.osc-topbar .osc-tb-btn {
+  display: inline-flex; align-items: center; gap: var(--spacer-2);
+  background: transparent;
+  border: 1px solid rgba(229, 222, 200, 0.18);
+  color: var(--stamp-text-dim, #b5ad97);
+  font-family: var(--sans); font-weight: 500;
+  font-size: var(--fs-3xs, 10px); letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 6px 11px 5px; border-radius: var(--r-sm, 4px); cursor: pointer;
+  white-space: nowrap; transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.osc-topbar .osc-tb-btn:hover:not(:disabled) { color: var(--stamp-text, #e5dec8); border-color: rgba(229, 222, 200, 0.4); }
+.osc-topbar .osc-tb-btn:disabled { cursor: default; } // inert (display pass) — keep full fidelity, no dimming
+.osc-topbar .osc-tb-btn.up { background: var(--gold); border-color: var(--gold); color: var(--on-accent, #070605); }
+.osc-topbar .osc-tb-btn.up:hover:not(:disabled) { background: var(--gold-dim, var(--gold)); }
+.osc-topbar .osc-tb-btn.icon { padding: 6px 8px; }
+.osc-topbar .osc-tb-btn .i { font-size: var(--fs-xs, 12px); line-height: 1; }
+
+// --- header band ---
+// Grid areas let medium and rail arrange the same markup differently:
+// medium = portrait | (name over Init/HD/Move) | HP/AC right.
+.osc-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "portrait ident  vitals"
+    "portrait subs   vitals";
+  gap: var(--spacer-2) var(--spacer-4);
+  align-items: start;
+}
+.osc-portrait-wrap {
+  grid-area: portrait;
+  position: relative;
+  align-self: stretch; // span both rows = full header height
+  width: 110px;
+}
+.osc-portrait {
+  // absolute so the IMG's intrinsic size can't inflate the row height
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--r-md, 6px);
+  object-fit: cover;
+  background: radial-gradient(circle at 50% 35%, #2c281f, #15130e);
+  border: 2px solid var(--gold-dim);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+// Overlay anchor for module-injected portrait controls (see HeaderBand +
+// osc-sheet.js renderActorSheet forwarding). Class is exactly
+// `modifiers-btn` (no extra classes) so the module's `[class="modifiers-btn"]`
+// selector matches. Empty until a module appends.
+.osc-portrait-wrap .modifiers-btn {
+  position: absolute;
+  top: var(--spacer-1);
+  right: var(--spacer-1);
+  z-index: 2;
+  display: flex;
+  gap: var(--spacer-1);
+  line-height: 1;
+}
+.osc-ident {
+  grid-area: ident;
+  min-width: 0;
+  overflow: hidden; // long names ellipsize instead of pushing HP/AC off-screen
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.osc-name {
+  font-family: var(--display);
+  font-size: calc(var(--fs-4xl, 28px) * var(--fit-scale, 1));
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.osc-class {
+  font-family: var(--display);
+  color: var(--gold);
+  font-size: var(--fs-md, 15px);
+}
+@container sheet (min-width: 470px) {
+  .osc-name { font-size: calc(var(--fs-5xl, 33px) * var(--fit-scale, 1)); }
+}
+
+// --- HP/AC (right column in medium; top-aligned, content height) ---
+.osc-vitals {
+  grid-area: vitals;
+  align-self: start;
+  width: 184px;
+  display: grid;
+  // minmax(0,…) so a wide value can't auto-expand a track past its share and
+  // shove the sibling card out of the container.
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--spacer-2);
+}
+.osc-vital {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-md, 6px);
+  padding: 6px 10px 8px;
+  text-align: center;
+}
+.osc-vital.hp { border-color: color-mix(in srgb, var(--crimson) 55%, transparent); }
+.osc-vital.ac { border-color: color-mix(in srgb, var(--teal) 50%, transparent); }
+// .vv-l is a <Stamp>; fill the box width (black bar) like the others
+.osc-vital .vv-l {
+  display: block;
+  width: 100%;
+  margin: 0 0 2px;
+}
+.osc-vital .vv-big {
+  font-family: var(--display); font-size: var(--fs-4xl, 28px);
+  line-height: 1.05; margin: 1px 0; color: var(--text);
+}
+.osc-vital.hp .vv-big { color: var(--crimson); }
+.osc-vital.ac .vv-big { color: var(--teal); }
+.osc-vital .vv-sub {
+  font-family: var(--mono); font-size: var(--fs-2xs, 11px);
+  color: var(--text-mute);
+}
+.osc-vital .vv-sub .short { display: none; } // full label by default; short shows at XS
+.osc-vital .vv-row { display: flex; align-items: center; justify-content: center; gap: var(--spacer-2); }
+// Reserve width for up to 3 digits so the value's digit count never shifts the
+// flanking − / + steppers as HP changes. tabular-nums keeps digit widths uniform.
+.osc-vital .vv-value { min-width: 1.2em; text-align: center; font-variant-numeric: tabular-nums; }
+// medium+: − / + steppers revealed on hover
+.osc-vital .vv-step {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px;
+  border: 1px solid var(--border, #3a342c); border-radius: var(--r-sm, 4px);
+  color: var(--text-dim, #b5ad97); cursor: pointer;
+  font-family: var(--sans); font-size: var(--fs-sm, 13px); line-height: 1;
+  opacity: 0; transition: opacity 0.12s, border-color 0.12s, color 0.12s;
+}
+.osc-vital.hp:hover .vv-step,
+.osc-vital.hp:focus-within .vv-step { opacity: 1; }
+.osc-vital .vv-step:hover { border-color: var(--gold); color: var(--text, #e5dec8); }
+// XS-only editable input (hidden by default; toggled in the XS block)
+.osc-vital .vv-input {
+  display: none;
+  width: 100%; // fill the box; never widen it
+  min-width: 0;
+  text-align: center;
+  cursor: text;
+  border: 1px solid transparent; // plain value until focused
+  border-radius: var(--r-sm, 4px);
+  padding: 1px 0;
+}
+// active/edit: full crimson box + darker sunken bg around the value (prototype)
+.osc-vital .vv-input:focus { border-color: var(--crimson); background: var(--bg, #181612); }
+// no number spinners
+.osc-vital .vv-input::-webkit-inner-spin-button,
+.osc-vital .vv-input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.osc-vital .vv-input { -moz-appearance: textfield; appearance: textfield; }
+
+// --- Init/HD/Move (under the name in medium; uniform tiles) ---
+.osc-substats {
+  grid-area: subs;
+  align-self: start;
+  display: flex;
+  gap: var(--spacer-2);
+}
+// borderless: just the stamp label + value, so HP/AC stay the only "boxes"
+.osc-tile {
+  width: 52px; // uniform, compact
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacer-1);
+  padding: 2px 0 0;
+  text-align: center;
+}
+// smaller, snugger stamp than the default .sm
+.osc-tile .stamp { display: block; width: 100%; text-align: center; font-size: var(--fs-3xs, 10px); padding: 3px 4px 2px; }
+.osc-tile-v {
+  font-family: var(--mono); font-size: var(--fs-2xs, 11px); color: var(--text);
+}
+// MOVE tile reveals the movement bands on hover
+.osc-tile-move { position: relative; cursor: default; }
+.osc-move-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--spacer-2) var(--spacer-2);
+  background: var(--bg-2, #1f1c17);
+  border: 1px solid var(--gold-soft);
+  border-radius: var(--r-lg, 10px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s;
+}
+.osc-tile-move:hover .osc-move-pop,
+.osc-tile-move:focus-within .osc-move-pop { opacity: 1; visibility: visible; }
+.osc-move-pop .r { display: flex; justify-content: space-between; gap: var(--spacer-3); }
+.osc-move-pop .k { font-family: var(--sans); font-size: var(--fs-xs, 12px); color: var(--text-dim, #b5ad97); }
+.osc-move-pop .vv { font-family: var(--mono); font-size: var(--fs-xs, 12px); color: var(--text); }
+
+// --- abilities: 3-up (6-up wide) grid of ability plaques ---
+// The plaque box + stamp/value/mod styling now lives in vellum as
+// `.plaque-ability` (StatPlaque variant="ability"); only the grid container
+// stays here. XS flattens the plaques — see the container block at the bottom.
+.osc-abilities { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacer-2); margin-top: var(--spacer-4); }
+@container sheet (min-width: 470px) { .osc-abilities { grid-template-columns: repeat(6, 1fr); } }
+
+// --- section title override (prototype: 2px border-bottom, not 3px thick) ---
+.section-title {
+  font-family: var(--display); font-size: var(--fs-xl, 18px); font-weight: 400;
+  letter-spacing: 0.02em; color: var(--text);
+  margin: 0 0 var(--spacer-2); padding-bottom: var(--spacer-1);
+  border-bottom: 2px solid var(--border);
+  display: flex; align-items: baseline; gap: var(--spacer-2); flex-wrap: nowrap;
+  line-height: unset;
+}
+.section-title .hint {
+  font-family: "IM Fell English", Georgia, serif; font-style: italic;
+  font-size: var(--fs-xs, 12px); color: var(--text-mute); letter-spacing: 0;
+}
+
+// --- saves/exploration tab nav (rail, large view) — keeps the column above the fold ---
+// Qualified with .osc-se-nav so the buttons beat the .osc-sheet-app reset (0,1,1).
+.osc-se-nav {
+  display: flex;
+  gap: var(--spacer-1);
+  margin-bottom: var(--spacer-2);
+  border-bottom: 2px solid var(--border);
+}
+.osc-se-nav .osc-se-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacer-2);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: 6px 4px 7px;
+  color: var(--text-mute);
+  font-family: var(--display);
+  font-size: var(--fs-md, 15px);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+}
+.osc-se-nav .osc-se-tab i { font-size: 0.78em; opacity: 0.85; } // small, inline with the label
+.osc-se-nav .osc-se-tab:hover { color: var(--text-dim); }
+.osc-se-nav .osc-se-tab.active { color: var(--text); border-bottom-color: var(--gold); }
+
+// --- saves & exploration cards (rows → cards) ---
+// Saves: 5-up grid of ink-stamp · mono target · tiny label. The save-card box +
+// stamp/value/label styling (incl. the .stamp.sk 22px reconciliation) now lives
+// in vellum as `.plaque-save` (StatPlaque variant="save"); only the grid
+// containers stay here.
+.fvtt-saves { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--spacer-2); }
+// In the narrow left rail (large view), 5-up overflows — drop to 3+2.
+.osc-rail-extra .fvtt-saves { grid-template-columns: repeat(3, 1fr); }
+
+// Exploration: 2-up grid of gold glyph · label · N-in-6 ink pill.
+.fvtt-explore { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacer-2); }
+// In the narrow left rail (large view), 2-up is too tight — labels wrap to 3
+// lines. Stack to a single column there. (.osc-rail-extra only renders in two-pane.)
+.osc-rail-extra .fvtt-explore { grid-template-columns: 1fr; }
+.fvtt-skill {
+  display: flex; align-items: center; gap: var(--spacer-2);
+  @include surface-card;
+  border-radius: var(--r-md, 6px);
+  padding: var(--spacer-2) var(--spacer-2) var(--spacer-2) var(--spacer-3);
+  transition: border-color 0.12s, background 0.12s;
+  @include rollable-card;
+}
+.fvtt-skill .skic { color: var(--gold-dim); font-size: var(--fs-md, 14px); width: 18px; text-align: center; flex: none; }
+.fvtt-skill .skn {
+  font-family: var(--sans); font-size: var(--fs-sm, 13px);
+  color: var(--text-dim, #b5ad97); flex: 1; min-width: 0;
+}
+.fvtt-skill .skv {
+  // muted "N-in-6" with a trailing d6 glyph — no pill.
+  display: inline-flex; align-items: center; gap: var(--spacer-1);
+  font-family: var(--mono, monospace); font-size: var(--fs-xs, 12px);
+  color: var(--text-mute, #8a8270);
+  white-space: nowrap; flex: none;
+  i { color: var(--gold-dim); font-size: var(--fs-xs, 12px); }
+}
+
+// --- memorized spells quick-cast ---
+// Container only; the rows reuse the Spells-tab `.osc-spell` (see MemorizedSpells
+// + spells.scss). Shared bits (.sp-dots/.sp-cast) live below.
+.fvtt-castlist { display: flex; flex-direction: column; margin-top: 2px; }
+// cast dots = <Pips size="sm">; dot styling now lives in vellum (.pips + .pips.sm).
+// cast button (shared by Actions + Spells rows) — small dark rounded button;
+// "spent" is disabled + dimmed.
+.osc-sheet-app .sp-cast {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 4.5em; // fits "cast"/"spent" so the centered spinner doesn't resize the button
+  font-family: var(--sans); font-size: var(--fs-xs, 12px);
+  color: var(--gold); cursor: pointer;
+  background: var(--bg-2, #1f1c17); border: 1px solid var(--border, #3a342c);
+  border-radius: var(--r-md, 6px); padding: var(--spacer-1) var(--spacer-3);
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  &:hover:not(:disabled) { background: var(--surface-2, #2e2a23); border-color: var(--gold-soft); }
+  &:disabled { color: var(--text-faint, #6a6354); cursor: default; }
+  // keep the spinner brass even though :disabled dims the text
+  &[aria-busy="true"] { color: var(--gold); }
+}
+
+// --- attacks: woodcut weapon cards (ported from prototype .fvtt-weapon) ---
+// Card grid: Item (icon + name/tags) | Hit | Damage | tall brass Atk button.
+.osc-wtable { display: flex; flex-direction: column; gap: var(--spacer-1); }
+.osc-whdr,
+.osc-weapon {
+  display: grid;
+  // fixed Hit/Damage/Atk columns so buttons are a consistent width per type and
+  // double-digit dice (1d10+2) don't shift the layout.
+  grid-template-columns: minmax(0, 1fr) 62px 82px 96px;
+  gap: var(--spacer-3);
+  align-items: center;
+}
+.osc-whdr {
+  padding: 0 var(--spacer-1) var(--spacer-1);
+  font-family: var(--sans); font-size: var(--fs-3xs, 10px); font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-faint, #6a6354);
+}
+.osc-whdr > span:nth-child(n + 2) { text-align: center; }
+
+.osc-weapon {
+  @include surface-card;
+  border-radius: var(--r-lg, 10px);
+  padding: 9px 10px;
+}
+.osc-weapon .winfo { display: flex; align-items: center; gap: var(--spacer-3); min-width: 0; }
+// ink-stamp monogram (or weapon art)
+.osc-weapon .wic {
+  width: 34px; height: 34px; flex: 0 0 auto;
+  border-radius: var(--r-md, 6px);
+  background: var(--ink, #070605);
+  color: var(--stamp-text, #e5dec8);
+  display: grid; place-items: center;
+  font-family: var(--display); font-size: var(--fs-lg, 16px);
+  border: 1px solid var(--border, #3a342c);
+}
+.osc-weapon .wic-img { object-fit: cover; }
+.osc-weapon .wmain { min-width: 0; }
+.osc-weapon .wname {
+  font-family: var(--display); font-size: var(--fs-lg, 17px);
+  color: var(--text, #e5dec8); line-height: 1.15;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+// Weapon name as a button to open the item sheet — reset to inline text; brass on hover.
+.osc-weapon .wname-btn {
+  font: inherit; color: inherit;
+  background: none; border: 0; padding: 0;
+  cursor: pointer;
+}
+.osc-weapon .wname-btn:hover { color: var(--gold); text-decoration: underline; }
+.osc-weapon .wtags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+
+// quality / mode tags (icon-only chips + hover popover) now live in vellum as
+// `.tag.chip` (see styles/vellum/components.css) via the Tag `variant="chip"`.
+
+// kind switch — when a weapon has BOTH melee+missile, the two kinds become a
+// joined segmented control (unmistakably a switch, not a quality chip). The
+// selected segment fills SOLID with its accent; the other is a hoverable button.
+.osc-sheet-app .kind-switch {
+  display: inline-flex; align-items: stretch;
+  background: var(--bg-2, #1f1c17);
+  border: 1px solid var(--border, #3a342c);
+  border-radius: var(--r-sm, 4px);
+  // no overflow: hidden — it clipped the segs' .tag-pop hover tooltips; the
+  // end segments round their own outer corners instead
+  > :first-child { border-radius: calc(var(--r-sm, 4px) - 1px) 0 0 calc(var(--r-sm, 4px) - 1px); }
+  > :last-child { border-radius: 0 calc(var(--r-sm, 4px) - 1px) calc(var(--r-sm, 4px) - 1px) 0; }
+}
+.osc-sheet-app .kind-seg {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 3px var(--spacer-2);
+  cursor: pointer; background: transparent; border: none;
+  // no transition: the switch is purely presentational, so it should flip instantly
+  i { font-size: var(--fs-xs, 12px); }
+  & + & { border-left: 1px solid var(--border, #3a342c); }
+  &:hover { background: var(--surface-2, #2e2a23); }
+  // idle icons carry the mode accent; selected flips to on-accent over a fill
+  &.melee i { color: var(--gold); }
+  &.missile i { color: var(--teal); }
+  &.melee.selected { background: var(--gold); i { color: var(--on-accent, #070605); } }
+  &.missile.selected { background: var(--teal); i { color: var(--on-accent, #070605); } }
+}
+// hover popover (`.tag-pop`) + its reveal rules now live in vellum
+// (components.css) as a shared tooltip primitive — used by weapon tags,
+// kind-seg switches, and the hit/dmg (.wstat) buttons.
+
+// reusable link-style button: accent colour denotes a clickable roll/link.
+// (qualified with .osc-sheet-app to beat the `button { all: unset }` reset.)
+.osc-sheet-app .osc-link {
+  display: inline-flex; align-items: center; gap: var(--spacer-1);
+  background: none; border: none; padding: 0;
+  color: var(--gold); cursor: pointer;
+  font-family: inherit; font-size: inherit;
+  transition: color 0.12s, filter 0.12s;
+  i { font-size: 0.85em; }
+  &:hover:not(:disabled) { text-decoration: underline; filter: brightness(1.12); }
+  &:disabled { color: var(--text-mute, #8a8270); cursor: default; text-decoration: none; }
+}
+
+// Hit / Damage — plain clickable cells: a small HIT/DMG label over the value
+// (hit = mode icon + modifier; dmg = full formula), with a full-formula popover.
+.osc-sheet-app .wstat {
+  position: relative; justify-self: stretch;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 1px;
+  background: transparent; border: none; cursor: pointer;
+  padding: var(--spacer-1) var(--spacer-1);
+  color: var(--text-dim, #b5ad97);
+  transition: color 0.12s;
+  &:hover:not(:disabled) { color: var(--text, #e5dec8); }
+  &.dmg:hover:not(:disabled) { color: var(--crimson, #c75044); }
+  &:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; border-radius: var(--r-sm, 4px); }
+  &:disabled { opacity: 0.5; cursor: default; }
+}
+.osc-weapon .wstat .sl {
+  font-family: var(--sans); font-size: var(--fs-3xs, 10px); font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-faint, #6a6354);
+}
+.osc-weapon .wstat .wv {
+  display: inline-flex; align-items: center; gap: var(--spacer-1);
+  font-family: var(--mono); font-size: var(--fs-sm, 13px); white-space: nowrap;
+  i { font-size: 0.9em; }
+}
+.osc-weapon .wname .wkind { color: var(--text-mute, #8a8270); }
+
+// compact brass "Attack" button (composite hit + damage via OSE weapon dialog)
+.osc-sheet-app .fvtt-atk {
+  justify-self: stretch;
+  // Chromium won't start a drag from a <button> on draggable=true alone; this
+  // opts the button in (so it drags to the macro hotbar like the weapon image).
+  -webkit-user-drag: element;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--spacer-1);
+  padding: var(--spacer-1) var(--spacer-3);
+  background: transparent;
+  border: 1px solid var(--gold-soft);
+  border-radius: var(--r-md, 6px);
+  color: var(--gold);
+  font-family: var(--sans); font-size: var(--fs-3xs, 10px); font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, transform 0.06s;
+  i { font-size: var(--fs-sm, 13px); }
+  &:hover:not(:disabled) { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, transparent); }
+  &:active:not(:disabled) { transform: translateY(1px); }
+  &:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+  &:disabled { opacity: 0.35; cursor: default; }
+}
+
+// --- wealth + movement ---
+.osc-wm { display: flex; flex-wrap: wrap; gap: var(--spacer-6); margin-top: 6px; }
+.osc-wm .grp { display: flex; flex-direction: column; gap: var(--spacer-1); }
+.osc-coins, .osc-moves { display: flex; gap: var(--spacer-3); flex-wrap: wrap; font-size: var(--fs-sm, 13px); }
+.osc-coin { display: flex; align-items: center; gap: var(--spacer-1); }
+.osc-coin img { width: 14px; height: 14px; }
+.osc-coin .v { font-family: var(--mono); }
+.osc-move .k { color: var(--text-mute, #8a8270); margin-right: var(--spacer-1); }
+.osc-move .v { font-family: var(--mono); }
+
+// section spacing in the Actions body
+.osc-section + .osc-section { margin-top: var(--spacer-5); }
+
+// --- rollable affordance (table rows wired to system rolls) ---
+// Ability-plaque rollable styling moved to vellum (.plaque-ability.rollable).
+.table tr.rollable { cursor: pointer; }
+.table tr.rollable:hover td { background: color-mix(in srgb, var(--gold) 9%, transparent); }
+.table tr.rollable:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+// --- topbar overflow menu (XS: ⋮ button + popover) ---
+.osc-tb-menu-wrap {
+  position: relative;
+}
+.osc-tb-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacer-1);
+  padding: 6px;
+  // The topbar (and its buttons' light text) stays dark in both themes, so the
+  // menu must too — a themed light bg here renders the button text invisible.
+  background: var(--ink, #070605);
+  border: 1px solid rgba(229, 222, 200, 0.18);
+  border-radius: var(--r-md, 6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  min-width: 130px;
+}
+.osc-tb-menu .osc-tb-btn { width: 100%; justify-content: flex-start; }
+
+// === XS / mobile (≤479px app): compact header + topbar overflow ===
+// MUST live here (after the base .osc-head / .osc-tb-* rules) to win the cascade —
+// shell.scss loads earlier, so XS overrides placed there lose at equal specificity.
+@container app (max-width: 479px) {
+  // header: portrait | name | compact HP/AC on top; Init/HD/Move full-width below
+  .osc-head {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "portrait ident vitals"
+      "subs     subs  subs";
+    gap: 11px; // header row gap (prototype)
+    align-items: center; // portrait + name centered against the taller HP/AC
+  }
+  .osc-portrait-wrap { width: 54px; height: 54px; align-self: center; } // 54×54 square (prototype)
+  .osc-portrait { border: 1px solid var(--border, #3a342c); box-shadow: none; } // subtle 1px border at XS
+  .osc-ident { overflow: hidden; } // keep a long name from pushing HP/AC off-screen
+  .osc-name { font-size: calc(var(--fs-2xl, 21px) * var(--fit-scale, 1)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  // HP/AC: 52×76 narrow-tall boxes, content top-aligned (prototype spec)
+  .osc-vitals { width: 112px; gap: var(--spacer-2); grid-template-columns: repeat(2, 52px); align-items: stretch; }
+  .osc-vital {
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    gap: 1px;
+    min-height: 76px;
+    padding: 5px 4px 6px;
+    border-radius: var(--r-md, 6px);
+  }
+  .osc-vital .vv-l { font-size: var(--fs-2xs, 11px); padding: 4px 6px 3px; }
+  .osc-vital .vv-big { font-size: var(--fs-3xl, 24px); }
+  .osc-vital .vv-sub { font-size: var(--fs-3xs, 10px); }
+  .osc-vital .vv-sub .full { display: none; }
+  .osc-vital .vv-sub .short { display: inline; }
+  // HP value becomes an editable input (steppers/static value are medium+ only)
+  .osc-vital .vv-step { display: none; }
+  .osc-vital .vv-value { display: none; }
+  .osc-vital .vv-input { display: inline-block; }
+  // Init/HD/Move: borderless + small, three across (inherit the compact base)
+  .osc-substats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacer-2); }
+  .osc-tile { width: auto; }
+  // attacks: two columns — weapon info (icon/name/tags) left; the roll stack
+  // right: Hit and Dmg as horizontal label·value roll rows over a full-width
+  // Attack button.
+  .osc-weapon {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "info hit"
+      "info dmg"
+      "info atk";
+    gap: var(--spacer-1) var(--spacer-3);
+    padding: 8px;
+  }
+  .osc-weapon .winfo { grid-area: info; align-self: start; align-items: flex-start; }
+  // left column stacks: img + larger name / (kind) label / quality chips
+  .osc-weapon .wname { white-space: normal; } // size bump now lives on the base rule
+  .osc-weapon .wname .wkind { display: block; font-size: var(--fs-xs, 12px); margin-top: 2px; }
+  .osc-weapon .wtags { margin-top: var(--spacer-1); }
+  .osc-weapon .wstat.hit { grid-area: hit; }
+  .osc-weapon .wstat.dmg { grid-area: dmg; }
+  // hit/dmg flip horizontal: label left, value/roll right, one row each
+  .osc-weapon .wstat {
+    flex-direction: row; justify-content: space-between; align-items: center;
+    justify-self: stretch;
+    gap: var(--spacer-3);
+    min-width: 128px;
+    padding: 2px var(--spacer-2);
+  }
+  .osc-weapon .wstat .wv { font-size: var(--fs-xs, 12px); }
+  .osc-weapon .fvtt-atk {
+    grid-area: atk; justify-self: stretch; min-width: 0;
+    margin-top: var(--spacer-1);
+    padding-top: 5px; padding-bottom: 5px;
+  }
+  // abilities: 6-across in one compact row (flat — drop the md+ gold frame/brackets)
+  // The plaque base is now vellum `.plaque-ability` (0,2,0 once scoped); these XS
+  // overrides qualify with `.osc-sheet-app` (also 0,2,0) and load after vellum,
+  // so they still win at ≤479px. `.pk` only re-asserts margin:0 — its padding /
+  // font-size stay owned by `.stamp.sm` exactly as at wider widths (parity).
+  .osc-abilities { grid-template-columns: repeat(6, 1fr); gap: var(--spacer-1); }
+  .osc-sheet-app .plaque-ability {
+    min-height: 0; padding: 5px 3px 6px;
+    border-color: var(--border-soft);
+    align-items: stretch;
+  }
+  .osc-sheet-app .plaque-ability::before,
+  .osc-sheet-app .plaque-ability::after { content: none; }
+  .osc-sheet-app .plaque-ability .pk { margin: 0; }
+  .osc-sheet-app .plaque-ability .pv { flex: 0 0 auto; font-size: var(--fs-xl, 18px); padding: 3px 0; }
+  .osc-sheet-app .plaque-ability .pc {
+    position: static; transform: none; align-self: center;
+    min-width: 0; font-size: var(--fs-3xs, 10px); padding: 0 6px 1px; margin-top: 2px;
+  }
+  // topbar: collapse Rest / Level Up / Edit into the ⋮ overflow
+  .osc-tb-actions { display: none; }
+  .osc-topbar .osc-tb-btn.osc-tb-overflow { display: inline-flex; }
+  // The inline group is hidden here, so anchor the push-right on the ⋮ wrap.
+  .osc-tb-menu-wrap { margin-left: auto; }
+}

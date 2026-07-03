@@ -1,0 +1,140 @@
+@use "shell";
+@use "minibar";
+@use "actions";
+@use "inventory";
+@use "features";
+@use "spells";
+@use "notes";
+@use "chat";
+
+/** Purely for namespacing default style overrides */
+
+// The window element (.osc-sheet) is Foundry's frame. We theme its titlebar
+// to match our top-bar (opt-in; default v14 frame is grey) and set structural
+// bits here; all content appearance + the element reset live on .osc-sheet-app.
+// Scoped to .osc-sheet so no other Foundry window is touched. Tokens read from
+// global :root (the header sits outside [data-theme], so it stays dark in both themes).
+.osc-sheet {
+  overflow: visible;
+  height: 100%;
+  min-width: 360px; // XS compact header fits ~360px; wider layouts still work
+  min-height: 360px;
+
+  // --- titlebar: near-black to match the top-bar, design-system font ---
+  .window-header {
+    background: var(--ink, #070605);
+    border-bottom: 1px solid var(--ink, #070605);
+  }
+  .window-title {
+    font-family: var(--display); // IM Fell English SC — chiseled small-caps
+    font-weight: 400;
+    font-size: var(--fs-md, 15px);
+    letter-spacing: 0.03em;
+    color: var(--stamp-text, #e5dec8);
+  }
+  // Direct children only — the controls-dropdown menu items are also
+  // .header-control but sit on their own (light) menu background.
+  .window-header > .header-control {
+    color: var(--stamp-text-dim, #b5ad97);
+    &:hover {
+      color: var(--stamp-text, #e5dec8);
+    }
+    &[data-action="close"]:hover {
+      color: var(--crimson, #c75044);
+    }
+  }
+
+  .controls-dropdown {
+    z-index: 3;
+  }
+
+  .window-content {
+    overflow: hidden;
+    backdrop-filter: none;
+    padding: 0;
+    // Match Foundry's rounded window frame so our content doesn't poke out at
+    // the bottom corners (top stays square under the titlebar).
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+
+    // foundry-vtt-react mounts our app under two nested wrapper divs
+    // (#react-app-root → #react-application-inner). Both need height:100% so the
+    // .osc-sheet-app flex chain can fill the window and .osc-sheet-body can scroll.
+    & > *,
+    & > * > * {
+      height: 100%;
+    }
+  }
+
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  // Foundry v14 ships a webp grip on this handle; suppress it and draw our own
+  // theme-aware diagonal grip via ::after (else both show — a double handle).
+  // Decoration only — drag stays Foundry's.
+  .window-resize-handle {
+    z-index: 5;
+    overflow: visible;
+    background-image: none;
+    color: var(--text-mute, #8a8270);
+
+    &::after {
+      content: "";
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      width: 12px;
+      height: 12px;
+      pointer-events: none;
+      background:
+        linear-gradient(135deg, transparent 0 42%, currentColor 42% 54%, transparent 54%),
+        linear-gradient(135deg, transparent 0 68%, currentColor 68% 80%, transparent 80%);
+      opacity: 0.6;
+    }
+    &:hover {
+      color: var(--gold);
+      &::after { opacity: 1; }
+    }
+  }
+}
+
+// Accent by character kind. Player characters use the brass --gold (default);
+// retainers/hirelings (system.retainer.enabled) get a teal accent. data-kind is
+// set on the window in osc-sheet.js _onRender; the token overrides cascade to
+// the whole sheet (plaque brackets, mod pills, XP bar, Level-Up, active tab, …).
+.osc-sheet[data-kind="hireling"] {
+  --gold: var(--teal);
+  --gold-dim: var(--teal-dim);
+  --gold-soft: color-mix(in srgb, var(--teal) 30%, transparent);
+  --gold-bright: #57c3c3; // bright teal variant for retainers
+}
+
+.osc-sheet-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative; // containing block for the absolutely-positioned .toast-host
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px; // stylelint-disable-line declaration-property-value-disallowed-list -- rem anchor for the --fs-* scale, not a type token
+  border-radius: 0 0 8px 8px; // square top (under titlebar), rounded bottom to match the frame
+  min-width: 320px;
+  container-type: inline-size; // outer frame: drives vertical rail ⇄ horizontal tab bar
+  container-name: app;
+
+  // Scoped element reset — ONLY elements WE render inside the React app, never
+  // Foundry's window-frame controls. Classed Vellum controls (.btn/.input) still win.
+  // Excludes <prose-mirror> internals: that editor is Foundry-rendered chrome
+  // (toggle button, menu, contenteditable) and must keep its own core styles.
+  :is(button, input, select, textarea):not(prose-mirror *) {
+    all: unset;
+    box-sizing: border-box;
+    font-family: var(--sans);
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

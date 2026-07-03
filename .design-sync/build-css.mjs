@@ -1,7 +1,7 @@
 // Deterministic Vellum CSS build for design-sync.
 // Mirrors the app/Storybook pipeline: scope tokens.css + components.css with the
 // same postcss scoper the app uses, compile styles.scss (already
-// .reactor-sheet-scoped in source) with dart-sass.
+// .osc-sheet-scoped in source) with dart-sass.
 //
 // Exposes buildParts() so the generator can split the two shipped artifacts:
 //   _ds_bundle.css = tokens + utilities + components (the scoped Vellum bundle)
@@ -16,8 +16,8 @@ import postcss from "postcss";
 import { scopeVellum } from "../tools/postcss/scope-vellum.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const vellum = path.join(root, "src/ReactorSheet/styles/vellum");
-const stylesDir = path.join(root, "src/ReactorSheet/styles");
+const vellum = path.join(root, "src/OscSheet/styles/vellum");
+const stylesDir = path.join(root, "src/OscSheet/styles");
 
 async function scopeCss(css, from) {
   // postcss-prefix-selector keys off the `from` path (must contain /styles/vellum/).

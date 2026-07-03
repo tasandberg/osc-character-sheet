@@ -1,4 +1,4 @@
-import ReactorSheet from "@src/applications/reactor-sheet";
+import OscSheet from "@src/applications/osc-sheet";
 import { installAdvancedClasses } from "@src/util/adaptAdvancedClasses";
 import { onRenderChatMessage } from "@domain/chat/applyDamage";
 import logger from "@src/util/logger";
@@ -6,7 +6,7 @@ import logger from "@src/util/logger";
 export function initialize() {
   foundry.helpers.Hooks.once("init", () => {
     logger("Initializing module");
-    ReactorSheet.registerSettings();
+    OscSheet.registerSettings();
   });
 
   // Wire the GM apply-damage button on our Vellum damage cards. v13/v14 hook —
@@ -21,7 +21,7 @@ export function initialize() {
     installAdvancedClasses();
     foundry.documents.collections.Actors.registerSheet(
       game.system?.id,
-      ReactorSheet,
+      OscSheet,
       {
         types: ["character", "npc"],
         makeDefault: true,
