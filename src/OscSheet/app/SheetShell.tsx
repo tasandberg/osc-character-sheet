@@ -18,6 +18,7 @@ import {
   selectCoins,
 } from "@features/inventory/inventory";
 import { flagPath, FLAGS, readFlag } from "@domain/flags";
+import { showTokenVariantsPortraitPicker } from "@domain/tokenVariants";
 import { selectAc } from "@domain/vitals";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import { useToast } from "@ui/toastContext";
@@ -207,7 +208,12 @@ export default function SheetShell() {
           />
         }
         header={
-          <HeaderBand identity={identity} vitals={vitals} onSetHp={onSetHp} />
+          <HeaderBand
+            identity={identity}
+            vitals={vitals}
+            onSetHp={onSetHp}
+            onPortraitContextMenu={() => showTokenVariantsPortraitPicker(actor)}
+          />
         }
         minibar={
           <Minibar identity={identity} vitals={vitals} onSetHp={onSetHp} />
