@@ -1,0 +1,3 @@
+import{i as e}from"./preload-helper-xPQekRTU.js";import{t}from"./iframe-DIVr1cd8.js";import{r as n,t as r}from"./Card-Djo5HonO.js";var i,a,o,s;e((()=>{n(),i=t(),a={title:`Layout / Card`},o=()=>(0,i.jsx)(r,{children:(0,i.jsx)(`p`,{children:`A parchment card holds grouped content — descriptions, lists, or any sheet section.`})}),o.__docgenInfo={description:``,methods:[],displayName:`Basic`},o.parameters={...o.parameters,docs:{...o.parameters?.docs,source:{originalSource:`() => <Card>
+    <p>A parchment card holds grouped content — descriptions, lists, or any sheet section.</p>
+  </Card>`,...o.parameters?.docs?.source}}},s=[`Basic`]}))();export{o as Basic,s as __namedExportsOrder,a as default};

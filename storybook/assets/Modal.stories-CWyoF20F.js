@@ -1,0 +1,14 @@
+import{i as e,s as t}from"./preload-helper-xPQekRTU.js";import{n,t as r}from"./iframe-DIVr1cd8.js";import{n as i,t as a}from"./cx-DHrSZD_0.js";import{n as o,t as s}from"./Button-D25IYpT7.js";import{n as c,t as l}from"./SectionTitle-BOZ3RV3B.js";function u({open:e,title:t,onClose:n,children:r,footer:a,className:o}){return e?(0,d.jsx)(`div`,{className:`modal-scrim`,onClick:n,children:(0,d.jsxs)(`div`,{className:i(`modal`,o),onClick:e=>e.stopPropagation(),children:[(0,d.jsxs)(`div`,{className:`modal-head`,children:[(0,d.jsx)(l,{variant:`bare`,className:`ttl`,children:t}),(0,d.jsx)(`button`,{type:`button`,className:`x`,"aria-label":`Close`,onClick:n,children:`×`})]}),(0,d.jsx)(`div`,{className:`modal-body`,children:r}),a!=null&&(0,d.jsx)(`div`,{className:`modal-foot`,children:a})]})}):null}var d,f=e((()=>{a(),c(),d=r(),u.__docgenInfo={description:`@category Overlays`,methods:[],displayName:`Modal`,props:{open:{required:!0,tsType:{name:`boolean`},description:``},title:{required:!0,tsType:{name:`ReactNode`},description:``},onClose:{required:!0,tsType:{name:`signature`,type:`function`,raw:`() => void`,signature:{arguments:[],return:{name:`void`}}},description:``},children:{required:!0,tsType:{name:`ReactNode`},description:``},footer:{required:!1,tsType:{name:`ReactNode`},description:``},className:{required:!1,tsType:{name:`string`},description:``}}}})),p,m,h,g,_;e((()=>{p=t(n(),1),f(),o(),m=r(),h={title:`Overlays / Modal`},g=()=>{let[e,t]=p.useState(!0);return(0,m.jsx)(u,{open:e,title:`Level Up — Magic-User 3 → 4`,onClose:()=>t(!1),footer:(0,m.jsxs)(m.Fragment,{children:[(0,m.jsx)(s,{variant:`ghost`,onClick:()=>t(!1),children:`Cancel`}),(0,m.jsx)(s,{variant:`primary`,onClick:()=>t(!1),children:`Confirm`})]}),children:`Your hit points increase and you gain access to new spell slots. Confirm to apply the changes to your character.`})},g.__docgenInfo={description:``,methods:[],displayName:`LevelUp`},g.parameters={...g.parameters,docs:{...g.parameters?.docs,source:{originalSource:`() => {
+  const [open, setOpen] = React.useState(true);
+  return <Modal open={open} title="Level Up — Magic-User 3 → 4" onClose={() => setOpen(false)} footer={<>
+          <Button variant="ghost" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={() => setOpen(false)}>
+            Confirm
+          </Button>
+        </>}>
+      Your hit points increase and you gain access to new spell slots. Confirm to apply
+      the changes to your character.
+    </Modal>;
+}`,...g.parameters?.docs?.source}}},_=[`LevelUp`]}))();export{g as LevelUp,_ as __namedExportsOrder,h as default};
