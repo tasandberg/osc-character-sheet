@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { IdentityVM, VitalsVM } from "@domain/vm-types";
 import { Stamp } from "@ui/Stamp";
+import { useHpInput } from "@ui/useHpInput";
 
 type Props = {
   identity: IdentityVM;
@@ -18,6 +19,7 @@ type Props = {
 export function Minibar({ identity, vitals, onSetHp }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
 
   useEffect(() => {
     const scroller = ref.current?.closest<HTMLElement>(".rs-sheet");
@@ -61,7 +63,7 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
                 className="rs-mb-hp-btn"
                 aria-label="Decrease HP"
                 tabIndex={-1}
-                onClick={() => onSetHp(Math.max(0, vitals.hp.value - 1))}
+                onClick={hp.dec}
               >
                 −
               </button>
@@ -70,24 +72,9 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
           {onSetHp ? (
             <input
               className="rs-mb-hp-input"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              max={vitals.hp.max}
               aria-label="Current HP"
-              defaultValue={vitals.hp.value}
-              key={vitals.hp.value}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") e.currentTarget.blur();
-              }}
-              onBlur={(e) => {
-                const n = parseInt(e.currentTarget.value, 10);
-                if (Number.isNaN(n)) {
-                  e.currentTarget.value = String(vitals.hp.value);
-                  return;
-                }
-                onSetHp(Math.max(0, Math.min(vitals.hp.max, n)));
-              }}
+              key={hp.key}
+              {...hp.inputProps}
             />
           ) : (
             <span className="rs-mb-hp-input rs-mb-hp-static">{vitals.hp.value}</span>
@@ -100,7 +87,7 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
                 className="rs-mb-hp-btn"
                 aria-label="Increase HP"
                 tabIndex={-1}
-                onClick={() => onSetHp(Math.min(vitals.hp.max, vitals.hp.value + 1))}
+                onClick={hp.inc}
               >
                 +
               </button>

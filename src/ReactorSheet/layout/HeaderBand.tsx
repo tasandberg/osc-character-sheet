@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from "react";
 import type { IdentityVM, VitalsVM } from "@domain/vm-types";
 import { formatMod } from "@domain/format";
 import { Stamp } from "@ui/Stamp";
+import { useHpInput } from "@ui/useHpInput";
 
 /** Shrink a single-line element's font to fit its box (down to `min`x) instead of
  *  truncating. Sets `--fit-scale`; CSS multiplies the base font-size by it. */
@@ -37,6 +38,7 @@ type Props = {
 export function HeaderBand({ identity, vitals, onSetHp }: Props) {
   const m = vitals.moveBands;
   const nameRef = useFitText(identity.name);
+  const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   return (
     <div className="rs-head">
       {/* `.profile` / `.profile-img` mirror the OSE sheet so modules keyed on
@@ -79,34 +81,19 @@ export function HeaderBand({ identity, vitals, onSetHp }: Props) {
           <div className="vv-row">
             {/* medium+: − / + steppers around the value; XS: an editable input (toggled in CSS) */}
             {onSetHp && (
-              <button type="button" className="vv-step" aria-label="Lose 1 HP" onClick={() => onSetHp(vitals.hp.value - 1)}>−</button>
+              <button type="button" className="vv-step" aria-label="Lose 1 HP" onClick={hp.dec}>−</button>
             )}
             <div className="vv-big vv-value">{vitals.hp.value}</div>
             {onSetHp && (
               <input
                 className="vv-big vv-input"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                max={vitals.hp.max}
                 aria-label="Current HP"
-                defaultValue={vitals.hp.value}
-                key={vitals.hp.value}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") e.currentTarget.blur();
-                }}
-                onBlur={(e) => {
-                  const n = parseInt(e.currentTarget.value, 10);
-                  if (Number.isNaN(n)) {
-                    e.currentTarget.value = String(vitals.hp.value);
-                    return;
-                  }
-                  onSetHp(Math.max(0, Math.min(vitals.hp.max, n)));
-                }}
+                key={hp.key}
+                {...hp.inputProps}
               />
             )}
             {onSetHp && (
-              <button type="button" className="vv-step" aria-label="Heal 1 HP" onClick={() => onSetHp(vitals.hp.value + 1)}>+</button>
+              <button type="button" className="vv-step" aria-label="Heal 1 HP" onClick={hp.inc}>+</button>
             )}
           </div>
           <div className="vv-sub">
