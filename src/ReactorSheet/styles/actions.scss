@@ -523,7 +523,7 @@
 .rs-weapon .wic-img { object-fit: cover; }
 .rs-weapon .wmain { min-width: 0; }
 .rs-weapon .wname {
-  font-family: var(--display); font-size: var(--fs-md, 15px);
+  font-family: var(--display); font-size: var(--fs-lg, 17px);
   color: var(--text, #e5dec8); line-height: 1.15;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -547,7 +547,10 @@
   background: var(--bg-2, #1f1c17);
   border: 1px solid var(--border, #3a342c);
   border-radius: var(--r-sm, 4px);
-  overflow: hidden;
+  // no overflow: hidden — it clipped the segs' .tag-pop hover tooltips; the
+  // end segments round their own outer corners instead
+  > :first-child { border-radius: calc(var(--r-sm, 4px) - 1px) 0 0 calc(var(--r-sm, 4px) - 1px); }
+  > :last-child { border-radius: 0 calc(var(--r-sm, 4px) - 1px) calc(var(--r-sm, 4px) - 1px) 0; }
 }
 .reactor-sheet-app .kind-seg {
   position: relative;
@@ -726,24 +729,39 @@
   // Init/HD/Move: borderless + small, three across (inherit the compact base)
   .rs-substats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacer-2); }
   .rs-tile { width: auto; }
-  // attacks: stack the weapon card into two rows so the name/tags get full
-  // width — the 4-col desktop grid starves them here (name truncates to "St…",
-  // tags wrap into a tall stack). Row 1 = icon + name/tags across the full
-  // width; row 2 = Hit · Dmg packed left, Attack pinned right.
+  // attacks: two columns — weapon info (icon/name/tags) left; the roll stack
+  // right: Hit and Dmg as horizontal label·value roll rows over a full-width
+  // Attack button.
   .rs-weapon {
-    grid-template-columns: auto auto 1fr;
+    grid-template-columns: 1fr auto;
     grid-template-areas:
-      "info info info"
-      "hit  dmg  atk";
-    gap: var(--spacer-1) var(--spacer-2);
+      "info hit"
+      "info dmg"
+      "info atk";
+    gap: var(--spacer-1) var(--spacer-3);
     padding: 8px;
   }
-  .rs-weapon .winfo { grid-area: info; }
-  .rs-weapon .wstat.hit { grid-area: hit; justify-self: start; }
-  .rs-weapon .wstat.dmg { grid-area: dmg; justify-self: start; }
-  .rs-weapon .fvtt-atk { grid-area: atk; justify-self: end; min-width: 96px; }
-  .rs-weapon .wstat { padding: 4px 2px; }
+  .rs-weapon .winfo { grid-area: info; align-self: start; align-items: flex-start; }
+  // left column stacks: img + larger name / (kind) label / quality chips
+  .rs-weapon .wname { white-space: normal; } // size bump now lives on the base rule
+  .rs-weapon .wname .wkind { display: block; font-size: var(--fs-xs, 12px); margin-top: 2px; }
+  .rs-weapon .wtags { margin-top: var(--spacer-1); }
+  .rs-weapon .wstat.hit { grid-area: hit; }
+  .rs-weapon .wstat.dmg { grid-area: dmg; }
+  // hit/dmg flip horizontal: label left, value/roll right, one row each
+  .rs-weapon .wstat {
+    flex-direction: row; justify-content: space-between; align-items: center;
+    justify-self: stretch;
+    gap: var(--spacer-3);
+    min-width: 128px;
+    padding: 2px var(--spacer-2);
+  }
   .rs-weapon .wstat .wv { font-size: var(--fs-xs, 12px); }
+  .rs-weapon .fvtt-atk {
+    grid-area: atk; justify-self: stretch; min-width: 0;
+    margin-top: var(--spacer-1);
+    padding-top: 5px; padding-bottom: 5px;
+  }
   // abilities: 6-across in one compact row (flat — drop the md+ gold frame/brackets)
   .rs-abilities { grid-template-columns: repeat(6, 1fr); gap: var(--spacer-1); }
   .rs-abil {
