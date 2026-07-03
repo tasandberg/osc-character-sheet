@@ -24,6 +24,7 @@ import { WealthSection } from "@features/inventory/WealthSection";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { SortHeader } from "@features/inventory/SortHeader";
 import { useReactorSheetContext } from "@app/context";
+import { FEATURES } from "@app/features";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
@@ -628,15 +629,17 @@ function ItemContextMenu({
       >
         <i className="fa-solid fa-eye" aria-hidden="true" /> View Item
       </button>
-      {/* Send Item is a WIP — see https://github.com/tasandberg/reactor-sheet/issues/16 */}
-      <button
-        type="button"
-        className="rs-ctx-item"
-        disabled
-        title="Coming soon"
-      >
-        <i className="fa-solid fa-gift" aria-hidden="true" /> Send Item
-      </button>
+      {/* Send Item is a WIP — gated off for v1. See GH #16 / OLD-19. */}
+      {FEATURES.sendItem && (
+        <button
+          type="button"
+          className="rs-ctx-item"
+          disabled
+          title="Coming soon"
+        >
+          <i className="fa-solid fa-gift" aria-hidden="true" /> Send Item
+        </button>
+      )}
       {menu.item.equipped === true && (
         <button
           type="button"
