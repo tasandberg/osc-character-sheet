@@ -536,23 +536,8 @@
 .rs-weapon .wname-btn:hover { color: var(--gold); text-decoration: underline; }
 .rs-weapon .wtags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
 
-// quality / mode tags — icon-only chips with a hover popover (+ native title)
-.fvtt-tag {
-  position: relative;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--sans); font-size: var(--fs-3xs, 10px); letter-spacing: 0.03em;
-  color: var(--text-mute, #8a8270);
-  background: var(--bg-2, #1f1c17);
-  border: 1px solid var(--border-soft, #2c2823);
-  border-radius: var(--r-sm, 4px);
-  padding: var(--spacer-1);
-  white-space: nowrap; cursor: default;
-  i { font-size: var(--fs-xs, 12px); }
-  .tag-txt { padding: 0 var(--spacer-1); } // icon-less fallback
-}
-// mode tags carry the accent (melee = brass, missile = teal) on the icon
-.fvtt-tag.melee i { color: var(--gold); }
-.fvtt-tag.missile i { color: var(--teal); }
+// quality / mode tags (icon-only chips + hover popover) now live in vellum as
+// `.tag.chip` (see styles/vellum/components.css) via the Tag `variant="chip"`.
 
 // kind switch — when a weapon has BOTH melee+missile, the two kinds become a
 // joined segmented control (unmistakably a switch, not a quality chip). The
@@ -592,7 +577,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   opacity: 0; pointer-events: none; transition: opacity 0.12s;
 }
-.fvtt-tag:hover .tag-pop,
 .reactor-sheet-app .wstat:hover .tag-pop { opacity: 1; }
 
 // reusable link-style button: accent colour denotes a clickable roll/link.
@@ -746,7 +730,6 @@
   // width — the 4-col desktop grid starves them here (name truncates to "St…",
   // tags wrap into a tall stack). Row 1 = icon + name/tags across the full
   // width; row 2 = Hit · Dmg packed left, Attack pinned right.
-  .fvtt-tag .lbl { display: none; }
   .rs-weapon {
     grid-template-columns: auto auto 1fr;
     grid-template-areas:

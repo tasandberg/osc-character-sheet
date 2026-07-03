@@ -78,19 +78,12 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
           <span className="rs-langs-empty">None</span>
         )}
         {current.map((lang) => (
-          <Tag key={lang}>
+          <Tag
+            key={lang}
+            onRemove={editing ? () => remove(lang) : undefined}
+            removeLabel={`Remove ${lang}`}
+          >
             {lang}
-            {editing && (
-              <button
-                type="button"
-                className="rs-lang-x"
-                title={`Remove ${lang}`}
-                aria-label={`Remove ${lang}`}
-                onClick={() => remove(lang)}
-              >
-                <i className="fas fa-xmark" aria-hidden="true" />
-              </button>
-            )}
           </Tag>
         ))}
       </div>

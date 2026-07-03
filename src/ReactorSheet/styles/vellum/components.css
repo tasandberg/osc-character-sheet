@@ -463,6 +463,35 @@
 /* count — brass-solid numeric pill (container item counts, etc.) */
 .tag.count   { background: var(--accent-alt-dim); border-color: var(--accent-alt-dim); color: var(--on-accent); font-size: var(--fs-2xs); padding: 1px 7px; min-width: 16px; justify-content: center; }
 
+/* chip — the square, dark, icon-first weapon-tag box (quality / attack-kind
+   tags), ported verbatim from the retired `.fvtt-tag` in actions.scss. `.tag.chip`
+   (0,3,0 once vellum-scoped) sits ON TOP of the pill `.tag` base, so it must
+   restate every property that differs from the pill (radius, fill, font, colour,
+   letter-spacing) plus reset the pill-only `gap`/`line-height`. Icon accent:
+   melee = gold, missile = teal. The hover popover uses the shared `.tag-pop`
+   (kept in actions.scss, since `.wstat`/`.kind-seg` also use it). */
+.tag.chip {
+  position: relative;
+  justify-content: center;
+  gap: 0;
+  padding: var(--spacer-1);
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-sm);
+  font-family: var(--sans);
+  font-size: var(--fs-3xs);
+  line-height: normal;
+  letter-spacing: 0.03em;
+  color: var(--text-mute);
+  white-space: nowrap;
+  cursor: default;
+}
+.tag.chip i { font-size: var(--fs-xs); }
+.tag.chip .tag-txt { padding: 0 var(--spacer-1); }
+.tag.chip.melee i { color: var(--gold); }
+.tag.chip.missile i { color: var(--teal); }
+.tag.chip:hover .tag-pop { opacity: 1; }
+
 /* ─── Pips — dot-meter (spell casts / slot pips) ─────────────────────────
    Class-agnostic skeleton for the Pips primitive. Kept to the intersection both
    call sites (.sp-dots/.sp-dot casts, .slots/.rs-pip level pips) already share —
