@@ -1,0 +1,26 @@
+import{i as e,s as t}from"./preload-helper-xPQekRTU.js";import{n,t as r}from"./iframe-DdtYwEQP.js";import{n as i,t as a}from"./Stamp-BzbkeuG7.js";function o(e){return e>=0?`+${e}`:`${e}`}var s=e((()=>{}));function c(e,t=.6){let n=(0,u.useRef)(null);return(0,u.useLayoutEffect)(()=>{let e=n.current;if(!e)return;let r=()=>{e.style.setProperty(`--fit-scale`,`1`);let n=e.clientWidth,r=e.scrollWidth,i=r>n&&r>0?Math.max(t,n/r):1;e.style.setProperty(`--fit-scale`,String(i))};r();let i=new ResizeObserver(r);return i.observe(e),()=>i.disconnect()},[e,t]),n}function l({identity:e,vitals:t,onSetHp:n}){let r=t.moveBands,i=c(e.name);return(0,d.jsxs)(`div`,{className:`rs-head`,children:[(0,d.jsx)(`div`,{className:`rs-portrait-wrap profile`,children:(0,d.jsx)(`img`,{className:`rs-portrait profile-img`,src:e.img||void 0,alt:e.name,"data-edit":`img`,title:e.name})}),(0,d.jsxs)(`div`,{className:`rs-ident`,children:[(0,d.jsx)(`div`,{className:`rs-name`,ref:i,children:e.name}),(0,d.jsxs)(`div`,{className:`rs-class`,children:[e.classLabel,` `,e.level,e.title?` · ${e.title}`:``,` · `,e.alignment]})]}),(0,d.jsxs)(`div`,{className:`rs-substats`,children:[(0,d.jsxs)(`div`,{className:`rs-tile`,children:[(0,d.jsx)(a,{children:`INIT`}),(0,d.jsx)(`div`,{className:`rs-tile-v`,children:o(t.initMod)})]}),(0,d.jsxs)(`div`,{className:`rs-tile`,children:[(0,d.jsx)(a,{children:`HD`}),(0,d.jsx)(`div`,{className:`rs-tile-v`,children:t.hd})]}),(0,d.jsxs)(`div`,{className:`rs-tile rs-tile-move`,children:[(0,d.jsx)(a,{children:`MOVE`}),(0,d.jsxs)(`div`,{className:`rs-tile-v`,children:[t.move,`′`]}),(0,d.jsxs)(`span`,{className:`rs-move-pop`,role:`tooltip`,children:[(0,d.jsxs)(`span`,{className:`r`,children:[(0,d.jsx)(`span`,{className:`k`,children:`Encounter`}),(0,d.jsxs)(`span`,{className:`vv`,children:[r.encounter,`′`]})]}),(0,d.jsxs)(`span`,{className:`r`,children:[(0,d.jsx)(`span`,{className:`k`,children:`Explore`}),(0,d.jsxs)(`span`,{className:`vv`,children:[r.explore,`′`]})]}),(0,d.jsxs)(`span`,{className:`r`,children:[(0,d.jsx)(`span`,{className:`k`,children:`Travel`}),(0,d.jsxs)(`span`,{className:`vv`,children:[r.travel,` mi`]})]})]})]})]}),(0,d.jsxs)(`div`,{className:`rs-vitals`,children:[(0,d.jsxs)(`div`,{className:`rs-vital hp`,children:[(0,d.jsx)(a,{className:`vv-l`,children:`HP`}),(0,d.jsxs)(`div`,{className:`vv-row`,children:[n&&(0,d.jsx)(`button`,{type:`button`,className:`vv-step`,"aria-label":`Lose 1 HP`,onClick:()=>n(t.hp.value-1),children:`−`}),(0,d.jsx)(`div`,{className:`vv-big vv-value`,children:t.hp.value}),n&&(0,d.jsx)(`input`,{className:`vv-big vv-input`,type:`number`,inputMode:`numeric`,min:0,max:t.hp.max,"aria-label":`Current HP`,defaultValue:t.hp.value,onKeyDown:e=>{e.key===`Enter`&&e.currentTarget.blur()},onBlur:e=>{let r=parseInt(e.currentTarget.value,10);if(Number.isNaN(r)){e.currentTarget.value=String(t.hp.value);return}n(Math.max(0,Math.min(t.hp.max,r)))}},t.hp.value),n&&(0,d.jsx)(`button`,{type:`button`,className:`vv-step`,"aria-label":`Heal 1 HP`,onClick:()=>n(t.hp.value+1),children:`+`})]}),(0,d.jsxs)(`div`,{className:`vv-sub`,children:[(0,d.jsxs)(`span`,{className:`full`,children:[`Max `,t.hp.max]}),(0,d.jsxs)(`span`,{className:`short`,children:[`/`,t.hp.max]})]})]}),(0,d.jsxs)(`div`,{className:`rs-vital ac`,children:[(0,d.jsx)(a,{className:`vv-l`,children:`AC`}),(0,d.jsx)(`div`,{className:`vv-row`,children:(0,d.jsx)(`div`,{className:`vv-big`,"data-testid":`ac-value`,children:t.ac.value})}),(0,d.jsxs)(`div`,{className:`vv-sub`,children:[(0,d.jsx)(`span`,{className:`full`,children:t.ac.ascending?`Ascending`:`Descending`}),(0,d.jsx)(`span`,{className:`short`,children:t.ac.ascending?`asc`:`desc`})]})]})]})]})}var u,d,f=e((()=>{u=t(n(),1),s(),i(),d=r(),l.__docgenInfo={description:`Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
+ · HP/AC in medium, and stack them in the rail.`,methods:[],displayName:`HeaderBand`,props:{identity:{required:!0,tsType:{name:`IdentityVM`},description:``},vitals:{required:!0,tsType:{name:`VitalsVM`},description:``},onSetHp:{required:!1,tsType:{name:`signature`,type:`function`,raw:`(value: number) => void`,signature:{arguments:[{type:{name:`number`},name:`value`}],return:{name:`void`}}},description:`Commit a new current-HP value; when provided, HP renders an editable input.`}}}})),p,m,h,g;e((()=>{f(),p=r(),m={title:`Chrome / HeaderBand`},h=()=>(0,p.jsx)(l,{identity:{name:`Eldra Vey`,img:``,classLabel:`Magic-User`,level:3,alignment:`Neutral`,title:`Conjurer`},vitals:{hp:{value:8,max:9},ac:{value:12,ascending:!0},initMod:1,hd:`3d4`,move:120,moveBands:{encounter:40,explore:120,travel:24}}}),h.__docgenInfo={description:``,methods:[],displayName:`Default`},h.parameters={...h.parameters,docs:{...h.parameters?.docs,source:{originalSource:`() => <HeaderBand identity={{
+  name: "Eldra Vey",
+  img: "",
+  classLabel: "Magic-User",
+  level: 3,
+  alignment: "Neutral",
+  title: "Conjurer"
+}} vitals={{
+  hp: {
+    value: 8,
+    max: 9
+  },
+  ac: {
+    value: 12,
+    ascending: true
+  },
+  initMod: 1,
+  hd: "3d4",
+  move: 120,
+  moveBands: {
+    encounter: 40,
+    explore: 120,
+    travel: 24
+  }
+}} />`,...h.parameters?.docs?.source}}},g=[`Default`]}))();export{h as Default,g as __namedExportsOrder,m as default};
