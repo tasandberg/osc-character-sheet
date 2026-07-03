@@ -57,6 +57,14 @@ Coins, encumbrance, weapon tags, attacks, and inventory are modeled on the OSE d
 
 Bug reports and feature requests are welcome on the [issue tracker](https://github.com/tasandberg/osc-character-sheet/issues).
 
+## Crash reporting (opt-in)
+
+If the sheet ever crashes, an error boundary catches it and shows a recovery screen — your actor data is never at risk, and you can reopen the sheet or fall back to the default OSE sheet.
+
+Optionally, the GM can enable **Anonymous crash reporting** (Game Settings → OSC Character Sheet, world setting, **off by default**). When enabled, a crash sends the error message, stack trace, and module/Foundry/OSE versions to the developer — nothing else. Actor names, user names, document ids, chat, and world data are scrubbed client-side before sending; while the setting is off, the reporting code is never even downloaded and no network requests are made.
+
+For maintainers: reports use the Sentry protocol. The endpoint is baked in at build time via the `VITE_SENTRY_DSN` env var (e.g. in `.env.local`); a build without a DSN has reporting disabled regardless of the setting.
+
 ---
 
 ## Built with foundry-vtt-react
