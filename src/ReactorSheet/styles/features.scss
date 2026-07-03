@@ -88,20 +88,8 @@
 }
 // (delete is now <IconButton variant="danger">; see .icon-btn in components.css)
 
-// --- Section header: title + hint on the left, + / edit button on the right ---
-// Mirrors .rs-inv-head so the rule spans the full width and the title flexes.
-.rs-feat-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacer-3);
-  // The rule lives on the header (not the title) so it spans full width — under
-  // the +/edit control too — instead of stopping at the title's flex box.
-  margin: 0 0 var(--spacer-2);
-  padding-bottom: var(--spacer-1);
-  border-bottom: 2px solid var(--border);
-}
-.rs-feat-head .section-title { flex: 1; margin: 0; padding-bottom: 0; border-bottom: none; }
+// Section header (title + right-aligned control) is now the SectionHeader
+// component, styled in vellum as `.section-header` (see components.css).
 
 // Language "go" (round brass add) + Add-ability/edit "+" are now <IconButton>
 // (variant="round" / variant="accent"); see .icon-btn in components.css.

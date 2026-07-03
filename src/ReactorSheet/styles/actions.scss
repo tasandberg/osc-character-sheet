@@ -268,87 +268,12 @@
 .rs-move-pop .k { font-family: var(--sans); font-size: var(--fs-xs, 12px); color: var(--text-dim, #b5ad97); }
 .rs-move-pop .vv { font-family: var(--mono); font-size: var(--fs-xs, 12px); color: var(--text); }
 
-// --- abilities (ported from prototype .fvtt-abil: gold-framed plaque) ---
-// Box = gradient lift + gold-soft border + inner hairline frame + corner brackets.
-// Label is an ink stamp at top; big serif value fills the middle; mod is a gold
-// ink-pill pinned to the bottom edge.
+// --- abilities: 3-up (6-up wide) grid of ability plaques ---
+// The plaque box + stamp/value/mod styling now lives in vellum as
+// `.plaque-ability` (StatPlaque variant="ability"); only the grid container
+// stays here. XS flattens the plaques — see the container block at the bottom.
 .rs-abilities { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacer-2); margin-top: var(--spacer-4); }
 @container sheet (min-width: 470px) { .rs-abilities { grid-template-columns: repeat(6, 1fr); } }
-.rs-abil {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 96px;
-  background: linear-gradient(180deg, var(--surface-2, #2e2a23), var(--surface, #23201a)); // dark: subtle lift
-  border: 1px solid var(--gold-soft);
-  border-radius: var(--r-sm, 4px);
-  padding: var(--spacer-2) 6px 30px;
-  text-align: center;
-  overflow: hidden;
-}
-// Inner hairline frame (corners connect)
-.rs-abil::before {
-  content: "";
-  position: absolute; inset: 3px;
-  border: 1px solid var(--gold-soft);
-  border-radius: 2px;
-  pointer-events: none;
-  opacity: 0.5;
-}
-// Gold corner brackets reinforcing where the frame lines meet
-.rs-abil::after {
-  content: "";
-  position: absolute; inset: 3px;
-  pointer-events: none;
-  opacity: 0.85;
-  background:
-    linear-gradient(var(--gold), var(--gold)) 0 0 / 9px 1.5px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 0 0 / 1.5px 9px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 100% 0 / 9px 1.5px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 100% 0 / 1.5px 9px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 0 100% / 9px 1.5px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 0 100% / 1.5px 9px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 100% 100% / 9px 1.5px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 100% 100% / 1.5px 9px no-repeat;
-}
-// Cream flats out; dark keeps the gradient above.
-[data-theme="cream"] .rs-abil { background: var(--surface); }
-[data-theme="cream"] .rs-abil.rollable:hover { background: var(--surface-2); }
-// Stamp label at the top, inset from the gold frame
-.rs-abil .rs-abil-k {
-  align-self: stretch;
-  margin: 1px 7px 0;
-  width: auto;
-  padding: 3px 0 2px;
-}
-// Big serif value fills the middle
-.rs-abil .av {
-  position: relative;
-  flex: 1;
-  display: flex; align-items: center; justify-content: center;
-  width: 100%;
-  font-family: var(--display); font-size: var(--fs-4xl, 28px);
-  line-height: 1; color: var(--text);
-  margin: 0;
-}
-// Mod pill: gold-on-ink capsule pinned to the bottom edge
-.rs-abil .am {
-  position: absolute;
-  left: 50%; bottom: 8px;
-  transform: translateX(-50%);
-  min-width: 38px;
-  background: var(--ink);
-  border-radius: 99px;
-  padding: 2px 9px 1px;
-  font-family: var(--mono); font-size: var(--fs-xs, 12px); font-weight: 600;
-  color: var(--gold);
-}
-// light mode: light parchment capsule with dark text (not brass)
-[data-theme="cream"] .rs-abil .am {
-  background: color-mix(in srgb, var(--ink) 7%, var(--surface));
-  color: var(--ink);
-}
 
 // --- section title override (prototype: 2px border-bottom, not 3px thick) ---
 .section-title {
@@ -394,40 +319,14 @@
 .rs-se-nav .rs-se-tab:hover { color: var(--text-dim); }
 .rs-se-nav .rs-se-tab.active { color: var(--text); border-bottom-color: var(--gold); }
 
-// --- saves & exploration cards (rows → cards; ported from .fvtt-save/.fvtt-skill) ---
-// Saves: 5-up grid of ink-stamp · mono target · tiny label.
+// --- saves & exploration cards (rows → cards) ---
+// Saves: 5-up grid of ink-stamp · mono target · tiny label. The save-card box +
+// stamp/value/label styling (incl. the .stamp.sk 22px reconciliation) now lives
+// in vellum as `.plaque-save` (StatPlaque variant="save"); only the grid
+// containers stay here.
 .fvtt-saves { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--spacer-2); }
 // In the narrow left rail (large view), 5-up overflows — drop to 3+2.
 .rs-rail-extra .fvtt-saves { grid-template-columns: repeat(3, 1fr); }
-.fvtt-save {
-  @include surface-card;
-  border-radius: var(--r-md, 6px);
-  padding: var(--spacer-2) var(--spacer-1) 7px;
-  text-align: center;
-  transition: border-color 0.12s, background 0.12s;
-  @include rollable-card;
-}
-.fvtt-save .sk {
-  width: 22px; height: 22px; margin: 0 auto var(--spacer-1);
-  background: var(--ink, #070605); color: var(--stamp-text, #e5dec8);
-  border-radius: var(--r-sm, 4px); display: grid; place-items: center;
-  font-family: var(--display, serif); font-size: var(--fs-xs, 12px);
-}
-// The save stamp is now a <Stamp> (gains .stamp's chiselled ink shadow, to match
-// the ability plaques — §2.1 consistency). Re-assert the square 22px geometry:
-// .stamp.sm (0,3,0) outranks the .fvtt-save .sk block above, so neutralise its
-// padding/font-size here (equal specificity, later in the cascade) — otherwise
-// the fixed box inflates and the letter shrinks.
-.fvtt-save .stamp.sk { padding: 0; font-size: var(--fs-xs, 12px); }
-.fvtt-save .sv {
-  font-family: var(--mono, monospace); font-size: var(--fs-md, 14px);
-  color: var(--text, #e5dec8);
-}
-.fvtt-save .sn {
-  display: block;
-  font-family: var(--sans); font-size: 8px; letter-spacing: 0.04em; // stylelint-disable-line declaration-property-value-disallowed-list -- 8px micro-label glyph; no sub-10px --fs-* token
-  color: var(--text-faint, #6a6354); margin-top: 2px;
-}
 
 // Exploration: 2-up grid of gold glyph · label · N-in-6 ink pill.
 .fvtt-explore { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacer-2); }
@@ -460,14 +359,7 @@
 // Container only; the rows reuse the Spells-tab `.rs-spell` (see MemorizedSpells
 // + spells.scss). Shared bits (.sp-dots/.sp-cast) live below.
 .fvtt-castlist { display: flex; flex-direction: column; margin-top: 2px; }
-// cast dots — one per memorised slot (shared by Actions + Spells). Gold = a cast
-// remaining; light/soft = a used (spent) cast — used dots stay, they don't vanish.
-.sp-dots { display: inline-flex; align-items: center; gap: var(--spacer-1); }
-.sp-dot {
-  width: 9px; height: 9px; border-radius: 50%;
-  background: var(--gold-soft); border: 1px solid var(--gold-soft);
-}
-.sp-dot.filled { background: var(--gold); border-color: var(--gold); }
+// cast dots = <Pips size="sm">; dot styling now lives in vellum (.pips + .pips.sm).
 // cast button (shared by Actions + Spells rows) — small dark rounded button;
 // "spent" is disabled + dimmed.
 .reactor-sheet-app .sp-cast {
@@ -567,20 +459,9 @@
   &.melee.selected { background: var(--gold); i { color: var(--on-accent, #070605); } }
   &.missile.selected { background: var(--teal); i { color: var(--on-accent, #070605); } }
 }
-.reactor-sheet-app .kind-seg:hover .tag-pop { opacity: 1; }
-
-// hover popover (more info) — used by tags AND the hit/dmg buttons
-.tag-pop {
-  position: absolute; bottom: calc(100% + var(--spacer-1)); left: 50%; transform: translateX(-50%);
-  z-index: 10; white-space: nowrap;
-  padding: var(--spacer-1) var(--spacer-2); border-radius: var(--r-sm, 4px);
-  background: var(--surface-2, #2e2a23); border: 1px solid var(--border, #3a342c);
-  color: var(--text-dim, #b5ad97);
-  font-family: var(--mono); font-size: var(--fs-2xs, 11px); letter-spacing: 0.02em;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  opacity: 0; pointer-events: none; transition: opacity 0.12s;
-}
-.reactor-sheet-app .wstat:hover .tag-pop { opacity: 1; }
+// hover popover (`.tag-pop`) + its reveal rules now live in vellum
+// (components.css) as a shared tooltip primitive — used by weapon tags,
+// kind-seg switches, and the hit/dmg (.wstat) buttons.
 
 // reusable link-style button: accent colour denotes a clickable roll/link.
 // (qualified with .reactor-sheet-app to beat the `button { all: unset }` reset.)
@@ -657,12 +538,10 @@
 // section spacing in the Actions body
 .rs-section + .rs-section { margin-top: var(--spacer-5); }
 
-// --- rollable affordance (ability plaques + table rows wired to system rolls) ---
-.rs-abil.rollable { cursor: pointer; transition: border-color 0.12s, box-shadow 0.12s; }
-.rs-abil.rollable:hover { border-color: var(--gold); }
+// --- rollable affordance (table rows wired to system rolls) ---
+// Ability-plaque rollable styling moved to vellum (.plaque-ability.rollable).
 .table tr.rollable { cursor: pointer; }
 .table tr.rollable:hover td { background: color-mix(in srgb, var(--gold) 9%, transparent); }
-.rs-abil.rollable:focus-visible,
 .table tr.rollable:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: -2px;
@@ -763,16 +642,21 @@
     padding-top: 5px; padding-bottom: 5px;
   }
   // abilities: 6-across in one compact row (flat — drop the md+ gold frame/brackets)
+  // The plaque base is now vellum `.plaque-ability` (0,2,0 once scoped); these XS
+  // overrides qualify with `.reactor-sheet-app` (also 0,2,0) and load after vellum,
+  // so they still win at ≤479px. `.pk` only re-asserts margin:0 — its padding /
+  // font-size stay owned by `.stamp.sm` exactly as at wider widths (parity).
   .rs-abilities { grid-template-columns: repeat(6, 1fr); gap: var(--spacer-1); }
-  .rs-abil {
+  .reactor-sheet-app .plaque-ability {
     min-height: 0; padding: 5px 3px 6px;
     border-color: var(--border-soft);
     align-items: stretch;
   }
-  .rs-abil::before, .rs-abil::after { content: none; }
-  .rs-abil .rs-abil-k { margin: 0; font-size: var(--fs-3xs, 10px); padding: 2px 2px 3px; }
-  .rs-abil .av { flex: 0 0 auto; font-size: var(--fs-xl, 18px); padding: 3px 0; }
-  .rs-abil .am {
+  .reactor-sheet-app .plaque-ability::before,
+  .reactor-sheet-app .plaque-ability::after { content: none; }
+  .reactor-sheet-app .plaque-ability .pk { margin: 0; }
+  .reactor-sheet-app .plaque-ability .pv { flex: 0 0 auto; font-size: var(--fs-xl, 18px); padding: 3px 0; }
+  .reactor-sheet-app .plaque-ability .pc {
     position: static; transform: none; align-self: center;
     min-width: 0; font-size: var(--fs-3xs, 10px); padding: 0 6px 1px; margin-top: 2px;
   }

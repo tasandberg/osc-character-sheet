@@ -42,14 +42,9 @@
   font-family: var(--mono); font-size: var(--fs-xs, 12px);
   color: var(--text-mute, #8a8270);
 }
-.rs-spellhead .slots { margin-left: auto; display: flex; gap: var(--spacer-1); }
-.rs-pip {
-  width: 16px; height: 16px; border-radius: 50%;
-  border: 1.5px solid var(--border, #3a342c);
-  display: grid; place-items: center;
-  color: var(--gold); font-size: 8px; // stylelint-disable-line declaration-property-value-disallowed-list -- 8px slot-pip diamond glyph
-}
-.rs-pip.filled { background: var(--gold); border-color: var(--gold); color: var(--on-accent, #070605); }
+// slot pips = <Pips hollow>; the ring/dot styling lives in vellum (.pips.hollow).
+// Only the contextual push-to-right stays here.
+.rs-spellhead .slots { margin-left: auto; }
 
 // --- prepared cast rows ---
 .rs-spell {

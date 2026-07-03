@@ -46,8 +46,8 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         <Pips
           total={slots.max}
           filled={slots.used}
+          hollow
           className="slots"
-          dotClassName="rs-pip"
           aria-hidden="true"
           glyph={<i className="fa-solid fa-diamond" />}
         />

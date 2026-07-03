@@ -469,7 +469,7 @@
    restate every property that differs from the pill (radius, fill, font, colour,
    letter-spacing) plus reset the pill-only `gap`/`line-height`. Icon accent:
    melee = gold, missile = teal. The hover popover uses the shared `.tag-pop`
-   (kept in actions.scss, since `.wstat`/`.kind-seg` also use it). */
+   tooltip primitive (below). */
 .tag.chip {
   position: relative;
   justify-content: center;
@@ -490,28 +490,236 @@
 .tag.chip .tag-txt { padding: 0 var(--spacer-1); }
 .tag.chip.melee i { color: var(--gold); }
 .tag.chip.missile i { color: var(--teal); }
-.tag.chip:hover .tag-pop { opacity: 1; }
+
+/* ─── Tooltip popover — `.tag-pop` ───────────────────────────────────────
+   Shared hover tooltip: absolutely positioned above its host, hidden until the
+   host is hovered. Host must be position:relative. Consumers: weapon tag chips
+   (.tag.chip), the melee/missile kind-seg switch, and the hit/dmg .wstat
+   buttons (the latter two are Actions-tab classes, matched here as descendants
+   of the reveal selectors). Ported from the retired actions.scss rule — tokens
+   de-fallbacked and the shadow expressed in oklch to match vellum (same black @
+   30% → identical render). */
+.tag-pop {
+  position: absolute;
+  bottom: calc(100% + var(--spacer-1));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  white-space: nowrap;
+  padding: var(--spacer-1) var(--spacer-2);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px oklch(0 0 0 / 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+}
+.tag.chip:hover .tag-pop,
+.kind-seg:hover .tag-pop,
+.wstat:hover .tag-pop { opacity: 1; }
+
+/* ─── SectionHeader — title row + optional right-aligned control ─────────
+   The SectionHeader component's layout (was `.rs-feat-head` in features.scss):
+   a full-width flex row with a bottom rule, the SectionTitle flexed to fill and
+   its own rule/margins neutralised. `.section-header .section-title` scopes to
+   (0,3,0), outranking both the vellum `.section-title` base (0,2,0) and the
+   actions.scss override (0,1,0), so the title reset wins as before. */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacer-3);
+  margin: 0 0 var(--spacer-2);
+  padding-bottom: var(--spacer-1);
+  border-bottom: 2px solid var(--border);
+}
+.section-header .section-title { flex: 1; margin: 0; padding-bottom: 0; border-bottom: none; }
 
 /* ─── Pips — dot-meter (spell casts / slot pips) ─────────────────────────
-   Class-agnostic skeleton for the Pips primitive. Kept to the intersection both
-   call sites (.sp-dots/.sp-dot casts, .slots/.rs-pip level pips) already share —
-   round dots, token gap, gold ink when filled. Size + empty fill stay on the
-   contextual classes and are deliberately NOT set here: vellum's .reactor-sheet
-   scoping outranks those bare selectors, so anything in this base overrides them
-   rather than deferring, which would break reskin-free. */
+   Vellum-native, fully self-contained (Wave 2). Two variants cover both call
+   sites the primitive was extracted from:
+     • default (md, solid) — cast dots: 16px gold-soft disc, gold when filled.
+       `size="sm"` → 9px (the Actions/Spells cast rows use this).
+     • `.hollow` — slot pips: bordered ring that holds an optional `glyph`
+       (the level-head slot diamonds); fills gold with an on-accent glyph.
+   Raw px (dot sizes, 1.5px ring, 8px glyph) are intentional and vellum-exempt
+   from the SCSS px guardrail. */
 .pips { display: inline-flex; align-items: center; gap: var(--spacer-1); }
-.pip { border-radius: 50%; }
+.pip {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-soft);
+}
 .pip.filled { background: var(--gold); border-color: var(--gold); }
+/* sm — cast dots */
+.pips.sm .pip { width: 9px; height: 9px; }
+/* hollow — bordered ring holding an optional glyph (slot pips) */
+.pips.hollow .pip {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  display: grid;
+  place-items: center;
+  color: var(--gold);
+  font-size: 8px;
+}
+.pips.hollow .pip.filled {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--on-accent);
+}
 
 /* ─── StatPlaque — stat cell (stamp key · value · caption) ───────────────
-   Skeleton for the StatPlaque primitive, shared by ability plaques (.rs-abil)
-   and the saves grid (.fvtt-save). Same specificity story as .pips: vellum's
-   .reactor-sheet scoping makes `.plaque` (0,2,0) outrank the bare `.rs-abil`/
-   `.fvtt-save` call-site rules (0,1,0), so this base can only safely carry
-   declarations that are byte-identical in BOTH — which is just `text-align`.
-   The two cells disagree on everything else (fill, border, radius, padding,
-   flex-vs-block layout), so those stay on the contextual classes. */
+   Vellum-native (Wave 2). Two variants, selected by the StatPlaque `variant`
+   prop, which maps to a single namespaced class; sub-elements use generic
+   classes scoped under the variant: `.pk` (stamp key), `.pv` (value), `.pc`
+   (caption).
+     • `.plaque-ability` — gold-framed plaque (inner hairline + corner
+       brackets), big serif value, gold-on-ink mod pill pinned to the bottom.
+     • `.plaque-save` — inked surface card, 22px ink stamp, mono target, label.
+   Naming: variant classes are `plaque-ability`/`plaque-save`, NOT bare
+   `ability`/`save` — tokens.css already ships unrelated `.ability`/`.save`
+   grid-row components, so a bare modifier would inherit their `display:grid`.
+   Specificity: `.plaque-<v> .pk` scopes to (0,3,0), tying `.stamp.sm` (0,3,0),
+   but this file loads after tokens.css so `.pk` wins the tie. For `.plaque-save`
+   that lets `.pk` own the full stamp geometry incl. `padding:0`/`font-size`
+   (folds in the old `.fvtt-save .stamp.sk` reconciliation — 22px square, no
+   inflation). For `.plaque-ability` the stamp padding/font-size are
+   intentionally NOT set, so `.stamp.sm` keeps supplying them exactly as before
+   (parity with the old `.rs-abil .rs-abil-k`, whose padding was already
+   outranked by `.stamp.sm`). The Actions XS overrides (`.reactor-sheet-app
+   .plaque-ability …` in actions.scss) load after this file, so they still win
+   at ≤479px. */
 .plaque { text-align: center; }
+
+/* ── Ability plaque ─────────────────────────────────────────────────────── */
+.plaque-ability {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 96px;
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--gold-soft);
+  border-radius: var(--r-sm);
+  padding: var(--spacer-2) 6px 30px;
+  text-align: center;
+  overflow: hidden;
+}
+/* Inner hairline frame (corners connect) */
+.plaque-ability::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--gold-soft);
+  border-radius: 2px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+/* Gold corner brackets reinforcing where the frame lines meet */
+.plaque-ability::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  pointer-events: none;
+  opacity: 0.85;
+  background:
+    linear-gradient(var(--gold), var(--gold)) 0 0 / 9px 1.5px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) 0 0 / 1.5px 9px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) 100% 0 / 9px 1.5px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) 100% 0 / 1.5px 9px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) 0 100% / 9px 1.5px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) 0 100% / 1.5px 9px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) 100% 100% / 9px 1.5px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) 100% 100% / 1.5px 9px no-repeat;
+}
+[data-theme="cream"] .plaque-ability { background: var(--surface); }
+[data-theme="cream"] .plaque-ability.rollable:hover { background: var(--surface-2); }
+/* Stamp: stretched ink label near the top (padding/font-size left to .stamp.sm) */
+.plaque-ability .pk { align-self: stretch; margin: 1px 7px 0; width: auto; }
+/* Big serif value fills the middle */
+.plaque-ability .pv {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-family: var(--display);
+  font-size: var(--fs-4xl);
+  line-height: 1;
+  color: var(--text);
+  margin: 0;
+}
+/* Mod pill: gold-on-ink capsule pinned to the bottom edge */
+.plaque-ability .pc {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  min-width: 38px;
+  background: var(--ink);
+  border-radius: 99px;
+  padding: 2px 9px 1px;
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--gold);
+}
+[data-theme="cream"] .plaque-ability .pc {
+  background: color-mix(in srgb, var(--ink) 7%, var(--surface));
+  color: var(--ink);
+}
+/* rollable affordance (gold border + focus ring) */
+.plaque-ability.rollable { cursor: pointer; transition: border-color 0.12s, box-shadow 0.12s; }
+.plaque-ability.rollable:hover { border-color: var(--gold); }
+.plaque-ability.rollable:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+
+/* ── Save plaque ────────────────────────────────────────────────────────── */
+.plaque-save {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  padding: var(--spacer-2) var(--spacer-1) 7px;
+  text-align: center;
+  transition: border-color 0.12s, background 0.12s;
+}
+.plaque-save.rollable { cursor: pointer; }
+.plaque-save.rollable:hover { border-color: var(--gold); background: var(--surface-2); }
+.plaque-save.rollable:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+/* 22px ink stamp (folds in the old .fvtt-save .stamp.sk reconciliation) */
+.plaque-save .pk {
+  width: 22px;
+  height: 22px;
+  margin: 0 auto var(--spacer-1);
+  padding: 0;
+  background: var(--ink);
+  color: var(--stamp-text);
+  border-radius: var(--r-sm);
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-size: var(--fs-xs);
+}
+.plaque-save .pv {
+  font-family: var(--mono);
+  font-size: var(--fs-md);
+  color: var(--text);
+}
+.plaque-save .pc {
+  display: block;
+  font-family: var(--sans);
+  font-size: 8px; /* micro-label; no sub-10px --fs token (vellum px-exempt) */
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
 
 /* ─── Modal / Dialog ────────────────────────────────────────────────── */
 

@@ -11,13 +11,10 @@ export function AbilityPlaques({ abilities, onRoll }: Props) {
         {abilities.map((a) => (
           <StatPlaque
             key={a.key}
-            className="rs-abil"
-            stampClassName="rs-abil-k"
+            variant="ability"
             stampKey={a.label}
             value={a.value}
             caption={a.modLabel}
-            valueClassName="av"
-            captionClassName="am"
             onActivate={onRoll && (() => onRoll(a.key))}
             title={onRoll ? `Roll ${a.label} check` : undefined}
             data-testid={`ability-${a.key}`}

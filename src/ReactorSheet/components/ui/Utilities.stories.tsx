@@ -1,4 +1,4 @@
-// Demos the vellum utility classes (styles/vellum/utilities.css). Story-only
+// Demos the vellum utility classes (styles/vellum/utilities.scss). Story-only
 // scaffolding — a few inline styles size the demo boxes; the utilities under
 // test are the `u-*` classes.
 
