@@ -83,17 +83,24 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
     }
   };
 
+  // Vellum utilities + a few layout/typography one-offs inline; no crash.scss.
   return (
-    <div className="osc-crash">
+    <div
+      className="u-stack u-items-start u-justify-center u-mx-auto u-py-8 u-px-6"
+      style={{ height: "100%", maxWidth: "56ch" }}
+    >
       <SectionTitle variant="bare">Well, this is embarrassing</SectionTitle>
-      <p className="osc-crash-msg">
+      <p className="u-m-0 u-text-dim" style={{ fontSize: "var(--fs-base)" }}>
         Sorry — the sheet hit an error it couldn&apos;t recover from. Your
         character data is safe; only the display crashed.
       </p>
-      <p className="osc-crash-err">
+      <p
+        className="mono u-m-0 u-text-danger"
+        style={{ fontSize: "var(--fs-sm)", overflowWrap: "anywhere" }}
+      >
         {error.name}: {error.message}
       </p>
-      <div className="osc-crash-actions">
+      <div className="u-row u-mt-2">
         <Button variant="primary" onClick={onReopen}>
           Reopen sheet
         </Button>
@@ -106,16 +113,48 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
           </Button>
         )}
       </div>
-      <details className="osc-crash-details">
-        <summary>Technical details</summary>
-        <pre>{details}</pre>
+      <details className="u-mt-2" style={{ alignSelf: "stretch" }}>
+        <summary
+          className="u-text-muted"
+          style={{
+            cursor: "pointer",
+            fontSize: "var(--fs-xs)",
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+          }}
+        >
+          Technical details
+        </summary>
+        <pre
+          className="mono u-my-2 u-p-3 u-text-dim u-bg-surface u-border-soft"
+          style={{
+            maxHeight: "14rem",
+            overflow: "auto",
+            whiteSpace: "pre-wrap",
+            overflowWrap: "anywhere",
+            fontSize: "var(--fs-2xs)",
+            borderRadius: "var(--r-md)",
+            userSelect: "text",
+          }}
+        >
+          {details}
+        </pre>
         <Button size="sm" variant="ghost" onClick={() => void copy()}>
           {copied ? "Copied" : "Copy for bug report"}
         </Button>
       </details>
-      <p className="osc-crash-report">
+      <p className="u-m-0 u-text-muted" style={{ fontSize: "var(--fs-xs)" }}>
         If this keeps happening, please{" "}
-        <a href={issuesUrl()} target="_blank" rel="noreferrer">
+        <a
+          href={issuesUrl()}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            color: "var(--gold)",
+            textDecoration: "underline",
+            cursor: "pointer",
+          }}
+        >
           file an issue
         </a>{" "}
         with the copied details.
