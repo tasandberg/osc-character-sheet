@@ -1,5 +1,5 @@
 // Deterministic Vellum CSS build for design-sync.
-// Mirrors the app/Ladle pipeline: scope tokens.css + components.css with the
+// Mirrors the app/Storybook pipeline: scope tokens.css + components.css with the
 // same postcss scoper the app uses, compile styles.scss (already
 // .reactor-sheet-scoped in source) with dart-sass, concatenate.
 // Output → .design-sync/.cache/vellum-bundle.css (cfg.cssEntry points here).

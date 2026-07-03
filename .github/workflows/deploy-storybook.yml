@@ -1,7 +1,7 @@
-name: Deploy Ladle
+name: Deploy Storybook
 
-# Republish the Ladle UI-library preview on every merge to main.
-# Served at https://tasandberg.github.io/reactor-sheet/ladle/.
+# Republish the Storybook UI-library preview on every merge to main.
+# Served at https://tasandberg.github.io/reactor-sheet/storybook/.
 on:
   push:
     branches: [main]
@@ -12,7 +12,7 @@ permissions:
 
 # Never let two deploys race the gh-pages branch.
 concurrency:
-  group: deploy-ladle
+  group: deploy-storybook
   cancel-in-progress: true
 
 jobs:
@@ -32,12 +32,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Base path must match where it's served on gh-pages (the ladle/ subfolder).
-      - run: pnpm ladle:build --base /reactor-sheet/ladle/
+      # Storybook static output uses relative asset paths, so it serves fine
+      # from the /reactor-sheet/storybook/ subfolder without a base flag.
+      - run: pnpm storybook:build
 
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
-          destination_dir: ladle
+          publish_dir: ./storybook-static
+          destination_dir: storybook
           keep_files: true # preserve the rest of the gh-pages branch

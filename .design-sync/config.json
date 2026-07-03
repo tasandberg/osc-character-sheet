@@ -41,7 +41,12 @@
     "Toast": "src/ReactorSheet/components/ui/Toast.tsx",
     "Menu": "src/ReactorSheet/components/ui/Menu.tsx",
     "Empty": "src/ReactorSheet/components/ui/Empty.tsx",
-    "Skeleton": "src/ReactorSheet/components/ui/Skeleton.tsx"
+    "Skeleton": "src/ReactorSheet/components/ui/Skeleton.tsx",
+    "Monogram": "src/ReactorSheet/components/ui/Monogram.tsx",
+    "StampCell": "src/ReactorSheet/components/ui/StampCell.tsx",
+    "PortraitField": "src/ReactorSheet/components/ui/PortraitField.tsx",
+    "ConfirmDialog": "src/ReactorSheet/components/ui/ConfirmDialog.tsx",
+    "InlineButton": "src/ReactorSheet/components/ui/InlineButton.tsx"
   },
   "dtsPropsFor": {
     "Button": "variant?: \"primary\" | \"danger\" | \"ghost\";\n  size?: \"sm\";\n  children?: React.ReactNode;\n  /** plus native <button> attributes (onClick, disabled, type, …) */\n  [key: string]: unknown;",

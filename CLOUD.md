@@ -1,12 +1,12 @@
 # Cloud / Headless Development
 
-How autonomous / cloud agents build, verify, and preview this module **without a local Foundry server**. In-game checks aren't possible in the cloud — rely on the headless gates below plus the published Ladle preview.
+How autonomous / cloud agents build, verify, and preview this module **without a local Foundry server**. In-game checks aren't possible in the cloud — rely on the headless gates below plus the published Storybook preview.
 
 ## Stack & setup
 
 - Package manager: **pnpm**. Node 22.x (repo built/tested on v22).
 - Install: `pnpm install`.
-- Key deps: Vite 8, React 19, TypeScript ~5.8, `foundry-vtt-react` (React-in-Foundry framework), Ladle (component workbench), vitest.
+- Key deps: Vite 8, React 19, TypeScript ~5.8, `foundry-vtt-react` (React-in-Foundry framework), Storybook (component workbench), vitest.
 
 ## What works headless (no Foundry needed)
 
@@ -16,15 +16,13 @@ These are the real gates a cloud agent can run:
 - `pnpm build` — `tsc -b && vite build`; writes `dist/` (`main.js`, `main.css`, fonts).
 - `pnpm lint` — `eslint .`.
 - `pnpm test` — `vitest run` (currently ~11 tests). `pnpm test:watch` for watch mode.
-- `pnpm ladle:build` / `pnpm ladle` — Ladle static build / dev server.
-
-> **Not yet on this branch:** `@ladle/react` and the `ladle` / `ladle:build` scripts are **added by the P2 plan** (`docs/superpowers/plans/2026-06-15-reactor-sheet-ui-library.md`). Until that lands, the Ladle gates don't exist — use tsc / build / lint / test.
+- `pnpm storybook:build` / `pnpm storybook` — Storybook static build / dev server.
 
 ## What needs local Foundry (NOT available in cloud)
 
 - `pnpm dev` (`vite`) renders the sheet **inside a running Foundry** via the dev proxy — no Foundry, nothing to see.
 - In-game / visual verification uses the local **dockerized Foundry** (`local-foundry-docker` workflow).
-- A cloud agent **cannot** do in-game checks. Substitute: the headless gates above + the published **Ladle preview**.
+- A cloud agent **cannot** do in-game checks. Substitute: the headless gates above + the published **Storybook preview**.
 
 ## CSS pipeline gotcha
 
@@ -46,13 +44,13 @@ These are the real gates a cloud agent can run:
 
 ## Preview / deploy
 
-- Ladle static build is published to **GitHub Pages** under `/reactor-sheet/ladle/` — a `ladle/` subdir of the `gh-pages` branch, so it doesn't occupy the Pages root:
+- Storybook static build is published to **GitHub Pages** under `/reactor-sheet/storybook/` — a `storybook/` subdir of the `gh-pages` branch, so it doesn't occupy the Pages root:
   ```bash
-  pnpm ladle:build --base=/reactor-sheet/ladle/
-  npx gh-pages -d build --dest ladle --add -b gh-pages
+  pnpm storybook:build
+  npx gh-pages -d storybook-static --dest storybook --add -b gh-pages
   ```
-  `--add` updates only those files; the Pages root stays free. Requires Pages enabled on the repo once. Preview: `https://tasandberg.github.io/reactor-sheet/ladle/`.
-- **Alternative:** Netlify draft deploy with `NETLIFY_AUTH_TOKEN` — `pnpm dlx netlify-cli deploy --dir=build`.
+  `--add` updates only those files; the Pages root stays free. Requires Pages enabled on the repo once. Preview: `https://tasandberg.github.io/reactor-sheet/storybook/`.
+- **Alternative:** Netlify draft deploy with `NETLIFY_AUTH_TOKEN` — `pnpm dlx netlify-cli deploy --dir=storybook-static`.
 
 ## dist note
 
@@ -67,6 +65,6 @@ These are the real gates a cloud agent can run:
 3. `pnpm lint` — clean
 4. `pnpm test` — green
 5. `pnpm build` — green
-6. `pnpm ladle:build` — success (once Ladle exists); publish the preview for visual review
+6. `pnpm storybook:build` — success; publish the preview for visual review
 7. If build output changed, commit `dist/` (until issue #7 lands)
 8. Branch off / PR into `osc-sheet` — never push `main`

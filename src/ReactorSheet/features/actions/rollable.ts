@@ -1,7 +1,7 @@
 import type { KeyboardEvent } from "react";
 
 /** Props that turn any element into a keyboard-accessible click target.
- *  Returns nothing when there's no handler (read-only, e.g. Ladle stories). */
+ *  Returns nothing when there's no handler (read-only, e.g. Storybook stories). */
 export function rollable(onActivate?: () => void) {
   if (!onActivate) return {};
   return {

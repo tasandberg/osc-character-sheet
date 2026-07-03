@@ -6,7 +6,7 @@ import { SectionTitle } from "@ui/SectionTitle";
 
 export default { title: "Shell / App Shell" };
 
-// Glyph icons (FontAwesome isn't loaded in Ladle); the real sheet passes <i class="fa…"/>.
+// Glyph icons (FontAwesome isn't loaded in Storybook); the real sheet passes <i class="fa…"/>.
 const TABS: TabItem[] = [
   { id: "actions", label: "Actions", icon: <span>◈</span> },
   { id: "inventory", label: "Inventory", icon: <span>▤</span>, count: 15 },

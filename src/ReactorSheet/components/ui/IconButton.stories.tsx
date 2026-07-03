@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { IconButton } from "./IconButton";
 
 export default { title: "Controls / IconButton" };
@@ -27,3 +28,25 @@ export const Variants = () => (
     </IconButton>
   </div>
 );
+
+// Expand/collapse toggle. Some callers (e.g. FeatureCard) pass a raw chevron
+// glyph string child instead of an FA <i>; this documents that state.
+export const ExpandToggle = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+      <IconButton
+        on={open}
+        onClick={() => setOpen((o) => !o)}
+        title={open ? "Collapse" : "Expand"}
+        aria-label={open ? "Collapse" : "Expand"}
+        aria-expanded={open}
+      >
+        {open ? "▾" : "▸"}
+      </IconButton>
+      <IconButton title="Expand" aria-label="Expand" aria-expanded={false}>
+        <i className="fa-solid fa-chevron-right" aria-hidden="true" />
+      </IconButton>
+    </div>
+  );
+};
