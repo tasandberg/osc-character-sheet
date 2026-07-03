@@ -1,0 +1,10 @@
+import{i as e}from"./preload-helper-xPQekRTU.js";import{t}from"./iframe-hLbHAMVa.js";import{n,t as r}from"./cx-DHrSZD_0.js";function i({value:e,max:t,color:r=`var(--teal)`,className:i}){let o=t>0?Math.min(100,Math.max(0,e/t*100)):0;return(0,a.jsx)(`div`,{className:n(`progress`,i),role:`progressbar`,"aria-valuenow":e,"aria-valuemin":0,"aria-valuemax":t,style:{background:`var(--surface-3)`,borderRadius:`var(--r-sm)`,overflow:`hidden`,height:8},children:(0,a.jsx)(`div`,{style:{width:`${o}%`,height:`100%`,background:r}})})}var a,o=e((()=>{r(),a=t(),i.__docgenInfo={description:`@category Display`,methods:[],displayName:`ProgressBar`,props:{value:{required:!0,tsType:{name:`number`},description:``},max:{required:!0,tsType:{name:`number`},description:``},color:{required:!1,tsType:{name:`string`},description:`token color var name for the fill, default --teal`,defaultValue:{value:`"var(--teal)"`,computed:!1}},className:{required:!1,tsType:{name:`string`},description:``}}}})),s,c,l,u;e((()=>{o(),s=t(),c={title:`Display / ProgressBar`},l=()=>(0,s.jsxs)(`div`,{style:{display:`flex`,flexDirection:`column`,gap:12},children:[(0,s.jsx)(i,{value:8,max:9,color:`var(--crimson)`}),(0,s.jsx)(i,{value:6420,max:1e4}),(0,s.jsx)(i,{value:10,max:10}),(0,s.jsx)(i,{value:0,max:10})]}),l.__docgenInfo={description:``,methods:[],displayName:`Bars`},l.parameters={...l.parameters,docs:{...l.parameters?.docs,source:{originalSource:`() => <div style={{
+  display: "flex",
+  flexDirection: "column",
+  gap: 12
+}}>
+    <ProgressBar value={8} max={9} color="var(--crimson)" />
+    <ProgressBar value={6420} max={10000} />
+    <ProgressBar value={10} max={10} />
+    <ProgressBar value={0} max={10} />
+  </div>`,...l.parameters?.docs?.source}}},u=[`Bars`]}))();export{l as Bars,u as __namedExportsOrder,c as default};
