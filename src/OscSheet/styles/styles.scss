@@ -44,8 +44,48 @@
     }
   }
 
+  // --- native ⋮ controls menu -----------------------------------------
+  // The header ⋮ toggle and its dropdown are Foundry's own controls UI:
+  // core collects the entries (incl. module getHeaderControls* hooks),
+  // filters visibility/ownership, localizes, and dispatches clicks — we
+  // only reskin. v13 renders this in-frame <menu class="controls-dropdown">
+  // (a sibling of .window-content, so it inherits the frame's [data-theme]
+  // tokens and is safely scoped under .osc-sheet). v14 instead opens the
+  // global #context-menu popover on document.body — that one keeps core
+  // styling; reskinning it would leak into every other app's context menu.
   .controls-dropdown {
-    z-index: 3;
+    z-index: 3; // above the React topbar
+    background: var(--surface, #23201a);
+    border: 1px solid var(--border, #3a342c);
+    border-radius: var(--r-md, 6px);
+    box-shadow:
+      0 8px 24px oklch(0 0 0 / 0.35),
+      0 2px 4px oklch(0 0 0 / 0.2);
+
+    // Entries: match the vellum .menu-item look. Core animates open/closed
+    // via max-height on the <menu>, so spacing stays on the items (margins
+    // collapse to nothing at max-height: 0) rather than menu padding.
+    .header-control {
+      margin: var(--spacer-1, 4px);
+
+      > .control {
+        gap: var(--spacer-2, 8px);
+        padding: var(--spacer-2, 8px) var(--spacer-3, 12px);
+        border-radius: var(--r-sm, 4px);
+        font-family: var(--sans);
+        font-size: var(--fs-sm, 13px);
+        color: var(--text, #e5dec8);
+
+        &:hover {
+          background: var(--surface-2, #2e2a23);
+          color: var(--text, #e5dec8);
+        }
+
+        .control-icon {
+          color: var(--text-mute, #8a8270);
+        }
+      }
+    }
   }
 
   .window-content {
