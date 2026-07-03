@@ -1,7 +1,7 @@
 name: E2E Test Suite
 
-# Runs the reactor-sheet Playwright E2E specs headlessly against a real Foundry
-# v14 server (OSE system + reactor-sheet module). Needs repo secrets
+# Runs the osc-character-sheet Playwright E2E specs headlessly against a real Foundry
+# v14 server (OSE system + osc-character-sheet module). Needs repo secrets
 # FOUNDRY_USERNAME / FOUNDRY_PASSWORD — see tools/e2e/README.md.
 
 on:
@@ -85,12 +85,12 @@ jobs:
           restore-keys: |
             foundry-dist-
 
-      - name: Build the reactor-sheet module
+      - name: Build the osc-character-sheet module
         run: |
           pnpm install --frozen-lockfile
           pnpm build
 
-      - name: Assemble Foundry data directory (OSE + reactor-sheet + world)
+      - name: Assemble Foundry data directory (OSE + osc-character-sheet + world)
         run: |
           mkdir -p "${DATA_DIR}"
           tools/e2e/setup-data-dir.sh "${DATA_DIR}" "${GITHUB_WORKSPACE}"

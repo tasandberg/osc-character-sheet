@@ -1,7 +1,7 @@
 {
   "id": "e2e",
-  "title": "Reactor Sheet E2E World",
-  "description": "Minimal world used only to load the OSE system + reactor-sheet module and run the Playwright E2E suite in CI. Tests seed their own actor; this world ships no content.",
+  "title": "OSC Character Sheet E2E World",
+  "description": "Minimal world used only to load the OSE system + osc-character-sheet module and run the Playwright E2E suite in CI. Tests seed their own actor; this world ships no content.",
   "system": "ose",
   "coreVersion": "14",
   "compatibility": {

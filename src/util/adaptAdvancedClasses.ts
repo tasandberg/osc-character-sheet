@@ -8,7 +8,7 @@ import logger from "@src/util/logger";
  * The classic-fantasy module publishes canonical defs at
  * `CONFIG.OSE.classes.classic`, but the advanced tome only exposes a different
  * raw shape on the `OSE.data.classes.advanced` global. This bridges the two so
- * reactor-sheet can read every class from one canonical place.
+ * osc-sheet can read every class from one canonical place.
  */
 
 /** The advanced tome's raw per-class shape (only the fields we consume). */

@@ -1,8 +1,8 @@
 {
-  "name": "reactor-sheet-e2e",
+  "name": "osc-character-sheet-e2e",
   "version": "0.0.0",
   "private": true,
-  "description": "Headless Playwright E2E suite for the reactor-sheet Foundry module. Standalone so its Playwright dependency stays out of the module's build/runtime deps.",
+  "description": "Headless Playwright E2E suite for the osc-character-sheet Foundry module. Standalone so its Playwright dependency stays out of the module's build/runtime deps.",
   "type": "module",
   "scripts": {
     "test": "playwright test",

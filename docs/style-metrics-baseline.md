@@ -16,7 +16,7 @@ Ad-hoc styling snapshot for the UI-consolidation effort. Regenerate with
 `props` = count of `style={{…}}` attributes; `cssDecls` = CSS declarations
 within them. Stories are demo scaffolding — tracked separately, not a target.
 
-## Ad-hoc SCSS (`src/ReactorSheet/styles/*.scss`, outside `vellum/`)
+## Ad-hoc SCSS (`src/OscSheet/styles/*.scss`, outside `vellum/`)
 
 | file             | rules | hex |  px |
 | ---------------- | ----: | --: | --: |
@@ -53,7 +53,7 @@ values (var() fallbacks excluded from hex).
   that pre-B1 tip on every metric** — both new stories (SectionHeader, Pips) use
   `u-*` utilities with zero inline `style={{}}`, and the Pips vellum base
   (`.pips`/`.pip`) lives under `vellum/`, so it doesn't count against the
-  non-vellum `.rs-*` total.
+  non-vellum `.osc-*` total.
 
 | Checkpoint | inline app (files/props/decls) | inline stories | non-vellum scss (rules/hex/px) |
 | ---------- | ------------------------------ | -------------- | ------------------------------ |
@@ -127,10 +127,10 @@ on hand-rolled markup while metrics held flat-to-down throughout.
 ## After Wave 2 (OLD-31)
 
 - **Commit:** e1974fb (branch `feat/vellum-wave2-sweep`; measured at the block-4 tip).
-- **The `.rs-*` sweep lands the wave's biggest drop.** Wave 2 reverses P1's
+- **The `.osc-*` sweep lands the wave's biggest drop.** Wave 2 reverses P1's
   hold-in-scss stance: the divergent call-site styling (pips, plaques, tooltip,
   section header) moves INTO vellum as component variants/size props, and the
-  `.rs-*` blocks are deleted. Non-vellum SCSS drops **2033 → 1927 rules (−106)**
+  `.osc-*` blocks are deleted. Non-vellum SCSS drops **2033 → 1927 rules (−106)**
   and **633 → 581 px (−52)**; hex flat (17). Inline app/story counts stay flat —
   none of it involves `style={{}}`, and updated stories use `u-*` utilities +
   variant props. The `utilities.css → utilities.scss` conversion (generated via

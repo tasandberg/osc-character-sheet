@@ -23,7 +23,7 @@ const MACRO_NAME = "Dagger";
 
 /**
  * In the page: fire a real `dragstart` on `sourceSel` (optionally resolved to its
- * `.rs-inv-row` ancestor) to capture the component's `text/plain` payload, then
+ * `.osc-inv-row` ancestor) to capture the component's `text/plain` payload, then
  * dispatch dragenter/dragover/drop carrying it onto the first hotbar slot. Returns
  * the captured payload so the test can assert the component wrote item drag-data.
  */
@@ -35,7 +35,7 @@ async function dragSourceToHotbar(
   return page.evaluate(
     ({ sel, row }) => {
       let src = document.querySelector(sel) as HTMLElement | null;
-      if (src && row) src = src.closest(".rs-inv-row");
+      if (src && row) src = src.closest(".osc-inv-row");
       if (!src) throw new Error(`drag source not found: ${sel}`);
 
       // 1. capture the payload the component writes in its onDragStart.

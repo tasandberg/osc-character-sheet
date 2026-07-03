@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = path.join(root, "src");
-const SCSS_DIR = path.join(root, "src/ReactorSheet/styles");
+const SCSS_DIR = path.join(root, "src/OscSheet/styles");
 
 // ── file walking ────────────────────────────────────────────────────────
 function walk(dir, test) {
@@ -117,7 +117,7 @@ console.log(`  ${pad("bucket", 10)} ${num("files", 6)} ${num("props", 6)} ${num(
 console.log(`  ${pad("app", 10)} ${num(app.files, 6)} ${num(app.styleProps, 6)} ${num(app.cssProps, 9)} ${num(app.hex, 5)} ${num(app.px, 5)}`);
 console.log(`  ${pad("stories", 10)} ${num(stories.files, 6)} ${num(stories.styleProps, 6)} ${num(stories.cssProps, 9)} ${num(stories.hex, 5)} ${num(stories.px, 5)}`);
 
-console.log("\nAd-hoc SCSS (src/ReactorSheet/styles/*.scss, outside vellum/)");
+console.log("\nAd-hoc SCSS (src/OscSheet/styles/*.scss, outside vellum/)");
 console.log(`  ${pad("file", 22)} ${num("rules", 6)} ${num("hex", 5)} ${num("px", 5)}`);
 for (const [f, m] of Object.entries(scssPerFile)) {
   console.log(`  ${pad(f, 22)} ${num(m.ruleLines, 6)} ${num(m.hex, 5)} ${num(m.px, 5)}`);

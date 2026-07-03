@@ -28,7 +28,7 @@ These are the real gates a cloud agent can run:
 
 - **Dev:** Vite injects the sheet CSS on mount — styles only appear once a sheet opens.
 - **Prod:** `dist/main.css` (listed in `module.json` `styles`) loads globally.
-- All Vellum tokens/reset are **scoped to `.reactor-sheet-app`** (the React content) via `postcss.config.mjs` → `tools/postcss/scope-vellum.mjs`. The Foundry window titlebar/frame is intentionally untouched.
+- All Vellum tokens/reset are **scoped to `.osc-sheet-app`** (the React content) via `postcss.config.mjs` → `tools/postcss/scope-vellum.mjs`. The Foundry window titlebar/frame is intentionally untouched.
 
 ## Branch model
 
@@ -39,22 +39,22 @@ These are the real gates a cloud agent can run:
 ## Planning docs are mostly local
 
 - `.gitignore` ignores `docs/plans/` (local planning). Other `docs/**` paths can be committed.
-- A plan a cloud agent must execute has to be **committed explicitly** — e.g. the P2 plan at `docs/superpowers/plans/2026-06-15-reactor-sheet-ui-library.md`.
+- A plan a cloud agent must execute has to be **committed explicitly** — e.g. a committed plan under `docs/superpowers/plans/`.
 - This `CLOUD.md` is committed precisely because cloud agents need it at the repo root.
 
 ## Preview / deploy
 
-- Storybook static build is published to **GitHub Pages** under `/reactor-sheet/storybook/` — a `storybook/` subdir of the `gh-pages` branch, so it doesn't occupy the Pages root:
+- Storybook static build is published to **GitHub Pages** under `/osc-character-sheet/storybook/` — a `storybook/` subdir of the `gh-pages` branch, so it doesn't occupy the Pages root:
   ```bash
   pnpm storybook:build
   npx gh-pages -d storybook-static --dest storybook --add -b gh-pages
   ```
-  `--add` updates only those files; the Pages root stays free. Requires Pages enabled on the repo once. Preview: `https://tasandberg.github.io/reactor-sheet/storybook/`.
+  `--add` updates only those files; the Pages root stays free. Requires Pages enabled on the repo once. Preview: `https://tasandberg.github.io/osc-character-sheet/storybook/`.
 - **Alternative:** Netlify draft deploy with `NETLIFY_AUTH_TOKEN` — `pnpm dlx netlify-cli deploy --dir=storybook-static`.
 
 ## dist note
 
-- `dist/` is **currently committed** (build output). A follow-up ([issue #7](https://github.com/tasandberg/reactor-sheet/issues/7)) will stop committing it.
+- `dist/` is **currently committed** (build output). A follow-up ([issue #7](https://github.com/tasandberg/osc-character-sheet/issues/7)) will stop committing it.
 - Until then: if you change build output, rebuild (`pnpm build`) and commit `dist/`.
 - `tools/release.mjs` runs `pnpm build` before zipping, so releases always ship fresh output.
 

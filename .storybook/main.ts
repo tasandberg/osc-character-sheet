@@ -9,7 +9,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const config: StorybookConfig = {
   // Covers ui + layout + features (the old Ladle glob missed layout/features).
-  stories: ["../src/ReactorSheet/**/*.stories.@(tsx|mdx)"],
+  stories: ["../src/OscSheet/**/*.stories.@(tsx|mdx)"],
   addons: [
     "@storybook/addon-a11y", // accessibility audit panel — catches contrast/aria
   ],
@@ -27,11 +27,11 @@ const config: StorybookConfig = {
         // Mirror vite.config.ts aliases so layout/features stories resolve.
         alias: {
           "@src": path.resolve(dirname, "../src"),
-          "@app": path.resolve(dirname, "../src/ReactorSheet/app"),
-          "@layout": path.resolve(dirname, "../src/ReactorSheet/layout"),
-          "@features": path.resolve(dirname, "../src/ReactorSheet/features"),
-          "@domain": path.resolve(dirname, "../src/ReactorSheet/domain"),
-          "@ui": path.resolve(dirname, "../src/ReactorSheet/components/ui"),
+          "@app": path.resolve(dirname, "../src/OscSheet/app"),
+          "@layout": path.resolve(dirname, "../src/OscSheet/layout"),
+          "@features": path.resolve(dirname, "../src/OscSheet/features"),
+          "@domain": path.resolve(dirname, "../src/OscSheet/domain"),
+          "@ui": path.resolve(dirname, "../src/OscSheet/components/ui"),
         },
       },
     }),

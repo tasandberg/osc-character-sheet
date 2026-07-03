@@ -1,7 +1,7 @@
 name: Deploy Storybook
 
 # Republish the Storybook UI-library preview on every merge to main.
-# Served at https://tasandberg.github.io/reactor-sheet/storybook/.
+# Served at https://tasandberg.github.io/osc-character-sheet/storybook/.
 on:
   push:
     branches: [main]
@@ -33,7 +33,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # Storybook static output uses relative asset paths, so it serves fine
-      # from the /reactor-sheet/storybook/ subfolder without a base flag.
+      # from the /osc-character-sheet/storybook/ subfolder without a base flag.
       - run: pnpm storybook:build
 
       - uses: peaceiris/actions-gh-pages@v4
