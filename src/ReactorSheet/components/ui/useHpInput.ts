@@ -38,7 +38,12 @@ export function useHpInput({
           e.currentTarget.value = String(value);
           return;
         }
-        onSet(clamp(n));
+        const next = clamp(n);
+        // sync the DOM too: when `next` equals the current value (e.g. typing
+        // past max while already at max), the key-remount never fires and the
+        // stale raw text would stay on screen
+        e.currentTarget.value = String(next);
+        onSet(next);
       },
     },
     dec: () => onSet(clamp(value - 1)),
