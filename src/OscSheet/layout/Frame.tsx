@@ -11,7 +11,7 @@ type Props = {
   onSelect: (id: string) => void;
   /** Active tab body — rendered in the right pane. */
   children: ReactNode;
-  /** Optional chrome slots; each falls back to its placeholder. */
+  /** Optional layout slots; each falls back to its placeholder. */
   topbar?: ReactNode;
   header?: ReactNode;
   railExtra?: ReactNode;
@@ -20,7 +20,7 @@ type Props = {
 };
 
 /**
- * Presentational app frame. Chrome regions are slots (placeholder fallback);
+ * Presentational app frame. Layout regions are slots (placeholder fallback);
  * the right pane mounts the active tab body. Responsive reflow lives in shell.scss.
  */
 export function Frame({ tabs, active, onSelect, children, topbar, header, railExtra, minibar }: Props) {

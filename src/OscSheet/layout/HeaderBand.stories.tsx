@@ -1,6 +1,6 @@
 import { HeaderBand } from "@layout/HeaderBand";
 
-export default { title: "Chrome / HeaderBand" };
+export default { title: "Shell / HeaderBand" };
 
 export const Default = () => (
   <HeaderBand

@@ -10,7 +10,7 @@
 .osc-minibar {
   position: sticky;
   top: 0;
-  z-index: 6; // above tab content / sticky inventory heads, below Foundry chrome
+  z-index: 6; // above tab content / sticky inventory heads, below Foundry's window frame
   display: flex;
   align-items: center;
   gap: var(--spacer-3);

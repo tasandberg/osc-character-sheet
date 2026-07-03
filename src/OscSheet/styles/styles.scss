@@ -126,7 +126,7 @@
 
   // Scoped element reset — ONLY elements WE render inside the React app, never
   // Foundry's window-frame controls. Classed Vellum controls (.btn/.input) still win.
-  // Excludes <prose-mirror> internals: that editor is Foundry-rendered chrome
+  // Excludes <prose-mirror> internals: that editor is Foundry-rendered UI
   // (toggle button, menu, contenteditable) and must keep its own core styles.
   :is(button, input, select, textarea):not(prose-mirror *) {
     all: unset;

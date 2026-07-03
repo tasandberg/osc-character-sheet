@@ -5,7 +5,7 @@ import { FEATURES } from "@app/features";
 
 type Props = { vm: TopbarVM; onEdit: () => void; onLevelUp: () => void };
 
-/** Persistent topbar: level, XP, and chrome actions. The bar stays dark in both
+/** Persistent topbar: level, XP, and sheet controls. The bar stays dark in both
  *  themes (--ink). Rest and Level Up are gated behind FEATURES until implemented;
  *  Edit opens the Edit Character modal; the theme toggle is live. At XS the
  *  action buttons collapse into a ⋮ overflow menu. */

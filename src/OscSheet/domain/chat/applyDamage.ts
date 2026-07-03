@@ -44,7 +44,7 @@ export function onRenderChatMessage(message: ChatMessage, html: HTMLElement): vo
     Boolean(flags(message).getFlag(MODULE_ID, "damage")) ||
     Boolean(html.querySelector(".osc-card"));
   if (!isOurs) return;
-  // Take over the message chrome (padding/border/flavor handled in chat.scss).
+  // Take over the message frame (padding/border/flavor handled in chat.scss).
   html.classList.add("osc-message");
 
   const btn = html.querySelector<HTMLButtonElement>('[data-action="osc-apply-damage"]');
