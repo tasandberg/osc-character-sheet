@@ -493,15 +493,39 @@
 .tag.chip:hover .tag-pop { opacity: 1; }
 
 /* ─── Pips — dot-meter (spell casts / slot pips) ─────────────────────────
-   Class-agnostic skeleton for the Pips primitive. Kept to the intersection both
-   call sites (.sp-dots/.sp-dot casts, .slots/.rs-pip level pips) already share —
-   round dots, token gap, gold ink when filled. Size + empty fill stay on the
-   contextual classes and are deliberately NOT set here: vellum's .reactor-sheet
-   scoping outranks those bare selectors, so anything in this base overrides them
-   rather than deferring, which would break reskin-free. */
+   Vellum-native, fully self-contained (Wave 2). Two variants cover both call
+   sites the primitive was extracted from:
+     • default (md, solid) — cast dots: 16px gold-soft disc, gold when filled.
+       `size="sm"` → 9px (the Actions/Spells cast rows use this).
+     • `.hollow` — slot pips: bordered ring that holds an optional `glyph`
+       (the level-head slot diamonds); fills gold with an on-accent glyph.
+   Raw px (dot sizes, 1.5px ring, 8px glyph) are intentional and vellum-exempt
+   from the SCSS px guardrail. */
 .pips { display: inline-flex; align-items: center; gap: var(--spacer-1); }
-.pip { border-radius: 50%; }
+.pip {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-soft);
+}
 .pip.filled { background: var(--gold); border-color: var(--gold); }
+/* sm — cast dots */
+.pips.sm .pip { width: 9px; height: 9px; }
+/* hollow — bordered ring holding an optional glyph (slot pips) */
+.pips.hollow .pip {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  display: grid;
+  place-items: center;
+  color: var(--gold);
+  font-size: 8px;
+}
+.pips.hollow .pip.filled {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--on-accent);
+}
 
 /* ─── StatPlaque — stat cell (stamp key · value · caption) ───────────────
    Skeleton for the StatPlaque primitive, shared by ability plaques (.rs-abil)

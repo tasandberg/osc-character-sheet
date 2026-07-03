@@ -54,8 +54,7 @@ export function SpellCastRow({ spell, meta, onCast, onUnprepare, onOpenName, row
           <Pips
             total={total}
             filled={left}
-            className="sp-dots"
-            dotClassName="sp-dot"
+            size="sm"
             role="img"
             aria-label={`${left} of ${total} casts remaining`}
           />

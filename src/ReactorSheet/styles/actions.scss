@@ -460,14 +460,7 @@
 // Container only; the rows reuse the Spells-tab `.rs-spell` (see MemorizedSpells
 // + spells.scss). Shared bits (.sp-dots/.sp-cast) live below.
 .fvtt-castlist { display: flex; flex-direction: column; margin-top: 2px; }
-// cast dots — one per memorised slot (shared by Actions + Spells). Gold = a cast
-// remaining; light/soft = a used (spent) cast — used dots stay, they don't vanish.
-.sp-dots { display: inline-flex; align-items: center; gap: var(--spacer-1); }
-.sp-dot {
-  width: 9px; height: 9px; border-radius: 50%;
-  background: var(--gold-soft); border: 1px solid var(--gold-soft);
-}
-.sp-dot.filled { background: var(--gold); border-color: var(--gold); }
+// cast dots = <Pips size="sm">; dot styling now lives in vellum (.pips + .pips.sm).
 // cast button (shared by Actions + Spells rows) — small dark rounded button;
 // "spent" is disabled + dimmed.
 .reactor-sheet-app .sp-cast {
