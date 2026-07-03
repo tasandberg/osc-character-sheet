@@ -1,0 +1,67 @@
+// Notes tab. View mode renders Foundry-enriched rich text in our own static card
+// (natural flow → fits content, page scrolls). A pencil swaps in Foundry's
+// <prose-mirror> for editing; its Save persists and returns to the static view.
+
+.osc-notes-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacer-5, 20px);
+}
+
+// ── Static view card ───────────────────────────────────────────────────────
+.osc-rt {
+  position: relative;
+  max-width: 640px; // comfortable reading measure, not the full tab width
+  background: var(--bg-2, #1f1c17); // subtle: barely lifted off the page
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-md, 6px);
+  padding: var(--spacer-2, 8px) var(--spacer-3, 12px);
+}
+// Edit pencil, pinned top-right. Qualified with .osc-rt (0,2,0) so `position`
+// beats the `.osc-sheet-app :is(button,…) { all: unset }` reset (0,1,1) —
+// otherwise it resets to static and drops into normal flow above the text.
+.osc-rt .osc-rt-edit { position: absolute; top: var(--spacer-2, 8px); right: var(--spacer-2, 8px); z-index: 2; }
+// Render in the sheet's reading serif; headings in the display face. Foundry's
+// enricher leaves headings a near-white colour — re-anchor to body.
+.osc-rt-body {
+  color: var(--text, #e7e0cc);
+  font-family: var(--serif);
+  font-size: var(--fs-lg, 16px);
+  line-height: 1.55;
+}
+.osc-rt-body :is(h1, h2, h3, h4, h5, h6) { font-family: var(--display); color: var(--text, #e7e0cc); }
+// Keep Foundry's link/roll chips in the UI sans so they stay crisp in the serif prose.
+.osc-rt-body :is(a.content-link, a.inline-roll) { font-family: var(--sans); }
+.osc-rt-body :first-child { margin-top: 0; }
+.osc-rt-body :last-child { margin-bottom: 0; }
+.osc-rt-empty { margin: 0; color: var(--text-faint, #8a8270); font-style: italic; }
+
+// ── Edit mode (Foundry <prose-mirror>) ─────────────────────────────────────
+.osc-prosemirror { max-width: 640px; }
+.osc-prosemirror prose-mirror {
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-md, 6px);
+  background: var(--bg-2, #1f1c17);
+  overflow: hidden;
+  // Grow with content (like the view card). Foundry lays the editor area out
+  // absolutely, so the element has no content height and stays at a fixed size;
+  // pull the editor container/content/ProseMirror back into normal flow so the
+  // box fits the text and the page scrolls past it. (.menu-container keeps the
+  // toolbar's reserved 42px row.) A small floor keeps short edits comfortable.
+  height: auto;
+  min-height: 120px;
+  .editor-container,
+  .editor-content,
+  .editor-content .ProseMirror {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+
+  .editor-content { padding: var(--spacer-2, 8px) var(--spacer-3, 12px); }
+
+  // Foundry sets a light colour on the contenteditable + near-white headings;
+  // re-anchor both to the sheet's body colour so text shows on our surface.
+  .editor-content .ProseMirror { color: var(--text, #e7e0cc); min-height: var(--spacer-12, 48px); }
+  .editor-content :is(h1, h2, h3, h4, h5, h6) { color: var(--text, #e7e0cc); }
+}

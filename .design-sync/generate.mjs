@@ -21,7 +21,7 @@ const esbuildMod = await import(
 const esbuild = esbuildMod.default ?? esbuildMod;
 const DS = path.join(ROOT, ".design-sync");
 const STAGE = path.join(DS, ".stage");
-const UIDIR = path.join(ROOT, "src/ReactorSheet/components/ui");
+const UIDIR = path.join(ROOT, "src/OscSheet/components/ui");
 // Preview cards are sourced from each component's *.stories.tsx (single source of
 // truth; the old .design-sync/previews mirror is gone). KvCard has its own story.
 const storyPath = (name) => path.join(UIDIR, `${name}.stories.tsx`);
@@ -116,7 +116,7 @@ function htmlFor(name, group) {
       var cpi=PRIMARY?E.indexOf(PRIMARY):-1;
       if(cpi>0){E.splice(cpi,1);E.unshift(PRIMARY)}
     }
-    function mount(id,key){try{ReactDOM.createRoot(document.getElementById(id)).render(h(window.ReactorSheet.VellumRoot,{},h(window.__dsPreview[key])))}catch(e){document.getElementById(id).textContent='⚠ '+(e&&e.message||e)}}
+    function mount(id,key){try{ReactDOM.createRoot(document.getElementById(id)).render(h(window.OscSheet.VellumRoot,{},h(window.__dsPreview[key])))}catch(e){document.getElementById(id).textContent='⚠ '+(e&&e.message||e)}}
     var pick=null;
     if(q){for(var j=0;j<E.length;j++){if(E[j]===q||E[j].toLowerCase()===q.toLowerCase()){pick=E[j];break}}}
     else if(MODE==='single'&&E.length){pick=E.indexOf(PRIMARY)>=0?PRIMARY:E[0]}
@@ -144,10 +144,10 @@ function htmlFor(name, group) {
 }
 
 const jsxFor = (name) =>
-  `// Re-export of reactor-sheet@${pkgVersion} ${name}. Implementation is in the root _ds_bundle.js (window.ReactorSheet).\nObject.assign(window, { ${name}: window.ReactorSheet.${name} });\n`;
+  `// Re-export of osc-character-sheet@${pkgVersion} ${name}. Implementation is in the root _ds_bundle.js (window.OscSheet).\nObject.assign(window, { ${name}: window.OscSheet.${name} });\n`;
 
 const dtsFor = (name) =>
-  `import * as React from 'react';\n\n/**\n * ${name} — from reactor-sheet@${pkgVersion}.\n */\nexport interface ${name}Props {\n${propsFor(name)}\n}\n\nexport declare const ${name}: React.ComponentType<${name}Props>;\n`;
+  `import * as React from 'react';\n\n/**\n * ${name} — from osc-character-sheet@${pkgVersion}.\n */\nexport interface ${name}Props {\n${propsFor(name)}\n}\n\nexport declare const ${name}: React.ComponentType<${name}Props>;\n`;
 
 // Extract `export const <Name> = <init>;` blocks (source order) from a preview.
 function extractExports(src) {
@@ -181,7 +181,7 @@ function promptFor(name, group, exports) {
   const examples = exports
     .map((e) => `### ${e.name}\n\n\`\`\`jsx\n${e.init}\n\`\`\`\n`)
     .join("\n");
-  return `${name} from reactor-sheet. Use via \`window.ReactorSheet.${name}\` (bundle loaded from the root \`_ds_bundle.js\`). Wrap the tree in \`<VellumRoot>\` (full provider chain in README.md — components read theme/i18n from that context).
+  return `${name} from osc-character-sheet. Use via \`window.OscSheet.${name}\` (bundle loaded from the root \`_ds_bundle.js\`). Wrap the tree in \`<VellumRoot>\` (full provider chain in README.md — components read theme/i18n from that context).
 
 @category ${GROUP_LABEL[group]}
 
@@ -198,7 +198,7 @@ ${propsFor(name)}
 ${examples}`;
 }
 
-// ── esbuild: shared shims (react → window.React, jsx → hand-rolled, ds → window.ReactorSheet) ──
+// ── esbuild: shared shims (react → window.React, jsx → hand-rolled, ds → window.OscSheet) ──
 const jsxShim = `
 var R = window.React;
 export var Fragment = R.Fragment;
@@ -215,9 +215,9 @@ export function jsxDEV(type, props, key) { return jsx(type, props, key); }
 `;
 // react/react-dom → window globals; react-shim/jsx → hand-rolled createElement.
 // When `shimUi`, relative imports that resolve under ui/ (a story pulling in its
-// component) are mapped to window.ReactorSheet — matching the remote preview
+// component) are mapped to window.OscSheet — matching the remote preview
 // structure. The library-bundle build sets shimUi=false so it compiles the real
-// ui/ source that DEFINES window.ReactorSheet.
+// ui/ source that DEFINES window.OscSheet.
 const makeShims = (shimUi) => ({
   name: "ds-shims",
   setup(build) {
@@ -225,10 +225,10 @@ const makeShims = (shimUi) => ({
       react: "module.exports = window.React;",
       "react-dom": "module.exports = window.ReactDOM;",
       "react-dom/client": "module.exports = window.ReactDOM;",
-      "reactor-sheet": "module.exports = window.ReactorSheet;",
-      "ds-ui": "module.exports = window.ReactorSheet;",
+      "osc-character-sheet": "module.exports = window.OscSheet;",
+      "ds-ui": "module.exports = window.OscSheet;",
     };
-    build.onResolve({ filter: /^(react|react-dom|react-dom\/client|reactor-sheet)$/ }, (a) => ({
+    build.onResolve({ filter: /^(react|react-dom|react-dom\/client|osc-character-sheet)$/ }, (a) => ({
       path: a.path, namespace: "shim-cjs",
     }));
     build.onResolve({ filter: /^react-shim\/jsx(-dev)?-runtime$/ }, (a) => ({
@@ -313,12 +313,12 @@ write("_ds_bundle.css", dsBundleCss);
 write("styles.css", styles);
 writes.push("_ds_bundle.css", "styles.css");
 
-// ── library bundle (window.ReactorSheet incl. VellumRoot) ──
-const bundleEntry = `export * from ${JSON.stringify(path.join(ROOT, "src/ReactorSheet/components/ui/index.ts"))};
+// ── library bundle (window.OscSheet incl. VellumRoot) ──
+const bundleEntry = `export * from ${JSON.stringify(path.join(ROOT, "src/OscSheet/components/ui/index.ts"))};
 export { VellumRoot } from ${JSON.stringify(path.join(DS, "vellum-root.tsx"))};`;
 const dsBundleJs = await bundle({
   stdin: { contents: bundleEntry, resolveDir: ROOT, loader: "ts" },
-  globalName: "ReactorSheet",
+  globalName: "OscSheet",
 });
 write("_ds_bundle.js", dsBundleJs);
 writes.push("_ds_bundle.js");
@@ -337,7 +337,7 @@ function classifyKind(name, value) {
   return "color";
 }
 function parseTokens(css, definedIn, toks, seen) {
-  const rootRe = /\.reactor-sheet\b/;
+  const rootRe = /\.osc-sheet\b/;
   postcss.parse(css).walkRules((rule) => {
     if (rule.parent?.type === "atrule") return; // skip @media/@supports overrides
     const scope = rule.selectors.find((s) => rootRe.test(s));
@@ -360,7 +360,7 @@ parseTokens(dsBundleCss, "_ds_bundle.css", tokensDump, tokSeen);
 parseTokens(styles, "styles.css", tokensDump, tokSeen);
 
 // ── fonts (from fonts.css) ──
-const fontsCss = readFileSync(path.join(DS, "..", "src/ReactorSheet/styles/vellum/fonts.css"), "utf8");
+const fontsCss = readFileSync(path.join(DS, "..", "src/OscSheet/styles/vellum/fonts.css"), "utf8");
 const fonts = [];
 {
   const faceRe = /@font-face\s*\{([^}]*)\}/g;
@@ -390,8 +390,8 @@ const manifest = {
   globalCssPaths: ["fonts/fonts.css", "_ds_bundle.css", "styles.css"],
   tokens: tokensDump,
   themes: [
-    { selector: '.reactor-sheet[data-theme="cream"]', label: "Reactor Sheet Cream" },
-    { selector: ".reactor-sheet[data-kind=hireling]", label: "Reactor Sheet Kind Hireling" },
+    { selector: '.osc-sheet[data-theme="cream"]', label: "OSC Sheet Cream" },
+    { selector: ".osc-sheet[data-kind=hireling]", label: "OSC Sheet Kind Hireling" },
   ],
   fonts,
   brandFonts: [{ family: "IM Fell English SC", status: "unreferenced", tokens: [], path: "fonts/fonts.css" }],
@@ -428,9 +428,9 @@ writeFileSync(
       writes: writes.sort(),
       deletes: [],
       notes: [
-        "preview cards now sourced from src/ReactorSheet/**/<Name>.stories.tsx (named exports); .design-sync/previews/ deleted. Story ui/* imports mapped to window.ReactorSheet via esbuild resolve shim (all imported symbols verified as bundle exports — no source fallbacks needed).",
+        "preview cards now sourced from src/OscSheet/**/<Name>.stories.tsx (named exports); .design-sync/previews/ deleted. Story ui/* imports mapped to window.OscSheet via esbuild resolve shim (all imported symbols verified as bundle exports — no source fallbacks needed).",
         "KvCard had no story — split its KeyValue example out of Card.stories.tsx into a new KvCard.stories.tsx (removes design-card duplication).",
-        `version string = reactor-sheet@${pkgVersion}. html/jsx/d.ts of the 24 existing components stay byte-identical to remote; prompt.md + _preview/*.js now differ (richer story sources, e.g. Tag gains Removable/Chips) — expected churn from the stories switch.`,
+        `version string = osc-character-sheet@${pkgVersion}. html/jsx/d.ts of the 24 existing components stay byte-identical to remote; prompt.md + _preview/*.js now differ (richer story sources, e.g. Tag gains Removable/Chips) — expected churn from the stories switch.`,
         "sourceHashes recipe = sha256(fileBytes)[:12] — CONFIRMED against remote (Tag.jsx/d.ts/prompt.md, Button.prompt.md all matched). Unchanged jsx/d.ts stay byte-identical; prompt.md hashes change (richer story sources).",
         "renderHashes/sourceKeys left {} and keyRecipe=7 carried; _ds_needs_recompile written so the tool recomputes opaque hashes (do NOT splice remote render hashes — Wave-2 CSS changes made them stale).",
         "styleSha = sha256(_ds_bundle.css + '\\n' + styles.css); bundleSha12 = sha256(_ds_bundle.js)[:12] — inferred recipes; scriptsSha/auxSha carried from remote.",

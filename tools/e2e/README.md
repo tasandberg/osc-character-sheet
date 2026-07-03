@@ -25,7 +25,7 @@ PRs run automatically; fork PRs need a maintainer's `safe-to-test` label.
 | --- | --- |
 | `setup-data-dir.sh` | Assembles a Foundry `/data` dir: the pinned OSE release (`OSE_VERSION`, default 2.2.2; `compatibility.verified` bumped to `14` for CI), the freshly-built osc-character-sheet module (`module.json` + `dist` + `lang`), and the minimal `e2e` world fixture. |
 | `activate-world.mjs` | First-boot activation: `--phase eula` accepts the EULA (generates the host-bound license signature), the caller restarts the container so felddy's `FOUNDRY_WORLD` auto-launches the world, `--phase await` polls `/api/status` until active. |
-| `global-setup.ts` | Joins as Gamemaster, enables the osc-character-sheet module + reloads, and seeds the `E2E Fighter` character (weapon/armor/coins) pinned to the reactor sheet. Runs once before the specs. |
+| `global-setup.ts` | Joins as Gamemaster, enables the osc-character-sheet module + reloads, and seeds the `E2E Fighter` character (weapon/armor/coins) pinned to the OSC sheet. Runs once before the specs. |
 | `helpers.ts` | `joinAsGM`, `openCharacterSheet` (forces the wide layout), chat/item readers. |
 | `specs/*.spec.ts` | One spec per core flow: smoke, tabs, ability, save, attack, equip, coin. |
 
@@ -36,11 +36,11 @@ PRs run automatically; fork PRs need a maintainer's `safe-to-test` label.
 pnpm install && pnpm build
 
 # 2. Assemble a scratch data dir.
-DATA=/tmp/reactor-e2e-data
+DATA=/tmp/osc-e2e-data
 tools/e2e/setup-data-dir.sh "$DATA" "$PWD"
 
 # 3. Boot Foundry (felddy). Needs foundryvtt.com creds; pick a free port.
-docker run -d --name reactor-e2e -p 30000:30000 -v "$DATA:/data" \
+docker run -d --name osc-e2e -p 30000:30000 -v "$DATA:/data" \
   -e FOUNDRY_USERNAME=... -e FOUNDRY_PASSWORD=... \
   -e CONTAINER_CACHE=/data/container_cache -e FOUNDRY_WORLD=e2e \
   felddy/foundryvtt:14
@@ -49,9 +49,9 @@ docker run -d --name reactor-e2e -p 30000:30000 -v "$DATA:/data" \
 cd tools/e2e
 npm install && npx playwright install chromium
 node activate-world.mjs --phase eula
-docker stop -t 30 reactor-e2e
+docker stop -t 30 osc-e2e
 rm -rf "$DATA/Config/options.json.lock"   # Foundry always leaves this behind
-docker start reactor-e2e
+docker start osc-e2e
 node activate-world.mjs --phase await
 npx playwright test
 ```

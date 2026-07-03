@@ -1,0 +1,283 @@
+// Shell layout — responsive app scaffold (P3).
+// Adapted from the Vellum prototype foundry-styles.css shell rules, re-prefixed
+// `osc-` and tokenised. Two container contexts:
+//   app   = .osc-sheet-app  → vertical rail ⇄ horizontal tab bar (≥800c)
+//   sheet = .osc-sheet-body (scroll)  → single-column ⇄ two-pane (≥760c)
+// --gold-dim isn't vendored yet, so it falls back to --gold.
+
+.osc-topbar {
+  flex: 0 0 auto;
+  padding: var(--spacer-2) var(--spacer-4);
+}
+
+.osc-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+  background: var(--bg);
+}
+
+.osc-sheet-body {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  container-type: inline-size;
+  container-name: sheet;
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-3, #3a3429) transparent;
+  // collapsed-minibar height — shared so sticky inventory heads can pin below it
+  // (medium layout only). Inherited by both the minibar and the tab content.
+  --osc-minibar-h: 49px;
+}
+
+.osc-pad { padding: var(--spacer-4); }
+
+.osc-twopane > .osc-left {
+  padding-bottom: 15px; // intentional: 15px optical offset, leave raw
+  border-bottom: 1px solid var(--border-soft, #2c2823);
+  margin-bottom: 3px;
+}
+.osc-right { min-width: 0; }
+
+// ----- vertical right-edge tab rail (narrow default) -----
+.osc-tabrail {
+  flex: 0 0 auto;
+  width: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  // No top padding: the first/active tab sits flush against the top bar.
+  // (The 14px the prototype used reads as a stray light block in cream.)
+  padding-top: 0;
+  gap: var(--spacer-1);
+  background: var(--bg-2, #1f1c17);
+  border-left: 1px solid var(--border, #3a342c);
+}
+// Qualified with .osc-tabrail so these win over the `.osc-sheet-app button`
+// reset (0,1,1) in styles.scss — otherwise `all: unset` strips writing-mode/flex
+// and the label renders as clipped horizontal text instead of the vertical rail.
+.osc-tabrail .osc-tab {
+  position: relative;
+  flex: 0 0 auto;
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacer-2);
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  color: var(--text-mute, #8a8270);
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--sans);
+  font-size: var(--fs-sm, 13px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: var(--spacer-2) 0;
+  transition: color 0.12s, background 0.12s;
+}
+.osc-tab .osc-tab-ic {
+  writing-mode: horizontal-tb;
+  font-size: var(--fs-md, 14px);
+  color: var(--gold-dim, var(--gold));
+  transform: rotate(180deg);
+}
+.osc-tab .osc-tab-ct {
+  writing-mode: horizontal-tb;
+  transform: rotate(180deg);
+  font-family: var(--mono);
+  font-size: var(--fs-3xs, 10px);
+  color: var(--text-faint, #6a6354);
+  background: var(--surface, #23201a);
+  border-radius: 99px;
+  padding: 1px 5px;
+}
+.osc-tab:hover { color: var(--text-dim, #b5ad97); background: rgba(255, 255, 255, 0.03); }
+.osc-tab.active {
+  color: var(--text, #e5dec8);
+  background: var(--bg, #181612);
+  border-left-color: var(--gold);
+}
+.osc-tab.active .osc-tab-ic { color: var(--gold); }
+
+// ----- bottom nav bar (XS only; hidden by default) -----
+.osc-bottombar { display: none; }
+// Qualified with .osc-bottombar so these beat the .osc-sheet-app button reset (0,1,1).
+.osc-bottombar .osc-botbtn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: var(--spacer-2) var(--spacer-1) 6px;
+  background: transparent;
+  border: none;
+  border-top: 2px solid transparent;
+  color: var(--text-mute, #8a8270);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  transition: color 0.12s;
+}
+.osc-bottombar .osc-botbtn-ic {
+  font-size: var(--fs-lg, 16px);
+  color: var(--gold-dim, var(--gold));
+  line-height: 1;
+}
+.osc-bottombar .osc-botbtn-lbl { line-height: 1; }
+.osc-bottombar .osc-botbtn:hover { color: var(--text-dim, #b5ad97); }
+.osc-bottombar .osc-botbtn.active {
+  color: var(--gold);
+  border-top-color: var(--gold);
+}
+.osc-bottombar .osc-botbtn.active .osc-botbtn-ic { color: var(--gold); }
+
+// ----- horizontal tab bar (shown when wide) -----
+.osc-htabs { display: none; }
+
+// ----- placeholder chrome region -----
+.osc-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacer-1);
+  text-align: center;
+  min-height: 64px;
+  padding: var(--spacer-4);
+  border: 1px dashed var(--border, #3a342c);
+  border-radius: var(--r-md, 6px);
+  color: var(--text-mute, #8a8270);
+  background: color-mix(in srgb, var(--surface, #23201a) 40%, transparent);
+}
+.osc-placeholder + .osc-placeholder { margin-top: var(--spacer-3); }
+.osc-ph-label {
+  font-family: var(--sans);
+  font-size: var(--fs-sm, 13px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.osc-ph-hint { font-size: var(--fs-3xs, 10px); color: var(--text-faint, #6a6354); }
+
+// Saves & Skills relocates: hidden in the left column when collapsed (it renders
+// inside the Actions tab content there), shown in the left rail when expanded.
+.osc-rail-extra { display: none; }
+// Saves & Exploration show inside the Actions body when collapsed; the matching
+// @container rule below hides them once they relocate into the expanded rail.
+.actions-only { display: block; }
+
+// === container reflow ===
+@container sheet (min-width: 600px) { .osc-pad { padding: 18px var(--spacer-5); } }
+
+@container sheet (min-width: 700px) {
+  .osc-pad { padding: var(--spacer-6) var(--spacer-6); }
+  .osc-twopane {
+    display: grid;
+    // Dynamic rail: shrinks/grows with the window between bounds; the portrait
+    // (capped at 150px) stays put. Narrower than the old fixed 264px.
+    grid-template-columns: clamp(190px, 24%, 224px) 1fr;
+    gap: var(--spacer-6);
+    align-items: start;
+  }
+  .osc-twopane > .osc-left {
+    position: sticky;
+    top: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+  .osc-rail-extra { display: block; margin-top: var(--spacer-3); }
+  .actions-only { display: none; }
+
+  // header band reflow in the narrow left rail — stack: portrait, name, HP/AC, Init/HD/Move
+  .osc-twopane .osc-head {
+    grid-template-columns: 1fr;
+    grid-template-areas: "portrait" "ident" "vitals" "subs";
+    justify-items: center;
+    gap: var(--spacer-3);
+  }
+  .osc-twopane .osc-portrait-wrap { align-self: center; width: 120px; height: 120px; }
+  // Fill the rail column (don't size to content) so useFitText has a real
+  // `avail` width to shrink the name against, instead of overflowing the rail.
+  .osc-twopane .osc-ident { width: 100%; align-items: center; text-align: center; }
+  .osc-twopane .osc-name { text-align: center; align-self: stretch; }
+  .osc-twopane .osc-class { text-align: center; }
+  .osc-twopane .osc-vitals { width: 100%; }
+  .osc-twopane .osc-substats { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; }
+  // rail (the larger view): keep the boxed tiles at normal size
+  .osc-twopane .osc-tile {
+    width: auto;
+    background: var(--surface);
+    border: 1px solid var(--border-soft, #2c2823);
+    border-radius: var(--r-md, 6px);
+    padding: 5px 6px var(--spacer-1); // 5px optical top, 6px optical sides, 4px bottom
+  }
+  .osc-twopane .osc-tile .stamp { font-size: var(--fs-2xs, 11px); padding: 5px 8px 3px; }
+  .osc-twopane .osc-tile-v { font-size: var(--fs-xs, 12px); }
+}
+
+// Center tabs replace the right rail exactly when the two-pane engages.
+// sheet two-pane = 700; rail is 40px wide, so sheet 700 ⟺ app ≈ 740.
+@container app (min-width: 740px) {
+  .osc-tabrail { display: none; }
+  .osc-htabs {
+    display: flex;
+    gap: var(--spacer-1);
+    margin-bottom: var(--spacer-4);
+    border-bottom: 2px solid var(--border, #3a342c);
+  }
+  // Qualified (see .osc-tabrail .osc-tab note) so it beats the button reset.
+  .osc-htabs .osc-htab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacer-2); // 7→8 (nearest token)
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    padding: 7px 13px 9px; // optical vertical padding: leave raw
+    color: var(--text-mute, #8a8270);
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: var(--fs-sm, 13px);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: color 0.12s, border-color 0.12s;
+  }
+  .osc-htab .osc-htab-ic { color: var(--gold-dim, var(--gold)); font-size: var(--fs-sm, 13px); }
+  .osc-htab .osc-htab-ct {
+    font-family: var(--mono);
+    font-size: var(--fs-3xs, 10px);
+    color: var(--text-faint, #6a6354);
+    background: var(--surface, #23201a);
+    border-radius: 99px;
+    padding: 1px 6px;
+  }
+  .osc-htab:hover { color: var(--text-dim, #b5ad97); }
+  .osc-htab.active { color: var(--text, #e5dec8); border-bottom-color: var(--gold); }
+  .osc-htab.active .osc-htab-ic { color: var(--gold); }
+}
+
+// === XS tier (≤ 479c on app) ===
+// Bottom bar replaces the rail; header reflows to compact single-column.
+// XS nav swap only — the header + topbar XS overrides live in actions.scss (after
+// the base rules) so they win the cascade; shell.scss loads first and would lose.
+@container app (max-width: 479px) {
+  .osc-tabrail { display: none; }
+  .osc-bottombar {
+    display: flex;
+    flex: 0 0 auto;
+    border-top: 1px solid var(--border, #3a342c);
+    background: var(--bg-2, #1f1c17);
+  }
+  // content clears the bottom bar
+  .osc-sheet-body { padding-bottom: var(--spacer-1); }
+  .osc-pad { padding-bottom: 68px; } // 68px = bottom-bar height clearance; no clean token
+}

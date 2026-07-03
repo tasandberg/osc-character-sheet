@@ -3,12 +3,12 @@ import { joinAsGM, ACTOR_NAME } from "./helpers";
 
 const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/, "");
 const MODULE_ID = "osc-character-sheet";
-const SHEET_CLASS = "ose.ReactorSheet";
+const SHEET_CLASS = "ose.OscSheet";
 
 /**
  * Before any spec runs: join as GM, enable the osc-character-sheet module (the world
  * fixture ships none enabled), then seed a known "E2E Fighter" character with a
- * weapon, armor and coins, pinned to the reactor sheet. Specs assume this actor.
+ * weapon, armor and coins, pinned to the OSC sheet. Specs assume this actor.
  */
 export default async function globalSetup(_config: FullConfig): Promise<void> {
   const browser = await chromium.launch({
@@ -77,7 +77,7 @@ export default async function globalSetup(_config: FullConfig): Promise<void> {
       { name: ACTOR_NAME, sheetClass: SHEET_CLASS },
     );
 
-    // Sanity: actor exists and resolves the reactor sheet class.
+    // Sanity: actor exists and resolves the OSC sheet class.
     const ok = await page.evaluate((name) => {
       const actor = (globalThis as any).game.actors.getName(name);
       return !!actor && actor.items.size >= 3;

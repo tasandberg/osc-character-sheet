@@ -1,7 +1,7 @@
-# design-sync NOTES — Vellum DS (reactor-sheet)
+# design-sync NOTES — Vellum DS (osc-character-sheet)
 
 Repo-specific gotchas for future syncs. The synced surface is the `ui/` primitive
-library under `src/ReactorSheet/components/ui/`.
+library under `src/OscSheet/components/ui/`.
 
 ## Non-standard setup (this repo has no published dist)
 
@@ -10,21 +10,21 @@ library under `src/ReactorSheet/components/ui/`.
   It stages the full remote layout into `.design-sync/.stage/` + a `PLAN.json` for the parent
   session to feed `finalize_plan` (the DesignSync MCP tool — `get_file`/`write_files`/
   `finalize_plan` — is only on the main/parent session, not subagents).
-- **Shape: package, synth-entry from source.** `reactor-sheet` is a private Foundry module,
+- **Shape: package, synth-entry from source.** `osc-character-sheet` is a private Foundry module,
   not a published component package — no `dist/`. The generator bundles the `ui/` barrel
-  (`ui/index.ts`) + `VellumRoot` into `_ds_bundle.js` (esbuild IIFE → `window.ReactorSheet`,
+  (`ui/index.ts`) + `VellumRoot` into `_ds_bundle.js` (esbuild IIFE → `window.OscSheet`,
   react externalized to `window.React`).
 - **Components are enumerated in `cfg.componentSrcMap`** (32 entries) because there's no
   `.d.ts` tree to auto-discover from. Adding a new primitive = add it to `ui/index.ts` AND
   `componentSrcMap` AND give it a `<Name>.stories.tsx`. Sub-component exports (Input, Th/Td/Tr,
   MenuLabel/Item/Sep) are bundled but intentionally have no card.
-- **CSS is built, not copied.** Vellum CSS is scoped under `.reactor-sheet` (tokens via the
+- **CSS is built, not copied.** Vellum CSS is scoped under `.osc-sheet` (tokens via the
   `tools/postcss/scope-vellum.mjs` plugin; `styles.scss` scopes itself). `cfg.cssEntry` points
   at `.design-sync/.cache/vellum-bundle.css`, produced by `cfg.buildCmd`
   (`node .design-sync/build-css.mjs` = sass + the postcss scoper, concatenated). Fonts ship
   separately via `cfg.extraFonts` (fonts.css → fonts/).
 - **Provider = `VellumRoot`** (`.design-sync/vellum-root.tsx`, wired via `extraEntries` +
-  `cfg.provider`). It wraps every preview in `.reactor-sheet > .reactor-sheet-app` so the
+  `cfg.provider`). It wraps every preview in `.osc-sheet > .osc-sheet-app` so the
   scoped CSS applies. Without it previews render unstyled.
 
 ## Re-sync procedure
@@ -47,7 +47,7 @@ library under `src/ReactorSheet/components/ui/`.
 ## Known render warns (triaged — re-syncs check against this list)
 
 - `[TOKENS_MISSING] --font-h1, --color-text-emphatic, --color-text-primary,
-  --color-text-secondary` — these live ONLY in `src/ReactorSheet/styles/_util.scss` (legacy
+  --color-text-secondary` — these live ONLY in `src/OscSheet/styles/_util.scss` (legacy
   utility classes) and are not referenced by any `ui/` primitive. They ride in because
   `build-css.mjs` compiles the full `styles.scss` (which `@use`s `_util`). Non-blocking; no
   primitive preview is affected. (Could be eliminated by trimming `_util` from the CSS build
@@ -70,11 +70,11 @@ library under `src/ReactorSheet/components/ui/`.
 
 ## Preview source = the Storybook stories (single source of truth)
 
-- Cards are compiled from each component's **`src/ReactorSheet/components/ui/<Name>.stories.tsx`**
+- Cards are compiled from each component's **`src/OscSheet/components/ui/<Name>.stories.tsx`**
   (legacy-CSF named exports = `() => JSX` render fns → `window.__dsPreview`; the `default`
   `{title}` export is filtered out by the card HTML). There is **no** `.design-sync/previews/`
   mirror anymore — new story state = new design card, no duplication step.
-- The generator maps a story's `ui/*` imports (its component + siblings) to `window.ReactorSheet`
+- The generator maps a story's `ui/*` imports (its component + siblings) to `window.OscSheet`
   via an esbuild resolve shim (`makeShims(true)`); `react` → `window.React`, JSX → a hand-rolled
   `createElement` shim. All imported ui symbols must be exported from `ui/index.ts` (they are; the
   generator would otherwise need a source-bundling fallback).

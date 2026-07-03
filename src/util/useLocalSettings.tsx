@@ -1,30 +1,30 @@
 import { useState } from "react";
 
-export type ReactorSheetSettings = {
+export type OscSheetSettings = {
   currentPage: string;
 };
 export function useLocalSettings() {
-  const [sheetSettings, setSheetSettings] = useState<ReactorSheetSettings>(
+  const [sheetSettings, setSheetSettings] = useState<OscSheetSettings>(
     () => {
-      const saved = localStorage.getItem("reactorSheetSettings");
+      const saved = localStorage.getItem("oscSheetSettings");
       return saved ? JSON.parse(saved) : { currentPage: "tab1" };
     }
   );
 
-  const updateSettings = (newSettings: ReactorSheetSettings) => {
+  const updateSettings = (newSettings: OscSheetSettings) => {
     const updatedSettings = { ...sheetSettings, ...newSettings };
     setSheetSettings(updatedSettings);
     localStorage.setItem(
-      "reactorSheetSettings",
+      "oscSheetSettings",
       JSON.stringify(updatedSettings)
     );
   };
 
-  const setSetting = (key: keyof ReactorSheetSettings, value: string) => {
+  const setSetting = (key: keyof OscSheetSettings, value: string) => {
     const updatedSettings = { ...sheetSettings, [key]: value };
     setSheetSettings(updatedSettings);
     localStorage.setItem(
-      "reactorSheetSettings",
+      "oscSheetSettings",
       JSON.stringify(updatedSettings)
     );
   };
