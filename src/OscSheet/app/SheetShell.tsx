@@ -25,7 +25,7 @@ import type { OseItem } from "@domain/types";
 import type { IdentityVM, VitalsVM } from "@domain/vm-types";
 
 /**
- * Foundry-aware container: computes view-models, fills the Shell chrome slots,
+ * Foundry-aware container: computes view-models, fills the Shell layout slots,
  * and mounts the Actions body (other tabs still render their legacy Content).
  */
 export default function SheetShell() {
@@ -40,7 +40,7 @@ export default function SheetShell() {
   const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
 
-  // Chrome props built inline from the actor (HeaderBand + Minibar share the shape).
+  // Layout-slot props built inline from the actor (HeaderBand + Minibar share the shape).
   const { details, hp, aac, ac, scores, movement, initiative } = actor.system;
   const identity: IdentityVM = {
     name: actor.name,

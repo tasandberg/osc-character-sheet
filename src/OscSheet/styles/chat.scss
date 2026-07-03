@@ -31,7 +31,7 @@
 }
 
 // ─── Take over the whole message box ───────────────────────────────────────
-// Strip Foundry's default message chrome so our card frame IS the message; keep the
+// Strip Foundry's default message styling so our card frame IS the message; keep the
 // header (sender · timestamp · delete) but theme it; hide the redundant flavor line.
 .chat-message.osc-message {
   padding: 0;

@@ -49,7 +49,7 @@ const preview: Preview = {
     layout: "fullscreen", // we own the outer padding via .osc-sheet-app
     controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },
     options: {
-      // Foundations on top, then primitives by kind, app chrome, features last.
+      // Foundations on top, then primitives by kind, app shell, features last.
       storySort: {
         method: "alphabetical",
         order: [
@@ -61,7 +61,6 @@ const preview: Preview = {
           "Layout",
           "Navigation",
           "Data",
-          "Chrome",
           "Shell",
           "*",
         ],

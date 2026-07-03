@@ -11,7 +11,6 @@ addons.setConfig({
       "layout",
       "navigation",
       "data",
-      "chrome",
       "shell",
       "actions",
       "inventory",

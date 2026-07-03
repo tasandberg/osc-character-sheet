@@ -9,7 +9,7 @@ lives in `../CLAUDE.md`.
 - pnpm. `pnpm dev` (vite, serves into local Foundry), `pnpm build` (`tsc -b && vite build`),
   `pnpm lint`, `pnpm test` (vitest). Verify changes with all four before committing.
 - App entry: `src/OscSheet/index.tsx` → `OscSheetProvider` (Foundry actor sync) →
-  `SheetShell` (view-models + chrome slots) → tab bodies. State = React Context + Foundry
+  `SheetShell` (view-models + layout slots) → tab bodies. State = React Context + Foundry
   actor as source of truth; view-models in `viewModels/` compute derived data.
 - Tokens/spacing: use the `--space-*`/`--spacer-*` (4px) scale and design tokens, never
   hardcoded px or invented colors. Brass = `--accent-alt`; equipped = `--teal`.
