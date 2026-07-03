@@ -2,8 +2,9 @@ import { useState } from "react";
 import type { SaveVM, ExplorationVM } from "@domain/vm-types";
 import type { OSESave } from "@domain/types";
 import { SectionTitle } from "@ui/SectionTitle";
+import { StatPlaque } from "@ui/StatPlaque";
 import { cx } from "@ui/cx";
-import { rollable } from "@features/actions/rollable";
+import { rollable } from "@ui/rollable";
 
 type Props = {
   saves: SaveVM[];
@@ -22,17 +23,19 @@ export function SavesGrid({ saves, onRoll }: { saves: SaveVM[]; onRoll?: (key: O
   return (
     <div className="fvtt-saves">
       {saves.map((s) => (
-        <div
+        <StatPlaque
           key={s.key}
-          className={cx("fvtt-save", onRoll && "rollable")}
-          data-testid={`save-${s.key}`}
+          className="fvtt-save"
+          stampClassName="sk"
+          stampKey={saveStamp(s.label)}
+          value={s.target}
+          caption={s.label}
+          valueClassName="sv"
+          captionClassName="sn"
+          onActivate={onRoll && (() => onRoll(s.key))}
           title={onRoll ? `Roll ${s.label} save (≥ ${s.target})` : undefined}
-          {...rollable(onRoll && (() => onRoll(s.key)))}
-        >
-          <span className="sk" aria-hidden="true">{saveStamp(s.label)}</span>
-          <span className="sv">{s.target}</span>
-          <span className="sn">{s.label}</span>
-        </div>
+          data-testid={`save-${s.key}`}
+        />
       ))}
     </div>
   );

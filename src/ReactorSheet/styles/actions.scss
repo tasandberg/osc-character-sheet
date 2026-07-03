@@ -413,6 +413,12 @@
   border-radius: var(--r-sm, 4px); display: grid; place-items: center;
   font-family: var(--display, serif); font-size: var(--fs-xs, 12px);
 }
+// The save stamp is now a <Stamp> (gains .stamp's chiselled ink shadow, to match
+// the ability plaques — §2.1 consistency). Re-assert the square 22px geometry:
+// .stamp.sm (0,3,0) outranks the .fvtt-save .sk block above, so neutralise its
+// padding/font-size here (equal specificity, later in the cascade) — otherwise
+// the fixed box inflates and the letter shrinks.
+.fvtt-save .stamp.sk { padding: 0; font-size: var(--fs-xs, 12px); }
 .fvtt-save .sv {
   font-family: var(--mono, monospace); font-size: var(--fs-md, 14px);
   color: var(--text, #e5dec8);

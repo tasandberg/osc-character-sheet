@@ -28,6 +28,8 @@ export { OverrideValue } from "./OverrideValue";
 export { NumberInput } from "./NumberInput";
 export { StampCell } from "./StampCell";
 export { Pips } from "./Pips";
+export { StatPlaque } from "./StatPlaque";
+export { rollable } from "./rollable";
 export { useHpInput } from "./useHpInput";
 export { Toast } from "./Toast";
 export { Menu, MenuLabel, MenuSep, MenuItem } from "./Menu";

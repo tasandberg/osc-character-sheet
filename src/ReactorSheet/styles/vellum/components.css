@@ -474,6 +474,16 @@
 .pip { border-radius: 50%; }
 .pip.filled { background: var(--gold); border-color: var(--gold); }
 
+/* ─── StatPlaque — stat cell (stamp key · value · caption) ───────────────
+   Skeleton for the StatPlaque primitive, shared by ability plaques (.rs-abil)
+   and the saves grid (.fvtt-save). Same specificity story as .pips: vellum's
+   .reactor-sheet scoping makes `.plaque` (0,2,0) outrank the bare `.rs-abil`/
+   `.fvtt-save` call-site rules (0,1,0), so this base can only safely carry
+   declarations that are byte-identical in BOTH — which is just `text-align`.
+   The two cells disagree on everything else (fill, border, radius, padding,
+   flex-vs-block layout), so those stay on the contextual classes. */
+.plaque { text-align: center; }
+
 /* ─── Modal / Dialog ────────────────────────────────────────────────── */
 
 .modal-scrim {
