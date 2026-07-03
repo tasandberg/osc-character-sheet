@@ -6,6 +6,7 @@ export { IconButton } from "./IconButton";
 export { InlineButton } from "./InlineButton";
 export { Tag } from "./Tag";
 export { SectionTitle } from "./SectionTitle";
+export { SectionHeader } from "./SectionHeader";
 export { Card, KvCard } from "./Card";
 export { Table, Th, Td, Tr } from "./Table";
 export { Field, Input } from "./Field";

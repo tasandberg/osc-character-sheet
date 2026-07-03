@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useReactorSheetContext } from "@app/context";
-import { SectionHeader } from "@features/abilities/SectionHeader";
+import { SectionHeader } from "@ui/SectionHeader";
 import { IconButton } from "@ui/IconButton";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";

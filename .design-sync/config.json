@@ -23,6 +23,7 @@
     "IconButton": "src/ReactorSheet/components/ui/IconButton.tsx",
     "Tag": "src/ReactorSheet/components/ui/Tag.tsx",
     "SectionTitle": "src/ReactorSheet/components/ui/SectionTitle.tsx",
+    "SectionHeader": "src/ReactorSheet/components/ui/SectionHeader.tsx",
     "Card": "src/ReactorSheet/components/ui/Card.tsx",
     "KvCard": "src/ReactorSheet/components/ui/Card.tsx",
     "Table": "src/ReactorSheet/components/ui/Table.tsx",
