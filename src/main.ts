@@ -1,12 +1,18 @@
 import OscSheet from "@src/applications/osc-sheet";
 import { installAdvancedClasses } from "@src/util/adaptAdvancedClasses";
 import { onRenderChatMessage } from "@domain/chat/applyDamage";
+import {
+  migrateLocalStorage,
+  registerMigrationSetting,
+  runWorldMigration,
+} from "@domain/migrations";
 import logger from "@src/util/logger";
 
 export function initialize() {
   foundry.helpers.Hooks.once("init", () => {
     logger("Initializing module");
     OscSheet.registerSettings();
+    registerMigrationSetting();
   });
 
   // Wire the GM apply-damage button on our Vellum damage cards. v13/v14 hook —
@@ -18,6 +24,8 @@ export function initialize() {
 
   foundry.helpers.Hooks.once("ready", async () => {
     logger("Initializing React application");
+    migrateLocalStorage(); // every user; independent of the GM world pass
+    await runWorldMigration();
     installAdvancedClasses();
     foundry.documents.collections.Actors.registerSheet(
       game.system?.id,
