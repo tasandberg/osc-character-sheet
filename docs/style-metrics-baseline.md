@@ -121,3 +121,39 @@ The regex metrics only see the SCSS/inline-style surface; they don't capture the
 DOM-level dedup (SectionHeader, Pips, Monogram routing, useHpInput, StatPlaque,
 rollable, Tag variants) — the primary goal of the wave — which stays net-negative
 on hand-rolled markup while metrics held flat-to-down throughout.
+
+---
+
+## After Wave 2 (OLD-31)
+
+- **Commit:** e1974fb (branch `feat/vellum-wave2-sweep`; measured at the block-4 tip).
+- **The `.rs-*` sweep lands the wave's biggest drop.** Wave 2 reverses P1's
+  hold-in-scss stance: the divergent call-site styling (pips, plaques, tooltip,
+  section header) moves INTO vellum as component variants/size props, and the
+  `.rs-*` blocks are deleted. Non-vellum SCSS drops **2033 → 1927 rules (−106)**
+  and **633 → 581 px (−52)**; hex flat (17). Inline app/story counts stay flat —
+  none of it involves `style={{}}`, and updated stories use `u-*` utilities +
+  variant props. The `utilities.css → utilities.scss` conversion (generated via
+  `@each`) is rule-equivalent and lives under `vellum/`, so it doesn't move the
+  non-vellum totals. Block 5 (header vitals / tiles / minibar) was **skipped** —
+  no ui/ primitive exists for them and they're entangled with the `@container`
+  XS layout (see PR); it can be its own issue.
+
+| Checkpoint | inline app (files/props/decls) | inline stories | non-vellum scss (rules/hex/px) |
+| ---------- | ------------------------------ | -------------- | ------------------------------ |
+| After B3 (008aaaf)     | 4 / 15 / 19 | 27 / 60 / 175 | 2033 / 17 / 633 |
+| After Wave 2 (e1974fb) | 4 / 15 / 19 | 27 / 60 / 175 | 1927 / 17 / 581 |
+
+```json
+{"inlineApp":{"files":4,"styleProps":15,"cssProps":19,"hex":0,"px":0},"inlineStories":{"files":27,"styleProps":60,"cssProps":175,"hex":3,"px":1},"scss":{"files":11,"ruleLines":1927,"hex":17,"px":581}}
+```
+
+### Wave 2 delta (After B3 → After Wave 2)
+
+| Metric | After B3 | After Wave 2 | Δ |
+| ------ | -------: | -----------: | -: |
+| inline app props | 15 | 15 | 0 |
+| inline story props | 60 | 60 | 0 |
+| non-vellum SCSS rules | 2033 | 1927 | −106 |
+| non-vellum SCSS px | 633 | 581 | −52 |
+| non-vellum SCSS hex | 17 | 17 | 0 |
