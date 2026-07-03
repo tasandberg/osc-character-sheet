@@ -523,6 +523,23 @@
 .kind-seg:hover .tag-pop,
 .wstat:hover .tag-pop { opacity: 1; }
 
+/* ─── SectionHeader — title row + optional right-aligned control ─────────
+   The SectionHeader component's layout (was `.rs-feat-head` in features.scss):
+   a full-width flex row with a bottom rule, the SectionTitle flexed to fill and
+   its own rule/margins neutralised. `.section-header .section-title` scopes to
+   (0,3,0), outranking both the vellum `.section-title` base (0,2,0) and the
+   actions.scss override (0,1,0), so the title reset wins as before. */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacer-3);
+  margin: 0 0 var(--spacer-2);
+  padding-bottom: var(--spacer-1);
+  border-bottom: 2px solid var(--border);
+}
+.section-header .section-title { flex: 1; margin: 0; padding-bottom: 0; border-bottom: none; }
+
 /* ─── Pips — dot-meter (spell casts / slot pips) ─────────────────────────
    Vellum-native, fully self-contained (Wave 2). Two variants cover both call
    sites the primitive was extracted from:
