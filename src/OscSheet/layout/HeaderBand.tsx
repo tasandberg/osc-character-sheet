@@ -31,11 +31,13 @@ type Props = {
   vitals: VitalsVM;
   /** Commit a new current-HP value; when provided, HP renders an editable input. */
   onSetHp?: (value: number) => void;
+  /** Right-click on the portrait (e.g. Token Variant Art's picker). */
+  onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
 };
 
 /** Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
  *  · HP/AC in medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, onSetHp }: Props) {
+export function HeaderBand({ identity, vitals, onSetHp, onPortraitContextMenu }: Props) {
   const m = vitals.moveBands;
   const nameRef = useFitText(identity.name);
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
@@ -47,7 +49,14 @@ export function HeaderBand({ identity, vitals, onSetHp }: Props) {
           imperatively in osc-sheet.js — outside React's tree — so React
           never clobbers an injected child. */}
       <div className="osc-portrait-wrap profile">
-        <img className="osc-portrait profile-img" src={identity.img || undefined} alt={identity.name} data-edit="img" title={identity.name} />
+        <img
+          className="osc-portrait profile-img"
+          src={identity.img || undefined}
+          alt={identity.name}
+          data-edit="img"
+          title={identity.name}
+          onContextMenu={onPortraitContextMenu}
+        />
       </div>
       <div className="osc-ident">
         <div className="osc-name" ref={nameRef}>{identity.name}</div>
