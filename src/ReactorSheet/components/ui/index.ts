@@ -27,6 +27,7 @@ export { ConfirmDialog } from "./ConfirmDialog";
 export { OverrideValue } from "./OverrideValue";
 export { NumberInput } from "./NumberInput";
 export { StampCell } from "./StampCell";
+export { Pips } from "./Pips";
 export { Toast } from "./Toast";
 export { Menu, MenuLabel, MenuSep, MenuItem } from "./Menu";
 export { Empty } from "./Empty";

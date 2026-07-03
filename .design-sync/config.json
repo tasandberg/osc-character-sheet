@@ -45,6 +45,7 @@
     "Skeleton": "src/ReactorSheet/components/ui/Skeleton.tsx",
     "Monogram": "src/ReactorSheet/components/ui/Monogram.tsx",
     "StampCell": "src/ReactorSheet/components/ui/StampCell.tsx",
+    "Pips": "src/ReactorSheet/components/ui/Pips.tsx",
     "PortraitField": "src/ReactorSheet/components/ui/PortraitField.tsx",
     "ConfirmDialog": "src/ReactorSheet/components/ui/ConfirmDialog.tsx",
     "InlineButton": "src/ReactorSheet/components/ui/InlineButton.tsx"
