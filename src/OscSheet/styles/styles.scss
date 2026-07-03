@@ -55,6 +55,10 @@
   // styling; reskinning it would leak into every other app's context menu.
   .controls-dropdown {
     z-index: 3; // above the React topbar
+    // Open leftward: pin the menu's right edge inside the frame; core's
+    // left-anchored placement overhangs the window's right edge.
+    left: auto;
+    right: var(--spacer-2, 8px);
     background: var(--surface, #23201a);
     border: 1px solid var(--border, #3a342c);
     border-radius: var(--r-md, 6px);
