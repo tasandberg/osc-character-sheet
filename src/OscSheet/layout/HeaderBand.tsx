@@ -33,11 +33,13 @@ type Props = {
   onSetHp?: (value: number) => void;
   /** Right-click on the portrait (e.g. Token Variant Art's picker). */
   onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
+  /** When true, left-click opens the image FilePicker (core `editImage` action). */
+  canEditPortrait?: boolean;
 };
 
 /** Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
  *  · HP/AC in medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, onSetHp, onPortraitContextMenu }: Props) {
+export function HeaderBand({ identity, vitals, onSetHp, onPortraitContextMenu, canEditPortrait }: Props) {
   const m = vitals.moveBands;
   const nameRef = useFitText(identity.name);
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
@@ -49,10 +51,15 @@ export function HeaderBand({ identity, vitals, onSetHp, onPortraitContextMenu }:
           imperatively in osc-sheet.js — outside React's tree — so React
           never clobbers an injected child. */}
       <div className="osc-portrait-wrap profile">
+        {/* `data-action="editImage"` (core AppV2 vocabulary) rides the frame's
+            delegated click listener — no React onClick needed — and doubles as
+            a compat surface for modules keyed on the core attribute. Rendered
+            only when editable so non-owners get no action and no affordance. */}
         <img
           className="osc-portrait profile-img"
           src={identity.img || undefined}
           alt={identity.name}
+          data-action={canEditPortrait ? "editImage" : undefined}
           data-edit="img"
           title={identity.name}
           onContextMenu={onPortraitContextMenu}

@@ -108,6 +108,11 @@
   border: 2px solid var(--gold-dim);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
+// Click-to-edit affordance; the attribute only renders on editable sheets.
+.osc-portrait[data-action="editImage"] {
+  cursor: pointer;
+  &:hover { border-color: var(--gold); }
+}
 // Overlay anchor for module-injected portrait controls (see HeaderBand +
 // osc-sheet.js renderActorSheet forwarding). Class is exactly
 // `modifiers-btn` (no extra classes) so the module's `[class="modifiers-btn"]`
