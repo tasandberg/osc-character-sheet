@@ -52,9 +52,9 @@
     "InlineButton": "src/ReactorSheet/components/ui/InlineButton.tsx"
   },
   "dtsPropsFor": {
-    "Button": "variant?: \"primary\" | \"danger\" | \"ghost\";\n  size?: \"sm\";\n  children?: React.ReactNode;\n  /** plus native <button> attributes (onClick, disabled, type, …) */\n  [key: string]: unknown;",
+    "Button": "variant?: \"primary\" | \"outline\" | \"danger\" | \"ghost\";\n  size?: \"sm\";\n  children?: React.ReactNode;\n  /** plus native <button> attributes (onClick, disabled, type, …) */\n  [key: string]: unknown;",
     "IconButton": "/** hover/intent treatment (default = neutral) */\n  variant?: \"danger\" | \"accent\" | \"round\";\n  /** compact 18px box for inline carets / × / trash glyphs */\n  size?: \"sm\";\n  /** toggled/active state */\n  on?: boolean;\n  /** the glyph — a FontAwesome <i> or a character */\n  children?: React.ReactNode;\n  [key: string]: unknown;",
-    "Tag": "intent?: \"teal\" | \"crimson\" | \"forest\" | \"mustard\" | \"solid\" | \"count\";\n  children?: React.ReactNode;\n  [key: string]: unknown;",
+    "Tag": "intent?: \"teal\" | \"crimson\" | \"forest\" | \"mustard\" | \"solid\" | \"count\";\n  /** `chip` = the square, dark, icon-first weapon-tag box (default = pill) */\n  variant?: \"chip\";\n  /** FontAwesome glyph class (e.g. \"fa-sword\") rendered before the label */\n  icon?: string;\n  /** hover popover content (reuses the shared .tag-pop treatment) */\n  tooltip?: React.ReactNode;\n  /** when set, renders a trailing removable × button */\n  onRemove?: () => void;\n  /** aria-label / title for the × button (e.g. `Remove Elvish`) */\n  removeLabel?: string;\n  children?: React.ReactNode;\n  [key: string]: unknown;",
     "Stamp": "size?: \"sm\" | \"md\" | \"lg\";\n  children?: React.ReactNode;\n  [key: string]: unknown;",
     "Field": "label?: React.ReactNode;\n  hint?: React.ReactNode;\n  error?: React.ReactNode;\n  /** the control — typically an <Input> */\n  children?: React.ReactNode;\n  [key: string]: unknown;",
     "SectionTitle": "hint?: React.ReactNode;\n  variant?: \"sub\" | \"bare\";\n  children?: React.ReactNode;\n  [key: string]: unknown;",
@@ -62,7 +62,7 @@
     "Segmented": "options: { value: string; label: string }[];\n  value: string;\n  onValueChange: (next: string) => void;\n  className?: string;",
     "Tabs": "tabs: { id: string; label: string; count?: number }[];\n  active: string;\n  onSelect: (id: string) => void;\n  className?: string;",
     "ProgressBar": "value: number;\n  max: number;\n  /** CSS color for the fill (default var(--teal)) */\n  color?: string;\n  className?: string;",
-    "Die": "sides: number;\n  value: number;\n  verdict?: \"crit\" | \"fumble\";\n  rolling?: boolean;\n  className?: string;",
+    "Die": "sides: 4 | 6 | 8 | 20;\n  value: number;\n  verdict?: \"crit\" | \"fumble\";\n  rolling?: boolean;\n  className?: string;",
     "Card": "children?: React.ReactNode;\n  /** native <div> attributes */\n  [key: string]: unknown;",
     "KvCard": "/** a compact key/value tile (e.g. an ability score) */\n  children?: React.ReactNode;\n  [key: string]: unknown;",
     "Table": "children?: React.ReactNode;\n  /** native <table> attributes; compose with Th, Td, Tr (Th/Td accept num?: boolean for right-aligned numerics) */\n  [key: string]: unknown;",

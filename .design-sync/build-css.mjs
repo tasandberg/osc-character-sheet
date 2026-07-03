@@ -1,9 +1,13 @@
 // Deterministic Vellum CSS build for design-sync.
 // Mirrors the app/Storybook pipeline: scope tokens.css + components.css with the
 // same postcss scoper the app uses, compile styles.scss (already
-// .reactor-sheet-scoped in source) with dart-sass, concatenate.
-// Output → .design-sync/.cache/vellum-bundle.css (cfg.cssEntry points here).
-// Fonts ship separately via cfg.extraFonts (fonts.css).
+// .reactor-sheet-scoped in source) with dart-sass.
+//
+// Exposes buildParts() so the generator can split the two shipped artifacts:
+//   _ds_bundle.css = tokens + utilities + components (the scoped Vellum bundle)
+//   styles.css     = the scoped app styles.scss compile
+// Run directly (cfg.buildCmd) it still concatenates all four →
+// .design-sync/.cache/vellum-bundle.css (cfg.cssEntry points here).
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -23,24 +27,30 @@ async function scopeCss(css, from) {
 const scope = (file) => scopeCss(readFileSync(file, "utf8"), file);
 // utilities.scss is generated (token maps → @each); compile with dart-sass first,
 // then scope through the same postcss prefixer (from-path stays under vellum/).
-function sass(file) {
-  return execFileSync(path.join(root, "node_modules/.bin/sass"), ["--no-source-map", file], {
-    encoding: "utf8",
-  });
+function sass(file, extraArgs = []) {
+  return execFileSync(
+    path.join(root, "node_modules/.bin/sass"),
+    ["--no-source-map", ...extraArgs, file],
+    { encoding: "utf8" },
+  );
 }
 
-const tokens = await scope(path.join(vellum, "tokens.css"));
-const utilitiesScss = path.join(vellum, "utilities.scss");
-const utilities = await scopeCss(sass(utilitiesScss), utilitiesScss);
-const components = await scope(path.join(vellum, "components.css"));
-const scss = execFileSync(
-  path.join(root, "node_modules/.bin/sass"),
-  ["--no-source-map", `--load-path=${stylesDir}`, path.join(stylesDir, "styles.scss")],
-  { encoding: "utf8" },
-);
+export async function buildParts() {
+  const tokens = await scope(path.join(vellum, "tokens.css"));
+  const utilitiesScss = path.join(vellum, "utilities.scss");
+  const utilities = await scopeCss(sass(utilitiesScss), utilitiesScss);
+  const components = await scope(path.join(vellum, "components.css"));
+  const styles = sass(path.join(stylesDir, "styles.scss"), [`--load-path=${stylesDir}`]);
+  return { tokens, utilities, components, styles };
+}
 
-const outDir = path.join(root, ".design-sync/.cache");
-mkdirSync(outDir, { recursive: true });
-const out = path.join(outDir, "vellum-bundle.css");
-writeFileSync(out, [tokens, utilities, components, scss].join("\n"));
-console.log(`wrote ${path.relative(root, out)} (${(Buffer.byteLength([tokens, utilities, components, scss].join("\n")) / 1024).toFixed(0)} KB)`);
+// CLI: keep back-compat — concatenate everything into the cached bundle.
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const { tokens, utilities, components, styles } = await buildParts();
+  const outDir = path.join(root, ".design-sync/.cache");
+  mkdirSync(outDir, { recursive: true });
+  const out = path.join(outDir, "vellum-bundle.css");
+  const bundle = [tokens, utilities, components, styles].join("\n");
+  writeFileSync(out, bundle);
+  console.log(`wrote ${path.relative(root, out)} (${(Buffer.byteLength(bundle) / 1024).toFixed(0)} KB)`);
+}
