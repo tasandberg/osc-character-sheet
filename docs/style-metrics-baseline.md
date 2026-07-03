@@ -41,3 +41,25 @@ values (var() fallbacks excluded from hex).
 ```json
 {"inlineApp":{"files":4,"styleProps":15,"cssProps":19,"hex":0,"px":0},"inlineStories":{"files":27,"styleProps":47,"cssProps":144,"hex":3,"px":1},"scss":{"files":11,"ruleLines":2049,"hex":17,"px":636}}
 ```
+
+---
+
+## After B1 (OLD-5/6/7)
+
+- **Commit:** 6a7abb0 (branch `feat/ui-consolidation-p1`)
+- **Note:** the baseline above (d6745ee) predates Phase 0. The true pre-B1 tip is
+  `ac52a56` (utilities + metrics landed), whose story counts already include
+  Phase-0's `Utilities.stories.tsx` (14 inline props). **B1 is exactly flat vs
+  that pre-B1 tip on every metric** — both new stories (SectionHeader, Pips) use
+  `u-*` utilities with zero inline `style={{}}`, and the Pips vellum base
+  (`.pips`/`.pip`) lives under `vellum/`, so it doesn't count against the
+  non-vellum `.rs-*` total.
+
+| Checkpoint | inline app (files/props/decls) | inline stories | non-vellum scss (rules/hex/px) |
+| ---------- | ------------------------------ | -------------- | ------------------------------ |
+| Pre-B1 tip (ac52a56) | 4 / 15 / 19 | 28 / 61 / 179 | 2049 / 17 / 636 |
+| After B1 (6a7abb0)   | 4 / 15 / 19 | 28 / 61 / 179 | 2049 / 17 / 636 |
+
+```json
+{"inlineApp":{"files":4,"styleProps":15,"cssProps":19,"hex":0,"px":0},"inlineStories":{"files":28,"styleProps":61,"cssProps":179,"hex":3,"px":1},"scss":{"files":11,"ruleLines":2049,"hex":17,"px":636}}
+```
