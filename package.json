@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint . && stylelint \"src/**/*.scss\"",
     "lint:css": "stylelint \"src/**/*.scss\"",
+    "style-metrics": "node tools/style-metrics.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
