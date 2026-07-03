@@ -1,5 +1,9 @@
 import OscSheetApp from "@src/OscSheet";
 import { resolveTheme, applyTheme } from "@src/OscSheet/theme";
+import {
+  alignedMenuLeft,
+  findTweaksSheetEntry,
+} from "@src/applications/header-controls";
 
 import { ReactActorSheetV2 } from "foundry-vtt-react";
 
@@ -10,6 +14,18 @@ class OscSheet extends ReactActorSheetV2 {
       title: "OSC Character Sheet",
       minimizable: true,
       resizable: true,
+      controls: [
+        {
+          // OSE's Tweaks — same icon/i18n/gating as the v1 sheet's button.
+          action: "configureTweaks",
+          icon: "fas fa-code",
+          label: "OSE.dialog.tweaks",
+          ownership: "OWNER",
+          visible: function () {
+            return this.isEditable && !!OscSheet.#tweaksSheetEntry(this.document);
+          },
+        },
+      ],
     },
     tag: "div",
     classes: ["osc-sheet"],
@@ -19,6 +35,7 @@ class OscSheet extends ReactActorSheetV2 {
     },
     actions: {
       editImage: OscSheet.#onEditImage,
+      configureTweaks: OscSheet.#onConfigureTweaks,
     },
   };
 
@@ -85,6 +102,56 @@ class OscSheet extends ReactActorSheetV2 {
       mount.appendChild(btn);
       wrap.appendChild(mount);
     });
+  }
+
+  // v14 only (v13's in-frame dropdown never calls this): runs when OUR ⋮ menu
+  // opens, so we can nudge core's popover leftward without touching other apps.
+  *_headerControlContextEntries() {
+    yield* super._headerControlContextEntries();
+    this.#alignControlsMenu();
+  }
+
+  // Core positions after onOpen → poll a few frames; only `left` is ours.
+  #alignControlsMenu(frames = 10) {
+    const toggle = this.element?.querySelector(
+      '.header-control[data-action="toggleControls"]'
+    );
+    if (!toggle) return;
+    const attempt = (remaining) => {
+      if (ui.context?.target !== toggle) return; // not our menu anymore
+      const menu = ui.context.element;
+      if (!menu?.isConnected || !menu.style.left) {
+        if (remaining > 0)
+          requestAnimationFrame(() => attempt(remaining - 1));
+        return;
+      }
+      const left = alignedMenuLeft(
+        toggle.getBoundingClientRect().right,
+        menu.getBoundingClientRect().width
+      );
+      menu.style.left = `${left}px`;
+    };
+    requestAnimationFrame(() => attempt(frames));
+  }
+
+  static #tweaksSheetEntry(actor) {
+    return findTweaksSheetEntry(
+      Object.values(CONFIG.Actor?.sheetClasses?.[actor?.type] ?? {})
+    );
+  }
+
+  // OSE exposes no Tweaks API: run the v1 sheet's own handler on a headless
+  // instance (upstream-safe; position seeds the dialog over our window).
+  static #onConfigureTweaks() {
+    const entry = OscSheet.#tweaksSheetEntry(this.document);
+    try {
+      const { top, left, width } = this.position;
+      const sheet = new entry.cls(this.document, { top, left, width });
+      sheet._onConfigureActor(new Event("click"));
+    } catch (err) {
+      ui.notifications?.warn("Couldn't open the OSE Tweaks dialog.");
+      console.error("osc-character-sheet | Tweaks invocation failed", err);
+    }
   }
 
   async _prepareContext(options) {
