@@ -1,6 +1,7 @@
 import { useState, type DragEvent } from "react";
 import type { AttackVM, RollSpec } from "@domain/vm-types";
 import { SectionTitle } from "@ui/SectionTitle";
+import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import { Monogram } from "@ui/Monogram";
 
@@ -100,20 +101,24 @@ function WeaponRow({ a, onRoll, onAttack, onOpen, dragData }: { a: AttackVM; onR
                 ))}
               </div>
             ) : (
-              <span className={cx("fvtt-tag", a.modes[0].kind)} title={a.modes[0].kindLabel}>
-                <i className={cx("fa-solid", kindIcon(a.modes[0].kind))} aria-hidden="true" />
-                <span className="tag-pop" role="tooltip">{a.modes[0].kindLabel}</span>
-              </span>
+              <Tag
+                variant="chip"
+                className={a.modes[0].kind}
+                icon={kindIcon(a.modes[0].kind)}
+                tooltip={a.modes[0].kindLabel}
+                title={a.modes[0].kindLabel}
+              />
             )}
             {a.qualities.map((q) => (
-              <span className="fvtt-tag" key={q.label} title={q.label}>
-                {q.icon ? (
-                  <i className={cx("fa-solid", q.icon)} aria-hidden="true" />
-                ) : (
-                  <span className="tag-txt">{q.label}</span>
-                )}
-                {q.icon && <span className="tag-pop" role="tooltip">{q.label}</span>}
-              </span>
+              <Tag
+                variant="chip"
+                key={q.label}
+                title={q.label}
+                icon={q.icon || undefined}
+                tooltip={q.icon ? q.label : undefined}
+              >
+                {q.icon ? null : <span className="tag-txt">{q.label}</span>}
+              </Tag>
             ))}
           </div>
         </div>

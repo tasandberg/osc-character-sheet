@@ -26,6 +26,7 @@ import { SortHeader } from "@features/inventory/SortHeader";
 import { useReactorSheetContext } from "@app/context";
 import { FEATURES } from "@app/features";
 import { SectionTitle } from "@ui/SectionTitle";
+import { Monogram } from "@ui/Monogram";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import type { OseItem } from "@domain/types";
@@ -536,11 +537,11 @@ function EquippedTray({
             aria-label={item.name}
             title={item.name}
           >
-            {item.img ? (
-              <img src={item.img} alt="" />
-            ) : (
-              <span className="rs-equip-tt-ic">{item.monogram}</span>
-            )}
+            <Monogram
+              img={item.img}
+              monogram={item.monogram}
+              className={item.img ? "" : "rs-equip-tt-ic"}
+            />
           </button>
           <span className="rs-equip-tt-pop" role="tooltip">
             <span className="rs-equip-tt-pop-nm">{item.name}</span>

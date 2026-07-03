@@ -1,6 +1,6 @@
 import { useReactorSheetContext } from "@app/context";
 import { selectFeatures } from "@features/abilities/features";
-import { SectionHeader } from "@features/abilities/SectionHeader";
+import { SectionHeader } from "@ui/SectionHeader";
 import { IconButton } from "@ui/IconButton";
 import { createAbility } from "@features/abilities/createAbility";
 import { FeatureCard } from "@features/abilities/FeatureCard";

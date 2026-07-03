@@ -144,7 +144,11 @@
   color: var(--text-dim, #b5ad97);
   transition: border-color 0.12s, color 0.12s, background 0.12s;
   .bn { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .pa { margin-left: auto; color: var(--text-faint, #6a6354); font-size: 0.85em; }
+  // own line box so the FA plus centers instead of riding the serif baseline
+  .pa {
+    margin-left: auto; color: var(--text-faint, #6a6354); font-size: 0.85em;
+    display: inline-flex; align-items: center; line-height: 1;
+  }
   &:hover:not(:disabled) { border-color: var(--gold-dim); border-style: solid; }
   &:disabled { opacity: 0.4; cursor: not-allowed; }
 }

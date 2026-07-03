@@ -23,6 +23,7 @@
     "IconButton": "src/ReactorSheet/components/ui/IconButton.tsx",
     "Tag": "src/ReactorSheet/components/ui/Tag.tsx",
     "SectionTitle": "src/ReactorSheet/components/ui/SectionTitle.tsx",
+    "SectionHeader": "src/ReactorSheet/components/ui/SectionHeader.tsx",
     "Card": "src/ReactorSheet/components/ui/Card.tsx",
     "KvCard": "src/ReactorSheet/components/ui/Card.tsx",
     "Table": "src/ReactorSheet/components/ui/Table.tsx",
@@ -44,6 +45,8 @@
     "Skeleton": "src/ReactorSheet/components/ui/Skeleton.tsx",
     "Monogram": "src/ReactorSheet/components/ui/Monogram.tsx",
     "StampCell": "src/ReactorSheet/components/ui/StampCell.tsx",
+    "Pips": "src/ReactorSheet/components/ui/Pips.tsx",
+    "StatPlaque": "src/ReactorSheet/components/ui/StatPlaque.tsx",
     "PortraitField": "src/ReactorSheet/components/ui/PortraitField.tsx",
     "ConfirmDialog": "src/ReactorSheet/components/ui/ConfirmDialog.tsx",
     "InlineButton": "src/ReactorSheet/components/ui/InlineButton.tsx"

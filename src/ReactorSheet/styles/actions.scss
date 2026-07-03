@@ -413,6 +413,12 @@
   border-radius: var(--r-sm, 4px); display: grid; place-items: center;
   font-family: var(--display, serif); font-size: var(--fs-xs, 12px);
 }
+// The save stamp is now a <Stamp> (gains .stamp's chiselled ink shadow, to match
+// the ability plaques — §2.1 consistency). Re-assert the square 22px geometry:
+// .stamp.sm (0,3,0) outranks the .fvtt-save .sk block above, so neutralise its
+// padding/font-size here (equal specificity, later in the cascade) — otherwise
+// the fixed box inflates and the letter shrinks.
+.fvtt-save .stamp.sk { padding: 0; font-size: var(--fs-xs, 12px); }
 .fvtt-save .sv {
   font-family: var(--mono, monospace); font-size: var(--fs-md, 14px);
   color: var(--text, #e5dec8);
@@ -517,7 +523,7 @@
 .rs-weapon .wic-img { object-fit: cover; }
 .rs-weapon .wmain { min-width: 0; }
 .rs-weapon .wname {
-  font-family: var(--display); font-size: var(--fs-md, 15px);
+  font-family: var(--display); font-size: var(--fs-lg, 17px);
   color: var(--text, #e5dec8); line-height: 1.15;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -530,23 +536,8 @@
 .rs-weapon .wname-btn:hover { color: var(--gold); text-decoration: underline; }
 .rs-weapon .wtags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
 
-// quality / mode tags — icon-only chips with a hover popover (+ native title)
-.fvtt-tag {
-  position: relative;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--sans); font-size: var(--fs-3xs, 10px); letter-spacing: 0.03em;
-  color: var(--text-mute, #8a8270);
-  background: var(--bg-2, #1f1c17);
-  border: 1px solid var(--border-soft, #2c2823);
-  border-radius: var(--r-sm, 4px);
-  padding: var(--spacer-1);
-  white-space: nowrap; cursor: default;
-  i { font-size: var(--fs-xs, 12px); }
-  .tag-txt { padding: 0 var(--spacer-1); } // icon-less fallback
-}
-// mode tags carry the accent (melee = brass, missile = teal) on the icon
-.fvtt-tag.melee i { color: var(--gold); }
-.fvtt-tag.missile i { color: var(--teal); }
+// quality / mode tags (icon-only chips + hover popover) now live in vellum as
+// `.tag.chip` (see styles/vellum/components.css) via the Tag `variant="chip"`.
 
 // kind switch — when a weapon has BOTH melee+missile, the two kinds become a
 // joined segmented control (unmistakably a switch, not a quality chip). The
@@ -556,7 +547,10 @@
   background: var(--bg-2, #1f1c17);
   border: 1px solid var(--border, #3a342c);
   border-radius: var(--r-sm, 4px);
-  overflow: hidden;
+  // no overflow: hidden — it clipped the segs' .tag-pop hover tooltips; the
+  // end segments round their own outer corners instead
+  > :first-child { border-radius: calc(var(--r-sm, 4px) - 1px) 0 0 calc(var(--r-sm, 4px) - 1px); }
+  > :last-child { border-radius: 0 calc(var(--r-sm, 4px) - 1px) calc(var(--r-sm, 4px) - 1px) 0; }
 }
 .reactor-sheet-app .kind-seg {
   position: relative;
@@ -586,7 +580,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   opacity: 0; pointer-events: none; transition: opacity 0.12s;
 }
-.fvtt-tag:hover .tag-pop,
 .reactor-sheet-app .wstat:hover .tag-pop { opacity: 1; }
 
 // reusable link-style button: accent colour denotes a clickable roll/link.
@@ -736,25 +729,39 @@
   // Init/HD/Move: borderless + small, three across (inherit the compact base)
   .rs-substats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacer-2); }
   .rs-tile { width: auto; }
-  // attacks: stack the weapon card into two rows so the name/tags get full
-  // width — the 4-col desktop grid starves them here (name truncates to "St…",
-  // tags wrap into a tall stack). Row 1 = icon + name/tags across the full
-  // width; row 2 = Hit · Dmg packed left, Attack pinned right.
-  .fvtt-tag .lbl { display: none; }
+  // attacks: two columns — weapon info (icon/name/tags) left; the roll stack
+  // right: Hit and Dmg as horizontal label·value roll rows over a full-width
+  // Attack button.
   .rs-weapon {
-    grid-template-columns: auto auto 1fr;
+    grid-template-columns: 1fr auto;
     grid-template-areas:
-      "info info info"
-      "hit  dmg  atk";
-    gap: var(--spacer-1) var(--spacer-2);
+      "info hit"
+      "info dmg"
+      "info atk";
+    gap: var(--spacer-1) var(--spacer-3);
     padding: 8px;
   }
-  .rs-weapon .winfo { grid-area: info; }
-  .rs-weapon .wstat.hit { grid-area: hit; justify-self: start; }
-  .rs-weapon .wstat.dmg { grid-area: dmg; justify-self: start; }
-  .rs-weapon .fvtt-atk { grid-area: atk; justify-self: end; min-width: 96px; }
-  .rs-weapon .wstat { padding: 4px 2px; }
+  .rs-weapon .winfo { grid-area: info; align-self: start; align-items: flex-start; }
+  // left column stacks: img + larger name / (kind) label / quality chips
+  .rs-weapon .wname { white-space: normal; } // size bump now lives on the base rule
+  .rs-weapon .wname .wkind { display: block; font-size: var(--fs-xs, 12px); margin-top: 2px; }
+  .rs-weapon .wtags { margin-top: var(--spacer-1); }
+  .rs-weapon .wstat.hit { grid-area: hit; }
+  .rs-weapon .wstat.dmg { grid-area: dmg; }
+  // hit/dmg flip horizontal: label left, value/roll right, one row each
+  .rs-weapon .wstat {
+    flex-direction: row; justify-content: space-between; align-items: center;
+    justify-self: stretch;
+    gap: var(--spacer-3);
+    min-width: 128px;
+    padding: 2px var(--spacer-2);
+  }
   .rs-weapon .wstat .wv { font-size: var(--fs-xs, 12px); }
+  .rs-weapon .fvtt-atk {
+    grid-area: atk; justify-self: stretch; min-width: 0;
+    margin-top: var(--spacer-1);
+    padding-top: 5px; padding-bottom: 5px;
+  }
   // abilities: 6-across in one compact row (flat — drop the md+ gold frame/brackets)
   .rs-abilities { grid-template-columns: repeat(6, 1fr); gap: var(--spacer-1); }
   .rs-abil {

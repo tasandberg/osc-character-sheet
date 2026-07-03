@@ -1,7 +1,5 @@
 import type { AbilityVM } from "@domain/vm-types";
-import { Stamp } from "@ui/Stamp";
-import { cx } from "@ui/cx";
-import { rollable } from "@features/actions/rollable";
+import { StatPlaque } from "@ui/StatPlaque";
 
 type Props = { abilities: AbilityVM[]; onRoll?: (key: string) => void };
 
@@ -11,17 +9,19 @@ export function AbilityPlaques({ abilities, onRoll }: Props) {
     <section className="rs-section">
       <div className="rs-abilities">
         {abilities.map((a) => (
-          <div
-            className={cx("rs-abil", onRoll && "rollable")}
+          <StatPlaque
             key={a.key}
-            data-testid={`ability-${a.key}`}
+            className="rs-abil"
+            stampClassName="rs-abil-k"
+            stampKey={a.label}
+            value={a.value}
+            caption={a.modLabel}
+            valueClassName="av"
+            captionClassName="am"
+            onActivate={onRoll && (() => onRoll(a.key))}
             title={onRoll ? `Roll ${a.label} check` : undefined}
-            {...rollable(onRoll && (() => onRoll(a.key)))}
-          >
-            <Stamp className="rs-abil-k">{a.label}</Stamp>
-            <div className="av">{a.value}</div>
-            <div className="am">{a.modLabel}</div>
-          </div>
+            data-testid={`ability-${a.key}`}
+          />
         ))}
       </div>
     </section>

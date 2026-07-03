@@ -16,6 +16,14 @@
   display: flex; align-items: center; gap: var(--spacer-3);
   width: 100%; cursor: pointer;
   padding: var(--spacer-2) var(--spacer-3);
+
+  // expand chevron: full-size FA glyph, rotates 90° when the card is open
+  .icon-btn.ft-chev {
+    font-size: var(--fs-md, 14px);
+
+    i { transition: transform 0.15s ease; }
+    &[aria-expanded="true"] i { transform: rotate(90deg); }
+  }
 }
 
 // 40px ink stamp — image or monogram fallback.

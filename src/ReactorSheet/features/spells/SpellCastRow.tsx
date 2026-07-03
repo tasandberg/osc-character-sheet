@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import type { OseSpell } from "@domain/types";
 import { cx } from "@ui/cx";
 import { IconButton } from "@ui/IconButton";
+import { Pips } from "@ui/Pips";
 
 type Props = {
   spell: OseSpell;
@@ -50,11 +51,14 @@ export function SpellCastRow({ spell, meta, onCast, onUnprepare, onOpenName, row
           ) : (
             <span className="spn">{nameLabel}</span>
           )}
-          <span className="sp-dots" role="img" aria-label={`${left} of ${total} casts remaining`}>
-            {Array.from({ length: total }).map((_, i) => (
-              <span key={i} className={cx("sp-dot", i < left && "filled")} aria-hidden="true" />
-            ))}
-          </span>
+          <Pips
+            total={total}
+            filled={left}
+            className="sp-dots"
+            dotClassName="sp-dot"
+            role="img"
+            aria-label={`${left} of ${total} casts remaining`}
+          />
           {onUnprepare && (
             <IconButton
               variant="danger"

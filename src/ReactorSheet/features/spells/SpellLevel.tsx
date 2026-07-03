@@ -4,6 +4,7 @@ import type { SpellLevelVM } from "@domain/vm-types";
 import { spellMeta } from "@features/spells/spells";
 import { SpellCastRow } from "@features/spells/SpellCastRow";
 import { cx } from "@ui/cx";
+import { Pips } from "@ui/Pips";
 
 /**
  * One spell level: ink-stamp "Level N" badge + "used / max ready" + slot pips,
@@ -35,9 +36,6 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   };
   const cast = (spell: OseSpell) => spell.spendSpell({ skipDialog: false });
 
-  // One pip per slot: the first `used` (= casts ready) are filled, the rest spent.
-  const pips = Array.from({ length: slots.max }, (_, i) => i < slots.used);
-
   return (
     <div className="rs-spelllevel">
       <div className="rs-spellhead">
@@ -45,13 +43,14 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         <span className="sc">
           {slots.used} / {slots.max} ready
         </span>
-        <span className="slots">
-          {pips.map((filled, i) => (
-            <span key={i} className={cx("rs-pip", filled && "filled")} aria-hidden="true">
-              {filled ? <i className="fa-solid fa-diamond" /> : null}
-            </span>
-          ))}
-        </span>
+        <Pips
+          total={slots.max}
+          filled={slots.used}
+          className="slots"
+          dotClassName="rs-pip"
+          aria-hidden="true"
+          glyph={<i className="fa-solid fa-diamond" />}
+        />
       </div>
 
       {prepared.length === 0 ? (

@@ -76,6 +76,7 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
           )}
         </div>
         <IconButton
+          className="ft-chev"
           aria-expanded={open}
           aria-label={open ? "Collapse" : "Expand"}
           onClick={(e) => {
@@ -83,7 +84,7 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
             toggle();
           }}
         >
-          {open ? "▾" : "▸"}
+          <i className="fa-solid fa-chevron-right" aria-hidden="true" />
         </IconButton>
       </div>
       {open && (
