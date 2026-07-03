@@ -3,6 +3,7 @@ import type { Preview, Decorator } from "@storybook/react-vite";
 // Vite applies postcss.config.mjs (Vellum scoper) to the vellum/* files.
 import "../src/ReactorSheet/styles/vellum/fonts.css";
 import "../src/ReactorSheet/styles/vellum/tokens.css";
+import "../src/ReactorSheet/styles/vellum/utilities.css";
 import "../src/ReactorSheet/styles/vellum/components.css";
 import "../src/ReactorSheet/styles/styles.scss";
 

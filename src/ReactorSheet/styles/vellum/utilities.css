@@ -1,0 +1,193 @@
+/* ========================================================================
+   Vellum utility classes — token-based, single-purpose helpers.
+   Prefix `u-`. Values are the design tokens (--spacer-*, palette, radii);
+   never invent values. Under /styles/vellum/, so the postcss scoper prefixes
+   every selector with .reactor-sheet — these beat the app reset.
+
+   Cascade: spacing (incl. gap defaults on layout) → gap overrides → alignment
+   → color. Compose freely, e.g. <div class="u-row u-gap-3 u-p-4">.
+   Spacing steps map to --spacer-N (N*4px); `0` is a literal reset.
+   ======================================================================== */
+
+/* ─── Padding ───────────────────────────────────────────────────────────── */
+.u-p-0  { padding: 0; }
+.u-p-1  { padding: var(--spacer-1); }
+.u-p-2  { padding: var(--spacer-2); }
+.u-p-3  { padding: var(--spacer-3); }
+.u-p-4  { padding: var(--spacer-4); }
+.u-p-5  { padding: var(--spacer-5); }
+.u-p-6  { padding: var(--spacer-6); }
+.u-p-8  { padding: var(--spacer-8); }
+.u-p-10 { padding: var(--spacer-10); }
+.u-p-12 { padding: var(--spacer-12); }
+
+.u-px-0  { padding-inline: 0; }
+.u-px-1  { padding-inline: var(--spacer-1); }
+.u-px-2  { padding-inline: var(--spacer-2); }
+.u-px-3  { padding-inline: var(--spacer-3); }
+.u-px-4  { padding-inline: var(--spacer-4); }
+.u-px-5  { padding-inline: var(--spacer-5); }
+.u-px-6  { padding-inline: var(--spacer-6); }
+.u-px-8  { padding-inline: var(--spacer-8); }
+.u-px-10 { padding-inline: var(--spacer-10); }
+.u-px-12 { padding-inline: var(--spacer-12); }
+
+.u-py-0  { padding-block: 0; }
+.u-py-1  { padding-block: var(--spacer-1); }
+.u-py-2  { padding-block: var(--spacer-2); }
+.u-py-3  { padding-block: var(--spacer-3); }
+.u-py-4  { padding-block: var(--spacer-4); }
+.u-py-5  { padding-block: var(--spacer-5); }
+.u-py-6  { padding-block: var(--spacer-6); }
+.u-py-8  { padding-block: var(--spacer-8); }
+.u-py-10 { padding-block: var(--spacer-10); }
+.u-py-12 { padding-block: var(--spacer-12); }
+
+.u-pt-0 { padding-top: 0; }
+.u-pt-1 { padding-top: var(--spacer-1); }
+.u-pt-2 { padding-top: var(--spacer-2); }
+.u-pt-3 { padding-top: var(--spacer-3); }
+.u-pt-4 { padding-top: var(--spacer-4); }
+.u-pt-6 { padding-top: var(--spacer-6); }
+.u-pr-0 { padding-right: 0; }
+.u-pr-1 { padding-right: var(--spacer-1); }
+.u-pr-2 { padding-right: var(--spacer-2); }
+.u-pr-3 { padding-right: var(--spacer-3); }
+.u-pr-4 { padding-right: var(--spacer-4); }
+.u-pr-6 { padding-right: var(--spacer-6); }
+.u-pb-0 { padding-bottom: 0; }
+.u-pb-1 { padding-bottom: var(--spacer-1); }
+.u-pb-2 { padding-bottom: var(--spacer-2); }
+.u-pb-3 { padding-bottom: var(--spacer-3); }
+.u-pb-4 { padding-bottom: var(--spacer-4); }
+.u-pb-6 { padding-bottom: var(--spacer-6); }
+.u-pl-0 { padding-left: 0; }
+.u-pl-1 { padding-left: var(--spacer-1); }
+.u-pl-2 { padding-left: var(--spacer-2); }
+.u-pl-3 { padding-left: var(--spacer-3); }
+.u-pl-4 { padding-left: var(--spacer-4); }
+.u-pl-6 { padding-left: var(--spacer-6); }
+
+/* ─── Margin ────────────────────────────────────────────────────────────── */
+.u-m-0  { margin: 0; }
+.u-m-1  { margin: var(--spacer-1); }
+.u-m-2  { margin: var(--spacer-2); }
+.u-m-3  { margin: var(--spacer-3); }
+.u-m-4  { margin: var(--spacer-4); }
+.u-m-6  { margin: var(--spacer-6); }
+.u-m-auto { margin: auto; }
+
+.u-mx-0    { margin-inline: 0; }
+.u-mx-1    { margin-inline: var(--spacer-1); }
+.u-mx-2    { margin-inline: var(--spacer-2); }
+.u-mx-3    { margin-inline: var(--spacer-3); }
+.u-mx-4    { margin-inline: var(--spacer-4); }
+.u-mx-auto { margin-inline: auto; }
+
+.u-my-0 { margin-block: 0; }
+.u-my-1 { margin-block: var(--spacer-1); }
+.u-my-2 { margin-block: var(--spacer-2); }
+.u-my-3 { margin-block: var(--spacer-3); }
+.u-my-4 { margin-block: var(--spacer-4); }
+.u-my-6 { margin-block: var(--spacer-6); }
+
+.u-mt-0 { margin-top: 0; }
+.u-mt-1 { margin-top: var(--spacer-1); }
+.u-mt-2 { margin-top: var(--spacer-2); }
+.u-mt-3 { margin-top: var(--spacer-3); }
+.u-mt-4 { margin-top: var(--spacer-4); }
+.u-mt-6 { margin-top: var(--spacer-6); }
+.u-mt-auto { margin-top: auto; }
+.u-mr-0 { margin-right: 0; }
+.u-mr-1 { margin-right: var(--spacer-1); }
+.u-mr-2 { margin-right: var(--spacer-2); }
+.u-mr-3 { margin-right: var(--spacer-3); }
+.u-mr-4 { margin-right: var(--spacer-4); }
+.u-mr-auto { margin-right: auto; }
+.u-mb-0 { margin-bottom: 0; }
+.u-mb-1 { margin-bottom: var(--spacer-1); }
+.u-mb-2 { margin-bottom: var(--spacer-2); }
+.u-mb-3 { margin-bottom: var(--spacer-3); }
+.u-mb-4 { margin-bottom: var(--spacer-4); }
+.u-mb-6 { margin-bottom: var(--spacer-6); }
+.u-ml-0 { margin-left: 0; }
+.u-ml-1 { margin-left: var(--spacer-1); }
+.u-ml-2 { margin-left: var(--spacer-2); }
+.u-ml-3 { margin-left: var(--spacer-3); }
+.u-ml-4 { margin-left: var(--spacer-4); }
+.u-ml-auto { margin-left: auto; }
+
+/* ─── Layout primitives ─────────────────────────────────────────────────── */
+.u-stack { display: flex; flex-direction: column; gap: var(--spacer-3); }
+.u-row   { display: flex; flex-direction: row; align-items: center; gap: var(--spacer-2); }
+.u-flex  { display: flex; }
+.u-inline-flex { display: inline-flex; }
+.u-wrap   { flex-wrap: wrap; }
+.u-nowrap { flex-wrap: nowrap; }
+.u-flex-1    { flex: 1 1 0%; min-width: 0; }
+.u-flex-none { flex: none; }
+.u-grid   { display: grid; }
+.u-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacer-3); }
+.u-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--spacer-3); }
+.u-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--spacer-3); }
+
+/* ─── Gap (overrides layout defaults above) ─────────────────────────────── */
+.u-gap-0  { gap: 0; }
+.u-gap-1  { gap: var(--spacer-1); }
+.u-gap-2  { gap: var(--spacer-2); }
+.u-gap-3  { gap: var(--spacer-3); }
+.u-gap-4  { gap: var(--spacer-4); }
+.u-gap-5  { gap: var(--spacer-5); }
+.u-gap-6  { gap: var(--spacer-6); }
+.u-gap-8  { gap: var(--spacer-8); }
+.u-gap-x-1 { column-gap: var(--spacer-1); }
+.u-gap-x-2 { column-gap: var(--spacer-2); }
+.u-gap-x-3 { column-gap: var(--spacer-3); }
+.u-gap-x-4 { column-gap: var(--spacer-4); }
+.u-gap-y-1 { row-gap: var(--spacer-1); }
+.u-gap-y-2 { row-gap: var(--spacer-2); }
+.u-gap-y-3 { row-gap: var(--spacer-3); }
+.u-gap-y-4 { row-gap: var(--spacer-4); }
+
+/* ─── Alignment (flex / grid) ───────────────────────────────────────────── */
+.u-items-start    { align-items: flex-start; }
+.u-items-center   { align-items: center; }
+.u-items-end      { align-items: flex-end; }
+.u-items-stretch  { align-items: stretch; }
+.u-items-baseline { align-items: baseline; }
+.u-justify-start   { justify-content: flex-start; }
+.u-justify-center  { justify-content: center; }
+.u-justify-end     { justify-content: flex-end; }
+.u-justify-between { justify-content: space-between; }
+.u-justify-around  { justify-content: space-around; }
+
+/* ─── Color — text ──────────────────────────────────────────────────────── */
+.u-text          { color: var(--text); }
+.u-text-dim      { color: var(--text-dim); }
+.u-text-muted    { color: var(--text-mute); }
+.u-text-faint    { color: var(--text-faint); }
+.u-text-accent   { color: var(--teal); }
+.u-text-brass    { color: var(--accent-alt); }
+.u-text-danger   { color: var(--crimson); }
+.u-text-warn     { color: var(--mustard); }
+.u-text-success  { color: var(--forest); }
+.u-text-on-accent { color: var(--on-accent); }
+
+/* ─── Color — background ────────────────────────────────────────────────── */
+.u-bg           { background: var(--bg); }
+.u-bg-2         { background: var(--bg-2); }
+.u-bg-surface   { background: var(--surface); }
+.u-bg-surface-2 { background: var(--surface-2); }
+.u-bg-surface-3 { background: var(--surface-3); }
+.u-bg-ink       { background: var(--ink); }
+.u-bg-accent    { background: var(--teal); }
+.u-bg-brass     { background: var(--accent-alt); }
+.u-bg-danger    { background: var(--crimson); }
+
+/* ─── Color — border (1px solid; compose or use bare) ───────────────────── */
+.u-border        { border: 1px solid var(--border); }
+.u-border-soft   { border: 1px solid var(--border-soft); }
+.u-border-accent { border: 1px solid var(--teal); }
+.u-border-brass  { border: 1px solid var(--accent-alt); }
+.u-border-danger { border: 1px solid var(--crimson); }
+.u-border-none   { border: none; }

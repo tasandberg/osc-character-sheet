@@ -23,6 +23,7 @@ async function scope(file) {
 }
 
 const tokens = await scope(path.join(vellum, "tokens.css"));
+const utilities = await scope(path.join(vellum, "utilities.css"));
 const components = await scope(path.join(vellum, "components.css"));
 const scss = execFileSync(
   path.join(root, "node_modules/.bin/sass"),
@@ -33,5 +34,5 @@ const scss = execFileSync(
 const outDir = path.join(root, ".design-sync/.cache");
 mkdirSync(outDir, { recursive: true });
 const out = path.join(outDir, "vellum-bundle.css");
-writeFileSync(out, [tokens, components, scss].join("\n"));
-console.log(`wrote ${path.relative(root, out)} (${(Buffer.byteLength([tokens, components, scss].join("\n")) / 1024).toFixed(0)} KB)`);
+writeFileSync(out, [tokens, utilities, components, scss].join("\n"));
+console.log(`wrote ${path.relative(root, out)} (${(Buffer.byteLength([tokens, utilities, components, scss].join("\n")) / 1024).toFixed(0)} KB)`);
