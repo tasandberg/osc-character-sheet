@@ -1,5 +1,4 @@
-import { Card, KvCard } from "./Card";
-import { Stamp } from "./Stamp";
+import { Card } from "./Card";
 
 export default { title: "Layout / Card" };
 
@@ -9,11 +8,4 @@ export const Basic = () => (
   </Card>
 );
 
-export const KeyValue = () => (
-  <KvCard>
-    <div className="head">
-      <Stamp>STR</Stamp>
-    </div>
-    <div className="val">16</div>
-  </KvCard>
-);
+// KvCard (the compact key/value tile) has its own story — see KvCard.stories.tsx.
