@@ -37,20 +37,6 @@ class OscSheet extends ReactActorSheetV2 {
         }
       },
     });
-
-    // Opt-in crash reporting (OLD-29). World-scoped: the GM consents for the
-    // table. Default OFF — with it off the reporting code is never even loaded.
-    game.settings.register("osc-character-sheet", "crashReporting", {
-      name: "Anonymous crash reporting",
-      hint:
-        "When the sheet crashes, send an anonymous report (error message, stack trace, " +
-        "module/Foundry/OSE versions) to the developer. No actor names, user names, ids, " +
-        "chat, or world data are ever sent. Off by default; nothing is sent or loaded while off.",
-      scope: "world",
-      config: true,
-      type: Boolean,
-      default: false,
-    });
   }
 
   async _onRender(context, options) {

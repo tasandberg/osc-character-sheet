@@ -1,13 +1,26 @@
 // Error boundary at the sheet root: a render crash shows a vellum fallback
-// instead of killing the Foundry client or leaving a dead window. Routes the
-// error to the opt-in crash reporter (no-op without consent).
+// instead of killing the Foundry client or leaving a dead window. Nothing is
+// reported automatically — the fallback offers a per-crash "Send bug report"
+// button (or copy-to-clipboard in builds without a reporting endpoint).
 
-import { Component, Fragment, useEffect, useState, type ReactNode } from "react";
+import {
+  Component,
+  Fragment,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { Button } from "@ui/Button";
 import { SectionTitle } from "@ui/SectionTitle";
 import { MODULE_ID } from "@domain/flags";
 import type { OSEActor } from "@domain/types";
-import { reportError } from "@src/telemetry/crashReporter";
+import {
+  buildCrashReport,
+  formatCrashReport,
+  hasDsn,
+  sendCrashReport,
+} from "@src/telemetry/crashReporter";
 
 const FALLBACK_REPO_URL = "https://github.com/tasandberg/osc-character-sheet";
 
@@ -18,13 +31,6 @@ function issuesUrl(): string {
   } catch {
     return `${FALLBACK_REPO_URL}/issues`;
   }
-}
-
-function actorKind(actor?: OSEActor): string {
-  if (!actor) return "unknown";
-  const system = actor.system as { retainer?: { enabled?: boolean } };
-  if (system?.retainer?.enabled) return "retainer";
-  return (actor as { type?: string }).type ?? "unknown";
 }
 
 /** Unpin this actor's sheet (fall back to the system default, e.g. the OSE
@@ -56,6 +62,23 @@ async function switchToDefaultSheet(actor: OSEActor): Promise<void> {
   }, 150);
 }
 
+function IssuesLink({ children }: { children: ReactNode }) {
+  return (
+    <a
+      href={issuesUrl()}
+      target="_blank"
+      rel="noreferrer"
+      style={{
+        color: "var(--gold)",
+        textDecoration: "underline",
+        cursor: "pointer",
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
 type FallbackProps = {
   error: Error;
   componentStack?: string;
@@ -63,24 +86,39 @@ type FallbackProps = {
   actor?: OSEActor;
 };
 
+type SendState = "idle" | "sending" | "sent" | "failed";
+
+const SEND_LABEL: Record<SendState, string> = {
+  idle: "Send bug report",
+  sending: "Sending…",
+  sent: "Report sent ✓",
+  failed: "Retry send",
+};
+
 function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps) {
   const [copied, setCopied] = useState(false);
-  const details = [
-    `${error.name}: ${error.message}`,
-    error.stack ?? "(no stack)",
-    componentStack ? `Component stack:${componentStack}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+  const [sendState, setSendState] = useState<SendState>("idle");
+  const canSend = hasDsn();
+  // Built by the same code path the sender consumes — the disclosure below
+  // shows exactly what would leave the client, already scrubbed.
+  const report = useMemo(
+    () => buildCrashReport(error, componentStack),
+    [error, componentStack],
+  );
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(details);
+      await navigator.clipboard.writeText(formatCrashReport(report));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      /* clipboard unavailable — the <pre> is selectable */
+      /* clipboard unavailable — the payload <pre> is selectable */
     }
+  };
+
+  const send = async () => {
+    setSendState("sending");
+    setSendState((await sendCrashReport(report)) ? "sent" : "failed");
   };
 
   // Vellum utilities + a few layout/typography one-offs inline; no crash.scss.
@@ -113,6 +151,42 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
           </Button>
         )}
       </div>
+      <p className="u-m-0 u-mt-2 u-text-dim" style={{ fontSize: "var(--fs-sm)" }}>
+        {canSend ? (
+          <>
+            Help fix this by sending an anonymous bug report: the error
+            message, stack trace, and module/Foundry/OSE versions — nothing
+            else. Actor names, user names, and world data are scrubbed on your
+            machine before anything is sent.
+          </>
+        ) : (
+          <>
+            Help fix this: copy the error details and paste them into a{" "}
+            <IssuesLink>GitHub issue</IssuesLink>.
+          </>
+        )}
+      </p>
+      <div className="u-row">
+        {canSend && (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={sendState === "sending" || sendState === "sent"}
+            onClick={() => void send()}
+          >
+            {SEND_LABEL[sendState]}
+          </Button>
+        )}
+        <Button size="sm" variant="ghost" onClick={() => void copy()}>
+          {copied ? "Copied" : "Copy error details"}
+        </Button>
+      </div>
+      {sendState === "failed" && (
+        <p className="u-m-0 u-text-danger" style={{ fontSize: "var(--fs-xs)" }}>
+          Couldn&apos;t send the report — check your connection and retry, or
+          copy the details instead.
+        </p>
+      )}
       <details className="u-mt-2" style={{ alignSelf: "stretch" }}>
         <summary
           className="u-text-muted"
@@ -123,7 +197,7 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
             letterSpacing: "0.08em",
           }}
         >
-          Technical details
+          See what&apos;s included
         </summary>
         <pre
           className="mono u-my-2 u-p-3 u-text-dim u-bg-surface u-border-soft"
@@ -137,28 +211,15 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
             userSelect: "text",
           }}
         >
-          {details}
+          {JSON.stringify(report, null, 2)}
         </pre>
-        <Button size="sm" variant="ghost" onClick={() => void copy()}>
-          {copied ? "Copied" : "Copy for bug report"}
-        </Button>
       </details>
-      <p className="u-m-0 u-text-muted" style={{ fontSize: "var(--fs-xs)" }}>
-        If this keeps happening, please{" "}
-        <a
-          href={issuesUrl()}
-          target="_blank"
-          rel="noreferrer"
-          style={{
-            color: "var(--gold)",
-            textDecoration: "underline",
-            cursor: "pointer",
-          }}
-        >
-          file an issue
-        </a>{" "}
-        with the copied details.
-      </p>
+      {canSend && (
+        <p className="u-m-0 u-text-muted" style={{ fontSize: "var(--fs-xs)" }}>
+          If this keeps happening, please{" "}
+          <IssuesLink>file an issue</IssuesLink> with the copied details.
+        </p>
+      )}
     </div>
   );
 }
@@ -178,12 +239,8 @@ export class SheetErrorBoundary extends Component<BoundaryProps, BoundaryState> 
     return { error };
   }
 
-  componentDidCatch(error: Error, info: { componentStack?: string | null }) {
+  componentDidCatch(_error: Error, info: { componentStack?: string | null }) {
     this.setState({ componentStack: info.componentStack ?? undefined });
-    reportError(error, {
-      actorKind: actorKind(this.props.actor),
-      componentStack: info.componentStack ?? undefined,
-    });
   }
 
   #reopen = () => {

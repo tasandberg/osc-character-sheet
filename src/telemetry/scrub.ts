@@ -17,7 +17,8 @@ const FOUNDRY_ID = /\b(?:[A-Za-z]+\.)?[a-zA-Z0-9]{16}\b/g;
 
 const REDACTED = "[redacted]";
 
-function redactText(text: string, names: readonly string[]): string {
+/** Redact Foundry ids and the given names from a text blob. */
+export function redactText(text: string, names: readonly string[]): string {
   let out = text.replace(FOUNDRY_ID, REDACTED);
   for (const name of names) {
     if (!name || name.length < 2) continue;

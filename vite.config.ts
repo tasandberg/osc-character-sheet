@@ -28,6 +28,9 @@ const config: UserConfig = {
       "@ui": path.resolve(__dirname, "src/OscSheet/components/ui"),
     },
   },
+  // foundryReact() moves root to src/, which silently moves the env-file dir
+  // too — pin it back so .env.local (VITE_SENTRY_DSN) at the repo root loads.
+  envDir: __dirname,
   build: {
     sourcemap: true,
   },

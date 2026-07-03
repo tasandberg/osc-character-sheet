@@ -1,39 +1,43 @@
-// Opt-in crash reporting (Sentry protocol, manual client — NEVER Sentry.init,
+// Per-crash bug reporting (Sentry protocol, manual client — NEVER Sentry.init,
 // which would patch window.onerror/fetch globally and capture other modules'
-// errors). The only capture point is our React ErrorBoundary (`reportError`).
+// errors). Nothing is ever sent automatically and there is no setting: the only
+// sender is sendCrashReport(), invoked by the "Send bug report" button in the
+// crash fallback.
 //
-// Consent gates everything: the world setting must be on AND a DSN must have
-// been baked in at build time (`VITE_SENTRY_DSN`). Until both hold, the Sentry
-// chunk is never even loaded — `import("@sentry/browser")` is dynamic, so vite
-// code-splits it and non-consenting worlds pay 0 KB and make zero requests.
-// All failure paths (offline, bad DSN, SDK load error) are silent by design.
+// No-drift guarantee: buildCrashReport() produces the scrubbed payload, the
+// fallback's "see what's included" disclosure renders that object verbatim,
+// and sendCrashReport() takes it as its ONLY error input — the Sentry event is
+// assembled purely from the report's fields, so what the user previews is what
+// leaves the client.
+//
+// The Sentry chunk stays lazy: `import("./sentryClient")` lives inside
+// sendCrashReport(), so vite code-splits it and the reporting code is never
+// even downloaded unless the user presses Send. All failure paths (offline,
+// bad DSN, SDK load error) resolve false so the UI can offer a retry.
 
 import { MODULE_ID } from "@domain/flags";
-import { scrubEvent, type ScrubbableEvent } from "./scrub";
-
-export const CRASH_REPORTING_SETTING = "crashReporting";
+import { redactText, scrubEvent, type ScrubbableEvent } from "./scrub";
 
 const DSN: string = import.meta.env.VITE_SENTRY_DSN ?? "";
 
-/** Client-side flood guard: never send more than this many events per session. */
+/** Flood guard: even a click-happy retry loop can't send more than this per session. */
 const MAX_EVENTS_PER_SESSION = 5;
 let eventsSent = 0;
 
-interface ReporterScope {
-  setTag(key: string, value: string): void;
-  captureException(error: unknown, hint?: { captureContext?: { extra?: Record<string, unknown> } }): unknown;
+/** True when this build carries a reporting endpoint (`VITE_SENTRY_DSN` at build time). */
+export function hasDsn(): boolean {
+  return !!DSN;
 }
-let scopePromise: Promise<ReporterScope | null> | null = null;
 
-/** True when the GM has opted in AND the build carries a DSN. */
-export function crashReportingEnabled(): boolean {
-  if (!DSN) return false;
-  try {
-    const settings = game.settings as { get(ns: string, key: string): unknown };
-    return !!settings.get(MODULE_ID, CRASH_REPORTING_SETTING);
-  } catch {
-    return false; // settings unavailable (storybook/tests/early boot)
-  }
+/** The complete crash-report payload — every field that leaves the client. */
+export interface CrashReport {
+  errorName: string;
+  errorMessage: string;
+  stack: string;
+  componentStack?: string;
+  moduleVersion: string;
+  foundryVersion: string;
+  oseVersion: string;
 }
 
 /** Names that must never leave the client: every user and actor name in the world. */
@@ -61,66 +65,113 @@ function moduleVersion(): string {
   }
 }
 
-async function loadScope(): Promise<ReporterScope | null> {
+/** Build the scrubbed payload: actor/user names and Foundry ids are redacted here,
+ *  client-side, before the report is ever shown or sent. */
+export function buildCrashReport(
+  error: Error,
+  componentStack?: string,
+): CrashReport {
+  const names = collectRedactions();
+  let foundryVersion = "unknown";
+  let oseVersion = "unknown";
   try {
-    const Sentry = await import("./sentryClient");
-    const version = moduleVersion();
-    const redact = collectRedactions();
-    const client = new Sentry.BrowserClient({
-      dsn: DSN,
-      transport: Sentry.makeFetchTransport,
-      stackParser: Sentry.defaultStackParser,
-      // Explicitly minimal: no default integrations (they patch globals).
-      // Dedupe is event-processing only — safe, and stops repeat-crash spam.
-      integrations: [Sentry.dedupeIntegration()],
-      release: `${MODULE_ID}@${version}`,
-      environment: import.meta.env.MODE,
-      sendDefaultPii: false,
-      beforeSend: (event) => scrubEvent(event as ScrubbableEvent, redact) as typeof event,
-    });
-    const scope = new Sentry.Scope();
-    scope.setClient(client);
-    client.init(); // installs the (explicit) integrations on this client only
-    scope.setTag("module_version", version);
-    try {
-      scope.setTag("foundry_build", String(game.version ?? "unknown"));
-      scope.setTag("ose_version", String(game.system?.version ?? "unknown"));
-    } catch {
-      /* tags are best-effort */
-    }
-    return scope;
+    foundryVersion = String(game.version ?? "unknown");
+    oseVersion = String(game.system?.version ?? "unknown");
   } catch {
-    return null; // SDK failed to load — reporting silently off
+    /* versions are best-effort */
   }
+  const report: CrashReport = {
+    errorName: redactText(error.name, names),
+    errorMessage: redactText(error.message, names),
+    stack: redactText(error.stack ?? "(no stack)", names),
+    moduleVersion: moduleVersion(),
+    foundryVersion,
+    oseVersion,
+  };
+  if (componentStack) report.componentStack = redactText(componentStack, names);
+  return report;
+}
+
+/** Plain-text rendering of a report, for the clipboard / a GitHub issue. */
+export function formatCrashReport(report: CrashReport): string {
+  return [
+    `${report.errorName}: ${report.errorMessage}`,
+    report.stack,
+    report.componentStack ? `Component stack:${report.componentStack}` : "",
+    `Versions: ${MODULE_ID} ${report.moduleVersion}, Foundry ${report.foundryVersion}, OSE ${report.oseVersion}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 /**
- * Report an error caught by our ErrorBoundary (or an explicit catch of ours).
- * No-op unless consent + DSN + session cap allow it. Never throws.
+ * Send a previously built (already scrubbed) report. Lazy-loads the Sentry
+ * chunk on first call. Resolves true only when the transport confirmed
+ * delivery — so the UI's sent/failed states are truthful. Never throws.
  */
-export function reportError(
-  error: unknown,
-  context: { actorKind?: string; componentStack?: string } = {},
-): void {
+export async function sendCrashReport(report: CrashReport): Promise<boolean> {
+  if (!DSN) return false;
+  if (eventsSent >= MAX_EVENTS_PER_SESSION) return false;
   try {
-    if (!crashReportingEnabled()) return;
-    if (eventsSent >= MAX_EVENTS_PER_SESSION) return;
-    eventsSent++;
-    scopePromise ??= loadScope();
-    scopePromise
-      .then((scope) => {
-        if (!scope) return;
-        if (context.actorKind) scope.setTag("actor_kind", context.actorKind);
-        scope.captureException(error, {
-          captureContext: context.componentStack
-            ? { extra: { componentStack: context.componentStack } }
-            : undefined,
-        });
-      })
-      .catch(() => {
-        /* silent — offline/air-gapped installs must not spam the console */
-      });
+    const Sentry = await import("./sentryClient");
+    let delivered = false;
+    // Fresh client per attempt: no shared state, and a failed send can be
+    // retried without dedupe-style suppression.
+    const client = new Sentry.BrowserClient({
+      dsn: DSN,
+      // Wrap the fetch transport so delivery is observable (statusCode < 300);
+      // the SDK's own flush() can't distinguish sent from dropped.
+      transport: (options) => {
+        const inner = Sentry.makeFetchTransport(options);
+        return {
+          send: (request) =>
+            inner.send(request).then((res) => {
+              if (res.statusCode === undefined || res.statusCode < 300) {
+                delivered = true;
+              }
+              return res;
+            }),
+          flush: (timeout) => inner.flush(timeout),
+        };
+      },
+      stackParser: Sentry.defaultStackParser,
+      integrations: [], // nothing that patches globals
+      release: `${MODULE_ID}@${report.moduleVersion}`,
+      environment: import.meta.env.MODE,
+      sendDefaultPii: false,
+      // Defense in depth against SDK-added fields (server_name etc.) — the
+      // event content itself comes from the already-scrubbed report.
+      beforeSend: (event) => scrubEvent(event as ScrubbableEvent, []) as typeof event,
+    });
+    const scope = new Sentry.Scope();
+    scope.setClient(client);
+    client.init();
+    scope.setTag("module_version", report.moduleVersion);
+    scope.setTag("foundry_build", report.foundryVersion);
+    scope.setTag("ose_version", report.oseVersion);
+    // Event assembled from report fields only — see no-drift note up top.
+    const frames = Sentry.defaultStackParser(report.stack);
+    scope.captureEvent({
+      exception: {
+        values: [
+          {
+            type: report.errorName,
+            value: report.errorMessage,
+            ...(frames.length ? { stacktrace: { frames } } : {}),
+          },
+        ],
+      },
+      extra: {
+        stack: report.stack,
+        ...(report.componentStack
+          ? { componentStack: report.componentStack }
+          : {}),
+      },
+    });
+    await client.flush(10_000);
+    if (delivered) eventsSent++;
+    return delivered;
   } catch {
-    /* the reporter must never take down the caller */
+    return false; // offline / SDK load error — UI offers retry or copy
   }
 }
