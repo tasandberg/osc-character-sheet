@@ -16,8 +16,7 @@ class OscSheet extends ReactActorSheetV2 {
       resizable: true,
       controls: [
         {
-          // OSE's Tweaks dialog, reachable from our header too. Same icon +
-          // i18n key as the v1 sheet's button; gated like OSE (editable owner).
+          // OSE's Tweaks — same icon/i18n/gating as the v1 sheet's button.
           action: "configureTweaks",
           icon: "fas fa-code",
           label: "OSE.dialog.tweaks",
@@ -105,20 +104,14 @@ class OscSheet extends ReactActorSheetV2 {
     });
   }
 
-  // v14 renders the header ⋮ controls as a body-level #context-menu popover,
-  // left-anchored at the toggle so it overhangs the window's right edge. Core
-  // keeps owning entries/rendering/clicks — we only nudge `left` so the menu
-  // opens leftward into the frame. This override runs exactly when OUR menu
-  // opens (core's onOpen does Array.from(...)), so other apps are untouched.
-  // v13 never calls it (in-frame dropdown, already right-anchored by core CSS).
+  // v14 only (v13's in-frame dropdown never calls this): runs when OUR ⋮ menu
+  // opens, so we can nudge core's popover leftward without touching other apps.
   *_headerControlContextEntries() {
     yield* super._headerControlContextEntries();
     this.#alignControlsMenu();
   }
 
-  // Positioning happens in core's render() after onOpen, so poll a few frames
-  // for the placed menu. Only `left` is touched: the expand-up case positions
-  // via `bottom`, which stays core's call.
+  // Core positions after onOpen → poll a few frames; only `left` is ours.
   #alignControlsMenu(frames = 10) {
     const toggle = this.element?.querySelector(
       '.header-control[data-action="toggleControls"]'
@@ -147,10 +140,8 @@ class OscSheet extends ReactActorSheetV2 {
     );
   }
 
-  // OSE's Tweaks dialog (OseEntityTweaks) has no public API, so instantiate
-  // OSE's own registered v1 sheet headlessly (never rendered) and invoke the
-  // same handler its header button uses. Works against upstream NecroticGnome
-  // OSE — no fork-only exports. Position seeds the dialog over our window.
+  // OSE exposes no Tweaks API: run the v1 sheet's own handler on a headless
+  // instance (upstream-safe; position seeds the dialog over our window).
   static #onConfigureTweaks() {
     const entry = OscSheet.#tweaksSheetEntry(this.document);
     try {
