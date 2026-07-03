@@ -459,20 +459,9 @@
   &.melee.selected { background: var(--gold); i { color: var(--on-accent, #070605); } }
   &.missile.selected { background: var(--teal); i { color: var(--on-accent, #070605); } }
 }
-.reactor-sheet-app .kind-seg:hover .tag-pop { opacity: 1; }
-
-// hover popover (more info) — used by tags AND the hit/dmg buttons
-.tag-pop {
-  position: absolute; bottom: calc(100% + var(--spacer-1)); left: 50%; transform: translateX(-50%);
-  z-index: 10; white-space: nowrap;
-  padding: var(--spacer-1) var(--spacer-2); border-radius: var(--r-sm, 4px);
-  background: var(--surface-2, #2e2a23); border: 1px solid var(--border, #3a342c);
-  color: var(--text-dim, #b5ad97);
-  font-family: var(--mono); font-size: var(--fs-2xs, 11px); letter-spacing: 0.02em;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  opacity: 0; pointer-events: none; transition: opacity 0.12s;
-}
-.reactor-sheet-app .wstat:hover .tag-pop { opacity: 1; }
+// hover popover (`.tag-pop`) + its reveal rules now live in vellum
+// (components.css) as a shared tooltip primitive — used by weapon tags,
+// kind-seg switches, and the hit/dmg (.wstat) buttons.
 
 // reusable link-style button: accent colour denotes a clickable roll/link.
 // (qualified with .reactor-sheet-app to beat the `button { all: unset }` reset.)
