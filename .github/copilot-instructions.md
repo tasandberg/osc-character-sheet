@@ -1,8 +1,8 @@
-# Copilot Instructions for Reactor Sheet
+# Copilot Instructions for Old-School Chronicle Character Sheet
 
 ## Project Overview
 
-- **Reactor Sheet** is a React-based character sheet module for Foundry VTT, integrating with the Foundry system via ES modules and custom UI components.
+- **Old-School Chronicle Character Sheet** is a React-based character sheet module for Foundry VTT, integrating with the Foundry system via ES modules and custom UI components.
 - The codebase is split between `src/` (React app, UI logic) and `foundry/` (Foundry VTT integration, backend logic, data models).
 - The build system uses Vite and TypeScript, with custom aliases for imports (`@src/*`, `@client/*`, `@common/*`).
 

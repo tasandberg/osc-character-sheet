@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Assembles a Foundry /data dir for the reactor-sheet E2E run: the pinned OSE
-# system release, the freshly-built reactor-sheet module, and a bare "e2e" world
+# Assembles a Foundry /data dir for the osc-character-sheet E2E run: the pinned OSE
+# system release, the freshly-built osc-character-sheet module, and a bare "e2e" world
 # fixture. Foundry itself and the license are handled by the felddy container at
 # boot, not here.
 #
@@ -18,7 +18,7 @@ OSE_VERSION="${OSE_VERSION:-2.2.2}"
 OSE_ZIP="https://github.com/NecroticGnome/ose-foundry-core/releases/download/${OSE_VERSION}/system.zip"
 
 SYS_DIR="$DATA_DIR/Data/systems/ose"
-MOD_DIR="$DATA_DIR/Data/modules/reactor-sheet"
+MOD_DIR="$DATA_DIR/Data/modules/osc-character-sheet"
 WORLD_DIR="$DATA_DIR/Data/worlds/e2e"
 
 echo "==> Preparing data dir at $DATA_DIR"
@@ -45,8 +45,8 @@ jq '.compatibility.verified = "14" | .compatibility.maximum = "14"' \
   "$SYS_DIR/system.json" > "$SYS_DIR/system.json.tmp" && mv "$SYS_DIR/system.json.tmp" "$SYS_DIR/system.json"
 [[ "$(jq -r '.id' "$SYS_DIR/system.json")" == "ose" ]] || { echo "ERROR: OSE system id is not 'ose'." >&2; exit 1; }
 
-# --- reactor-sheet module (fresh build) ------------------------------------
-echo "==> Installing reactor-sheet module from build output"
+# --- osc-character-sheet module (fresh build) ------------------------------------
+echo "==> Installing osc-character-sheet module from build output"
 [[ -f "$REPO/dist/main.js" ]] || { echo "ERROR: $REPO/dist/main.js not found -- run 'pnpm build' first." >&2; exit 1; }
 rm -rf "$MOD_DIR"
 mkdir -p "$MOD_DIR"

@@ -7,7 +7,7 @@
 //   - if already applied, show a spent state and disable it,
 //   - otherwise wire the click to reduce the target actor's HP once.
 //
-// Apply-once is enforced by the `flags.reactor-sheet.damageApplied` message flag:
+// Apply-once is enforced by the `flags.osc-character-sheet.damageApplied` message flag:
 // the click sets it true (a GM-only update), which both blocks re-application and,
 // once it propagates, re-renders every client's card into the spent state.
 

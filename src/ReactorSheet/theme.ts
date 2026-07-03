@@ -12,12 +12,12 @@ export function applyTheme(root: HTMLElement, theme: Theme): void {
 }
 
 // --- theme toggle -------------------------------------------------------------
-// The single source of truth is the client setting `reactor-sheet.theme`. Its
+// The single source of truth is the client setting `osc-character-sheet.theme`. Its
 // onChange re-renders every sheet, and reactor-sheet.js `_onRender` applies the
 // theme to each *window* element (this.element). The toggle therefore flips the
 // SETTING — not a DOM attribute on the inner app, which the window's
 // setting-driven data-theme would just override by inheritance.
-const SETTING_NS = "reactor-sheet";
+const SETTING_NS = "osc-character-sheet";
 const SETTING_KEY = "theme";
 
 type GameSettings = {

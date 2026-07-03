@@ -7,7 +7,7 @@ class ReactorSheet extends ReactActorSheetV2 {
   reactApp = ReactorSheetApp;
   static DEFAULT_OPTIONS = {
     window: {
-      title: "Reactor Sheet",
+      title: "Old-School Chronicle Character Sheet",
       minimizable: true,
       resizable: true,
     },
@@ -23,9 +23,9 @@ class ReactorSheet extends ReactActorSheetV2 {
   };
 
   static registerSettings() {
-    game.settings.register("reactor-sheet", "theme", {
+    game.settings.register("osc-character-sheet", "theme", {
       name: "Sheet theme",
-      hint: "Color theme for the Re-Actor character sheet.",
+      hint: "Color theme for the Old-School Chronicle character sheet.",
       scope: "client",
       config: true,
       type: String,
@@ -41,7 +41,7 @@ class ReactorSheet extends ReactActorSheetV2 {
 
   async _onRender(context, options) {
     await super._onRender(context, options);
-    const theme = resolveTheme(game.settings.get("reactor-sheet", "theme"));
+    const theme = resolveTheme(game.settings.get("osc-character-sheet", "theme"));
     applyTheme(this.element, theme);
     // Accent by kind: retainers/hirelings (system.retainer.enabled) go teal;
     // everyone else keeps the brass --gold. See styles.scss [data-kind].

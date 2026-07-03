@@ -44,17 +44,17 @@ These are the real gates a cloud agent can run:
 
 ## Preview / deploy
 
-- Storybook static build is published to **GitHub Pages** under `/reactor-sheet/storybook/` — a `storybook/` subdir of the `gh-pages` branch, so it doesn't occupy the Pages root:
+- Storybook static build is published to **GitHub Pages** under `/osc-character-sheet/storybook/` — a `storybook/` subdir of the `gh-pages` branch, so it doesn't occupy the Pages root:
   ```bash
   pnpm storybook:build
   npx gh-pages -d storybook-static --dest storybook --add -b gh-pages
   ```
-  `--add` updates only those files; the Pages root stays free. Requires Pages enabled on the repo once. Preview: `https://tasandberg.github.io/reactor-sheet/storybook/`.
+  `--add` updates only those files; the Pages root stays free. Requires Pages enabled on the repo once. Preview: `https://tasandberg.github.io/osc-character-sheet/storybook/`.
 - **Alternative:** Netlify draft deploy with `NETLIFY_AUTH_TOKEN` — `pnpm dlx netlify-cli deploy --dir=storybook-static`.
 
 ## dist note
 
-- `dist/` is **currently committed** (build output). A follow-up ([issue #7](https://github.com/tasandberg/reactor-sheet/issues/7)) will stop committing it.
+- `dist/` is **currently committed** (build output). A follow-up ([issue #7](https://github.com/tasandberg/osc-character-sheet/issues/7)) will stop committing it.
 - Until then: if you change build output, rebuild (`pnpm build`) and commit `dist/`.
 - `tools/release.mjs` runs `pnpm build` before zipping, so releases always ship fresh output.
 

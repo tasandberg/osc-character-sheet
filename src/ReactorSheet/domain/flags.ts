@@ -8,7 +8,7 @@
 // where we don't want to depend on the live-document methods).
 
 /** Our module id — the flag scope (matches module.json `id`). */
-export const MODULE_ID = "reactor-sheet";
+export const MODULE_ID = "osc-character-sheet";
 
 /** Flag keys this module owns on documents. */
 export const FLAGS = {

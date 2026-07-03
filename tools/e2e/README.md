@@ -1,6 +1,6 @@
-# reactor-sheet E2E suite
+# osc-character-sheet E2E suite
 
-Playwright user-click E2E tests that drive the reactor-sheet character sheet in a
+Playwright user-click E2E tests that drive the osc-character-sheet character sheet in a
 real Foundry VTT **v14** server (OSE system + the built module). The GitHub Actions
 workflow at `.github/workflows/e2e.yml` boots Foundry and wires these together;
 everything here also runs locally against a scratch Foundry container.
@@ -23,9 +23,9 @@ PRs run automatically; fork PRs need a maintainer's `safe-to-test` label.
 
 | File | Role |
 | --- | --- |
-| `setup-data-dir.sh` | Assembles a Foundry `/data` dir: the pinned OSE release (`OSE_VERSION`, default 2.2.2; `compatibility.verified` bumped to `14` for CI), the freshly-built reactor-sheet module (`module.json` + `dist` + `lang`), and the minimal `e2e` world fixture. |
+| `setup-data-dir.sh` | Assembles a Foundry `/data` dir: the pinned OSE release (`OSE_VERSION`, default 2.2.2; `compatibility.verified` bumped to `14` for CI), the freshly-built osc-character-sheet module (`module.json` + `dist` + `lang`), and the minimal `e2e` world fixture. |
 | `activate-world.mjs` | First-boot activation: `--phase eula` accepts the EULA (generates the host-bound license signature), the caller restarts the container so felddy's `FOUNDRY_WORLD` auto-launches the world, `--phase await` polls `/api/status` until active. |
-| `global-setup.ts` | Joins as Gamemaster, enables the reactor-sheet module + reloads, and seeds the `E2E Fighter` character (weapon/armor/coins) pinned to the reactor sheet. Runs once before the specs. |
+| `global-setup.ts` | Joins as Gamemaster, enables the osc-character-sheet module + reloads, and seeds the `E2E Fighter` character (weapon/armor/coins) pinned to the reactor sheet. Runs once before the specs. |
 | `helpers.ts` | `joinAsGM`, `openCharacterSheet` (forces the wide layout), chat/item readers. |
 | `specs/*.spec.ts` | One spec per core flow: smoke, tabs, ability, save, attack, equip, coin. |
 

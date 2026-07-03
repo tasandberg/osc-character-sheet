@@ -2,11 +2,11 @@ import { chromium, type FullConfig } from "@playwright/test";
 import { joinAsGM, ACTOR_NAME } from "./helpers";
 
 const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/, "");
-const MODULE_ID = "reactor-sheet";
+const MODULE_ID = "osc-character-sheet";
 const SHEET_CLASS = "ose.ReactorSheet";
 
 /**
- * Before any spec runs: join as GM, enable the reactor-sheet module (the world
+ * Before any spec runs: join as GM, enable the osc-character-sheet module (the world
  * fixture ships none enabled), then seed a known "E2E Fighter" character with a
  * weapon, armor and coins, pinned to the reactor sheet. Specs assume this actor.
  */
