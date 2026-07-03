@@ -7,7 +7,7 @@ class ReactorSheet extends ReactActorSheetV2 {
   reactApp = ReactorSheetApp;
   static DEFAULT_OPTIONS = {
     window: {
-      title: "Old-School Chronicle Character Sheet",
+      title: "OSC Character Sheet",
       minimizable: true,
       resizable: true,
     },
@@ -25,7 +25,7 @@ class ReactorSheet extends ReactActorSheetV2 {
   static registerSettings() {
     game.settings.register("osc-character-sheet", "theme", {
       name: "Sheet theme",
-      hint: "Color theme for the Old-School Chronicle character sheet.",
+      hint: "Color theme for the OSC Character Sheet.",
       scope: "client",
       config: true,
       type: String,

@@ -1,6 +1,6 @@
 {
   "id": "osc-character-sheet",
-  "title": "Old-School Chronicle Character Sheet",
+  "title": "Old-School Chronicle: Character Sheet",
   "description": "A fresh, responsive character sheet for Old School Essentials (OSE) in Foundry VTT, rebuilt in React.",
   "version": "0.4.1",
   "authors": [

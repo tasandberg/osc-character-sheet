@@ -25,7 +25,7 @@ export function initialize() {
       {
         types: ["character", "npc"],
         makeDefault: true,
-        label: "Old-School Chronicle Character Sheet",
+        label: "OSC Character Sheet",
       },
     );
   });

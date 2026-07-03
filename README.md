@@ -1,8 +1,8 @@
-# Old-School Chronicle Character Sheet [BETA]
+# Old-School Chronicle: Character Sheet [BETA]
 
 A fresh, responsive character sheet for **[Old School Essentials](https://necroticgnome.com/)** in Foundry VTT — rebuilt in React for a faster, cleaner play experience.
 
-> **Requires the [Old School Essentials](https://foundryvtt.com/packages/ose) game system.** Old-School Chronicle replaces the character sheet; your actors, items, and data are untouched.
+> **Requires the [Old School Essentials](https://foundryvtt.com/packages/ose) game system.** The OSC Character Sheet replaces the default sheet; your actors, items, and data are untouched.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13%E2%80%93v14-informational) ![System: OSE](https://img.shields.io/badge/system-OSE-orange)
 
@@ -10,7 +10,7 @@ A fresh, responsive character sheet for **[Old School Essentials](https://necrot
 
 ## Install
 
-Old-School Chronicle will be on the official Foundry package listing soon. Until then, install by manifest:
+The OSC Character Sheet will be on the official Foundry package listing soon. Until then, install by manifest:
 
 1. In Foundry, open **Add-on Modules → Install Module**.
 2. Paste this **Manifest URL** into the bottom field:
@@ -20,11 +20,11 @@ Old-School Chronicle will be on the official Foundry package listing soon. Until
    ```
 
 3. Click **Install**.
-4. Launch your OSE world, then enable **Old-School Chronicle Character Sheet** under **Game Settings → Manage Modules**.
+4. Launch your OSE world, then enable **Old-School Chronicle: Character Sheet** under **Game Settings → Manage Modules**.
 
-Open any character actor — Old-School Chronicle takes over as the sheet automatically.
+Open any character actor — the OSC Character Sheet takes over automatically.
 
-## Why Old-School Chronicle
+## Why OSC
 
 ### Responsive by design — reclaim your screen
 
@@ -61,7 +61,7 @@ Bug reports and feature requests are welcome on the [issue tracker](https://gith
 
 ## Built with foundry-vtt-react
 
-Old-School Chronicle is a React application mounted onto Foundry's ApplicationV2 via **[foundry-vtt-react](https://www.npmjs.com/package/foundry-vtt-react)** — a small framework for building React-powered sheets and apps that stay in sync with Foundry documents. If you're building your own React sheet, that's the place to start.
+The OSC Character Sheet is a React application mounted onto Foundry's ApplicationV2 via **[foundry-vtt-react](https://www.npmjs.com/package/foundry-vtt-react)** — a small framework for building React-powered sheets and apps that stay in sync with Foundry documents. If you're building your own React sheet, that's the place to start.
 
 ## Development
 
