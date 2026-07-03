@@ -48,6 +48,25 @@ const preview: Preview = {
   parameters: {
     layout: "fullscreen", // we own the outer padding via .reactor-sheet-app
     controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },
+    options: {
+      // Foundations on top, then primitives by kind, app chrome, features last.
+      storySort: {
+        method: "alphabetical",
+        order: [
+          "Foundations",
+          ["Design System", "Utilities"],
+          "Controls",
+          "Display",
+          "Overlays",
+          "Layout",
+          "Navigation",
+          "Data",
+          "Chrome",
+          "Shell",
+          "*",
+        ],
+      },
+    },
   },
 };
 export default preview;
