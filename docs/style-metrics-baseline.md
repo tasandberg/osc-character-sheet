@@ -86,3 +86,38 @@ values (var() fallbacks excluded from hex).
 ```json
 {"inlineApp":{"files":4,"styleProps":15,"cssProps":19,"hex":0,"px":0},"inlineStories":{"files":28,"styleProps":61,"cssProps":179,"hex":3,"px":1},"scss":{"files":11,"ruleLines":2050,"hex":17,"px":637}}
 ```
+
+---
+
+## After B3 (OLD-10)
+
+- **Commit:** 008aaaf (branch `feat/ui-consolidation-p1`)
+- **First real DROP, as expected.** Retiring `.fvtt-tag` from `actions.scss`
+  (ported to vellum as `.tag.chip`, which is excluded from the non-vellum count)
+  cut **non-vellum SCSS from 2050 → 2033 rules (−17) and 637 → 633 px (−4)**.
+  Story inline-styles also ticked **down** (28/61/179 → 27/60/175) because
+  utility-izing the Tag story replaced its one legacy inline `style={{}}` flex
+  row with `u-row`/`u-gap`/`u-wrap`.
+
+| Checkpoint | inline app (files/props/decls) | inline stories | non-vellum scss (rules/hex/px) |
+| ---------- | ------------------------------ | -------------- | ------------------------------ |
+| After B2 (64fe6b2) | 4 / 15 / 19 | 28 / 61 / 179 | 2050 / 17 / 637 |
+| After B3 (008aaaf) | 4 / 15 / 19 | 27 / 60 / 175 | 2033 / 17 / 633 |
+
+```json
+{"inlineApp":{"files":4,"styleProps":15,"cssProps":19,"hex":0,"px":0},"inlineStories":{"files":27,"styleProps":60,"cssProps":175,"hex":3,"px":1},"scss":{"files":11,"ruleLines":2033,"hex":17,"px":633}}
+```
+
+## Wave summary (pre-B1 tip ac52a56 → After B3)
+
+| Metric | Pre-B1 (ac52a56) | After B3 (008aaaf) | Δ |
+| ------ | ---------------: | -----------------: | -: |
+| inline app props | 15 | 15 | 0 |
+| inline story props | 61 | 60 | −1 |
+| non-vellum SCSS rules | 2049 | 2033 | −16 |
+| non-vellum SCSS px | 636 | 633 | −3 |
+
+The regex metrics only see the SCSS/inline-style surface; they don't capture the
+DOM-level dedup (SectionHeader, Pips, Monogram routing, useHpInput, StatPlaque,
+rollable, Tag variants) — the primary goal of the wave — which stays net-negative
+on hand-rolled markup while metrics held flat-to-down throughout.
