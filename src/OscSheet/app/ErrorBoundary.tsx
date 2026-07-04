@@ -140,12 +140,7 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
       </p>
       <p className="u-m-0 u-mt-2 u-text-dim u-fs-sm">
         {canSend ? (
-          <>
-            Help fix this by sending an anonymous bug report: the error
-            message, stack trace, and module/Foundry/OSE versions — nothing
-            else. Actor names, user names, and world data are scrubbed on your
-            machine before anything is sent.
-          </>
+          <>Anonymous — nothing personal leaves your machine.</>
         ) : (
           <>
             Help fix this: copy the error details and paste them into a{" "}
@@ -185,6 +180,11 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
         >
           See what&apos;s included
         </summary>
+        <p className="u-m-0 u-mt-2 u-text-dim u-fs-sm">
+          The error message, stack trace, and module/Foundry/OSE versions —
+          nothing else. Actor names, user names, and world data are scrubbed
+          on your machine first. This is the exact payload:
+        </p>
         <pre
           className="mono u-my-2 u-p-3 u-text-dim u-bg-surface u-border-soft u-fs-2xs u-r-md"
           style={{
