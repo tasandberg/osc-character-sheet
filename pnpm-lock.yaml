@@ -15,8 +15,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       foundry-vtt-react:
-        specifier: ^0.1.5
-        version: 0.1.5(@vitejs/plugin-react@6.0.2(vite@8.0.16(@types/node@24.3.0)(esbuild@0.27.7)(sass-embedded@1.91.0)(sass@1.91.0)))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.3.0)(esbuild@0.27.7)(sass-embedded@1.91.0)(sass@1.91.0))
+        specifier: 0.2.0-beta.1
+        version: 0.2.0-beta.1(@vitejs/plugin-react@6.0.2(vite@8.0.16(@types/node@24.3.0)(esbuild@0.27.7)(sass-embedded@1.91.0)(sass@1.91.0)))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.3.0)(esbuild@0.27.7)(sass-embedded@1.91.0)(sass@1.91.0))
       react:
         specifier: ^19.2.0
         version: 19.2.7
@@ -2484,8 +2484,8 @@ packages:
   flatted@3.4.2:
     resolution: {integrity: sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==}
 
-  foundry-vtt-react@0.1.5:
-    resolution: {integrity: sha512-luffXvLi30LDk43/SZOLFSIhFM7PCDiKz2i8o4EUQ8wBViVlZOCSDikJxs19TGtqaftO7Y9vz7ylsRxHTlm2CA==}
+  foundry-vtt-react@0.2.0-beta.1:
+    resolution: {integrity: sha512-HeAD3ERq8bHVsuO6uVN3D3kzmaB6Vxb3STzLqsyrtVDjbA0n+BPSUgNQr3nqE7VJRKh0H4mmu38sDT0jzDvfhg==}
     peerDependencies:
       '@vitejs/plugin-react': '>=4'
       react: ^19.2.0
@@ -6334,7 +6334,7 @@ snapshots:
 
   flatted@3.4.2: {}
 
-  foundry-vtt-react@0.1.5(@vitejs/plugin-react@6.0.2(vite@8.0.16(@types/node@24.3.0)(esbuild@0.27.7)(sass-embedded@1.91.0)(sass@1.91.0)))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.3.0)(esbuild@0.27.7)(sass-embedded@1.91.0)(sass@1.91.0)):
+  foundry-vtt-react@0.2.0-beta.1(@vitejs/plugin-react@6.0.2(vite@8.0.16(@types/node@24.3.0)(esbuild@0.27.7)(sass-embedded@1.91.0)(sass@1.91.0)))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.3.0)(esbuild@0.27.7)(sass-embedded@1.91.0)(sass@1.91.0)):
     dependencies:
       '@types/react': 19.2.17
       '@types/react-dom': 19.2.3(@types/react@19.2.17)
