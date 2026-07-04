@@ -1,0 +1,61 @@
+# Attaches the Foundry module artifacts (module.json + module.zip) when a
+# GitHub Release is published. The release tag is the source of truth for the
+# version: tools/package.mjs stamps module.json from it in the runner (an
+# optional leading "v" is stripped, so both `0.5.0` and `v0.5.0` work) and
+# points `download` at THIS release's zip and `manifest` at
+# releases/latest/download/module.json.
+#
+# Prereleases: they get assets like any release, but GitHub's "latest" is the
+# newest non-prerelease, non-draft release — so a release marked prerelease
+# never becomes what releases/latest/download (i.e. Foundry auto-update)
+# resolves to.
+#
+# The Sentry endpoint comes from the repo Actions variable VITE_SENTRY_DSN
+# (crash reports are only ever sent when a user presses the button — see
+# README). No DSN variable ⇒ the build ships with reporting compiled out.
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write # gh release upload
+
+jobs:
+  attach-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # checks out the release tag
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Gate: never attach artifacts from a red tree.
+      - run: pnpm lint
+      - run: pnpm test
+
+      - name: Build
+        run: pnpm build
+        env:
+          VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
+
+      - name: Stamp module.json from tag + zip
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          node tools/package.mjs "$VERSION" "$GITHUB_REF_NAME"
+
+      # --clobber: pnpm release already uploads locally built assets at create
+      # time (avoids an asset gap); these CI-built ones are canonical.
+      - name: Attach assets to the release
+        run: gh release upload "$GITHUB_REF_NAME" build/module.zip module.json --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}

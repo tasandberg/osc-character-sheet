@@ -1,5 +1,4 @@
 import moduleManifest from "../module.json" with { type: "json" };
-import { writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 
 const args = process.argv.slice(2);
@@ -40,18 +39,12 @@ function getNewVersion(currentVersion, releaseType) {
   return newVersion;
 }
 
-// Update manifest and write back to file
-function updateManifest(newVersion) {
-  console.log(`Updating manifest version version: ${newVersion}`);
-  
-  moduleManifest.version = newVersion;
-  moduleManifest.download = `${moduleManifest.url}/releases/download/${newVersion}/module.zip`;
-  if (dryRun) {
-    console.log("New module.json:", JSON.stringify(moduleManifest, null, 2));
-    return
-  }
-  writeFileSync('./module.json', JSON.stringify(moduleManifest, null, 2) + '\n');
-  console.log(`Version updated from ${currentVersion} to ${newVersion}`);
+// Stamp module.json + build the zip — shared with CI (tools/package.mjs is
+// the single source for the file list and manifest/download URL conventions).
+function stampAndArchive(newVersion) {
+  console.log(`Packaging ${newVersion} (was ${currentVersion})`);
+  if (dryRun) return;
+  execSync(`node tools/package.mjs ${newVersion}`, { stdio: 'inherit' });
 }
 
 function abortIfGitDirty() {
@@ -86,12 +79,6 @@ function ensureGithubCLI() {
   }
 }
 
-function buildArchive() {
-  const cmd = `zip -r build/module.zip module.json dist/ lang/ templates/ README.md`;
-  console.log(`Building archive...`);
-  execSync(cmd, { stdio: 'inherit' });
-}
-
 function createGithubRelease(tag) {
   const cmd = `git push \
     && gh release create ${tag} --title "${tag}" --generate-notes build/module.zip module.json \
@@ -107,10 +94,11 @@ const newVersion = getNewVersion(moduleManifest.version, releaseType)
 
 abortIfGitDirty()
 ensureGithubCLI()
-updateManifest(newVersion)
 buildDist()
-buildArchive(newVersion)
+stampAndArchive(newVersion)
 commitRelease(newVersion)
+// CI (release.yml) re-builds on "release published" and re-attaches the
+// canonical assets with --clobber; the upload here just avoids an asset gap.
 createGithubRelease(newVersion)
 
 if (dryRun) {
