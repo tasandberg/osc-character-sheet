@@ -24,14 +24,15 @@ The OSC Character Sheet will be on the official Foundry package listing soon. Un
 
 Open any character actor — the OSC Character Sheet takes over automatically.
 
-## Why OSC
+## Why OSC Character Sheet
 
 ### Responsive by design — reclaim your screen
 
 The sheet adapts to whatever space you give it. Drag the window narrow and tabs collapse to the bottom with a compact stat minibar; widen it and navigation moves to a roomy side rail. Run a tight one-window-among-many table without sacrificing legibility, or stretch out when you've got the room.
 
-<img width="55%" alt="image" src="https://github.com/user-attachments/assets/33cdf50c-8704-4c3e-b259-b65c2a00be41" />
-<img width="35%"  alt="image" src="https://github.com/user-attachments/assets/90524bf5-29d3-445b-980d-282cdac848bf" />
+<img width="55%" src="https://github.com/user-attachments/assets/2b53ccd9-cae4-4b55-b2d4-bc003fdafa6f" />
+<img  alt="image" width="35%" src="https://github.com/user-attachments/assets/2c4ac83b-33b1-4e0e-853a-782d1340a8ed" />
+
 
 
 
