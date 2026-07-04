@@ -23,6 +23,10 @@ $scale-mid:  0 1 2 3 4 6;           // pt/pr/pb/pl, m/my/mt/mb
 $scale-sm:   0 1 2 3 4;             // mx / mr / ml
 $gap-steps:  0 1 2 3 4 5 6 8;
 $gap-axis:   1 2 3 4;
+/* type-scale steps → --fs-*; quoted so Sass doesn't parse "2xs" as 2×unit-xs */
+$fs-steps: "3xs" "2xs" "xs" "sm" "md" "base" "lg" "xl" "2xl" "3xl" "4xl" "5xl" "6xl" "7xl" "8xl";
+/* radius steps → --r-* */
+$radius-steps: "sm" "md" "lg" "xl";
 
 /* one spacer value: `0` literal, else var(--spacer-N) */
 @function sp($n) {
@@ -113,6 +117,16 @@ $space-family:
 .u-justify-end     { justify-content: flex-end; }
 .u-justify-between { justify-content: space-between; }
 .u-justify-around  { justify-content: space-around; }
+
+/* ─── Font size (type scale) ────────────────────────────────────────────── */
+@each $s in $fs-steps {
+  .u-fs-#{$s} { font-size: var(--fs-#{$s}); }
+}
+
+/* ─── Border radius ─────────────────────────────────────────────────────── */
+@each $s in $radius-steps {
+  .u-r-#{$s} { border-radius: var(--r-#{$s}); }
+}
 
 /* ─── Color — text ──────────────────────────────────────────────────────── */
 @each $k, $tok in $text-colors {

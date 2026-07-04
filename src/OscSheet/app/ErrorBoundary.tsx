@@ -128,13 +128,13 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
       style={{ height: "100%", maxWidth: "56ch" }}
     >
       <SectionTitle variant="bare">Well, this is embarrassing</SectionTitle>
-      <p className="u-m-0 u-text-dim" style={{ fontSize: "var(--fs-base)" }}>
+      <p className="u-m-0 u-text-dim u-fs-base">
         Sorry — the sheet hit an error it couldn&apos;t recover from. Your
         character data is safe; only the display crashed.
       </p>
       <p
-        className="mono u-m-0 u-text-danger"
-        style={{ fontSize: "var(--fs-sm)", overflowWrap: "anywhere" }}
+        className="mono u-m-0 u-text-danger u-fs-sm"
+        style={{ overflowWrap: "anywhere" }}
       >
         {error.name}: {error.message}
       </p>
@@ -151,7 +151,7 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
           </Button>
         )}
       </div>
-      <p className="u-m-0 u-mt-2 u-text-dim" style={{ fontSize: "var(--fs-sm)" }}>
+      <p className="u-m-0 u-mt-2 u-text-dim u-fs-sm">
         {canSend ? (
           <>
             Help fix this by sending an anonymous bug report: the error
@@ -182,17 +182,16 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
         </Button>
       </div>
       {sendState === "failed" && (
-        <p className="u-m-0 u-text-danger" style={{ fontSize: "var(--fs-xs)" }}>
+        <p className="u-m-0 u-text-danger u-fs-xs">
           Couldn&apos;t send the report — check your connection and retry, or
           copy the details instead.
         </p>
       )}
       <details className="u-mt-2" style={{ alignSelf: "stretch" }}>
         <summary
-          className="u-text-muted"
+          className="u-text-muted u-fs-xs"
           style={{
             cursor: "pointer",
-            fontSize: "var(--fs-xs)",
             textTransform: "uppercase",
             letterSpacing: "0.08em",
           }}
@@ -200,14 +199,12 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
           See what&apos;s included
         </summary>
         <pre
-          className="mono u-my-2 u-p-3 u-text-dim u-bg-surface u-border-soft"
+          className="mono u-my-2 u-p-3 u-text-dim u-bg-surface u-border-soft u-fs-2xs u-r-md"
           style={{
             maxHeight: "14rem",
             overflow: "auto",
             whiteSpace: "pre-wrap",
             overflowWrap: "anywhere",
-            fontSize: "var(--fs-2xs)",
-            borderRadius: "var(--r-md)",
             userSelect: "text",
           }}
         >
@@ -215,7 +212,7 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
         </pre>
       </details>
       {canSend && (
-        <p className="u-m-0 u-text-muted" style={{ fontSize: "var(--fs-xs)" }}>
+        <p className="u-m-0 u-text-muted u-fs-xs">
           If this keeps happening, please{" "}
           <IssuesLink>file an issue</IssuesLink> with the copied details.
         </p>
