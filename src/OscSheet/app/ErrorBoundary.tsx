@@ -138,19 +138,6 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
       >
         {error.name}: {error.message}
       </p>
-      <div className="u-row u-mt-2">
-        <Button variant="primary" onClick={onReopen}>
-          Reopen sheet
-        </Button>
-        {actor && (
-          <Button
-            variant="outline"
-            onClick={() => void switchToDefaultSheet(actor).catch(() => {})}
-          >
-            Use default sheet
-          </Button>
-        )}
-      </div>
       <p className="u-m-0 u-mt-2 u-text-dim u-fs-sm">
         {canSend ? (
           <>
@@ -217,6 +204,19 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
           <IssuesLink>file an issue</IssuesLink> with the copied details.
         </p>
       )}
+      <div className="u-row u-mt-2">
+        <Button variant="primary" onClick={onReopen}>
+          Reopen sheet
+        </Button>
+        {actor && (
+          <Button
+            variant="outline"
+            onClick={() => void switchToDefaultSheet(actor).catch(() => {})}
+          >
+            Use default sheet
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
