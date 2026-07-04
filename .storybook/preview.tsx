@@ -2,7 +2,7 @@ import type { Preview, Decorator } from "@storybook/react-vite";
 // SAME import order as the app + Ladle: fonts → tokens → components → sheet base.
 // Vite applies postcss.config.mjs (Vellum scoper) to the vellum/* files.
 import "../src/OscSheet/styles/vellum/fonts.css";
-import "../src/OscSheet/styles/vellum/tokens.css";
+import "../src/OscSheet/styles/vellum/tokens.scss";
 import "../src/OscSheet/styles/vellum/utilities.scss";
 import "../src/OscSheet/styles/vellum/components.css";
 import "../src/OscSheet/styles/styles.scss";

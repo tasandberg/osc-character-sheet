@@ -2,7 +2,11 @@
    OSE Character Sheet — Vellum Design Tokens
    IM Fell English SC display + teal/crimson palette + Title Case
    section heads with a thick rule. Two themes: dark (default) and cream.
+
+   The type/radius scales are emitted from the maps in _scales.scss (the
+   single source utilities.scss also loops) — edit the scale THERE, not here.
    ======================================================================== */
+@use "scales" as scales;
 
 :root {
   /* ─── Theme-independent ────────────────────────────────────────────── */
@@ -19,11 +23,10 @@
   --sans:          "Inter", -apple-system, system-ui, "Helvetica Neue", sans-serif;
   --mono:          "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
 
-  /* Corner radii */
-  --r-sm:          4px;
-  --r-md:          6px;
-  --r-lg:          10px;
-  --r-xl:          14px;
+  /* Corner radii — generated from $radius in _scales.scss */
+  @each $step, $value in scales.$radius {
+    --r-#{$step}: #{$value};
+  }
 
   /* Space scale — numbered, 4px base (--spacer-N = N*4px) */
   --spacer-1:       4px;
@@ -36,25 +39,10 @@
   --spacer-10:      40px;
   --spacer-12:      48px;
 
-  /* ─── Type scale ───────────────────────────────────────────────────
-     rem-based, anchored on the 16px document root (1rem = 16px).
-     ALWAYS use these tokens for font-size — never hardcode px.
-     The trailing comment is the px equivalent at the default root size. */
-  --fs-3xs:   0.625rem;   /* 10px — micro labels, timestamps */
-  --fs-2xs:   0.6875rem;  /* 11px — stat keys, stamps */
-  --fs-xs:    0.75rem;    /* 12px — fine print, meta */
-  --fs-sm:    0.8125rem;  /* 13px — secondary body */
-  --fs-md:    0.875rem;   /* 14px */
-  --fs-base:  0.9375rem;  /* 15px — body default */
-  --fs-lg:    1rem;       /* 16px — emphasized body */
-  --fs-xl:    1.125rem;   /* 18px — small headings, lead-in */
-  --fs-2xl:   1.3125rem;  /* 21px */
-  --fs-3xl:   1.5rem;     /* 24px — section heads */
-  --fs-4xl:   1.75rem;    /* 28px */
-  --fs-5xl:   2.0625rem;  /* 33px — large stat numerals */
-  --fs-6xl:   2.375rem;   /* 38px — hero numerals (HP/AC) */
-  --fs-7xl:   2.75rem;    /* 44px */
-  --fs-8xl:   3.5rem;     /* 56px — display numerals */
+  /* ─── Type scale — generated from $type-scale in _scales.scss ─────── */
+  @each $step, $value in scales.$type-scale {
+    --fs-#{$step}: #{$value};
+  }
 
   /* Line-height tokens */
   --lh-flush:  1;

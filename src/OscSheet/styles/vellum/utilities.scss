@@ -11,10 +11,13 @@
    GENERATED: the spacing/gap/color/border families below are emitted from the
    token-inventory lists + maps in this file via `@each`. To extend a family,
    add a step to its list (e.g. `$scale-full`) or an entry to its map — never
-   hand-write another rule. Emitted values stay `var(--…)` so tokens.css remains
-   the single source of values; dart-sass compiles this, then the postcss scoper
-   prefixes `.osc-sheet` (keys off the /styles/vellum/ path).
+   hand-write another rule. The font-size/radius families loop the _scales.scss
+   maps that also emit the --fs- and --r- custom properties in tokens.scss
+   (single source, no drift). Emitted values stay `var(--…)`; dart-sass
+   compiles this, then the postcss scoper prefixes `.osc-sheet` (keys off the
+   /styles/vellum/ path).
    ======================================================================== */
+@use "scales" as scales;
 
 /* ─── Token inventory (lists + maps) ────────────────────────────────────── */
 /* spacer steps → --spacer-N; `0` emits a literal 0 reset. */
@@ -23,10 +26,6 @@ $scale-mid:  0 1 2 3 4 6;           // pt/pr/pb/pl, m/my/mt/mb
 $scale-sm:   0 1 2 3 4;             // mx / mr / ml
 $gap-steps:  0 1 2 3 4 5 6 8;
 $gap-axis:   1 2 3 4;
-/* type-scale steps → --fs-*; quoted so Sass doesn't parse "2xs" as 2×unit-xs */
-$fs-steps: "3xs" "2xs" "xs" "sm" "md" "base" "lg" "xl" "2xl" "3xl" "4xl" "5xl" "6xl" "7xl" "8xl";
-/* radius steps → --r-* */
-$radius-steps: "sm" "md" "lg" "xl";
 
 /* one spacer value: `0` literal, else var(--spacer-N) */
 @function sp($n) {
@@ -118,13 +117,13 @@ $space-family:
 .u-justify-between { justify-content: space-between; }
 .u-justify-around  { justify-content: space-around; }
 
-/* ─── Font size (type scale) ────────────────────────────────────────────── */
-@each $s in $fs-steps {
+/* ─── Font size (steps from _scales.scss $type-scale) ───────────────────── */
+@each $s, $_ in scales.$type-scale {
   .u-fs-#{$s} { font-size: var(--fs-#{$s}); }
 }
 
-/* ─── Border radius ─────────────────────────────────────────────────────── */
-@each $s in $radius-steps {
+/* ─── Border radius (steps from _scales.scss $radius) ───────────────────── */
+@each $s, $_ in scales.$radius {
   .u-r-#{$s} { border-radius: var(--r-#{$s}); }
 }
 

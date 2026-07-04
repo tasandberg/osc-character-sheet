@@ -1,8 +1,10 @@
 /** @type {import('stylelint').Config} */
 export default {
-  // Lint only our hand-written SCSS. The `styles/vellum/*` design-system source
-  // is `.css` (not matched by the `**/*.scss` lint glob) and is intentionally
-  // exempt — it's where raw values are allowed to live.
+  // Lint only our hand-written SCSS. The `styles/vellum/*.css` design-system
+  // source (components/fonts) isn't matched by the `**/*.scss` glob and is
+  // intentionally exempt — it's where raw values are allowed to live.
+  // vellum's tokens.scss passes because custom-property *definitions* don't
+  // trip the anchored rules below (only bare literals on real properties do).
   customSyntax: "postcss-scss",
   rules: {
     // Push consumers toward the design tokens. Both checks match the *whole*
