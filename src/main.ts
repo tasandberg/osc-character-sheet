@@ -27,6 +27,19 @@ export function initialize() {
     migrateLocalStorage(); // every user; independent of the GM world pass
     await runWorldMigration();
     installAdvancedClasses();
+
+    // Debug API. `crashTest()` throws a deliberate error inside any open OSC
+    // sheet on its next render — exercises the ErrorBoundary fallback (and the
+    // opt-in crash reporter). Harmless unless explicitly called.
+    const mod = game.modules?.get("osc-character-sheet") as unknown as
+      | { api?: Record<string, unknown> }
+      | undefined;
+    if (mod) {
+      mod.api = {
+        crashTest: () => window.dispatchEvent(new Event("osc-crash-test")),
+      };
+    }
+
     foundry.documents.collections.Actors.registerSheet(
       game.system?.id,
       OscSheet,

@@ -11,6 +11,9 @@ const config: UserConfig = {
   plugins: [react(), foundryReact(), svgr()],
   define: {
     "process.env": {},
+    // Strip @sentry/browser's internal debug logging: smaller lazy chunk, and
+    // transport failures (offline/air-gapped worlds) stay silent in console.
+    __SENTRY_DEBUG__: false,
   },
   resolve: {
     // Note: react/react-dom dedupe is handled by foundryReact() — no need to set it here.
@@ -25,6 +28,9 @@ const config: UserConfig = {
       "@ui": path.resolve(__dirname, "src/OscSheet/components/ui"),
     },
   },
+  // foundryReact() moves root to src/, which silently moves the env-file dir
+  // too — pin it back so .env.local (VITE_SENTRY_DSN) at the repo root loads.
+  envDir: __dirname,
   build: {
     sourcemap: true,
   },

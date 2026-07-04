@@ -11,10 +11,13 @@
    GENERATED: the spacing/gap/color/border families below are emitted from the
    token-inventory lists + maps in this file via `@each`. To extend a family,
    add a step to its list (e.g. `$scale-full`) or an entry to its map — never
-   hand-write another rule. Emitted values stay `var(--…)` so tokens.css remains
-   the single source of values; dart-sass compiles this, then the postcss scoper
-   prefixes `.osc-sheet` (keys off the /styles/vellum/ path).
+   hand-write another rule. The font-size/radius families loop the _scales.scss
+   maps that also emit the --fs- and --r- custom properties in tokens.scss
+   (single source, no drift). Emitted values stay `var(--…)`; dart-sass
+   compiles this, then the postcss scoper prefixes `.osc-sheet` (keys off the
+   /styles/vellum/ path).
    ======================================================================== */
+@use "scales" as scales;
 
 /* ─── Token inventory (lists + maps) ────────────────────────────────────── */
 /* spacer steps → --spacer-N; `0` emits a literal 0 reset. */
@@ -113,6 +116,16 @@ $space-family:
 .u-justify-end     { justify-content: flex-end; }
 .u-justify-between { justify-content: space-between; }
 .u-justify-around  { justify-content: space-around; }
+
+/* ─── Font size (steps from _scales.scss $type-scale) ───────────────────── */
+@each $s, $_ in scales.$type-scale {
+  .u-fs-#{$s} { font-size: var(--fs-#{$s}); }
+}
+
+/* ─── Border radius (steps from _scales.scss $radius) ───────────────────── */
+@each $s, $_ in scales.$radius {
+  .u-r-#{$s} { border-radius: var(--r-#{$s}); }
+}
 
 /* ─── Color — text ──────────────────────────────────────────────────────── */
 @each $k, $tok in $text-colors {

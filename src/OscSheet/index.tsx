@@ -1,12 +1,13 @@
 import type { OscSheetAppProps } from "@domain/types";
 import "./styles/vellum/fonts.css";
-import "./styles/vellum/tokens.css";
+import "./styles/vellum/tokens.scss";
 import "./styles/vellum/utilities.scss";
 import "./styles/vellum/components.css";
 import "./styles/styles.scss";
 import "./styles/edit-modal.scss";
 import OscSheetProvider from "@app/OscSheetProvider";
 import { OptimisticProvider } from "@app/OptimisticProvider";
+import { SheetErrorBoundary, CrashTestProbe } from "@app/ErrorBoundary";
 import SheetShell from "@app/SheetShell";
 import { ToastProvider } from "@ui/ToastHost";
 import { useEffect, useRef, type ReactNode } from "react";
@@ -40,17 +41,20 @@ function OscSheetApp({
 }: OscSheetAppProps) {
   return (
     <ThemedRoot>
-      <ToastProvider>
-        <OscSheetProvider
-          initialActor={actor!}
-          source={source!}
-          contextConnector={contextConnector}
-        >
-          <OptimisticProvider>
-            <SheetShell />
-          </OptimisticProvider>
-        </OscSheetProvider>
-      </ToastProvider>
+      <SheetErrorBoundary actor={actor}>
+        <ToastProvider>
+          <OscSheetProvider
+            initialActor={actor!}
+            source={source!}
+            contextConnector={contextConnector}
+          >
+            <OptimisticProvider>
+              <SheetShell />
+              <CrashTestProbe />
+            </OptimisticProvider>
+          </OscSheetProvider>
+        </ToastProvider>
+      </SheetErrorBoundary>
     </ThemedRoot>
   );
 }

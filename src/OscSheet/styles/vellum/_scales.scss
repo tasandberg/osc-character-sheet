@@ -1,0 +1,34 @@
+// Single-source token scales — the ONLY place the type/radius steps live.
+// tokens.scss emits the --fs-*/--r-* custom properties from these maps and
+// utilities.scss emits the matching u-fs-*/u-r-* classes by looping the same
+// maps, so the vars and utilities can't drift. Data-only partial: no CSS.
+// Keys are quoted so Sass doesn't parse "2xs" as the number 2 with unit xs.
+
+// rem-based, anchored on the 16px document root (1rem = 16px).
+// ALWAYS use the emitted --fs-* tokens for font-size — never hardcode px.
+// The trailing comment is the px equivalent at the default root size.
+$type-scale: (
+  "3xs": 0.625rem,   // 10px — micro labels, timestamps
+  "2xs": 0.6875rem,  // 11px — stat keys, stamps
+  "xs": 0.75rem,     // 12px — fine print, meta
+  "sm": 0.8125rem,   // 13px — secondary body
+  "md": 0.875rem,    // 14px
+  "base": 0.9375rem, // 15px — body default
+  "lg": 1rem,        // 16px — emphasized body
+  "xl": 1.125rem,    // 18px — small headings, lead-in
+  "2xl": 1.3125rem,  // 21px
+  "3xl": 1.5rem,     // 24px — section heads
+  "4xl": 1.75rem,    // 28px
+  "5xl": 2.0625rem,  // 33px — large stat numerals
+  "6xl": 2.375rem,   // 38px — hero numerals (HP/AC)
+  "7xl": 2.75rem,    // 44px
+  "8xl": 3.5rem,     // 56px — display numerals
+);
+
+// Corner radii → --r-*
+$radius: (
+  "sm": 4px,
+  "md": 6px,
+  "lg": 10px,
+  "xl": 14px,
+);

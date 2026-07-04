@@ -57,6 +57,14 @@ Coins, encumbrance, weapon tags, attacks, and inventory are modeled on the OSE d
 
 Bug reports and feature requests are welcome on the [issue tracker](https://github.com/tasandberg/osc-character-sheet/issues).
 
+## Bug reports (manual, anonymous)
+
+If the sheet ever crashes, an error boundary catches it and shows a recovery screen — your actor data is never at risk, and you can reopen the sheet or fall back to the default OSE sheet.
+
+The crash screen offers a **Send bug report** button. Nothing is ever sent automatically and there is no setting to enable — a report goes out only when you press the button. It contains the error message, stack trace, and module/Foundry/OSE versions, nothing else: actor names, user names, and document ids are scrubbed on your machine first, and a "see what's included" disclosure on the crash screen shows the exact payload before you send. The reporting code isn't even downloaded until the button is pressed.
+
+For maintainers: reports use the Sentry protocol. The endpoint is baked in at build time via the `VITE_SENTRY_DSN` env var (e.g. in `.env.local`); a build without a DSN replaces the send button with "Copy error details" for pasting into a GitHub issue.
+
 ---
 
 ## Built with foundry-vtt-react
