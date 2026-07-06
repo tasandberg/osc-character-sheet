@@ -5,10 +5,13 @@
 # points `download` at THIS release's zip and `manifest` at
 # releases/latest/download/module.json.
 #
+# After the assets are attached, the version is pushed to the Foundry package
+# registry (tools/publish-registry.mjs) so the public listing updates.
+#
 # Prereleases: they get assets like any release, but GitHub's "latest" is the
 # newest non-prerelease, non-draft release — so a release marked prerelease
 # never becomes what releases/latest/download (i.e. Foundry auto-update)
-# resolves to.
+# resolves to. They are also NOT pushed to the registry.
 #
 # The Sentry endpoint comes from the repo Actions variable VITE_SENTRY_DSN
 # (crash reports are only ever sent when a user presses the button — see
@@ -59,3 +62,18 @@ jobs:
         run: gh release upload "$GITHUB_REF_NAME" build/module.zip module.json --clobber
         env:
           GH_TOKEN: ${{ github.token }}
+
+      # Dry-run validates the payload registry-side without saving, then the
+      # real POST publishes. Re-runs are idempotent: an already-released
+      # version comes back 400 unique_together, which the script treats as
+      # success; any other registry error fails the job.
+      - name: Publish to Foundry package registry
+        run: |
+          if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+            echo "Prerelease — skipping registry publish."
+            exit 0
+          fi
+          node tools/publish-registry.mjs "$GITHUB_REF_NAME" --dry-run
+          node tools/publish-registry.mjs "$GITHUB_REF_NAME"
+        env:
+          FOUNDRY_RELEASE_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
