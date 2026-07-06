@@ -28,8 +28,14 @@ permissions:
 jobs:
   attach-artifacts:
     runs-on: ubuntu-latest
+    # GITHUB_REF is unreliable here: publishing a release that creates its tag
+    # can fire the event with ref still on the target branch. tag_name is not.
+    env:
+      TAG: ${{ github.event.release.tag_name }}
     steps:
-      - uses: actions/checkout@v4 # checks out the release tag
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
 
       - uses: pnpm/action-setup@v4
         with:
@@ -54,7 +60,7 @@ jobs:
       # Before the zip step (it strips dist map refs); release must match crashReporter.ts's tag.
       - name: Upload source maps to Sentry
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${TAG#v}"
           pnpm exec sentry-cli sourcemaps inject dist
           pnpm exec sentry-cli sourcemaps upload dist \
             --org old-school-chronicle --project osc-character-sheet \
@@ -65,13 +71,13 @@ jobs:
 
       - name: Stamp module.json from tag + zip
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          node tools/package.mjs "$VERSION" "$GITHUB_REF_NAME"
+          VERSION="${TAG#v}"
+          node tools/package.mjs "$VERSION" "$TAG"
 
       # --clobber: pnpm release already uploads locally built assets at create
       # time (avoids an asset gap); these CI-built ones are canonical.
       - name: Attach assets to the release
-        run: gh release upload "$GITHUB_REF_NAME" build/module.zip module.json --clobber
+        run: gh release upload "$TAG" build/module.zip module.json --clobber
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -85,7 +91,7 @@ jobs:
             echo "Prerelease — skipping registry publish."
             exit 0
           fi
-          node tools/publish-registry.mjs "$GITHUB_REF_NAME" --dry-run
-          node tools/publish-registry.mjs "$GITHUB_REF_NAME"
+          node tools/publish-registry.mjs "$TAG" --dry-run
+          node tools/publish-registry.mjs "$TAG"
         env:
           FOUNDRY_RELEASE_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
