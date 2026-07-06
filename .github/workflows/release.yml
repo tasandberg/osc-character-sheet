@@ -51,14 +51,7 @@ jobs:
         env:
           VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
 
-      # Symbolication for crash reports. `inject` stamps debug ids into the
-      # dist JS before it's zipped, so matching is path-independent (works even
-      # behind a Foundry routePrefix); release + url-prefix is the fallback for
-      # events from non-injected builds — Foundry serves modules at
-      # <origin>/modules/<id>/, and "~" matches any origin. The release name
-      # must equal what crashReporter.ts tags: <module id>@<stamped version>.
-      # Runs for prereleases too: beta crash reports should symbolicate.
-      # Must run before the zip step (it strips sourcemap refs from dist).
+      # Before the zip step (it strips dist map refs); release must match crashReporter.ts's tag.
       - name: Upload source maps to Sentry
         run: |
           VERSION="${GITHUB_REF_NAME#v}"

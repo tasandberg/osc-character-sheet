@@ -32,9 +32,7 @@ manifest.download = `${manifest.url}/releases/download/${tag}/module.zip`;
 writeFileSync("./module.json", JSON.stringify(manifest, null, 2) + "\n");
 console.log(`Stamped module.json ${version} (download → ${manifest.download})`);
 
-// Source maps stay out of the zip — release CI uploads them to Sentry instead.
-// Strip vite's sourceMappingURL comments too: a pointer to a map that isn't
-// shipped makes DevTools log fetch failures on users' machines.
+// Maps live in Sentry, not the zip — strip the refs so DevTools doesn't chase 404s.
 for (const file of readdirSync("dist", { recursive: true })) {
   if (!file.endsWith(".js")) continue;
   const path = join("dist", file);
