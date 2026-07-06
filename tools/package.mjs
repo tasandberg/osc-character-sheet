@@ -15,7 +15,8 @@
 //   download → releases/download/<tag>/module.zip — pinned to THIS release.
 
 import { execSync } from "child_process";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { join } from "path";
 
 const [version, tagArg] = process.argv.slice(2);
 if (!/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version ?? "")) {
@@ -31,10 +32,19 @@ manifest.download = `${manifest.url}/releases/download/${tag}/module.zip`;
 writeFileSync("./module.json", JSON.stringify(manifest, null, 2) + "\n");
 console.log(`Stamped module.json ${version} (download → ${manifest.download})`);
 
+// Maps live in Sentry, not the zip — strip the refs so DevTools doesn't chase 404s.
+for (const file of readdirSync("dist", { recursive: true })) {
+  if (!file.endsWith(".js")) continue;
+  const path = join("dist", file);
+  const src = readFileSync(path, "utf8");
+  const stripped = src.replace(/^\/\/# sourceMappingURL=.*\n?/gm, "");
+  if (stripped !== src) writeFileSync(path, stripped);
+}
+
 mkdirSync("build", { recursive: true });
 // Always zip from scratch — `zip -r` updates in place, so a stale archive
 // would keep entries for files that no longer exist (renamed dist chunks).
 rmSync("build/module.zip", { force: true });
-execSync("zip -r build/module.zip module.json dist/ lang/ templates/ README.md", {
+execSync('zip -r build/module.zip module.json dist/ lang/ templates/ README.md -x "*.map"', {
   stdio: "inherit",
 });

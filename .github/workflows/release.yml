@@ -51,6 +51,18 @@ jobs:
         env:
           VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
 
+      # Before the zip step (it strips dist map refs); release must match crashReporter.ts's tag.
+      - name: Upload source maps to Sentry
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          pnpm exec sentry-cli sourcemaps inject dist
+          pnpm exec sentry-cli sourcemaps upload dist \
+            --org old-school-chronicle --project osc-character-sheet \
+            --release "osc-character-sheet@$VERSION" \
+            --url-prefix "~/modules/osc-character-sheet/dist"
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
       - name: Stamp module.json from tag + zip
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
