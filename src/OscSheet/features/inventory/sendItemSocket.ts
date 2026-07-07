@@ -16,8 +16,10 @@ export const SOCKET = "module.osc-character-sheet";
 export interface SendItemRequest {
   type: "sendItem";
   requestId: string;
-  fromActorId: string;
-  toActorId: string;
+  /** Actor UUID of the source (sender's sheet actor). */
+  sourceUuid: string;
+  /** Actor UUID of the target (the picked token's actor; may be unlinked). */
+  targetUuid: string;
   create: SendNode[];
   deleteIds: string[];
   decrement: { id: string; value: number } | null;
@@ -89,12 +91,24 @@ interface GameLike {
   socket?: LooseSocket;
   user: unknown;
   users?: { activeGM: unknown };
-  actors?: { get(id: string): EmbeddedDocActor | undefined };
 }
 // fvtt-types narrows `game.socket` to a socket.io shape; read the members we use
 // through a loose surface (mirrors applyDamage.ts / flags.ts).
 const getGame = (): GameLike =>
   (globalThis as unknown as { game: GameLike }).game;
+
+// Resolve an actor UUID to its live document. `foundry.utils.fromUuid` loads the
+// parent scene if needed, so it resolves unlinked token actors even when the GM
+// is viewing a different scene than the sender.
+async function resolveActor(uuid: string): Promise<EmbeddedDocActor | null> {
+  const fromUuid = (
+    globalThis as unknown as {
+      foundry?: { utils?: { fromUuid?: (u: string) => Promise<unknown> } };
+    }
+  ).foundry?.utils?.fromUuid;
+  if (!fromUuid) return null;
+  return (await fromUuid(uuid)) as EmbeddedDocActor | null;
+}
 
 /** GM-side: apply an incoming relay request. No-ops on every client but the
  *  single active GM (mirrors migrations.ts / applyDamage.ts). */
@@ -102,10 +116,12 @@ async function onRequest(data: SendItemRequest): Promise<void> {
   if (data?.type !== "sendItem") return;
   const game = getGame();
   if (!game.users?.activeGM || game.users.activeGM !== game.user) return;
-  const from = game.actors?.get(data.fromActorId);
-  const to = game.actors?.get(data.toActorId);
+  const [from, to] = await Promise.all([
+    resolveActor(data.sourceUuid),
+    resolveActor(data.targetUuid),
+  ]);
   if (!from || !to) {
-    logger(`sendItem relay: could not resolve actors ${data.fromActorId}→${data.toActorId}`);
+    logger(`sendItem relay: could not resolve actors ${data.sourceUuid}→${data.targetUuid}`);
     return;
   }
   try {

@@ -571,10 +571,9 @@
 // Send Item dialog (target picker + stack split)
 // ---------------------------------------------------------------------------
 
-.osc-send-targets {
-  list-style: none; margin: 0; padding: 0;
-  display: flex; flex-direction: column; gap: var(--spacer-1);
-}
+// Layout/size/color come from u-* utilities in the JSX; only the bespoke target
+// button (hover / selected color-mix / disabled) and its icon tile live here.
+.osc-send-targets { list-style: none; margin: 0; padding: 0; }
 // Button selectors qualified with .osc-inv (the dialog is a DOM descendant) so
 // they beat the `.osc-sheet-app button { all: unset }` reset.
 .osc-inv .osc-send-target {
@@ -599,19 +598,3 @@
   font-family: var(--display); color: var(--text-dim, #b5ad97);
   object-fit: cover;
 }
-.osc-send-target-nm { flex: 1; }
-
-.osc-send-empty,
-.osc-send-note {
-  margin: var(--spacer-3) 0 0; color: var(--text-mute, #8a8270);
-  font-family: var(--sans); font-size: var(--fs-sm, 13px);
-}
-.osc-send-qty {
-  display: flex; align-items: center; gap: var(--spacer-3);
-  margin-top: var(--spacer-4);
-}
-.osc-send-qty-label {
-  font-family: var(--display); font-size: var(--fs-sm, 13px);
-  color: var(--text-dim, #b5ad97);
-}
-.osc-send-qty-of { color: var(--text-mute, #8a8270); font-size: var(--fs-sm, 13px); }

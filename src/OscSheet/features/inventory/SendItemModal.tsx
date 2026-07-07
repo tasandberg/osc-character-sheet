@@ -5,7 +5,6 @@
 import { useEffect, useState } from "react";
 import { Modal } from "@ui/Modal";
 import { Monogram } from "@ui/Monogram";
-import { Tag } from "@ui/Tag";
 import { Stepper } from "@ui/Stepper";
 import { Button } from "@ui/Button";
 import { cx } from "@ui/cx";
@@ -72,11 +71,41 @@ export function SendItemModal({
   );
 
   return (
-    <Modal open={open} title={`Send ${item.name}`} onClose={onClose} footer={footer}>
+    <Modal
+      open={open}
+      title={`Send ${item.name}`}
+      onClose={onClose}
+      footer={footer}
+    >
+      {/* The item being sent: art, name, and (for stacks) a quantity stepper. */}
+      <div className="u-row u-gap-3">
+        <Monogram
+          img={item.img}
+          monogram={initials(item.name)}
+          className="osc-send-target-ic"
+        />
+        <span className="u-flex-1">{item.name}</span>
+        {stacked && (
+          <div className="u-row u-gap-2">
+            <Stepper value={qty} onValueChange={setQty} min={1} max={max} />
+            <span className="u-fs-sm u-text-muted">of {max}</span>
+          </div>
+        )}
+      </div>
+
+      {item.isContainer && contentCount > 0 && (
+        <p className="u-mt-2 u-fs-sm u-text-muted">
+          Includes {contentCount} {contentCount === 1 ? "item" : "items"} inside.
+        </p>
+      )}
+
+      {/* Target characters: visible, non-hostile scene tokens. */}
       {targets.length === 0 ? (
-        <p className="osc-send-empty">No other party members to send to.</p>
+        <p className="u-mt-4 u-fs-sm u-text-muted">
+          No visible characters in this scene to send to.
+        </p>
       ) : (
-        <ul className="osc-send-targets">
+        <ul className="osc-send-targets u-stack u-gap-1 u-mt-4">
           {targets.map((t) => {
             const blocked = relayBlocked(t);
             return (
@@ -89,7 +118,11 @@ export function SendItemModal({
                   )}
                   disabled={blocked}
                   aria-pressed={selectedId === t.id}
-                  title={blocked ? "No GM online to relay this transfer" : undefined}
+                  title={
+                    blocked
+                      ? "A GM must be online to send to this character"
+                      : undefined
+                  }
                   onClick={() => setSelectedId(t.id)}
                 >
                   <Monogram
@@ -97,27 +130,12 @@ export function SendItemModal({
                     monogram={initials(t.name)}
                     className="osc-send-target-ic"
                   />
-                  <span className="osc-send-target-nm">{t.name}</span>
-                  {t.crossOwner && <Tag intent="mustard">via GM</Tag>}
+                  <span className="u-flex-1">{t.name}</span>
                 </button>
               </li>
             );
           })}
         </ul>
-      )}
-
-      {stacked && (
-        <div className="osc-send-qty">
-          <span className="osc-send-qty-label">Quantity</span>
-          <Stepper value={qty} onValueChange={setQty} min={1} max={max} />
-          <span className="osc-send-qty-of">of {max}</span>
-        </div>
-      )}
-
-      {item.isContainer && contentCount > 0 && (
-        <p className="osc-send-note">
-          Includes {contentCount} {contentCount === 1 ? "item" : "items"} inside.
-        </p>
       )}
     </Modal>
   );

@@ -19,6 +19,7 @@
   "esmodules": [
     "dist/main.js"
   ],
+  "socket": true,
   "packs": [],
   "languages": [
     {

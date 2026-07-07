@@ -187,9 +187,11 @@ export default function SheetShell() {
   const onSend = (itemId: string, target: SendTargetVM, qty: number) => {
     const it = resolveItem(itemId);
     if (!it) return;
+    // Resolve the picked token's actor by UUID (fromUuidSync handles linked and
+    // unlinked/synthetic token actors on the loaded scene).
     const targetActor = (
-      game.actors as { get(id: string): unknown } | undefined
-    )?.get(target.id) as EmbeddedDocActor | undefined;
+      foundry.utils as { fromUuidSync?: (u: string) => unknown }
+    ).fromUuidSync?.(target.uuid) as EmbeddedDocActor | undefined;
     if (!targetActor && target.ownedByMe) {
       toast({
         intent: "danger",
@@ -235,8 +237,8 @@ export default function SheetShell() {
     emitSendItem({
       type: "sendItem",
       requestId: foundry.utils.randomID(),
-      fromActorId: actor.id ?? "",
-      toActorId: target.id,
+      sourceUuid: actor.uuid ?? "",
+      targetUuid: target.uuid,
       create: plan.create,
       deleteIds: plan.deleteIds,
       decrement: plan.decrement,
