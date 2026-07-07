@@ -81,7 +81,26 @@ library under `src/OscSheet/components/ui/`.
 - **KvCard has its own `KvCard.stories.tsx`** (Card.tsx's 2nd export) — split out of Card.stories
   so each design card is focused. A component in `componentSrcMap` MUST have a matching story file.
 
+## README is NOT staged — regenerate by hand on any rename/count change
+
+- `generate.mjs` deliberately does **not** stage `README.md` (it has no exemplar). The
+  remote README = `conventions.md` header + a hand-written body (naming, loading, token
+  buckets, component index). On the 2026-07-07 sync this was badly stale: the module was
+  renamed `reactor-sheet` → `osc-character-sheet` (global `ReactorSheet` → `OscSheet`,
+  scope `.reactor-sheet` → `.osc-sheet`, 24 → 32 components) but the remote README still
+  said `window.ReactorSheet` — which would tell the design agent to use a global the new
+  bundle doesn't export. **Whenever the package name, global, scope, token count, or
+  component set changes, re-author `README.md` and upload it** (header = current
+  `conventions.md`, body updated to match). Consider teaching `generate.mjs` to emit the
+  README so this stops being manual.
+
 ## Re-sync risks (what can silently go stale)
+
+- **`build-css.mjs` read a renamed file (fixed 2026-07-07).** `tokens.css` became
+  `tokens.scss` (now emits `--fs-*`/`--r-*` from `_scales.scss` maps via `@each`), which
+  broke the CSS build. Fixed to compile it through dart-sass like `utilities.scss`. This is
+  exactly the "mirrors the app pipeline by hand" drift risk below — re-check after any
+  vellum style refactor (partial rename, new `@use`, sass upgrade).
 
 - **`build-css.mjs` mirrors the app pipeline by hand.** If the repo changes how Vellum CSS
   is scoped/compiled (postcss config, new style partial, sass version), this script can drift
