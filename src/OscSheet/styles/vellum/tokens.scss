@@ -934,14 +934,15 @@ body {
   transition: all 0.12s;
   white-space: nowrap;
 }
-.btn:hover { border-color: var(--brass); }
+.btn:hover:not(:disabled) { border-color: var(--brass); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn.primary { background: var(--brass); color: var(--on-accent); border-color: var(--brass); }
-.btn.primary:hover { background: var(--brass-dim); }
+.btn.primary:hover:not(:disabled) { background: var(--brass-dim); }
 /* outline (primary) — the brass accent, outlined rather than filled */
 .btn.outline { background: transparent; color: var(--brass); border-color: var(--brass); }
-.btn.outline:hover { background: color-mix(in srgb, var(--brass) 12%, transparent); }
+.btn.outline:hover:not(:disabled) { background: color-mix(in srgb, var(--brass) 12%, transparent); }
 .btn.danger { color: var(--oxblood-2); border-color: oklch(0.56 0.15 25 / 0.5); }
-.btn.danger:hover { background: oklch(0.56 0.15 25 / 0.15); }
+.btn.danger:hover:not(:disabled) { background: oklch(0.56 0.15 25 / 0.15); }
 .btn.ghost { background: transparent; border-color: var(--border-soft); color: var(--text-dim); }
 .btn.sm { font-size: var(--fs-3xs); padding: 5px 9px 4px; }
 

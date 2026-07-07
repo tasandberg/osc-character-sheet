@@ -23,6 +23,12 @@ import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { WealthSection } from "@features/inventory/WealthSection";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { SortHeader } from "@features/inventory/SortHeader";
+import { SendItemModal } from "@features/inventory/SendItemModal";
+import {
+  selectSendTargets,
+  isGmConnected,
+  type SendTargetVM,
+} from "@features/inventory/sendTargets";
 import { useOscSheetContext } from "@app/context";
 import { FEATURES } from "@app/features";
 import { SectionTitle } from "@ui/SectionTitle";
@@ -46,6 +52,8 @@ type Ops = {
   /** Persist the equipped tray's own order (writes the `equippedOrder` flag). */
   onReorderEquipped: (updates: { id: string; sort: number }[]) => void;
   onNest: (itemId: string, containerId: string | null) => void;
+  /** Transfer an item (optionally a stack split) to another actor. */
+  onSend: (itemId: string, target: SendTargetVM, qty: number) => void;
 };
 
 /** Right-click context-menu target: which item, and where to anchor the menu.
@@ -582,18 +590,24 @@ function EquippedTray({
 
 function ItemContextMenu({
   menu,
+  canEdit,
   onClose,
   onOpen,
   onEquip,
   onConsume,
   onDelete,
+  onSend,
 }: {
   menu: MenuState;
+  /** Whether the current user owns this actor. Non-owners get view-only. */
+  canEdit: boolean;
   onClose: () => void;
   onOpen: (id: string) => void;
   onEquip: (id: string) => void;
   onConsume: (id: string) => void;
   onDelete: (id: string) => void;
+  /** Open the Send dialog for this item. Absent → item can't be sent (e.g. coins). */
+  onSend?: (id: string) => void;
 }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -630,18 +644,19 @@ function ItemContextMenu({
       >
         <i className="fa-solid fa-eye" aria-hidden="true" /> View Item
       </button>
-      {/* Send Item is a WIP — gated off for v1. See GH #16 / OLD-19. */}
-      {FEATURES.sendItem && (
+      {FEATURES.sendItem && onSend && (
         <button
           type="button"
           className="osc-ctx-item"
-          disabled
-          title="Coming soon"
+          onClick={() => {
+            onSend(menu.item.id);
+            onClose();
+          }}
         >
           <i className="fa-solid fa-gift" aria-hidden="true" /> Send Item
         </button>
       )}
-      {menu.item.equipped === true && (
+      {canEdit && menu.item.equipped === true && (
         <button
           type="button"
           className="osc-ctx-item"
@@ -653,7 +668,7 @@ function ItemContextMenu({
           <i className="fa-solid fa-hand" aria-hidden="true" /> Unequip
         </button>
       )}
-      {menu.item.quantity != null && (
+      {canEdit && menu.item.quantity != null && (
         <button
           type="button"
           className="osc-ctx-item"
@@ -666,16 +681,18 @@ function ItemContextMenu({
           one
         </button>
       )}
-      <button
-        type="button"
-        className="osc-ctx-item is-danger"
-        onClick={() => {
-          onDelete(menu.item.id);
-          onClose();
-        }}
-      >
-        <i className="fa-solid fa-trash" aria-hidden="true" /> Delete Item
-      </button>
+      {canEdit && (
+        <button
+          type="button"
+          className="osc-ctx-item is-danger"
+          onClick={() => {
+            onDelete(menu.item.id);
+            onClose();
+          }}
+        >
+          <i className="fa-solid fa-trash" aria-hidden="true" /> Delete Item
+        </button>
+      )}
     </div>
   );
 }
@@ -696,6 +713,7 @@ export function InventoryViewDnd({
   onReorder,
   onReorderEquipped,
   onNest,
+  onSend,
 }: Props) {
   // Rows always render in manual order (from `groups`); a sort-header click bakes the
   // chosen order into the `order` flag and returns here, so drags keep sticking.
@@ -713,6 +731,8 @@ export function InventoryViewDnd({
   );
   const [listOver, setListOver] = useState(false); // tray tile hovering the list → unequip
   const [menu, setMenu] = useState<MenuState | null>(null);
+  // The item whose Send dialog is open (a full inventory VM node), null = closed.
+  const [sending, setSending] = useState<InventoryItemVM | null>(null);
 
   // Foundry items by id — source for the hotbar drag payload. Dragging a row onto
   // the macro bar creates an item macro (OSE's hotbarDrop hook), like the stock sheet.
@@ -729,6 +749,11 @@ export function InventoryViewDnd({
   };
 
   const byId = indexById(inventory.items);
+  // Open the Send dialog for a list item (coins aren't in the VM → not sendable).
+  const openSend = (id: string) => {
+    const it = byId.get(id);
+    if (it) setSending(it);
+  };
   const groupsRef = useRef(groups);
   groupsRef.current = groups;
   // Holds the *rendered* tray ids (stale ids dropped), kept index-aligned with the
@@ -998,13 +1023,39 @@ export function InventoryViewDnd({
       {menu && (
         <ItemContextMenu
           menu={menu}
+          canEdit={actor.isOwner}
           onClose={() => setMenu(null)}
           onOpen={onOpen}
           onEquip={onEquip}
           onConsume={onConsume}
           onDelete={onDelete}
+          onSend={
+            actor.isOwner && byId.has(menu.item.id) && isGmConnected()
+              ? openSend
+              : undefined
+          }
         />
       )}
+
+      {sending &&
+        (() => {
+          const { targets, gmOnline } = selectSendTargets(actor);
+          const contentCount = flattenItems(sending.children).length;
+          return (
+            <SendItemModal
+              open
+              item={sending}
+              contentCount={contentCount}
+              targets={targets}
+              gmOnline={gmOnline}
+              onClose={() => setSending(null)}
+              onSend={(target, qty) => {
+                onSend(sending.id, target, qty);
+                setSending(null);
+              }}
+            />
+          );
+        })()}
     </section>
   );
 }

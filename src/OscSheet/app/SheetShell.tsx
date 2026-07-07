@@ -18,6 +18,13 @@ import {
   selectCoins,
 } from "@features/inventory/inventory";
 import { flagPath, FLAGS, readFlag } from "@domain/flags";
+import { collectTree, classifyRoute } from "@features/inventory/sendItem";
+import {
+  applySend,
+  emitSendItem,
+  type EmbeddedDocActor,
+} from "@features/inventory/sendItemSocket";
+import type { SendTargetVM } from "@features/inventory/sendTargets";
 import { showTokenVariantsPortraitPicker } from "@domain/tokenVariants";
 import { selectAc } from "@domain/vitals";
 import { usesAscendingAC } from "@domain/chat/targeting";
@@ -174,6 +181,77 @@ export default function SheetShell() {
     void it.delete();
   };
 
+  // Send an item to another actor. Direct apply when I own the target; otherwise
+  // relay the whole op through the active GM. Pure plan/route logic lives in
+  // sendItem.ts; the socket + apply routine in sendItemSocket.ts.
+  const onSend = (itemId: string, target: SendTargetVM, qty: number) => {
+    const it = resolveItem(itemId);
+    if (!it) return;
+    // Resolve the picked token's actor by UUID (fromUuidSync handles linked and
+    // unlinked/synthetic token actors on the loaded scene).
+    const targetActor = (
+      foundry.utils as { fromUuidSync?: (u: string) => unknown }
+    ).fromUuidSync?.(target.uuid) as EmbeddedDocActor | undefined;
+    if (!targetActor && target.ownedByMe) {
+      toast({
+        intent: "danger",
+        title: "Send failed",
+        message: `Couldn't find ${target.name}.`,
+      });
+      return;
+    }
+    const plan = collectTree(it, invItems as OseItem[], qty);
+    const route = classifyRoute(
+      { isOwner: actor.isOwner },
+      { isOwner: target.ownedByMe },
+    );
+    const gift = <i className="fa-solid fa-gift" aria-hidden="true" />;
+
+    if (route === "local" && targetActor) {
+      void applySend({
+        fromActor: actor as unknown as EmbeddedDocActor,
+        toActor: targetActor,
+        create: plan.create,
+        deleteIds: plan.deleteIds,
+        decrement: plan.decrement,
+      })
+        .then(() =>
+          toast({
+            intent: "success",
+            title: "Sent",
+            message: `${it.name} → ${target.name}`,
+            icon: gift,
+          }),
+        )
+        .catch(() =>
+          toast({
+            intent: "danger",
+            title: "Send failed",
+            message: `Couldn't send ${it.name}.`,
+          }),
+        );
+      return;
+    }
+
+    // Cross-owner: relay to the GM. Emit the whole op and toast optimistically.
+    emitSendItem({
+      type: "sendItem",
+      requestId: foundry.utils.randomID(),
+      sourceUuid: actor.uuid ?? "",
+      targetUuid: target.uuid,
+      create: plan.create,
+      deleteIds: plan.deleteIds,
+      decrement: plan.decrement,
+      requesterUserId: game.user?.id ?? "",
+    });
+    toast({
+      intent: "success",
+      title: "Sent",
+      message: `${it.name} → ${target.name} (via GM)`,
+      icon: gift,
+    });
+  };
+
   const visible = tabs(actor).filter((t) => !t.disabled);
   const items: TabItem[] = visible.map((t) => ({
     id: t.id,
@@ -244,6 +322,7 @@ export default function SheetShell() {
             onReorder={onReorder}
             onReorderEquipped={onReorderEquipped}
             onNest={onNest}
+            onSend={onSend}
           />
         ) : (
           activeTab.Content && <activeTab.Content />
