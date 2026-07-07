@@ -62,7 +62,7 @@ export function SendItemModal({
       </Button>
       <Button
         variant="primary"
-        disabled={!valid}
+        disabled={!valid || targets.length === 0}
         onClick={() => selected && onSend(selected, stacked ? qty : max)}
       >
         Send
@@ -95,13 +95,14 @@ export function SendItemModal({
 
       {item.isContainer && contentCount > 0 && (
         <p className="u-mt-2 u-fs-sm u-text-muted">
-          Includes {contentCount} {contentCount === 1 ? "item" : "items"} inside.
+          Includes {contentCount} {contentCount === 1 ? "item" : "items"}{" "}
+          inside.
         </p>
       )}
 
       {/* Target characters: visible, non-hostile scene tokens. */}
       {targets.length === 0 ? (
-        <p className="u-mt-4 u-fs-sm u-text-muted">
+        <p className="u-pt-3 u-fs-lg u-text-muted">
           No visible characters in this scene to send to.
         </p>
       ) : (

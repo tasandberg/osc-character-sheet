@@ -50,6 +50,12 @@ const getGame = (): GameView =>
 const getCanvas = (): CanvasView =>
   (globalThis as unknown as { canvas?: CanvasView }).canvas ?? {};
 
+/** True when a GM is connected. Cross-owner transfers can't be delivered without
+ *  one, so Send is hidden entirely when no GM is online. */
+export function isGmConnected(): boolean {
+  return !!getGame().users.activeGM;
+}
+
 // Non-hostile = NEUTRAL(0) or FRIENDLY(1); excludes HOSTILE(-1) and SECRET(-2).
 // (CONST.TOKEN_DISPOSITIONS — hardcoded to avoid a global dependency in tests.)
 const MIN_DISPOSITION = 0;

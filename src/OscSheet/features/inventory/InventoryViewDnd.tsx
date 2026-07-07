@@ -26,6 +26,7 @@ import { SortHeader } from "@features/inventory/SortHeader";
 import { SendItemModal } from "@features/inventory/SendItemModal";
 import {
   selectSendTargets,
+  isGmConnected,
   type SendTargetVM,
 } from "@features/inventory/sendTargets";
 import { useOscSheetContext } from "@app/context";
@@ -1022,7 +1023,9 @@ export function InventoryViewDnd({
           onEquip={onEquip}
           onConsume={onConsume}
           onDelete={onDelete}
-          onSend={byId.has(menu.item.id) ? openSend : undefined}
+          onSend={
+            byId.has(menu.item.id) && isGmConnected() ? openSend : undefined
+          }
         />
       )}
 
