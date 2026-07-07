@@ -5,7 +5,7 @@ import { EditModal } from "@features/edit/EditModal";
 import { tabs, TabIds } from "@app/tabs";
 import getLabel from "@src/util/getLabel";
 import { ActionsView, SavesExploration } from "@features/actions";
-import { InventoryViewDnd as InventoryView } from "@features/inventory";
+import { InventoryView } from "@features/inventory";
 import { selectTopbar } from "@domain/topbar";
 import { selectSaves } from "@features/actions/saves";
 import {

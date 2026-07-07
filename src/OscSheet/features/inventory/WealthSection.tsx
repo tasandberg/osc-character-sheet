@@ -7,7 +7,7 @@ import type { CoinVM, SortDir } from "@domain/vm-types";
 import { useDragReorder } from "@features/inventory/useDragReorder";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { SortHeader } from "@features/inventory/SortHeader";
-import type { OnContext } from "@features/inventory/InventoryViewDnd";
+import type { OnContext } from "@features/inventory/types";
 import { Button } from "@ui/Button";
 import { cx } from "@ui/cx";
 

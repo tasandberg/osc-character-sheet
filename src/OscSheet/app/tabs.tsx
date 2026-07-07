@@ -16,7 +16,7 @@ export type TabDef = {
   label: string;
   /**
    * Body component for the tab. Omitted for ACTIONS / INVENTORY, which SheetShell
-   * renders with the live `ActionsView` / `InventoryViewDnd` (the tab def only
+   * renders with the live `ActionsView` / `InventoryView` (the tab def only
    * supplies their icon/label/id).
    */
   Content?: React.ComponentType;
