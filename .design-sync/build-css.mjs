@@ -25,8 +25,10 @@ async function scopeCss(css, from) {
   return res.css;
 }
 const scope = (file) => scopeCss(readFileSync(file, "utf8"), file);
-// utilities.scss is generated (token maps → @each); compile with dart-sass first,
-// then scope through the same postcss prefixer (from-path stays under vellum/).
+// tokens.scss and utilities.scss are Sass (token maps → @each emitting the
+// --fs-*/--r-*/--spacer-* custom properties and matching u-* classes); compile
+// each with dart-sass first, then scope through the same postcss prefixer
+// (from-path stays under vellum/).
 function sass(file, extraArgs = []) {
   return execFileSync(
     path.join(root, "node_modules/.bin/sass"),

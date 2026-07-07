@@ -81,18 +81,17 @@ library under `src/OscSheet/components/ui/`.
 - **KvCard has its own `KvCard.stories.tsx`** (Card.tsx's 2nd export) — split out of Card.stories
   so each design card is focused. A component in `componentSrcMap` MUST have a matching story file.
 
-## README is NOT staged — regenerate by hand on any rename/count change
+## README is generated — edit the header (`conventions.md`), never README itself
 
-- `generate.mjs` deliberately does **not** stage `README.md` (it has no exemplar). The
-  remote README = `conventions.md` header + a hand-written body (naming, loading, token
-  buckets, component index). On the 2026-07-07 sync this was badly stale: the module was
-  renamed `reactor-sheet` → `osc-character-sheet` (global `ReactorSheet` → `OscSheet`,
-  scope `.reactor-sheet` → `.osc-sheet`, 24 → 32 components) but the remote README still
-  said `window.ReactorSheet` — which would tell the design agent to use a global the new
-  bundle doesn't export. **Whenever the package name, global, scope, token count, or
-  component set changes, re-author `README.md` and upload it** (header = current
-  `conventions.md`, body updated to match). Consider teaching `generate.mjs` to emit the
-  README so this stops being manual.
+- `generate.mjs` stages `README.md` = `cfg.readmeHeader` (`conventions.md`) prepended
+  verbatim + a body derived from the build (namespace, `cfg.pkg`, `SCOPE`, token-kind
+  counts, groups, `globalCssPaths`). So a rename/count change updates the README
+  automatically — the drift that bit us before is gone: on the 2026-07-07 sync the module
+  rename `reactor-sheet` → `osc-character-sheet` (global `ReactorSheet` → `OscSheet`, scope
+  `.reactor-sheet` → `.osc-sheet`, 24 → 32 components) left the remote README pointing at
+  `window.ReactorSheet`, a global the new bundle doesn't export. **`README.md` in `.stage/`
+  is overwritten every run — never hand-edit it.** To change the authored prose (wrapping,
+  styling idiom, section-header rules), edit `conventions.md`; the body is data-driven.
 
 ## Re-sync risks (what can silently go stale)
 

@@ -50,6 +50,9 @@ const GROUP_LABEL = {
 };
 // Cards rendered at a wider viewport (matches remote: multi-cell / overlay cards).
 const WIDE = new Set(["SectionTitle", "Menu", "Modal", "ConfirmDialog"]);
+// The CSS scope every Vellum selector is prefixed with (postcss scope-vellum).
+// Single-sourced so the manifest themes + generated README can't disagree.
+const SCOPE = ".osc-sheet";
 
 // dtsPropsFor for the 8 Wave-2 components (config.json only carries the original 24).
 const NEW_PROPS = {
@@ -390,8 +393,8 @@ const manifest = {
   globalCssPaths: ["fonts/fonts.css", "_ds_bundle.css", "styles.css"],
   tokens: tokensDump,
   themes: [
-    { selector: '.osc-sheet[data-theme="cream"]', label: "OSC Sheet Cream" },
-    { selector: ".osc-sheet[data-kind=hireling]", label: "OSC Sheet Kind Hireling" },
+    { selector: `${SCOPE}[data-theme="cream"]`, label: "OSC Sheet Cream" },
+    { selector: `${SCOPE}[data-kind=hireling]`, label: "OSC Sheet Kind Hireling" },
   ],
   fonts,
   brandFonts: [{ family: "IM Fell English SC", status: "unreferenced", tokens: [], path: "fonts/fonts.css" }],
@@ -402,40 +405,43 @@ writes.push("_ds_manifest.json");
 
 // ── README.md (conventions header + generated body) ──
 // The body is derived from the SAME data the manifest is built from (namespace,
-// pkg version, token kinds, groups), so a rename/count change can't leave it
-// stale — the failure that the reactor-sheet→osc-character-sheet rename caused.
-// The header is authored prose (cfg.readmeHeader) prepended verbatim.
+// pkg, scope, token kinds, groups, globalCssPaths), so a rename/count change
+// can't leave it stale — the failure the reactor-sheet→osc-character-sheet
+// rename caused. The header is authored prose (cfg.readmeHeader) prepended
+// verbatim.
 function readmeBody() {
   const kc = (k) => tokensDump.filter((t) => t.kind === k).length;
-  const index = ["controls", "display", "layout", "overlays", "navigation", "data"]
+  // Loading links come straight from the manifest's globalCssPaths — every CSS
+  // file a design must link. styles.css alone is NOT the closure (it does not
+  // @import _ds_bundle.css / fonts), so link them all, as the preview cards do.
+  const links = manifest.globalCssPaths.map((p) => `<link rel="stylesheet" href="${p}">`).join("\n");
+  const index = Object.keys(GROUP_LABEL)
     .map((g) => {
       const items = sortedNames.filter((n) => GROUP[n] === g);
-      return items.length ? `### ${g}\n${items.map((n) => `- \`${n}\``).join("\n")}` : "";
+      return items.length ? `### ${GROUP_LABEL[g]}\n${items.map((n) => `- \`${n}\``).join("\n")}` : "";
     })
     .filter(Boolean)
     .join("\n\n");
   const themeSel = manifest.themes.map((t) => `\`${t.selector}\``).join(", ");
-  return `# ${cfg.globalName} (osc-character-sheet@${pkgVersion})
+  return `# ${cfg.globalName} (${cfg.pkg}@${pkgVersion})
 
-This design system is the Vellum UI primitive library from \`osc-character-sheet\`, bundled
-as a single browser global. All ${names.length} components are the real library code.
+This design system is the Vellum UI primitive library from \`${cfg.pkg}\`, bundled as a
+single browser global. All ${names.length} components are the real library code.
 
 ## Where things are
 
-- \`_ds_bundle.js\` — the whole-DS bundle at the project root; loads every component to \`window.${cfg.globalName}\`. First line is a \`/* @ds-bundle: … */\` metadata header.
-- \`styles.css\` — the single stylesheet entry: it \`@import\`s the tokens, fonts, and component styles (\`_ds_bundle.css\`). Link this one file.
-- \`components/<group>/<Name>/<Name>.prompt.md\` (example JSX + variants), \`<Name>.d.ts\` (types), \`<Name>.html\` (variant grid).
+- \`_ds_bundle.js\` — the whole-DS bundle at the project root; loads every component to \`window.${cfg.globalName}\`.
+- \`_ds_bundle.css\` — the compiled Vellum stylesheet (tokens, utilities, component styles), scoped under \`${SCOPE}\`.
+- \`styles.css\` — the app-level styles compile (adds the \`data-kind=hireling\` theme overrides).
 - \`fonts/\` — \`@font-face\` files + \`fonts.css\`.
-- \`guidelines/\` — the design system's own usage guidance (see \`guidelines/index.md\`). Read these before composing larger layouts.
-
-For a specific component, \`read_file("components/<group>/<Name>/<Name>.prompt.md")\`.
+- \`components/<group>/<Name>/<Name>.prompt.md\` (example JSX + variants), \`<Name>.d.ts\` (types), \`<Name>.html\` (variant grid). For one component, \`read_file("components/<group>/<Name>/<Name>.prompt.md")\`.
 
 ## Loading
 
-Add these two lines to your page once (React must be on the page first):
+Link every design-system stylesheet, then the bundle (React must be on the page first):
 
 \`\`\`html
-<link rel="stylesheet" href="styles.css">
+${links}
 <script src="_ds_bundle.js"></script>
 \`\`\`
 
@@ -454,9 +460,9 @@ Wrap the tree in the provider — components read theme/tokens from the scoped r
 
 ## Tokens
 
-${tokensDump.length} CSS custom properties, declared inside \`_ds_bundle.css\` under \`.osc-sheet\`
-(one compiled stylesheet, not separate token files). Themes: ${themeSel}. See the
-styling-idiom section above for the families and their real names.
+${tokensDump.length} CSS custom properties under the \`${SCOPE}\` scopes (mostly in
+\`_ds_bundle.css\`; the \`data-kind=hireling\` overrides live in \`styles.css\`). Themes: ${themeSel}.
+See the styling-idiom section above for the families and their real names.
 
 - Color & surface: ${kc("color")}
 - Text / ink color: ${kc("font")}
