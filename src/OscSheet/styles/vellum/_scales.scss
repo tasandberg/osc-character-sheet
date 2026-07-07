@@ -32,3 +32,20 @@ $radius: (
   "lg": 10px,
   "xl": 14px,
 );
+
+// Spacing scale → --spacer-N (N*4px). The ONLY place spacer steps are declared.
+// tokens.scss emits the --spacer-* custom properties from this map; utilities.scss
+// derives its p/px/py family from these keys and validates its deliberate subsets
+// (pt/m/gap/…) against it, so a renamed/removed step fails the build, never drifts.
+// Steps are non-contiguous by design (no 7/9/11) — the scale is curated, not a range.
+$spacers: (
+  1: 4px,
+  2: 8px,
+  3: 12px,
+  4: 16px,
+  5: 20px,
+  6: 24px,
+  8: 32px,
+  10: 40px,
+  12: 48px,
+);

@@ -18,14 +18,27 @@
    /styles/vellum/ path).
    ======================================================================== */
 @use "scales" as scales;
+@use "sass:map";
+@use "sass:list";
 
 /* ─── Token inventory (lists + maps) ────────────────────────────────────── */
-/* spacer steps → --spacer-N; `0` emits a literal 0 reset. */
-$scale-full: 0 1 2 3 4 5 6 8 10 12; // p / px / py
-$scale-mid:  0 1 2 3 4 6;           // pt/pr/pb/pl, m/my/mt/mb
-$scale-sm:   0 1 2 3 4;             // mx / mr / ml
-$gap-steps:  0 1 2 3 4 5 6 8;
-$gap-axis:   1 2 3 4;
+/* spacer steps → --spacer-N (`0` emits a literal 0 reset). Steps come from the
+   single-source scales.$spacers map: the full p/px/py family is its keys; the
+   other families are deliberate subsets, each validated against the map so a
+   renamed/removed spacer step fails the build instead of silently drifting. */
+@function sp-subset($steps) {
+  @each $n in $steps {
+    @if $n != 0 and not map.has-key(scales.$spacers, $n) {
+      @error "u-* spacer subset references --spacer-#{$n}, absent from scales.$spacers.";
+    }
+  }
+  @return $steps;
+}
+$scale-full: list.join(0, map.keys(scales.$spacers), $separator: space); // p / px / py — full scale
+$scale-mid:  sp-subset(0 1 2 3 4 6);     // pt/pr/pb/pl, m/my/mt/mb
+$scale-sm:   sp-subset(0 1 2 3 4);       // mx / mr / ml
+$gap-steps:  sp-subset(0 1 2 3 4 5 6 8);
+$gap-axis:   sp-subset(1 2 3 4);
 
 /* one spacer value: `0` literal, else var(--spacer-N) */
 @function sp($n) {
