@@ -8,7 +8,7 @@ export const FEATURES = {
   /** Topbar "Rest" — no character-level HP/HD recovery yet. */
   rest: false,
   /** Inventory "Send Item" to another actor (GH #16). */
-  sendItem: false,
+  sendItem: true,
 } as const;
 
 export type FeatureKey = keyof typeof FEATURES;

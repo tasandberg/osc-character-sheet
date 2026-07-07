@@ -67,6 +67,7 @@ export const Default = () => (
       onReorder={log("reorder")}
       onReorderEquipped={log("reorderEquipped")}
       onNest={log("nest")}
+      onSend={log("send")}
     />
   </div>
 );

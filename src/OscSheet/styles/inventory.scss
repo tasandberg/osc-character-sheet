@@ -566,3 +566,52 @@
   &.is-danger:hover { background: color-mix(in srgb, var(--crimson, #c75044) 18%, transparent); }
   &.is-danger i { color: var(--crimson, #c75044); }
 }
+
+// ---------------------------------------------------------------------------
+// Send Item dialog (target picker + stack split)
+// ---------------------------------------------------------------------------
+
+.osc-send-targets {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: var(--spacer-1);
+}
+// Button selectors qualified with .osc-inv (the dialog is a DOM descendant) so
+// they beat the `.osc-sheet-app button { all: unset }` reset.
+.osc-inv .osc-send-target {
+  display: flex; align-items: center; gap: var(--spacer-3); width: 100%;
+  padding: var(--spacer-2) var(--spacer-3);
+  background: transparent; cursor: pointer; text-align: left;
+  border: 1px solid var(--border-soft, #2c2823); border-radius: var(--r-md, 6px);
+  font-family: var(--sans); font-size: var(--fs-md, 14px);
+  color: var(--text, #e5dec8);
+  &:hover { background: var(--bg-2, #1f1c17); }
+  &.is-selected {
+    border-color: var(--accent-alt, #c89e54);
+    background: color-mix(in srgb, var(--accent-alt, #c89e54) 12%, transparent);
+  }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+.osc-send-target-ic {
+  width: var(--spacer-8); height: var(--spacer-8); flex: 0 0 auto;
+  display: grid; place-items: center; overflow: hidden;
+  border-radius: var(--r-sm, 4px);
+  background: var(--bg-2, #1f1c17);
+  font-family: var(--display); color: var(--text-dim, #b5ad97);
+  object-fit: cover;
+}
+.osc-send-target-nm { flex: 1; }
+
+.osc-send-empty,
+.osc-send-note {
+  margin: var(--spacer-3) 0 0; color: var(--text-mute, #8a8270);
+  font-family: var(--sans); font-size: var(--fs-sm, 13px);
+}
+.osc-send-qty {
+  display: flex; align-items: center; gap: var(--spacer-3);
+  margin-top: var(--spacer-4);
+}
+.osc-send-qty-label {
+  font-family: var(--display); font-size: var(--fs-sm, 13px);
+  color: var(--text-dim, #b5ad97);
+}
+.osc-send-qty-of { color: var(--text-mute, #8a8270); font-size: var(--fs-sm, 13px); }

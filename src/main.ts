@@ -1,6 +1,7 @@
 import OscSheet from "@src/applications/osc-sheet";
 import { installAdvancedClasses } from "@src/util/adaptAdvancedClasses";
 import { onRenderChatMessage } from "@domain/chat/applyDamage";
+import { registerSendItemSocket } from "@features/inventory/sendItemSocket";
 import {
   migrateLocalStorage,
   registerMigrationSetting,
@@ -27,6 +28,7 @@ export function initialize() {
     migrateLocalStorage(); // every user; independent of the GM world pass
     await runWorldMigration();
     installAdvancedClasses();
+    registerSendItemSocket(); // GM relay for cross-owner "Send Item" transfers
 
     // Debug API. `crashTest()` throws a deliberate error inside any open OSC
     // sheet on its next render — exercises the ErrorBoundary fallback (and the
