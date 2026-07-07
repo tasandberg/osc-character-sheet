@@ -58,16 +58,17 @@ export async function applySend(args: {
 }): Promise<void> {
   const { fromActor, toActor, create, deleteIds, decrement } = args;
 
-  // 1. Create on the target. Creation preserves order → align new ids to _keys.
-  const created = await toActor.createEmbeddedDocuments(
-    "Item",
-    create.map(stripKeys),
-  );
+  // 1. Create on the target one node at a time so each returned id maps
+  //    unambiguously to its source `_key`. A batch create does NOT guarantee the
+  //    returned docs match input order, which would scramble the nesting remap.
   const idMap = new Map<string, string>();
-  create.forEach((node, i) => {
-    const newId = created[i]?.id ?? created[i]?._id;
+  for (const node of create) {
+    const [doc] = await toActor.createEmbeddedDocuments("Item", [
+      stripKeys(node),
+    ]);
+    const newId = doc?.id ?? doc?._id;
     if (newId) idMap.set(node._key, newId);
-  });
+  }
   const nesting = rebuildNesting(create, idMap);
   if (nesting.length) await toActor.updateEmbeddedDocuments("Item", nesting);
 
