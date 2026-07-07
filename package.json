@@ -21,7 +21,7 @@
   "dependencies": {
     "@sentry/browser": "^10.63.0",
     "clsx": "^2.1.1",
-    "foundry-vtt-react": "0.2.0-beta.1",
+    "foundry-vtt-react": "^0.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
