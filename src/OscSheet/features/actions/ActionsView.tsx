@@ -11,6 +11,7 @@ import { AttacksTable } from "@features/actions/AttacksTable";
 import { MemorizedSpells } from "@features/actions/MemorizedSpells";
 import { SavesGrid, ExplorationGrid } from "@features/actions/SavesExploration";
 import { SectionTitle } from "@ui/SectionTitle";
+import { useOscSheetContext } from "@app/context";
 
 type Props = { actor: OSEActor };
 
@@ -18,6 +19,10 @@ type Props = { actor: OSEActor };
  *  md Saves/Exploration). At lg, Saves/Exploration live in the left rail instead,
  *  so they carry .actions-only (hidden at lg — see SheetShell/shell.scss). */
 export function ActionsView({ actor }: Props) {
+  // Chat-only rolls (ability/save/exploration/hit/dmg post a card, no actor write)
+  // stay available even read-only; the composite Attack can write (missile ammo
+  // decrement), so it's gated on the global edit permission.
+  const { canEdit } = useOscSheetContext();
   const onAbility = (key: string) => actor.rollCheck(key, {});
   // Hit/Damage are custom formula rolls (OSE has no separate hit/damage roll). The
   // Vellum card is target-aware: a hit roll shows HIT/MISS vs the current target's AC,
@@ -41,7 +46,7 @@ export function ActionsView({ actor }: Props) {
   return (
     <>
       <AbilityPlaques abilities={selectAbilities(actor)} onRoll={onAbility} />
-      <AttacksTable attacks={attacks} onRoll={onRoll} onAttack={onAttack} onOpen={onOpenWeapon} dragData={dragData} />
+      <AttacksTable attacks={attacks} onRoll={onRoll} onAttack={canEdit ? onAttack : undefined} onOpen={onOpenWeapon} dragData={dragData} canAttack={canEdit} />
       <MemorizedSpells actor={actor} />
       {/* .actions-only: hidden at lg (Saves/Exploration live in the rail there). */}
       <section className="osc-section actions-only">

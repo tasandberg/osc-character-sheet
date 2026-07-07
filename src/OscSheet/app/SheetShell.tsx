@@ -293,6 +293,10 @@ export default function SheetShell() {
             identity={identity}
             vitals={vitals}
             onSetHp={onSetHp}
+            // Intentionally gated on canEdit (= Foundry `sheet.isEditable`), not
+            // raw actor.isOwner: a locked/compendium sheet legitimately shouldn't
+            // expose write affordances even to an owner. Same rationale for the
+            // inventory context-menu / Send gates.
             onPortraitContextMenu={
               canEdit
                 ? () => showTokenVariantsPortraitPicker(actor)

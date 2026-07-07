@@ -34,6 +34,10 @@ function OscSheetProvider({
   async function updateActor(updateData: {
     [key: string]: string | number;
   }): Promise<OSEActor | void> {
+    // Read-only sheets short-circuit the actor write layer: a defence-in-depth
+    // backstop so any UI path that slips the per-control canEdit gating still
+    // can't mutate (Foundry also rejects it server-side for non-owners).
+    if (!canEdit) return;
     if (actor.update) {
       return await actor.update(updateData).then((updatedActor) => {
         if (updatedActor) {

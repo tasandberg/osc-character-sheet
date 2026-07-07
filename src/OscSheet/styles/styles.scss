@@ -172,14 +172,8 @@
 
 // Read-only mode (observers / non-owners): the sheet renders view-only. Write
 // affordances are gated out per-control in React; this class is the broad,
-// consistent signal plus a defensive net. `[data-owner-only]` is the CSS-only
-// escape hatch for owner-only controls not yet React-gated (e.g. inventory,
-// pending the OLD-40 follow-up) — mark such a control and it stays hidden here.
+// consistent CSS signal for the residual static bits.
 .osc-sheet-app.is-readonly {
-  [data-owner-only] {
-    display: none !important;
-  }
-
   // Inventory: drag handles are meaningless without drag (disabled for non-owners),
   // so hide them; the equipped indicator renders as a static, non-interactive glyph.
   .osc-inv-drag {

@@ -1,19 +1,44 @@
 import { test, expect } from "../fixtures";
-import { openCharacterSheet } from "../helpers";
+import { openCharacterSheet, closeDialogs } from "../helpers";
 
 /**
  * Read-only sheet for non-owners (OLD-41). Logs in as the seeded OBSERVER player
  * (view-only permission on the fixture actor — see global-setup) and asserts the
  * whole sheet — every tab, including inventory — exposes no way to mutate the
  * character: no HP steppers, no editable portrait, no Edit modal, no per-tab edit
- * controls, and (inventory) no drag, no equip toggle, no coin edit, no mutating
- * context-menu items. The sheet must stay fully readable throughout.
+ * controls, no writing Attack roll, and (inventory) no drag, no equip toggle, no
+ * coin edit, no mutating context-menu items. The sheet must stay fully readable.
+ *
+ * Chat-only rolls (ability/save/exploration/hit/dmg — post a card, no actor write)
+ * intentionally stay available; only affordances that WRITE the actor are gated.
  */
 
 // Fighter (non-caster) tabs minus inventory; spells is hidden (not a caster).
 const NON_INVENTORY_TABS = ["actions", "abilities", "notes"] as const;
 
+// Await the tab body's stable anchor before running negative (toHaveCount(0))
+// assertions, so they can't pass vacuously by racing the async tab-body render.
+const TAB_ANCHOR: Record<(typeof NON_INVENTORY_TABS)[number], string> = {
+  actions: ".osc-atk",
+  abilities: ".osc-abilities-tab",
+  notes: ".osc-notes-tab",
+};
+
 test.describe("read-only sheet (non-owner)", () => {
+  // observerPage is worker-scoped + shared, so tidy up anything this spec opened
+  // (context menu, dialogs) and capture the observer sheet on failure — the global
+  // afterEach only covers gamePage.
+  test.afterEach(async ({ observerPage }, testInfo) => {
+    await observerPage.keyboard.press("Escape").catch(() => {});
+    if (testInfo.status !== testInfo.expectedStatus) {
+      await observerPage
+        .screenshot({ path: testInfo.outputPath("observer-failure.png"), fullPage: true })
+        .then((buf) => testInfo.attach("observer-failure", { body: buf, contentType: "image/png" }))
+        .catch(() => {});
+    }
+    await closeDialogs(observerPage);
+  });
+
   test("observer sees a view-only sheet with no edit affordances", async ({
     observerPage,
   }) => {
@@ -45,10 +70,17 @@ test.describe("read-only sheet (non-owner)", () => {
       const tab = sheet.locator(`[data-testid="tab-${id}"]`);
       await tab.click();
       await expect(tab).toHaveAttribute("aria-selected", "true");
+      // Wait for the tab body to actually render before the negative assertions.
+      await expect(sheet.locator(TAB_ANCHOR[id])).toBeVisible();
 
+      if (id === "actions") {
+        // The equipped Dagger renders a weapon row (so its Attack button WOULD be
+        // here if not gated) — but the writing Attack affordance is owner-only.
+        await expect(sheet.locator('[data-testid^="weapon-row-"]').first()).toBeVisible();
+        await expect(sheet.locator('[data-testid^="weapon-attack-"]')).toHaveCount(0);
+      }
       if (id === "abilities") {
         await expect(sheet.locator('[aria-label="Add ability"]')).toHaveCount(0);
-        await expect(sheet.locator('[aria-label="Delete ability"]')).toHaveCount(0);
         await expect(sheet.locator('[aria-label="Edit languages"]')).toHaveCount(0);
       }
       if (id === "notes") {
@@ -61,9 +93,10 @@ test.describe("read-only sheet (non-owner)", () => {
     await inventoryTab.click();
     await expect(inventoryTab).toHaveAttribute("aria-selected", "true");
 
-    // Readable: the wealth toggle + at least one item row render.
+    // Wait for a REAL item row (not the sticky sort-header) before negatives.
+    const itemRow = sheet.locator(".osc-inv-row:not(.osc-inv-headrow)").first();
+    await expect(itemRow).toBeVisible();
     await expect(sheet.locator('[data-testid="wealth-toggle"]')).toBeVisible();
-    await expect(sheet.locator(".osc-inv-row").first()).toBeVisible();
 
     // No equip toggle buttons (owner-only; observers get a static indicator).
     await expect(sheet.locator('[data-testid^="equip-"]')).toHaveCount(0);
@@ -79,12 +112,35 @@ test.describe("read-only sheet (non-owner)", () => {
     await expect(coinQty).toBeDisabled();
 
     // Item context menu is view-only: only "View Item", no Send/Unequip/Consume/Delete.
-    await sheet.locator(".osc-inv-row").first().click({ button: "right" });
+    await itemRow.click({ button: "right" });
     const menu = sheet.locator(".osc-ctx");
     await expect(menu).toBeVisible();
     await expect(menu.locator(".osc-ctx-item")).toHaveCount(1);
     await expect(menu.locator(".osc-ctx-item")).toHaveText(/View Item/);
     await expect(menu.locator(".osc-ctx-item.is-danger")).toHaveCount(0);
-    await observerPage.keyboard.press("Escape");
+  });
+
+  // Control: the OWNER (GM) sheet renders the very affordances the observer lacks,
+  // so the observer's toHaveCount(0) checks above aren't passing vacuously.
+  test("owner sheet exposes the affordances the observer is denied", async ({
+    gamePage,
+  }) => {
+    const sheet = await openCharacterSheet(gamePage);
+    // Owner sheet is editable → no read-only marker.
+    await expect(sheet.locator(".osc-sheet-app.is-readonly")).toHaveCount(0);
+
+    // Owner keeps HP steppers + the Edit action.
+    await expect(sheet.locator(".vv-step").first()).toBeVisible();
+    await expect(sheet.locator(".osc-tb-actions .osc-tb-btn")).not.toHaveCount(0);
+
+    // Actions tab: the writing Attack button is present for the owner.
+    await sheet.locator('[data-testid="tab-actions"]').click();
+    await expect(sheet.locator('[data-testid^="weapon-attack-"]').first()).toBeVisible();
+
+    // Inventory tab: equip toggle buttons + draggable rows are present for the owner.
+    await sheet.locator('[data-testid="tab-inventory"]').click();
+    await expect(sheet.locator('.osc-inv-row:not(.osc-inv-headrow)').first()).toBeVisible();
+    await expect(sheet.locator('[data-testid^="equip-"]').first()).toBeVisible();
+    await expect(sheet.locator('.osc-inv-row[draggable="true"]')).not.toHaveCount(0);
   });
 });

@@ -77,75 +77,75 @@ export function useDragReorder(opts: {
   // Draggable + droppable row. Inert (non-draggable, drop-rejecting) when disabled.
   const rowProps = (group: string, idx: number, o: RowOpts = {}): Handlers => {
     if (!enabled) return { draggable: false };
-    return ({
-    draggable: true,
-    onDragStart: (e) => {
-      setDrag({ group, idx });
-      e.dataTransfer.effectAllowed = "move";
-      const payload = o.dragPayload?.() ?? `${group}:${idx}`;
-      try { e.dataTransfer.setData("text/plain", payload); } catch { /* IE guard */ }
-      o.onStart?.();
-    },
-    onDragEnd: () => { clear(); o.onEnd?.(); },
-    onDragOver: (e) => {
-      if (!drag) return;
-      const isSelf = drag.group === group && drag.idx === idx;
-      const into = !!o.container && !isSelf; // a container accepts any item except itself
-      const crossGroup = !into && drag.group !== group;
-      // Reorder only within the same group, unless this row accepts a cross-group
-      // drop (un-nest): then show a before/after line and route through onNest.
-      if (crossGroup && !accepts(o, drag.group)) return;
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      const where: DropWhere = into ? "into" : edgeWhere(e, o.axis ?? "y");
-      if (!over || over.group !== group || over.idx !== idx || over.where !== where)
-        setOver({ group, idx, where });
-    },
-    onDrop: (e) => {
-      if (!drag) { clear(); return; }
-      const isSelf = drag.group === group && drag.idx === idx;
-      const into = !!o.container && !isSelf;
-      const crossGroup = !into && drag.group !== group;
-      if (crossGroup && !accepts(o, drag.group)) { clear(); return; }
-      e.preventDefault();
-      if (into) {
-        onNest?.({ fromGroup: drag.group, from: drag.idx, targetIdx: idx, zone: o.containerZone ?? null });
-      } else if (crossGroup) {
-        // Un-nest: drop the foreign row among this group's rows at the drop edge.
-        // No self-shift — the item leaves a different group, so `to` isn't perturbed.
-        const where: DropWhere = over ? over.where : "after";
-        const to = where === "after" ? idx + 1 : idx;
-        onNest?.({ fromGroup: drag.group, from: drag.idx, targetIdx: to, zone: null });
-      } else {
-        const where: DropWhere = over ? over.where : "after";
-        let to = where === "after" ? idx + 1 : idx;
-        if (drag.idx < to) to -= 1; // account for the gap the removed item leaves
-        onReorder?.({ group, from: drag.idx, to, where, targetIdx: idx, zone: o.ownZone });
-      }
-      clear();
-    },
-  });
+    return {
+      draggable: true,
+      onDragStart: (e) => {
+        setDrag({ group, idx });
+        e.dataTransfer.effectAllowed = "move";
+        const payload = o.dragPayload?.() ?? `${group}:${idx}`;
+        try { e.dataTransfer.setData("text/plain", payload); } catch { /* IE guard */ }
+        o.onStart?.();
+      },
+      onDragEnd: () => { clear(); o.onEnd?.(); },
+      onDragOver: (e) => {
+        if (!drag) return;
+        const isSelf = drag.group === group && drag.idx === idx;
+        const into = !!o.container && !isSelf; // a container accepts any item except itself
+        const crossGroup = !into && drag.group !== group;
+        // Reorder only within the same group, unless this row accepts a cross-group
+        // drop (un-nest): then show a before/after line and route through onNest.
+        if (crossGroup && !accepts(o, drag.group)) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        const where: DropWhere = into ? "into" : edgeWhere(e, o.axis ?? "y");
+        if (!over || over.group !== group || over.idx !== idx || over.where !== where)
+          setOver({ group, idx, where });
+      },
+      onDrop: (e) => {
+        if (!drag) { clear(); return; }
+        const isSelf = drag.group === group && drag.idx === idx;
+        const into = !!o.container && !isSelf;
+        const crossGroup = !into && drag.group !== group;
+        if (crossGroup && !accepts(o, drag.group)) { clear(); return; }
+        e.preventDefault();
+        if (into) {
+          onNest?.({ fromGroup: drag.group, from: drag.idx, targetIdx: idx, zone: o.containerZone ?? null });
+        } else if (crossGroup) {
+          // Un-nest: drop the foreign row among this group's rows at the drop edge.
+          // No self-shift — the item leaves a different group, so `to` isn't perturbed.
+          const where: DropWhere = over ? over.where : "after";
+          const to = where === "after" ? idx + 1 : idx;
+          onNest?.({ fromGroup: drag.group, from: drag.idx, targetIdx: to, zone: null });
+        } else {
+          const where: DropWhere = over ? over.where : "after";
+          let to = where === "after" ? idx + 1 : idx;
+          if (drag.idx < to) to -= 1; // account for the gap the removed item leaves
+          onReorder?.({ group, from: drag.idx, to, where, targetIdx: idx, zone: o.ownZone });
+        }
+        clear();
+      },
+    };
   };
 
   // Drop target for an empty container body (nest with no sibling rows to hover).
   // Inert (no drop handlers) when disabled.
   const nestProps = (group: string, idx: number, zone: string | null): Pick<Handlers, "onDragOver" | "onDrop"> => {
     if (!enabled) return {};
-    return ({
-    onDragOver: (e) => {
-      if (!drag) return;
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      if (!over || over.group !== group || over.idx !== idx || over.where !== "into")
-        setOver({ group, idx, where: "into" });
-    },
-    onDrop: (e) => {
-      if (!drag) return;
-      e.preventDefault();
-      onNest?.({ fromGroup: drag.group, from: drag.idx, targetIdx: idx, zone });
-      clear();
-    },
-  });
+    return {
+      onDragOver: (e) => {
+        if (!drag) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        if (!over || over.group !== group || over.idx !== idx || over.where !== "into")
+          setOver({ group, idx, where: "into" });
+      },
+      onDrop: (e) => {
+        if (!drag) return;
+        e.preventDefault();
+        onNest?.({ fromGroup: drag.group, from: drag.idx, targetIdx: idx, zone });
+        clear();
+      },
+    };
   };
 
   // " dragging" on the source + " drop-before|after|into" on the hovered target.

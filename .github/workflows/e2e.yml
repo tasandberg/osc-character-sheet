@@ -125,6 +125,12 @@ jobs:
         working-directory: tools/e2e
         run: |
           npm install --no-package-lock --no-audit --no-fund
+          # The hosted runner's packages.microsoft.com apt repo intermittently
+          # ships a malformed Release file ("Clearsigned file isn't valid, got
+          # 'NOSPLIT'"), which fails `--with-deps`' apt-get update. Chromium's
+          # deps come from the standard Ubuntu archive, so drop the MS sources.
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list \
+                     /etc/apt/sources.list.d/azure-cli.list || true
           npx playwright install chromium --with-deps
 
       - name: Wait for Foundry to be healthy

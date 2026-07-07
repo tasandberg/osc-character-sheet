@@ -33,12 +33,12 @@ function ThemedRoot({
     return () => el.removeEventListener("mousedown", stopPropagation);
   }, []);
 
-  // Read-only mode marker for non-owners: a broad CSS hook + a11y signal that
-  // rides alongside the per-control React gating below.
+  // Read-only mode marker for non-owners: a broad CSS hook that rides alongside
+  // the per-control React gating below. (No aria-readonly — it's inert on a
+  // role-less div; the individual controls carry their own a11y state.)
   return (
     <div
       className={`osc-sheet-app${canEdit ? "" : " is-readonly"}`}
-      aria-readonly={canEdit ? undefined : true}
       ref={appRef}
     >
       {children}

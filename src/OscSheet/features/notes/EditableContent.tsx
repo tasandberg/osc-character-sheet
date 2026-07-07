@@ -16,9 +16,7 @@ export default function EditableContent({
 }) {
   const { actor, updateActor, canEdit } = useOscSheetContext();
   const [enriched, setEnriched] = useState<string>("");
-  const [editing, setEditingState] = useState(false);
-  // Read-only sheets never enter edit mode.
-  const setEditing = (v: boolean) => setEditingState(v && canEdit);
+  const [editing, setEditing] = useState(false);
 
   // Foundry's content-links/editor resolve colours from its OWN theme scope
   // (`.themed.theme-{light,dark}`), independent of our sheet theme — so a cream
