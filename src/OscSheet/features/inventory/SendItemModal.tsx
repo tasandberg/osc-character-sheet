@@ -106,37 +106,40 @@ export function SendItemModal({
           No visible characters in this scene to send to.
         </p>
       ) : (
-        <ul className="osc-send-targets u-stack u-gap-1 u-mt-4">
-          {targets.map((t) => {
-            const blocked = relayBlocked(t);
-            return (
-              <li key={t.id}>
-                <button
-                  type="button"
-                  className={cx(
-                    "osc-send-target",
-                    selectedId === t.id && "is-selected",
-                  )}
-                  disabled={blocked}
-                  aria-pressed={selectedId === t.id}
-                  title={
-                    blocked
-                      ? "A GM must be online to send to this character"
-                      : undefined
-                  }
-                  onClick={() => setSelectedId(t.id)}
-                >
-                  <Monogram
-                    img={t.img}
-                    monogram={initials(t.name)}
-                    className="osc-send-target-ic"
-                  />
-                  <span className="u-flex-1">{t.name}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="u-mt-4 u-stack u-gap-2">
+          <label className="field-label">Send item(s) to:</label>
+          <ul className="osc-send-targets u-stack u-gap-1">
+            {targets.map((t) => {
+              const blocked = relayBlocked(t);
+              return (
+                <li key={t.id}>
+                  <button
+                    type="button"
+                    className={cx(
+                      "osc-send-target",
+                      selectedId === t.id && "is-selected",
+                    )}
+                    disabled={blocked}
+                    aria-pressed={selectedId === t.id}
+                    title={
+                      blocked
+                        ? "A GM must be online to send to this character"
+                        : undefined
+                    }
+                    onClick={() => setSelectedId(t.id)}
+                  >
+                    <Monogram
+                      img={t.img}
+                      monogram={initials(t.name)}
+                      className="osc-send-target-ic"
+                    />
+                    <span className="u-flex-1">{t.name}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </Modal>
   );
