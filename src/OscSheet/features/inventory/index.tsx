@@ -92,7 +92,7 @@ export function InventoryView({
 
   // Foundry items by id — source for the hotbar drag payload. Dragging a row onto
   // the macro bar creates an item macro (OSE's hotbarDrop hook), like the stock sheet.
-  const { actor, items } = useOscSheetContext();
+  const { actor, items, canEdit } = useOscSheetContext();
   const itemsById = new Map<string, OseItem>(items.map((it) => [it._id, it]));
   const itemDragData: ItemDragData = (id) => {
     const it = itemsById.get(id);
@@ -177,6 +177,8 @@ export function InventoryView({
   // Commit handlers for the drag hook. Each mutates the local order immediately
   // (so the dropped item re-renders in place at once) then persists the diff.
   const dnd = useDragReorder({
+    // Read-only sheets (non-owners) get no drag-reorder / drag-to-nest / equip-by-drop.
+    enabled: canEdit,
     onReorder: ({ group, from, to }) => {
       // Tray tiles reorder in their own group → persist the equippedOrder flag.
       if (group === EQUIPPED) {
@@ -379,14 +381,14 @@ export function InventoryView({
       {menu && (
         <ItemContextMenu
           menu={menu}
-          canEdit={actor.isOwner}
+          canEdit={canEdit}
           onClose={() => setMenu(null)}
           onOpen={onOpen}
           onEquip={onEquip}
           onConsume={onConsume}
           onDelete={onDelete}
           onSend={
-            actor.isOwner && byId.has(menu.item.id) && isGmConnected()
+            canEdit && byId.has(menu.item.id) && isGmConnected()
               ? openSend
               : undefined
           }

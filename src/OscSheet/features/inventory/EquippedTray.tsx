@@ -4,10 +4,13 @@ import { useState } from "react";
 import type { InventoryItemVM } from "@domain/vm-types";
 import { weightLabel, EQUIPPED } from "@features/inventory/groups";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
+import { useOscSheetContext } from "@app/context";
 import { Monogram } from "@ui/Monogram";
 import { cx } from "@ui/cx";
 
-// Equip toggle: outlined hand = unequipped, filled hand = equipped.
+// Equip toggle: outlined hand = unequipped, filled hand = equipped. Read-only
+// sheets (non-owners) get a static, non-interactive equipped indicator instead
+// of a toggle button — equipped items stay readable, but can't be toggled.
 export function RowEquip({
   item,
   onEquip,
@@ -15,8 +18,21 @@ export function RowEquip({
   item: InventoryItemVM;
   onEquip: (id: string) => void;
 }) {
+  const { canEdit } = useOscSheetContext();
   if (item.equipped === null)
     return <span className="osc-inv-equip-spacer" aria-hidden="true" />;
+  if (!canEdit)
+    return item.equipped ? (
+      <span
+        className="osc-inv-equip is-on is-static"
+        aria-label="Equipped"
+        title="Equipped"
+      >
+        <i className="fa-solid fa-hand" aria-hidden="true" />
+      </span>
+    ) : (
+      <span className="osc-inv-equip-spacer" aria-hidden="true" />
+    );
   return (
     <button
       type="button"

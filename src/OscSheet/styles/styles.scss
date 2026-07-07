@@ -179,4 +179,14 @@
   [data-owner-only] {
     display: none !important;
   }
+
+  // Inventory: drag handles are meaningless without drag (disabled for non-owners),
+  // so hide them; the equipped indicator renders as a static, non-interactive glyph.
+  .osc-inv-drag {
+    display: none;
+  }
+  .osc-inv-equip.is-static {
+    cursor: default;
+    pointer-events: none;
+  }
 }

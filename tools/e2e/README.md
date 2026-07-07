@@ -32,11 +32,11 @@ PRs run automatically; fork PRs need a maintainer's `safe-to-test` label.
 
 ### Read-only (non-owner) coverage
 
-`specs/readonly.spec.ts` drives the sheet as `observerPage` and asserts the
-NON-INVENTORY tabs expose no edit affordances (HP steppers, editable portrait,
-Edit modal, per-tab edit controls). Inventory read-only gating is deferred to a
-follow-up after OLD-40 restructures the inventory view — the spec carries a
-clearly-marked `TODO(OLD-40 follow-up)` where those assertions will go.
+`specs/readonly.spec.ts` drives the sheet as `observerPage` and asserts every tab
+exposes no edit affordances: HP steppers, editable portrait, Edit modal, and
+per-tab edit controls (abilities/notes), plus the inventory tab — no equip
+toggles, no draggable rows/tray tiles/coin grips, disabled coin qty, and a
+view-only item context menu (only "View Item").
 
 ## Running locally
 

@@ -4,13 +4,10 @@ import { openCharacterSheet } from "../helpers";
 /**
  * Read-only sheet for non-owners (OLD-41). Logs in as the seeded OBSERVER player
  * (view-only permission on the fixture actor — see global-setup) and asserts the
- * NON-INVENTORY tabs expose no way to mutate the character: no HP steppers, no
- * editable portrait, no Edit modal, no per-tab edit controls. The sheet must stay
- * fully readable throughout.
- *
- * NOTE: the inventory tab is intentionally NOT asserted here — its read-only
- * gating (drag-reorder/nest, equip toggles, quantity steppers, coin edits) lands
- * as a follow-up after OLD-40 restructures the inventory. See the TODO below.
+ * whole sheet — every tab, including inventory — exposes no way to mutate the
+ * character: no HP steppers, no editable portrait, no Edit modal, no per-tab edit
+ * controls, and (inventory) no drag, no equip toggle, no coin edit, no mutating
+ * context-menu items. The sheet must stay fully readable throughout.
  */
 
 // Fighter (non-caster) tabs minus inventory; spells is hidden (not a caster).
@@ -59,9 +56,35 @@ test.describe("read-only sheet (non-owner)", () => {
       }
     }
 
-    // TODO(OLD-40 follow-up): switch to the inventory tab and assert its
-    // read-only gating — no drag handles, no equip toggles, no quantity/coin
-    // steppers, no delete/send controls. Deferred until OLD-40 restructures the
-    // inventory view (owned by that PR; do not touch its files here).
+    // --- Inventory tab: fully view-only ---
+    const inventoryTab = sheet.locator('[data-testid="tab-inventory"]');
+    await inventoryTab.click();
+    await expect(inventoryTab).toHaveAttribute("aria-selected", "true");
+
+    // Readable: the wealth toggle + at least one item row render.
+    await expect(sheet.locator('[data-testid="wealth-toggle"]')).toBeVisible();
+    await expect(sheet.locator(".osc-inv-row").first()).toBeVisible();
+
+    // No equip toggle buttons (owner-only; observers get a static indicator).
+    await expect(sheet.locator('[data-testid^="equip-"]')).toHaveCount(0);
+    // No draggable rows / tray tiles / coin grips (drag disabled for non-owners).
+    await expect(sheet.locator('.osc-inv-row[draggable="true"]')).toHaveCount(0);
+    await expect(sheet.locator('.osc-equip-tcard[draggable="true"]')).toHaveCount(0);
+    await expect(sheet.locator('.osc-inv-drag[draggable="true"]')).toHaveCount(0);
+
+    // Coin quantity is view-only (open the wealth table first).
+    await sheet.locator('[data-testid="wealth-toggle"]').click();
+    const coinQty = sheet.locator('[data-testid="coin-qty-gp"]');
+    await expect(coinQty).toBeVisible();
+    await expect(coinQty).toBeDisabled();
+
+    // Item context menu is view-only: only "View Item", no Send/Unequip/Consume/Delete.
+    await sheet.locator(".osc-inv-row").first().click({ button: "right" });
+    const menu = sheet.locator(".osc-ctx");
+    await expect(menu).toBeVisible();
+    await expect(menu.locator(".osc-ctx-item")).toHaveCount(1);
+    await expect(menu.locator(".osc-ctx-item")).toHaveText(/View Item/);
+    await expect(menu.locator(".osc-ctx-item.is-danger")).toHaveCount(0);
+    await observerPage.keyboard.press("Escape");
   });
 });

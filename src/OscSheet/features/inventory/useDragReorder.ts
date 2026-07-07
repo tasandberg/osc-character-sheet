@@ -46,15 +46,18 @@ type Handlers = {
   draggable?: boolean;
   onDragStart?: (e: DragEvent<HTMLElement>) => void;
   onDragEnd?: (e: DragEvent<HTMLElement>) => void;
-  onDragOver: (e: DragEvent<HTMLElement>) => void;
-  onDrop: (e: DragEvent<HTMLElement>) => void;
+  onDragOver?: (e: DragEvent<HTMLElement>) => void;
+  onDrop?: (e: DragEvent<HTMLElement>) => void;
 };
 
 export function useDragReorder(opts: {
   onReorder?: (a: ReorderArgs) => void;
   onNest?: (a: NestArgs) => void;
+  /** When false (read-only sheet), the whole hook is inert: rows aren't
+   *  draggable and reject drops, so no reorder/nest can fire. Default true. */
+  enabled?: boolean;
 } = {}) {
-  const { onReorder, onNest } = opts;
+  const { onReorder, onNest, enabled = true } = opts;
   const [drag, setDrag] = useState<DragState | null>(null);
   const [over, setOver] = useState<OverState | null>(null);
   const clear = () => { setDrag(null); setOver(null); };
@@ -71,8 +74,10 @@ export function useDragReorder(opts: {
   const accepts = (o: RowOpts, fromGroup: string): boolean =>
     typeof o.acceptCrossGroup === "function" ? o.acceptCrossGroup(fromGroup) : !!o.acceptCrossGroup;
 
-  // Draggable + droppable row.
-  const rowProps = (group: string, idx: number, o: RowOpts = {}): Handlers => ({
+  // Draggable + droppable row. Inert (non-draggable, drop-rejecting) when disabled.
+  const rowProps = (group: string, idx: number, o: RowOpts = {}): Handlers => {
+    if (!enabled) return { draggable: false };
+    return ({
     draggable: true,
     onDragStart: (e) => {
       setDrag({ group, idx });
@@ -120,9 +125,13 @@ export function useDragReorder(opts: {
       clear();
     },
   });
+  };
 
   // Drop target for an empty container body (nest with no sibling rows to hover).
-  const nestProps = (group: string, idx: number, zone: string | null): Pick<Handlers, "onDragOver" | "onDrop"> => ({
+  // Inert (no drop handlers) when disabled.
+  const nestProps = (group: string, idx: number, zone: string | null): Pick<Handlers, "onDragOver" | "onDrop"> => {
+    if (!enabled) return {};
+    return ({
     onDragOver: (e) => {
       if (!drag) return;
       e.preventDefault();
@@ -137,6 +146,7 @@ export function useDragReorder(opts: {
       clear();
     },
   });
+  };
 
   // " dragging" on the source + " drop-before|after|into" on the hovered target.
   const rowClass = (group: string, idx: number): string => {
