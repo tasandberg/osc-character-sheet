@@ -37,6 +37,8 @@ export interface EmbeddedDocActor {
     updates: Record<string, unknown>[],
   ): Promise<unknown>;
   deleteEmbeddedDocuments(type: "Item", ids: string[]): Promise<unknown>;
+  /** Foundry Document permission check — used GM-side to authorize a relay. */
+  testUserPermission?(user: unknown, permission: string): boolean;
 }
 
 /** Drop the transient nesting keys before the data hits Foundry's create. */
@@ -91,7 +93,7 @@ interface LooseSocket {
 interface GameLike {
   socket?: LooseSocket;
   user: unknown;
-  users?: { activeGM: unknown };
+  users?: { activeGM: unknown; get?(id: string): unknown };
 }
 // fvtt-types narrows `game.socket` to a socket.io shape; read the members we use
 // through a loose surface (mirrors applyDamage.ts / flags.ts).
@@ -112,8 +114,8 @@ async function resolveActor(uuid: string): Promise<EmbeddedDocActor | null> {
 }
 
 /** GM-side: apply an incoming relay request. No-ops on every client but the
- *  single active GM (mirrors migrations.ts / applyDamage.ts). */
-async function onRequest(data: SendItemRequest): Promise<void> {
+ *  single active GM (mirrors migrations.ts / applyDamage.ts). Exported for tests. */
+export async function onRequest(data: SendItemRequest): Promise<void> {
   if (data?.type !== "sendItem") return;
   const game = getGame();
   if (!game.users?.activeGM || game.users.activeGM !== game.user) return;
@@ -123,6 +125,16 @@ async function onRequest(data: SendItemRequest): Promise<void> {
   ]);
   if (!from || !to) {
     logger(`sendItem relay: could not resolve actors ${data.sourceUuid}→${data.targetUuid}`);
+    return;
+  }
+  // Authorize: never move items on the GM's authority unless the requesting user
+  // actually owns the SOURCE actor. Otherwise anyone who can open another
+  // character's sheet could relay its items away.
+  const requester = game.users?.get?.(data.requesterUserId);
+  if (!requester || !from.testUserPermission?.(requester, "OWNER")) {
+    logger(
+      `sendItem relay: user ${data.requesterUserId} does not own source ${data.sourceUuid} — rejected`,
+    );
     return;
   }
   try {

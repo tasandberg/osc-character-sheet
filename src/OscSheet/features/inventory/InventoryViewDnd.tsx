@@ -590,6 +590,7 @@ function EquippedTray({
 
 function ItemContextMenu({
   menu,
+  canEdit,
   onClose,
   onOpen,
   onEquip,
@@ -598,6 +599,8 @@ function ItemContextMenu({
   onSend,
 }: {
   menu: MenuState;
+  /** Whether the current user owns this actor. Non-owners get view-only. */
+  canEdit: boolean;
   onClose: () => void;
   onOpen: (id: string) => void;
   onEquip: (id: string) => void;
@@ -653,7 +656,7 @@ function ItemContextMenu({
           <i className="fa-solid fa-gift" aria-hidden="true" /> Send Item
         </button>
       )}
-      {menu.item.equipped === true && (
+      {canEdit && menu.item.equipped === true && (
         <button
           type="button"
           className="osc-ctx-item"
@@ -665,7 +668,7 @@ function ItemContextMenu({
           <i className="fa-solid fa-hand" aria-hidden="true" /> Unequip
         </button>
       )}
-      {menu.item.quantity != null && (
+      {canEdit && menu.item.quantity != null && (
         <button
           type="button"
           className="osc-ctx-item"
@@ -678,16 +681,18 @@ function ItemContextMenu({
           one
         </button>
       )}
-      <button
-        type="button"
-        className="osc-ctx-item is-danger"
-        onClick={() => {
-          onDelete(menu.item.id);
-          onClose();
-        }}
-      >
-        <i className="fa-solid fa-trash" aria-hidden="true" /> Delete Item
-      </button>
+      {canEdit && (
+        <button
+          type="button"
+          className="osc-ctx-item is-danger"
+          onClick={() => {
+            onDelete(menu.item.id);
+            onClose();
+          }}
+        >
+          <i className="fa-solid fa-trash" aria-hidden="true" /> Delete Item
+        </button>
+      )}
     </div>
   );
 }
@@ -1018,13 +1023,16 @@ export function InventoryViewDnd({
       {menu && (
         <ItemContextMenu
           menu={menu}
+          canEdit={actor.isOwner}
           onClose={() => setMenu(null)}
           onOpen={onOpen}
           onEquip={onEquip}
           onConsume={onConsume}
           onDelete={onDelete}
           onSend={
-            byId.has(menu.item.id) && isGmConnected() ? openSend : undefined
+            actor.isOwner && byId.has(menu.item.id) && isGmConnected()
+              ? openSend
+              : undefined
           }
         />
       )}

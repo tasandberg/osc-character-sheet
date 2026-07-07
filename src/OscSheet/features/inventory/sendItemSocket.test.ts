@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { applySend } from "./sendItemSocket";
+import { describe, it, expect, afterEach } from "vitest";
+import { applySend, onRequest, type SendItemRequest } from "./sendItemSocket";
 import type { SendNode } from "./sendItem";
 
 // A mock actor whose createEmbeddedDocuments assigns fresh ids AND — like real
@@ -75,5 +75,84 @@ describe("applySend — container nesting", () => {
     ]);
     // Source items removed after the copies exist.
     expect(from.deleted).toEqual(["R", "C"]);
+  });
+});
+
+// A user the source actor may or may not own.
+const user = (id: string) => ({ id });
+
+/** Source actor that grants OWNER only to `owner`. */
+function relaySource(owner: unknown) {
+  const a = mockActor();
+  return {
+    ...a,
+    testUserPermission: (u: unknown, p: string) => p === "OWNER" && u === owner,
+  };
+}
+
+function setGame(
+  gm: unknown,
+  requester: { id: string },
+  src: unknown,
+  tgt: unknown,
+) {
+  (globalThis as unknown as { game: unknown }).game = {
+    user: gm,
+    users: {
+      activeGM: gm, // this client is the acting GM
+      get: (id: string) => (id === requester.id ? requester : undefined),
+    },
+  };
+  (globalThis as unknown as { foundry: unknown }).foundry = {
+    utils: {
+      fromUuid: async (u: string) =>
+        u === "Actor.src" ? src : u === "Actor.tgt" ? tgt : null,
+    },
+  };
+}
+
+afterEach(() => {
+  delete (globalThis as unknown as { game?: unknown }).game;
+  delete (globalThis as unknown as { foundry?: unknown }).foundry;
+});
+
+const request = (requesterId: string): SendItemRequest => ({
+  type: "sendItem",
+  requestId: "req-1",
+  sourceUuid: "Actor.src",
+  targetUuid: "Actor.tgt",
+  create: [node("I", null, "")],
+  deleteIds: ["I"],
+  decrement: null,
+  requesterUserId: requesterId,
+});
+
+describe("onRequest — relay authorization", () => {
+  it("rejects a relay whose requester does not own the source actor", async () => {
+    const gm = user("gm");
+    const owner = user("owner"); // owns the source
+    const attacker = user("attacker"); // does NOT own it
+    const src = relaySource(owner);
+    const tgt = mockActor();
+    setGame(gm, attacker, src, tgt);
+
+    await onRequest(request(attacker.id));
+
+    // No copy created, no source item deleted — the relay was refused.
+    expect(tgt.created).toEqual([]);
+    expect(src.deleted).toEqual([]);
+  });
+
+  it("applies a relay whose requester owns the source actor", async () => {
+    const gm = user("gm");
+    const owner = user("owner");
+    const src = relaySource(owner);
+    const tgt = mockActor();
+    setGame(gm, owner, src, tgt);
+
+    await onRequest(request(owner.id));
+
+    expect(tgt.created).toHaveLength(1);
+    expect(src.deleted).toEqual(["I"]);
   });
 });
