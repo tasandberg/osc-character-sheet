@@ -50,6 +50,9 @@ const GROUP_LABEL = {
 };
 // Cards rendered at a wider viewport (matches remote: multi-cell / overlay cards).
 const WIDE = new Set(["SectionTitle", "Menu", "Modal", "ConfirmDialog"]);
+// The CSS scope every Vellum selector is prefixed with (postcss scope-vellum).
+// Single-sourced so the manifest themes + generated README can't disagree.
+const SCOPE = ".osc-sheet";
 
 // dtsPropsFor for the 8 Wave-2 components (config.json only carries the original 24).
 const NEW_PROPS = {
@@ -390,8 +393,8 @@ const manifest = {
   globalCssPaths: ["fonts/fonts.css", "_ds_bundle.css", "styles.css"],
   tokens: tokensDump,
   themes: [
-    { selector: '.osc-sheet[data-theme="cream"]', label: "OSC Sheet Cream" },
-    { selector: ".osc-sheet[data-kind=hireling]", label: "OSC Sheet Kind Hireling" },
+    { selector: `${SCOPE}[data-theme="cream"]`, label: "OSC Sheet Cream" },
+    { selector: `${SCOPE}[data-kind=hireling]`, label: "OSC Sheet Kind Hireling" },
   ],
   fonts,
   brandFonts: [{ family: "IM Fell English SC", status: "unreferenced", tokens: [], path: "fonts/fonts.css" }],
@@ -399,6 +402,83 @@ const manifest = {
 };
 write("_ds_manifest.json", JSON.stringify(manifest, null, 2) + "\n");
 writes.push("_ds_manifest.json");
+
+// ── README.md (conventions header + generated body) ──
+// The body is derived from the SAME data the manifest is built from (namespace,
+// pkg, scope, token kinds, groups, globalCssPaths), so a rename/count change
+// can't leave it stale — the failure the reactor-sheet→osc-character-sheet
+// rename caused. The header is authored prose (cfg.readmeHeader) prepended
+// verbatim.
+function readmeBody() {
+  const kc = (k) => tokensDump.filter((t) => t.kind === k).length;
+  // Loading links come straight from the manifest's globalCssPaths — every CSS
+  // file a design must link. styles.css alone is NOT the closure (it does not
+  // @import _ds_bundle.css / fonts), so link them all, as the preview cards do.
+  const links = manifest.globalCssPaths.map((p) => `<link rel="stylesheet" href="${p}">`).join("\n");
+  const index = Object.keys(GROUP_LABEL)
+    .map((g) => {
+      const items = sortedNames.filter((n) => GROUP[n] === g);
+      return items.length ? `### ${GROUP_LABEL[g]}\n${items.map((n) => `- \`${n}\``).join("\n")}` : "";
+    })
+    .filter(Boolean)
+    .join("\n\n");
+  const themeSel = manifest.themes.map((t) => `\`${t.selector}\``).join(", ");
+  return `# ${cfg.globalName} (${cfg.pkg}@${pkgVersion})
+
+This design system is the Vellum UI primitive library from \`${cfg.pkg}\`, bundled as a
+single browser global. All ${names.length} components are the real library code.
+
+## Where things are
+
+- \`_ds_bundle.js\` — the whole-DS bundle at the project root; loads every component to \`window.${cfg.globalName}\`.
+- \`_ds_bundle.css\` — the compiled Vellum stylesheet (tokens, utilities, component styles), scoped under \`${SCOPE}\`.
+- \`styles.css\` — the app-level styles compile (adds the \`data-kind=hireling\` theme overrides).
+- \`fonts/\` — \`@font-face\` files + \`fonts.css\`.
+- \`components/<group>/<Name>/<Name>.prompt.md\` (example JSX + variants), \`<Name>.d.ts\` (types), \`<Name>.html\` (variant grid). For one component, \`read_file("components/<group>/<Name>/<Name>.prompt.md")\`.
+
+## Loading
+
+Link every design-system stylesheet, then the bundle (React must be on the page first):
+
+\`\`\`html
+${links}
+<script src="_ds_bundle.js"></script>
+\`\`\`
+
+Components are then available at \`window.${cfg.globalName}.*\`. Mount into a dedicated child node (e.g. \`<div id="ds-root">\`), not the host page's own React root, so the two trees don't collide:
+
+\`\`\`jsx
+const { Button } = window.${cfg.globalName};
+ReactDOM.createRoot(document.getElementById('ds-root')).render(<Button />);
+\`\`\`
+
+Wrap the tree in the provider — components read theme/tokens from the scoped root:
+
+\`\`\`jsx
+<VellumRoot>{children}</VellumRoot>
+\`\`\`
+
+## Tokens
+
+${tokensDump.length} CSS custom properties under the \`${SCOPE}\` scopes (mostly in
+\`_ds_bundle.css\`; the \`data-kind=hireling\` overrides live in \`styles.css\`). Themes: ${themeSel}.
+See the styling-idiom section above for the families and their real names.
+
+- Color & surface: ${kc("color")}
+- Text / ink color: ${kc("font")}
+- Space, radius & type sizes: ${kc("spacing")}
+- Font families & line-heights: ${kc("other")}
+
+## Components
+
+${index}
+`;
+}
+const readmeHeader = cfg.readmeHeader
+  ? readFileSync(path.join(ROOT, cfg.readmeHeader), "utf8").trimEnd()
+  : "";
+write("README.md", (readmeHeader ? readmeHeader + "\n\n" : "") + readmeBody());
+writes.push("README.md");
 
 // ── _ds_sync.json ──
 // Reproducible fields recomputed; opaque tool-internal hashes (renderHashes,
@@ -435,7 +515,7 @@ writeFileSync(
         "renderHashes/sourceKeys left {} and keyRecipe=7 carried; _ds_needs_recompile written so the tool recomputes opaque hashes (do NOT splice remote render hashes — Wave-2 CSS changes made them stale).",
         "styleSha = sha256(_ds_bundle.css + '\\n' + styles.css); bundleSha12 = sha256(_ds_bundle.js)[:12] — inferred recipes; scriptsSha/auxSha carried from remote.",
         "tokens[].kind matched to remote taxonomy (confirmed): text colors (--text*/--stamp-text*)→font; families/line-heights/--vellum-grain→other; dimensions→spacing; rest→color.",
-        "README.md exists on remote but has no exemplar — deliberately NOT generated/staged (left as-is).",
+        "README.md is now generated: cfg.readmeHeader (conventions.md) prepended verbatim + a body derived from the manifest data (namespace/version/token-kind counts/groups), so it can't go stale on a rename the way reactor-sheet→osc-character-sheet did.",
         "config.dtsPropsFor reconciled against current Props: Tag (+variant/icon/tooltip/onRemove/removeLabel), Button (+\"outline\"), Die (sides: 4|6|8|20). Other 29 verified in sync. Their d.ts + prompt.md (and sourceHashes) change accordingly.",
         "_vendor/react.js + react-dom.js unchanged remotely — NOT staged.",
         "deletes empty: remote's 24 components are a subset of the 32 written; no removals.",
