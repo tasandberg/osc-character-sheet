@@ -44,6 +44,7 @@ export default function SheetShell() {
     setCurrentTab,
     updateActor,
     optimisticUpdate,
+    canEdit,
   } = useOscSheetContext();
   const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
@@ -74,7 +75,8 @@ export default function SheetShell() {
       travel: movement.overland,
     },
   };
-  const onSetHp = (value: number) => {
+  // Read-only sheets get no HP stepper/input (undefined onSetHp → static value).
+  const onSetHp = !canEdit ? undefined : (value: number) => {
     const next = Math.max(0, Math.min(vitals.hp.max, value));
     if (next === vitals.hp.value) return;
     const update = { "system.hp.value": next };
@@ -264,7 +266,7 @@ export default function SheetShell() {
 
   return (
     <>
-      <EditModal open={editOpen} onClose={() => setEditOpen(false)} />
+      <EditModal open={editOpen && canEdit} onClose={() => setEditOpen(false)} />
       <Frame
         tabs={items}
         active={activeTab.id}
@@ -275,6 +277,7 @@ export default function SheetShell() {
         topbar={
           <Topbar
             vm={selectTopbar(actor)}
+            canEdit={canEdit}
             onEdit={() => setEditOpen(true)}
             onLevelUp={() =>
               toast({
@@ -290,8 +293,12 @@ export default function SheetShell() {
             identity={identity}
             vitals={vitals}
             onSetHp={onSetHp}
-            onPortraitContextMenu={() => showTokenVariantsPortraitPicker(actor)}
-            canEditPortrait={actor.isOwner}
+            onPortraitContextMenu={
+              canEdit
+                ? () => showTokenVariantsPortraitPicker(actor)
+                : undefined
+            }
+            canEditPortrait={canEdit}
           />
         }
         minibar={

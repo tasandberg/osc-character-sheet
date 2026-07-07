@@ -24,10 +24,11 @@ function useFlavour(): string | null {
  * present, or type a custom language. Persists to `system.languages.value`.
  */
 export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
-  const { actor, updateActor } = useOscSheetContext();
+  const { actor, updateActor, canEdit } = useOscSheetContext();
   const [localEditing, setLocalEditing] = useState(false);
   const [draft, setDraft] = useState("");
-  const editing = forced || localEditing;
+  // Read-only sheets can never enter edit mode (chips stay static, no add/remove).
+  const editing = canEdit && (forced || localEditing);
 
   const current = actor.system.languages.value;
   const flavour = useFlavour();
@@ -55,7 +56,7 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
       <SectionHeader
         title="Languages"
         controls={
-          !forced && (
+          !forced && canEdit && (
             <IconButton
               variant="accent"
               on={editing}

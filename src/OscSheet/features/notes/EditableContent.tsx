@@ -14,9 +14,11 @@ export default function EditableContent({
   name: string;
   value: string;
 }) {
-  const { actor, updateActor } = useOscSheetContext();
+  const { actor, updateActor, canEdit } = useOscSheetContext();
   const [enriched, setEnriched] = useState<string>("");
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditingState] = useState(false);
+  // Read-only sheets never enter edit mode.
+  const setEditing = (v: boolean) => setEditingState(v && canEdit);
 
   // Foundry's content-links/editor resolve colours from its OWN theme scope
   // (`.themed.theme-{light,dark}`), independent of our sheet theme — so a cream
@@ -64,15 +66,17 @@ export default function EditableContent({
         </div>
       ) : (
         <div className={`osc-rt themed ${fdTheme}`}>
-          <IconButton
-            variant="accent"
-            className="osc-rt-edit"
-            title={`Edit ${title}`}
-            aria-label={`Edit ${title}`}
-            onClick={() => setEditing(true)}
-          >
-            <i className="fa-solid fa-pen-to-square" aria-hidden="true" />
-          </IconButton>
+          {canEdit && (
+            <IconButton
+              variant="accent"
+              className="osc-rt-edit"
+              title={`Edit ${title}`}
+              aria-label={`Edit ${title}`}
+              onClick={() => setEditing(true)}
+            >
+              <i className="fa-solid fa-pen-to-square" aria-hidden="true" />
+            </IconButton>
+          )}
           {enriched.trim() ? (
             <div className="osc-rt-body" dangerouslySetInnerHTML={{ __html: enriched }} />
           ) : (

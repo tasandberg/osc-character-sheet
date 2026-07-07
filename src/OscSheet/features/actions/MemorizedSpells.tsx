@@ -1,4 +1,5 @@
 import type { OSEActor, OseSpell } from "@domain/types";
+import { useOscSheetContext } from "@app/context";
 import { SectionTitle } from "@ui/SectionTitle";
 import { SpellCastRow } from "@features/spells/SpellCastRow";
 import { spellMeta } from "@features/spells/spells";
@@ -14,6 +15,7 @@ type Props = { actor: OSEActor };
  * fully-spent ones (memorized persists). Cast → `spendSpell`.
  */
 export function MemorizedSpells({ actor }: Props) {
+  const { canEdit } = useOscSheetContext();
   // Same flatten + path as the Spells tab: spellList is Record<level, OseSpell[]>.
   const spells: OseSpell[] = Object.values(actor.system.spells?.spellList ?? {})
     .flat()
@@ -36,6 +38,7 @@ export function MemorizedSpells({ actor }: Props) {
                 {p.text}
               </span>
             ))}
+            canCast={canEdit}
             onCast={() => spell.spendSpell({ skipDialog: false })}
             onOpenName={() => spell.sheet.render(true)}
           />

@@ -10,7 +10,7 @@ import SpellLevel from "@features/spells/SpellLevel";
  * spellbook). Rest re-memorises every spell (restores `cast` to `memorized`).
  */
 export default function Spells() {
-  const { actor } = useOscSheetContext();
+  const { actor, canEdit } = useOscSheetContext();
   const levels = selectSpellLevels(actor);
   const [resting, setResting] = useState(false);
 
@@ -37,20 +37,22 @@ export default function Spells() {
       <SectionTitle className="osc-spells-title">
         Spells
         <span className="hint">memorised slots</span>
-        <button
-          type="button"
-          className="osc-rest"
-          onClick={rest}
-          disabled={resting}
-          aria-busy={resting}
-          title="Re-memorise all spells"
-        >
-          <i
-            className={cx("fa-solid", resting ? "fa-spinner fa-spin" : "fa-campground")}
-            aria-hidden="true"
-          />{" "}
-          Rest
-        </button>
+        {canEdit && (
+          <button
+            type="button"
+            className="osc-rest"
+            onClick={rest}
+            disabled={resting}
+            aria-busy={resting}
+            title="Re-memorise all spells"
+          >
+            <i
+              className={cx("fa-solid", resting ? "fa-spinner fa-spin" : "fa-campground")}
+              aria-hidden="true"
+            />{" "}
+            Rest
+          </button>
+        )}
       </SectionTitle>
       {levels.map((vm) => (
         <SpellLevel key={vm.level} vm={vm} />

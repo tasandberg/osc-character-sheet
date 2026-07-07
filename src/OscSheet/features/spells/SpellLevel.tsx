@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useOscSheetContext } from "@app/context";
 import type { OseSpell } from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
 import { spellMeta } from "@features/spells/spells";
@@ -11,6 +12,7 @@ import { Pips } from "@ui/Pips";
  * the prepared-spell cast rows, and an expandable spellbook of all known spells.
  */
 export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
+  const { canEdit } = useOscSheetContext();
   const { level, slots, occupied, prepared, spellbook } = vm;
   const [bookOpen, setBookOpen] = useState(false);
 
@@ -68,8 +70,9 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                 {p.text}
               </span>
             ))}
+            canCast={canEdit}
             onCast={() => cast(spell)}
-            onUnprepare={() => unprepare(spell)}
+            onUnprepare={canEdit ? () => unprepare(spell) : undefined}
             onOpenName={() => spell.sheet.render(true)}
           />
         ))
@@ -90,6 +93,14 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
             <div className="osc-book-empty">No spells known at this level.</div>
           ) : (
             spellbook.map((spell) => {
+              // Read-only: list known spells as static rows (no memorise action).
+              if (!canEdit) {
+                return (
+                  <span key={spell._id as string} className="osc-bookspell is-static">
+                    <span className="bn">{spell.name}</span>
+                  </span>
+                );
+              }
               // Spellbook always MEMORISES (adds a copy) up to the level's free
               // slots — always a "+", never a checkmark, and no "prepared"
               // highlight (adding one is reflected in the prepared rows above).

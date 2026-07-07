@@ -9,11 +9,13 @@ function OscSheetProvider({
   children,
   source,
   contextConnector,
+  canEdit,
 }: {
   initialActor: OSEActor;
   source: OSEActor;
   children: ReactNode;
   contextConnector?: ContextConnector<OscContext>;
+  canEdit: boolean;
 }) {
   const [actor, setActor] = useState<OSEActor>(initialActor);
   const [actorData, setActorData] = useState(initialActor.system);
@@ -66,6 +68,7 @@ function OscSheetProvider({
     currentTab,
     setCurrentTab,
     updateActor,
+    canEdit,
   };
 
   return (

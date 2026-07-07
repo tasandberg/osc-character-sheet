@@ -7,7 +7,7 @@ import { FeatureCard } from "@features/abilities/FeatureCard";
 import { LanguagesSection } from "@features/abilities/LanguagesSection";
 
 export default function Abilities() {
-  const { actor } = useOscSheetContext();
+  const { actor, canEdit } = useOscSheetContext();
   const features = selectFeatures(actor);
 
   // New abilities seed their requirements from the actor's class so they sort in
@@ -20,14 +20,16 @@ export default function Abilities() {
         <SectionHeader
           title="Abilities"
           controls={
-            <IconButton
-              variant="accent"
-              title="Add ability"
-              aria-label="Add ability"
-              onClick={onAdd}
-            >
-              <i className="fas fa-plus" aria-hidden="true" />
-            </IconButton>
+            canEdit ? (
+              <IconButton
+                variant="accent"
+                title="Add ability"
+                aria-label="Add ability"
+                onClick={onAdd}
+              >
+                <i className="fas fa-plus" aria-hidden="true" />
+              </IconButton>
+            ) : undefined
           }
         />
         {features.length === 0 ? (

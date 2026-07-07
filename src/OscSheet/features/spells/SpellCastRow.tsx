@@ -16,6 +16,8 @@ type Props = {
   onOpenName?: () => void;
   /** Row wrapper class — "osc-spell" (Spells tab + Actions quick-cast). */
   rowClass: string;
+  /** Read-only sheets hide the cast button (casting spends a slot). Default true. */
+  canCast?: boolean;
 };
 
 /**
@@ -26,7 +28,7 @@ type Props = {
  *
  * `total` slots = max(memorized, cast); `cast` of them are still ready.
  */
-export function SpellCastRow({ spell, meta, onCast, onUnprepare, onOpenName, rowClass }: Props) {
+export function SpellCastRow({ spell, meta, onCast, onUnprepare, onOpenName, rowClass, canCast = true }: Props) {
   const left = spell.system.cast ?? 0;
   const total = Math.max(spell.system.memorized ?? 0, left);
   const spent = left <= 0;
@@ -72,18 +74,20 @@ export function SpellCastRow({ spell, meta, onCast, onUnprepare, onOpenName, row
         </span>
         <span className="spm">{meta}</span>
       </div>
-      <span className="sp-actions">
-        <button
-          type="button"
-          className="sp-cast"
-          disabled={spent || casting}
-          aria-busy={casting}
-          onClick={handleCast}
-          title={spent ? `${spell.name} — spent (Rest to recover)` : `Cast ${spell.name}`}
-        >
-          {casting ? <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" /> : spent ? "spent" : "cast"}
-        </button>
-      </span>
+      {canCast && (
+        <span className="sp-actions">
+          <button
+            type="button"
+            className="sp-cast"
+            disabled={spent || casting}
+            aria-busy={casting}
+            onClick={handleCast}
+            title={spent ? `${spell.name} — spent (Rest to recover)` : `Cast ${spell.name}`}
+          >
+            {casting ? <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" /> : spent ? "spent" : "cast"}
+          </button>
+        </span>
+      )}
     </div>
   );
 }

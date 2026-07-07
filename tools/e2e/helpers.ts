@@ -1,14 +1,17 @@
 import type { Page, Locator } from "@playwright/test";
 
 export const ACTOR_NAME = "E2E Fighter";
+/** Passwordless player user seeded by global-setup with OBSERVER (view-only)
+ *  permission on ACTOR_NAME — drives the read-only sheet spec. */
+export const OBSERVER_NAME = "E2E Observer";
 const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/, "");
 
 declare const game: any;
 declare const foundry: any;
 declare const Actor: any;
 
-/** Join the running world as the passwordless Gamemaster and wait for game.ready. */
-export async function joinAsGM(page: Page): Promise<void> {
+/** Join the running world as a named passwordless user and wait for game.ready. */
+export async function joinAsUser(page: Page, label: string): Promise<void> {
   await page.goto(`${URL}/join`, { waitUntil: "domcontentloaded" });
   const userSelect = page.locator('select[name="userid"]');
   await userSelect.waitFor({ timeout: 30_000 });
@@ -17,11 +20,16 @@ export async function joinAsGM(page: Page): Promise<void> {
     for (const o of document.querySelectorAll('select[name="userid"] option'))
       (o as HTMLOptionElement).disabled = false;
   });
-  await userSelect.selectOption({ label: "Gamemaster" });
+  await userSelect.selectOption({ label });
   await page.click('button[name="join"]');
   await page.waitForFunction(() => (globalThis as any).game?.ready === true, null, {
     timeout: 120_000,
   });
+}
+
+/** Join the running world as the passwordless Gamemaster and wait for game.ready. */
+export async function joinAsGM(page: Page): Promise<void> {
+  await joinAsUser(page, "Gamemaster");
 }
 
 /**

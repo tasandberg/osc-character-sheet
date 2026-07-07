@@ -1,5 +1,5 @@
 import { test as base, expect, type Page } from "@playwright/test";
-import { joinAsGM, closeDialogs } from "./helpers";
+import { joinAsGM, joinAsUser, closeDialogs, OBSERVER_NAME } from "./helpers";
 
 /**
  * Foundry's `game.ready` boot (~40s on a 2-core CI runner under software WebGL)
@@ -12,10 +12,12 @@ import { joinAsGM, closeDialogs } from "./helpers";
  * and one seeded actor, and their assertions are written relatively
  * (before/after counts, !wasEquipped), so order independence holds.
  *
- * A second user (player-vs-GM permission tests) would add its own context/page
- * fixture — not needed yet.
+ * `observerPage` is the second user: its own context/page joined as the seeded
+ * passwordless OBSERVER player (view-only permission on the fixture actor). It
+ * drives the read-only-sheet spec. Kept worker-scoped for the same boot-cost
+ * reason as `gamePage`.
  */
-export const test = base.extend<object, { gamePage: Page }>({
+export const test = base.extend<object, { gamePage: Page; observerPage: Page }>({
   gamePage: [
     async ({ browser }, use) => {
       const context = await browser.newContext({
@@ -23,6 +25,18 @@ export const test = base.extend<object, { gamePage: Page }>({
       });
       const page = await context.newPage();
       await joinAsGM(page);
+      await use(page);
+      await context.close();
+    },
+    { scope: "worker" },
+  ],
+  observerPage: [
+    async ({ browser }, use) => {
+      const context = await browser.newContext({
+        viewport: { width: 1920, height: 1080 },
+      });
+      const page = await context.newPage();
+      await joinAsUser(page, OBSERVER_NAME);
       await use(page);
       await context.close();
     },
