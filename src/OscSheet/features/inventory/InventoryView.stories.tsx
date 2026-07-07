@@ -1,7 +1,7 @@
-import { InventoryViewDnd } from "@features/inventory/InventoryViewDnd";
+import { InventoryView } from "@features/inventory";
 import type { InventoryItemVM, InventoryVM, EncumbranceVM } from "@domain/vm-types";
 
-export default { title: "Inventory / InventoryViewDnd" };
+export default { title: "Inventory / InventoryView" };
 
 const item = (o: Partial<InventoryItemVM> & { id: string; name: string }): InventoryItemVM => ({
   img: "",
@@ -55,7 +55,7 @@ const log = (label: string) => (...args: unknown[]) => console.log(label, ...arg
 
 export const Default = () => (
   <div className="osc-sheet-app" style={{ maxWidth: 560, padding: 16 }}>
-    <InventoryViewDnd
+    <InventoryView
       inventory={inventory}
       encumbrance={encumbrance}
       coins={coins}
