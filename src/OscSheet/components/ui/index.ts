@@ -13,6 +13,7 @@ export { Field, Input } from "./Field";
 export { ValidatedInput } from "./ValidatedInput";
 export { Textarea } from "./Textarea";
 export { ProseMirrorEditor } from "./ProseMirrorEditor";
+export { RichText } from "./RichText";
 export { Select } from "./Select";
 export { Stepper } from "./Stepper";
 export { Toggle } from "./Toggle";

@@ -74,13 +74,6 @@
 
 // Body indented under the title (past the 40px stamp + gap).
 .ft-body { padding: 0 var(--spacer-3) var(--spacer-3) 62px; }
-.ft-desc {
-  font-family: "IM Fell English", Georgia, serif;
-  font-size: var(--fs-sm, 13px); color: var(--text-dim, #b5ad97); line-height: 1.45;
-  // enriched HTML may carry its own block elements
-  p { margin: 0 0 var(--spacer-2); }
-  p:last-child { margin-bottom: 0; }
-}
 .ft-actions {
   display: flex; align-items: center; justify-content: flex-end;
   gap: var(--spacer-3);

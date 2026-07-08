@@ -9,7 +9,7 @@
 }
 
 // ── Static view card ───────────────────────────────────────────────────────
-.osc-rt {
+.osc-rich-text {
   position: relative;
   max-width: 640px; // comfortable reading measure, not the full tab width
   background: var(--bg-2, #1f1c17); // subtle: barely lifted off the page
@@ -17,24 +17,12 @@
   border-radius: var(--r-md, 6px);
   padding: var(--spacer-2, 8px) var(--spacer-3, 12px);
 }
-// Edit pencil, pinned top-right. Qualified with .osc-rt (0,2,0) so `position`
+// Edit pencil, pinned top-right. Qualified with .osc-rich-text (0,2,0) so `position`
 // beats the `.osc-sheet-app :is(button,…) { all: unset }` reset (0,1,1) —
 // otherwise it resets to static and drops into normal flow above the text.
-.osc-rt .osc-rt-edit { position: absolute; top: var(--spacer-2, 8px); right: var(--spacer-2, 8px); z-index: 2; }
-// Render in the sheet's reading serif; headings in the display face. Foundry's
-// enricher leaves headings a near-white colour — re-anchor to body.
-.osc-rt-body {
-  color: var(--text, #e7e0cc);
-  font-family: var(--serif);
-  font-size: var(--fs-lg, 16px);
-  line-height: 1.55;
-}
-.osc-rt-body :is(h1, h2, h3, h4, h5, h6) { font-family: var(--display); color: var(--text, #e7e0cc); }
-// Keep Foundry's link/roll chips in the UI sans so they stay crisp in the serif prose.
-.osc-rt-body :is(a.content-link, a.inline-roll) { font-family: var(--sans); }
-.osc-rt-body :first-child { margin-top: 0; }
-.osc-rt-body :last-child { margin-bottom: 0; }
-.osc-rt-empty { margin: 0; color: var(--text-faint, #8a8270); font-style: italic; }
+.osc-rich-text .osc-rich-text-edit { position: absolute; top: var(--spacer-2, 8px); right: var(--spacer-2, 8px); z-index: 2; }
+// Shared prose typography (.osc-rich-text-body) lives in rich-text.scss.
+.osc-rich-text-empty { margin: 0; color: var(--text-faint, #8a8270); font-style: italic; }
 
 // ── Edit mode (Foundry <prose-mirror>) ─────────────────────────────────────
 .osc-prosemirror { max-width: 640px; }

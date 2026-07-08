@@ -1,0 +1,17 @@
+// Shared prose style for Foundry-enriched rich text (RichText component). Local, not vellum.
+.osc-rich-text-body {
+  color: var(--text, #e7e0cc);
+  font-family: var(--sans);
+  font-size: var(--fs-lg, 16px);
+  line-height: 1.55;
+}
+.osc-rich-text-body :is(h1, h2, h3, h4, h5, h6) { font-family: var(--display); color: var(--text, #e7e0cc); }
+.osc-rich-text-body :is(a.content-link, a.inline-roll) { font-family: var(--sans); }
+// Accent bar follows the active --gold (flips teal by data-kind).
+.osc-rich-text-body blockquote {
+  margin: var(--spacer-3, 12px) 0;
+  padding-left: var(--spacer-3, 12px);
+  border-left: 3px solid color-mix(in srgb, var(--gold) 55%, transparent);
+}
+.osc-rich-text-body :first-child { margin-top: 0; }
+.osc-rich-text-body :last-child { margin-bottom: 0; }
