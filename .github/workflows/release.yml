@@ -87,29 +87,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # Rolling beta channel (OLD-42): runs on every published release, prerelease
-      # or not. Re-stamp the beta variant of module.json (self-referential manifest
-      # → releases/download/beta/module.json) and re-zip so module.zip embeds it —
-      # reuses this run's dist/, no rebuild. Then clobber both assets onto a fixed
-      # `beta` release, creating it (marked prerelease so it never becomes "latest")
-      # the first time. Idempotent on re-runs: create is guarded by a view check and
-      # --clobber overwrites existing assets.
-      - name: Update rolling beta channel
-        run: |
-          VERSION="${TAG#v}"
-          node tools/package.mjs "$VERSION" "$TAG" --beta
-          gh release view beta >/dev/null 2>&1 \
-            || gh release create beta --prerelease --target "$TAG" \
-                 --title "Beta channel (rolling)" \
-                 --notes "Rolling beta channel — always the newest build (prereleases included). Install once from releases/download/beta/module.json and Foundry auto-updates through every release."
-          gh release upload beta build/module.zip module.json --clobber
-        env:
-          GH_TOKEN: ${{ github.token }}
-
       # Dry-run validates the payload registry-side without saving, then the
       # real POST publishes. Re-runs are idempotent: an already-released
       # version comes back 400 unique_together, which the script treats as
       # success; any other registry error fails the job.
+      # Runs BEFORE the rolling-beta step so a beta hiccup can never block the
+      # canonical stable publish (the beta channel is a convenience layer).
       - name: Publish to Foundry package registry
         run: |
           if [ "${{ github.event.release.prerelease }}" = "true" ]; then
@@ -120,3 +103,25 @@ jobs:
           node tools/publish-registry.mjs "$TAG"
         env:
           FOUNDRY_RELEASE_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
+
+      # Rolling beta channel (OLD-42): runs on every published release, prerelease
+      # or not. Re-stamp the beta variant of module.json (self-referential manifest
+      # → releases/download/beta/module.json) and re-zip so module.zip embeds it —
+      # reuses this run's dist/, no rebuild. Then clobber both assets onto a fixed
+      # `beta` release, creating it (marked prerelease so it never becomes "latest")
+      # the first time. Idempotent on re-runs: create is guarded by a view check and
+      # --clobber overwrites existing assets.
+      # No --target: it takes a commitish, not a tag; letting it default to the
+      # repo's default branch always resolves, and the beta tag's commit is
+      # irrelevant since only its (clobbered) assets are consumed.
+      - name: Update rolling beta channel
+        run: |
+          VERSION="${TAG#v}"
+          node tools/package.mjs "$VERSION" "$TAG" --beta
+          gh release view beta >/dev/null 2>&1 \
+            || gh release create beta --prerelease \
+                 --title "Beta channel (rolling)" \
+                 --notes "Rolling beta channel — always the newest build (prereleases included). Install once from releases/download/beta/module.json and Foundry auto-updates through every release."
+          gh release upload beta build/module.zip module.json --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
