@@ -1,16 +1,20 @@
-# Publish release → attach artifacts, push registry (stable only), roll beta channel.
-# Tag = version; prereleases never become "latest". See OLD-42 for the beta channel.
+# On publish: attach artifacts + roll the beta channel (every release, prereleases
+# included — OLD-42). On `released` (stable publish OR a prerelease promoted to full):
+# push the registry. Split because `released` never fires for prereleases, and the
+# registry only ever wants full releases. Tag = version.
 name: Release
 
 on:
   release:
-    types: [published]
+    types: [published, released]
 
 permissions:
   contents: write # gh release upload
 
 jobs:
   attach-artifacts:
+    # Publish only — a stable publish also fires `released`, which would double-run this.
+    if: github.event.action == 'published'
     runs-on: ubuntu-latest
     # Use tag_name, not GITHUB_REF (unreliable when the publish creates the tag).
     env:
@@ -63,19 +67,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # Dry-run then POST; idempotent (already-released → 400 treated as success).
-      # Before the beta step so a beta failure can't block the stable publish.
-      - name: Publish to Foundry package registry
-        run: |
-          if [ "${{ github.event.release.prerelease }}" = "true" ]; then
-            echo "Prerelease — skipping registry publish."
-            exit 0
-          fi
-          node tools/publish-registry.mjs "$TAG" --dry-run
-          node tools/publish-registry.mjs "$TAG"
-        env:
-          FOUNDRY_RELEASE_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
-
       # Re-stamp/zip the beta variant and clobber onto the fixed prerelease `beta`
       # release (created once). No --target: it needs a commitish, not a tag, and
       # the beta tag's commit is irrelevant — only its clobbered assets are used.
@@ -90,3 +81,27 @@ jobs:
           gh release upload beta build/module.zip module.json --clobber
         env:
           GH_TOKEN: ${{ github.token }}
+
+  # `released` fires on a stable publish and when a prerelease is promoted to full,
+  # but never for prereleases — so the registry only ever sees full releases here,
+  # no prerelease guard needed. No build: publish-registry reads the tag + static
+  # module.json fields (id/url/compatibility).
+  publish-registry:
+    if: github.event.action == 'released'
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Dry-run then POST; idempotent (already-released → 400 treated as success).
+      - name: Publish to Foundry package registry
+        run: |
+          node tools/publish-registry.mjs "$TAG" --dry-run
+          node tools/publish-registry.mjs "$TAG"
+        env:
+          FOUNDRY_RELEASE_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
