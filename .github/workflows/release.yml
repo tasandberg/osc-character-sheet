@@ -13,6 +13,12 @@
 # never becomes what releases/latest/download (i.e. Foundry auto-update)
 # resolves to. They are also NOT pushed to the registry.
 #
+# Beta channel (OLD-42): on EVERY published release we re-stamp module.json with
+# the beta variant (manifest self-references releases/download/beta/module.json)
+# and clobber module.json + module.zip onto a fixed, prerelease `beta` release.
+# An instance installed from releases/download/beta/module.json thus rolls
+# through every build, prereleases included, without ever becoming "latest".
+#
 # The Sentry endpoint comes from the repo Actions variable VITE_SENTRY_DSN
 # (crash reports are only ever sent when a user presses the button — see
 # README). No DSN variable ⇒ the build ships with reporting compiled out.
@@ -78,6 +84,25 @@ jobs:
       # time (avoids an asset gap); these CI-built ones are canonical.
       - name: Attach assets to the release
         run: gh release upload "$TAG" build/module.zip module.json --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      # Rolling beta channel (OLD-42): runs on every published release, prerelease
+      # or not. Re-stamp the beta variant of module.json (self-referential manifest
+      # → releases/download/beta/module.json) and re-zip so module.zip embeds it —
+      # reuses this run's dist/, no rebuild. Then clobber both assets onto a fixed
+      # `beta` release, creating it (marked prerelease so it never becomes "latest")
+      # the first time. Idempotent on re-runs: create is guarded by a view check and
+      # --clobber overwrites existing assets.
+      - name: Update rolling beta channel
+        run: |
+          VERSION="${TAG#v}"
+          node tools/package.mjs "$VERSION" "$TAG" --beta
+          gh release view beta >/dev/null 2>&1 \
+            || gh release create beta --prerelease --target "$TAG" \
+                 --title "Beta channel (rolling)" \
+                 --notes "Rolling beta channel — always the newest build (prereleases included). Install once from releases/download/beta/module.json and Foundry auto-updates through every release."
+          gh release upload beta build/module.zip module.json --clobber
         env:
           GH_TOKEN: ${{ github.token }}
 
