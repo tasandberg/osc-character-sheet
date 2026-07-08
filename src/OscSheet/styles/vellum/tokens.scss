@@ -946,6 +946,27 @@ body {
 .btn.ghost { background: transparent; border-color: var(--border-soft); color: var(--text-dim); }
 .btn.sm { font-size: var(--fs-3xs); padding: 5px 9px 4px; }
 
+/* Colored outline tones — compose with variant="outline" (e.g. tone="brass" for
+   the brass-gold Attack button). Tone names match the Vellum color vocabulary;
+   generated from the map so all major theme colors stay in sync with the
+   palette and can't drift. */
+$btn-outline-tones: (
+  accent:  teal,
+  brass:   accent-alt,
+  danger:  crimson,
+  success: forest,
+  warn:    mustard,
+);
+@each $tone, $tok in $btn-outline-tones {
+  .btn.outline.tone-#{$tone} {
+    color: var(--#{$tok});
+    border-color: var(--#{$tok});
+  }
+  .btn.outline.tone-#{$tone}:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--#{$tok}) 12%, transparent);
+  }
+}
+
 /* ---------- AC toggle ---------- */
 .ac-toggle {
   display: inline-flex;

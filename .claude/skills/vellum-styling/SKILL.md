@@ -83,6 +83,12 @@ Select · Segmented · Radio · Check · Toggle · Stepper · Menu · Modal ·
 ConfirmDialog · Table · Tabs · Pips · ProgressBar · StatPlaque · Monogram ·
 PortraitField · Die · Empty · Skeleton · Toast/ToastHost · ProseMirrorEditor.
 
+`Button` — variants `primary` (brass fill) · `outline` · `danger` · `ghost`, plus
+`size="sm"`. The `outline` variant takes a color `tone`: `accent` (teal), `brass`
+(brass-gold), `danger` (crimson), `success` (forest), `warn` (mustard) — generated
+from the palette-synced `$btn-outline-tones` map in `vellum/tokens.scss`, so tone
+names track the color vocabulary and can't drift. See its Storybook story.
+
 Browse them in Storybook (`pnpm storybook`); `components/ui/Utilities.stories.tsx`
 demos the utility classes live.
 
