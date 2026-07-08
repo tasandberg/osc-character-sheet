@@ -3,13 +3,19 @@ import type { TopbarVM } from "@domain/vm-types";
 import { toggleTheme } from "@src/OscSheet/theme";
 import { FEATURES } from "@app/features";
 
-type Props = { vm: TopbarVM; onEdit: () => void; onLevelUp: () => void };
+type Props = {
+  vm: TopbarVM;
+  onEdit: () => void;
+  onLevelUp: () => void;
+  /** When false (read-only sheet) the character-editing actions are omitted. */
+  canEdit?: boolean;
+};
 
 /** Persistent topbar: level, XP, and sheet controls. The bar stays dark in both
  *  themes (--ink). Rest and Level Up are gated behind FEATURES until implemented;
  *  Edit opens the Edit Character modal; the theme toggle is live. At XS the
  *  action buttons collapse into a ⋮ overflow menu. */
-export function Topbar({ vm, onEdit, onLevelUp }: Props) {
+export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
   const pct = vm.pct;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -26,7 +32,9 @@ export function Topbar({ vm, onEdit, onLevelUp }: Props) {
     return () => document.removeEventListener("mousedown", onDown);
   }, [menuOpen]);
 
-  const actionButtons = (
+  // Character-editing actions (Rest/Level Up/Edit) are owner-only; the theme
+  // toggle below stays available to everyone (client-side setting).
+  const actionButtons = canEdit ? (
     <>
       {FEATURES.rest && (
         <button type="button" className="osc-tb-btn" disabled>
@@ -45,7 +53,7 @@ export function Topbar({ vm, onEdit, onLevelUp }: Props) {
         <span className="lbl">Edit</span>
       </button>
     </>
-  );
+  ) : null;
 
   return (
     <div className="osc-topbar-inner">
@@ -65,18 +73,21 @@ export function Topbar({ vm, onEdit, onLevelUp }: Props) {
       </div>
       {/* Inline actions (hidden at XS via .osc-tb-actions display:none) */}
       <div className="osc-tb-actions">{actionButtons}</div>
-      {/* XS overflow ⋮ (hidden above XS via .osc-tb-overflow display:none) */}
-      <div className="osc-tb-menu-wrap" ref={menuRef}>
-        <button
-          type="button"
-          className="osc-tb-btn osc-tb-overflow"
-          aria-label="More actions"
-          onClick={() => setMenuOpen((o) => !o)}
-        >
-          <span className="i" aria-hidden="true">⋮</span>
-        </button>
-        {menuOpen && <div className="osc-tb-menu">{actionButtons}</div>}
-      </div>
+      {/* XS overflow ⋮ (hidden above XS via .osc-tb-overflow display:none). Only
+          shown when there are owner actions to collapse into it. */}
+      {actionButtons && (
+        <div className="osc-tb-menu-wrap" ref={menuRef}>
+          <button
+            type="button"
+            className="osc-tb-btn osc-tb-overflow"
+            aria-label="More actions"
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <span className="i" aria-hidden="true">⋮</span>
+          </button>
+          {menuOpen && <div className="osc-tb-menu">{actionButtons}</div>}
+        </div>
+      )}
       <button
         type="button"
         className="osc-tb-btn icon"

@@ -15,7 +15,8 @@ export function ItemContextMenu({
   onSend,
 }: {
   menu: MenuState;
-  /** Whether the current user owns this actor. Non-owners get view-only. */
+  /** Global edit gate (see useOscSheetContext().canEdit). Non-owners get a
+   *  view-only menu — only "View Item" remains. */
   canEdit: boolean;
   onClose: () => void;
   onOpen: (id: string) => void;

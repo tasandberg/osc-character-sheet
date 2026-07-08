@@ -14,7 +14,7 @@ export default function EditableContent({
   name: string;
   value: string;
 }) {
-  const { actor, updateActor } = useOscSheetContext();
+  const { actor, updateActor, canEdit } = useOscSheetContext();
   const [enriched, setEnriched] = useState<string>("");
   const [editing, setEditing] = useState(false);
 
@@ -64,15 +64,17 @@ export default function EditableContent({
         </div>
       ) : (
         <div className={`osc-rt themed ${fdTheme}`}>
-          <IconButton
-            variant="accent"
-            className="osc-rt-edit"
-            title={`Edit ${title}`}
-            aria-label={`Edit ${title}`}
-            onClick={() => setEditing(true)}
-          >
-            <i className="fa-solid fa-pen-to-square" aria-hidden="true" />
-          </IconButton>
+          {canEdit && (
+            <IconButton
+              variant="accent"
+              className="osc-rt-edit"
+              title={`Edit ${title}`}
+              aria-label={`Edit ${title}`}
+              onClick={() => setEditing(true)}
+            >
+              <i className="fa-solid fa-pen-to-square" aria-hidden="true" />
+            </IconButton>
+          )}
           {enriched.trim() ? (
             <div className="osc-rt-body" dangerouslySetInnerHTML={{ __html: enriched }} />
           ) : (

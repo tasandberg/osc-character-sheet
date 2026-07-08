@@ -169,3 +169,18 @@
     text-decoration: none;
   }
 }
+
+// Read-only mode (observers / non-owners): the sheet renders view-only. Write
+// affordances are gated out per-control in React; this class is the broad,
+// consistent CSS signal for the residual static bits.
+.osc-sheet-app.is-readonly {
+  // Inventory: drag handles are meaningless without drag (disabled for non-owners),
+  // so hide them; the equipped indicator renders as a static, non-interactive glyph.
+  .osc-inv-drag {
+    display: none;
+  }
+  .osc-inv-equip.is-static {
+    cursor: default;
+    pointer-events: none;
+  }
+}

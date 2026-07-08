@@ -16,6 +16,9 @@ type Props = {
   /** Foundry item drag-data for a weapon, so its card drops onto the macro hotbar
    *  to create an attack macro (same as an inventory row). undefined = not draggable. */
   dragData?: (itemId: string) => string | undefined;
+  /** The composite Attack roll can write to the actor/item (e.g. missile ammo
+   *  decrement), so it's owner-only. false hides the Attack button. Default true. */
+  canAttack?: boolean;
 };
 
 /** Monogram glyph for the ink-stamp weapon icon (first letter, Title-case). */
@@ -27,7 +30,7 @@ const kindIcon = (kind: "melee" | "missile") => (kind === "melee" ? "fa-sword" :
 
 /** One weapon card. A melee+missile weapon shows both kind tags as a toggle
  *  (melee active by default); the active mode drives Hit/Dmg. */
-function WeaponRow({ a, onRoll, onAttack, onOpen, dragData }: { a: AttackVM; onRoll?: Props["onRoll"]; onAttack?: Props["onAttack"]; onOpen?: Props["onOpen"]; dragData?: Props["dragData"] }) {
+function WeaponRow({ a, onRoll, onAttack, onOpen, dragData, canAttack = true }: { a: AttackVM; onRoll?: Props["onRoll"]; onAttack?: Props["onAttack"]; onOpen?: Props["onOpen"]; dragData?: Props["dragData"]; canAttack?: boolean }) {
   const [active, setActive] = useState(0); // index into a.modes (melee = 0)
   const mode = a.modes[active] ?? a.modes[0];
   const dual = a.modes.length > 1;
@@ -151,19 +154,21 @@ function WeaponRow({ a, onRoll, onAttack, onOpen, dragData }: { a: AttackVM; onR
         <span className="tag-pop" role="tooltip">{mode.dmgTip}</span>
       </button>
 
-      <button
-        type="button"
-        className="fvtt-atk"
-        data-testid={`weapon-attack-${a.itemId}`}
-        {...macroDrag}
-        disabled={!onAttack}
-        onClick={() => onAttack?.(a.itemId)}
-        title="Attack roll (hit + damage)"
-        aria-label={`Attack with ${a.name}`}
-      >
-        <i className="fa-solid fa-dice-d20" aria-hidden="true" />
-        <span>Attack</span>
-      </button>
+      {canAttack && (
+        <button
+          type="button"
+          className="fvtt-atk"
+          data-testid={`weapon-attack-${a.itemId}`}
+          {...macroDrag}
+          disabled={!onAttack}
+          onClick={() => onAttack?.(a.itemId)}
+          title="Attack roll (hit + damage)"
+          aria-label={`Attack with ${a.name}`}
+        >
+          <i className="fa-solid fa-dice-d20" aria-hidden="true" />
+          <span>Attack</span>
+        </button>
+      )}
     </div>
   );
 }
@@ -171,13 +176,13 @@ function WeaponRow({ a, onRoll, onAttack, onOpen, dragData }: { a: AttackVM; onR
 /** Equipped-weapon attacks as woodcut weapon cards: ink-stamp monogram, name +
  *  melee/missile + quality tags, clickable HIT/DMG stat cells (FA dice), and a
  *  tall brass Attack button (full hit + damage via the OSE weapon dialog). */
-export function AttacksTable({ attacks, onRoll, onAttack, onOpen, dragData }: Props) {
+export function AttacksTable({ attacks, onRoll, onAttack, onOpen, dragData, canAttack = true }: Props) {
   return (
     <section className="osc-section osc-atk">
       <SectionTitle hint="click to roll">Attacks</SectionTitle>
       <div className="osc-wtable">
         {attacks.map((a) => (
-          <WeaponRow key={a.id} a={a} onRoll={onRoll} onAttack={onAttack} onOpen={onOpen} dragData={dragData} />
+          <WeaponRow key={a.id} a={a} onRoll={onRoll} onAttack={onAttack} onOpen={onOpen} dragData={dragData} canAttack={canAttack} />
         ))}
       </div>
     </section>

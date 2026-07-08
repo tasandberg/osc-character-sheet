@@ -34,6 +34,7 @@ function useEnriched(html: string): string {
  * click anywhere else on the header) expands the description.
  */
 export function FeatureCard({ feature }: { feature: FeatureVM }) {
+  const { canEdit } = useOscSheetContext();
   const [open, setOpen] = useState(false);
   const desc = useEnriched(feature.description);
   const monogram = feature.name.charAt(0).toUpperCase();
@@ -93,16 +94,18 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
             className="ft-desc"
             dangerouslySetInnerHTML={{ __html: desc }}
           />
-          <div className="ft-actions">
-            <IconButton
-              variant="danger"
-              title="Delete ability"
-              aria-label="Delete ability"
-              onClick={feature.onDelete}
-            >
-              <i className="fas fa-trash" aria-hidden="true" />
-            </IconButton>
-          </div>
+          {canEdit && (
+            <div className="ft-actions">
+              <IconButton
+                variant="danger"
+                title="Delete ability"
+                aria-label="Delete ability"
+                onClick={feature.onDelete}
+              >
+                <i className="fas fa-trash" aria-hidden="true" />
+              </IconButton>
+            </div>
+          )}
         </div>
       )}
     </div>

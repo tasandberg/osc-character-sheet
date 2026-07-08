@@ -1,5 +1,5 @@
 import { chromium, type FullConfig } from "@playwright/test";
-import { joinAsGM, ACTOR_NAME } from "./helpers";
+import { joinAsGM, ACTOR_NAME, OBSERVER_NAME } from "./helpers";
 
 const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/, "");
 const MODULE_ID = "osc-character-sheet";
@@ -75,6 +75,27 @@ export default async function globalSetup(_config: FullConfig): Promise<void> {
         await actor.setFlag("core", "sheetClass", sheetClass);
       },
       { name: ACTOR_NAME, sheetClass: SHEET_CLASS },
+    );
+
+    // Seed a passwordless PLAYER user with OBSERVER (view-only) permission on the
+    // fixture actor — drives the read-only-sheet spec (a non-owner opening a
+    // character they don't own). Idempotent: recreate the user each run.
+    await page.evaluate(
+      async ({ actorName, userName }) => {
+        const g = globalThis as any;
+        const existing = g.game.users.getName(userName);
+        if (existing) await existing.delete();
+        const user = await g.User.create({
+          name: userName,
+          role: g.CONST.USER_ROLES.PLAYER, // 1
+        });
+        const actor = g.game.actors.getName(actorName);
+        // OBSERVER (2): can view the sheet, cannot edit. Owner (GM) stays intact.
+        await actor.update({
+          [`ownership.${user.id}`]: g.CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER,
+        });
+      },
+      { actorName: ACTOR_NAME, userName: OBSERVER_NAME },
     );
 
     // Sanity: actor exists and resolves the OSC sheet class.

@@ -8,6 +8,7 @@ import { useDragReorder } from "@features/inventory/useDragReorder";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { SortHeader } from "@features/inventory/SortHeader";
 import type { OnContext } from "@features/inventory/types";
+import { useOscSheetContext } from "@app/context";
 import { Button } from "@ui/Button";
 import { cx } from "@ui/cx";
 
@@ -36,6 +37,8 @@ export function WealthSection({
   /** Right-click a coin row → the shared item context menu (View / Delete). */
   onContext: OnContext;
 }) {
+  // Read-only sheets (non-owners): coin qty is view-only, no drag-reorder.
+  const { canEdit } = useOscSheetContext();
   const [open, setOpen] = useState(false);
   const [order, setOrder] = useState<string[]>([]);
   const [sort, setSort] = useState<{ key: CoinSortKey; dir: SortDir }>({ key: "manual", dir: "asc" });
@@ -72,6 +75,7 @@ export function WealthSection({
       });
 
   const dnd = useDragReorder({
+    enabled: canEdit,
     onReorder: ({ from, to }) => {
       // Bake the current (possibly sorted) order, then drop to manual so the drag shows.
       const next = [...rows];
@@ -184,7 +188,7 @@ export function WealthSection({
                 <span
                   className="osc-inv-drag"
                   title="Drag to reorder"
-                  draggable
+                  draggable={canEdit}
                   onDragStart={rp.onDragStart}
                   onDragEnd={rp.onDragEnd}
                 >
@@ -207,6 +211,9 @@ export function WealthSection({
                   data-testid={`coin-qty-${c.denom.toLowerCase()}`}
                   value={draft[c.denom] ?? String(c.value)}
                   aria-label={`${c.name} quantity`}
+                  // Read-only sheets: coin qty is view-only.
+                  readOnly={!canEdit}
+                  disabled={!canEdit}
                   onChange={(e) => setDraft((d) => ({ ...d, [c.denom]: e.target.value }))}
                   onFocus={(e) => e.currentTarget.select()}
                   onKeyDown={(e) => { if (e.key === "Enter") { commit(c); setOpen(false); } }}

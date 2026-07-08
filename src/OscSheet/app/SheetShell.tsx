@@ -44,6 +44,7 @@ export default function SheetShell() {
     setCurrentTab,
     updateActor,
     optimisticUpdate,
+    canEdit,
   } = useOscSheetContext();
   const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
@@ -74,7 +75,8 @@ export default function SheetShell() {
       travel: movement.overland,
     },
   };
-  const onSetHp = (value: number) => {
+  // Read-only sheets get no HP stepper/input (undefined onSetHp → static value).
+  const onSetHp = !canEdit ? undefined : (value: number) => {
     const next = Math.max(0, Math.min(vitals.hp.max, value));
     if (next === vitals.hp.value) return;
     const update = { "system.hp.value": next };
@@ -85,6 +87,33 @@ export default function SheetShell() {
 
   const resolveItem = (id: string) =>
     (invItems as OseItem[]).find((i) => i._id === id);
+
+  // --- Item write layer (structural read-only gate) -------------------------
+  // Every item mutation funnels through these three primitives, which refuse the
+  // write when !canEdit. This keeps read-only STRUCTURAL: a new or ungated item
+  // control can never reach Foundry, independent of the per-control UI gating
+  // (kept as defense-in-depth). A refused write no-ops silently; Foundry also
+  // rejects it server-side for non-owners.
+  const writeItem = (
+    it: OseItem,
+    update: Record<string, unknown>,
+    optimisticKey?: string,
+  ) => {
+    if (!canEdit) return;
+    if (optimisticKey && optimisticUpdate)
+      optimisticUpdate(optimisticKey, update, () => it.update(update));
+    else void it.update(update);
+  };
+  const deleteItem = (it: OseItem) => {
+    if (!canEdit) return;
+    void it.delete();
+  };
+  const embedUpdate = (updates: object[]) => {
+    if (!canEdit) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    void (actor as any).updateEmbeddedDocuments("Item", updates);
+  };
+
   const onEquipItem = (id: string) => {
     const it = resolveItem(id);
     if (!it || !("equipped" in it.system)) return;
@@ -109,8 +138,7 @@ export default function SheetShell() {
       update[flagPath(FLAGS.equippedOrder)] = maxEq + 100;
     }
     // Optimistic: flip the hand instantly, reconcile when Foundry confirms.
-    if (optimisticUpdate) optimisticUpdate(id, update, () => it.update(update));
-    else void it.update(update);
+    writeItem(it, update, id);
     if (leftContainer) {
       const container = resolveItem(fromContainerId!);
       toast({
@@ -125,21 +153,16 @@ export default function SheetShell() {
   const onSetCoin = (id: string, value: number) => {
     const it = resolveItem(id);
     if (!it) return;
-    const update = { "system.quantity.value": value };
-    if (optimisticUpdate) optimisticUpdate(id, update, () => it.update(update));
-    else void it.update(update);
+    writeItem(it, { "system.quantity.value": value }, id);
   };
   // Consume one: decrement the item's quantity (floored at 0).
   const onConsume = (id: string) => {
     const it = resolveItem(id);
     const cur =
       (it?.system as { quantity?: { value: number } })?.quantity?.value ?? 0;
-    if (it && cur > 0) void it.update({ "system.quantity.value": cur - 1 });
+    if (it && cur > 0) writeItem(it, { "system.quantity.value": cur - 1 });
   };
 
-  const embedUpdate = (updates: object[]) =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    void (actor as any).updateEmbeddedDocuments("Item", updates);
   // Manual order is stored in our own flag (not Foundry's `sort`, which the core
   // sheet and other modules also write).
   const onReorder = (u: { id: string; sort: number }[]) =>
@@ -178,13 +201,16 @@ export default function SheetShell() {
     );
     if (kids.length)
       embedUpdate(kids.map((k) => ({ _id: k._id, "system.containerId": "" })));
-    void it.delete();
+    deleteItem(it);
   };
 
   // Send an item to another actor. Direct apply when I own the target; otherwise
   // relay the whole op through the active GM. Pure plan/route logic lives in
   // sendItem.ts; the socket + apply routine in sendItemSocket.ts.
   const onSend = (itemId: string, target: SendTargetVM, qty: number) => {
+    // Send mutates the SOURCE actor (delete/decrement), so it's part of the write
+    // layer — refuse it read-only (both the local applySend and the GM relay).
+    if (!canEdit) return;
     const it = resolveItem(itemId);
     if (!it) return;
     // Resolve the picked token's actor by UUID (fromUuidSync handles linked and
@@ -264,7 +290,7 @@ export default function SheetShell() {
 
   return (
     <>
-      <EditModal open={editOpen} onClose={() => setEditOpen(false)} />
+      <EditModal open={editOpen && canEdit} onClose={() => setEditOpen(false)} />
       <Frame
         tabs={items}
         active={activeTab.id}
@@ -275,6 +301,7 @@ export default function SheetShell() {
         topbar={
           <Topbar
             vm={selectTopbar(actor)}
+            canEdit={canEdit}
             onEdit={() => setEditOpen(true)}
             onLevelUp={() =>
               toast({
@@ -290,8 +317,16 @@ export default function SheetShell() {
             identity={identity}
             vitals={vitals}
             onSetHp={onSetHp}
-            onPortraitContextMenu={() => showTokenVariantsPortraitPicker(actor)}
-            canEditPortrait={actor.isOwner}
+            // Intentionally gated on canEdit (= Foundry `sheet.isEditable`), not
+            // raw actor.isOwner: a locked/compendium sheet legitimately shouldn't
+            // expose write affordances even to an owner. Same rationale for the
+            // inventory context-menu / Send gates.
+            onPortraitContextMenu={
+              canEdit
+                ? () => showTokenVariantsPortraitPicker(actor)
+                : undefined
+            }
+            canEditPortrait={canEdit}
           />
         }
         minibar={

@@ -15,6 +15,9 @@ export type OscSheetAppProps = {
   actor?: OSEActor;
   source?: OSEActor;
   contextConnector: ContextConnector<OscContext>;
+  /** Foundry's `sheet.isEditable`. When omitted, edit gating falls back to
+   *  `actor.isOwner` (e.g. Storybook / tests that mount the app directly). */
+  isEditable?: boolean;
 };
 
 // Define the shape of your context value here
@@ -25,6 +28,9 @@ export interface OscSheetContextValue {
   actorData: OSEActor["_source"]["system"];
   currentTab: TabIds;
   setCurrentTab: (tabId: TabIds) => void;
+  /** Global edit gate: true for owners, false for observers/limited (read-only
+   *  sheet). Components hide/disable write affordances when false. */
+  canEdit: boolean;
   updateActor: (updateData: {
     [key: string]: string | number | string[];
   }) => Promise<OSEActor | void>;

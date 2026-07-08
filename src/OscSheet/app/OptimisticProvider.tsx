@@ -17,7 +17,7 @@ const ACTOR_KEY = "actor";
  */
 export function OptimisticProvider({ children }: { children: ReactNode }) {
   const parent = useOscSheetContext();
-  const { actor, items } = parent;
+  const { actor, items, canEdit } = parent;
   const [pending, setPending] = useState<Pending>({});
 
   // Reconcile against Foundry truth on every sync: keep only patches it hasn't
@@ -51,12 +51,14 @@ export function OptimisticProvider({ children }: { children: ReactNode }) {
 
   const optimisticUpdate = useCallback(
     (key: string, patch: FlatPatch, commit: () => Promise<unknown>, debounceMs = 250) => {
+      // Read-only sheets: refuse at the write layer — no overlay, no backend commit.
+      if (!canEdit) return;
       setPending((p) => ({ ...p, [key]: { ...p[key], ...patch } })); // overlay now
       writes.current[key] = commit; // latest write wins
       clearTimeout(timers.current[key]);
       timers.current[key] = setTimeout(() => flush(key), debounceMs);
     },
-    [flush],
+    [flush, canEdit],
   );
 
   // Flush in-flight debounced writes on unmount (sheet close) so none are lost.
