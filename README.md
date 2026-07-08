@@ -10,19 +10,21 @@ A fresh, responsive character sheet for **[Old School Essentials](https://necrot
 
 ## Install
 
-The OSC Character Sheet will be on the official Foundry package listing soon. Until then, install by manifest:
-
-1. In Foundry, open **Add-on Modules → Install Module**.
-2. Paste this **Manifest URL** into the bottom field:
-
-   ```
-   https://raw.githubusercontent.com/tasandberg/osc-character-sheet/main/module.json
-   ```
-
-3. Click **Install**.
-4. Launch your OSE world, then enable **Old-School Chronicle: Character Sheet** under **Game Settings → Manage Modules**.
+In Foundry, open **Add-on Modules → Install Module**, search **Old-School Chronicle: Character Sheet**, and click **Install**. Then launch your OSE world and enable it under **Game Settings → Manage Modules**.
 
 Open any character actor — the OSC Character Sheet takes over automatically.
+
+### Beta channel (developers only)
+
+> ⚠️ **For development and testing — not for live campaigns.** The beta channel tracks every build the moment it's tagged, prereleases included, so it may contain unstable, unfinished, or broken features. Use it to preview or test upcoming work, never at the table.
+
+Install from the rolling beta manifest (Foundry auto-updates through every build):
+
+```
+https://github.com/tasandberg/osc-character-sheet/releases/download/beta/module.json
+```
+
+Paste it into the **Manifest URL** field of the Install Module dialog. It installs as **… [Beta]** and shares the stable module's id, so run one or the other — never both.
 
 ## Why OSC Character Sheet
 
