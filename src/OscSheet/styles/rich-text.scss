@@ -1,12 +1,4 @@
-// Canonical long-form prose style for Foundry-enriched rich text — the single
-// source of truth shared by Notes and ability descriptions (see the RichText
-// component). LOCAL, not vellum: it styles Foundry's enricher output
-// (`.content-link`, `.inline-roll`) and pairs with the Foundry `.themed` scope
-// the RichText component applies, so it's a Foundry-integration concern that
-// deliberately stays out of the pure design system.
-
-// Render prose in the readable UI sans; headings in the display face. Foundry's
-// enricher leaves headings a near-white colour — re-anchor to body.
+// Shared prose style for Foundry-enriched rich text (RichText component). Local, not vellum.
 .osc-rich-text-body {
   color: var(--text, #e7e0cc);
   font-family: var(--sans);
@@ -14,12 +6,8 @@
   line-height: 1.55;
 }
 .osc-rich-text-body :is(h1, h2, h3, h4, h5, h6) { font-family: var(--display); color: var(--text, #e7e0cc); }
-// Link/roll chips already inherit the sans body font.
 .osc-rich-text-body :is(a.content-link, a.inline-roll) { font-family: var(--sans); }
-// Blockquote: keep the default italic; a left accent bar that follows the sheet's
-// active accent (brass for PCs, teal for retainers — the --gold chain flips by
-// data-kind, see styles.scss), dimmed via color-mix so it reads as a rule. Left
-// padding clears the bar; default browser quote margins dropped for our rhythm.
+// Accent bar follows the active --gold (flips teal by data-kind).
 .osc-rich-text-body blockquote {
   margin: var(--spacer-3, 12px) 0;
   padding-left: var(--spacer-3, 12px);

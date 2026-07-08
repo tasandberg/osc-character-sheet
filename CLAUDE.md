@@ -4,6 +4,13 @@ React OSE character sheet for Foundry v13/v14. Consumes `foundry-vtt-react`; ren
 `ose` system's data model. Manifest is `module.json`. Workspace-level cross-project context
 lives in `../CLAUDE.md`.
 
+## Code comments (hard rule)
+
+- Default to NO comment. Add one ONLY for a constraint the code can't show.
+- If you must: ONE short line. Never multi-line blocks or paragraphs.
+- NEVER reference Linear tickets (OSC-##) in code comments — that context lives in the PR/commit.
+- No rationale / tool-choice / background prose in source; it goes in the PR or commit message.
+
 ## Dev
 
 - pnpm. `pnpm dev` (vite, serves into local Foundry), `pnpm build` (`tsc -b && vite build`),
