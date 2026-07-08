@@ -1,0 +1,10 @@
+import{i as e,s as t}from"./preload-helper-xPQekRTU.js";import{n,t as r}from"./iframe-CYViEK4o.js";import{n as i,t as a}from"./cx-DHrSZD_0.js";function o({options:e,value:t,onValueChange:n,className:r}){return(0,s.jsx)(`div`,{className:i(`segmented`,r),children:e.map(e=>(0,s.jsx)(`button`,{type:`button`,className:i(e.value===t&&`on`),onClick:()=>n(e.value),children:e.label},e.value))})}var s,c=e((()=>{a(),s=r(),o.__docgenInfo={description:`@category Controls`,methods:[],displayName:`Segmented`,props:{options:{required:!0,tsType:{name:`Array`,elements:[{name:`signature`,type:`object`,raw:`{ value: T; label: string }`,signature:{properties:[{key:`value`,value:{name:`T`,required:!0}},{key:`label`,value:{name:`string`,required:!0}}]}}],raw:`Option<T>[]`},description:``},value:{required:!0,tsType:{name:`T`},description:``},onValueChange:{required:!0,tsType:{name:`signature`,type:`function`,raw:`(next: T) => void`,signature:{arguments:[{type:{name:`T`},name:`next`}],return:{name:`void`}}},description:``},className:{required:!1,tsType:{name:`string`},description:``}}}})),l,u,d,f,p;e((()=>{l=t(n(),1),c(),u=r(),d={title:`Controls / Segmented`},f=()=>{let[e,t]=l.useState(`combat`);return(0,u.jsx)(o,{options:[{value:`combat`,label:`Combat`},{value:`spells`,label:`Spells`}],value:e,onValueChange:t})},f.__docgenInfo={description:``,methods:[],displayName:`Interactive`},f.parameters={...f.parameters,docs:{...f.parameters?.docs,source:{originalSource:`() => {
+  const [value, setValue] = React.useState("combat");
+  return <Segmented options={[{
+    value: "combat",
+    label: "Combat"
+  }, {
+    value: "spells",
+    label: "Spells"
+  }]} value={value} onValueChange={setValue} />;
+}`,...f.parameters?.docs?.source}}},p=[`Interactive`]}))();export{f as Interactive,p as __namedExportsOrder,d as default};
