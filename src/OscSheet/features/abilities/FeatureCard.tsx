@@ -4,6 +4,7 @@ import { useOscSheetContext } from "@app/context";
 import { cx } from "@ui/cx";
 import { IconButton } from "@ui/IconButton";
 import { Monogram } from "@ui/Monogram";
+import { RichText } from "@ui/RichText";
 
 /** Enrich raw HTML once via Foundry's TextEditor (links, inline rolls, embeds). */
 function useEnriched(html: string): string {
@@ -90,10 +91,7 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
       </div>
       {open && (
         <div className="ft-body">
-          <div
-            className="osc-rich-text-body"
-            dangerouslySetInnerHTML={{ __html: desc }}
-          />
+          <RichText html={desc} />
           {canEdit && (
             <div className="ft-actions">
               <IconButton
