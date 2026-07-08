@@ -3,6 +3,14 @@ name: E2E Test Suite
 # Runs the osc-character-sheet Playwright E2E specs headlessly against a real Foundry
 # v14 server (OSE system + osc-character-sheet module). Needs repo secrets
 # FOUNDRY_USERNAME / FOUNDRY_PASSWORD — see tools/e2e/README.md.
+#
+# `e2e` is a REQUIRED check (main ruleset), so it must always report a status —
+# a `paths:` trigger filter would leave the check pending forever and block the
+# PR. Instead the job always starts, a cheap first step decides whether anything
+# E2E-relevant changed, and every heavy step is gated on it. No relevant change ⇒
+# the job goes green in seconds without spinning up Foundry. Detection uses gh/git
+# only (no third-party action — this job runs under pull_request_target with the
+# license secrets present).
 
 on:
   push:
@@ -38,7 +46,38 @@ jobs:
       FOUNDRY_URL: http://localhost:30000
 
     steps:
+      # Decide whether anything the suite depends on changed. Runs before checkout
+      # (no untrusted code, no secrets) via the GitHub API — an irrelevant PR never
+      # even checks out the PR head. workflow_dispatch always runs.
+      - name: Detect E2E-relevant changes
+        id: filter
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch — running."; echo "relevant=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if [ "${{ github.event_name }}" = "pull_request_target" ]; then
+            files=$(gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/pulls/${{ github.event.pull_request.number }}/files" \
+              -q '.[].filename')
+          else
+            files=$(gh api \
+              "repos/$GITHUB_REPOSITORY/compare/${{ github.event.before }}...${{ github.sha }}" \
+              -q '.files[].filename' 2>/dev/null || echo "__ALL__")
+          fi
+          echo "Changed files:"; echo "$files"
+          # __ALL__ (e.g. branch-creation push with no diff base) ⇒ run to be safe.
+          if [ "$files" = "__ALL__" ] || echo "$files" | grep -qE \
+            '^(src/|templates/|lang/|tools/e2e/|module\.json|package\.json|pnpm-lock\.yaml|\.github/workflows/e2e\.yml)'; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "relevant=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No E2E-relevant changes — skipping the suite (check reports green)."
+          fi
+
       - name: Fail early if Foundry credentials are missing
+        if: steps.filter.outputs.relevant == 'true'
         env:
           FOUNDRY_USERNAME: ${{ secrets.FOUNDRY_USERNAME }}
           FOUNDRY_PASSWORD: ${{ secrets.FOUNDRY_PASSWORD }}
@@ -50,23 +89,27 @@ jobs:
           fi
 
       - name: Checkout
+        if: steps.filter.outputs.relevant == 'true'
         uses: actions/checkout@v4
         with:
           # PR head, not the base ref pull_request_target defaults to (gated by the job `if`).
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup pnpm
+        if: steps.filter.outputs.relevant == 'true'
         uses: pnpm/action-setup@v4
         with:
           version: 10.33.0
 
       - name: Setup Node.js 22
+        if: steps.filter.outputs.relevant == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
 
       - name: Pull Foundry image and resolve version
+        if: steps.filter.outputs.relevant == 'true'
         run: |
           docker pull "felddy/foundryvtt:${FOUNDRY_VERSION}"
           # felddy labels the image with the exact build it installs — stabilizes the cache key.
@@ -78,6 +121,7 @@ jobs:
 
       # Caching the Foundry zip (felddy's CONTAINER_CACHE) is the biggest win: warm boot ~5-10s.
       - name: Cache Foundry distribution
+        if: steps.filter.outputs.relevant == 'true'
         uses: actions/cache@v4
         with:
           path: ${{ env.DATA_DIR }}/container_cache
@@ -86,11 +130,13 @@ jobs:
             foundry-dist-
 
       - name: Build the osc-character-sheet module
+        if: steps.filter.outputs.relevant == 'true'
         run: |
           pnpm install --frozen-lockfile
           pnpm build
 
       - name: Assemble Foundry data directory (OSE + osc-character-sheet + world)
+        if: steps.filter.outputs.relevant == 'true'
         run: |
           mkdir -p "${DATA_DIR}"
           tools/e2e/setup-data-dir.sh "${DATA_DIR}" "${GITHUB_WORKSPACE}"
@@ -100,6 +146,7 @@ jobs:
 
       # Start the container first so it boots while the runner deps install below.
       - name: Start Foundry container
+        if: steps.filter.outputs.relevant == 'true'
         env:
           FOUNDRY_USERNAME: ${{ secrets.FOUNDRY_USERNAME }}
           FOUNDRY_PASSWORD: ${{ secrets.FOUNDRY_PASSWORD }}
@@ -116,12 +163,14 @@ jobs:
             "felddy/foundryvtt:${FOUNDRY_VERSION}"
 
       - name: Cache Playwright browsers
+        if: steps.filter.outputs.relevant == 'true'
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('tools/e2e/package.json') }}
 
       - name: Install E2E runner dependencies
+        if: steps.filter.outputs.relevant == 'true'
         working-directory: tools/e2e
         run: |
           npm install --no-package-lock --no-audit --no-fund
@@ -134,6 +183,7 @@ jobs:
           npx playwright install chromium --with-deps
 
       - name: Wait for Foundry to be healthy
+        if: steps.filter.outputs.relevant == 'true'
         run: |
           echo "Waiting for the Foundry container to become healthy..."
           for i in $(seq 1 60); do
@@ -156,6 +206,7 @@ jobs:
       # host-bound license signature, which can't be pre-committed), then restart so felddy's
       # FOUNDRY_WORLD auto-launches the world server-side. Clear the stale lock felddy leaves behind.
       - name: Accept EULA
+        if: steps.filter.outputs.relevant == 'true'
         working-directory: tools/e2e
         run: |
           node activate-world.mjs --phase eula \
@@ -163,6 +214,7 @@ jobs:
             --wait 240
 
       - name: Restart Foundry to auto-launch the world
+        if: steps.filter.outputs.relevant == 'true'
         run: |
           docker stop -t 30 foundry
           sudo rm -rf "${DATA_DIR}/Config/options.json.lock"
@@ -185,6 +237,7 @@ jobs:
           exit 1
 
       - name: Wait for world activation
+        if: steps.filter.outputs.relevant == 'true'
         working-directory: tools/e2e
         run: |
           node activate-world.mjs --phase await \
@@ -192,11 +245,12 @@ jobs:
             --wait 240
 
       - name: Run Playwright E2E suite
+        if: steps.filter.outputs.relevant == 'true'
         working-directory: tools/e2e
         run: npx playwright test --forbid-only --workers=1
 
       - name: Upload Playwright report
-        if: always()
+        if: always() && steps.filter.outputs.relevant == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
@@ -204,5 +258,5 @@ jobs:
           if-no-files-found: warn
 
       - name: Dump Foundry logs on failure
-        if: failure()
+        if: failure() && steps.filter.outputs.relevant == 'true'
         run: docker logs foundry || true

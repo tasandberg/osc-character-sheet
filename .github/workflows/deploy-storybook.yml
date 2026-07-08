@@ -1,10 +1,19 @@
 name: Deploy Storybook
 
-# Republish the Storybook UI-library preview on every merge to main.
-# Served at https://tasandberg.github.io/osc-character-sheet/storybook/.
+# Republish the Storybook UI-library preview when a merge to main touches
+# something the build depends on. Served at
+# https://tasandberg.github.io/osc-character-sheet/storybook/.
+# Not a required check, so a plain paths filter is safe — a docs-only push just
+# skips the redeploy.
 on:
   push:
     branches: [main]
+    paths:
+      - "src/**"
+      - ".storybook/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/deploy-storybook.yml"
 
 # peaceiris/actions-gh-pages pushes to the gh-pages branch via GITHUB_TOKEN.
 permissions:
