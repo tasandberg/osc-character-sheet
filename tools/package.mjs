@@ -41,6 +41,7 @@ const tag = tagArg || version;
 const manifest = JSON.parse(readFileSync("./module.json", "utf8"));
 manifest.version = version;
 if (beta) {
+  manifest.title = `${manifest.title} [Beta]`;
   manifest.manifest = `${manifest.url}/releases/download/beta/module.json`;
   manifest.download = `${manifest.url}/releases/download/beta/module.zip`;
 } else {
