@@ -94,13 +94,12 @@ threshold** (the last level at which the class gains a *new* full hit die).
 
 **Below/at name level** (`toLevel <= nameLevel`, HD count increases):
 - Gain **one new die** of the class's HD type + the character's **CON modifier**
-  (`system.scores.con.mod`).
-- **Minimum 1 HP per level** (OSE rulebook): `delta = max(1, dieResult + conMod)`. The floor
-  matters only for negative CON. NOTE: the *system* does not enforce this (its `rollHP`
-  has no floor) — it is a rulebook rule the calc applies. Flagged for Tim below.
+  (`system.scores.con.mod`): `delta = dieResult + conMod`. **No min-per-level floor** —
+  matches OSE system behavior (`rollHP` enforces none); a penalty CON can yield a small or
+  negative delta.
 - HP mode is a UX choice: **roll** the die, or take its **average**. Averaging rounding is
-  an OSC-48 decision (flagged below) — this spec pins the roll path and the min-1 floor;
-  fixtures cover roll + the flat path.
+  an OSC-48 decision (flagged below) — this spec pins the roll path; fixtures cover roll +
+  the flat path.
 
 **Above name level** (`toLevel > nameLevel`, HD count capped):
 - Gain a **flat** amount per level, **CON no longer applies**.
@@ -176,24 +175,22 @@ match** (`matched: false`):
 - `hd`, `saves.*`, `thac0.*`, `spells.*` are left untouched.
 - Fixture `mu → unmatched (Bard)` documents this contract.
 
-## Open OSE-rules ambiguities (flagged for Tim)
+## OSE-rules decisions & open questions
 
-1. **Min-1-HP-per-level floor.** OSE rulebook grants at least 1 HP per level regardless of
-   CON penalty; the *system* does not enforce it (`rollHP` has no floor). Spec applies the
-   floor (`delta = max(1, die + conMod)`), fixture `mu-neg-con` asserts it. Confirm you want
-   the floor.
-2. **Average-HP rounding.** If the wizard offers "take average" instead of rolling, the
-   average of a dN (e.g. d6 → 3.5) needs a rounding rule (round up? standard B/X uses
+1. **Min-per-level HP floor — SETTLED: none.** No min-per-level floor — matches OSE system
+   behavior (`rollHP` enforces none). Delta is raw `die + conMod`, which a penalty CON can
+   drive small or negative. Fixture `mu-2-3-neg-con` exercises a negative-CON delta.
+2. **`xp.next` at max level — SETTLED: `null`.** `levels[toLevel]` is undefined at max level
+   → write/represent `null`.
+3. **Average-HP rounding (open).** If the wizard offers "take average" instead of rolling,
+   the average of a dN (e.g. d6 → 3.5) needs a rounding rule (round up? standard B/X uses
    round-down-with-min? OSE tables sometimes assume `(max/2)+1`). Left to OSC-48; fixtures
    only pin the **roll** and **flat** paths to avoid prejudging. Pick a rule when OSC-48
    lands.
-3. **`xp.next` at max level.** Represented `null` here. Confirm whether the calc should clear
-   the field, leave the last threshold in place, or write the max XP — cosmetic, affects the
-   topbar XP bar at cap.
-4. **Elf single flat step.** Elf's table has exactly one post-name-level row (`9d6+2` at
+4. **Elf single flat step (noted).** Elf's table has exactly one post-name-level row (`9d6+2` at
    L10, its max). +2 is asserted from that single step; there is no second row to confirm the
    per-level cadence. Consistent with the class's design (max 10).
-5. **Current HP on level-up.** Rules raise `hp.max` only. Whether to also bump
+5. **Current HP on level-up (noted).** Rules raise `hp.max` only. Whether to also bump
    `hp.value` (heal the new HP, or heal to full) is a wizard UX choice, not a rule — left to
    OSC-46. Fixtures assert `hp.max` only.
 

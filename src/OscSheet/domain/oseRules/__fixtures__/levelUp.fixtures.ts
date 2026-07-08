@@ -107,7 +107,7 @@ export const LEVEL_UP_CASES: LevelUpCase[] = [
   },
   {
     id: "mu-2-3-neg-con",
-    name: "Magic-User L2→L3 — negative CON floors HP delta at min-1-per-level",
+    name: "Magic-User L2→L3 — penalty CON yields raw (negative) delta, no min-per-level floor",
     className: "Magic-User",
     matched: true,
     fromLevel: 2,
@@ -115,14 +115,14 @@ export const LEVEL_UP_CASES: LevelUpCase[] = [
     con: 3,
     conMod: -3,
     hpMode: "roll",
-    rolledHd: 1, // d4; 1 + (-3) = -2 → clamped to 1
+    rolledHd: 1, // d4; 1 + (-3) = -2, applied raw (no floor — matches OSE system)
     before: { hpMax: 5, hd: "2d4" },
     expected: {
       level: 3,
       xpNext: 10_000, // levels[3].xp = level-4 threshold
       hd: "3d4",
-      hpMax: 6, // 5 + max(1, 1 + (-3)) = 5 + 1
-      hpDelta: 1,
+      hpMax: 3, // 5 + (1 + (-3)) = 5 + (-2)
+      hpDelta: -2,
       conApplied: true,
       saves: { death: 13, wand: 14, paralysis: 13, breath: 16, spell: 15 },
       thac0: 19,
