@@ -4,6 +4,7 @@ import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import { Monogram } from "@ui/Monogram";
+import { Button } from "@src/OscSheet/components/ui";
 
 type Props = {
   attacks: AttackVM[];
@@ -17,7 +18,8 @@ type Props = {
    *  to create an attack macro (same as an inventory row). undefined = not draggable. */
   dragData?: (itemId: string) => string | undefined;
   /** The composite Attack roll can write to the actor/item (e.g. missile ammo
-   *  decrement), so it's owner-only. false hides the Attack button. Default true. */
+   *  decrement), so it's owner-only. false renders the Attack button disabled
+   *  (read-only sheet), not hidden. Default true. */
   canAttack?: boolean;
 };
 
@@ -26,11 +28,26 @@ function monogram(name: string): string {
   return (name.trim().charAt(0) || "?").toUpperCase();
 }
 
-const kindIcon = (kind: "melee" | "missile") => (kind === "melee" ? "fa-sword" : "fa-bow-arrow");
+const kindIcon = (kind: "melee" | "missile") =>
+  kind === "melee" ? "fa-sword" : "fa-bow-arrow";
 
 /** One weapon card. A melee+missile weapon shows both kind tags as a toggle
  *  (melee active by default); the active mode drives Hit/Dmg. */
-function WeaponRow({ a, onRoll, onAttack, onOpen, dragData, canAttack = true }: { a: AttackVM; onRoll?: Props["onRoll"]; onAttack?: Props["onAttack"]; onOpen?: Props["onOpen"]; dragData?: Props["dragData"]; canAttack?: boolean }) {
+function WeaponRow({
+  a,
+  onRoll,
+  onAttack,
+  onOpen,
+  dragData,
+  canAttack = true,
+}: {
+  a: AttackVM;
+  onRoll?: Props["onRoll"];
+  onAttack?: Props["onAttack"];
+  onOpen?: Props["onOpen"];
+  dragData?: Props["dragData"];
+  canAttack?: boolean;
+}) {
   const [active, setActive] = useState(0); // index into a.modes (melee = 0)
   const mode = a.modes[active] ?? a.modes[0];
   const dual = a.modes.length > 1;
@@ -57,7 +74,11 @@ function WeaponRow({ a, onRoll, onAttack, onOpen, dragData, canAttack = true }: 
     : {};
 
   return (
-    <div className="osc-weapon" role="row" data-testid={`weapon-row-${a.itemId}`}>
+    <div
+      className="osc-weapon"
+      role="row"
+      data-testid={`weapon-row-${a.itemId}`}
+    >
       <div className="winfo">
         <Monogram
           img={a.img}
@@ -87,19 +108,32 @@ function WeaponRow({ a, onRoll, onAttack, onOpen, dragData, canAttack = true }: 
           <div className="wtags">
             {/* dual melee+missile → a segmented switch; single mode → a static tag */}
             {dual ? (
-              <div className="kind-switch" role="group" aria-label="Attack mode">
+              <div
+                className="kind-switch"
+                role="group"
+                aria-label="Attack mode"
+              >
                 {a.modes.map((m, i) => (
                   <button
                     type="button"
                     key={m.kind}
                     data-testid={`attack-mode-${m.kind}-${a.itemId}`}
-                    className={cx("kind-seg", m.kind, i === active && "selected")}
+                    className={cx(
+                      "kind-seg",
+                      m.kind,
+                      i === active && "selected",
+                    )}
                     aria-pressed={i === active}
                     onClick={() => setActive(i)}
                     title={`${m.kindLabel} attack`}
                   >
-                    <i className={cx("fa-solid", kindIcon(m.kind))} aria-hidden="true" />
-                    <span className="tag-pop" role="tooltip">{m.kindLabel}</span>
+                    <i
+                      className={cx("fa-solid", kindIcon(m.kind))}
+                      aria-hidden="true"
+                    />
+                    <span className="tag-pop" role="tooltip">
+                      {m.kindLabel}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -137,10 +171,15 @@ function WeaponRow({ a, onRoll, onAttack, onOpen, dragData, canAttack = true }: 
       >
         <span className="sl">Hit</span>
         <span className="wv">
-          <i className={cx("fa-solid", kindIcon(mode.kind))} aria-hidden="true" />
+          <i
+            className={cx("fa-solid", kindIcon(mode.kind))}
+            aria-hidden="true"
+          />
           {mode.hitDisplay}
         </span>
-        <span className="tag-pop" role="tooltip">{mode.hitTip}</span>
+        <span className="tag-pop" role="tooltip">
+          {mode.hitTip}
+        </span>
       </button>
       <button
         type="button"
@@ -151,24 +190,27 @@ function WeaponRow({ a, onRoll, onAttack, onOpen, dragData, canAttack = true }: 
       >
         <span className="sl">Dmg</span>
         <span className="wv">{mode.dmgDisplay}</span>
-        <span className="tag-pop" role="tooltip">{mode.dmgTip}</span>
+        <span className="tag-pop" role="tooltip">
+          {mode.dmgTip}
+        </span>
       </button>
 
-      {canAttack && (
-        <button
-          type="button"
-          className="fvtt-atk"
-          data-testid={`weapon-attack-${a.itemId}`}
-          {...macroDrag}
-          disabled={!onAttack}
-          onClick={() => onAttack?.(a.itemId)}
-          title="Attack roll (hit + damage)"
-          aria-label={`Attack with ${a.name}`}
-        >
-          <i className="fa-solid fa-dice-d20" aria-hidden="true" />
-          <span>Attack</span>
-        </button>
-      )}
+      {/* Always rendered; read-only (non-owner) shows it disabled — the composite
+          Attack roll can write to the actor/item, so it's inert without canAttack.
+          Drag-to-hotbar is owner-only too, so macroDrag is omitted when disabled. */}
+      <Button
+        data-testid={`weapon-attack-${a.itemId}`}
+        {...(canAttack ? macroDrag : {})}
+        disabled={!canAttack || !onAttack}
+        onClick={() => onAttack?.(a.itemId)}
+        title="Attack roll (hit + damage)"
+        variant="outline"
+        tone="brass"
+        aria-label={`Attack with ${a.name}`}
+      >
+        <i className="fa-solid fa-dice-d20 u-mr-1" aria-hidden="true" />
+        <span>Attack</span>
+      </Button>
     </div>
   );
 }
@@ -176,13 +218,28 @@ function WeaponRow({ a, onRoll, onAttack, onOpen, dragData, canAttack = true }: 
 /** Equipped-weapon attacks as woodcut weapon cards: ink-stamp monogram, name +
  *  melee/missile + quality tags, clickable HIT/DMG stat cells (FA dice), and a
  *  tall brass Attack button (full hit + damage via the OSE weapon dialog). */
-export function AttacksTable({ attacks, onRoll, onAttack, onOpen, dragData, canAttack = true }: Props) {
+export function AttacksTable({
+  attacks,
+  onRoll,
+  onAttack,
+  onOpen,
+  dragData,
+  canAttack = true,
+}: Props) {
   return (
     <section className="osc-section osc-atk">
       <SectionTitle hint="click to roll">Attacks</SectionTitle>
       <div className="osc-wtable">
         {attacks.map((a) => (
-          <WeaponRow key={a.id} a={a} onRoll={onRoll} onAttack={onAttack} onOpen={onOpen} dragData={dragData} canAttack={canAttack} />
+          <WeaponRow
+            key={a.id}
+            a={a}
+            onRoll={onRoll}
+            onAttack={onAttack}
+            onOpen={onOpen}
+            dragData={dragData}
+            canAttack={canAttack}
+          />
         ))}
       </div>
     </section>

@@ -37,26 +37,50 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
   const actionButtons = canEdit ? (
     <>
       {FEATURES.rest && (
-        <button type="button" className="osc-tb-btn" disabled>
-          <span className="i" aria-hidden="true">☾</span>
+        <button
+          type="button"
+          className="osc-tb-btn u-inline-flex u-items-center u-gap-2"
+          disabled
+        >
+          <span className="i u-fs-xs" aria-hidden="true">
+            ☾
+          </span>
           <span className="lbl">Rest</span>
         </button>
       )}
       {FEATURES.levelUp && (
-        <button type="button" className="osc-tb-btn up" onClick={() => { setMenuOpen(false); onLevelUp(); }}>
-          <span className="i" aria-hidden="true">▲</span>
+        <button
+          type="button"
+          className="osc-tb-btn up u-inline-flex u-items-center u-gap-2"
+          onClick={() => {
+            setMenuOpen(false);
+            onLevelUp();
+          }}
+        >
+          <span className="i u-fs-xs" aria-hidden="true">
+            ▲
+          </span>
           <span className="lbl">Level Up</span>
         </button>
       )}
-      <button type="button" className="osc-tb-btn" onClick={() => { setMenuOpen(false); onEdit(); }}>
-        <span className="i" aria-hidden="true">✎</span>
+      <button
+        type="button"
+        className="osc-tb-btn u-inline-flex u-items-center u-gap-2"
+        onClick={() => {
+          setMenuOpen(false);
+          onEdit();
+        }}
+      >
+        <span className="i u-fs-xs" aria-hidden="true">
+          ✎
+        </span>
         <span className="lbl">Edit</span>
       </button>
     </>
   ) : null;
 
   return (
-    <div className="osc-topbar-inner">
+    <div className="osc-topbar-inner u-row u-wrap">
       <div className="osc-tb-lv">
         <b>Lv {vm.level}</b>
         <span className="cur">{vm.xp.value.toLocaleString()}</span>
@@ -71,32 +95,41 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
         <b>Lv {vm.nextLevel}</b>
         <span className="cur">{vm.xp.next.toLocaleString()}</span>
       </div>
-      {/* Inline actions (hidden at XS via .osc-tb-actions display:none) */}
-      <div className="osc-tb-actions">{actionButtons}</div>
-      {/* XS overflow ⋮ (hidden above XS via .osc-tb-overflow display:none). Only
-          shown when there are owner actions to collapse into it. */}
-      {actionButtons && (
-        <div className="osc-tb-menu-wrap" ref={menuRef}>
-          <button
-            type="button"
-            className="osc-tb-btn osc-tb-overflow"
-            aria-label="More actions"
-            onClick={() => setMenuOpen((o) => !o)}
-          >
-            <span className="i" aria-hidden="true">⋮</span>
-          </button>
-          {menuOpen && <div className="osc-tb-menu">{actionButtons}</div>}
-        </div>
-      )}
-      <button
-        type="button"
-        className="osc-tb-btn icon"
-        onClick={toggleTheme}
-        title="Toggle colour scheme"
-        aria-label="Toggle colour scheme"
-      >
-        <span className="i" aria-hidden="true">◐</span>
-      </button>
+      {/* Right cluster floats to the edge as a group (u-ml-auto). u-gap-2 spaces
+          the buttons — .osc-tb-actions is display:contents, so its buttons flatten
+          into this row and share the same gap. */}
+      <div className="u-row u-gap-1 u-ml-auto">
+        {/* Inline actions (hidden at XS via .osc-tb-actions display:none) */}
+        <div className="osc-tb-actions">{actionButtons}</div>
+        {/* XS overflow ⋮ (hidden above XS via .osc-tb-overflow display:none). Only
+            shown when there are owner actions to collapse into it. */}
+        {actionButtons && (
+          <div className="osc-tb-menu-wrap" ref={menuRef}>
+            <button
+              type="button"
+              className="osc-tb-btn osc-tb-overflow u-inline-flex u-items-center u-gap-2"
+              aria-label="More actions"
+              onClick={() => setMenuOpen((o) => !o)}
+            >
+              <span className="i u-fs-xs" aria-hidden="true">
+                ⋮
+              </span>
+            </button>
+            {menuOpen && <div className="osc-tb-menu">{actionButtons}</div>}
+          </div>
+        )}
+        <button
+          type="button"
+          className="osc-tb-btn icon u-inline-flex u-items-center u-gap-2"
+          onClick={toggleTheme}
+          title="Toggle colour scheme"
+          aria-label="Toggle colour scheme"
+        >
+          <span className="i u-fs-xs" aria-hidden="true">
+            ◐
+          </span>
+        </button>
+      </div>
     </div>
   );
 }

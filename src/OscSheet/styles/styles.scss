@@ -175,9 +175,18 @@
 // consistent CSS signal for the residual static bits.
 .osc-sheet-app.is-readonly {
   // Inventory: drag handles are meaningless without drag (disabled for non-owners),
-  // so hide them; the equipped indicator renders as a static, non-interactive glyph.
+  // so blank them. Use visibility (not display:none) so the handle stays a grid item
+  // and holds its column — dropping it from flow shifts every later cell one track
+  // left (name collapses into the 30px image track, coin icon overlaps its label).
   .osc-inv-drag {
-    display: none;
+    visibility: hidden;
+  }
+  // Rows/tiles carry .is-sortable (→ grab cursor) unconditionally; without drag that
+  // cursor is a lie, so reset it. Interactive affordances that survive read-only
+  // (name/tile click → open sheet, hover popovers) keep their own cursors.
+  .osc-inv-row.is-sortable,
+  .osc-equip-tcard.is-sortable {
+    cursor: default;
   }
   .osc-inv-equip.is-static {
     cursor: default;

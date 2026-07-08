@@ -74,10 +74,11 @@ test.describe("read-only sheet (non-owner)", () => {
       await expect(sheet.locator(TAB_ANCHOR[id])).toBeVisible();
 
       if (id === "actions") {
-        // The equipped Dagger renders a weapon row (so its Attack button WOULD be
-        // here if not gated) — but the writing Attack affordance is owner-only.
+        // The equipped Dagger renders a weapon row with its Attack button — but for
+        // a non-owner the writing Attack affordance is present-yet-disabled (inert),
+        // not hidden.
         await expect(sheet.locator('[data-testid^="weapon-row-"]').first()).toBeVisible();
-        await expect(sheet.locator('[data-testid^="weapon-attack-"]')).toHaveCount(0);
+        await expect(sheet.locator('[data-testid^="weapon-attack-"]').first()).toBeDisabled();
       }
       if (id === "abilities") {
         await expect(sheet.locator('[aria-label="Add ability"]')).toHaveCount(0);
