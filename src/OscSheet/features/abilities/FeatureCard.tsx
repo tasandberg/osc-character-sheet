@@ -91,7 +91,7 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
       {open && (
         <div className="ft-body">
           <div
-            className="ft-desc"
+            className="osc-rt-body"
             dangerouslySetInnerHTML={{ __html: desc }}
           />
           {canEdit && (
