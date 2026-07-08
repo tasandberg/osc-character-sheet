@@ -1,0 +1,1 @@
+import{i as e}from"./preload-helper-xPQekRTU.js";function t(e){return e===`cream`?`cream`:`dark`}function n(){try{return t(o()?.settings?.get(i,a))}catch{return`dark`}}function r(){let e=o()?.settings;if(!e)return;let t=n()===`dark`?`cream`:`dark`;e.set(i,a,t)}var i,a,o,s=e((()=>{i=`osc-character-sheet`,a=`theme`,o=()=>globalThis.game}));export{s as n,r,n as t};
