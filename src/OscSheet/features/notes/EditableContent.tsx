@@ -63,11 +63,11 @@ export default function EditableContent({
           />
         </div>
       ) : (
-        <div className={`osc-rt themed ${fdTheme}`}>
+        <div className={`osc-rich-text themed ${fdTheme}`}>
           {canEdit && (
             <IconButton
               variant="accent"
-              className="osc-rt-edit"
+              className="osc-rich-text-edit"
               title={`Edit ${title}`}
               aria-label={`Edit ${title}`}
               onClick={() => setEditing(true)}
@@ -76,9 +76,9 @@ export default function EditableContent({
             </IconButton>
           )}
           {enriched.trim() ? (
-            <div className="osc-rt-body" dangerouslySetInnerHTML={{ __html: enriched }} />
+            <div className="osc-rich-text-body" dangerouslySetInnerHTML={{ __html: enriched }} />
           ) : (
-            <p className="osc-rt-empty">No {title.toLowerCase()} yet.</p>
+            <p className="osc-rich-text-empty">No {title.toLowerCase()} yet.</p>
           )}
         </div>
       )}

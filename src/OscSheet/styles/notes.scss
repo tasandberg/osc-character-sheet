@@ -9,7 +9,7 @@
 }
 
 // ── Static view card ───────────────────────────────────────────────────────
-.osc-rt {
+.osc-rich-text {
   position: relative;
   max-width: 640px; // comfortable reading measure, not the full tab width
   background: var(--bg-2, #1f1c17); // subtle: barely lifted off the page
@@ -17,33 +17,33 @@
   border-radius: var(--r-md, 6px);
   padding: var(--spacer-2, 8px) var(--spacer-3, 12px);
 }
-// Edit pencil, pinned top-right. Qualified with .osc-rt (0,2,0) so `position`
+// Edit pencil, pinned top-right. Qualified with .osc-rich-text (0,2,0) so `position`
 // beats the `.osc-sheet-app :is(button,…) { all: unset }` reset (0,1,1) —
 // otherwise it resets to static and drops into normal flow above the text.
-.osc-rt .osc-rt-edit { position: absolute; top: var(--spacer-2, 8px); right: var(--spacer-2, 8px); z-index: 2; }
+.osc-rich-text .osc-rich-text-edit { position: absolute; top: var(--spacer-2, 8px); right: var(--spacer-2, 8px); z-index: 2; }
 // Render prose in the readable UI sans; headings in the display face. Foundry's
 // enricher leaves headings a near-white colour — re-anchor to body.
-.osc-rt-body {
+.osc-rich-text-body {
   color: var(--text, #e7e0cc);
   font-family: var(--sans);
   font-size: var(--fs-lg, 16px);
   line-height: 1.55;
 }
-.osc-rt-body :is(h1, h2, h3, h4, h5, h6) { font-family: var(--display); color: var(--text, #e7e0cc); }
+.osc-rich-text-body :is(h1, h2, h3, h4, h5, h6) { font-family: var(--display); color: var(--text, #e7e0cc); }
 // Link/roll chips already inherit the sans body font.
-.osc-rt-body :is(a.content-link, a.inline-roll) { font-family: var(--sans); }
+.osc-rich-text-body :is(a.content-link, a.inline-roll) { font-family: var(--sans); }
 // Blockquote: no italic; a left accent bar that follows the sheet's active accent
 // (brass for PCs, teal for retainers — the --gold chain flips by data-kind, see
 // styles.scss), dimmed via color-mix so it reads as a rule. Left padding clears
 // the bar; default browser quote margins dropped for our own vertical rhythm.
-.osc-rt-body blockquote {
+.osc-rich-text-body blockquote {
   margin: var(--spacer-3, 12px) 0;
   padding-left: var(--spacer-3, 12px);
   border-left: 3px solid color-mix(in srgb, var(--gold) 55%, transparent);
 }
-.osc-rt-body :first-child { margin-top: 0; }
-.osc-rt-body :last-child { margin-bottom: 0; }
-.osc-rt-empty { margin: 0; color: var(--text-faint, #8a8270); font-style: italic; }
+.osc-rich-text-body :first-child { margin-top: 0; }
+.osc-rich-text-body :last-child { margin-bottom: 0; }
+.osc-rich-text-empty { margin: 0; color: var(--text-faint, #8a8270); font-style: italic; }
 
 // ── Edit mode (Foundry <prose-mirror>) ─────────────────────────────────────
 .osc-prosemirror { max-width: 640px; }

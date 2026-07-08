@@ -74,7 +74,7 @@
 
 // Body indented under the title (past the 40px stamp + gap).
 .ft-body { padding: 0 var(--spacer-3) var(--spacer-3) 62px; }
-// Ability descriptions render the canonical `.osc-rt-body` long-form prose style
+// Ability descriptions render the canonical `.osc-rich-text-body` long-form prose style
 // (see notes.scss) — single source of truth for all enriched text blocks.
 .ft-actions {
   display: flex; align-items: center; justify-content: flex-end;
