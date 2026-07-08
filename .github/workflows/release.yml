@@ -1,41 +1,22 @@
-# Attaches the Foundry module artifacts (module.json + module.zip) when a
-# GitHub Release is published. The release tag is the source of truth for the
-# version: tools/package.mjs stamps module.json from it in the runner (an
-# optional leading "v" is stripped, so both `0.5.0` and `v0.5.0` work) and
-# points `download` at THIS release's zip and `manifest` at
-# releases/latest/download/module.json.
-#
-# After the assets are attached, the version is pushed to the Foundry package
-# registry (tools/publish-registry.mjs) so the public listing updates.
-#
-# Prereleases: they get assets like any release, but GitHub's "latest" is the
-# newest non-prerelease, non-draft release — so a release marked prerelease
-# never becomes what releases/latest/download (i.e. Foundry auto-update)
-# resolves to. They are also NOT pushed to the registry.
-#
-# Beta channel (OLD-42): on EVERY published release we re-stamp module.json with
-# the beta variant (manifest self-references releases/download/beta/module.json)
-# and clobber module.json + module.zip onto a fixed, prerelease `beta` release.
-# An instance installed from releases/download/beta/module.json thus rolls
-# through every build, prereleases included, without ever becoming "latest".
-#
-# The Sentry endpoint comes from the repo Actions variable VITE_SENTRY_DSN
-# (crash reports are only ever sent when a user presses the button — see
-# README). No DSN variable ⇒ the build ships with reporting compiled out.
+# On publish: attach artifacts + roll the beta channel (every release, prereleases
+# included — OLD-42). On `released` (stable publish OR a prerelease promoted to full):
+# push the registry. Split because `released` never fires for prereleases, and the
+# registry only ever wants full releases. Tag = version.
 name: Release
 
 on:
   release:
-    types: [published]
+    types: [published, released]
 
 permissions:
   contents: write # gh release upload
 
 jobs:
   attach-artifacts:
+    # Publish only — a stable publish also fires `released`, which would double-run this.
+    if: github.event.action == 'published'
     runs-on: ubuntu-latest
-    # GITHUB_REF is unreliable here: publishing a release that creates its tag
-    # can fire the event with ref still on the target branch. tag_name is not.
+    # Use tag_name, not GITHUB_REF (unreliable when the publish creates the tag).
     env:
       TAG: ${{ github.event.release.tag_name }}
     steps:
@@ -63,7 +44,7 @@ jobs:
         env:
           VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
 
-      # Before the zip step (it strips dist map refs); release must match crashReporter.ts's tag.
+      # Before zip (strips map refs); release tag must match crashReporter.ts.
       - name: Upload source maps to Sentry
         run: |
           VERSION="${TAG#v}"
@@ -80,42 +61,46 @@ jobs:
           VERSION="${TAG#v}"
           node tools/package.mjs "$VERSION" "$TAG"
 
-      # --clobber: pnpm release already uploads locally built assets at create
-      # time (avoids an asset gap); these CI-built ones are canonical.
+      # --clobber: overwrite the local assets pnpm release uploaded at create time.
       - name: Attach assets to the release
         run: gh release upload "$TAG" build/module.zip module.json --clobber
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # Rolling beta channel (OLD-42): runs on every published release, prerelease
-      # or not. Re-stamp the beta variant of module.json (self-referential manifest
-      # → releases/download/beta/module.json) and re-zip so module.zip embeds it —
-      # reuses this run's dist/, no rebuild. Then clobber both assets onto a fixed
-      # `beta` release, creating it (marked prerelease so it never becomes "latest")
-      # the first time. Idempotent on re-runs: create is guarded by a view check and
-      # --clobber overwrites existing assets.
+      # Re-stamp/zip the beta variant and clobber onto the fixed prerelease `beta`
+      # release (created once). No --target: it needs a commitish, not a tag, and
+      # the beta tag's commit is irrelevant — only its clobbered assets are used.
       - name: Update rolling beta channel
         run: |
           VERSION="${TAG#v}"
           node tools/package.mjs "$VERSION" "$TAG" --beta
           gh release view beta >/dev/null 2>&1 \
-            || gh release create beta --prerelease --target "$TAG" \
+            || gh release create beta --prerelease \
                  --title "Beta channel (rolling)" \
                  --notes "Rolling beta channel — always the newest build (prereleases included). Install once from releases/download/beta/module.json and Foundry auto-updates through every release."
           gh release upload beta build/module.zip module.json --clobber
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # Dry-run validates the payload registry-side without saving, then the
-      # real POST publishes. Re-runs are idempotent: an already-released
-      # version comes back 400 unique_together, which the script treats as
-      # success; any other registry error fails the job.
+  # `released` fires on a stable publish and when a prerelease is promoted to full,
+  # but never for prereleases — so the registry only ever sees full releases here,
+  # no prerelease guard needed. No build: publish-registry reads the tag + static
+  # module.json fields (id/url/compatibility).
+  publish-registry:
+    if: github.event.action == 'released'
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Dry-run then POST; idempotent (already-released → 400 treated as success).
       - name: Publish to Foundry package registry
         run: |
-          if [ "${{ github.event.release.prerelease }}" = "true" ]; then
-            echo "Prerelease — skipping registry publish."
-            exit 0
-          fi
           node tools/publish-registry.mjs "$TAG" --dry-run
           node tools/publish-registry.mjs "$TAG"
         env:

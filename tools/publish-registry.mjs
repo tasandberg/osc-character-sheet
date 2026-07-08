@@ -1,7 +1,8 @@
 // Push a release to the Foundry package registry
 // (https://foundryvtt.com/article/package-release-api/) so the public
-// listing updates. Reads id/version/compatibility from the stamped
-// module.json (run tools/package.mjs first). The registry wants a
+// listing updates. Version comes from the tag; id/compatibility/url are read
+// from the committed module.json (all static) — so this needs no build/stamp
+// and can run standalone (e.g. the promote job). The registry wants a
 // VERSION-PINNED manifest URL, so it's built from the tag
 // (releases/download/<tag>/module.json) — NOT module.json's stable
 // `manifest` field, which floats with releases/latest.
@@ -31,12 +32,13 @@ if (!token) {
   process.exit(1);
 }
 
+const version = tag.replace(/^v/, "");
 const manifest = JSON.parse(readFileSync("./module.json", "utf8"));
 const body = {
   id: manifest.id,
   ...(dryRun && { "dry-run": true }),
   release: {
-    version: manifest.version,
+    version,
     manifest: `${manifest.url}/releases/download/${tag}/module.json`,
     notes: `${manifest.url}/releases/tag/${tag}`,
     compatibility: manifest.compatibility,
