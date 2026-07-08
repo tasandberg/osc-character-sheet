@@ -1,14 +1,4 @@
-/**
- * @file Level-up calc fixtures (OSC-25) — the contract OSC-48's `computeLevelUp` must satisfy.
- *
- * Each case is a representative before→after advancement, sourced directly from the OSE
- * classic-fantasy class tables (`CONFIG.OSE.classes.classic`, i.e.
- * `ose-foundry-core/src/module/classes/classic-fantasy-classes.ts`). Values are hand-verified
- * against those tables; see `docs/level-up-rules.md` for the rules and field-write map.
- *
- * This file defines fixtures + types ONLY — no calc logic (that is OSC-48). It typechecks under
- * `pnpm build` so the calc module can import these cases straight into its unit tests.
- */
+// Level-up calc fixtures. Cases hand-verified against CONFIG.OSE.classes.classic; see docs/level-up-rules.md.
 
 import type { OSESave } from "@domain/types";
 
