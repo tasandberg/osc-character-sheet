@@ -11,9 +11,15 @@ lives in `../CLAUDE.md`.
 - App entry: `src/OscSheet/index.tsx` → `OscSheetProvider` (Foundry actor sync) →
   `SheetShell` (view-models + layout slots) → tab bodies. State = React Context + Foundry
   actor as source of truth; view-models in `viewModels/` compute derived data.
+- **Styling — utilities first.** Prefer Vellum `u-*` utility classes (in JSX) and
+  `components/ui/` primitives over hand-written `.osc-*` classes + SCSS. Reach for a utility
+  or primitive before authoring any bespoke rule; reserve SCSS for genuinely bespoke bits
+  (hover/selected/focus states, `color-mix`, gradients, positioning, `@container` queries,
+  structural resets). Don't hand-roll flex/gap/margin/padding/align/font-size/radius/color —
+  those are utilities. **Full guide → the `vellum-styling` skill** (`.claude/skills/vellum-styling/`).
 - Tokens/spacing: use the `--space-*`/`--spacer-*` (4px) scale and design tokens, never
   hardcoded px or invented colors. Brass = `--accent-alt`; equipped = `--teal`.
-- UI vocabulary: reach for the `ui/` primitives (`Button`, `IconButton`, `Tag`,
+- UI vocabulary: reach for the `components/ui/` primitives (`Button`, `IconButton`, `Tag`,
   `SectionTitle`, `Stamp`, `Field`, `Modal`, …) before hand-rolling a new `.osc-*`
   button/heading/tag class. Their styles live in `styles/vellum/` and are auto-scoped under
   `.osc-sheet`, so they beat the `.osc-sheet-app … { all: unset }` reset.

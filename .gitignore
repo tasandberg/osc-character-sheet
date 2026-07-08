@@ -39,7 +39,8 @@ docs
 vite.config.local.json
 
 # Claude Code — repo-specific skills/settings live outside the repo
-.claude/
+.claude/*
+!.claude/skills/
 
 # design-sync
 .ds-sync/
