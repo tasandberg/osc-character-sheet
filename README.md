@@ -1,4 +1,4 @@
-# Old-School Chronicle: Character Sheet [BETA]
+# Old-School Chronicle: Character Sheet
 
 A fresh, responsive character sheet for **[Old School Essentials](https://necroticgnome.com/)** in Foundry VTT — rebuilt in React for a faster, cleaner play experience.
 
@@ -6,17 +6,17 @@ A fresh, responsive character sheet for **[Old School Essentials](https://necrot
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13%E2%80%93v14-informational) ![System: OSE](https://img.shields.io/badge/system-OSE-orange)
 
+Part of the **Old-School Chronicle** toolset, more to come on that soon!
+
 ---
 
 ## Install
 
 In Foundry, open **Add-on Modules → Install Module**, search **Old-School Chronicle: Character Sheet**, and click **Install**. Then launch your OSE world and enable it under **Game Settings → Manage Modules**.
 
-Open any character actor — the OSC Character Sheet takes over automatically.
+Character and NPC actors use the OSC Character Sheet by default.
 
-### Beta channel (developers only)
-
-> ⚠️ **For development and testing — not for live campaigns.** The beta channel tracks every build the moment it's tagged, prereleases included, so it may contain unstable, unfinished, or broken features. Use it to preview or test upcoming work, never at the table.
+**Beta channel (recommended for developers only):**
 
 Install from the rolling beta manifest (Foundry auto-updates through every build):
 
