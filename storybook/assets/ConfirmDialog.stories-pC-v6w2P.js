@@ -1,0 +1,7 @@
+import{i as e,s as t}from"./preload-helper-xPQekRTU.js";import{n,t as r}from"./iframe-C7mwxZh-.js";import{n as i,t as a}from"./Button-CvfcgzWo.js";import{n as o,t as s}from"./ConfirmDialog-2AgQfWI2.js";function c({variant:e}){let[t,n]=(0,l.useState)(!1);return(0,u.jsxs)(`div`,{style:{position:`relative`,minHeight:160,padding:12,flex:1},children:[(0,u.jsx)(a,{variant:e,onClick:()=>n(!0),children:e===`danger`?`Delete item`:`Level up`}),(0,u.jsx)(s,{open:t,variant:e,title:e===`danger`?`Delete item?`:`Confirm level up`,body:e===`danger`?`This permanently removes the item from the sheet.`:`Advance to the next level and roll new hit points?`,confirmLabel:e===`danger`?`Delete`:`Level up`,onConfirm:()=>n(!1),onCancel:()=>n(!1)})]})}var l,u,d,f,p;e((()=>{l=t(n(),1),o(),i(),u=r(),d={title:`Overlays / ConfirmDialog`},f=()=>(0,u.jsxs)(`div`,{style:{display:`flex`,gap:16},children:[(0,u.jsx)(c,{variant:`primary`}),(0,u.jsx)(c,{variant:`danger`})]}),f.__docgenInfo={description:``,methods:[],displayName:`Variants`},f.parameters={...f.parameters,docs:{...f.parameters?.docs,source:{originalSource:`() => <div style={{
+  display: "flex",
+  gap: 16
+}}>
+    <Demo variant="primary" />
+    <Demo variant="danger" />
+  </div>`,...f.parameters?.docs?.source}}},p=[`Variants`]}))();export{f as Variants,p as __namedExportsOrder,d as default};
