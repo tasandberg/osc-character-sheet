@@ -1,4 +1,4 @@
-import { useState, type DragEvent } from "react";
+import { useState, type DragEvent, type MouseEvent } from "react";
 import type { AttackVM, RollSpec } from "@domain/vm-types";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
@@ -10,8 +10,8 @@ type Props = {
   attacks: AttackVM[];
   /** Roll a hit/damage formula (custom roll). */
   onRoll?: (spec: RollSpec) => void;
-  /** Composite attack roll (OSE weapon dialog). */
-  onAttack?: (itemId: string) => void;
+  /** Composite attack roll (OSE weapon dialog). Event carries ctrl/meta (skip dialog). */
+  onAttack?: (itemId: string, event: MouseEvent<HTMLButtonElement>) => void;
   /** Open the weapon's item sheet (click the name). */
   onOpen?: (itemId: string) => void;
   /** Foundry item drag-data for a weapon, so its card drops onto the macro hotbar
@@ -202,7 +202,7 @@ function WeaponRow({
         data-testid={`weapon-attack-${a.itemId}`}
         {...(canAttack ? macroDrag : {})}
         disabled={!canAttack || !onAttack}
-        onClick={() => onAttack?.(a.itemId)}
+        onClick={(e) => onAttack?.(a.itemId, e)}
         title="Attack roll (hit + damage)"
         variant="outline"
         tone="brass"

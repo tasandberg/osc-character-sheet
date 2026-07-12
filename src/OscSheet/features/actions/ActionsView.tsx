@@ -1,4 +1,6 @@
+import type { MouseEvent } from "react";
 import type { OSEActor, OSESave, OseItem } from "@domain/types";
+import { skipRollDialog } from "@domain/rolls/skipRollDialog";
 import type { RollSpec } from "@domain/vm-types";
 import { selectAbilities } from "@features/actions/abilities";
 import { selectAttacks } from "@features/actions/attacks";
@@ -29,8 +31,10 @@ export function ActionsView({ actor }: Props) {
   // a damage roll offers GMs an apply-damage button. No target → plain card.
   const onRoll = (spec: RollSpec) => void postRollCard(actor, spec);
   // The composite "Attack" uses OSE's own weapon roll dialog.
-  const onAttack = (itemId: string) =>
-    actor.system.weapons.find((w) => w._id === itemId)?.rollWeapon({ skipDialog: false });
+  const onAttack = (itemId: string, event: MouseEvent) =>
+    actor.system.weapons
+      .find((w) => w._id === itemId)
+      ?.rollWeapon({ skipDialog: skipRollDialog(event) });
   const onOpenWeapon = (itemId: string) => actor.items.get(itemId)?.sheet?.render(true);
   const onSave = (key: OSESave) => actor.rollSave(key, {});
   const onExploration = (key: string) => rollExploration(actor, key);
