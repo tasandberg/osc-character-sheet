@@ -1,4 +1,4 @@
-import type { OSEActor } from "@domain/types";
+import type { OSEActor, RollEvent } from "@domain/types";
 import type { ExplorationVM } from "@domain/vm-types";
 
 // `simple` skills (Forage/Hunt) aren't in OSE's exploration schema — they fire a
@@ -26,7 +26,7 @@ export function selectExploration(actor: OSEActor): ExplorationVM[] {
 
 /** Roll an exploration skill — data-backed via OSE, or a plain 1d6 for the
  *  not-yet-modelled Forage/Hunt. Shared by the Actions body + the lg rail. */
-export function rollExploration(actor: OSEActor, key: string): void {
+export function rollExploration(actor: OSEActor, key: string, event?: RollEvent): void {
   const meta = EXPL_META.find((m) => m.key === key);
   if (meta?.simple) {
     const speaker = ChatMessage.getSpeaker({ actor });
@@ -35,5 +35,5 @@ export function rollExploration(actor: OSEActor, key: string): void {
     void new Roll("1d6").toMessage({ speaker, flavor: `${meta.label} (1d6)` } as any);
     return;
   }
-  actor.rollExploration(key, {});
+  actor.rollExploration(key, { event });
 }

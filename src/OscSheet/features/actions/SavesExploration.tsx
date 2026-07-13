@@ -4,14 +4,14 @@ import type { OSESave } from "@domain/types";
 import { SectionTitle } from "@ui/SectionTitle";
 import { StatPlaque } from "@ui/StatPlaque";
 import { cx } from "@ui/cx";
-import { rollable } from "@ui/rollable";
+import { rollable, type ActivateEvent } from "@ui/rollable";
 
 type Props = {
   saves: SaveVM[];
   exploration: ExplorationVM[];
   tabbed?: boolean;
-  onRollSave?: (key: OSESave) => void;
-  onRollExploration?: (key: string) => void;
+  onRollSave?: (key: OSESave, event: ActivateEvent) => void;
+  onRollExploration?: (key: string, event: ActivateEvent) => void;
 };
 
 /** 1–2 char ink-stamp from the save label (Death → D, Paralysis → P). */
@@ -19,7 +19,13 @@ function saveStamp(label: string): string {
   return label.charAt(0).toUpperCase();
 }
 
-export function SavesGrid({ saves, onRoll }: { saves: SaveVM[]; onRoll?: (key: OSESave) => void }) {
+export function SavesGrid({
+  saves,
+  onRoll,
+}: {
+  saves: SaveVM[];
+  onRoll?: (key: OSESave, event: ActivateEvent) => void;
+}) {
   return (
     <div className="fvtt-saves">
       {saves.map((s) => (
@@ -29,7 +35,7 @@ export function SavesGrid({ saves, onRoll }: { saves: SaveVM[]; onRoll?: (key: O
           stampKey={saveStamp(s.label)}
           value={s.target}
           caption={s.label}
-          onActivate={onRoll && (() => onRoll(s.key))}
+          onActivate={onRoll && ((e) => onRoll(s.key, e))}
           title={onRoll ? `Roll ${s.label} save (≥ ${s.target})` : undefined}
           data-testid={`save-${s.key}`}
         />
@@ -38,7 +44,13 @@ export function SavesGrid({ saves, onRoll }: { saves: SaveVM[]; onRoll?: (key: O
   );
 }
 
-export function ExplorationGrid({ exploration, onRoll }: { exploration: ExplorationVM[]; onRoll?: (key: string) => void }) {
+export function ExplorationGrid({
+  exploration,
+  onRoll,
+}: {
+  exploration: ExplorationVM[];
+  onRoll?: (key: string, event: ActivateEvent) => void;
+}) {
   return (
     <div className="fvtt-explore">
       {exploration.map((e) => (
@@ -46,7 +58,7 @@ export function ExplorationGrid({ exploration, onRoll }: { exploration: Explorat
           key={e.key}
           className={cx("fvtt-skill", onRoll && "rollable")}
           title={onRoll ? `Roll ${e.label} (${e.inSix}-in-6)` : undefined}
-          {...rollable(onRoll && (() => onRoll(e.key)))}
+          {...rollable(onRoll && ((ev) => onRoll(e.key, ev)))}
         >
           <i className={cx("skic", e.icon)} aria-hidden="true" />
           <span className="skn">{e.label}</span>

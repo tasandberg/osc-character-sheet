@@ -27,6 +27,17 @@ const dagger: AttackVM = {
   qualities: [],
 };
 
+const sling: AttackVM = {
+  ...dagger,
+  id: "sling",
+  itemId: "sling",
+  name: "Sling",
+  modes: [
+    dagger.modes[0],
+    { ...dagger.modes[0], kind: "missile", kindLabel: "Missile" },
+  ],
+};
+
 let container: HTMLDivElement;
 let root: Root;
 
@@ -55,8 +66,26 @@ describe("AttacksTable", () => {
     });
 
     expect(onAttack).toHaveBeenCalledTimes(1);
-    const [itemId, event] = onAttack.mock.calls[0];
+    const [itemId, kind, event] = onAttack.mock.calls[0];
     expect(itemId).toBe("dagger");
+    expect(kind).toBe("melee");
     expect(event.ctrlKey).toBe(true);
+  });
+
+  it("passes the active mode's kind (switched to missile)", () => {
+    const onAttack = vi.fn();
+    act(() => root.render(<AttacksTable attacks={[sling]} onAttack={onAttack} />));
+
+    const click = (testid: string) => {
+      const el = container.querySelector<HTMLButtonElement>(`[data-testid="${testid}"]`)!;
+      act(() => {
+        el.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      });
+    };
+
+    click("attack-mode-missile-sling");
+    click("weapon-attack-sling");
+
+    expect(onAttack.mock.calls[0][1]).toBe("missile");
   });
 });

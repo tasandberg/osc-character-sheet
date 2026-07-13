@@ -6,6 +6,14 @@ import type { ContextConnector } from "foundry-vtt-react";
 /** Saving-throw category key, sourced from the OSE system's CONFIG (`saves_long`). */
 export type OSESave = Save;
 
+/** Structural shape OSE's roll dialog check reads — satisfied by DOM and React events. */
+export type RollEvent = { ctrlKey: boolean; metaKey: boolean };
+
+/** Attack range of a weapon mode. */
+export type AttackKind = "melee" | "missile";
+/** What OSE rolls as — non-characters have no melee/missile split. */
+export type AttackType = AttackKind | "attack";
+
 // Add props as needed
 export type OscContext = {
   document: OSEActor;
@@ -106,28 +114,23 @@ export type OSEActor = Actor & {
   targetAttack: (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     roll: { [key: string]: any },
-    type: "melee" | "missile",
+    type: AttackType,
     options: {
-      type: "melee" | "missile";
+      type: AttackType;
       skipDialog?: boolean;
     }
   ) => void;
   rollCheck: (
     score: string,
-    {
-      event,
-    }: {
-      event?: Event | React.MouseEvent<HTMLElement | SVGTextElement>;
-      fastForward?: boolean;
-    }
+    options: { event?: RollEvent; fastForward?: boolean; chatMessage?: string }
   ) => void;
   rollExploration: (
     action: string,
-    options: { event?: Event; fastForward?: boolean; chatMessage?: string }
+    options: { event?: RollEvent; fastForward?: boolean; chatMessage?: string }
   ) => void;
   rollSave: (
     save: OSESave,
-    options: { event?: Event; fastForward?: boolean; chatMessage?: string }
+    options: { event?: RollEvent; fastForward?: boolean; chatMessage?: string }
   ) => void;
   update: (updateData: { [key: string]: string | number }) => Promise<OSEActor>;
 };
@@ -165,6 +168,8 @@ export type OseWeapon = OseItem & {
     melee: boolean;
     missile: boolean;
     equipped: boolean;
+    /** Save the target may roll against this weapon's attack. */
+    save?: string;
   };
   bonus: number;
 };

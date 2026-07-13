@@ -1,7 +1,8 @@
 import type { AbilityVM } from "@domain/vm-types";
 import { StatPlaque } from "@ui/StatPlaque";
+import type { ActivateEvent } from "@ui/rollable";
 
-type Props = { abilities: AbilityVM[]; onRoll?: (key: string) => void };
+type Props = { abilities: AbilityVM[]; onRoll?: (key: string, event: ActivateEvent) => void };
 
 /** Six ability plaques (label · value · mod). Click rolls a roll-under check. */
 export function AbilityPlaques({ abilities, onRoll }: Props) {
@@ -15,7 +16,7 @@ export function AbilityPlaques({ abilities, onRoll }: Props) {
             stampKey={a.label}
             value={a.value}
             caption={a.modLabel}
-            onActivate={onRoll && (() => onRoll(a.key))}
+            onActivate={onRoll && ((e) => onRoll(a.key, e))}
             title={onRoll ? `Roll ${a.label} check` : undefined}
             data-testid={`ability-${a.key}`}
           />

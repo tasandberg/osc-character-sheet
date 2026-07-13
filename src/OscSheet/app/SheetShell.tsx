@@ -336,8 +336,8 @@ export default function SheetShell() {
           <SavesExploration
             saves={selectSaves(actor)}
             exploration={selectExploration(actor)}
-            onRollSave={(key) => actor.rollSave(key, {})}
-            onRollExploration={(key) => rollExploration(actor, key)}
+            onRollSave={(key, event) => actor.rollSave(key, { event })}
+            onRollExploration={(key, event) => rollExploration(actor, key, event)}
             tabbed
           />
         }
