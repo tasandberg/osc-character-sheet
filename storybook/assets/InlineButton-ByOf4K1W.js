@@ -1,0 +1,3 @@
+import{i as e}from"./preload-helper-xPQekRTU.js";import{t}from"./iframe-CM52vwyL.js";import{n,t as r}from"./cx-DHrSZD_0.js";function i({className:e,type:t=`button`,...r}){return(0,a.jsx)(`button`,{type:t,className:n(`inline-btn`,e),...r})}var a,o=e((()=>{r(),a=t(),i.__docgenInfo={description:`@category Controls — transparent inline action button. Owns the look
+ (teal → brass hover, branded focus ring); the consumer supplies content
+ (icon and/or text) and any positioning via className.`,methods:[],displayName:`InlineButton`,props:{type:{defaultValue:{value:`"button"`,computed:!1},required:!1}}}}));export{o as n,i as t};
