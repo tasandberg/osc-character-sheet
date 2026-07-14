@@ -456,7 +456,13 @@
 // A plain glyph, no chrome: at rest it matches the section label
 // (.section-title.sub is --text-mute) rather than reading as a call to action.
 // The accent variant already carries the brass hover.
-.osc-inv-sec-head .icon-btn { color: var(--text-mute); }
+// The nudge is optical, not layout: the label is all-caps, so its glyphs sit above
+// the baseline with empty descender space below — its optical centre is higher than
+// its box centre, and a box-centred glyph beside it reads low.
+.osc-inv-sec-head .icon-btn {
+  color: var(--text-mute);
+  transform: translateY(-1px);
+}
 
 // --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
 .osc-equip-tray {
