@@ -79,6 +79,9 @@ export function selectCoins(items: OseItem[]): CoinVM[] {
         img: (it.img as string) ?? "",
         value: it.system.quantity?.value ?? 0,
         gpEach: cost > 0 ? cost : (GP_PER_COIN[d] ?? 0),
+        // No 1 cn fallback: OSE encumbers by qty × system.weight, so an unweighted coin
+        // item really does weigh nothing — assuming otherwise contradicts the total.
+        cnEach: (it.system as { weight?: number }).weight ?? 0,
       },
     ];
   });

@@ -22,8 +22,8 @@ function fmtCoin(n: number): string {
 /** Wealth section: a header bar (overlapping coin dots · total gp · carried weight)
  *  that toggles a coin table — per-denomination qty (editable), weight, and gp
  *  value, with a totals row. Columns are sortable and rows are drag-reorderable
- *  (a drag bakes the current order as the manual baseline). Coins are 1 cn each,
- *  so qty edits feed the encumbrance figure too. */
+ *  (a drag bakes the current order as the manual baseline). Weight is qty × the
+ *  item's own cn, matching what OSE encumbers by (0-weight coin items weigh 0). */
 export function WealthSection({
   coins,
   onSetCoin,
@@ -62,6 +62,8 @@ export function WealthSection({
     return Number.isNaN(n) ? 0 : Math.max(0, n);
   };
 
+  const cnOf = (c: CoinVM) => qtyOf(c) * c.cnEach;
+
   // Sorted view: manual = the drag order; a column sort orders a copy by that key.
   const rows = sort.key === "manual"
     ? manual
@@ -70,7 +72,9 @@ export function WealthSection({
           ? a.name.localeCompare(b.name)
           : sort.key === "value"
             ? qtyOf(a) * a.gpEach - qtyOf(b) * b.gpEach
-            : qtyOf(a) - qtyOf(b); // qty or weight (1 cn each)
+            : sort.key === "weight"
+              ? cnOf(a) - cnOf(b)
+              : qtyOf(a) - qtyOf(b);
         return sort.dir === "asc" ? cmp : -cmp;
       });
 
@@ -109,7 +113,7 @@ export function WealthSection({
     setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
 
   const totalGp = rows.reduce((s, c) => s + qtyOf(c) * c.gpEach, 0);
-  const weight = rows.reduce((s, c) => s + qtyOf(c), 0);
+  const weight = rows.reduce((s, c) => s + cnOf(c), 0);
   const dots = rows.filter((c) => qtyOf(c) > 0).map((c) => c.denom);
   const hasCoins = rows.length > 0;
 
@@ -219,7 +223,7 @@ export function WealthSection({
                   onKeyDown={(e) => { if (e.key === "Enter") { commit(c); setOpen(false); } }}
                   onBlur={() => commit(c)}
                 />
-                <span className="osc-coin-wt">{fmtCoin(qtyOf(c))} cn</span>
+                <span className="osc-coin-wt">{fmtCoin(cnOf(c))} cn</span>
                 <span className="osc-coin-val">{fmtCoin(qtyOf(c) * c.gpEach)} gp</span>
               </div>
             );

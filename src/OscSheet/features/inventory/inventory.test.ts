@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { selectInventory, selectEncumbrance, selectCoins, sortInventory, sortEquipped, coinDenom } from "@features/inventory/inventory";
 import type { OseItem, OSEActor } from "@domain/types";
+import type { CoinVM } from "@domain/vm-types";
 import { MODULE_ID, FLAGS } from "@domain/flags";
 
 const mk = (
@@ -304,6 +305,38 @@ describe("selectCoins", () => {
     expect(by).toEqual({ GP: 1, EP: 0.5, CP: 0.01 });
     // total = 1·1 + 300·0.5 + 50·0.01 = 151.5 gp
     expect(coins.reduce((s, c) => s + c.value * c.gpEach, 0)).toBeCloseTo(151.5);
+  });
+
+  it("reads cnEach from system.weight — never an assumed 1 cn per coin", () => {
+    const coins = selectCoins([
+      mk("item", "GP", { treasure: true, weight: 1, quantity: { value: 20 } }),
+      mk("item", "SP", { treasure: true, weight: 0, quantity: { value: 500 } }),
+      mk("item", "CP", { treasure: true, quantity: { value: 90 } }), // weight unset → 0
+    ]);
+    expect(Object.fromEntries(coins.map((c) => [c.denom, c.cnEach]))).toEqual({ GP: 1, SP: 0, CP: 0 });
+
+    // Wealth weight = qty × cnEach: weighted coins count, 0-weight coins count 0.
+    const wt = (cs: CoinVM[]) => cs.reduce((s, c) => s + c.value * c.cnEach, 0);
+    expect(wt(coins.filter((c) => c.denom === "GP"))).toBe(20);
+    expect(wt(coins.filter((c) => c.denom !== "GP"))).toBe(0);
+    expect(wt(coins)).toBe(20);
+  });
+
+  it("wealth weight equals the coins' encumbrance contribution (qty × weight)", () => {
+    const coinItems = [
+      mk("item", "GP", { treasure: true, weight: 1, quantity: { value: 250 } }),
+      mk("item", "SP", { treasure: true, weight: 0, quantity: { value: 400 } }),
+    ];
+    // OSE encumbers by qty × system.weight; the Wealth figure must never disagree with it.
+    const oseLoad = coinItems.reduce(
+      (s, it) =>
+        s +
+        (it.system.quantity?.value ?? 0) * ((it.system as { weight?: number }).weight ?? 0),
+      0,
+    );
+    const wealthWeight = selectCoins(coinItems).reduce((s, c) => s + c.value * c.cnEach, 0);
+    expect(wealthWeight).toBe(oseLoad);
+    expect(wealthWeight).toBe(250);
   });
 });
 

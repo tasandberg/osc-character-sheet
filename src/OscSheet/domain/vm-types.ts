@@ -172,6 +172,8 @@ export interface CoinVM {
   value: number;
   /** gp value of one coin of this denom (system.cost, std fallback) — for the wealth total. */
   gpEach: number;
+  /** cn weight of one coin (system.weight, 0 when unset) — what OSE actually encumbers by. */
+  cnEach: number;
 }
 
 /** 0 unencumbered · 1/2/3 OSE movement breakpoints · 4 overloaded (over max). */
