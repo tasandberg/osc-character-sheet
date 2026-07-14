@@ -36,7 +36,7 @@ export function AddItemMenu({
   return (
     <span className="menu-host" ref={host}>
       <IconButton
-        variant="round"
+        variant="accent"
         size="sm"
         title="Add item"
         aria-label="Add item"
