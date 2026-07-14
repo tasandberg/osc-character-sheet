@@ -83,7 +83,14 @@ export function HeaderBand({ identity, vitals, onSetHp, onPortraitContextMenu, c
         </div>
         <div className="osc-tile osc-tile-move">
           <Stamp>MOVE</Stamp>
-          <div className="osc-tile-v">{vitals.move}′</div>
+          {/* all three bands inline; the popover still names them on hover */}
+          <div className="osc-tile-v osc-move-v">
+            <span>{m.encounter}′</span>
+            <span className="sep" aria-hidden="true">/</span>
+            <span>{m.explore}′</span>
+            <span className="sep" aria-hidden="true">/</span>
+            <span>{m.travel} mi</span>
+          </div>
           <span className="osc-move-pop" role="tooltip">
             <span className="r"><span className="k">Encounter</span><span className="vv">{m.encounter}′</span></span>
             <span className="r"><span className="k">Explore</span><span className="vv">{m.explore}′</span></span>

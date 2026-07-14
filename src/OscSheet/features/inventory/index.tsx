@@ -29,7 +29,7 @@ import {
 } from "@features/inventory/sendTargets";
 import { EquippedTray } from "@features/inventory/EquippedTray";
 import { ItemContextMenu } from "@features/inventory/ItemContextMenu";
-import { EncumbranceReadout, MovementBands } from "@features/inventory/EncumbranceReadout";
+import { EncumbranceReadout } from "@features/inventory/EncumbranceReadout";
 import { SectionCount } from "@features/inventory/SectionCount";
 import { AddItemMenu } from "@features/inventory/AddItemMenu";
 import { SortableRow } from "@features/inventory/rows/SortableRow";
@@ -269,7 +269,6 @@ export function InventoryView({
         <SectionTitle>Inventory</SectionTitle>
         {encumbrance.enabled && <EncumbranceReadout e={encumbrance} />}
       </div>
-      {encumbrance.enabled && <MovementBands e={encumbrance} />}
       <WealthSection coins={coins} onSetCoin={onSetCoin} onOpen={onOpen} onContext={openMenu} />
 
       {/* Equipped tray + All-Items header pin together as one opaque block so the

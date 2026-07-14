@@ -363,11 +363,18 @@
   font-size: var(--fs-2xs, 11px);
   color: var(--text);
 }
-// MOVE tile reveals the movement bands on hover
+// MOVE tile lists all three bands inline; hover still names them (.osc-move-pop)
 .osc-tile-move {
   position: relative;
   cursor: default;
 }
+.osc-move-v {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacer-1);
+  white-space: nowrap;
+}
+.osc-move-v .sep { color: var(--text-faint); }
 .osc-move-pop {
   position: absolute;
   top: calc(100% + 6px);

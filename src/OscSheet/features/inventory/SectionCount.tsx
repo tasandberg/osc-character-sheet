@@ -16,8 +16,9 @@ export function SectionCount({
   return (
     <div className="osc-inv-sec-head">
       <SectionTitle variant="sub">{title}</SectionTitle>
-      <span className="osc-inv-sec-count">{sectionCountLabel(items)}</span>
+      {/* controls sit beside the title; the count keeps the right edge (margin-left: auto) */}
       {controls}
+      <span className="osc-inv-sec-count">{sectionCountLabel(items)}</span>
     </div>
   );
 }
