@@ -31,6 +31,7 @@ import { EquippedTray } from "@features/inventory/EquippedTray";
 import { ItemContextMenu } from "@features/inventory/ItemContextMenu";
 import { EncumbranceReadout } from "@features/inventory/EncumbranceReadout";
 import { SectionCount } from "@features/inventory/SectionCount";
+import { AddItemMenu } from "@features/inventory/AddItemMenu";
 import { SortableRow } from "@features/inventory/rows/SortableRow";
 import { ContainerRow } from "@features/inventory/rows/ContainerRow";
 import { SortHeaderRow } from "@features/inventory/rows/SortHeaderRow";
@@ -62,6 +63,7 @@ export function InventoryView({
   encumbrance,
   coins,
   onSetCoin,
+  onCreate,
   onEquip,
   onOpen,
   onDelete,
@@ -296,7 +298,11 @@ export function InventoryView({
             />
           </div>
         )}
-        <SectionCount title="All Items" items={sortedTop} />
+        <SectionCount
+          title="All Items"
+          items={sortedTop}
+          controls={canEdit ? <AddItemMenu onCreate={onCreate} /> : undefined}
+        />
       </div>
 
       <section className="osc-inv-sec osc-inv-sec--carried">
