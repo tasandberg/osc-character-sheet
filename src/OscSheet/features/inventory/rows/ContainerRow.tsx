@@ -35,9 +35,11 @@ export function ContainerRow({
 }) {
   const group = gkey(item.id);
   const count = item.children.length;
-  // Only collapsed containers accept drop-into; an expanded one drags/drops as a
-  // normal root row (fill it by dropping among its visible children instead).
-  const isDropTarget = collapsed && dnd.isInto(ROOT, index);
+  // Open or shut, the whole container is one nest target: its header row, its child
+  // rows, and (when empty) its body all resolve to a drop-into on this container.
+  const isDropTarget =
+    dnd.isInto(ROOT, index) ||
+    (dnd.over?.group === group && dnd.over.where === "into");
   const caret = (
     <button
       type="button"
@@ -61,7 +63,7 @@ export function ContainerRow({
         )}
         onContextMenu={(e) => onContext(e, item)}
         {...dnd.rowProps(ROOT, index, {
-          container: collapsed,
+          container: true,
           containerZone: item.id,
           ownZone: ROOT,
           acceptCrossGroup: (from) => from !== EQUIPPED,
@@ -100,6 +102,7 @@ export function ContainerRow({
                 index={i}
                 group={group}
                 depth={1}
+                nestZone={item.id}
                 dnd={dnd}
                 itemDragData={itemDragData}
                 onEquip={onEquip}

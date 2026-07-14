@@ -2,7 +2,7 @@
 import type { InventoryItemVM } from "@domain/vm-types";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
-import { weightLabel, ROOT, EQUIPPED } from "@features/inventory/groups";
+import { weightLabel, EQUIPPED } from "@features/inventory/groups";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { cx } from "@ui/cx";
 
@@ -65,6 +65,7 @@ export function SortableRow({
   index,
   group,
   depth,
+  nestZone,
   dnd,
   itemDragData,
   onEquip,
@@ -75,6 +76,8 @@ export function SortableRow({
   index: number;
   group: string;
   depth: number;
+  /** Set on a container's child rows: a foreign item dropped here nests into that container. */
+  nestZone?: string;
   dnd: Dnd;
   itemDragData: ItemDragData;
   onEquip: (id: string) => void;
@@ -92,11 +95,13 @@ export function SortableRow({
           : undefined
       }
       onContextMenu={(e) => onContext(e, item)}
-      // Root rows accept a container child dropped among them (un-nest), but NOT a
+      // Root rows accept a container child dropped among them (un-nest); a container's
+      // child rows accept a foreign item (nest into that container). Neither accepts a
       // tray tile — equipped-tray drags onto the list are routed to unequip instead.
       {...dnd.rowProps(group, index, {
         ownZone: group,
-        acceptCrossGroup: group === ROOT ? (from) => from !== EQUIPPED : false,
+        nestZone,
+        acceptCrossGroup: (from) => from !== EQUIPPED,
         dragPayload: () => itemDragData(item.id),
       })}
     >
