@@ -46,7 +46,9 @@ export function AddItemMenu({
       >
         <i className="fas fa-plus" aria-hidden="true" />
       </IconButton>
-      <Menu popover open={open} role="menu">
+      {/* align-start: the trigger sits at the LEFT of the section head, so the menu
+          must open rightward — the default (right: 0) sends it off the sheet's edge. */}
+      <Menu popover open={open} role="menu" className="align-start">
         <MenuLabel>New item</MenuLabel>
         {TYPES.map((t) => (
           <MenuItem
