@@ -1,8 +1,8 @@
 import { useLayoutEffect, useRef } from "react";
 import type { EncumbranceVM, IdentityVM, VitalsVM } from "@domain/vm-types";
-import { encTierClass, formatMod } from "@domain/format";
+import { formatMod } from "@domain/format";
 import { Stamp } from "@ui/Stamp";
-import { MoveRateRows, PopRow, StatPop } from "@ui/MovePop";
+import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
 
 /** Shrink a single-line element's font to fit its box (down to `min`x) instead of
@@ -87,16 +87,11 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         <div className="osc-tile osc-tile-move">
           <Stamp>MOVE</Stamp>
           <div className="osc-tile-v">{vitals.move}′</div>
-          <StatPop>
-            <MoveRateRows bands={m} />
-            {encumbrance?.enabled && (
-              <PopRow
-                k="Encumbrance"
-                v={encumbrance.status}
-                vClass={encTierClass(encumbrance.tier)}
-              />
-            )}
-          </StatPop>
+          <MoveTooltip
+            bands={m}
+            tier={encumbrance?.enabled ? encumbrance.tier : undefined}
+            status={encumbrance?.enabled ? encumbrance.status : undefined}
+          />
         </div>
       </div>
       <div className="osc-vitals">

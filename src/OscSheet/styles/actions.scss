@@ -376,7 +376,7 @@
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  z-index: 20;
+  z-index: var(--z-tooltip);
   min-width: 150px;
   display: flex;
   flex-direction: column;
@@ -394,6 +394,16 @@
 .osc-tile-move:focus-within .osc-move-pop {
   opacity: 1;
   visibility: visible;
+}
+// Lift the whole trigger (not just the popover) to the tooltip layer while open,
+// so the popover clears sibling stacking contexts — a sticky head or a rotated
+// caret — that would otherwise cap it and poke through. Both movement triggers
+// are position:relative already, so z-index takes effect here.
+.osc-tile-move:hover,
+.osc-tile-move:focus-within,
+.osc-enc-readout:hover,
+.osc-enc-readout:focus-within {
+  z-index: var(--z-tooltip);
 }
 .osc-move-pop .r {
   display: flex;

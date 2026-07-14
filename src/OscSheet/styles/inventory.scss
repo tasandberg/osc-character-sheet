@@ -34,8 +34,9 @@
   background-size: 100% 2px;
 }
 
-// --- encumbrance readout (inline in the header): the three movement rates, tinted
-// by tier; hover/focus reveals the tier name + load in the shared popover ---
+// --- encumbrance readout (inline above the load bar): the numeric load (muted) ·
+// the three movement rates (tinted by tier). Hover/focus reveals the shared
+// MoveTooltip (same rows as the header MOVE hover) ---
 .osc-enc-readout {
   position: relative; // popover anchor
   display: inline-flex; align-items: baseline; gap: var(--spacer-2);
@@ -44,9 +45,10 @@
   cursor: default;
 }
 .osc-enc-readout .sep { color: var(--text-faint); }
-// the rates carry the tier colour (--enc-c, set by .enc-t*); the units stay muted
+// the load (value/max) stays muted even though the tier class tints the element;
+// only the rates carry the tier colour (--enc-c, set by .enc-t*).
+.osc-enc-readout .load { color: var(--text-mute); }
 .osc-enc-readout .rate { color: var(--enc-c, var(--text-mute)); }
-.osc-enc-readout .u { color: var(--text-mute); }
 .osc-enc-readout:hover .osc-move-pop,
 .osc-enc-readout:focus-within .osc-move-pop { opacity: 1; visibility: visible; }
 // pop hangs off the right edge here — the readout sits at the header's right
@@ -198,6 +200,8 @@
   color: var(--text-mute, #8a8270);
   cursor: pointer; padding: 0 4px; font-size: var(--fs-sm, 13px); line-height: 1;
   transition: color 0.12s;
+  // the chevron rotates (a stacking context); pin it low so tooltips clear it.
+  position: relative; z-index: var(--z-raised);
 
   svg, i { transition: transform 0.18s; display: block; }
   &.collapsed svg, &.collapsed i { transform: rotate(-90deg); }
@@ -340,6 +344,9 @@
 .osc-whead .osc-wcaret {
   font-size: var(--fs-md, 15px); color: var(--text-mute, #8a8270);
   transition: transform 0.18s, color 0.15s;
+  // the rotate() below makes this a stacking context — pin it to the raised layer
+  // so it stays below hover tooltips instead of poking through them.
+  position: relative; z-index: var(--z-raised);
 }
 .osc-whead.open .osc-wcaret { transform: rotate(90deg); }
 .osc-inv .osc-whead:hover:not(:disabled) .osc-wcaret { color: var(--text, #e5dec8); }
@@ -437,7 +444,7 @@
 // no JS height measuring, no see-through gap between two separately-sticky bands.
 // Scroll container is .osc-sheet-body.
 .osc-inv-stickyhead {
-  position: sticky; top: 0; z-index: 7;
+  position: sticky; top: 0; z-index: var(--z-sticky);
   background: var(--bg);
 }
 .osc-inv-stickyhead .osc-inv-sec--equipped { margin: 0 0 var(--spacer-3); }

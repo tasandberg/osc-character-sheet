@@ -55,6 +55,46 @@ export const Tiers = () => (
   </div>
 );
 
+/**
+ * Regression repro for the caret poke-through: the encumbrance-line tooltip opens
+ * DOWN over the Wealth header's rotated `▶` caret (its own stacking context). Hover
+ * the rates line — the popover must fully cover the caret, nothing bleeding through.
+ */
+export const TooltipOverCaret = () => {
+  const e = vm(1, 500, "Lightly encumbered");
+  return (
+    <div style={{ padding: 16, minWidth: 520 }}>
+      <div
+        className="osc-inv-head enc-rule"
+        style={
+          {
+            "--enc-pct": `${Math.round(e.pct * 100)}%`,
+            "--enc-stops": encBarStops(e),
+          } as React.CSSProperties
+        }
+      >
+        <SectionTitle>Inventory</SectionTitle>
+        <EncumbranceReadout e={e} />
+      </div>
+      {/* stand-in for the real Wealth bar: an OPEN caret pushed to the RIGHT so it
+          sits directly under the right-aligned tooltip's drop zone. */}
+      <div className="osc-inv">
+        <button type="button" className="osc-whead open">
+          <span className="key">Wealth</span>
+          <span className="v">152 gp</span>
+          <i
+            className="osc-wcaret fa-solid fa-caret-right"
+            aria-hidden="true"
+            style={{ marginLeft: "auto", marginRight: 40 }}
+          >
+            ▶
+          </i>
+        </button>
+      </div>
+    </div>
+  );
+};
+
 /** Basic encumbrance: no weight axis, so the bar paints solid in the tier colour. */
 export const BasicVariant = () => {
   const e: EncumbranceVM = { ...vm(2, 0, "Heavily encumbered"), pct: 2 / 3, label: "", bands: [] };

@@ -195,6 +195,21 @@
   }
 }
 
+// --- z-index scale --------------------------------------------------------
+// A small, ordered set of stacking layers so components reference an intent
+// (`--z-tooltip`) instead of a magic integer, and so a hover popover can never
+// again be pierced by a caret sitting in a taller sibling stacking context.
+// Repo-local (this sheet only) — the shared @osc/vellum package stays untouched.
+// Values preserve the existing sticky-head number (7); everything popover-and-up
+// is new headroom above it.
+.osc-sheet {
+  --z-base: 0; // normal flow
+  --z-raised: 1; // small inline lifts (carets, chevrons)
+  --z-sticky: 7; // sticky section heads inside the scroll body
+  --z-popover: 12; // menus / dropdowns anchored to a control
+  --z-tooltip: 30; // hover popovers — above sticky heads and carets
+}
+
 // --- encumbrance tier colours ---------------------------------------------
 // One tier → one colour, everywhere: the inventory rates line, the tier string in
 // both hover popovers, and the load bar's gradient stops. Vellum tokens only —
