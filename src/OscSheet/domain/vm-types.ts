@@ -9,6 +9,13 @@ export interface IdentityVM {
   title: string;
 }
 
+/** The three OSE movement rates: per-round (ft) / per-turn (ft) / per-day (miles). */
+export interface MoveBandsVM {
+  encounter: number;
+  explore: number;
+  travel: number;
+}
+
 export interface VitalsVM {
   hp: { value: number; max: number };
   /** Resolved AC for display: value matching the ascendingAC setting + the mode. */
@@ -16,8 +23,7 @@ export interface VitalsVM {
   initMod: number;
   hd: string;
   move: number;
-  /** Movement bands for the MOVE pill popover (per-round / per-turn / per-day). */
-  moveBands: { encounter: number; explore: number; travel: number };
+  moveBands: MoveBandsVM;
 }
 
 export interface AbilityVM {
@@ -191,4 +197,6 @@ export interface EncumbranceVM {
   label: string;
   /** Current movement (ft), e.g. 120. */
   move: number;
+  /** Encumbered rates for all three bands (same figures as the header MOVE tile). */
+  moveBands: MoveBandsVM;
 }

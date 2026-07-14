@@ -44,6 +44,12 @@
 .osc-enc-readout.ok     .status, .osc-enc-readout.ok     .move { color: var(--forest); }
 .osc-enc-readout.warn   .status, .osc-enc-readout.warn   .move { color: var(--mustard); }
 .osc-enc-readout.danger .status, .osc-enc-readout.danger .move { color: var(--crimson); }
+// three movement bands: the rates carry the band colour, their labels stay quiet
+.osc-enc-readout .move { display: inline-flex; align-items: baseline; gap: var(--spacer-1); }
+.osc-enc-readout .move .k {
+  font-family: var(--sans); font-size: var(--fs-3xs);
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint);
+}
 
 // ---------------------------------------------------------------------------
 // List rows — 8-column grid

@@ -413,5 +413,11 @@ export function selectEncumbrance(
     status: TIER_STATUS[tier],
     label: isBasic ? "" : `${e.value} / ${e.max} ${unit}`,
     move,
+    // Same figures OSE feeds the header MOVE tile (encounter = base/3, overland = base/5).
+    moveBands: {
+      encounter: actor.system.movement?.encounter ?? 0,
+      explore: move,
+      travel: actor.system.movement?.overland ?? 0,
+    },
   };
 }

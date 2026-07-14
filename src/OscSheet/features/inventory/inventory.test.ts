@@ -247,6 +247,20 @@ describe("selectEncumbrance", () => {
     expect(e.move).toBe(120);
   });
 
+  it("exposes all three movement bands from the system's movement data", () => {
+    const actor = {
+      system: {
+        encumbrance: { value: 380, max: 1600, enabled: true },
+        movement: { base: 120, encounter: 40, overland: 24 },
+      },
+    } as unknown as OSEActor;
+    expect(selectEncumbrance(actor).moveBands).toEqual({
+      encounter: 40,
+      explore: 120,
+      travel: 24,
+    });
+  });
+
   it("drives tier/status off the system breakpoint flags, not raw %", () => {
     // 1071/1600 = 67%: old %-buckets said "Lightly"; OSE flags it at the 3rd
     // breakpoint (move already 30'), so it must read "Severely encumbered".
