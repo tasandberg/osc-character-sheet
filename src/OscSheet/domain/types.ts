@@ -17,6 +17,9 @@ export type AttackType = AttackKind | "attack";
 // Add props as needed
 export type OscContext = {
   document: OSEActor;
+  /** Foundry's `sheet.isEditable`, republished on every render (ownership can change
+   *  while the sheet is open). Absent outside a Foundry sheet (Storybook / tests). */
+  isEditable?: boolean;
 };
 
 export type OscSheetAppProps = {
