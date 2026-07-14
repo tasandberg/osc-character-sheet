@@ -23,6 +23,9 @@ type RowOpts = {
   container?: boolean;
   /** Container id reported back as the nest target's `zone`. */
   containerZone?: string;
+  /** This row sits INSIDE container `nestZone`: an accepted cross-group drop here
+   *  nests into that container rather than reordering/un-nesting. */
+  nestZone?: string;
   /** Group/zone label echoed back on reorder. */
   ownZone?: string;
   /** Accept a row dragged in from another group as a before/after drop here
@@ -93,11 +96,12 @@ export function useDragReorder(opts: {
         const into = !!o.container && !isSelf; // a container accepts any item except itself
         const crossGroup = !into && drag.group !== group;
         // Reorder only within the same group, unless this row accepts a cross-group
-        // drop (un-nest): then show a before/after line and route through onNest.
+        // drop (un-nest / nest-into): then route through onNest.
         if (crossGroup && !accepts(o, drag.group)) return;
+        const nestHere = crossGroup && !!o.nestZone; // a row inside a container: drop = nest into it
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
-        const where: DropWhere = into ? "into" : edgeWhere(e, o.axis ?? "y");
+        const where: DropWhere = into || nestHere ? "into" : edgeWhere(e, o.axis ?? "y");
         if (!over || over.group !== group || over.idx !== idx || over.where !== where)
           setOver({ group, idx, where });
       },
@@ -110,6 +114,8 @@ export function useDragReorder(opts: {
         e.preventDefault();
         if (into) {
           onNest?.({ fromGroup: drag.group, from: drag.idx, targetIdx: idx, zone: o.containerZone ?? null });
+        } else if (crossGroup && o.nestZone) {
+          onNest?.({ fromGroup: drag.group, from: drag.idx, targetIdx: idx, zone: o.nestZone });
         } else if (crossGroup) {
           // Un-nest: drop the foreign row among this group's rows at the drop edge.
           // No self-shift — the item leaves a different group, so `to` isn't perturbed.
