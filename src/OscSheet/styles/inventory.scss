@@ -17,33 +17,40 @@
 }
 .osc-inv-head .section-title { flex: 0 0 auto; margin: 0; padding-bottom: 0; border-bottom: none; }
 
-// Encumbrance-as-rule: the 2px header underline becomes the load bar. A fixed
-// green→yellow→red spectrum spans the whole track; we reveal it left→right up to
-// --enc-pct (so the fill's leading edge colour reads the load) and cover the
-// remainder with the dim section-rule. Same 2px thickness as the plain rule.
+// Encumbrance-as-rule: the 2px header underline becomes the load bar. The tier
+// spectrum spans the whole track, cut into hard-edged segments at the system's OWN
+// thresholds (--enc-stops, built from `encumbrance.steps` — see encBarStops), so the
+// colour flips exactly where the character changes tier. We reveal it left→right up
+// to --enc-pct and cover the remainder with the dim section-rule. Still 2px.
 .osc-inv-head.enc-rule {
   border-bottom: none;
   background-image:
     // top: transparent up to --enc-pct (reveals the spectrum), dim rule beyond
     linear-gradient(to right, transparent var(--enc-pct, 0%), var(--section-rule) var(--enc-pct, 0%)),
-    // bottom: the full load spectrum across the entire track
-    linear-gradient(to right, var(--forest), var(--mustard), var(--crimson));
+    // bottom: the tier spectrum across the entire track
+    linear-gradient(to right, var(--enc-stops, var(--enc-0)));
   background-repeat: no-repeat;
   background-position: left bottom;
   background-size: 100% 2px;
 }
 
-// --- encumbrance readout (inline in the header; band colour carries the signal, no bar) ---
+// --- encumbrance readout (inline in the header): the three movement rates, tinted
+// by tier; hover/focus reveals the tier name + load in the shared popover ---
 .osc-enc-readout {
+  position: relative; // popover anchor
   display: inline-flex; align-items: baseline; gap: var(--spacer-2);
   font-family: var(--mono); font-size: var(--fs-xs, 12px); letter-spacing: 0;
   color: var(--text-mute); white-space: nowrap;
+  cursor: default;
 }
 .osc-enc-readout .sep { color: var(--text-faint); }
-// load (value/max) stays muted; status + move carry the band colour
-.osc-enc-readout.ok     .status, .osc-enc-readout.ok     .move { color: var(--forest); }
-.osc-enc-readout.warn   .status, .osc-enc-readout.warn   .move { color: var(--mustard); }
-.osc-enc-readout.danger .status, .osc-enc-readout.danger .move { color: var(--crimson); }
+// the rates carry the tier colour (--enc-c, set by .enc-t*); the units stay muted
+.osc-enc-readout .rate { color: var(--enc-c, var(--text-mute)); }
+.osc-enc-readout .u { color: var(--text-mute); }
+.osc-enc-readout:hover .osc-move-pop,
+.osc-enc-readout:focus-within .osc-move-pop { opacity: 1; visibility: visible; }
+// pop hangs off the right edge here — the readout sits at the header's right
+.osc-enc-readout .osc-move-pop { right: 0; left: auto; }
 
 // ---------------------------------------------------------------------------
 // List rows — 8-column grid

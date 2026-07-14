@@ -44,7 +44,7 @@ const inventory: InventoryVM = {
   groups: [],
 };
 
-const encumbrance: EncumbranceVM = { enabled: true, value: 380, max: 1600, pct: 0.2375, tier: 0, status: "Unencumbered", label: "380 / 1600 cn", move: 120 };
+const encumbrance: EncumbranceVM = { enabled: true, value: 380, max: 1600, pct: 0.2375, tier: 0, status: "Unencumbered", label: "380 / 1600 cn", moveBands: { encounter: 40, explore: 120, travel: 24 }, bands: [25, 37.5, 50] };
 const coins = [
   { denom: "PP", id: "pp", name: "Platinum Pieces", img: "", value: 0, gpEach: 5 },
   { denom: "GP", id: "gp", name: "Gold Pieces", img: "", value: 152, gpEach: 1 },

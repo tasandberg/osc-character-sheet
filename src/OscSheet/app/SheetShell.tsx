@@ -75,6 +75,9 @@ export default function SheetShell() {
       travel: movement.overland,
     },
   };
+  // One encumbrance VM for both consumers — the header MOVE hover and the inventory
+  // rates line must never disagree about the tier.
+  const encumbrance = selectEncumbrance(actor, invItems as OseItem[]);
   // Read-only sheets get no HP stepper/input (undefined onSetHp → static value).
   const onSetHp = !canEdit ? undefined : (value: number) => {
     const next = Math.max(0, Math.min(vitals.hp.max, value));
@@ -316,6 +319,7 @@ export default function SheetShell() {
           <HeaderBand
             identity={identity}
             vitals={vitals}
+            encumbrance={encumbrance}
             onSetHp={onSetHp}
             // Intentionally gated on canEdit (= Foundry `sheet.isEditable`), not
             // raw actor.isOwner: a locked/compendium sheet legitimately shouldn't
@@ -347,7 +351,7 @@ export default function SheetShell() {
         ) : activeTab.id === TabIds.INVENTORY ? (
           <InventoryView
             inventory={selectInventory(invItems as OseItem[])}
-            encumbrance={selectEncumbrance(actor, invItems as OseItem[])}
+            encumbrance={encumbrance}
             coins={selectCoins(invItems as OseItem[])}
             onSetCoin={onSetCoin}
             onEquip={onEquipItem}

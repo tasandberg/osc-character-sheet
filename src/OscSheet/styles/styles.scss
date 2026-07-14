@@ -194,3 +194,26 @@
     pointer-events: none;
   }
 }
+
+// --- encumbrance tier colours ---------------------------------------------
+// One tier → one colour, everywhere: the inventory rates line, the tier string in
+// both hover popovers, and the load bar's gradient stops. Vellum tokens only —
+// tier 2 is the missing rung between mustard and crimson, so it's mixed from the
+// two rather than inventing a new brand colour.
+// On .osc-sheet, not :root — that's where the vellum palette actually lands once
+// scope-vellum.mjs has rewritten it, so var(--forest) resolves here (not at :root).
+.osc-sheet {
+  --enc-0: var(--forest);
+  --enc-1: var(--mustard);
+  --enc-2: color-mix(in oklab, var(--mustard) 45%, var(--crimson));
+  --enc-3: var(--crimson);
+  --enc-4: var(--crimson-dim);
+}
+
+@for $i from 0 through 4 {
+  .enc-t#{$i} {
+    --enc-c: var(--enc-#{$i});
+
+    color: var(--enc-c);
+  }
+}

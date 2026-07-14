@@ -368,7 +368,11 @@
   position: relative;
   cursor: default;
 }
+// Shared by the header MOVE tile and the inventory encumbrance line (see MovePop.tsx).
 .osc-move-pop {
+  // don't inherit the anchor's tier tint — only a `.vv.enc-t*` row opts back in
+  --enc-c: initial;
+
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
@@ -404,7 +408,8 @@
 .osc-move-pop .vv {
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
-  color: var(--text);
+  color: var(--enc-c, var(--text)); // tinted only on rows carrying a tier class
+  white-space: nowrap; // the pop widens for "Severely encumbered" rather than wrapping it
 }
 
 // --- abilities: 3-up (6-up wide) grid of ability plaques ---

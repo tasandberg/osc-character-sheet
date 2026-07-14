@@ -340,13 +340,22 @@ const TIER_STATUS = [
   "Overloaded",
 ] as const;
 
-/** World significant-treasure setting (basic encumbrance). Safe in non-Foundry tests. */
-function significantTreasure(): boolean {
+/** OSE's default significant-treasure threshold, in cn (basic encumbrance). */
+export const DEFAULT_SIGNIFICANT_TREASURE = 800;
+
+/**
+ * World significant-treasure setting (basic encumbrance), in cn. OSE registers it as a
+ * NUMBER — coercing it to a boolean fed `true` into the encumbrance ctor, where
+ * `options.significantTreasure || 800` kept the `true` and made every threshold check
+ * `value >= true`, i.e. tripping at 1cn of treasure. Safe in non-Foundry tests.
+ */
+export function significantTreasure(): number {
   try {
     const settings = game.settings as { get(ns: string, key: string): unknown };
-    return !!settings.get(game.system.id, "significantTreasure");
+    const v = Number(settings.get(game.system.id, "significantTreasure"));
+    return Number.isFinite(v) && v > 0 ? v : DEFAULT_SIGNIFICANT_TREASURE;
   } catch {
-    return false;
+    return DEFAULT_SIGNIFICANT_TREASURE;
   }
 }
 
@@ -358,7 +367,7 @@ function significantTreasure(): boolean {
 type EncumbranceCtor = new (
   max: number,
   items: OseItem[],
-  options: { significantTreasure: boolean; scores: unknown },
+  options: { significantTreasure: number; scores: unknown },
   strMod: number,
 ) => CharacterEncumbrance;
 
@@ -383,7 +392,7 @@ export function selectEncumbrance(
           },
           actor.system.scores?.str?.mod ?? 0,
         );
-  const move = actor.system.movement?.base ?? 0;
+  const movement = actor.system.movement;
   // Tier = highest breakpoint reached (over-limit tops out at 4); use the system's
   // variant-aware flags, not our own % buckets.
   const breakpoints = [
@@ -399,7 +408,7 @@ export function selectEncumbrance(
   // misleading cn load. Weight/slot variants keep their real value/max load + fill.
   const isBasic = e.variant === "basic";
   const pct = isBasic
-    ? Math.min(1, tier / 3)
+    ? Math.min(1, tier / BASIC_TIER_CAP)
     : e.max > 0
       ? Math.min(1, e.value / e.max)
       : 0;
@@ -412,6 +421,34 @@ export function selectEncumbrance(
     tier,
     status: TIER_STATUS[tier],
     label: isBasic ? "" : `${e.value} / ${e.max} ${unit}`,
-    move,
+    moveBands: {
+      encounter: movement?.encounter ?? 0,
+      explore: movement?.base ?? 0,
+      travel: movement?.overland ?? 0,
+    },
+    // The bar's colour must change exactly where the tier does. For weight/slot
+    // variants the axis IS weight, so the stops are the system's own breakpoints
+    // (`steps`, already variant- and mode-aware). Basic's bar has no weight axis
+    // (see above) — there are no thresholds to plot, so it gets no stops and paints
+    // solid in the current tier's colour instead of implying fictitious ones.
+    bands: isBasic ? [] : (e.steps ?? []),
   };
+}
+
+/** Basic tops out at the 3rd breakpoint — its synthetic bar fills tier/3. */
+const BASIC_TIER_CAP = 3;
+
+/**
+ * CSS colour-stop list for the encumbrance bar: one hard-edged segment per tier,
+ * cut at `bands` (the system's thresholds), so the colour flips precisely where the
+ * character changes tier. No stops ⇒ a solid bar in the current tier's colour.
+ * Colours are the shared `--enc-N` tier tokens — same tier, same colour, sheet-wide.
+ */
+export function encBarStops({ bands, tier }: Pick<EncumbranceVM, "bands" | "tier">): string {
+  if (bands.length === 0) return `var(--enc-${tier}) 0 100%`;
+  const edges = [0, ...bands, 100];
+  return edges
+    .slice(0, -1)
+    .map((from, i) => `var(--enc-${Math.min(i, 4)}) ${from}% ${edges[i + 1]}%`)
+    .join(", ");
 }
