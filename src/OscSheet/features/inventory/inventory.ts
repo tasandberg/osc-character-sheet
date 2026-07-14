@@ -438,17 +438,27 @@ export function selectEncumbrance(
 /** Basic tops out at the 3rd breakpoint — its synthetic bar fills tier/3. */
 const BASIC_TIER_CAP = 3;
 
+/** Half-width (in %) of the colour fade centred on each tier threshold. */
+const ENC_FADE_HALF = 4;
+
 /**
- * CSS colour-stop list for the encumbrance bar: one hard-edged segment per tier,
- * cut at `bands` (the system's thresholds), so the colour flips precisely where the
- * character changes tier. No stops ⇒ a solid bar in the current tier's colour.
- * Colours are the shared `--enc-N` tier tokens — same tier, same colour, sheet-wide.
+ * CSS colour-stop list for the encumbrance bar. Each tier holds its pure `--enc-N`
+ * colour across its band, then fades into the next over a narrow window CENTRED on
+ * the real threshold — so at a boundary % the colour is exactly 50/50 between the two
+ * tiers (the tier change still reads at the right spot), but the segments blend
+ * smoothly instead of butting hard edges. No thresholds ⇒ a solid bar in the current
+ * tier's colour. Colours are the shared `--enc-N` tokens — one tier, one colour.
  */
 export function encBarStops({ bands, tier }: Pick<EncumbranceVM, "bands" | "tier">): string {
   if (bands.length === 0) return `var(--enc-${tier}) 0 100%`;
-  const edges = [0, ...bands, 100];
-  return edges
-    .slice(0, -1)
-    .map((from, i) => `var(--enc-${Math.min(i, 4)}) ${from}% ${edges[i + 1]}%`)
-    .join(", ");
+  const stops = ["var(--enc-0) 0%"];
+  bands.forEach((t, i) => {
+    const from = Math.max(0, t - ENC_FADE_HALF);
+    const to = Math.min(100, t + ENC_FADE_HALF);
+    // hold this tier's colour up to the fade's start, then ramp to the next by its end
+    stops.push(`var(--enc-${Math.min(i, 4)}) ${from}%`);
+    stops.push(`var(--enc-${Math.min(i + 1, 4)}) ${to}%`);
+  });
+  stops.push(`var(--enc-${Math.min(bands.length, 4)}) 100%`);
+  return stops.join(", ");
 }

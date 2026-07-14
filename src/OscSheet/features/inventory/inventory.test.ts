@@ -361,9 +361,22 @@ describe("significant treasure (basic encumbrance)", () => {
 });
 
 describe("encBarStops", () => {
-  it("cuts one hard-edged segment per tier at the system's thresholds", () => {
+  it("fades between tiers over a window centred on each threshold", () => {
+    // ±4% around each threshold: pure colour held to (t-4), ramped to next by (t+4),
+    // so the boundary % itself is the 50/50 midpoint of the blend.
     expect(encBarStops({ bands: [25, 37.5, 50], tier: 1 })).toBe(
-      "var(--enc-0) 0% 25%, var(--enc-1) 25% 37.5%, var(--enc-2) 37.5% 50%, var(--enc-3) 50% 100%",
+      "var(--enc-0) 0%, " +
+        "var(--enc-0) 21%, var(--enc-1) 29%, " +
+        "var(--enc-1) 33.5%, var(--enc-2) 41.5%, " +
+        "var(--enc-2) 46%, var(--enc-3) 54%, " +
+        "var(--enc-3) 100%",
+    );
+  });
+
+  it("clamps the fade window to the bar edges", () => {
+    // a threshold within 4% of an edge can't overrun 0/100
+    expect(encBarStops({ bands: [2, 98], tier: 1 })).toBe(
+      "var(--enc-0) 0%, var(--enc-0) 0%, var(--enc-1) 6%, var(--enc-1) 94%, var(--enc-2) 100%, var(--enc-2) 100%",
     );
   });
 

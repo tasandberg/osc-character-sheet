@@ -18,10 +18,11 @@
 .osc-inv-head .section-title { flex: 0 0 auto; margin: 0; padding-bottom: 0; border-bottom: none; }
 
 // Encumbrance-as-rule: the 2px header underline becomes the load bar. The tier
-// spectrum spans the whole track, cut into hard-edged segments at the system's OWN
-// thresholds (--enc-stops, built from `encumbrance.steps` — see encBarStops), so the
-// colour flips exactly where the character changes tier. We reveal it left→right up
-// to --enc-pct and cover the remainder with the dim section-rule. Still 2px.
+// spectrum spans the whole track, each tier's colour blending into the next over a
+// narrow fade centred on the system's OWN thresholds (--enc-stops, built from
+// `encumbrance.steps` — see encBarStops), so the colour changes right where the
+// character changes tier while still reading as a smooth gradient. We reveal it
+// left→right up to --enc-pct and cover the remainder with the dim section-rule. 2px.
 .osc-inv-head.enc-rule {
   border-bottom: none;
   background-image:
@@ -39,15 +40,20 @@
 // MoveTooltip (same rows as the header MOVE hover) ---
 .osc-enc-readout {
   position: relative; // popover anchor
-  display: inline-flex; align-items: baseline; gap: var(--spacer-2);
+  display: inline-flex; align-items: baseline;
   font-family: var(--mono); font-size: var(--fs-xs, 12px); letter-spacing: 0;
   color: var(--text-mute); white-space: nowrap;
   cursor: default;
 }
-.osc-enc-readout .sep { color: var(--text-faint); }
 // the load (value/max) stays muted even though the tier class tints the element;
 // only the rates carry the tier colour (--enc-c, set by .enc-t*).
 .osc-enc-readout .load { color: var(--text-mute); }
+// rate cluster: tight gap around the two internal middots so the three scores read
+// as one group. Separated from the load by whitespace (margin), not a middot —
+// suppressed when there's no load so the rates don't get a leading indent.
+.osc-enc-readout .rates { display: inline-flex; align-items: baseline; gap: var(--spacer-1); }
+.osc-enc-readout .rates:not(:first-child) { margin-left: var(--spacer-4); }
+.osc-enc-readout .sep { color: var(--text-faint); }
 .osc-enc-readout .rate { color: var(--enc-c, var(--text-mute)); }
 .osc-enc-readout:hover .osc-move-pop,
 .osc-enc-readout:focus-within .osc-move-pop { opacity: 1; visibility: visible; }

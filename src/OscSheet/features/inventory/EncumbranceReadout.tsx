@@ -16,15 +16,12 @@ export function EncumbranceReadout({ e }: { e: EncumbranceVM }) {
       tabIndex={0}
       aria-label={`${e.status}. ${e.label ? `Load ${e.label}. ` : ""}Movement: ${moveRatesLabel(e.moveBands)}`}
     >
-      {e.label && (
-        <>
-          <span className="load">{e.label}</span>
-          <span className="sep" aria-hidden="true">
-            ·
-          </span>
-        </>
-      )}
-      <MoveRates bands={e.moveBands} />
+      {e.label && <span className="load">{e.label}</span>}
+      {/* load and rates are separated by whitespace (a margin on .rates), NOT a middot;
+          the only ·'s on the line are the two inside this cluster, between the rates. */}
+      <span className="rates">
+        <MoveRates bands={e.moveBands} />
+      </span>
       <MoveTooltip bands={e.moveBands} tier={e.tier} status={e.status} />
     </span>
   );
