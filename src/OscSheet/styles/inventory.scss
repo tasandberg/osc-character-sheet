@@ -40,16 +40,28 @@
   color: var(--text-mute); white-space: nowrap;
 }
 .osc-enc-readout .sep { color: var(--text-faint); }
-// load (value/max) stays muted; status + move carry the band colour
-.osc-enc-readout.ok     .status, .osc-enc-readout.ok     .move { color: var(--forest); }
-.osc-enc-readout.warn   .status, .osc-enc-readout.warn   .move { color: var(--mustard); }
-.osc-enc-readout.danger .status, .osc-enc-readout.danger .move { color: var(--crimson); }
-// three movement bands: the rates carry the band colour, their labels stay quiet
-.osc-enc-readout .move { display: inline-flex; align-items: baseline; gap: var(--spacer-1); }
-.osc-enc-readout .move .k {
+// load (value/max) stays muted; the status carries the band colour
+.osc-enc-readout.ok     .status { color: var(--forest); }
+.osc-enc-readout.warn   .status { color: var(--mustard); }
+.osc-enc-readout.danger .status { color: var(--crimson); }
+
+// --- movement bands: a centred row *below* the encumbrance rule. Kept off the
+// header line — three label/value pairs inline with the load + status read as a jumble.
+.osc-inv-moves {
+  display: flex; justify-content: center; align-items: baseline;
+  gap: var(--spacer-5);
+  margin: var(--spacer-2) 0 var(--spacer-1);
+}
+.osc-inv-moves .band { display: inline-flex; align-items: baseline; gap: var(--spacer-1); }
+.osc-inv-moves .k {
   font-family: var(--sans); font-size: var(--fs-3xs);
   text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint);
 }
+.osc-inv-moves .vv { font-family: var(--mono); font-size: var(--fs-xs, 12px); }
+// the rates carry the encumbrance band colour — the signal is "how fast am I, loaded?"
+.osc-inv-moves.ok     .vv { color: var(--forest); }
+.osc-inv-moves.warn   .vv { color: var(--mustard); }
+.osc-inv-moves.danger .vv { color: var(--crimson); }
 
 // ---------------------------------------------------------------------------
 // List rows — 8-column grid
@@ -444,8 +456,10 @@
 // outline-offset drop outline) clears the sticky band instead of being clipped.
 .osc-inv-sec--carried { margin-top: var(--spacer-3); }
 // static (non-collapsible) header: title on the left, "N items · X cn" on the right
+// centred (not baseline) so the icon-btn in the control slot sits on the row's
+// optical centre — matches .section-header, which is the pattern this mirrors.
 .osc-inv-sec-head {
-  display: flex; align-items: baseline; gap: var(--spacer-2); width: 100%;
+  display: flex; align-items: center; gap: var(--spacer-2); width: 100%;
   padding: var(--spacer-1) 0 var(--spacer-2);
   background: var(--bg);
   color: var(--text-mute, #8a8270);
@@ -455,8 +469,8 @@
   font-family: var(--mono); font-size: var(--fs-2xs, 11px);
   color: var(--text-faint, #6a6354); margin-left: auto; white-space: nowrap;
 }
-// add-item "+" trails the count; the row is baseline-aligned, the button isn't text
-.osc-inv-sec-head > .menu-host { display: inline-flex; align-self: center; }
+// the "+" trails the count, tight against it — the gap already separates them
+.osc-inv-sec-head > .menu-host { display: inline-flex; margin-left: calc(var(--spacer-1) * -1); }
 
 // --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
 .osc-equip-tray {
