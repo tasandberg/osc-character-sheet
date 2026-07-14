@@ -453,6 +453,18 @@
 }
 // the "+" sits beside the title; the row gap alone spaces it
 .osc-inv-sec-head > .menu-host { display: inline-flex; }
+// Quiet by default: it reads as part of the section label (.section-title.sub is
+// --text-mute), not as a brass call to action. The round variant's brass fill is
+// kept — but only on hover.
+.osc-inv-sec-head .icon-btn.round {
+  color: var(--text-mute);
+  border-color: currentcolor;
+}
+.osc-inv-sec-head .icon-btn.round:hover:not(:disabled) {
+  background: var(--accent-alt);
+  border-color: var(--accent-alt);
+  color: var(--on-accent);
+}
 
 // --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
 .osc-equip-tray {
