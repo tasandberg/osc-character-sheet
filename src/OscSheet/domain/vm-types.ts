@@ -1,4 +1,4 @@
-import type { OSESave, OseSpell } from "@domain/types";
+import type { AttackKind, OSESave, OseSpell } from "@domain/types";
 
 export interface IdentityVM {
   name: string;
@@ -44,7 +44,7 @@ export interface RollSpec {
 
 /** One attack mode (melee or missile) of a weapon: its hit/damage rolls + displays. */
 export interface AttackMode {
-  kind: "melee" | "missile";
+  kind: AttackKind;
   kindLabel: string;
   /** To-hit roll (1d20 + ability mod). */
   hit: RollSpec;

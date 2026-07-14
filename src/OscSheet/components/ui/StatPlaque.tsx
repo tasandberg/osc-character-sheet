@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { cx } from "./cx";
 import { Stamp } from "./Stamp";
-import { rollable } from "./rollable";
+import { rollable, type ActivateEvent } from "./rollable";
 
 /** An "ink-stamp key · big value · caption" stat cell, optionally wired to a
  *  roll. Two vellum variants (see `.plaque` in components.css):
@@ -24,7 +24,7 @@ export function StatPlaque({
   stampKey: ReactNode;
   value: ReactNode;
   caption?: ReactNode;
-  onActivate?: () => void;
+  onActivate?: (event: ActivateEvent) => void;
   className?: string;
   title?: string;
   "data-testid"?: string;

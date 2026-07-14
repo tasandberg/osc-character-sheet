@@ -1,4 +1,7 @@
-import type { OSEActor, OSESave, OseItem } from "@domain/types";
+import type { MouseEvent } from "react";
+import type { AttackKind, OSEActor, OSESave, OseItem } from "@domain/types";
+import { skipRollDialog } from "@domain/rolls/skipRollDialog";
+import { buildWeaponAttack } from "@domain/rolls/weaponAttack";
 import type { RollSpec } from "@domain/vm-types";
 import { selectAbilities } from "@features/actions/abilities";
 import { selectAttacks } from "@features/actions/attacks";
@@ -11,6 +14,7 @@ import { AttacksTable } from "@features/actions/AttacksTable";
 import { MemorizedSpells } from "@features/actions/MemorizedSpells";
 import { SavesGrid, ExplorationGrid } from "@features/actions/SavesExploration";
 import { SectionTitle } from "@ui/SectionTitle";
+import type { ActivateEvent } from "@ui/rollable";
 import { useOscSheetContext } from "@app/context";
 
 type Props = { actor: OSEActor };
@@ -23,17 +27,21 @@ export function ActionsView({ actor }: Props) {
   // stay available even read-only; the composite Attack can write (missile ammo
   // decrement), so it's gated on the global edit permission.
   const { canEdit } = useOscSheetContext();
-  const onAbility = (key: string) => actor.rollCheck(key, {});
+  const onAbility = (key: string, event: ActivateEvent) => actor.rollCheck(key, { event });
   // Hit/Damage are custom formula rolls (OSE has no separate hit/damage roll). The
   // Vellum card is target-aware: a hit roll shows HIT/MISS vs the current target's AC,
   // a damage roll offers GMs an apply-damage button. No target → plain card.
   const onRoll = (spec: RollSpec) => void postRollCard(actor, spec);
-  // The composite "Attack" uses OSE's own weapon roll dialog.
-  const onAttack = (itemId: string) =>
-    actor.system.weapons.find((w) => w._id === itemId)?.rollWeapon({ skipDialog: false });
+  // Straight to OSE's attack roll — the row's mode switch replaces its range dialog.
+  const onAttack = (itemId: string, kind: AttackKind, event: MouseEvent) => {
+    const weapon = actor.system.weapons.find((w) => w._id === itemId);
+    if (!weapon) return;
+    const { rollData, type } = buildWeaponAttack(actor, weapon, kind);
+    actor.targetAttack(rollData, type, { type, skipDialog: skipRollDialog(event) });
+  };
   const onOpenWeapon = (itemId: string) => actor.items.get(itemId)?.sheet?.render(true);
-  const onSave = (key: OSESave) => actor.rollSave(key, {});
-  const onExploration = (key: string) => rollExploration(actor, key);
+  const onSave = (key: OSESave, event: ActivateEvent) => actor.rollSave(key, { event });
+  const onExploration = (key: string, event: ActivateEvent) => rollExploration(actor, key, event);
   // Drag a weapon card onto the macro hotbar → OSE's hotbarDrop creates an attack
   // macro, same as dragging the item's inventory row.
   const dragData = (itemId: string) => {

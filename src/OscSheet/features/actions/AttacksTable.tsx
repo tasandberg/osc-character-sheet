@@ -1,4 +1,5 @@
-import { useState, type DragEvent } from "react";
+import { useState, type DragEvent, type MouseEvent } from "react";
+import type { AttackKind } from "@domain/types";
 import type { AttackVM, RollSpec } from "@domain/vm-types";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
@@ -10,8 +11,12 @@ type Props = {
   attacks: AttackVM[];
   /** Roll a hit/damage formula (custom roll). */
   onRoll?: (spec: RollSpec) => void;
-  /** Composite attack roll (OSE weapon dialog). */
-  onAttack?: (itemId: string) => void;
+  /** Composite attack roll for the active mode. Event carries ctrl/meta (skip dialog). */
+  onAttack?: (
+    itemId: string,
+    kind: AttackKind,
+    event: MouseEvent<HTMLButtonElement>,
+  ) => void;
   /** Open the weapon's item sheet (click the name). */
   onOpen?: (itemId: string) => void;
   /** Foundry item drag-data for a weapon, so its card drops onto the macro hotbar
@@ -28,7 +33,7 @@ function monogram(name: string): string {
   return (name.trim().charAt(0) || "?").toUpperCase();
 }
 
-const kindIcon = (kind: "melee" | "missile") =>
+const kindIcon = (kind: AttackKind) =>
   kind === "melee" ? "fa-sword" : "fa-bow-arrow";
 
 /** One weapon card. A melee+missile weapon shows both kind tags as a toggle
@@ -202,7 +207,7 @@ function WeaponRow({
         data-testid={`weapon-attack-${a.itemId}`}
         {...(canAttack ? macroDrag : {})}
         disabled={!canAttack || !onAttack}
-        onClick={() => onAttack?.(a.itemId)}
+        onClick={(e) => onAttack?.(a.itemId, mode.kind, e)}
         title="Attack roll (hit + damage)"
         variant="outline"
         tone="brass"
@@ -217,7 +222,7 @@ function WeaponRow({
 
 /** Equipped-weapon attacks as woodcut weapon cards: ink-stamp monogram, name +
  *  melee/missile + quality tags, clickable HIT/DMG stat cells (FA dice), and a
- *  tall brass Attack button (full hit + damage via the OSE weapon dialog). */
+ *  tall brass Attack button (full hit + damage for the active mode). */
 export function AttacksTable({
   attacks,
   onRoll,
