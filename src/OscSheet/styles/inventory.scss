@@ -455,8 +455,9 @@
   color: var(--text-mute);
   transform: translateY(-1px);
 }
-// the caret's default 14px assumes a 28px trigger; centre it on this 18px one.
-.osc-inv-sec-head .menu.is-popover.align-start::before { left: 3px; }
+// hang the box left of the trigger so the caret keeps its natural 14px inset and
+// still lands on the 18px button's centre (-11 + 14 + half the 12px caret = 9px).
+.osc-inv-sec-head .menu.is-popover.align-start { left: -11px; }
 
 // --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
 .osc-equip-tray {
