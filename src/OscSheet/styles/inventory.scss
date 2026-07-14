@@ -35,30 +35,43 @@
   background-size: 100% 2px;
 }
 
-// --- encumbrance readout (inline above the load bar): the numeric load (muted) ·
-// the three movement rates (tinted by tier). Hover/focus reveals the shared
-// MoveTooltip (same rows as the header MOVE hover) ---
+// --- encumbrance readout (above the load bar): rates on the LEFT (tinted by tier),
+// the cn load on the RIGHT. Fills the header row (flex: 1) so space-between pushes the
+// load to the right edge — lining its cn up with the section headers' cn totals below.
+// Hover/focus reveals the shared MoveTooltip (positioned in JS; see MovePop.tsx). ---
 .osc-enc-readout {
-  position: relative; // popover anchor
-  display: inline-flex; align-items: baseline;
+  position: relative; // reference for the hover anchor
+  flex: 1 1 auto; // take the row width left of nothing/right of the title
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--spacer-3);
   font-family: var(--mono); font-size: var(--fs-xs, 12px); letter-spacing: 0;
   color: var(--text-mute); white-space: nowrap;
   cursor: default;
 }
-// the load (value/max) stays muted even though the tier class tints the element;
-// only the rates carry the tier colour (--enc-c, set by .enc-t*).
+// the load (value/max) stays muted even though the tier class tints the element.
 .osc-enc-readout .load { color: var(--text-mute); }
-// rate cluster: tight gap around the two internal middots so the three scores read
-// as one group. Separated from the load by whitespace (margin), not a middot —
-// suppressed when there's no load so the rates don't get a leading indent.
-.osc-enc-readout .rates { display: inline-flex; align-items: baseline; gap: var(--spacer-1); }
-.osc-enc-readout .rates:not(:first-child) { margin-left: var(--spacer-4); }
-.osc-enc-readout .sep { color: var(--text-faint); }
-.osc-enc-readout .rate { color: var(--enc-c, var(--text-mute)); }
-.osc-enc-readout:hover .osc-move-pop,
-.osc-enc-readout:focus-within .osc-move-pop { opacity: 1; visibility: visible; }
-// pop hangs off the right edge here — the readout sits at the header's right
-.osc-enc-readout .osc-move-pop { right: 0; left: auto; }
+// rate cluster: very tight gap (2px) around the tier-tinted slash separators so the
+// three scores read as one compact group.
+.osc-enc-readout .rates { display: inline-flex; align-items: baseline; gap: 2px; }
+// the rates AND their `/` separators carry the tier colour (--enc-c, set by .enc-t*).
+.osc-enc-readout .rate,
+.osc-enc-readout .rates .sep { color: var(--enc-c, var(--text-mute)); }
+
+// --- reference rail (below the bar, above Wealth): the full-unit movement labels,
+// thin and understated — a plain readout for eyeballing the labelled rates. ---
+.osc-enc-rail {
+  display: flex; align-items: baseline; gap: var(--spacer-2);
+  margin: var(--spacer-2) 0 var(--spacer-3);
+  font-family: var(--mono); font-size: var(--fs-2xs, 11px);
+  color: var(--text-faint); white-space: nowrap;
+}
+.osc-enc-rail-k {
+  font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.1em;
+  font-size: var(--fs-3xs, 10px); color: var(--text-mute);
+}
+.osc-enc-rail-rates { display: inline-flex; align-items: baseline; gap: var(--spacer-2); }
+.osc-enc-rail .sep { color: var(--text-faint); }
+.osc-enc-rail .u { opacity: 0.75; }
 
 // ---------------------------------------------------------------------------
 // List rows — 8-column grid

@@ -2,19 +2,15 @@
 // encumbrance line. `MoveTooltip` is the single source for the popover BODY — both
 // call sites render it, neither re-composes the rows, so the two hovers can never
 // drift apart again. The tier→colour helper lives in @domain/format (encTierClass).
-import type { ReactNode } from "react";
+//
+// The popover is `position: fixed`, positioned in JS off its trigger's rect. Fixed
+// (with no transformed ancestor — verified for the sheet shell) is NOT clipped by an
+// ancestor's `overflow: auto/hidden`, so the popover renders in full even when it
+// lives inside a self-scrolling container like the capped character rail.
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { EncumbranceTier, MoveBands } from "@domain/vm-types";
 import { encTierClass } from "@domain/format";
 import { cx } from "@ui/cx";
-
-/** Hover popover shell (`.osc-move-pop` — the styles both hovers share). */
-function StatPop({ children }: { children: ReactNode }) {
-  return (
-    <span className="osc-move-pop" role="tooltip">
-      {children}
-    </span>
-  );
-}
 
 /** One key/value line inside the popover; `vClass` tints the value (tier colour). */
 function PopRow({ k, v, vClass }: { k: ReactNode; v: ReactNode; vClass?: string }) {
@@ -26,10 +22,59 @@ function PopRow({ k, v, vClass }: { k: ReactNode; v: ReactNode; vClass?: string 
   );
 }
 
+// Hidden until the trigger (this element's parent) is hovered/focused; then pinned
+// with `position: fixed` just under the trigger. Repositions on scroll/resize so it
+// stays glued while open. Returns the ref for the popover element + its inline style.
+function useTriggerAnchoredFixed(): {
+  ref: React.RefObject<HTMLSpanElement | null>;
+  style: CSSProperties;
+} {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [style, setStyle] = useState<CSSProperties>({ display: "none" });
+
+  useEffect(() => {
+    const trigger = ref.current?.parentElement;
+    if (!trigger) return;
+    let open = false;
+    const place = () => {
+      const r = trigger.getBoundingClientRect();
+      setStyle({ position: "fixed", top: r.bottom + 6, left: r.left });
+    };
+    const show = () => {
+      open = true;
+      place();
+    };
+    const hide = () => {
+      open = false;
+      setStyle({ display: "none" });
+    };
+    const reposition = () => {
+      if (open) place();
+    };
+    trigger.addEventListener("pointerenter", show);
+    trigger.addEventListener("pointerleave", hide);
+    trigger.addEventListener("focusin", show);
+    trigger.addEventListener("focusout", hide);
+    window.addEventListener("scroll", reposition, true);
+    window.addEventListener("resize", reposition);
+    return () => {
+      trigger.removeEventListener("pointerenter", show);
+      trigger.removeEventListener("pointerleave", hide);
+      trigger.removeEventListener("focusin", show);
+      trigger.removeEventListener("focusout", hide);
+      window.removeEventListener("scroll", reposition, true);
+      window.removeEventListener("resize", reposition);
+    };
+  }, []);
+
+  return { ref, style };
+}
+
 /**
- * The one and only movement popover body: the three OSE rates (full labels) plus
- * the encumbrance tier that explains them. Rendered verbatim by BOTH the header MOVE
- * tile and the encumbrance line — change it here, both change.
+ * The one and only movement popover body: the three OSE rates (full labels, each in
+ * its own unit) plus the encumbrance tier that explains them. Rendered verbatim by
+ * BOTH the header MOVE tile and the encumbrance line — change it here, both change.
+ * Must be placed as a direct child of the trigger element (its parent = the anchor).
  */
 export function MoveTooltip({
   bands,
@@ -41,31 +86,58 @@ export function MoveTooltip({
   tier?: EncumbranceTier;
   status?: string;
 }) {
+  const { ref, style } = useTriggerAnchoredFixed();
   return (
-    <StatPop>
-      <PopRow k="Encounter" v={`${bands.encounter}′`} />
-      <PopRow k="Explore" v={`${bands.explore}′`} />
-      <PopRow k="Travel" v={`${bands.travel} mi`} />
+    <span className="osc-move-pop" role="tooltip" ref={ref} style={style}>
+      {/* per-unit suffixes match the OSE rate the value is quoted in — don't cross
+          them: explore is per turn, encounter per round, travel miles per day. */}
+      <PopRow k="Encounter" v={`${bands.encounter}′/round`} />
+      <PopRow k="Explore" v={`${bands.explore}′/turn`} />
+      <PopRow k="Travel" v={`${bands.travel} mi/day`} />
       {tier !== undefined && status && (
         <PopRow k="Encumbrance" v={status} vClass={encTierClass(tier)} />
       )}
-    </StatPop>
+    </span>
   );
 }
 
-/** The three rates on one line, terse: `120′ · 40′ · 24mi` (explore · encounter · travel). */
+/** The three rates on one line, terse: `120′ / 40′ / 24mi` (explore / encounter / travel). */
 export function MoveRates({ bands }: { bands: MoveBands }) {
   return (
     <>
       <span className="rate">{bands.explore}′</span>
       <span className="sep" aria-hidden="true">
-        ·
+        /
       </span>
       <span className="rate">{bands.encounter}′</span>
       <span className="sep" aria-hidden="true">
-        ·
+        /
       </span>
       <span className="rate">{bands.travel}mi</span>
+    </>
+  );
+}
+
+/** The full-unit form: `90′/turn · 30′/round · 18 mi/day` — for the reference rail. */
+export function MoveRatesFull({ bands }: { bands: MoveBands }) {
+  return (
+    <>
+      <span className="rate">
+        {bands.explore}′<span className="u">/turn</span>
+      </span>
+      <span className="sep" aria-hidden="true">
+        ·
+      </span>
+      <span className="rate">
+        {bands.encounter}′<span className="u">/round</span>
+      </span>
+      <span className="sep" aria-hidden="true">
+        ·
+      </span>
+      <span className="rate">
+        {bands.travel}
+        <span className="u"> mi/day</span>
+      </span>
     </>
   );
 }

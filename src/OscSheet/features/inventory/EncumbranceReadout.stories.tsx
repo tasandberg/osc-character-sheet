@@ -1,9 +1,10 @@
-// The inventory header's encumbrance line + load bar, one row per tier — the
-// InventoryView story can't render (it needs the sheet context), so this is where
-// the tier colours and the bar's threshold cuts are checked visually.
+// The inventory header's encumbrance line + load bar, plus the reference rail — the
+// InventoryView story can't render (it needs the sheet context), so this is where the
+// tier colours, threshold cuts, cn right-alignment, rail, and popover are checked.
 import type { EncumbranceVM } from "@domain/vm-types";
 import { EncumbranceReadout } from "@features/inventory/EncumbranceReadout";
 import { encBarStops } from "@features/inventory/inventory";
+import { MoveRatesFull } from "@ui/MovePop";
 import { SectionTitle } from "@ui/SectionTitle";
 
 export default { title: "Inventory / EncumbranceReadout" };
@@ -19,13 +20,27 @@ const vm = (tier: EncumbranceVM["tier"], value: number, status: string): Encumbr
   tier,
   status,
   label: `${value} / 1600 cn`,
-  // rates at each tier: base 120 → ×0.75 / ×0.5 / ×0.25 / 0
+  // rates at each tier: base 120 -> x0.75 / x0.5 / x0.25 / 0
   moveBands: (() => {
     const base = [120, 90, 60, 30, 0][tier];
     return { encounter: base / 3, explore: base, travel: base / 5 };
   })(),
   bands: STEPS,
 });
+
+function Head({ e }: { e: EncumbranceVM }) {
+  return (
+    <div
+      className="osc-inv-head enc-rule"
+      style={
+        { "--enc-pct": `${Math.round(e.pct * 100)}%`, "--enc-stops": encBarStops(e) } as React.CSSProperties
+      }
+    >
+      <SectionTitle>Inventory</SectionTitle>
+      <EncumbranceReadout e={e} />
+    </div>
+  );
+}
 
 const ROWS: EncumbranceVM[] = [
   vm(0, 300, "Unencumbered"),
@@ -36,82 +51,65 @@ const ROWS: EncumbranceVM[] = [
 ];
 
 export const Tiers = () => (
-  <div style={{ display: "flex", flexDirection: "column", gap: 24, padding: 16, minWidth: 520 }}>
+  <div className="osc-inv" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 16, width: 520 }}>
     {ROWS.map((e) => (
-      <div
-        key={e.tier}
-        className="osc-inv-head enc-rule"
-        style={
-          {
-            "--enc-pct": `${Math.round(e.pct * 100)}%`,
-            "--enc-stops": encBarStops(e),
-          } as React.CSSProperties
-        }
-      >
-        <SectionTitle>Inventory</SectionTitle>
-        <EncumbranceReadout e={e} />
-      </div>
+      <Head key={e.tier} e={e} />
     ))}
   </div>
 );
 
-/**
- * Regression repro for the caret poke-through: the encumbrance-line tooltip opens
- * DOWN over the Wealth header's rotated `▶` caret (its own stacking context). Hover
- * the rates line — the popover must fully cover the caret, nothing bleeding through.
- */
-export const TooltipOverCaret = () => {
-  const e = vm(1, 500, "Lightly encumbered");
+// Full stack: bar + rates-left/load-right, the rail, then section headers — to check
+// the load's cn lines up with the Equipped / All-Items / Wealth cn totals below.
+export const FullHeader = () => {
+  const e = vm(2, 690, "Heavily encumbered");
   return (
-    <div style={{ padding: 16, minWidth: 520 }}>
-      <div
-        className="osc-inv-head enc-rule"
-        style={
-          {
-            "--enc-pct": `${Math.round(e.pct * 100)}%`,
-            "--enc-stops": encBarStops(e),
-          } as React.CSSProperties
-        }
-      >
-        <SectionTitle>Inventory</SectionTitle>
-        <EncumbranceReadout e={e} />
+    <div className="osc-inv" style={{ padding: 16, width: 480 }}>
+      <Head e={e} />
+      <div className="osc-enc-rail">
+        <span className="osc-enc-rail-k">Encumbrance:</span>
+        <span className="osc-enc-rail-rates">
+          <MoveRatesFull bands={e.moveBands} />
+        </span>
       </div>
-      {/* stand-in for the real Wealth bar: an OPEN caret pushed to the RIGHT so it
-          sits directly under the right-aligned tooltip's drop zone. */}
-      <div className="osc-inv">
-        <button type="button" className="osc-whead open">
-          <span className="key">Wealth</span>
-          <span className="v">152 gp</span>
-          <i
-            className="osc-wcaret fa-solid fa-caret-right"
-            aria-hidden="true"
-            style={{ marginLeft: "auto", marginRight: 40 }}
-          >
-            ▶
-          </i>
-        </button>
+      <button type="button" className="osc-whead" style={{ display: "flex", width: "100%" }}>
+        <span className="key">Wealth</span>
+        <span className="v">152 gp</span>
+        <span className="wt">140 cn</span>
+      </button>
+      <div className="osc-inv-sec-head">
+        <span className="section-title sub">Equipped items</span>
+        <span className="osc-inv-sec-count">4 items · 230 cn</span>
+      </div>
+      <div className="osc-inv-sec-head">
+        <span className="section-title sub">All items</span>
+        <span className="osc-inv-sec-count">9 items · 306 cn</span>
       </div>
     </div>
   );
 };
 
-/** Basic encumbrance: no weight axis, so the bar paints solid in the tier colour. */
+// The MOVE/enc popover is position:fixed, so it must render in full even when an
+// ancestor scrolls/clips (mirrors the capped character rail). Hover the line — the
+// popover should spill OUTSIDE this overflow:hidden box, not be cut off at its edge.
+export const ClippedAncestor = () => {
+  const e = vm(2, 690, "Heavily encumbered");
+  return (
+    <div style={{ padding: 40 }}>
+      <div style={{ width: 260, height: 60, overflow: "hidden", outline: "1px dashed #a55", padding: 8 }}>
+        <div className="osc-inv" style={{ width: "100%" }}>
+          <Head e={e} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Basic encumbrance: no weight axis, so the bar paints solid in the tier colour.
 export const BasicVariant = () => {
   const e: EncumbranceVM = { ...vm(2, 0, "Heavily encumbered"), pct: 2 / 3, label: "", bands: [] };
   return (
-    <div style={{ padding: 16, minWidth: 520 }}>
-      <div
-        className="osc-inv-head enc-rule"
-        style={
-          {
-            "--enc-pct": `${Math.round(e.pct * 100)}%`,
-            "--enc-stops": encBarStops(e),
-          } as React.CSSProperties
-        }
-      >
-        <SectionTitle>Inventory</SectionTitle>
-        <EncumbranceReadout e={e} />
-      </div>
+    <div className="osc-inv" style={{ padding: 16, width: 520 }}>
+      <Head e={e} />
     </div>
   );
 };

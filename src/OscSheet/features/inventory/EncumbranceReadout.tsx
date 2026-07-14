@@ -1,7 +1,8 @@
-// Encumbrance readout above the load bar: the numeric load (X / 1600 cn, muted) and
-// the three movement rates (terse, tinted by tier). The rates replace the old tier
-// WORD — the load number stays. Hover shows the shared MoveTooltip: same rows, same
-// component as the header MOVE stat hover.
+// Encumbrance readout above the load bar: the three movement rates on the LEFT
+// (terse, tinted by tier) and the numeric load (X / 1600 cn, muted) pushed to the
+// RIGHT edge so it lines up with the cn totals on the section headers below. The
+// rates replace the old tier WORD — the load number stays. Hover shows the shared
+// MoveTooltip: same rows, same component as the header MOVE stat hover.
 import type { EncumbranceVM } from "@domain/vm-types";
 import { encTierClass, moveRatesLabel } from "@domain/format";
 import { cx } from "@ui/cx";
@@ -16,12 +17,10 @@ export function EncumbranceReadout({ e }: { e: EncumbranceVM }) {
       tabIndex={0}
       aria-label={`${e.status}. ${e.label ? `Load ${e.label}. ` : ""}Movement: ${moveRatesLabel(e.moveBands)}`}
     >
-      {e.label && <span className="load">{e.label}</span>}
-      {/* load and rates are separated by whitespace (a margin on .rates), NOT a middot;
-          the only ·'s on the line are the two inside this cluster, between the rates. */}
       <span className="rates">
         <MoveRates bands={e.moveBands} />
       </span>
+      {e.label && <span className="load">{e.label}</span>}
       <MoveTooltip bands={e.moveBands} tier={e.tier} status={e.status} />
     </span>
   );

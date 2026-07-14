@@ -363,22 +363,21 @@
   font-size: var(--fs-2xs, 11px);
   color: var(--text);
 }
-// MOVE tile reveals the movement bands on hover
 .osc-tile-move {
-  position: relative;
   cursor: default;
 }
 // Shared by the header MOVE tile and the inventory encumbrance line (see MovePop.tsx).
+// Positioned in JS as `position: fixed` (inline style) so it escapes any overflow-
+// clipping ancestor — the character rail self-scrolls, and fixed with no transformed
+// ancestor is not clipped by it. `display:none` (inline) when closed. z-index keeps it
+// above sheet content (carets, sticky heads) when the layers happen to overlap.
 .osc-move-pop {
   // don't inherit the anchor's tier tint — only a `.vv.enc-t*` row opts back in
   --enc-c: initial;
 
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
   z-index: var(--z-tooltip);
   min-width: 150px;
-  display: flex;
+  display: flex; // open state; inline `display:none` hides it when closed
   flex-direction: column;
   gap: 3px;
   padding: var(--spacer-2) var(--spacer-2);
@@ -386,24 +385,7 @@
   border: 1px solid var(--gold-soft);
   border-radius: var(--r-lg, 10px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.12s;
-}
-.osc-tile-move:hover .osc-move-pop,
-.osc-tile-move:focus-within .osc-move-pop {
-  opacity: 1;
-  visibility: visible;
-}
-// Lift the whole trigger (not just the popover) to the tooltip layer while open,
-// so the popover clears sibling stacking contexts — a sticky head or a rotated
-// caret — that would otherwise cap it and poke through. Both movement triggers
-// are position:relative already, so z-index takes effect here.
-.osc-tile-move:hover,
-.osc-tile-move:focus-within,
-.osc-enc-readout:hover,
-.osc-enc-readout:focus-within {
-  z-index: var(--z-tooltip);
+  pointer-events: none; // display-only; never intercept clicks on content below
 }
 .osc-move-pop .r {
   display: flex;
