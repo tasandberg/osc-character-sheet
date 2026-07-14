@@ -438,8 +438,6 @@
 // outline-offset drop outline) clears the sticky band instead of being clipped.
 .osc-inv-sec--carried { margin-top: var(--spacer-3); }
 // static (non-collapsible) header: title on the left, "N items · X cn" on the right
-// centred (not baseline) so the icon-btn in the control slot sits on the row's
-// optical centre — matches .section-header, which is the pattern this mirrors.
 .osc-inv-sec-head {
   display: flex; align-items: center; gap: var(--spacer-2); width: 100%;
   padding: var(--spacer-1) 0 var(--spacer-2);
@@ -451,18 +449,14 @@
   font-family: var(--mono); font-size: var(--fs-2xs, 11px);
   color: var(--text-faint, #6a6354); margin-left: auto; white-space: nowrap;
 }
-// the "+" sits beside the title; the row gap alone spaces it
 .osc-inv-sec-head > .menu-host { display: inline-flex; }
-// A plain glyph, no chrome: at rest it matches the section label
-// (.section-title.sub is --text-mute) rather than reading as a call to action.
-// The accent variant already carries the brass hover.
-// The nudge is optical, not layout: the label is all-caps, so its glyphs sit above
-// the baseline with empty descender space below — its optical centre is higher than
-// its box centre, and a box-centred glyph beside it reads low.
+// translateY is optical: the all-caps label's centre sits above its box centre.
 .osc-inv-sec-head .icon-btn {
   color: var(--text-mute);
   transform: translateY(-1px);
 }
+// the caret's default 14px assumes a 28px trigger; centre it on this 18px one.
+.osc-inv-sec-head .menu.is-popover.align-start::before { left: 3px; }
 
 // --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
 .osc-equip-tray {
