@@ -60,6 +60,7 @@ export const Default = () => (
       encumbrance={encumbrance}
       coins={coins}
       onSetCoin={log("setCoin")}
+      onCreate={log("create")}
       onEquip={log("equip")}
       onOpen={log("open")}
       onDelete={log("delete")}
