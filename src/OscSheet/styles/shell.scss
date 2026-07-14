@@ -23,7 +23,10 @@
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  container-type: inline-size;
+  // `size` (not `inline-size`) so descendants can read the scrollport's block size
+  // via `cqb` — the sticky rail caps its height to it (see .osc-left below). Height is
+  // set by the flex chain, so block-size containment adds no layout risk.
+  container-type: size;
   container-name: sheet;
   scrollbar-width: thin;
   scrollbar-color: var(--surface-3, #3a3429) transparent;
@@ -189,6 +192,11 @@
   .osc-twopane > .osc-left {
     position: sticky;
     top: 0;
+    // Cap to the scrollport so a rail taller than the pane can't un-pin and slide
+    // off the top at the scroll extremes (a sticky box taller than its scrollport
+    // travels in the last railH−paneH px). Overflow scrolls the rail's own content.
+    max-height: calc(100cqb - 2 * var(--spacer-6));
+    overflow-y: auto;
     border-bottom: none;
     padding-bottom: 0;
     margin-bottom: 0;
