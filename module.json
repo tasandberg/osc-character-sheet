@@ -1,7 +1,7 @@
 {
   "id": "osc-character-sheet",
-  "title": "Enhanced OSE Character Sheet",
-  "description": "An alternative character sheet for the Old School Essentials system in Foundry VTT. Part of the Old-School Chronicle tool set.",
+  "title": "Enhanced Character Sheet for Old-School Essentials",
+  "description": "An alternative character sheet for the Old-School Essentials system in Foundry VTT. Part of the Old-School Chronicle tool set.",
   "version": "0.4.1",
   "authors": [
     {

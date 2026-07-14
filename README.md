@@ -1,8 +1,8 @@
-# Old-School Chronicle: Character Sheet
+# Enhanced Character Sheet for Old-School Essentials
 
-A fresh, responsive character sheet for **[Old School Essentials](https://necroticgnome.com/)** in Foundry VTT — rebuilt in React for a faster, cleaner play experience.
+A fresh, responsive character sheet for **[Old-School Essentials](https://necroticgnome.com/)** in Foundry VTT — rebuilt in React for a faster, cleaner play experience.
 
-> **Requires the [Old School Essentials](https://foundryvtt.com/packages/ose) game system.** The OSC Character Sheet replaces the default sheet; your actors, items, and data are untouched.
+> **Requires the [Old-School Essentials](https://foundryvtt.com/packages/ose) game system.** The OSC Character Sheet replaces the default sheet; your actors, items, and data are untouched.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13%E2%80%93v14-informational) ![System: OSE](https://img.shields.io/badge/system-OSE-orange)
 
@@ -12,7 +12,7 @@ Part of the **Old-School Chronicle** toolset, more to come on that soon!
 
 ## Install
 
-In Foundry, open **Add-on Modules → Install Module**, search **Old-School Chronicle: Character Sheet**, and click **Install**. Then launch your OSE world and enable it under **Game Settings → Manage Modules**.
+In Foundry, open **Add-on Modules → Install Module**, search **Enhanced Character Sheet for Old-School Essentials**, and click **Install**. Then launch your OSE world and enable it under **Game Settings → Manage Modules**.
 
 Character and NPC actors use the OSC Character Sheet by default.
 
@@ -54,7 +54,7 @@ Coins, encumbrance, weapon tags, attacks, and inventory are modeled on the OSE d
 | | |
 |---|---|
 | **Foundry VTT** | v13 minimum · v14 verified |
-| **Game system** | Old School Essentials (`ose`) |
+| **Game system** | Old-School Essentials (`ose`) |
 
 ## Feedback & issues
 
