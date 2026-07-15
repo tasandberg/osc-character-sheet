@@ -185,30 +185,17 @@
   top: 50%;
   transform: translateY(-50%);
 }
-// Both "Use" affordances (pip-overflow fallback + xs inline) are a plain brass text
-// link on the shared InlineButton base (`.inline-btn` — no pill/border/bg), not a pill.
-.osc-inv .osc-inv-use {
-  font-family: var(--sans);
-  font-size: var(--fs-2xs, 11px);
-  font-weight: 600;
-  color: var(--accent-alt, #c89e54);
-  &:hover:not(:disabled) {
-    color: var(--accent-alt, #c89e54);
-    text-decoration: underline;
-  }
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-}
+// Both "Use" affordances (pip-overflow fallback + xs inline) render as the shared
+// Vellum Button (`variant="outline" tone="brass" size="xs"`); these classes only carry
+// their positioning/visibility — the pill look comes from `.btn`.
 .osc-inv .osc-inv-uses-count {
   font-family: var(--mono);
   font-size: var(--fs-2xs, 11px);
   color: var(--text-mute, #8a8270);
 }
 
-// xs inline "Use" link on the item row (name column). Hidden until the xs container
-// query swaps out the pip sub-row; look comes from `.osc-inv-use` + `.inline-btn`.
+// xs inline "Use" pill on the item row (name column). Hidden until the xs container
+// query swaps out the pip sub-row; the pill look comes from `.btn` (Button primitive).
 .osc-inv .osc-inv-useinline {
   display: none;
   flex: none;
