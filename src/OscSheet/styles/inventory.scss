@@ -141,6 +141,8 @@
   grid-template-columns: 18px 30px 1fr;
   align-items: center;
   gap: var(--spacer-2);
+  // Pull up into the centered item row's bottom slack so the pips hug the name.
+  margin-top: calc(-1 * var(--spacer-1));
   padding: 0 var(--spacer-1) var(--spacer-2);
   border-bottom: 1px solid var(--border-soft, #2c2823);
 }
@@ -155,6 +157,7 @@
   flex: none;
   font-family: var(--sans);
   font-size: var(--fs-3xs, 10px);
+  line-height: var(--lh-flush, 1);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -164,7 +167,7 @@
   position: relative;
   flex: 1;
   min-width: 0;
-  min-height: 16px;
+  min-height: 12px;
   display: flex;
   align-items: center;
 }
@@ -178,10 +181,10 @@
 }
 .osc-inv .osc-inv-pip {
   flex: none;
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
   padding: 0;
-  border-radius: var(--r-sm, 4px);
+  border-radius: 2px;
   background: transparent;
   border: 1px solid var(--accent-alt, #c89e54);
   opacity: 0.5;
