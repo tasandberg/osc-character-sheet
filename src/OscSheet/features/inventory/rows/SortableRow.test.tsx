@@ -89,9 +89,10 @@ describe("SortableRow inline Use pill", () => {
     expect(inlineUse()!.disabled).toBe(true);
   });
 
-  it("read-only rows get neither the pip buttons nor an inline Use pill", () => {
+  it("read-only rows get no clickable pip strip nor an inline Use pill", () => {
     render(mkItem(), false);
     expect(inlineUse()).toBeNull();
+    expect(container.querySelector(".osc-inv-usebtn")).toBeNull();
     expect(container.querySelectorAll("button.pip")).toHaveLength(0);
   });
 

@@ -145,32 +145,49 @@
   display: flex;
   align-items: center;
 }
-// The discs are the shared Vellum <Pips> (`.pips.sm .pip` — same as the spell cast
-// rows). The strip fills the row and clips so an oversized run is measured and swaps
-// to the Use pill; the interactive states below are the only pip CSS we add, since
-// ours render as tick-off buttons.
+// The dots are the shared Vellum <Pips square sm>; we only re-tint them brass (the
+// shared default is gold) and tighten the gap so the squares sit near-adjacent.
 .osc-inv .osc-inv-pips {
   flex: 1;
   min-width: 0;
+  gap: 1px;
   overflow: hidden;
 }
-.osc-inv button.pip {
+.osc-inv .osc-inv-pips .pip {
+  background: transparent;
+  border-color: var(--accent-alt, #c89e54);
+  opacity: 0.5;
+}
+.osc-inv .osc-inv-pips .pip.filled {
+  background: var(--accent-alt, #c89e54);
+  opacity: 1;
+}
+// The whole pip strip is ONE button — clicking anywhere on it consumes one.
+.osc-inv .osc-inv-usebtn {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  transition: filter 0.12s;
-  &:hover:not(:disabled) {
-    filter: brightness(1.2);
-  }
   &:disabled {
-    cursor: not-allowed;
+    cursor: default;
   }
   &:focus-visible {
     outline: 2px solid var(--gold);
-    outline-offset: 1px;
+    outline-offset: 2px;
+    border-radius: var(--r-sm, 4px);
   }
 }
-// Overflow: hide the pips (kept measurable via visibility) and surface the fallback.
+// Overflow: hide the pips (kept measurable via visibility) and neutralise the strip
+// button so the absolutely-positioned Use fallback owns the clicks.
 .osc-inv .osc-inv-uses[data-overflow] .osc-inv-pips {
   visibility: hidden;
+}
+.osc-inv .osc-inv-uses[data-overflow] .osc-inv-usebtn {
+  pointer-events: none;
 }
 .osc-inv .osc-inv-use1,
 .osc-inv .osc-inv-uses-count {

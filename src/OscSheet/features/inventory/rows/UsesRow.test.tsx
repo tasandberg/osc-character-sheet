@@ -35,45 +35,44 @@ afterEach(() => {
   container.remove();
 });
 
-const pips = () =>
-  Array.from(container.querySelectorAll<HTMLButtonElement>(".pip"));
+const pips = () => Array.from(container.querySelectorAll<HTMLElement>(".pip"));
+const strip = () =>
+  container.querySelector<HTMLButtonElement>(".osc-inv-usebtn");
 
 describe("UsesRow", () => {
-  it("renders `max` boxes, `value` of them filled", () => {
+  it("renders `max` boxes, `value` of them filled (display-only spans)", () => {
     render(<UsesRow item={mkItem()} canEdit onSetQty={() => {}} />);
     const boxes = pips();
     expect(boxes).toHaveLength(5);
     expect(boxes.filter((b) => b.classList.contains("filled"))).toHaveLength(3);
+    expect(container.querySelectorAll("button.pip")).toHaveLength(0);
   });
 
-  it("clicking any pip consumes one (quantity − 1), whichever pip is clicked", () => {
+  it("clicking anywhere on the pip strip consumes one (quantity − 1)", () => {
     const onSetQty = vi.fn();
     render(<UsesRow item={mkItem({ quantity: { value: 3, max: 5 } })} canEdit onSetQty={onSetQty} />);
-    act(() => pips()[4].click()); // an empty pip → still just -1
-    expect(onSetQty).toHaveBeenCalledWith("arrows", 2);
-    onSetQty.mockClear();
-    act(() => pips()[0].click()); // a filled pip → also -1
+    act(() => strip()!.click());
     expect(onSetQty).toHaveBeenCalledWith("arrows", 2);
   });
 
   it("last remaining unit decrements to 0, not below", () => {
     const onSetQty = vi.fn();
     render(<UsesRow item={mkItem({ quantity: { value: 1, max: 5 } })} canEdit onSetQty={onSetQty} />);
-    act(() => pips()[0].click());
+    act(() => strip()!.click());
     expect(onSetQty).toHaveBeenCalledWith("arrows", 0);
   });
 
-  it("at 0 the pips are disabled — a click is a no-op", () => {
+  it("at 0 the strip button is disabled — a click is a no-op", () => {
     const onSetQty = vi.fn();
     render(<UsesRow item={mkItem({ quantity: { value: 0, max: 5 } })} canEdit onSetQty={onSetQty} />);
-    expect(pips().every((b) => b.disabled)).toBe(true);
-    act(() => pips()[2].click());
+    expect(strip()!.disabled).toBe(true);
+    act(() => strip()!.click());
     expect(onSetQty).not.toHaveBeenCalled();
   });
 
-  it("read-only renders static pips (no buttons) + a count", () => {
+  it("read-only renders static pips (no strip button) + a count", () => {
     render(<UsesRow item={mkItem()} canEdit={false} onSetQty={() => {}} />);
-    expect(container.querySelectorAll("button.pip")).toHaveLength(0);
+    expect(strip()).toBeNull();
     expect(container.querySelectorAll("span.pip")).toHaveLength(5);
     expect(container.querySelector(".osc-inv-uses-count")?.textContent).toBe("3/5");
   });

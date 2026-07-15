@@ -1,9 +1,9 @@
-// "Uses" line: circular pips for a stackable item's quantity (OG-OSE tick-off) —
-// the shared Vellum <Pips> (same disc as the spell cast rows). Nested under the name
-// (grid col 3) so the flanking cells center across name+uses. Filled = remaining,
-// empty = up to max. Clicking any pip (or the Use pill) consumes one (quantity − 1,
-// floored at 0; no-op at 0). When the strip can't fit, the pips hide (kept
-// measurable) and a "Use" pill takes over.
+// "Uses" line: small square pips for a stackable item's quantity (OG-OSE tick-off) —
+// the shared Vellum <Pips square> (display-only dots). Nested under the name (grid
+// col 3) so the flanking cells center across name+uses. Filled = remaining, empty =
+// up to max. The WHOLE strip is one button: clicking anywhere on it (or the Use pill)
+// consumes one (quantity − 1, floored at 0; no-op/disabled at 0). When the strip
+// can't fit, the pips hide (kept measurable) and a "Use" pill takes over.
 import { useLayoutEffect, useRef, useState } from "react";
 import type { InventoryItemVM } from "@domain/vm-types";
 import { Pips } from "@ui/Pips";
@@ -42,18 +42,36 @@ export function UsesRow({
   return (
     <div className="osc-inv-uses" data-overflow={overflow || undefined}>
       <span className="osc-inv-uses-strip">
-        <Pips
-          ref={pipsRef}
-          className="osc-inv-pips"
-          size="sm"
-          total={total}
-          filled={value}
-          role="group"
-          aria-label={`Uses: ${value} of ${total}`}
-          onPipClick={canEdit ? () => set(value - 1) : undefined}
-          pipLabel={canEdit ? () => `Use one ${item.name}` : undefined}
-          pipDisabled={value <= 0}
-        />
+        {canEdit ? (
+          <button
+            type="button"
+            className="osc-inv-usebtn"
+            onClick={() => set(value - 1)}
+            disabled={value <= 0}
+            aria-label={`Use one ${item.name}`}
+          >
+            <Pips
+              ref={pipsRef}
+              className="osc-inv-pips"
+              size="sm"
+              square
+              total={total}
+              filled={value}
+              aria-hidden="true"
+            />
+          </button>
+        ) : (
+          <Pips
+            ref={pipsRef}
+            className="osc-inv-pips"
+            size="sm"
+            square
+            total={total}
+            filled={value}
+            role="img"
+            aria-label={`Uses: ${value} of ${total}`}
+          />
+        )}
         {canEdit ? (
           <Button
             variant="outline"
