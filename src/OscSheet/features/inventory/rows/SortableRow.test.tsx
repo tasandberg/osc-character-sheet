@@ -101,9 +101,9 @@ describe("SortableRow inline Use pill", () => {
     expect(inlineUse()).toBeNull();
   });
 
-  it("WT cell shows the bare number (unit lives in the column header)", () => {
+  it("WT cell shows the weight with its cn unit", () => {
     render(mkItem({ weight: 15 }));
-    expect(container.querySelector(".osc-inv-wt")?.textContent).toBe("15");
+    expect(container.querySelector(".osc-inv-wt")?.textContent).toBe("15 cn");
   });
 
   it("WT cell shows an em dash for weightless items", () => {

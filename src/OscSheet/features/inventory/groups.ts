@@ -10,8 +10,6 @@ export const groupContainerId = (key: string) =>
   key === ROOT ? null : key.slice(2);
 
 export const weightLabel = (w: number) => (w > 0 ? `${w} cn` : "—");
-// Bare weight for the inventory row WT cell — the "cn" unit lives in the column header.
-export const weightValue = (w: number) => (w > 0 ? `${w}` : "—");
 
 // "N items · X cn" — count + total weight, used by both section headers.
 export function flattenItems(list: InventoryItemVM[]): InventoryItemVM[] {

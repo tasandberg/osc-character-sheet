@@ -3,7 +3,7 @@ import type { InventoryItemVM } from "@domain/vm-types";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
 import { NameCell, SortableRow } from "@features/inventory/rows/SortableRow";
-import { weightValue, gkey, ROOT, EQUIPPED } from "@features/inventory/groups";
+import { weightLabel, gkey, ROOT, EQUIPPED } from "@features/inventory/groups";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
@@ -85,7 +85,7 @@ export function ContainerRow({
           trailing={caret}
         />
         <span className="osc-inv-rowcat">{item.category}</span>
-        <span className="osc-inv-wt">{weightValue(item.weight)}</span>
+        <span className="osc-inv-wt">{weightLabel(item.weight)}</span>
         <RowEquip item={item} onEquip={onEquip} />
       </div>
 

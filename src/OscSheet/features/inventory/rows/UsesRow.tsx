@@ -1,8 +1,8 @@
 // "Uses" line: box pips for a stackable item's quantity (OG-OSE tick-off). Nested
 // under the name (grid col 3) so the flanking cells center across name+uses.
-// Filled = remaining, empty = up to max. Click a pip to set that many; click the
-// last filled to tick one off. When the strip can't fit, the pips hide (kept
-// measurable) and a "Use" pill takes over.
+// Filled = remaining, empty = up to max. Clicking any pip (or the Use pill) consumes
+// one (quantity − 1, floored at 0; no-op at 0). When the strip can't fit, the pips
+// hide (kept measurable) and a "Use" pill takes over.
 import { useLayoutEffect, useRef, useState } from "react";
 import type { InventoryItemVM } from "@domain/vm-types";
 import { cx } from "@ui/cx";
@@ -48,19 +48,16 @@ export function UsesRow({
           aria-label={`${item.name} uses: ${value} of ${total}`}
         >
           {Array.from({ length: total }).map((_, i) => {
-            const n = i + 1;
             const filled = i < value;
-            // Clicking the last filled pip ticks it OFF (→ n-1); any other pip sets
-            // the count to that pip. So every value, including 0, is reachable.
-            const to = n === value ? value - 1 : n;
+            // Every pip is a "consume one" button (quantity − 1); no-op at 0.
             return canEdit ? (
               <button
                 key={i}
                 type="button"
                 className={cx("osc-inv-pip", filled && "filled")}
-                aria-label={`Set ${item.name} to ${to}`}
-                aria-pressed={filled}
-                onClick={() => set(to)}
+                aria-label={`Use one ${item.name}`}
+                onClick={() => set(value - 1)}
+                disabled={value <= 0}
               />
             ) : (
               <span

@@ -46,25 +46,29 @@ describe("UsesRow", () => {
     expect(boxes.filter((b) => b.classList.contains("filled"))).toHaveLength(3);
   });
 
-  it("clicking an empty pip sets the count to that pip", () => {
-    const onSetQty = vi.fn();
-    render(<UsesRow item={mkItem()} canEdit onSetQty={onSetQty} />);
-    act(() => pips()[3].click()); // 4th box (n=4), currently empty
-    expect(onSetQty).toHaveBeenCalledWith("arrows", 4);
-  });
-
-  it("clicking the last filled pip ticks one off", () => {
+  it("clicking any pip consumes one (quantity − 1), whichever pip is clicked", () => {
     const onSetQty = vi.fn();
     render(<UsesRow item={mkItem({ quantity: { value: 3, max: 5 } })} canEdit onSetQty={onSetQty} />);
-    act(() => pips()[2].click()); // 3rd box = last filled (n===value) → value-1
+    act(() => pips()[4].click()); // an empty pip → still just -1
+    expect(onSetQty).toHaveBeenCalledWith("arrows", 2);
+    onSetQty.mockClear();
+    act(() => pips()[0].click()); // a filled pip → also -1
     expect(onSetQty).toHaveBeenCalledWith("arrows", 2);
   });
 
-  it("stops at 0 — the last remaining unit ticks off to 0, not below", () => {
+  it("last remaining unit decrements to 0, not below", () => {
     const onSetQty = vi.fn();
     render(<UsesRow item={mkItem({ quantity: { value: 1, max: 5 } })} canEdit onSetQty={onSetQty} />);
-    act(() => pips()[0].click()); // only filled box → 0
+    act(() => pips()[0].click());
     expect(onSetQty).toHaveBeenCalledWith("arrows", 0);
+  });
+
+  it("at 0 the pips are disabled — a click is a no-op", () => {
+    const onSetQty = vi.fn();
+    render(<UsesRow item={mkItem({ quantity: { value: 0, max: 5 } })} canEdit onSetQty={onSetQty} />);
+    expect(pips().every((b) => b.disabled)).toBe(true);
+    act(() => pips()[2].click());
+    expect(onSetQty).not.toHaveBeenCalled();
   });
 
   it("read-only renders static pips (no buttons) + a count", () => {
