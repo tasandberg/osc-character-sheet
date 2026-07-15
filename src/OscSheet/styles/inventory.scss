@@ -124,30 +124,14 @@
   &.drop-after {
     box-shadow: inset 0 -2px 0 0 var(--teal, #1f7575);
   }
-  // A stackable row + its "Uses" sub-row read as one unit: drop the divider/bottom
-  // pad here and let the sub-row carry them.
-  &.has-uses {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
 }
 
-// --- "Uses" sub-row: box pips for a stackable item, Use-1 fallback when too tight ---
-// Aligns its content under the name column (cols 1–2 match the row's fixed widths).
-// Selectors carry the `.osc-inv` ancestor so the pip/Use-1 BUTTONS beat the
-// `.osc-sheet-app` `all: unset` reset (same trick as .osc-inv-name/-drag/-equip).
+// --- "Uses" line: box pips for a stackable item, "Use" fallback when too tight ---
+// Nested inside the name cell (grid col 3) as a second line under the name, so the
+// row grows to name+uses height and `.osc-inv-row { align-items: center }` centers
+// the flanking cells across the whole block. Selectors carry the `.osc-inv` ancestor
+// so the pip/Use BUTTONS beat the `.osc-sheet-app` `all: unset` reset.
 .osc-inv .osc-inv-uses {
-  display: grid;
-  grid-template-columns: 18px 30px 1fr;
-  align-items: center;
-  gap: var(--spacer-2);
-  // Pull up into the centered item row's bottom slack so the pips hug the name.
-  margin-top: calc(-1 * var(--spacer-1));
-  padding: 0 var(--spacer-1) var(--spacer-2);
-  border-bottom: 1px solid var(--border-soft, #2c2823);
-}
-.osc-inv .osc-inv-uses-c {
-  grid-column: 3;
   display: flex;
   align-items: center;
   gap: var(--spacer-2);
@@ -560,11 +544,6 @@
   }
   .osc-inv .osc-inv-uses {
     display: none;
-  }
-  // Sub-row is gone — the item row carries its own divider/bottom pad again.
-  .osc-inv-row.has-uses {
-    border-bottom: 1px solid var(--border-soft, #2c2823);
-    padding-bottom: var(--spacer-2);
   }
   .osc-inv .osc-inv-useinline {
     display: inline-flex;

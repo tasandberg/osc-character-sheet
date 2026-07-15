@@ -1,7 +1,8 @@
-// "Uses" sub-row: box pips for a stackable item's quantity (OG-OSE tick-off).
+// "Uses" line: box pips for a stackable item's quantity (OG-OSE tick-off). Nested
+// under the name (grid col 3) so the flanking cells center across name+uses.
 // Filled = remaining, empty = up to max. Click a pip to set that many; click the
-// last filled to tick one off. When the strip can't fit the row, the pips hide
-// (kept measurable) and a "Use" pill takes over.
+// last filled to tick one off. When the strip can't fit, the pips hide (kept
+// measurable) and a "Use" pill takes over.
 import { useLayoutEffect, useRef, useState } from "react";
 import type { InventoryItemVM } from "@domain/vm-types";
 import { cx } from "@ui/cx";
@@ -38,55 +39,53 @@ export function UsesRow({
 
   return (
     <div className="osc-inv-uses" data-overflow={overflow || undefined}>
-      <div className="osc-inv-uses-c">
-        <span className="osc-inv-uses-label">Uses</span>
-        <span className="osc-inv-uses-strip">
-          <span
-            className="osc-inv-pips"
-            ref={pipsRef}
-            role="group"
-            aria-label={`${item.name} uses: ${value} of ${total}`}
-          >
-            {Array.from({ length: total }).map((_, i) => {
-              const n = i + 1;
-              const filled = i < value;
-              // Clicking the last filled pip ticks it OFF (→ n-1); any other pip sets
-              // the count to that pip. So every value, including 0, is reachable.
-              const to = n === value ? value - 1 : n;
-              return canEdit ? (
-                <button
-                  key={i}
-                  type="button"
-                  className={cx("osc-inv-pip", filled && "filled")}
-                  aria-label={`Set ${item.name} to ${to}`}
-                  aria-pressed={filled}
-                  onClick={() => set(to)}
-                />
-              ) : (
-                <span
-                  key={i}
-                  className={cx("osc-inv-pip", filled && "filled")}
-                  aria-hidden="true"
-                />
-              );
-            })}
-          </span>
-          {canEdit ? (
-            <button
-              type="button"
-              className="osc-inv-use1"
-              onClick={() => set(value - 1)}
-              disabled={value <= 0}
-            >
-              Use
-            </button>
-          ) : (
-            <span className="osc-inv-uses-count">
-              {value}/{total}
-            </span>
-          )}
+      <span className="osc-inv-uses-label">Uses</span>
+      <span className="osc-inv-uses-strip">
+        <span
+          className="osc-inv-pips"
+          ref={pipsRef}
+          role="group"
+          aria-label={`${item.name} uses: ${value} of ${total}`}
+        >
+          {Array.from({ length: total }).map((_, i) => {
+            const n = i + 1;
+            const filled = i < value;
+            // Clicking the last filled pip ticks it OFF (→ n-1); any other pip sets
+            // the count to that pip. So every value, including 0, is reachable.
+            const to = n === value ? value - 1 : n;
+            return canEdit ? (
+              <button
+                key={i}
+                type="button"
+                className={cx("osc-inv-pip", filled && "filled")}
+                aria-label={`Set ${item.name} to ${to}`}
+                aria-pressed={filled}
+                onClick={() => set(to)}
+              />
+            ) : (
+              <span
+                key={i}
+                className={cx("osc-inv-pip", filled && "filled")}
+                aria-hidden="true"
+              />
+            );
+          })}
         </span>
-      </div>
+        {canEdit ? (
+          <button
+            type="button"
+            className="osc-inv-use1"
+            onClick={() => set(value - 1)}
+            disabled={value <= 0}
+          >
+            Use
+          </button>
+        ) : (
+          <span className="osc-inv-uses-count">
+            {value}/{total}
+          </span>
+        )}
+      </span>
     </div>
   );
 }

@@ -8,19 +8,23 @@ import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { cx } from "@ui/cx";
 
 /** Name + optional (count/qty) on top, tags beneath. `action` sits right after the
- * name (e.g. the xs inline Use pill); `trailing` sits beside it (e.g. a caret). */
+ * name (e.g. the xs inline Use pill); `trailing` sits beside it (e.g. a caret).
+ * `below` is a second line inside the cell (the Uses pip row) so the grid row grows
+ * to name+uses height and the flanking cells center across the whole block. */
 export function NameCell({
   item,
   onOpen,
   badge,
   action,
   trailing,
+  below,
 }: {
   item: InventoryItemVM;
   onOpen: (id: string) => void;
   badge?: React.ReactNode;
   action?: React.ReactNode;
   trailing?: React.ReactNode;
+  below?: React.ReactNode;
 }) {
   return (
     <div className="osc-inv-name-c">
@@ -40,6 +44,7 @@ export function NameCell({
         {action}
         {trailing}
       </div>
+      {below}
     </div>
   );
 }
@@ -66,8 +71,9 @@ function InlineUse({
   );
 }
 
-// Shared row body (cols 2–8). Stacked + editable rows carry the xs inline Use pill
-// (hidden until the xs container query; the pip sub-row covers wider widths).
+// Shared row body (cols 2–8). Stacked rows nest a "Uses" pip line under the name
+// (so the row centers across name+uses) and, in xs, an inline Use pill on the name
+// row (the pip line is hidden there via the container query).
 function RowInner({
   item,
   canEdit,
@@ -91,6 +97,11 @@ function RowInner({
         action={
           stacked && canEdit ? (
             <InlineUse item={item} onSetQty={onSetQty} />
+          ) : undefined
+        }
+        below={
+          stacked ? (
+            <UsesRow item={item} canEdit={canEdit} onSetQty={onSetQty} />
           ) : undefined
         }
       />
@@ -129,8 +140,6 @@ export function SortableRow({
   onContext: OnContext;
   onSetQty: (id: string, value: number) => void;
 }) {
-  // Stackable items grow a "Uses" sub-row beneath (box pips / Use-1 fallback).
-  const showUses = !item.isContainer && item.quantity != null;
   // No handle: the whole row is draggable. Clicks on the inner buttons/inputs still
   // fire (a click is a press without movement), so name/equip/qty stay interactive.
   return (
@@ -139,7 +148,6 @@ export function SortableRow({
         className={cx(
           "osc-inv-row",
           "is-sortable",
-          showUses && "has-uses",
           dnd.rowClass(group, index),
         )}
         style={
@@ -169,9 +177,6 @@ export function SortableRow({
           onSetQty={onSetQty}
         />
       </div>
-      {showUses && (
-        <UsesRow item={item} canEdit={canEdit} onSetQty={onSetQty} />
-      )}
     </>
   );
 }
