@@ -1,0 +1,9 @@
+import{i as e,s as t}from"./preload-helper-xPQekRTU.js";import{n,t as r}from"./iframe-B6KXWk_e.js";import{n as i,t as a}from"./ValidatedInput-BHrv2zIv.js";function o({initial:e,validate:t,hint:n,placeholder:r}){let[i,o]=(0,s.useState)(e);return(0,c.jsx)(`label`,{style:{display:`flex`,flexDirection:`column`,gap:4,maxWidth:260},children:(0,c.jsx)(a,{className:`ed-input`,value:i,validate:t,onCommit:o,hint:n?(0,c.jsx)(`span`,{className:`hint`,children:n}):void 0,placeholder:r})})}var s,c,l,u,d;e((()=>{s=t(n(),1),i(),c=r(),l={title:`Controls / ValidatedInput`},u=()=>(0,c.jsxs)(`div`,{style:{display:`flex`,flexDirection:`column`,gap:16,alignItems:`flex-start`},children:[(0,c.jsx)(o,{initial:`Aldric`,validate:e=>e.length===0?`Name is required.`:null,hint:`Blur an empty field to see the error.`,placeholder:`Character name`}),(0,c.jsx)(o,{initial:`Fighter`,validate:e=>/^[a-z]+$/i.test(e)?null:`Letters only.`,hint:`Letters only — digits are rejected.`})]}),u.__docgenInfo={description:``,methods:[],displayName:`States`},u.parameters={...u.parameters,docs:{...u.parameters?.docs,source:{originalSource:`() => <div style={{
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+  alignItems: "flex-start"
+}}>
+    <Demo initial="Aldric" validate={v => v.length === 0 ? "Name is required." : null} hint="Blur an empty field to see the error." placeholder="Character name" />
+    <Demo initial="Fighter" validate={v => /^[a-z]+$/i.test(v) ? null : "Letters only."} hint="Letters only — digits are rejected." />
+  </div>`,...u.parameters?.docs?.source}}},d=[`States`]}))();export{u as States,d as __namedExportsOrder,l as default};
