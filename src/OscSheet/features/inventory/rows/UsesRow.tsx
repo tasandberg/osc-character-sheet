@@ -7,6 +7,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { InventoryItemVM } from "@domain/vm-types";
 import { Pips } from "@ui/Pips";
+import { InlineButton } from "@ui/InlineButton";
 
 export function UsesRow({
   item,
@@ -54,14 +55,14 @@ export function UsesRow({
           pipDisabled={value <= 0}
         />
         {canEdit ? (
-          <button
-            type="button"
-            className="osc-inv-use1"
+          <InlineButton
+            className="osc-inv-use1 osc-inv-use"
             onClick={() => set(value - 1)}
             disabled={value <= 0}
+            aria-label={`Use one ${item.name}`}
           >
             Use
-          </button>
+          </InlineButton>
         ) : (
           <span className="osc-inv-uses-count">
             {value}/{total}

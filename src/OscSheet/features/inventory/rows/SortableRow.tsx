@@ -3,6 +3,7 @@ import type { InventoryItemVM } from "@domain/vm-types";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
 import { UsesRow } from "@features/inventory/rows/UsesRow";
+import { InlineButton } from "@ui/InlineButton";
 import { weightLabel, EQUIPPED } from "@features/inventory/groups";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { cx } from "@ui/cx";
@@ -60,14 +61,14 @@ function InlineUse({
 }) {
   const value = item.quantity?.value ?? 0;
   return (
-    <button
-      type="button"
-      className="osc-inv-useinline"
+    <InlineButton
+      className="osc-inv-useinline osc-inv-use"
       onClick={() => onSetQty(item.id, Math.max(0, value - 1))}
       disabled={value <= 0}
+      aria-label={`Use one ${item.name}`}
     >
       Use
-    </button>
+    </InlineButton>
   );
 }
 
