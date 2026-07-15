@@ -213,9 +213,11 @@
 
 // xs inline "Use" pill on the item row (name column). Hidden until the xs container
 // query swaps out the pip sub-row; the pill look comes from `.btn` (Button primitive).
+// A little left margin gives it breathing room off the ×N tag (looser than change 6).
 .osc-inv .osc-inv-useinline {
   display: none;
   flex: none;
+  margin-left: var(--spacer-2);
 }
 
 // --- sortable column-header row (table head) ---
