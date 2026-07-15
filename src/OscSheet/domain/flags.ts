@@ -7,8 +7,9 @@
 // calls, and readFlag to pull a value straight off raw document data (e.g. in view-models,
 // where we don't want to depend on the live-document methods).
 
-/** Our module id — the flag scope (matches module.json `id`). */
-export const MODULE_ID = "osc-character-sheet";
+/** Our module id — the flag scope (matches module.json `id`). Baked at build time
+ *  (vite `define`); a beta build injects the beta id to isolate its namespaces. */
+export const MODULE_ID = __MODULE_ID__;
 
 /** Flag keys this module owns on documents. */
 export const FLAGS = {

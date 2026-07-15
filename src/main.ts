@@ -2,6 +2,7 @@ import OscSheet from "@src/applications/osc-sheet";
 import { installAdvancedClasses } from "@src/util/adaptAdvancedClasses";
 import { onRenderChatMessage } from "@domain/chat/applyDamage";
 import { registerSendItemSocket } from "@features/inventory/sendItemSocket";
+import { MODULE_ID } from "@domain/flags";
 import {
   migrateLocalStorage,
   registerMigrationSetting,
@@ -33,7 +34,7 @@ export function initialize() {
     // Debug API. `crashTest()` throws a deliberate error inside any open OSC
     // sheet on its next render — exercises the ErrorBoundary fallback (and the
     // opt-in crash reporter). Harmless unless explicitly called.
-    const mod = game.modules?.get("osc-character-sheet") as unknown as
+    const mod = game.modules?.get(MODULE_ID) as unknown as
       | { api?: Record<string, unknown> }
       | undefined;
     if (mod) {

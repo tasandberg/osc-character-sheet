@@ -67,6 +67,28 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      # The beta id is baked into the JS (flags/settings/socket), so the beta zip
+      # must be REBUILT with MODULE_ID set — re-zipping the stable dist would ship
+      # stable namespaces under the beta manifest.
+      - name: Rebuild for beta channel
+        run: MODULE_ID=osc-character-sheet-beta pnpm build
+        env:
+          MODULE_ID: osc-character-sheet-beta
+          VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
+
+      # Beta crashes report release `osc-character-sheet-beta@$VERSION` (see
+      # crashReporter.ts, which derives it from the baked MODULE_ID). Before zip.
+      - name: Upload beta source maps to Sentry
+        run: |
+          VERSION="${TAG#v}"
+          pnpm exec sentry-cli sourcemaps inject dist
+          pnpm exec sentry-cli sourcemaps upload dist \
+            --org old-school-chronicle --project osc-character-sheet \
+            --release "osc-character-sheet-beta@$VERSION" \
+            --url-prefix "~/modules/osc-character-sheet-beta/dist"
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
       # Re-stamp/zip the beta variant and clobber onto the fixed prerelease `beta`
       # release (created once). No --target: it needs a commitish, not a tag, and
       # the beta tag's commit is irrelevant — only its clobbered assets are used.
