@@ -566,6 +566,11 @@
   .osc-inv .osc-inv-useinline {
     display: inline-flex;
   }
+  // name · ×N · Use read as one evenly-spaced run: match the name→tag gap to the
+  // name-row gap (--spacer-1) so nothing sits farther from its neighbour.
+  .osc-inv .osc-inv-name {
+    gap: var(--spacer-1);
+  }
 }
 
 // --- damage die (col 6) ---
