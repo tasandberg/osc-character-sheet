@@ -9,6 +9,13 @@ export interface IdentityVM {
   title: string;
 }
 
+/** The three OSE movement rates: ft/round · ft/turn · miles/day. */
+export interface MoveBands {
+  encounter: number;
+  explore: number;
+  travel: number;
+}
+
 export interface VitalsVM {
   hp: { value: number; max: number };
   /** Resolved AC for display: value matching the ascendingAC setting + the mode. */
@@ -17,7 +24,7 @@ export interface VitalsVM {
   hd: string;
   move: number;
   /** Movement bands for the MOVE pill popover (per-round / per-turn / per-day). */
-  moveBands: { encounter: number; explore: number; travel: number };
+  moveBands: MoveBands;
 }
 
 export interface AbilityVM {
@@ -189,6 +196,9 @@ export interface EncumbranceVM {
   status: string;
   /** Variant-aware value/max readout, e.g. "1071 / 1600 cn" or "10 / 16 items". */
   label: string;
-  /** Current movement (ft), e.g. 120. */
-  move: number;
+  /** The three movement rates at the current tier (same source as the header MOVE pop). */
+  moveBands: MoveBands;
+  /** Tier boundaries as % of the bar, from the system's own variant-aware `steps`
+   *  (empty when the bar's axis isn't weight — see selectEncumbrance). */
+  bands: number[];
 }

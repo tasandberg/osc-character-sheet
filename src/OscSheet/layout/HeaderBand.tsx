@@ -1,7 +1,8 @@
 import { useLayoutEffect, useRef } from "react";
-import type { IdentityVM, VitalsVM } from "@domain/vm-types";
+import type { EncumbranceVM, IdentityVM, VitalsVM } from "@domain/vm-types";
 import { formatMod } from "@domain/format";
 import { Stamp } from "@ui/Stamp";
+import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
 
 /** Shrink a single-line element's font to fit its box (down to `min`x) instead of
@@ -29,6 +30,8 @@ function useFitText(text: string, min = 0.6) {
 type Props = {
   identity: IdentityVM;
   vitals: VitalsVM;
+  /** Drives the encumbrance line in the MOVE hover — why the rates are what they are. */
+  encumbrance?: EncumbranceVM;
   /** Commit a new current-HP value; when provided, HP renders an editable input. */
   onSetHp?: (value: number) => void;
   /** Right-click on the portrait (e.g. Token Variant Art's picker). */
@@ -39,7 +42,7 @@ type Props = {
 
 /** Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
  *  · HP/AC in medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, onSetHp, onPortraitContextMenu, canEditPortrait }: Props) {
+export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitContextMenu, canEditPortrait }: Props) {
   const m = vitals.moveBands;
   const nameRef = useFitText(identity.name);
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
@@ -83,12 +86,12 @@ export function HeaderBand({ identity, vitals, onSetHp, onPortraitContextMenu, c
         </div>
         <div className="osc-tile osc-tile-move">
           <Stamp>MOVE</Stamp>
-          <div className="osc-tile-v">{vitals.move}′</div>
-          <span className="osc-move-pop" role="tooltip">
-            <span className="r"><span className="k">Encounter</span><span className="vv">{m.encounter}′</span></span>
-            <span className="r"><span className="k">Explore</span><span className="vv">{m.explore}′</span></span>
-            <span className="r"><span className="k">Travel</span><span className="vv">{m.travel} mi</span></span>
-          </span>
+          <div className="osc-tile-v">{vitals.move}ft</div>
+          <MoveTooltip
+            bands={m}
+            tier={encumbrance?.enabled ? encumbrance.tier : undefined}
+            status={encumbrance?.enabled ? encumbrance.status : undefined}
+          />
         </div>
       </div>
       <div className="osc-vitals">

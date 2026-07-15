@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { selectInventory, selectEncumbrance, selectCoins, sortInventory, sortEquipped, coinDenom } from "@features/inventory/inventory";
+import { selectInventory, selectEncumbrance, selectCoins, sortInventory, sortEquipped, coinDenom, encBarStops } from "@features/inventory/inventory";
 import type { OseItem, OSEActor } from "@domain/types";
 import { MODULE_ID, FLAGS } from "@domain/flags";
 
@@ -235,16 +235,19 @@ describe("selectInventory — equipped tray order", () => {
 });
 
 describe("selectEncumbrance", () => {
-  it("computes pct + status + movement", () => {
+  it("computes pct + status + the three movement rates", () => {
     const actor = {
-      system: { encumbrance: { value: 380, max: 1600, enabled: true }, movement: { base: 120 } },
+      system: {
+        encumbrance: { value: 380, max: 1600, enabled: true },
+        movement: { base: 120, encounter: 40, overland: 24 },
+      },
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
     expect(e.pct).toBeCloseTo(0.2375);
     expect(e.tier).toBe(0);
     expect(e.status).toBe("Unencumbered");
     expect(e.label).toBe("380 / 1600 cn");
-    expect(e.move).toBe(120);
+    expect(e.moveBands).toEqual({ encounter: 40, explore: 120, travel: 24 });
   });
 
   it("drives tier/status off the system breakpoint flags, not raw %", () => {
@@ -253,16 +256,18 @@ describe("selectEncumbrance", () => {
     const actor = {
       system: {
         encumbrance: {
-          value: 1071, max: 1600, enabled: true, variant: "detailed",
+          value: 1071, max: 1600, enabled: true, variant: "detailed", steps: [25, 37.5, 50],
           encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: true, atThirdBreakpoint: true,
         },
-        movement: { base: 30 },
+        movement: { base: 30, encounter: 10, overland: 6 },
       },
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
     expect(e.tier).toBe(3);
     expect(e.status).toBe("Severely encumbered");
-    expect(e.move).toBe(30);
+    expect(e.moveBands.explore).toBe(30);
+    // the bar's colour cuts land on the system's own thresholds, not even thirds
+    expect(e.bands).toEqual([25, 37.5, 50]);
   });
 
   it("basic variant: bar fills from tier (not weight) and drops the cn load", () => {
@@ -270,26 +275,113 @@ describe("selectEncumbrance", () => {
     const actor = {
       system: {
         encumbrance: {
-          value: 100, max: 1600, enabled: true, variant: "basic",
+          value: 100, max: 1600, enabled: true, variant: "basic", steps: [50],
           encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: true, atThirdBreakpoint: false,
         },
-        movement: { base: 60 },
+        movement: { base: 60, encounter: 20, overland: 12 },
       },
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
     expect(e.tier).toBe(2);
     expect(e.label).toBe(""); // no misleading "100 / 1600 cn"
     expect(e.pct).toBeCloseTo(2 / 3); // bar tracks the tier, not 100/1600
+    // basic's bar has no weight axis, so it plots no thresholds (it paints solid)
+    expect(e.bands).toEqual([]);
   });
 
   it("labels item-based encumbrance in items, not cn", () => {
     const actor = {
       system: {
-        encumbrance: { value: 10, max: 16, enabled: true, variant: "itembased", encumbered: false },
-        movement: { base: 120 },
+        encumbrance: {
+          value: 10, max: 16, enabled: true, variant: "itembased", encumbered: false,
+          steps: [62.5, 75, 87.5],
+        },
+        movement: { base: 120, encounter: 40, overland: 24 },
       },
     } as unknown as OSEActor;
-    expect(selectEncumbrance(actor).label).toBe("10 / 16 items");
+    const e = selectEncumbrance(actor);
+    expect(e.label).toBe("10 / 16 items");
+    // item-based steps differ per mode (packed vs equipped) — take them as given
+    expect(e.bands).toEqual([62.5, 75, 87.5]);
+  });
+});
+
+describe("significant treasure (basic encumbrance)", () => {
+  // Stands in for OSE's basic encumbrance class, incl. the line that made the old
+  // boolean bite: `options.significantTreasure || 800` keeps a `true`, turning every
+  // threshold check into `value >= true` — i.e. 1cn of treasure trips it.
+  class FakeBasic {
+    static lastOptions: { significantTreasure: unknown } | undefined;
+    variant = "basic";
+    enabled = true;
+    max: number;
+    value: number;
+    steps: number[] = [];
+    encumbered = false;
+    atSecondBreakpoint = false;
+    atThirdBreakpoint = false;
+    threshold: number;
+    constructor(max: number, its: OseItem[], options: { significantTreasure: unknown }) {
+      FakeBasic.lastOptions = options;
+      this.max = max;
+      this.threshold = (options?.significantTreasure as number) || 800;
+      this.value = its.reduce(
+        (a, i) =>
+          a + (i.system.treasure ? (i.system.quantity?.value ?? 0) * (i.system.weight ?? 0) : 0),
+        0,
+      );
+    }
+    get atFirstBreakpoint() {
+      return this.value >= this.threshold;
+    }
+  }
+
+  const basicActor = () =>
+    ({
+      system: {
+        encumbrance: new FakeBasic(1600, [], { significantTreasure: 800 }),
+        movement: { base: 120, encounter: 40, overland: 24 },
+        scores: { str: { mod: 0 } },
+      },
+    }) as unknown as OSEActor;
+
+  it("passes the threshold as a number, so a single gem doesn't encumber", () => {
+    const gem = mk("item", "Gem", { treasure: true, weight: 10, quantity: { value: 1 } });
+    const e = selectEncumbrance(basicActor(), [gem]);
+    expect(typeof FakeBasic.lastOptions?.significantTreasure).toBe("number");
+    expect(FakeBasic.lastOptions?.significantTreasure).toBe(800); // OSE default, not `true`
+    expect(e.tier).toBe(0);
+    expect(e.status).toBe("Unencumbered");
+  });
+
+  it("still trips once the treasure actually reaches the threshold", () => {
+    const hoard = mk("item", "Gems", { treasure: true, weight: 10, quantity: { value: 80 } });
+    expect(selectEncumbrance(basicActor(), [hoard]).tier).toBe(1);
+  });
+});
+
+describe("encBarStops", () => {
+  it("fades between tiers over a window centred on each threshold", () => {
+    // ±4% around each threshold: pure colour held to (t-4), ramped to next by (t+4),
+    // so the boundary % itself is the 50/50 midpoint of the blend.
+    expect(encBarStops({ bands: [25, 37.5, 50], tier: 1 })).toBe(
+      "var(--enc-0) 0%, " +
+        "var(--enc-0) 21%, var(--enc-1) 29%, " +
+        "var(--enc-1) 33.5%, var(--enc-2) 41.5%, " +
+        "var(--enc-2) 46%, var(--enc-3) 54%, " +
+        "var(--enc-3) 100%",
+    );
+  });
+
+  it("clamps the fade window to the bar edges", () => {
+    // a threshold within 4% of an edge can't overrun 0/100
+    expect(encBarStops({ bands: [2, 98], tier: 1 })).toBe(
+      "var(--enc-0) 0%, var(--enc-0) 0%, var(--enc-1) 6%, var(--enc-1) 94%, var(--enc-2) 100%, var(--enc-2) 100%",
+    );
+  });
+
+  it("paints solid in the current tier's colour when there are no thresholds (basic)", () => {
+    expect(encBarStops({ bands: [], tier: 2 })).toBe("var(--enc-2) 0 100%");
   });
 });
 

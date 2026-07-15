@@ -49,3 +49,15 @@ $spacers: (
   10: 40px,
   12: 48px,
 );
+
+// Foundry sheet responsive tiers — min-width edges on the `app` container
+// (container-name: app on .osc-sheet-app). Mobile-first: each tier applies at
+// its width AND UP. Container queries can't read var(), so this Sass map is the
+// source of truth — no --bp-* custom properties are emitted. Named foundry-* to
+// leave room for a $web-breakpoints (viewport @media) scale later.
+$foundry-breakpoints: (
+  "xs": 0,       // base
+  // "sm" reserved — deliberate gap, unused for now
+  "md": 480px,   // default sheet width (rail ⇄ tab-bar edge)
+  "lg": 740px,   // wide
+);

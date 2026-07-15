@@ -18,7 +18,11 @@ import type {
   InventorySortKey,
   SortDir,
 } from "@domain/vm-types";
-import { sortInventory, SORT_DEFAULT_DIR } from "@features/inventory/inventory";
+import {
+  encBarStops,
+  sortInventory,
+  SORT_DEFAULT_DIR,
+} from "@features/inventory/inventory";
 import { useDragReorder } from "@features/inventory/useDragReorder";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { WealthSection } from "@features/inventory/WealthSection";
@@ -259,17 +263,26 @@ export function InventoryView({
     <section className="osc-inv">
       <div
         className={cx("osc-inv-head", encumbrance.enabled && "enc-rule")}
-        // the header underline doubles as the encumbrance load bar (see .enc-rule)
+        // the header underline doubles as the encumbrance load bar (see .enc-rule);
+        // --enc-stops cuts the colour at the system's real tier thresholds
         style={
           encumbrance.enabled
-            ? ({ "--enc-pct": `${Math.round(encumbrance.pct * 100)}%` } as React.CSSProperties)
+            ? ({
+                "--enc-pct": `${Math.round(encumbrance.pct * 100)}%`,
+                "--enc-stops": encBarStops(encumbrance),
+              } as React.CSSProperties)
             : undefined
         }
       >
-        <SectionTitle>Inventory</SectionTitle>
+        <SectionTitle className="u-mb-1">Inventory</SectionTitle>
         {encumbrance.enabled && <EncumbranceReadout e={encumbrance} />}
       </div>
-      <WealthSection coins={coins} onSetCoin={onSetCoin} onOpen={onOpen} onContext={openMenu} />
+      <WealthSection
+        coins={coins}
+        onSetCoin={onSetCoin}
+        onOpen={onOpen}
+        onContext={openMenu}
+      />
 
       {/* Equipped tray + All-Items header pin together as one opaque block so the
           two never separate into a see-through gap (no JS height measuring). */}
