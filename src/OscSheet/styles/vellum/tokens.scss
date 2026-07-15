@@ -34,8 +34,10 @@
   }
 
   /* ─── Type scale — generated from $type-scale in _scales.scss ─────── */
+  /* --fs-scale is the OSC-102 a11y font-scale multiplier (default 1); set on the
+     sheet element so every --fs-* rem token grows without touching <html>. */
   @each $step, $value in scales.$type-scale {
-    --fs-#{$step}: #{$value};
+    --fs-#{$step}: calc(#{$value} * var(--fs-scale, 1));
   }
 
   /* Line-height tokens */

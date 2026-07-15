@@ -1,6 +1,7 @@
 import OscSheetApp from "@src/OscSheet";
 import { resolveTheme, applyTheme } from "@src/OscSheet/theme";
 import { MODULE_ID } from "@src/OscSheet/domain/flags";
+import { resolveFontScale, applyFontScale } from "@src/OscSheet/fontScale";
 import {
   alignedMenuLeft,
   findTweaksSheetEntry,
@@ -55,12 +56,31 @@ class OscSheet extends ReactActorSheetV2 {
         }
       },
     });
+
+    game.settings.register("osc-character-sheet", "fontScale", {
+      name: "Sheet font size",
+      hint: "Scales all sheet text up for readability.",
+      scope: "client",
+      config: true,
+      type: String,
+      choices: { md: "Default", lg: "Large", xl: "Larger" },
+      default: "md",
+      onChange: () => {
+        for (const app of foundry.applications.instances.values()) {
+          if (app instanceof OscSheet) app.render();
+        }
+      },
+    });
   }
 
   async _onRender(context, options) {
     await super._onRender(context, options);
     const theme = resolveTheme(game.settings.get(MODULE_ID, "theme"));
     applyTheme(this.element, theme);
+    const fontScale = resolveFontScale(
+      game.settings.get("osc-character-sheet", "fontScale"),
+    );
+    applyFontScale(this.element, fontScale);
     // Accent by kind: retainers/hirelings (system.retainer.enabled) go teal;
     // everyone else keeps the brass --gold. See styles.scss [data-kind].
     this.element.dataset.kind = this.document?.system?.retainer?.enabled

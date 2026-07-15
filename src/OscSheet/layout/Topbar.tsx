@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { TopbarVM } from "@domain/vm-types";
 import { toggleTheme } from "@src/OscSheet/theme";
+import { cycleFontScale, getFontScaleSetting } from "@src/OscSheet/fontScale";
 import { FEATURES } from "@app/features";
 
 type Props = {
@@ -118,6 +119,18 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
             {menuOpen && <div className="osc-tb-menu">{actionButtons}</div>}
           </div>
         )}
+        {/* SPIKE (OSC-102): cycle Default→Large→Larger font scale. */}
+        <button
+          type="button"
+          className="osc-tb-btn icon u-inline-flex u-items-center u-gap-2"
+          onClick={cycleFontScale}
+          title={`Font size: ${getFontScaleSetting()} — click to cycle`}
+          aria-label="Cycle font size"
+        >
+          <span className="i u-fs-xs" aria-hidden="true">
+            A
+          </span>
+        </button>
         <button
           type="button"
           className="osc-tb-btn icon u-inline-flex u-items-center u-gap-2"
