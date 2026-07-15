@@ -158,6 +158,9 @@ class OscSheet extends ReactActorSheetV2 {
     const context = await super._prepareContext(options);
     // You can add additional context data here if needed
     context.rootId = this.rootId;
+    // Published on every render (initialProps only reach React at mount), so the
+    // sheet re-derives its edit gate when ownership changes while it's open.
+    context.isEditable = this.isEditable;
     context.initialProps = {
       actor: context.document,
       source: context.source,

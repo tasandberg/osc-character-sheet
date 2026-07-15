@@ -8,7 +8,7 @@ import { createRoot, type Root } from "react-dom/client";
 import OscSheetProvider from "./OscSheetProvider";
 import { OptimisticProvider } from "./OptimisticProvider";
 import { useOscSheetContext } from "./context";
-import type { OSEActor, OscSheetContextValue } from "@domain/types";
+import type { OSEActor, OscContext, OscSheetContextValue } from "@domain/types";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -104,5 +104,59 @@ describe("write layer — read-only gate", () => {
       await new Promise((r) => setTimeout(r, 5));
     });
     expect(commit).toHaveBeenCalledOnce();
+  });
+});
+
+// canEdit is published on every context update, not frozen at mount: a GM granting
+// ownership while the sheet is open must unlock it without a close/reopen.
+describe("write layer — canEdit re-derives from the published context", () => {
+  let publish: (ctx: OscContext) => void;
+  const liveConnector = {
+    onUpdate: (cb: (ctx: OscContext) => void) => (publish = cb),
+    tearDown: vi.fn(),
+  } as never;
+
+  function renderLive(actor: OSEActor, canEdit: boolean) {
+    act(() =>
+      root.render(
+        <OscSheetProvider
+          initialActor={actor}
+          source={actor}
+          contextConnector={liveConnector}
+          canEdit={canEdit}
+        >
+          <Capture />
+        </OscSheetProvider>,
+      ),
+    );
+  }
+
+  it("flips read-only → editable when the sheet republishes isEditable=true", async () => {
+    const actor = makeActor();
+    renderLive(actor, false);
+    expect(ctx.canEdit).toBe(false);
+
+    act(() => publish({ document: actor, isEditable: true }));
+    expect(ctx.canEdit).toBe(true);
+
+    await act(async () => {
+      await ctx.updateActor({ "system.hp.value": 7 });
+    });
+    expect((actor as unknown as { update: ReturnType<typeof vi.fn> }).update).toHaveBeenCalled();
+  });
+
+  it("flips editable → read-only when ownership is revoked", () => {
+    const actor = makeActor();
+    renderLive(actor, true);
+    act(() => publish({ document: actor, isEditable: false }));
+    expect(ctx.canEdit).toBe(false);
+  });
+
+  it("falls back to actor.isOwner when the context omits isEditable", () => {
+    const actor = makeActor();
+    (actor as unknown as { isOwner: boolean }).isOwner = true;
+    renderLive(actor, false);
+    act(() => publish({ document: actor }));
+    expect(ctx.canEdit).toBe(true);
   });
 });
