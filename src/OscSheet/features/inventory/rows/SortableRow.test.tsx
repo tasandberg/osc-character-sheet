@@ -92,7 +92,7 @@ describe("SortableRow inline Use pill", () => {
   it("read-only rows get neither the pip buttons nor an inline Use pill", () => {
     render(mkItem(), false);
     expect(inlineUse()).toBeNull();
-    expect(container.querySelectorAll("button.osc-inv-pip")).toHaveLength(0);
+    expect(container.querySelectorAll("button.pip")).toHaveLength(0);
   });
 
   it("non-stacked rows get no Uses sub-row and no inline Use pill", () => {

@@ -36,7 +36,7 @@ afterEach(() => {
 });
 
 const pips = () =>
-  Array.from(container.querySelectorAll<HTMLButtonElement>(".osc-inv-pip"));
+  Array.from(container.querySelectorAll<HTMLButtonElement>(".pip"));
 
 describe("UsesRow", () => {
   it("renders `max` boxes, `value` of them filled", () => {
@@ -73,8 +73,8 @@ describe("UsesRow", () => {
 
   it("read-only renders static pips (no buttons) + a count", () => {
     render(<UsesRow item={mkItem()} canEdit={false} onSetQty={() => {}} />);
-    expect(container.querySelectorAll("button.osc-inv-pip")).toHaveLength(0);
-    expect(container.querySelectorAll("span.osc-inv-pip")).toHaveLength(5);
+    expect(container.querySelectorAll("button.pip")).toHaveLength(0);
+    expect(container.querySelectorAll("span.pip")).toHaveLength(5);
     expect(container.querySelector(".osc-inv-uses-count")?.textContent).toBe("3/5");
   });
 

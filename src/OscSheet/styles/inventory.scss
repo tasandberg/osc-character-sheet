@@ -137,57 +137,31 @@
   gap: var(--spacer-2);
   min-width: 0;
 }
-.osc-inv .osc-inv-uses-label {
-  flex: none;
-  font-family: var(--sans);
-  font-size: var(--fs-3xs, 10px);
-  line-height: var(--lh-flush, 1);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-faint, #6a6354);
-}
 .osc-inv .osc-inv-uses-strip {
   position: relative;
   flex: 1;
   min-width: 0;
-  min-height: 12px;
+  min-height: 10px;
   display: flex;
   align-items: center;
 }
+// The discs are the shared Vellum <Pips> (`.pips.sm .pip` — same as the spell cast
+// rows). The strip fills the row and clips so an oversized run is measured and swaps
+// to the Use pill; the interactive states below are the only pip CSS we add, since
+// ours render as tick-off buttons.
 .osc-inv .osc-inv-pips {
   flex: 1;
   min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--spacer-1);
   overflow: hidden;
 }
-.osc-inv .osc-inv-pip {
-  flex: none;
-  width: 10px;
-  height: 10px;
-  padding: 0;
-  border-radius: 2px;
-  background: transparent;
-  border: 1px solid var(--accent-alt, #c89e54);
-  opacity: 0.5;
-  transition:
-    background 0.12s,
-    opacity 0.12s;
-  &.filled {
-    background: var(--accent-alt, #c89e54);
-    opacity: 1;
-  }
-}
-.osc-inv button.osc-inv-pip {
+.osc-inv button.pip {
   cursor: pointer;
-  &:hover {
-    opacity: 1;
-    background: color-mix(in srgb, var(--accent-alt, #c89e54) 30%, transparent);
+  transition: filter 0.12s;
+  &:hover:not(:disabled) {
+    filter: brightness(1.2);
   }
-  &.filled:hover {
-    background: var(--accent-alt-dim, #a88240);
+  &:disabled {
+    cursor: not-allowed;
   }
   &:focus-visible {
     outline: 2px solid var(--gold);
