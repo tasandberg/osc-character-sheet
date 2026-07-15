@@ -11,17 +11,20 @@ import { MoveRates, MoveTooltip } from "@ui/MovePop";
 export function EncumbranceReadout({ e }: { e: EncumbranceVM }) {
   const tier = encTierClass(e.tier);
   return (
-    <span
-      className={cx("osc-enc-readout", tier)}
-      // focusable so the hover-only popover is reachable by keyboard (:focus-within)
-      tabIndex={0}
-      aria-label={`${e.status}. ${e.label ? `Load ${e.label}. ` : ""}Movement: ${moveRatesLabel(e.moveBands)}`}
-    >
-      <span className="rates">
+    <span className={cx("osc-enc-readout", tier)}>
+      {/* only the rates trigger the popover (not the Load number). tabIndex makes
+          the trigger keyboard-reachable; MoveTooltip anchors to its parent, so it
+          must stay a direct child of this span. */}
+      <span
+        className="rates"
+        tabIndex={0}
+        aria-label={`Movement: ${moveRatesLabel(e.moveBands)}${e.status ? `. ${e.status}` : ""}`}
+      >
         <MoveRates bands={e.moveBands} />
+        <MoveTooltip bands={e.moveBands} tier={e.tier} status={e.status} />
       </span>
-      {e.label && <span className="load">{e.label}</span>}
-      <MoveTooltip bands={e.moveBands} tier={e.tier} status={e.status} />
+      <i className="fa fa-dot u-text-faint" />
+      {e.label && <span className="load u-text-faint">{e.label}</span>}
     </span>
   );
 }

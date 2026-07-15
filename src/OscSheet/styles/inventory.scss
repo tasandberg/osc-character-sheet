@@ -2,20 +2,28 @@
 // Button selectors are qualified with .osc-inv so they beat the
 // `.osc-sheet-app button { all: unset }` reset (0,1,1) in styles.scss.
 
-.osc-inv { display: flex; flex-direction: column; }
+.osc-inv {
+  display: flex;
+  flex-direction: column;
+}
 
 // --- header: title + hint ---
 .osc-inv-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  flex-wrap: wrap; // readout drops below the title when the row is too narrow (XS)
+  flex-wrap: nowrap; // title + readout always share one line — never wrap the readout below
   gap: var(--spacer-1) var(--spacer-3);
   padding-bottom: var(--spacer-2);
-  margin: var(--spacer-6) 0 var(--spacer-3);
+  margin: var(--spacer-6) 0 var(--spacer-5);
   border-bottom: 2px solid var(--section-rule);
 }
-.osc-inv-head .section-title { flex: 0 0 auto; margin: 0; padding-bottom: 0; border-bottom: none; }
+.osc-inv-head .section-title {
+  flex: 0 0 auto;
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
 
 // Encumbrance-as-rule: the 2px header underline becomes the load bar. The tier
 // spectrum spans the whole track, each tier's colour blending into the next over a
@@ -27,7 +35,11 @@
   border-bottom: none;
   background-image:
     // top: transparent up to --enc-pct (reveals the spectrum), dim rule beyond
-    linear-gradient(to right, transparent var(--enc-pct, 0%), var(--section-rule) var(--enc-pct, 0%)),
+    linear-gradient(
+      to right,
+      transparent var(--enc-pct, 0%),
+      var(--section-rule) var(--enc-pct, 0%)
+    ),
     // bottom: the tier spectrum across the entire track
     linear-gradient(to right, var(--enc-stops, var(--enc-0)));
   background-repeat: no-repeat;
@@ -40,38 +52,38 @@
 // load to the right edge — lining its cn up with the section headers' cn totals below.
 // Hover/focus reveals the shared MoveTooltip (positioned in JS; see MovePop.tsx). ---
 .osc-enc-readout {
-  position: relative; // reference for the hover anchor
   flex: 1 1 auto; // take the row width left of nothing/right of the title
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: var(--spacer-3);
-  font-family: var(--mono); font-size: var(--fs-xs, 12px); letter-spacing: 0;
-  color: var(--text-mute); white-space: nowrap;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--spacer-2);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 12px);
+  letter-spacing: 0;
+  color: var(--text-mute);
+  white-space: nowrap;
   cursor: default;
 }
-// the load (value/max) stays muted even though the tier class tints the element.
-.osc-enc-readout .load { color: var(--text-mute); }
+
 // rate cluster: very tight gap (2px) around the tier-tinted slash separators so the
 // three scores read as one compact group.
-.osc-enc-readout .rates { display: inline-flex; align-items: baseline; gap: 2px; }
+.osc-enc-readout .rates {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  // dotted underline hints at the hover breakdown; border (not text-decoration,
+  // which doesn't render through an inline-flex) so it draws under the rate cluster.
+  border-bottom: 1px dotted var(--text-faint);
+}
 // the rates AND their `/` separators carry the tier colour (--enc-c, set by .enc-t*).
 .osc-enc-readout .rate,
-.osc-enc-readout .rates .sep { color: var(--enc-c, var(--text-mute)); }
-
-// --- reference rail (below the bar, above Wealth): the full-unit movement labels,
-// thin and understated — a plain readout for eyeballing the labelled rates. ---
-.osc-enc-rail {
-  display: flex; align-items: baseline; gap: var(--spacer-2);
-  margin: var(--spacer-2) 0 var(--spacer-3);
-  font-family: var(--mono); font-size: var(--fs-2xs, 11px);
-  color: var(--text-faint); white-space: nowrap;
+.osc-enc-readout .rates .sep {
+  color: var(--enc-c, var(--text-mute));
 }
-.osc-enc-rail-k {
-  font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.1em;
-  font-size: var(--fs-3xs, 10px); color: var(--text-mute);
+// pull the middot in — halve the flex gap flanking it (spacer-2 → ~spacer-1 each side).
+.osc-enc-readout .fa-dot {
+  margin-inline: calc(var(--spacer-1) * -1);
 }
-.osc-enc-rail-rates { display: inline-flex; align-items: baseline; gap: var(--spacer-2); }
-.osc-enc-rail .sep { color: var(--text-faint); }
-.osc-enc-rail .u { opacity: 0.75; }
 
 // ---------------------------------------------------------------------------
 // List rows — 8-column grid
@@ -97,15 +109,21 @@
   transition: background 0.1s;
 
   &.is-dragging,
-  &.dragging     { opacity: 0.4; }
+  &.dragging {
+    opacity: 0.4;
+  }
   &.is-drop-target {
     border-bottom-color: var(--teal, #1f7575);
     background: color-mix(in srgb, var(--teal, #1f7575) 8%, transparent);
   }
   // Insertion line — a 2px rule painted on the hovered row's leading/trailing edge.
   // box-shadow (not border) so it overlays without shifting the grid: no reflow.
-  &.drop-before { box-shadow: inset 0 2px 0 0 var(--teal, #1f7575); }
-  &.drop-after  { box-shadow: inset 0 -2px 0 0 var(--teal, #1f7575); }
+  &.drop-before {
+    box-shadow: inset 0 2px 0 0 var(--teal, #1f7575);
+  }
+  &.drop-after {
+    box-shadow: inset 0 -2px 0 0 var(--teal, #1f7575);
+  }
 }
 
 // --- sortable column-header row (table head) ---
@@ -113,123 +131,233 @@
   padding-top: 0;
   padding-bottom: var(--spacer-1);
   border-bottom: 2px solid var(--border, #3a342c);
-  &:hover { background: transparent; }
+  &:hover {
+    background: transparent;
+  }
 }
 .osc-inv .osc-inv-th {
-  display: inline-flex; align-items: center; gap: var(--spacer-1);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacer-1);
   min-width: 0;
-  background: transparent; cursor: pointer;
-  font-family: var(--sans); font-size: var(--fs-3xs, 10px); font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text-faint, #6a6354);
   transition: color 0.12s;
-  &:hover { color: var(--text-dim, #b5ad97); }
-  &.active { color: var(--text, #e5dec8); }
+  &:hover {
+    color: var(--text-dim, #b5ad97);
+  }
+  &.active {
+    color: var(--text, #e5dec8);
+  }
 }
 // header alignment matches the cells below it
-.osc-inv .osc-inv-th-wt { justify-content: flex-end; }
-.osc-inv .osc-inv-th-cat { justify-content: flex-end; }
+.osc-inv .osc-inv-th-wt {
+  justify-content: flex-end;
+}
+.osc-inv .osc-inv-th-cat {
+  justify-content: flex-end;
+}
 // "Item" header spans the image + name columns so it starts at the image edge
-.osc-inv .osc-inv-th-item { grid-column: 2 / 4; justify-content: flex-start; }
-.osc-inv-th-caret { font-size: 8px; width: 6px; } // stylelint-disable-line declaration-property-value-disallowed-list -- 8px sort-caret glyph (reserve space so labels don't shift)
+.osc-inv .osc-inv-th-item {
+  grid-column: 2 / 4;
+  justify-content: flex-start;
+}
+.osc-inv-th-caret {
+  font-size: 8px; // stylelint-disable-line declaration-property-value-disallowed-list -- 8px sort-caret glyph (reserve space so labels don't shift)
+  width: 6px;
+}
 
 // --- item image (col 2) ---
 .osc-inv-img {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 30px; height: 30px;
-  border-radius: var(--r-sm, 4px); overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm, 4px);
+  overflow: hidden;
   background: var(--ink, #070605);
   border: 1px solid var(--border, #3a342c);
-  img { width: 100%; height: 100%; object-fit: cover; }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
   .mono {
-    font-family: var(--display); font-size: var(--fs-2xs, 11px);
-    letter-spacing: 0.03em; color: var(--text-dim, #b5ad97);
+    font-family: var(--display);
+    font-size: var(--fs-2xs, 11px);
+    letter-spacing: 0.03em;
+    color: var(--text-dim, #b5ad97);
   }
 }
 
 // --- drag handle (col 1) ---
 .osc-inv .osc-inv-drag {
-  display: inline-flex; align-items: center; justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-faint, #6a6354);
-  cursor: grab; font-size: var(--fs-xs, 12px); line-height: 1;
-  padding: var(--spacer-1); border-radius: 3px;
+  cursor: grab;
+  font-size: var(--fs-xs, 12px);
+  line-height: 1;
+  padding: var(--spacer-1);
+  border-radius: 3px;
   transition: color 0.12s;
-  &:active { cursor: grabbing; }
-  &:hover  { color: var(--text-mute, #8a8270); }
+  &:active {
+    cursor: grabbing;
+  }
+  &:hover {
+    color: var(--text-mute, #8a8270);
+  }
 }
 
 // --- equip hand toggle (col 4, centred under the "Equip" header) ---
-.osc-inv-equip-spacer { display: block; width: 22px; justify-self: center; }
+.osc-inv-equip-spacer {
+  display: block;
+  width: 22px;
+  justify-self: center;
+}
 .osc-inv .osc-inv-equip {
   justify-self: center;
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 22px; height: 22px; padding: 0; border-radius: var(--r-sm, 4px);
-  background: transparent; border: none; cursor: pointer;
-  color: var(--text-faint, #6a6354); font-size: var(--fs-sm, 13px);
-  transition: color 0.12s, background 0.12s;
-  &:hover { color: var(--text-dim, #b5ad97); background: var(--surface-2, #2c2823); }
-  &.is-on { color: var(--teal); }
-  &.is-on:hover { color: var(--teal-dim); }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: var(--r-sm, 4px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint, #6a6354);
+  font-size: var(--fs-sm, 13px);
+  transition:
+    color 0.12s,
+    background 0.12s;
+  &:hover {
+    color: var(--text-dim, #b5ad97);
+    background: var(--surface-2, #2c2823);
+  }
+  &.is-on {
+    color: var(--teal);
+  }
+  &.is-on:hover {
+    color: var(--teal-dim);
+  }
 }
 // static "Equip" column header label (not sortable)
 .osc-inv-thlabel {
-  font-family: var(--sans); font-size: var(--fs-3xs, 10px); font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text-faint, #6a6354);
 }
-.osc-inv-thlabel-eq { text-align: center; }
+.osc-inv-thlabel-eq {
+  text-align: center;
+}
 
 // --- name button (col 3) ---
 .osc-inv .osc-inv-name {
-  display: flex; align-items: baseline; gap: var(--spacer-2); flex-wrap: nowrap;
-  min-width: 0; overflow: hidden;
-  background: transparent; cursor: pointer; text-align: left;
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacer-2);
+  flex-wrap: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
 }
 .osc-inv-name .nm {
-  font-family: var(--display); font-size: var(--fs-md, 15px);
-  color: var(--text, #e5dec8); transition: color 0.12s;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--display);
+  font-size: var(--fs-md, 15px);
+  color: var(--text, #e5dec8);
+  transition: color 0.12s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.osc-inv .osc-inv-name:hover .nm { color: var(--gold); }
+.osc-inv .osc-inv-name:hover .nm {
+  color: var(--gold);
+}
 
 // inline meta suffixes after the item name — weapon damage ("1d6") and stack
 // quantity ("×6") — muted mono.
 .osc-inv-qtytag {
-  font-family: var(--mono); font-size: var(--fs-2xs, 11px);
-  color: var(--text-mute, #8a8270); white-space: nowrap; flex: none;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--text-mute, #8a8270);
+  white-space: nowrap;
+  flex: none;
 }
 
 // container count pill (brass) — now <Tag intent="count">; see .tag.count
 
 // name column (col 3): name (+count) row on top, tags beneath, all left-justified
 .osc-inv-name-c {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
-  min-width: 0; overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
 }
 .osc-inv-name-row {
-  display: flex; align-items: baseline; gap: var(--spacer-1);
-  min-width: 0; max-width: 100%;
-  .osc-inv-name { flex: 0 1 auto; }
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacer-1);
+  min-width: 0;
+  max-width: 100%;
+  .osc-inv-name {
+    flex: 0 1 auto;
+  }
 }
 
 // --- collapse chevron (small, inline with the container name text) ---
 .osc-inv .osc-inv-collapse {
-  display: inline-flex; align-items: center; justify-content: center;
-  background: transparent; border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
   color: var(--text-mute, #8a8270);
-  cursor: pointer; padding: 0 4px; font-size: var(--fs-sm, 13px); line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: var(--fs-sm, 13px);
+  line-height: 1;
   transition: color 0.12s;
   // the chevron rotates (a stacking context); pin it low so tooltips clear it.
-  position: relative; z-index: var(--z-raised);
+  position: relative;
+  z-index: var(--z-raised);
 
-  svg, i { transition: transform 0.18s; display: block; }
-  &.collapsed svg, &.collapsed i { transform: rotate(-90deg); }
-  &:hover { color: var(--text, #e5dec8); }
+  svg,
+  i {
+    transition: transform 0.18s;
+    display: block;
+  }
+  &.collapsed svg,
+  &.collapsed i {
+    transform: rotate(-90deg);
+  }
+  &:hover {
+    color: var(--text, #e5dec8);
+  }
 }
 
 // --- tags (beneath the name, left-justified) ---
 .osc-inv-tags {
-  display: flex; align-items: center; gap: var(--spacer-1); flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-1);
+  flex-wrap: wrap;
   min-width: 0;
 }
 .osc-inv-tag {
@@ -241,69 +369,107 @@
 
 // --- per-row category badge (col 4: Type) ---
 .osc-inv-rowcat {
-  font-family: var(--sans); font-size: var(--fs-3xs, 10px); font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text-faint, #6a6354);
-  white-space: nowrap; text-align: right;
+  white-space: nowrap;
+  text-align: right;
 }
 
 // xs / mobile (bottom-tabs layout): drop the Type column to save width.
 @container app (max-width: 479px) {
-  .osc-inv-row { grid-template-columns: 18px 30px 1fr 44px 44px; }
+  .osc-inv-row {
+    grid-template-columns: 18px 30px 1fr 44px 44px;
+  }
   .osc-inv-rowcat,
-  .osc-inv .osc-inv-th-cat { display: none; }
+  .osc-inv .osc-inv-th-cat {
+    display: none;
+  }
 }
 
 // --- damage die (col 6) ---
 .osc-inv-dmg {
-  font-family: var(--mono); font-size: var(--fs-xs, 12px);
+  font-family: var(--mono);
+  font-size: var(--fs-xs, 12px);
   color: var(--text-mute, #8a8270);
-  text-align: right; white-space: nowrap;
+  text-align: right;
+  white-space: nowrap;
 }
 
 // --- quantity (col 7): editable for stacks, empty otherwise ---
 .osc-inv-qty {
-  font-family: var(--mono); font-size: var(--fs-2xs, 11px);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
   color: var(--text-mute, #8a8270);
-  text-align: right; white-space: nowrap;
+  text-align: right;
+  white-space: nowrap;
 }
 .osc-inv .osc-inv-qtyin {
-  width: 100%; text-align: center;
-  padding: 2px 0; border-radius: var(--r-sm, 4px);
+  width: 100%;
+  text-align: center;
+  padding: 2px 0;
+  border-radius: var(--r-sm, 4px);
   background: var(--surface, #23201a);
   border: 1px solid var(--border-soft, #2c2823); // always visible so it reads as a field
   color: var(--text-dim, #b5ad97);
-  font-family: var(--mono); font-size: var(--fs-2xs, 11px);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
   cursor: text;
-  transition: border-color 0.12s, background 0.12s;
-  &:hover { border-color: var(--border, #3a342c); }
-  &:focus { border-color: var(--gold); color: var(--text, #e5dec8); }
-  &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { appearance: none; margin: 0; }
-  -moz-appearance: textfield; appearance: textfield;
+  transition:
+    border-color 0.12s,
+    background 0.12s;
+  &:hover {
+    border-color: var(--border, #3a342c);
+  }
+  &:focus {
+    border-color: var(--gold);
+    color: var(--text, #e5dec8);
+  }
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 // --- weight (col 8) ---
 .osc-inv-wt {
-  font-family: var(--mono); font-size: var(--fs-xs, 12px);
+  font-family: var(--mono);
+  font-size: var(--fs-xs, 12px);
   color: var(--text-mute, #8a8270);
-  text-align: right; white-space: nowrap;
+  text-align: right;
+  white-space: nowrap;
 }
 
 // --- nested children ---
 .osc-inv-children {
-  padding-left: calc(var(--spacer-4) + var(--osc-inv-depth, 1) * var(--spacer-4));
+  padding-left: calc(
+    var(--spacer-4) + var(--osc-inv-depth, 1) * var(--spacer-4)
+  );
   position: relative;
-  .osc-inv-children { --osc-inv-depth: 2; }
+  .osc-inv-children {
+    --osc-inv-depth: 2;
+  }
 
   // brass left-rail marking container membership (item icons are always ink, so a
   // mid-brass --accent-alt-dim is used to read on dark in both themes)
   &::before {
     content: "";
-    position: absolute; left: var(--spacer-4); top: 0; bottom: 0;
-    border-left: 2px solid color-mix(in oklab, var(--accent-alt-dim) 55%, transparent);
+    position: absolute;
+    left: var(--spacer-4);
+    top: 0;
+    bottom: 0;
+    border-left: 2px solid
+      color-mix(in oklab, var(--accent-alt-dim) 55%, transparent);
   }
   .osc-inv-img {
-    border: 1px solid color-mix(in oklab, var(--accent-alt-dim) 60%, transparent);
+    border: 1px solid
+      color-mix(in oklab, var(--accent-alt-dim) 60%, transparent);
   }
 }
 
@@ -319,7 +485,9 @@
 // the whole row is draggable (buttons inside still take clicks)
 .osc-inv-row.is-sortable {
   cursor: grab;
-  &:active { cursor: grabbing; }
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 // Dragging an equipped tray tile down into the list → unequip drop target.
@@ -336,45 +504,89 @@
 
 // Wealth section (below the Inventory header): a header bar whose caret toggles a
 // drag-reorderable coin table. Sits in the same rhythm as Equipped / All Items.
-.osc-wsec { margin: 0 0 var(--spacer-5); }
+.osc-wsec {
+  margin: 0 0 var(--spacer-5);
+}
 
 // header bar — full-width button: overlapping coin dots · "Wealth" · gp total ·
 // caret · carried weight (far right).
 .osc-inv .osc-whead {
-  display: flex; align-items: center; gap: var(--spacer-3); width: 100%;
-  background: none; border: none; padding: 7px 2px 9px; cursor: pointer; text-align: left;
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-3);
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 7px 2px 9px;
+  cursor: pointer;
+  text-align: left;
 }
-.osc-inv .osc-whead:disabled { cursor: default; }
-.osc-whead .coins { display: inline-flex; }
+.osc-inv .osc-whead:disabled {
+  cursor: default;
+}
+.osc-whead .coins {
+  display: inline-flex;
+}
 .osc-whead .coins .ci {
-  width: 11px; height: 11px; margin-left: -4px;
+  width: 11px;
+  height: 11px;
+  margin-left: -4px;
   box-shadow: 0 0 0 1.5px var(--bg, #181612); // ring in the page bg → reads as stacked coins
 }
-.osc-whead .coins .ci:first-child { margin-left: 0; }
-.osc-whead .key {
-  font-family: var(--sans); font-weight: 600; font-size: var(--fs-xs, 12px);
-  letter-spacing: 0.13em; text-transform: uppercase; color: var(--text-mute, #8a8270);
+.osc-whead .coins .ci:first-child {
+  margin-left: 0;
 }
-.osc-whead .v { font-family: var(--display); font-size: var(--fs-lg, 16px); color: var(--accent-alt); line-height: 1; }
+.osc-whead .key {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-xs, 12px);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-mute, #8a8270);
+}
+.osc-whead .v {
+  font-family: var(--display);
+  font-size: var(--fs-lg, 16px);
+  color: var(--accent-alt);
+  line-height: 1;
+}
 .osc-whead .v small {
-  font-family: var(--mono); font-size: var(--fs-2xs, 11px);
-  color: var(--accent-alt); opacity: 0.75; margin-left: 2px;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--accent-alt);
+  opacity: 0.75;
+  margin-left: 2px;
 }
 .osc-whead .osc-wcaret {
-  font-size: var(--fs-md, 15px); color: var(--text-mute, #8a8270);
-  transition: transform 0.18s, color 0.15s;
+  font-size: var(--fs-md, 15px);
+  color: var(--text-mute, #8a8270);
+  transition:
+    transform 0.18s,
+    color 0.15s;
   // the rotate() below makes this a stacking context — pin it to the raised layer
   // so it stays below hover tooltips instead of poking through them.
-  position: relative; z-index: var(--z-raised);
+  position: relative;
+  z-index: var(--z-raised);
 }
-.osc-whead.open .osc-wcaret { transform: rotate(90deg); }
-.osc-inv .osc-whead:hover:not(:disabled) .osc-wcaret { color: var(--text, #e5dec8); }
-.osc-whead .wt { margin-left: auto; font-family: var(--mono); font-size: var(--fs-2xs, 11px); color: var(--text-faint, #6a6354); }
+.osc-whead.open .osc-wcaret {
+  transform: rotate(90deg);
+}
+.osc-inv .osc-whead:hover:not(:disabled) .osc-wcaret {
+  color: var(--text, #e5dec8);
+}
+.osc-whead .wt {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--text-faint, #6a6354);
+}
 
 .osc-wsec-empty {
   margin: 0 0 var(--spacer-2) 2px;
-  font-family: var(--serif); font-style: italic;
-  font-size: var(--fs-sm, 13px); color: var(--text-faint, #6a6354);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: var(--fs-sm, 13px);
+  color: var(--text-faint, #6a6354);
 }
 
 // coin table — card; rows mirror the items table (handle · ink-icon · name …)
@@ -382,7 +594,8 @@
   background: var(--bg-2, #1f1c17);
   border: 1px solid var(--border-soft, #2c2823);
   border-radius: var(--r-md, 6px);
-  padding: 3px 12px 9px; margin-top: 2px;
+  padding: 3px 12px 9px;
+  margin-top: 2px;
 }
 // Grid mirrors the items table (handle · 30px image · name · …) so the coin rows
 // read as siblings; the trailing Qty/Weight/Value columns are coin-specific.
@@ -391,182 +604,378 @@
 .osc-coin-total {
   display: grid;
   grid-template-columns: 18px 30px minmax(0, 1fr) 74px 56px 64px;
-  column-gap: var(--spacer-2); align-items: center;
+  column-gap: var(--spacer-2);
+  align-items: center;
 }
 .osc-coin-colhead {
   padding: 0 0 var(--spacer-1);
   border-bottom: 2px solid var(--border, #3a342c);
 }
 // right-align the numeric sort headers (reuses the shared .osc-inv-th button)
-.osc-inv .osc-coin-th-num { justify-content: flex-end; }
-
-.osc-coin-row { padding: var(--spacer-2) 0; border-bottom: 1px solid var(--border-soft, #2c2823); }
-// drop-line affordance (matches the items rows)
-.osc-coin-row.drop-before { box-shadow: inset 0 2px 0 0 var(--teal, #1f7575); }
-.osc-coin-row.drop-after  { box-shadow: inset 0 -2px 0 0 var(--teal, #1f7575); }
-.osc-coin-row.dragging { opacity: 0.4; }
-.osc-inv .osc-coin-qty {
-  width: 100%; min-width: 0; text-align: right;
-  font-family: var(--mono); font-size: var(--fs-sm, 13px); color: var(--text, #e5dec8);
-  background: var(--surface, #23201a); border: 1px solid var(--border-soft, #2c2823);
-  border-radius: var(--r-sm, 4px); padding: 5px 8px;
-  transition: border-color 0.12s;
-  -moz-appearance: textfield; appearance: textfield;
+.osc-inv .osc-coin-th-num {
+  justify-content: flex-end;
 }
-.osc-inv .osc-coin-qty:hover { border-color: var(--border, #3a342c); }
-.osc-inv .osc-coin-qty:focus { border-color: var(--accent-alt); outline: none; }
+
+.osc-coin-row {
+  padding: var(--spacer-2) 0;
+  border-bottom: 1px solid var(--border-soft, #2c2823);
+}
+// drop-line affordance (matches the items rows)
+.osc-coin-row.drop-before {
+  box-shadow: inset 0 2px 0 0 var(--teal, #1f7575);
+}
+.osc-coin-row.drop-after {
+  box-shadow: inset 0 -2px 0 0 var(--teal, #1f7575);
+}
+.osc-coin-row.dragging {
+  opacity: 0.4;
+}
+.osc-inv .osc-coin-qty {
+  width: 100%;
+  min-width: 0;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text, #e5dec8);
+  background: var(--surface, #23201a);
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-sm, 4px);
+  padding: 5px 8px;
+  transition: border-color 0.12s;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.osc-inv .osc-coin-qty:hover {
+  border-color: var(--border, #3a342c);
+}
+.osc-inv .osc-coin-qty:focus {
+  border-color: var(--accent-alt);
+  outline: none;
+}
 .osc-inv .osc-coin-qty::-webkit-inner-spin-button,
-.osc-inv .osc-coin-qty::-webkit-outer-spin-button { appearance: none; margin: 0; }
-.osc-coin-wt { text-align: right; font-family: var(--mono); font-size: var(--fs-xs, 12px); color: var(--text-dim, #b5ad97); }
-.osc-coin-val { text-align: right; font-family: var(--mono); font-size: var(--fs-xs, 12px); color: var(--text, #e5dec8); }
+.osc-inv .osc-coin-qty::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.osc-coin-wt {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-dim, #b5ad97);
+}
+.osc-coin-val {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: var(--fs-xs, 12px);
+  color: var(--text, #e5dec8);
+}
 
 .osc-coin-total {
   align-items: baseline;
   // no top border — the last coin row's bottom rule is the divider (avoids a double line)
-  padding: 8px 0 1px; margin-top: 2px;
+  padding: 8px 0 1px;
+  margin-top: 2px;
 }
 // explicit close affordance under the table
-.osc-coin-done { display: flex; justify-content: flex-end; margin-top: var(--spacer-3); }
-.osc-coin-total .lab {
-  grid-column: 3; font-family: var(--sans); font-weight: 600; font-size: var(--fs-3xs, 10px);
-  letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute, #8a8270);
+.osc-coin-done {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacer-3);
 }
-.osc-coin-total .tw { grid-column: 5; text-align: right; font-family: var(--mono); font-size: var(--fs-xs, 12px); color: var(--text-dim, #b5ad97); }
-.osc-coin-total .tv { grid-column: 6; text-align: right; font-family: var(--mono); font-weight: 700; font-size: var(--fs-xs, 12px); color: var(--accent-alt); }
+.osc-coin-total .lab {
+  grid-column: 3;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-3xs, 10px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute, #8a8270);
+}
+.osc-coin-total .tw {
+  grid-column: 5;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-dim, #b5ad97);
+}
+.osc-coin-total .tv {
+  grid-column: 6;
+  text-align: right;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--fs-xs, 12px);
+  color: var(--accent-alt);
+}
 
 // Per-denomination dot colours (handoff palette; hex fallbacks are stylelint-allowed).
-.osc-inv .ci { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; }
-.osc-inv .ci.pp { background: var(--coin-pp, #cfd2da); }
-.osc-inv .ci.gp { background: var(--accent-alt); }
-.osc-inv .ci.ep { background: var(--coin-ep, #cdbb78); }
-.osc-inv .ci.sp { background: var(--coin-sp, #b9bcc4); }
-.osc-inv .ci.cp { background: var(--coin-cp, #b1734a); }
+.osc-inv .ci {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+.osc-inv .ci.pp {
+  background: var(--coin-pp, #cfd2da);
+}
+.osc-inv .ci.gp {
+  background: var(--accent-alt);
+}
+.osc-inv .ci.ep {
+  background: var(--coin-ep, #cdbb78);
+}
+.osc-inv .ci.sp {
+  background: var(--coin-sp, #b9bcc4);
+}
+.osc-inv .ci.cp {
+  background: var(--coin-cp, #b1734a);
+}
 
 // xs / narrow inventory column: drop Weight + Value columns and the total row.
 // Header children: 1 drag · 2 Coin · 3 Qty · 4 Weight · 5 Value.
 @container app (max-width: 479px) {
   .osc-coin-colhead,
-  .osc-coin-row { grid-template-columns: 18px 30px minmax(0, 1fr) 92px; }
+  .osc-coin-row {
+    grid-template-columns: 18px 30px minmax(0, 1fr) 92px;
+  }
   .osc-coin-colhead > :nth-child(4),
-  .osc-coin-colhead > :nth-child(5) { display: none; }
-  .osc-coin-wt, .osc-coin-val, .osc-coin-total { display: none; }
+  .osc-coin-colhead > :nth-child(5) {
+    display: none;
+  }
+  .osc-coin-wt,
+  .osc-coin-val,
+  .osc-coin-total {
+    display: none;
+  }
 }
 
 // ---------------------------------------------------------------------------
 // Sections (Equipped tray + All Items) + sticky pinning
 // ---------------------------------------------------------------------------
 
-.osc-inv-sec { margin: var(--spacer-3) 0; }
+.osc-inv-sec {
+  margin: var(--spacer-3) 0;
+}
 
 // The equipped tray + the All-Items header live together in one sticky block
 // (.osc-inv-stickyhead) so they pin to the scroll top as a single opaque unit —
 // no JS height measuring, no see-through gap between two separately-sticky bands.
 // Scroll container is .osc-sheet-body.
 .osc-inv-stickyhead {
-  position: sticky; top: 0; z-index: var(--z-sticky);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
   background: var(--bg);
 }
-.osc-inv-stickyhead .osc-inv-sec--equipped { margin: 0 0 var(--spacer-3); }
+.osc-inv-stickyhead .osc-inv-sec--equipped {
+  margin: 0 0 var(--spacer-3);
+}
 // breathing room below the sticky "All Items" header so the table (and its
 // outline-offset drop outline) clears the sticky band instead of being clipped.
-.osc-inv-sec--carried { margin-top: var(--spacer-3); }
+.osc-inv-sec--carried {
+  margin-top: var(--spacer-3);
+}
 // static (non-collapsible) header: title on the left, "N items · X cn" on the right
 .osc-inv-sec-head {
-  display: flex; align-items: baseline; gap: var(--spacer-2); width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacer-2);
+  width: 100%;
   padding: var(--spacer-1) 0 var(--spacer-2);
   background: var(--bg);
   color: var(--text-mute, #8a8270);
 }
 // section title is now <SectionTitle variant="sub">; see .section-title.sub
 .osc-inv-sec-count {
-  font-family: var(--mono); font-size: var(--fs-2xs, 11px);
-  color: var(--text-faint, #6a6354); margin-left: auto; white-space: nowrap;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--text-faint, #6a6354);
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 // --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
 .osc-equip-tray {
-  display: flex; flex-wrap: wrap; gap: var(--spacer-2); align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacer-2);
+  align-items: flex-start;
   padding: var(--spacer-3);
-  border: 1.5px dashed var(--border-soft, #2c2823); border-radius: var(--r-md, 6px);
-  transition: border-color 0.12s, background 0.12s;
+  border: 1.5px dashed var(--border-soft, #2c2823);
+  border-radius: var(--r-md, 6px);
+  transition:
+    border-color 0.12s,
+    background 0.12s;
 }
 // Dragging an item over the tray to equip it — dotted teal accent (equip = teal).
 .osc-equip-tray.is-drop-target {
-  border-style: dotted; border-color: var(--teal);
+  border-style: dotted;
+  border-color: var(--teal);
   background: color-mix(in oklab, var(--teal) 8%, transparent);
 }
-.osc-equip-tcard { position: relative; }
+.osc-equip-tcard {
+  position: relative;
+}
 // tiles drag to reorder within the tray (own order)
-.osc-equip-tcard.is-sortable { cursor: grab; &:active { cursor: grabbing; } }
-.osc-equip-tcard.dragging { opacity: 0.4; }
+.osc-equip-tcard.is-sortable {
+  cursor: grab;
+  &:active {
+    cursor: grabbing;
+  }
+}
+.osc-equip-tcard.dragging {
+  opacity: 0.4;
+}
 // horizontal insertion line on the leading/trailing edge of the hovered tile (teal)
 .osc-equip-tcard.drop-before::before,
 .osc-equip-tcard.drop-after::after {
-  content: ""; position: absolute; top: 2px; bottom: 2px; width: 2px;
-  background: var(--teal, #1f7575); border-radius: 2px; pointer-events: none;
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  background: var(--teal, #1f7575);
+  border-radius: 2px;
+  pointer-events: none;
 }
-.osc-equip-tcard.drop-before::before { left: -5px; }
-.osc-equip-tcard.drop-after::after  { right: -5px; }
+.osc-equip-tcard.drop-before::before {
+  left: -5px;
+}
+.osc-equip-tcard.drop-after::after {
+  right: -5px;
+}
 .osc-inv .osc-equip-tt {
-  position: relative; width: 50px; height: 50px; padding: 0;
-  display: grid; place-items: center; cursor: pointer;
-  background: var(--ink, #070605); color: var(--stamp-text, #e5dec8);
-  border: 1.5px solid var(--teal); border-radius: var(--r-sm, 4px);
+  position: relative;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: var(--ink, #070605);
+  color: var(--stamp-text, #e5dec8);
+  border: 1.5px solid var(--teal);
+  border-radius: var(--r-sm, 4px);
   overflow: hidden;
   transition: transform 0.12s;
-  &:hover { transform: translateY(-1px); }
-  img { width: 100%; height: 100%; object-fit: cover; }
+  &:hover {
+    transform: translateY(-1px);
+  }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
-.osc-equip-tt-ic { font-family: var(--display); font-size: var(--fs-xl, 18px); line-height: 1; }
+.osc-equip-tt-ic {
+  font-family: var(--display);
+  font-size: var(--fs-xl, 18px);
+  line-height: 1;
+}
 
 // hover popover with item detail
 .osc-equip-tt-pop {
-  position: absolute; left: 50%; top: calc(100% + 8px); transform: translate(-50%, 4px);
-  z-index: 12; min-width: 132px; max-width: 200px;
-  display: flex; flex-direction: column; gap: 3px;
-  padding: var(--spacer-2) var(--spacer-3); border-radius: var(--r-md, 6px);
-  background: var(--surface-2, #2c2823); border: 1px solid var(--border, #3a342c);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translate(-50%, 4px);
+  z-index: 12;
+  min-width: 132px;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--spacer-2) var(--spacer-3);
+  border-radius: var(--r-md, 6px);
+  background: var(--surface-2, #2c2823);
+  border: 1px solid var(--border, #3a342c);
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.32);
-  opacity: 0; pointer-events: none; transition: opacity 0.12s, transform 0.12s;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.12s,
+    transform 0.12s;
   &::before {
-    content: ""; position: absolute; left: 50%; top: -5px; transform: translateX(-50%) rotate(45deg);
-    width: 9px; height: 9px; background: var(--surface-2, #2c2823);
-    border-left: 1px solid var(--border, #3a342c); border-top: 1px solid var(--border, #3a342c);
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -5px;
+    transform: translateX(-50%) rotate(45deg);
+    width: 9px;
+    height: 9px;
+    background: var(--surface-2, #2c2823);
+    border-left: 1px solid var(--border, #3a342c);
+    border-top: 1px solid var(--border, #3a342c);
   }
 }
-.osc-equip-tcard:hover .osc-equip-tt-pop { opacity: 1; transform: translate(-50%, 0); }
-.osc-equip-tt-pop-nm { font-family: var(--display); font-size: var(--fs-base, 15px); color: var(--text, #e5dec8); line-height: 1.1; }
+.osc-equip-tcard:hover .osc-equip-tt-pop {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.osc-equip-tt-pop-nm {
+  font-family: var(--display);
+  font-size: var(--fs-base, 15px);
+  color: var(--text, #e5dec8);
+  line-height: 1.1;
+}
 .osc-equip-tt-pop-type {
-  font-family: var(--sans); font-size: var(--fs-3xs, 10px);
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mute, #8a8270);
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-mute, #8a8270);
 }
 // stat rows — label on the left, mono value on the right
 .osc-equip-tt-pop-stats {
-  display: flex; flex-direction: column; gap: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   margin-top: var(--spacer-1);
-  padding-top: var(--spacer-1); border-top: 1px solid var(--border-soft, #2c2823);
+  padding-top: var(--spacer-1);
+  border-top: 1px solid var(--border-soft, #2c2823);
 }
 .osc-equip-tt-pop-stat {
-  display: flex; align-items: baseline; justify-content: space-between; gap: var(--spacer-3);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacer-3);
   .k {
-    font-family: var(--sans); font-size: var(--fs-3xs, 10px);
-    letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-faint, #6a6354);
+    font-family: var(--sans);
+    font-size: var(--fs-3xs, 10px);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-faint, #6a6354);
   }
-  .v { font-family: var(--mono); font-size: var(--fs-xs, 12px); color: var(--text-dim, #b5ad97); }
+  .v {
+    font-family: var(--mono);
+    font-size: var(--fs-xs, 12px);
+    color: var(--text-dim, #b5ad97);
+  }
 }
 // quality tags
 .osc-equip-tt-pop-tags {
-  display: flex; flex-wrap: wrap; gap: var(--spacer-1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacer-1);
   margin-top: var(--spacer-1);
-  padding-top: var(--spacer-1); border-top: 1px solid var(--border-soft, #2c2823);
+  padding-top: var(--spacer-1);
+  border-top: 1px solid var(--border-soft, #2c2823);
 }
 .osc-equip-tt-pop-tag {
-  display: inline-flex; align-items: center; gap: 3px;
-  font-family: var(--sans); font-size: var(--fs-3xs, 10px);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
   color: var(--text-dim, #b5ad97);
-  background: var(--bg-2, #1f1c17); border: 1px solid var(--border-soft, #2c2823);
-  border-radius: var(--r-sm, 4px); padding: 1px 6px;
-  i { font-size: 9px; color: var(--gold-dim); } // stylelint-disable-line declaration-property-value-disallowed-list -- 9px tag-icon glyph
+  background: var(--bg-2, #1f1c17);
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-sm, 4px);
+  padding: 1px 6px;
+  i {
+    font-size: 9px; // stylelint-disable-line declaration-property-value-disallowed-list -- 9px tag-icon glyph
+    color: var(--gold-dim);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -574,30 +983,55 @@
 // ---------------------------------------------------------------------------
 
 .osc-ctx {
-  position: fixed; z-index: 1000; min-width: 168px;
+  position: fixed;
+  z-index: 1000;
+  min-width: 168px;
   padding: var(--spacer-1);
   background: var(--surface, #23201a);
-  border: 1px solid var(--border, #3a342c); border-radius: var(--r-md, 6px);
+  border: 1px solid var(--border, #3a342c);
+  border-radius: var(--r-md, 6px);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
 }
 .osc-ctx-title {
-  font-family: var(--display); font-size: var(--fs-sm, 13px);
+  font-family: var(--display);
+  font-size: var(--fs-sm, 13px);
   color: var(--text-dim, #b5ad97);
   padding: var(--spacer-1) var(--spacer-2) var(--spacer-2);
   border-bottom: 1px solid var(--border-soft, #2c2823);
   margin-bottom: var(--spacer-1);
 }
 .osc-inv .osc-ctx-item {
-  display: flex; align-items: center; gap: var(--spacer-2); width: 100%;
-  padding: var(--spacer-2); border-radius: var(--r-sm, 4px);
-  background: transparent; border: none; cursor: pointer; text-align: left;
-  font-family: var(--sans); font-size: var(--fs-sm, 13px);
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-2);
+  width: 100%;
+  padding: var(--spacer-2);
+  border-radius: var(--r-sm, 4px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: var(--fs-sm, 13px);
   color: var(--text, #e5dec8);
-  i { width: 16px; text-align: center; color: var(--text-mute, #8a8270); }
-  &:hover { background: var(--surface-2, #2c2823); }
-  &:disabled { opacity: 0.4; cursor: default; }
-  &.is-danger:hover { background: color-mix(in srgb, var(--crimson, #c75044) 18%, transparent); }
-  &.is-danger i { color: var(--crimson, #c75044); }
+  i {
+    width: 16px;
+    text-align: center;
+    color: var(--text-mute, #8a8270);
+  }
+  &:hover {
+    background: var(--surface-2, #2c2823);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  &.is-danger:hover {
+    background: color-mix(in srgb, var(--crimson, #c75044) 18%, transparent);
+  }
+  &.is-danger i {
+    color: var(--crimson, #c75044);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -606,28 +1040,49 @@
 
 // Layout/size/color come from u-* utilities in the JSX; only the bespoke target
 // button (hover / selected color-mix / disabled) and its icon tile live here.
-.osc-send-targets { list-style: none; margin: 0; padding: 0; }
+.osc-send-targets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 // Button selectors qualified with .osc-inv (the dialog is a DOM descendant) so
 // they beat the `.osc-sheet-app button { all: unset }` reset.
 .osc-inv .osc-send-target {
-  display: flex; align-items: center; gap: var(--spacer-3); width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-3);
+  width: 100%;
   padding: var(--spacer-2) var(--spacer-3);
-  background: transparent; cursor: pointer; text-align: left;
-  border: 1px solid var(--border-soft, #2c2823); border-radius: var(--r-md, 6px);
-  font-family: var(--sans); font-size: var(--fs-md, 14px);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-md, 6px);
+  font-family: var(--sans);
+  font-size: var(--fs-md, 14px);
   color: var(--text, #e5dec8);
-  &:hover { background: var(--bg-2, #1f1c17); }
+  &:hover {
+    background: var(--bg-2, #1f1c17);
+  }
   &.is-selected {
     border-color: var(--accent-alt, #c89e54);
     background: color-mix(in srgb, var(--accent-alt, #c89e54) 12%, transparent);
   }
-  &:disabled { opacity: 0.4; cursor: not-allowed; }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 }
 .osc-send-target-ic {
-  width: var(--spacer-8); height: var(--spacer-8); flex: 0 0 auto;
-  display: grid; place-items: center; overflow: hidden;
+  width: var(--spacer-8);
+  height: var(--spacer-8);
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
   border-radius: var(--r-sm, 4px);
   background: var(--bg-2, #1f1c17);
-  font-family: var(--display); color: var(--text-dim, #b5ad97);
+  font-family: var(--display);
+  color: var(--text-dim, #b5ad97);
   object-fit: cover;
 }

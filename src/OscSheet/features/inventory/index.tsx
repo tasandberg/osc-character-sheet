@@ -18,7 +18,11 @@ import type {
   InventorySortKey,
   SortDir,
 } from "@domain/vm-types";
-import { encBarStops, sortInventory, SORT_DEFAULT_DIR } from "@features/inventory/inventory";
+import {
+  encBarStops,
+  sortInventory,
+  SORT_DEFAULT_DIR,
+} from "@features/inventory/inventory";
 import { useDragReorder } from "@features/inventory/useDragReorder";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { WealthSection } from "@features/inventory/WealthSection";
@@ -30,7 +34,6 @@ import {
 import { EquippedTray } from "@features/inventory/EquippedTray";
 import { ItemContextMenu } from "@features/inventory/ItemContextMenu";
 import { EncumbranceReadout } from "@features/inventory/EncumbranceReadout";
-import { MoveRatesFull } from "@ui/MovePop";
 import { SectionCount } from "@features/inventory/SectionCount";
 import { SortableRow } from "@features/inventory/rows/SortableRow";
 import { ContainerRow } from "@features/inventory/rows/ContainerRow";
@@ -269,20 +272,15 @@ export function InventoryView({
             : undefined
         }
       >
-        <SectionTitle>Inventory</SectionTitle>
+        <SectionTitle className="u-mb-1">Inventory</SectionTitle>
         {encumbrance.enabled && <EncumbranceReadout e={encumbrance} />}
       </div>
-      {/* thin reference rail: the full-unit movement labels, below the bar / above
-          Wealth — a plain readout for eyeballing the labelled rates while iterating. */}
-      {encumbrance.enabled && (
-        <div className="osc-enc-rail">
-          <span className="osc-enc-rail-k">Encumbrance:</span>
-          <span className="osc-enc-rail-rates">
-            <MoveRatesFull bands={encumbrance.moveBands} />
-          </span>
-        </div>
-      )}
-      <WealthSection coins={coins} onSetCoin={onSetCoin} onOpen={onOpen} onContext={openMenu} />
+      <WealthSection
+        coins={coins}
+        onSetCoin={onSetCoin}
+        onOpen={onOpen}
+        onContext={openMenu}
+      />
 
       {/* Equipped tray + All-Items header pin together as one opaque block so the
           two never separate into a see-through gap (no JS height measuring). */}

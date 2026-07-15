@@ -366,6 +366,11 @@
 .osc-tile-move {
   cursor: default;
 }
+// dotted underline on the value hints at the hover breakdown (all three rates + enc)
+.osc-tile-move .osc-tile-v {
+  text-decoration: underline dotted var(--text-faint);
+  text-underline-offset: 2px;
+}
 // Shared by the header MOVE tile and the inventory encumbrance line (see MovePop.tsx).
 // Positioned in JS as `position: fixed` (inline style) so it escapes any overflow-
 // clipping ancestor — the character rail self-scrolls, and fixed with no transformed

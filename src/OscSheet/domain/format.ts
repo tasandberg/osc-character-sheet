@@ -12,5 +12,5 @@ export function encTierClass(tier: EncumbranceTier): string {
 
 /** Screen-reader sentence for a rates line — the units the glyphs imply, spelled out. */
 export function moveRatesLabel(b: MoveBands): string {
-  return `${b.explore} feet per turn, ${b.encounter} feet per round, ${b.travel} miles per day`;
+  return `${b.encounter} feet per round, ${b.explore} feet per turn, ${b.travel} miles per day`;
 }

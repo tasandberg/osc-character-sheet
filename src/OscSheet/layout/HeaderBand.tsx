@@ -86,7 +86,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         </div>
         <div className="osc-tile osc-tile-move">
           <Stamp>MOVE</Stamp>
-          <div className="osc-tile-v">{vitals.move}′</div>
+          <div className="osc-tile-v">{m.encounter}ft</div>
           <MoveTooltip
             bands={m}
             tier={encumbrance?.enabled ? encumbrance.tier : undefined}

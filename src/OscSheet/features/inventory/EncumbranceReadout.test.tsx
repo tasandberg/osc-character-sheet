@@ -63,9 +63,9 @@ describe("EncumbranceReadout", () => {
     const readout = container.querySelector(".osc-enc-readout")!;
     // load number is restored (was removed in the first pass)
     expect(readout.querySelector(".load")?.textContent).toBe("700 / 1600 cn");
-    // rates are terse: 90′ · 30′ · 18mi (explore · encounter · travel), no /turn suffixes
+    // rates are terse: 30ft / 90ft / 18mi (encounter / explore / travel), no /turn suffixes
     const rates = [...readout.querySelectorAll(".rate")].map((r) => r.textContent);
-    expect(rates).toEqual(["90′", "30′", "18mi"]);
+    expect(rates).toEqual(["30ft", "90ft", "18mi"]);
     // the rate line carries the tier tint class; the load does not
     expect(container.querySelector(".osc-enc-readout.enc-t2")).toBeTruthy();
   });
@@ -80,8 +80,8 @@ describe("EncumbranceReadout", () => {
     // one shared component ⇒ byte-identical rows in both places
     expect(encRows).toEqual(moveRows);
     expect(encRows).toEqual([
-      "Encounter|30′/round",
-      "Explore|90′/turn",
+      "Encounter|30ft/round",
+      "Explore|90ft/turn",
       "Travel|18 mi/day",
       "Encumbrance|Heavily encumbered",
     ]);

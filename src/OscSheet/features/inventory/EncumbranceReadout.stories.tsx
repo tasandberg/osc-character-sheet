@@ -1,10 +1,9 @@
-// The inventory header's encumbrance line + load bar, plus the reference rail — the
-// InventoryView story can't render (it needs the sheet context), so this is where the
-// tier colours, threshold cuts, cn right-alignment, rail, and popover are checked.
+// The inventory header's encumbrance line + load bar — the InventoryView story can't
+// render (it needs the sheet context), so this is where the tier colours, threshold
+// cuts, cn right-alignment, and popover are checked.
 import type { EncumbranceVM } from "@domain/vm-types";
 import { EncumbranceReadout } from "@features/inventory/EncumbranceReadout";
 import { encBarStops } from "@features/inventory/inventory";
-import { MoveRatesFull } from "@ui/MovePop";
 import { SectionTitle } from "@ui/SectionTitle";
 
 export default { title: "Inventory / EncumbranceReadout" };
@@ -58,19 +57,13 @@ export const Tiers = () => (
   </div>
 );
 
-// Full stack: bar + rates-left/load-right, the rail, then section headers — to check
-// the load's cn lines up with the Equipped / All-Items / Wealth cn totals below.
+// Full stack: bar + rates-left/load-right, then section headers — to check the load's
+// cn lines up with the Equipped / All-Items / Wealth cn totals below.
 export const FullHeader = () => {
   const e = vm(2, 690, "Heavily encumbered");
   return (
     <div className="osc-inv" style={{ padding: 16, width: 480 }}>
       <Head e={e} />
-      <div className="osc-enc-rail">
-        <span className="osc-enc-rail-k">Encumbrance:</span>
-        <span className="osc-enc-rail-rates">
-          <MoveRatesFull bands={e.moveBands} />
-        </span>
-      </div>
       <button type="button" className="osc-whead" style={{ display: "flex", width: "100%" }}>
         <span className="key">Wealth</span>
         <span className="v">152 gp</span>

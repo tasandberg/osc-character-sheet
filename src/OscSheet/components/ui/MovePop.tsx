@@ -91,8 +91,8 @@ export function MoveTooltip({
     <span className="osc-move-pop" role="tooltip" ref={ref} style={style}>
       {/* per-unit suffixes match the OSE rate the value is quoted in — don't cross
           them: explore is per turn, encounter per round, travel miles per day. */}
-      <PopRow k="Encounter" v={`${bands.encounter}′/round`} />
-      <PopRow k="Explore" v={`${bands.explore}′/turn`} />
+      <PopRow k="Encounter" v={`${bands.encounter}ft/round`} />
+      <PopRow k="Explore" v={`${bands.explore}ft/turn`} />
       <PopRow k="Travel" v={`${bands.travel} mi/day`} />
       {tier !== undefined && status && (
         <PopRow k="Encumbrance" v={status} vClass={encTierClass(tier)} />
@@ -101,43 +101,19 @@ export function MoveTooltip({
   );
 }
 
-/** The three rates on one line, terse: `120′ / 40′ / 24mi` (explore / encounter / travel). */
+/** The three rates on one line, terse: `40ft / 120ft / 24mi` (encounter / explore / travel). */
 export function MoveRates({ bands }: { bands: MoveBands }) {
   return (
     <>
-      <span className="rate">{bands.explore}′</span>
+      <span className="rate">{bands.encounter}ft</span>
       <span className="sep" aria-hidden="true">
         /
       </span>
-      <span className="rate">{bands.encounter}′</span>
+      <span className="rate">{bands.explore}ft</span>
       <span className="sep" aria-hidden="true">
         /
       </span>
       <span className="rate">{bands.travel}mi</span>
-    </>
-  );
-}
-
-/** The full-unit form: `90′/turn · 30′/round · 18 mi/day` — for the reference rail. */
-export function MoveRatesFull({ bands }: { bands: MoveBands }) {
-  return (
-    <>
-      <span className="rate">
-        {bands.explore}′<span className="u">/turn</span>
-      </span>
-      <span className="sep" aria-hidden="true">
-        ·
-      </span>
-      <span className="rate">
-        {bands.encounter}′<span className="u">/round</span>
-      </span>
-      <span className="sep" aria-hidden="true">
-        ·
-      </span>
-      <span className="rate">
-        {bands.travel}
-        <span className="u"> mi/day</span>
-      </span>
     </>
   );
 }
