@@ -17,6 +17,10 @@ import {
   selectEncumbrance,
   selectCoins,
 } from "@features/inventory/inventory";
+import {
+  createItem,
+  type InventoryItemType,
+} from "@features/inventory/createItem";
 import { flagPath, FLAGS, readFlag } from "@domain/flags";
 import { collectTree, classifyRoute } from "@features/inventory/sendItem";
 import {
@@ -115,6 +119,10 @@ export default function SheetShell() {
     if (!canEdit) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     void (actor as any).updateEmbeddedDocuments("Item", updates);
+  };
+  const onCreateItem = (type: InventoryItemType) => {
+    if (!canEdit) return;
+    void createItem(actor, type);
   };
 
   const onEquipItem = (id: string) => {
@@ -354,6 +362,7 @@ export default function SheetShell() {
             encumbrance={encumbrance}
             coins={selectCoins(invItems as OseItem[])}
             onSetCoin={onSetCoin}
+            onCreate={onCreateItem}
             onEquip={onEquipItem}
             onOpen={onOpenItem}
             onDelete={onDeleteItem}

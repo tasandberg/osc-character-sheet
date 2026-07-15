@@ -57,7 +57,9 @@ function HitDiceField({
 const fmtMod = (n: number) => (n >= 0 ? "+" : "") + n;
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
-const ABIL_ORDER = ["str", "dex", "con", "int", "wis", "cha"] as const;
+// Mirrors the sheet's plaque order (features/actions/abilities.ts) — editing scores in a
+// different order than they're displayed invites typing a value into the wrong field.
+const ABIL_ORDER = ["str", "int", "wis", "dex", "con", "cha"] as const;
 const ALIGNMENTS = ["Lawful", "Neutral", "Chaotic"];
 const SAVE_DEFS: { k: OSESave; n: string }[] = [
   { k: "death", n: "Death / Poison" },

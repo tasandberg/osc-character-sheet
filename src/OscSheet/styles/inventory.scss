@@ -778,7 +778,7 @@
 // static (non-collapsible) header: title on the left, "N items · X cn" on the right
 .osc-inv-sec-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--spacer-2);
   width: 100%;
   padding: var(--spacer-1) 0 var(--spacer-2);
@@ -793,6 +793,15 @@
   margin-left: auto;
   white-space: nowrap;
 }
+.osc-inv-sec-head > .menu-host { display: inline-flex; }
+// translateY is optical: the all-caps label's centre sits above its box centre.
+.osc-inv-sec-head .icon-btn {
+  color: var(--text-mute);
+  transform: translateY(-1px);
+}
+// hang the box left of the trigger so the caret keeps its natural 14px inset and
+// still lands on the 18px button's centre.
+.osc-inv-sec-head .menu.is-popover.align-start { left: -12px; }
 
 // --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
 .osc-equip-tray {

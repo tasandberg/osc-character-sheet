@@ -105,6 +105,11 @@
 /* ─── Cream theme ──────────────────────────────────────────────────── */
 
 [data-theme="cream"] {
+  /* Dark-on-light needs the OS's subpixel smoothing; the body's grayscale
+     antialiasing (tuned for the dark theme) renders it thin and washed out. */
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+
   --bg:            #efe9d8;
   --bg-2:          #e8e1ca;
   --surface:       #f5efde;

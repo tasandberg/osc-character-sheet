@@ -376,6 +376,26 @@ export function selectEncumbrance(
   items?: OseItem[],
 ): EncumbranceVM {
   const live = actor.system.encumbrance;
+  // A partial/mock actor may lack encumbrance entirely — fall back to a disabled
+  // readout (moveBands still read off actor.system.movement below) rather than crash.
+  if (!live) {
+    const movement = actor.system.movement;
+    return {
+      enabled: false,
+      value: 0,
+      max: 0,
+      pct: 0,
+      tier: 0,
+      status: TIER_STATUS[0],
+      label: "",
+      moveBands: {
+        encounter: movement?.encounter ?? 0,
+        explore: movement?.base ?? 0,
+        travel: movement?.overland ?? 0,
+      },
+      bands: [],
+    };
+  }
   // Optimistically recompute from the overlaid items via OSE's OWN encumbrance class,
   // mirroring the system's construction, so equip/nest/consume/qty changes reflect
   // instantly instead of waiting for the actor to re-prep. `max` (STR-derived cap) is
