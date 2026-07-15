@@ -1,7 +1,7 @@
 // "Uses" sub-row: box pips for a stackable item's quantity (OG-OSE tick-off).
 // Filled = remaining, empty = up to max. Click a pip to set that many; click the
 // last filled to tick one off. When the strip can't fit the row, the pips hide
-// (kept measurable) and a "Use 1" pill takes over.
+// (kept measurable) and a "Use" pill takes over.
 import { useLayoutEffect, useRef, useState } from "react";
 import type { InventoryItemVM } from "@domain/vm-types";
 import { cx } from "@ui/cx";
@@ -78,7 +78,7 @@ export function UsesRow({
               onClick={() => set(value - 1)}
               disabled={value <= 0}
             >
-              Use 1
+              Use
             </button>
           ) : (
             <span className="osc-inv-uses-count">

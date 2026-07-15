@@ -7,16 +7,19 @@ import { weightLabel, EQUIPPED } from "@features/inventory/groups";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { cx } from "@ui/cx";
 
-/** Name + optional (count/qty) on top, tags beneath. `trailing` sits beside the name button (e.g. a caret). */
+/** Name + optional (count/qty) on top, tags beneath. `action` sits right after the
+ * name (e.g. the xs inline Use pill); `trailing` sits beside it (e.g. a caret). */
 export function NameCell({
   item,
   onOpen,
   badge,
+  action,
   trailing,
 }: {
   item: InventoryItemVM;
   onOpen: (id: string) => void;
   badge?: React.ReactNode;
+  action?: React.ReactNode;
   trailing?: React.ReactNode;
 }) {
   return (
@@ -34,26 +37,63 @@ export function NameCell({
           )}
           {badge}
         </button>
+        {action}
         {trailing}
       </div>
     </div>
   );
 }
 
-// Shared row body (cols 2–8) — used by the main list AND the equipped table.
-function RowInner({
+// xs-only inline decrement pill (shown in place of the "Uses" pip sub-row at
+// narrow widths — see the @container xs block). Same tick-off-one behaviour.
+function InlineUse({
   item,
-  onEquip,
-  onOpen,
+  onSetQty,
 }: {
   item: InventoryItemVM;
+  onSetQty: (id: string, value: number) => void;
+}) {
+  const value = item.quantity?.value ?? 0;
+  return (
+    <button
+      type="button"
+      className="osc-inv-useinline"
+      onClick={() => onSetQty(item.id, Math.max(0, value - 1))}
+      disabled={value <= 0}
+    >
+      Use
+    </button>
+  );
+}
+
+// Shared row body (cols 2–8). Stacked + editable rows carry the xs inline Use pill
+// (hidden until the xs container query; the pip sub-row covers wider widths).
+function RowInner({
+  item,
+  canEdit,
+  onEquip,
+  onOpen,
+  onSetQty,
+}: {
+  item: InventoryItemVM;
+  canEdit: boolean;
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
+  onSetQty: (id: string, value: number) => void;
 }) {
+  const stacked = !item.isContainer && item.quantity != null;
   return (
     <>
       <ItemImage img={item.img} monogram={item.monogram} />
-      <NameCell item={item} onOpen={onOpen} />
+      <NameCell
+        item={item}
+        onOpen={onOpen}
+        action={
+          stacked && canEdit ? (
+            <InlineUse item={item} onSetQty={onSetQty} />
+          ) : undefined
+        }
+      />
       <span className="osc-inv-rowcat">{item.category}</span>
       <span className="osc-inv-wt">{weightLabel(item.weight)}</span>
       <RowEquip item={item} onEquip={onEquip} />
@@ -121,7 +161,13 @@ export function SortableRow({
         <span className="osc-inv-drag" aria-hidden="true">
           <i className="fa-solid fa-grip-lines" />
         </span>
-        <RowInner item={item} onEquip={onEquip} onOpen={onOpen} />
+        <RowInner
+          item={item}
+          canEdit={canEdit}
+          onEquip={onEquip}
+          onOpen={onOpen}
+          onSetQty={onSetQty}
+        />
       </div>
       {showUses && (
         <UsesRow item={item} canEdit={canEdit} onSetQty={onSetQty} />

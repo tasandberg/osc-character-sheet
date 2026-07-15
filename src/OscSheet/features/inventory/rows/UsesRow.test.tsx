@@ -74,11 +74,12 @@ describe("UsesRow", () => {
     expect(container.querySelector(".osc-inv-uses-count")?.textContent).toBe("3/5");
   });
 
-  it("Use-1 fallback decrements and disables at 0", () => {
+  it("Use fallback is labelled `Use`, decrements and disables at 0", () => {
     const onSetQty = vi.fn();
     render(<UsesRow item={mkItem({ quantity: { value: 2, max: 24 } })} canEdit onSetQty={onSetQty} />);
     const use1 = container.querySelector<HTMLButtonElement>(".osc-inv-use1")!;
     expect(use1).toBeTruthy();
+    expect(use1.textContent).toBe("Use");
     act(() => use1.click());
     expect(onSetQty).toHaveBeenCalledWith("arrows", 1);
 

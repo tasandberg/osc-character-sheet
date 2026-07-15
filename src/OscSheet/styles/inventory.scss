@@ -253,6 +253,35 @@
   color: var(--text-mute, #8a8270);
 }
 
+// xs inline "Use" pill on the item row (name column). Hidden until the xs
+// container query swaps out the pip sub-row; same brass pill as the Use fallback.
+.osc-inv .osc-inv-useinline {
+  display: none;
+  flex: none;
+  align-items: center;
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-alt, #c89e54);
+  background: transparent;
+  border: 1px solid var(--accent-alt, #c89e54);
+  border-radius: 999px;
+  padding: 2px var(--spacer-2);
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    color 0.12s;
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent-alt, #c89e54) 15%, transparent);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
 // --- sortable column-header row (table head) ---
 .osc-inv-headrow {
   padding-top: 0;
@@ -506,7 +535,8 @@
   text-align: right;
 }
 
-// xs / mobile (bottom-tabs layout): drop the Type column to save width.
+// xs / mobile (bottom-tabs layout): drop the Type column to save width, and swap
+// the "Uses" pip sub-row for the inline Use pill on the item row.
 @container app (max-width: 479px) {
   .osc-inv-row {
     grid-template-columns: 18px 30px 1fr 44px 44px;
@@ -514,6 +544,17 @@
   .osc-inv-rowcat,
   .osc-inv .osc-inv-th-cat {
     display: none;
+  }
+  .osc-inv .osc-inv-uses {
+    display: none;
+  }
+  // Sub-row is gone — the item row carries its own divider/bottom pad again.
+  .osc-inv-row.has-uses {
+    border-bottom: 1px solid var(--border-soft, #2c2823);
+    padding-bottom: var(--spacer-2);
+  }
+  .osc-inv .osc-inv-useinline {
+    display: inline-flex;
   }
 }
 
