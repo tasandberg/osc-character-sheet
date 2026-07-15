@@ -177,21 +177,39 @@
 @container sheet (min-width: 600px) { .osc-pad { padding: 18px var(--spacer-5); } }
 
 @container sheet (min-width: 700px) {
-  .osc-pad { padding: var(--spacer-6) var(--spacer-6); }
+  // Large view = locked app shell: only the active tab's content (#osc-tabpanel)
+  // scrolls; the body has nothing to overflow, so it doesn't scroll, the rail (a
+  // fixed grid cell) stays put, and the tab bar stays pinned above the content.
+  // NOTE: .osc-sheet-body can't be styled here — it DEFINES the `sheet` container and
+  // a container query can't target its own container. Size its descendants instead:
+  // .osc-pad fills the (definite, flex-derived) body height so the grid below can too.
+  .osc-pad {
+    padding: var(--spacer-6) var(--spacer-6);
+    height: 100%;
+  }
   .osc-twopane {
     display: grid;
     // Dynamic rail: shrinks/grows with the window between bounds; the portrait
     // (capped at 150px) stays put. Narrower than the old fixed 264px.
     grid-template-columns: clamp(190px, 24%, 224px) 1fr;
+    grid-template-rows: 1fr; // definite row = pane height, so the right pane can scroll
     gap: var(--spacer-6);
     align-items: start;
+    height: 100%;
+    min-height: 0;
   }
+  // rail: a fixed, locked cell — natural height, never its own scrollbar.
   .osc-twopane > .osc-left {
-    position: sticky;
-    top: 0;
     border-bottom: none;
     padding-bottom: 0;
     margin-bottom: 0;
+  }
+  // the whole right panel (tabs + content) is the ONLY scroller; the rail stays put.
+  .osc-twopane > .osc-right {
+    align-self: stretch;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden; // never a horizontal scrollbar — over-wide content clips, not scrolls
   }
   .osc-rail-extra { display: block; margin-top: var(--spacer-3); }
   .actions-only { display: none; }
