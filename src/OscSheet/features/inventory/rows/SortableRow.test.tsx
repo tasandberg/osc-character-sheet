@@ -100,4 +100,14 @@ describe("SortableRow inline Use pill", () => {
     expect(container.querySelector(".osc-inv-uses")).toBeNull();
     expect(inlineUse()).toBeNull();
   });
+
+  it("WT cell shows the bare number (unit lives in the column header)", () => {
+    render(mkItem({ weight: 15 }));
+    expect(container.querySelector(".osc-inv-wt")?.textContent).toBe("15");
+  });
+
+  it("WT cell shows an em dash for weightless items", () => {
+    render(mkItem({ weight: 0 }));
+    expect(container.querySelector(".osc-inv-wt")?.textContent).toBe("—");
+  });
 });

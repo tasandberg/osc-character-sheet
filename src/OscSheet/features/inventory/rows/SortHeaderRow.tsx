@@ -29,7 +29,13 @@ export function SortHeaderRow({
       {/* "Item" spans the image + name columns so it left-aligns to the image */}
       {th("name", "Item", "osc-inv-th-item")}
       {th("category", "Type", "osc-inv-th-cat")}
-      {th("weight", "Wt", "osc-inv-th-wt")}
+      {th(
+        "weight",
+        <>
+          Wt <span className="osc-inv-th-unit">(cn)</span>
+        </>,
+        "osc-inv-th-wt",
+      )}
       <span className="osc-inv-thlabel osc-inv-thlabel-eq">Equip</span>
     </div>
   );
