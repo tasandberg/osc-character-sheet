@@ -39,11 +39,16 @@ Prefix `u-`. Values are always tokens — never invent a value.
 - **Spacing:** `u-p*`/`u-m*` on the spacer scale — `u-p-N`, `u-px-N`, `u-py-N`,
   `u-pt/pr/pb/pl-N`, `u-m-N`, `u-mx/my/mt/mr/mb/ml-N`, plus keyword
   `u-m-auto`/`u-mx-auto`/`u-mt-auto`/`u-mr-auto`/`u-ml-auto`
-- **Font size:** `u-fs-{3xs…8xs}` (see scale below)
+- **Font size:** `u-fs-{3xs…8xl}` (see scale below)
 - **Radius:** `u-r-{sm|md|lg|xl}`
 - **Color:** text `u-text`, `u-text-{dim|muted|faint|accent|brass|danger|warn|success|on-accent}`;
   bg `u-bg`, `u-bg-{2|surface|surface-2|surface-3|ink|accent|brass|danger}`;
   border `u-border`, `u-border-{soft|accent|brass|danger|none}`
+- **Foundry responsive display:** `u-foundry-{tier}-display-{value}` (`value` =
+  `none|flex|block|grid|inline-flex`). Tiers `xs`=0 (base) / `md`=480 / `lg`=740
+  (`sm` reserved, unused) are min-width "and up" on the `app` container. Mobile-
+  first hide/show — e.g. `u-foundry-xs-display-none u-foundry-md-display-flex`
+  (hidden on narrow, shown ≥480).
 
 Note: there is **no** "flex column without gap" utility (`u-stack` forces gap-3).
 A tight/no-gap column stays bespoke SCSS.

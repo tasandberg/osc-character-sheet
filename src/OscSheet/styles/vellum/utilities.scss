@@ -155,3 +155,15 @@ $space-family:
   .u-border#{sfx($k)} { border: 1px solid var(--#{$tok}); }
 }
 .u-border-none { border: none; }
+
+/* ─── Foundry responsive display (min-width on the `app` container) ──────── */
+/* u-foundry-{xs|md|lg}-display-{none|flex|block|grid|inline-flex}: applies at
+   the tier width AND UP. Tiers from scales.$foundry-breakpoints (source of truth). */
+$foundry-display-values: none flex block grid inline-flex;
+@each $tier, $bp in scales.$foundry-breakpoints {
+  @container app (min-width: #{$bp}) {
+    @each $val in $foundry-display-values {
+      .u-foundry-#{$tier}-display-#{$val} { display: #{$val}; }
+    }
+  }
+}
