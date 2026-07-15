@@ -24,6 +24,8 @@ export type Ops = {
   onOpen: (id: string) => void;
   onDelete: (id: string) => void;
   onConsume: (id: string) => void;
+  /** Set a stackable item's quantity (pip tick / Use-1); optimistic, floored at 0. */
+  onSetQty: (id: string, value: number) => void;
   onReorder: (updates: { id: string; sort: number }[]) => void;
   /** Persist the equipped tray's own order (writes the `equippedOrder` flag). */
   onReorderEquipped: (updates: { id: string; sort: number }[]) => void;

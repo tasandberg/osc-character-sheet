@@ -2,6 +2,7 @@
 import type { InventoryItemVM } from "@domain/vm-types";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
+import { UsesRow } from "@features/inventory/rows/UsesRow";
 import { weightLabel, EQUIPPED } from "@features/inventory/groups";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { cx } from "@ui/cx";
@@ -68,9 +69,11 @@ export function SortableRow({
   nestZone,
   dnd,
   itemDragData,
+  canEdit,
   onEquip,
   onOpen,
   onContext,
+  onSetQty,
 }: {
   item: InventoryItemVM;
   index: number;
@@ -80,35 +83,49 @@ export function SortableRow({
   nestZone?: string;
   dnd: Dnd;
   itemDragData: ItemDragData;
+  canEdit: boolean;
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onContext: OnContext;
+  onSetQty: (id: string, value: number) => void;
 }) {
+  // Stackable items grow a "Uses" sub-row beneath (box pips / Use-1 fallback).
+  const showUses = !item.isContainer && item.quantity != null;
   // No handle: the whole row is draggable. Clicks on the inner buttons/inputs still
   // fire (a click is a press without movement), so name/equip/qty stay interactive.
   return (
-    <div
-      className={cx("osc-inv-row", "is-sortable", dnd.rowClass(group, index))}
-      style={
-        depth > 0
-          ? ({ "--osc-inv-depth": depth } as React.CSSProperties)
-          : undefined
-      }
-      onContextMenu={(e) => onContext(e, item)}
-      // Root rows accept a container child dropped among them (un-nest); a container's
-      // child rows accept a foreign item (nest into that container). Neither accepts a
-      // tray tile — equipped-tray drags onto the list are routed to unequip instead.
-      {...dnd.rowProps(group, index, {
-        ownZone: group,
-        nestZone,
-        acceptCrossGroup: (from) => from !== EQUIPPED,
-        dragPayload: () => itemDragData(item.id),
-      })}
-    >
-      <span className="osc-inv-drag" aria-hidden="true">
-        <i className="fa-solid fa-grip-lines" />
-      </span>
-      <RowInner item={item} onEquip={onEquip} onOpen={onOpen} />
-    </div>
+    <>
+      <div
+        className={cx(
+          "osc-inv-row",
+          "is-sortable",
+          showUses && "has-uses",
+          dnd.rowClass(group, index),
+        )}
+        style={
+          depth > 0
+            ? ({ "--osc-inv-depth": depth } as React.CSSProperties)
+            : undefined
+        }
+        onContextMenu={(e) => onContext(e, item)}
+        // Root rows accept a container child dropped among them (un-nest); a container's
+        // child rows accept a foreign item (nest into that container). Neither accepts a
+        // tray tile — equipped-tray drags onto the list are routed to unequip instead.
+        {...dnd.rowProps(group, index, {
+          ownZone: group,
+          nestZone,
+          acceptCrossGroup: (from) => from !== EQUIPPED,
+          dragPayload: () => itemDragData(item.id),
+        })}
+      >
+        <span className="osc-inv-drag" aria-hidden="true">
+          <i className="fa-solid fa-grip-lines" />
+        </span>
+        <RowInner item={item} onEquip={onEquip} onOpen={onOpen} />
+      </div>
+      {showUses && (
+        <UsesRow item={item} canEdit={canEdit} onSetQty={onSetQty} />
+      )}
+    </>
   );
 }

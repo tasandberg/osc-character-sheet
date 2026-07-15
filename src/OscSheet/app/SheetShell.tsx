@@ -173,6 +173,11 @@ export default function SheetShell() {
       (it?.system as { quantity?: { value: number } })?.quantity?.value ?? 0;
     if (it && cur > 0) writeItem(it, { "system.quantity.value": cur - 1 });
   };
+  // Set a stackable's quantity directly (pip tick / Use-1) — optimistic, floored at 0.
+  const onSetQty = (id: string, value: number) => {
+    const it = resolveItem(id);
+    if (it) writeItem(it, { "system.quantity.value": Math.max(0, value) }, id);
+  };
 
   // Manual order is stored in our own flag (not Foundry's `sort`, which the core
   // sheet and other modules also write).
@@ -367,6 +372,7 @@ export default function SheetShell() {
             onOpen={onOpenItem}
             onDelete={onDeleteItem}
             onConsume={onConsume}
+            onSetQty={onSetQty}
             onReorder={onReorder}
             onReorderEquipped={onReorderEquipped}
             onNest={onNest}

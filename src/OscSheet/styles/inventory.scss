@@ -124,6 +124,133 @@
   &.drop-after {
     box-shadow: inset 0 -2px 0 0 var(--teal, #1f7575);
   }
+  // A stackable row + its "Uses" sub-row read as one unit: drop the divider/bottom
+  // pad here and let the sub-row carry them.
+  &.has-uses {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+// --- "Uses" sub-row: box pips for a stackable item, Use-1 fallback when too tight ---
+// Aligns its content under the name column (cols 1–2 match the row's fixed widths).
+// Selectors carry the `.osc-inv` ancestor so the pip/Use-1 BUTTONS beat the
+// `.osc-sheet-app` `all: unset` reset (same trick as .osc-inv-name/-drag/-equip).
+.osc-inv .osc-inv-uses {
+  display: grid;
+  grid-template-columns: 18px 30px 1fr;
+  align-items: center;
+  gap: var(--spacer-2);
+  padding: 0 var(--spacer-1) var(--spacer-2);
+  border-bottom: 1px solid var(--border-soft, #2c2823);
+}
+.osc-inv .osc-inv-uses-c {
+  grid-column: 3;
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-2);
+  min-width: 0;
+}
+.osc-inv .osc-inv-uses-label {
+  flex: none;
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint, #6a6354);
+}
+.osc-inv .osc-inv-uses-strip {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 16px;
+  display: flex;
+  align-items: center;
+}
+.osc-inv .osc-inv-pips {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-1);
+  overflow: hidden;
+}
+.osc-inv .osc-inv-pip {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border-radius: var(--r-sm, 4px);
+  background: transparent;
+  border: 1px solid var(--accent-alt, #c89e54);
+  opacity: 0.5;
+  transition:
+    background 0.12s,
+    opacity 0.12s;
+  &.filled {
+    background: var(--accent-alt, #c89e54);
+    opacity: 1;
+  }
+}
+.osc-inv button.osc-inv-pip {
+  cursor: pointer;
+  &:hover {
+    opacity: 1;
+    background: color-mix(in srgb, var(--accent-alt, #c89e54) 30%, transparent);
+  }
+  &.filled:hover {
+    background: var(--accent-alt-dim, #a88240);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 1px;
+  }
+}
+// Overflow: hide the pips (kept measurable via visibility) and surface the fallback.
+.osc-inv .osc-inv-uses[data-overflow] .osc-inv-pips {
+  visibility: hidden;
+}
+.osc-inv .osc-inv-use1,
+.osc-inv .osc-inv-uses-count {
+  display: none;
+}
+.osc-inv .osc-inv-uses[data-overflow] .osc-inv-use1,
+.osc-inv .osc-inv-uses[data-overflow] .osc-inv-uses-count {
+  display: inline-flex;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.osc-inv .osc-inv-use1 {
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-alt, #c89e54);
+  background: transparent;
+  border: 1px solid var(--accent-alt, #c89e54);
+  border-radius: 999px;
+  padding: 2px var(--spacer-2);
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    color 0.12s;
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent-alt, #c89e54) 15%, transparent);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+.osc-inv .osc-inv-uses-count {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--text-mute, #8a8270);
 }
 
 // --- sortable column-header row (table head) ---

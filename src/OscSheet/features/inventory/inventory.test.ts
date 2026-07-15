@@ -82,6 +82,24 @@ describe("selectInventory", () => {
     expect(vm2.items[0].tags.map((t) => t.label)).toEqual(["Precious"]);
   });
 
+  it("keeps quantity on a stackable down to its last unit (max-driven)", () => {
+    // 1 of 24 arrows: still stackable (max>1), so the qty control persists to the end.
+    const last = selectInventory([
+      mk("weapon", "Arrows", { quantity: { value: 1, max: 24 }, weight: 5 }),
+    ]).items[0];
+    expect(last.quantity).toEqual({ value: 1, max: 24 });
+    // A true singleton (sword, qty 1 / max 0) still carries no quantity.
+    const sword = selectInventory([
+      mk("weapon", "Sword", { quantity: { value: 1, max: 0 }, weight: 30 }),
+    ]).items[0];
+    expect(sword.quantity).toBeNull();
+    // A plain multi with no max still shows (max falls back to value).
+    const spikes = selectInventory([
+      mk("item", "Iron spikes", { quantity: { value: 12 }, weight: 1 }),
+    ]).items[0];
+    expect(spikes.quantity).toEqual({ value: 12, max: 12 });
+  });
+
   it("legacy groups still present for grid view", () => {
     expect(vm.groups.map((g) => g.key)).toContain("weapons");
   });
