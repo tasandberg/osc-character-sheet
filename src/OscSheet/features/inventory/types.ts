@@ -9,6 +9,7 @@ import type {
 } from "@domain/vm-types";
 import { useDragReorder } from "@features/inventory/useDragReorder";
 import type { SendTargetVM } from "@features/inventory/sendTargets";
+import type { InventoryItemType } from "@features/inventory/createItem";
 
 export type Dnd = ReturnType<typeof useDragReorder>;
 
@@ -17,6 +18,8 @@ export type Dnd = ReturnType<typeof useDragReorder>;
 export type ItemDragData = (id: string) => string | undefined;
 
 export type Ops = {
+  /** Create a new item of the given OSE type and open its sheet to fill in. */
+  onCreate: (type: InventoryItemType) => void;
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onDelete: (id: string) => void;
