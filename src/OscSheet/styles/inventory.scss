@@ -146,12 +146,18 @@
   align-items: center;
 }
 // The dots are the shared Vellum <Pips square sm>; we only re-tint them brass (the
-// shared default is gold) and tighten the gap so the squares sit near-adjacent.
+// shared default is gold), tighten the gap, and shrink them to 7×7 — all scoped to
+// inventory so the spell/cast <Pips size="sm"> stays 9×9.
 .osc-inv .osc-inv-pips {
   flex: 1;
   min-width: 0;
-  gap: 1px;
+  gap: 2px;
   overflow: hidden;
+}
+// Needs the `.sm` class too, to out-specify the shared `.pips.sm .pip` (9×9).
+.osc-inv .osc-inv-pips.sm .pip {
+  width: 7px;
+  height: 7px;
 }
 .osc-inv .osc-inv-pips .pip {
   background: transparent;
@@ -903,7 +909,9 @@
   margin-left: auto;
   white-space: nowrap;
 }
-.osc-inv-sec-head > .menu-host { display: inline-flex; }
+.osc-inv-sec-head > .menu-host {
+  display: inline-flex;
+}
 // translateY is optical: the all-caps label's centre sits above its box centre.
 .osc-inv-sec-head .icon-btn {
   color: var(--text-mute);
@@ -911,7 +919,9 @@
 }
 // hang the box left of the trigger so the caret keeps its natural 14px inset and
 // still lands on the 18px button's centre.
-.osc-inv-sec-head .menu.is-popover.align-start { left: -12px; }
+.osc-inv-sec-head .menu.is-popover.align-start {
+  left: -12px;
+}
 
 // --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
 .osc-equip-tray {
