@@ -42,6 +42,17 @@
   }
 }
 
+// Safari-only: .osc-sheet-body is a container-query container (container-type:
+// inline-size). WebKit mis-resolves a sticky child's top anchor inside a query
+// container, leaving a gap above the pinned minibar (Chrome is flush). We can't
+// drop container-type (the responsive layout needs it) or use overflow-x:clip
+// (it computes back to hidden next to overflow-y:auto). Forcing the pinned
+// minibar onto its own compositing layer makes WebKit recompute the sticky top
+// flush. `@supports (-webkit-hyphens: none)` targets Safari only.
+@supports (-webkit-hyphens: none) {
+  .osc-minibar.is-collapsed { will-change: transform; }
+}
+
 .osc-mb-portrait {
   flex: 0 0 auto;
   width: 32px;
