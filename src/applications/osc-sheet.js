@@ -1,5 +1,6 @@
 import OscSheetApp from "@src/OscSheet";
 import { resolveTheme, applyTheme } from "@src/OscSheet/theme";
+import { MODULE_ID } from "@src/OscSheet/domain/flags";
 import {
   alignedMenuLeft,
   findTweaksSheetEntry,
@@ -40,7 +41,7 @@ class OscSheet extends ReactActorSheetV2 {
   };
 
   static registerSettings() {
-    game.settings.register("osc-character-sheet", "theme", {
+    game.settings.register(MODULE_ID, "theme", {
       name: "Sheet theme",
       hint: "Color theme for the OSC Character Sheet.",
       scope: "client",
@@ -58,7 +59,7 @@ class OscSheet extends ReactActorSheetV2 {
 
   async _onRender(context, options) {
     await super._onRender(context, options);
-    const theme = resolveTheme(game.settings.get("osc-character-sheet", "theme"));
+    const theme = resolveTheme(game.settings.get(MODULE_ID, "theme"));
     applyTheme(this.element, theme);
     // Accent by kind: retainers/hirelings (system.retainer.enabled) go teal;
     // everyone else keeps the brass --gold. See styles.scss [data-kind].

@@ -14,6 +14,8 @@ const config: UserConfig = {
     // Strip @sentry/browser's internal debug logging: smaller lazy chunk, and
     // transport failures (offline/air-gapped worlds) stay silent in console.
     __SENTRY_DEBUG__: false,
+    // Baked module id — beta builds set MODULE_ID to isolate flags/settings/socket.
+    __MODULE_ID__: JSON.stringify(process.env.MODULE_ID ?? "osc-character-sheet"),
   },
   resolve: {
     // Note: react/react-dom dedupe is handled by foundryReact() — no need to set it here.

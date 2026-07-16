@@ -2,6 +2,10 @@ import { defineConfig } from "vitest/config";
 import path from "path";
 
 export default defineConfig({
+  // Mirror vite.config.ts's baked module id so MODULE_ID resolves under vitest.
+  define: {
+    __MODULE_ID__: JSON.stringify(process.env.MODULE_ID ?? "osc-character-sheet"),
+  },
   resolve: {
     alias: {
       "@src": path.resolve(__dirname, "src"),

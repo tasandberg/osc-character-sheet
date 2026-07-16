@@ -1,3 +1,5 @@
+import { MODULE_ID } from "@domain/flags";
+
 export const THEMES = ["dark", "cream"] as const;
 export type Theme = (typeof THEMES)[number];
 
@@ -17,7 +19,7 @@ export function applyTheme(root: HTMLElement, theme: Theme): void {
 // theme to each *window* element (this.element). The toggle therefore flips the
 // SETTING — not a DOM attribute on the inner app, which the window's
 // setting-driven data-theme would just override by inheritance.
-const SETTING_NS = "osc-character-sheet";
+const SETTING_NS = MODULE_ID;
 const SETTING_KEY = "theme";
 
 type GameSettings = {

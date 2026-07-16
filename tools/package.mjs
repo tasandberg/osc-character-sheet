@@ -41,7 +41,10 @@ const tag = tagArg || version;
 const manifest = JSON.parse(readFileSync("./module.json", "utf8"));
 manifest.version = version;
 if (beta) {
-  manifest.title = `${manifest.title} [Beta]`;
+  // Fully isolated beta: distinct id (matches the build's injected MODULE_ID) +
+  // [BETA]-prefixed title so it installs alongside stable.
+  manifest.title = `[BETA] ${manifest.title}`;
+  manifest.id = `${manifest.id}-beta`;
   manifest.manifest = `${manifest.url}/releases/download/beta/module.json`;
   manifest.download = `${manifest.url}/releases/download/beta/module.zip`;
 } else {

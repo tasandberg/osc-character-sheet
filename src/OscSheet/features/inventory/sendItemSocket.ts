@@ -8,10 +8,11 @@
 // failure can never destroy the source before its copy exists.
 
 import { rebuildNesting, type SendNode } from "./sendItem";
+import { MODULE_ID } from "@domain/flags";
 import logger from "@src/util/logger";
 
 /** Module socket channel (Foundry requires the `module.<id>` prefix). */
-export const SOCKET = "module.osc-character-sheet";
+export const SOCKET = `module.${MODULE_ID}`;
 
 export interface SendItemRequest {
   type: "sendItem";
