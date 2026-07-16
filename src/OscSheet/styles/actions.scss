@@ -341,7 +341,7 @@
 }
 // borderless: just the stamp label + value, so HP/AC stay the only "boxes"
 .osc-tile {
-  width: 52px; // uniform, compact
+  min-width: 52px; // min 52px; MOVE grows to fit its label
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
@@ -355,6 +355,7 @@
   display: block;
   width: 100%;
   text-align: center;
+  white-space: nowrap;
   font-size: var(--fs-3xs, 10px);
   padding: 3px 4px 2px;
 }
