@@ -1,3 +1,5 @@
+import { MODULE_ID } from "@domain/flags";
+
 export const FONT_SCALES = ["compact", "medium", "large"] as const;
 export type FontScale = (typeof FONT_SCALES)[number];
 
@@ -22,10 +24,10 @@ export function applyFontScale(root: HTMLElement, scale: FontScale): void {
   else root.style.setProperty("--fs-scale", String(FONT_SCALE_FACTOR[scale]));
 }
 
-// Mirrors theme.ts: the single source of truth is the client setting
-// `osc-character-sheet.fontScale`. Its onChange re-renders every sheet, and
+// Mirrors theme.ts: single source of truth is the user setting
+// `<MODULE_ID>.fontScale`. Its onChange re-renders every sheet, and
 // osc-sheet.js `_onRender` applies the scale to each window element.
-const SETTING_NS = "osc-character-sheet";
+const SETTING_NS = MODULE_ID;
 const SETTING_KEY = "fontScale";
 
 type GameSettings = {

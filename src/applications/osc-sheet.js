@@ -57,7 +57,7 @@ class OscSheet extends ReactActorSheetV2 {
       },
     });
 
-    game.settings.register("osc-character-sheet", "fontScale", {
+    game.settings.register(MODULE_ID, "fontScale", {
       name: "Sheet font size",
       hint: "Scales all sheet text up for readability.",
       scope: "user",
@@ -78,7 +78,7 @@ class OscSheet extends ReactActorSheetV2 {
     const theme = resolveTheme(game.settings.get(MODULE_ID, "theme"));
     applyTheme(this.element, theme);
     const fontScale = resolveFontScale(
-      game.settings.get("osc-character-sheet", "fontScale"),
+      game.settings.get(MODULE_ID, "fontScale"),
     );
     applyFontScale(this.element, fontScale);
     // Accent by kind: retainers/hirelings (system.retainer.enabled) go teal;
