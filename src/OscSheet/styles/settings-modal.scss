@@ -23,15 +23,20 @@
   .osc-settings-modal {
     max-width: 380px;
     margin: 0;
-    // More generous + symmetric vertical breathing room than the DS default
-    // (head 18/…/14, body 18/18). The head padding-top sits a touch under the
-    // body's bottom to offset the display title's line-height leading, so the
-    // *visible* top gap (above the title) matches the bottom gap (below the last
-    // control) — measured ~24px top / ~25px bottom. Horizontal padding unchanged.
+    // More generous + symmetric outer breathing room than the DS default. With
+    // the Done footer, the visible top gap is the head padding-top and the bottom
+    // is the FOOTER padding-bottom. Head-top sits a touch under the footer-bottom
+    // to offset the display title's line-height leading, so they read equal
+    // (measured ~24px top / ~25px bottom). Body's own top/bottom is the internal
+    // spacing between the head/foot bands. Horizontal padding unchanged throughout.
     .modal-head { padding-top: var(--spacer-5); } // 20px
     .modal-body {
       padding-top: var(--spacer-6); // 24px
-      padding-bottom: var(--spacer-6);
+      padding-bottom: var(--spacer-4); // 16px (footer sits below)
+    }
+    .modal-foot {
+      padding-top: var(--spacer-4); // 16px
+      padding-bottom: var(--spacer-6); // 24px — matches the head-top outer gap
     }
   }
 }

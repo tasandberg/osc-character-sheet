@@ -54,10 +54,18 @@ describe("Topbar settings", () => {
   it("opens the settings modal on cog click", () => {
     act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
-    expect(q(".modal-head .ttl")?.textContent).toBe("User settings");
+    expect(q(".modal-head .ttl")?.textContent).toBe("Preferences");
     // both settings groups present
     expect(q('[aria-label="Theme"]')).toBeTruthy();
     expect(q('[aria-label="Font size"]')).toBeTruthy();
+  });
+
+  it("closes the modal via the Done footer button", () => {
+    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
+    act(() => q('[aria-label="Settings"]')!.click());
+    expect(q(".modal")).toBeTruthy();
+    act(() => byText(".modal-foot button", "Done")!.click());
+    expect(q(".modal")).toBeNull();
   });
 
   it("writes the theme and font-size settings from the modal controls", () => {

@@ -1,4 +1,4 @@
-import { Modal, Field, Segmented } from "@ui";
+import { Modal, Field, Segmented, Button } from "@ui";
 import { getThemeSetting, setTheme, type Theme } from "@src/OscSheet/theme";
 import {
   getFontScaleSetting,
@@ -34,8 +34,9 @@ const FONT_SCALE_OPTIONS = FONT_SCALES.map((value) => ({
 // the setting, whose onChange re-renders the whole sheet (theme.ts / fontScale.ts).
 export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null;
+  const footer = <Button variant="primary" onClick={onClose}>Done</Button>;
   return (
-    <Modal open={open} title="User settings" onClose={onClose} className="osc-settings-modal">
+    <Modal open={open} title="Preferences" onClose={onClose} footer={footer} className="osc-settings-modal">
       <div className="u-stack u-gap-5">
         <Field label="Theme" hint="Applies to your sheets only.">
           <div role="group" aria-label="Theme">
