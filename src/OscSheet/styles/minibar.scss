@@ -106,17 +106,18 @@
   text-align: center;
   cursor: text;
   font-family: var(--display);
-  font-size: var(--fs-3xl, 24px);
+  // Capped at --fs-2xl (matches the AC value) so the glyph line box fits the
+  // locked 30px chip at every font scale — riding the full --fs-3xl overflowed
+  // the box and clipped the low-sitting IM Fell numerals.
+  font-size: var(--fs-2xl, 21px);
   line-height: 1;
   // Clamp to the box height so the focus border never overflows the parent.
-  // IM Fell numerals sit low, so lift the glyph with bottom padding (not a
-  // transform, which would carry the border up out of the box).
   height: 100%;
   box-sizing: border-box;
   color: var(--crimson);
   border: 1px solid transparent;
   border-radius: var(--r-sm, 4px);
-  padding: 0 0 var(--spacer-1);
+  padding: 0;
   -moz-appearance: textfield;
   appearance: textfield;
 }
