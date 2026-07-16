@@ -22,6 +22,10 @@ const config: StorybookConfig = {
   // Storybook auto-loads root postcss.config.mjs (the Vellum scoper) — nothing to wire.
   viteFinal: (cfg) =>
     mergeConfig(cfg, {
+      // The app build (root vite.config.ts) bakes __MODULE_ID__; Storybook doesn't
+      // load that config, so define it here or any story importing flags.ts (theme/
+      // fontScale → the settings modal) crashes with "__MODULE_ID__ is not defined".
+      define: { __MODULE_ID__: JSON.stringify("osc-character-sheet") },
       plugins: [react(), svgr()],
       resolve: {
         // Mirror vite.config.ts aliases so layout/features stories resolve.
