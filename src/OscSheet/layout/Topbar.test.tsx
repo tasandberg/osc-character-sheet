@@ -64,7 +64,7 @@ describe("Topbar settings", () => {
     act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
     expect(q(".modal")).toBeTruthy();
-    act(() => byText(".modal-foot button", "Done")!.click());
+    act(() => byText(".modal-foot button", "Close")!.click());
     expect(q(".modal")).toBeNull();
   });
 
@@ -72,7 +72,7 @@ describe("Topbar settings", () => {
     act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
 
-    act(() => byText('[aria-label="Theme"] button', "Cream")!.click());
+    act(() => byText('[aria-label="Theme"] button', "Light")!.click());
     expect(set).toHaveBeenCalledWith("osc-character-sheet", "theme", "cream");
 
     act(() => byText('[aria-label="Font size"] button', "Large")!.click());

@@ -10,7 +10,7 @@ import {
 
 const THEME_OPTIONS: { value: Theme; label: string }[] = [
   { value: "dark", label: "Dark" },
-  { value: "cream", label: "Cream" },
+  { value: "cream", label: "Light" },
 ];
 
 const FONT_SCALE_LABELS: Record<FontScale, string> = {
@@ -34,7 +34,7 @@ const FONT_SCALE_OPTIONS = FONT_SCALES.map((value) => ({
 // the setting, whose onChange re-renders the whole sheet (theme.ts / fontScale.ts).
 export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null;
-  const footer = <Button variant="primary" onClick={onClose}>Done</Button>;
+  const footer = <Button variant="primary" onClick={onClose}>Close</Button>;
   return (
     <Modal open={open} title="Preferences" onClose={onClose} footer={footer} className="osc-settings-modal">
       <div className="u-stack u-gap-5">
