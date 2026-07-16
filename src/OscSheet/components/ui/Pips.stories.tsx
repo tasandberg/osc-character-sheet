@@ -11,6 +11,15 @@ export const CastDots = () => (
   </div>
 );
 
+// Square dots (size="sm") — squared instead of the disc (e.g. inventory uses).
+export const SquareDots = () => (
+  <div className="u-stack u-gap-3">
+    <Pips total={5} filled={5} size="sm" square role="img" aria-label="5 of 5" />
+    <Pips total={5} filled={3} size="sm" square role="img" aria-label="3 of 5" />
+    <Pips total={5} filled={0} size="sm" square role="img" aria-label="0 of 5" />
+  </div>
+);
+
 // Slot pips (hollow) — the filled dots carry a diamond glyph.
 export const SlotPips = () => (
   <div className="u-stack u-gap-3">

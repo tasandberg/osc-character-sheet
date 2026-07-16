@@ -23,6 +23,7 @@ import {
 } from "@features/inventory/createItem";
 import { flagPath, FLAGS, readFlag } from "@domain/flags";
 import { collectTree, classifyRoute } from "@features/inventory/sendItem";
+import { consumeToast } from "@features/inventory/consumeToast";
 import {
   applySend,
   emitSendItem,
@@ -166,12 +167,29 @@ export default function SheetShell() {
     if (!it) return;
     writeItem(it, { "system.quantity.value": value }, id);
   };
-  // Consume one: decrement the item's quantity (floored at 0).
+  // Set a stackable's quantity directly (pip tick / Use link) — optimistic, floored
+  // at 0. A decrease is a "use one" and fires a confirming toast; a no-op is skipped.
+  const onSetQty = (id: string, value: number) => {
+    const it = resolveItem(id);
+    if (!it) return;
+    const cur =
+      (it.system as { quantity?: { value: number } })?.quantity?.value ?? 0;
+    const next = Math.max(0, value);
+    if (next === cur) return;
+    writeItem(it, { "system.quantity.value": next }, id);
+    const t = consumeToast(it.name ?? "item", cur, next);
+    if (t)
+      toast({
+        ...t,
+        icon: <i className="fa-solid fa-circle-minus" aria-hidden="true" />,
+      });
+  };
+  // Consume one (right-click): same "use one" path as the pips/Use link.
   const onConsume = (id: string) => {
     const it = resolveItem(id);
     const cur =
       (it?.system as { quantity?: { value: number } })?.quantity?.value ?? 0;
-    if (it && cur > 0) writeItem(it, { "system.quantity.value": cur - 1 });
+    if (it && cur > 0) onSetQty(id, cur - 1);
   };
 
   // Manual order is stored in our own flag (not Foundry's `sort`, which the core
@@ -367,6 +385,7 @@ export default function SheetShell() {
             onOpen={onOpenItem}
             onDelete={onDeleteItem}
             onConsume={onConsume}
+            onSetQty={onSetQty}
             onReorder={onReorder}
             onReorderEquipped={onReorderEquipped}
             onNest={onNest}

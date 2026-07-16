@@ -6,7 +6,7 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   /** Color tone for the outline variant (no effect without variant="outline").
    *  Names match the Vellum color vocabulary. Default is the plain outline accent. */
   tone?: "accent" | "brass" | "danger" | "success" | "warn";
-  size?: "sm";
+  size?: "sm" | "xs";
 };
 
 /** @category Controls */

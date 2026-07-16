@@ -61,9 +61,11 @@ function Harness({ collapsed }: { collapsed: boolean }) {
         depth={0}
         dnd={dnd}
         itemDragData={drag}
+        canEdit
         onEquip={noop}
         onOpen={noop}
         onContext={noop}
+        onSetQty={noop}
       />
       <ContainerRow
         item={sack}
@@ -73,10 +75,12 @@ function Harness({ collapsed }: { collapsed: boolean }) {
         collapsed={collapsed}
         dnd={dnd}
         itemDragData={drag}
+        canEdit
         onToggle={noop}
         onEquip={noop}
         onOpen={noop}
         onContext={noop}
+        onSetQty={noop}
       />
     </div>
   );

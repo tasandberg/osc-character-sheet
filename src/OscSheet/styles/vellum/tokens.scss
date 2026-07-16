@@ -950,6 +950,12 @@ body {
 .btn.danger:hover:not(:disabled) { background: oklch(0.56 0.15 25 / 0.15); }
 .btn.ghost { background: transparent; border-color: var(--border-soft); color: var(--text-dim); }
 .btn.sm { font-size: var(--fs-3xs); padding: 5px 9px 4px; }
+.btn.xs {
+  font-size: var(--fs-3xs);
+  line-height: 1;
+  padding: 3px 7px 2px;
+  letter-spacing: 0.06em;
+}
 
 /* Colored outline tones — compose with variant="outline" (e.g. tone="brass" for
    the brass-gold Attack button). Tone names match the Vellum color vocabulary;

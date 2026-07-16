@@ -72,6 +72,7 @@ export function InventoryView({
   onOpen,
   onDelete,
   onConsume,
+  onSetQty,
   onReorder,
   onReorderEquipped,
   onNest,
@@ -374,10 +375,12 @@ export function InventoryView({
                 collapsed={!expanded.has(id)}
                 dnd={dnd}
                 itemDragData={itemDragData}
+                canEdit={canEdit}
                 onToggle={toggleCollapse}
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
+                onSetQty={onSetQty}
               />
             ) : (
               <SortableRow
@@ -388,9 +391,11 @@ export function InventoryView({
                 depth={0}
                 dnd={dnd}
                 itemDragData={itemDragData}
+                canEdit={canEdit}
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
+                onSetQty={onSetQty}
               />
             );
           })}

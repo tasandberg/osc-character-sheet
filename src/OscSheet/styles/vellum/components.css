@@ -564,6 +564,8 @@
 .pip.filled { background: var(--gold); border-color: var(--gold); }
 /* sm — cast dots */
 .pips.sm .pip { width: 9px; height: 9px; }
+/* square — sharp-cornered dots instead of the disc (e.g. inventory uses) */
+.pips.square .pip { border-radius: 0; }
 /* hollow — bordered ring holding an optional glyph (slot pips) */
 .pips.hollow .pip {
   background: transparent;

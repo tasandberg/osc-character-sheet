@@ -126,6 +126,106 @@
   }
 }
 
+// --- "Uses" line: box pips for a stackable item, "Use" fallback when too tight ---
+// Nested inside the name cell (grid col 3) as a second line under the name, so the
+// row grows to name+uses height and `.osc-inv-row { align-items: center }` centers
+// the flanking cells across the whole block. Selectors carry the `.osc-inv` ancestor
+// so the pip/Use BUTTONS beat the `.osc-sheet-app` `all: unset` reset.
+.osc-inv .osc-inv-uses {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-2);
+  min-width: 0;
+}
+.osc-inv .osc-inv-uses-strip {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 10px;
+  display: flex;
+  align-items: center;
+}
+// The dots are the shared Vellum <Pips square sm>; we only re-tint them brass (the
+// shared default is gold), tighten the gap, and shrink them to 7×7 — all scoped to
+// inventory so the spell/cast <Pips size="sm"> stays 9×9.
+.osc-inv .osc-inv-pips {
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+  overflow: hidden;
+}
+// Needs the `.sm` class too, to out-specify the shared `.pips.sm .pip` (9×9).
+.osc-inv .osc-inv-pips.sm .pip {
+  width: 7px;
+  height: 7px;
+}
+.osc-inv .osc-inv-pips .pip {
+  background: transparent;
+  border-color: var(--accent-alt, #c89e54);
+  opacity: 0.5;
+}
+.osc-inv .osc-inv-pips .pip.filled {
+  background: var(--accent-alt, #c89e54);
+  opacity: 1;
+}
+// The whole pip strip is ONE button — clicking anywhere on it consumes one.
+.osc-inv .osc-inv-usebtn {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  &:disabled {
+    cursor: default;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+    border-radius: var(--r-sm, 4px);
+  }
+}
+// Overflow: hide the pips (kept measurable via visibility) and neutralise the strip
+// button so the absolutely-positioned Use fallback owns the clicks.
+.osc-inv .osc-inv-uses[data-overflow] .osc-inv-pips {
+  visibility: hidden;
+}
+.osc-inv .osc-inv-uses[data-overflow] .osc-inv-usebtn {
+  pointer-events: none;
+}
+.osc-inv .osc-inv-use1,
+.osc-inv .osc-inv-uses-count {
+  display: none;
+}
+.osc-inv .osc-inv-uses[data-overflow] .osc-inv-use1,
+.osc-inv .osc-inv-uses[data-overflow] .osc-inv-uses-count {
+  display: inline-flex;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+// Both "Use" affordances (pip-overflow fallback + xs inline) render as the shared
+// Vellum Button (`variant="outline" tone="brass" size="xs"`); these classes only carry
+// their positioning/visibility — the pill look comes from `.btn`.
+.osc-inv .osc-inv-uses-count {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--text-mute, #8a8270);
+}
+
+// xs inline "Use" pill on the item row (name column). Hidden until the xs container
+// query swaps out the pip sub-row; the pill look comes from `.btn` (Button primitive).
+// A little left margin gives it breathing room off the ×N tag (looser than change 6).
+.osc-inv .osc-inv-useinline {
+  display: none;
+  flex: none;
+  margin-left: var(--spacer-2);
+}
+
 // --- sortable column-header row (table head) ---
 .osc-inv-headrow {
   padding-top: 0;
@@ -156,12 +256,16 @@
     color: var(--text, #e5dec8);
   }
 }
-// header alignment matches the cells below it
-.osc-inv .osc-inv-th-wt {
-  justify-content: flex-end;
-}
+// Right-aligned columns (Type, Wt): shrink the header to the cell's right edge and
+// move the sort caret left of the label (order, not row-reverse), so the label sits
+// flush over its right-aligned data.
+.osc-inv .osc-inv-th-wt,
 .osc-inv .osc-inv-th-cat {
-  justify-content: flex-end;
+  justify-self: end;
+}
+.osc-inv .osc-inv-th-wt .osc-inv-th-caret,
+.osc-inv .osc-inv-th-cat .osc-inv-th-caret {
+  order: -1;
 }
 // "Item" header spans the image + name columns so it starts at the image edge
 .osc-inv .osc-inv-th-item {
@@ -267,7 +371,7 @@
 // --- name button (col 3) ---
 .osc-inv .osc-inv-name {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--spacer-2);
   flex-wrap: nowrap;
   min-width: 0;
@@ -312,7 +416,7 @@
 }
 .osc-inv-name-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--spacer-1);
   min-width: 0;
   max-width: 100%;
@@ -379,7 +483,8 @@
   text-align: right;
 }
 
-// xs / mobile (bottom-tabs layout): drop the Type column to save width.
+// xs / mobile (bottom-tabs layout): drop the Type column to save width, and swap
+// the "Uses" pip sub-row for the inline Use pill on the item row.
 @container app (max-width: 479px) {
   .osc-inv-row {
     grid-template-columns: 18px 30px 1fr 44px 44px;
@@ -387,6 +492,17 @@
   .osc-inv-rowcat,
   .osc-inv .osc-inv-th-cat {
     display: none;
+  }
+  .osc-inv .osc-inv-uses {
+    display: none;
+  }
+  .osc-inv .osc-inv-useinline {
+    display: inline-flex;
+  }
+  // name · ×N · Use read as one evenly-spaced run: match the name→tag gap to the
+  // name-row gap (--spacer-1) so nothing sits farther from its neighbour.
+  .osc-inv .osc-inv-name {
+    gap: var(--spacer-1);
   }
 }
 
@@ -793,7 +909,9 @@
   margin-left: auto;
   white-space: nowrap;
 }
-.osc-inv-sec-head > .menu-host { display: inline-flex; }
+.osc-inv-sec-head > .menu-host {
+  display: inline-flex;
+}
 // translateY is optical: the all-caps label's centre sits above its box centre.
 .osc-inv-sec-head .icon-btn {
   color: var(--text-mute);
@@ -801,7 +919,9 @@
 }
 // hang the box left of the trigger so the caret keeps its natural 14px inset and
 // still lands on the 18px button's centre.
-.osc-inv-sec-head .menu.is-popover.align-start { left: -12px; }
+.osc-inv-sec-head .menu.is-popover.align-start {
+  left: -12px;
+}
 
 // --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
 .osc-equip-tray {

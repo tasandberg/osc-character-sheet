@@ -16,10 +16,12 @@ export function ContainerRow({
   collapsed,
   dnd,
   itemDragData,
+  canEdit,
   onToggle,
   onEquip,
   onOpen,
   onContext,
+  onSetQty,
 }: {
   item: InventoryItemVM;
   index: number;
@@ -28,10 +30,12 @@ export function ContainerRow({
   collapsed: boolean;
   dnd: Dnd;
   itemDragData: ItemDragData;
+  canEdit: boolean;
   onToggle: (id: string) => void;
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onContext: OnContext;
+  onSetQty: (id: string, value: number) => void;
 }) {
   const group = gkey(item.id);
   const count = item.children.length;
@@ -105,9 +109,11 @@ export function ContainerRow({
                 nestZone={item.id}
                 dnd={dnd}
                 itemDragData={itemDragData}
+                canEdit={canEdit}
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={onContext}
+                onSetQty={onSetQty}
               />
             ) : null;
           })}
