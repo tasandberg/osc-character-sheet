@@ -425,10 +425,13 @@ export function selectEncumbrance(
     e.encumbered,
   ];
   const tier = (breakpoints.lastIndexOf(true) + 1) as EncumbranceTier;
-  // Basic encumbrance is categorical (armor + treasure threshold) — value/max in cn
-  // has no bearing on the tier, so a weight bar/readout would contradict the status.
-  // Drive the bar off the tier (basic tops out at the 3rd breakpoint) and drop the
-  // misleading cn load. Weight/slot variants keep their real value/max load + fill.
+  // Basic encumbrance is categorical (armor + treasure threshold) — total carried cn
+  // has no bearing on the tier, so a weight bar/readout off value/max would contradict
+  // the status. Drive the bar off the tier (basic tops out at the 3rd breakpoint), and
+  // read the load as carried treasure vs the significant-treasure threshold (`e.value`
+  // in basic is exactly the treasure cn — coins included) since THAT is the number that
+  // tells a basic player how close they are to slowing. Weight/slot variants keep their
+  // real value/max load + fill.
   const isBasic = e.variant === "basic";
   const pct = isBasic
     ? Math.min(1, tier / BASIC_TIER_CAP)
@@ -443,7 +446,9 @@ export function selectEncumbrance(
     pct,
     tier,
     status: TIER_STATUS[tier],
-    label: isBasic ? "" : `${e.value} / ${e.max} ${unit}`,
+    label: isBasic
+      ? `${e.value} / ${significantTreasure()} cn`
+      : `${e.value} / ${e.max} ${unit}`,
     moveBands: {
       encounter: movement?.encounter ?? 0,
       explore: movement?.base ?? 0,

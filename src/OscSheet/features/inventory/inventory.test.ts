@@ -288,8 +288,9 @@ describe("selectEncumbrance", () => {
     expect(e.bands).toEqual([25, 37.5, 50]);
   });
 
-  it("basic variant: bar fills from tier (not weight) and drops the cn load", () => {
-    // 100/1600 cn weight is meaningless in basic (tier comes from armor/treasure).
+  it("basic variant: bar fills from tier, load reads treasure vs threshold", () => {
+    // total carried cn is meaningless in basic (tier comes from armor/treasure); e.value
+    // here is the carried TREASURE cn, shown against the significant-treasure threshold.
     const actor = {
       system: {
         encumbrance: {
@@ -301,7 +302,7 @@ describe("selectEncumbrance", () => {
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
     expect(e.tier).toBe(2);
-    expect(e.label).toBe(""); // no misleading "100 / 1600 cn"
+    expect(e.label).toBe("100 / 800 cn"); // treasure carried vs threshold (800 default)
     expect(e.pct).toBeCloseTo(2 / 3); // bar tracks the tier, not 100/1600
     // basic's bar has no weight axis, so it plots no thresholds (it paints solid)
     expect(e.bands).toEqual([]);
@@ -375,6 +376,16 @@ describe("significant treasure (basic encumbrance)", () => {
   it("still trips once the treasure actually reaches the threshold", () => {
     const hoard = mk("item", "Gems", { treasure: true, weight: 10, quantity: { value: 80 } });
     expect(selectEncumbrance(basicActor(), [hoard]).tier).toBe(1);
+  });
+
+  it("reads the load as carried treasure vs the threshold", () => {
+    const gems = mk("item", "Gems", { treasure: true, weight: 1, quantity: { value: 181 } });
+    expect(selectEncumbrance(basicActor(), [gems]).label).toBe("181 / 800 cn");
+  });
+
+  it("shows 0 against the threshold when carrying no treasure", () => {
+    const sword = mk("weapon", "Sword", { weight: 60, quantity: { value: 1 } });
+    expect(selectEncumbrance(basicActor(), [sword]).label).toBe("0 / 800 cn");
   });
 });
 
