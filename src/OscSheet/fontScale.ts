@@ -1,8 +1,8 @@
 export const FONT_SCALES = ["md", "lg", "xl"] as const;
 export type FontScale = (typeof FONT_SCALES)[number];
 
-// Multiplier applied to the .osc-sheet-app rem anchor (16px). Every --fs-* rem
-// token resolves against that anchor, so scaling it scales the whole type scale.
+// Multiplier baked into each --fs-* token emit (tokens.scss: `calc(<rem> *
+// var(--fs-scale,1))`), so raising it grows every token-sized text at once.
 export const FONT_SCALE_FACTOR: Record<FontScale, number> = {
   md: 1,
   lg: 1.15,
@@ -13,8 +13,8 @@ export function resolveFontScale(value: unknown): FontScale {
   return value === "lg" || value === "xl" ? value : "md";
 }
 
-/** Apply a font scale to a sheet's root element by setting --fs-scale, which the
- *  .osc-sheet-app rem anchor multiplies in. md (1×) clears the override. */
+/** Apply a font scale to a sheet's root element by setting --fs-scale, the
+ *  multiplier the --fs-* token emit reads. md (1×) clears the override. */
 export function applyFontScale(root: HTMLElement, scale: FontScale): void {
   if (scale === "md") root.style.removeProperty("--fs-scale");
   else root.style.setProperty("--fs-scale", String(FONT_SCALE_FACTOR[scale]));
@@ -41,13 +41,8 @@ export function getFontScaleSetting(): FontScale {
   }
 }
 
-/** Cycle md→lg→xl→md via the client setting; onChange re-renders sheets and
+/** Set the font scale via the client setting; onChange re-renders sheets and
  *  `_onRender` applies it. No-ops outside Foundry (Storybook/tests). */
-export function cycleFontScale(): void {
-  const settings = getGame()?.settings;
-  if (!settings) return;
-  const order = FONT_SCALES;
-  const cur = getFontScaleSetting();
-  const next = order[(order.indexOf(cur) + 1) % order.length];
-  void settings.set(SETTING_NS, SETTING_KEY, next);
+export function setFontScale(scale: FontScale): void {
+  void getGame()?.settings?.set(SETTING_NS, SETTING_KEY, scale);
 }

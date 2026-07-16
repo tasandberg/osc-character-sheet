@@ -133,6 +133,11 @@
 .osc-topbar .osc-tb-btn .i {
   line-height: 1;
 }
+// Compact the font-scale Segmented so it doesn't crowd the topbar.
+.osc-topbar .osc-tb-fontscale button {
+  padding: 4px 7px;
+  letter-spacing: 0.04em;
+}
 
 // --- header band ---
 // Grid areas let medium and rail arrange the same markup differently:
@@ -216,7 +221,7 @@
 .osc-vitals {
   grid-area: vitals;
   align-self: start;
-  width: 184px;
+  width: calc(var(--fs-lg, 16px) * 11.5);
   display: grid;
   // minmax(0,…) so a wide value can't auto-expand a track past its share and
   // shove the sibling card out of the container.
@@ -610,8 +615,13 @@
 .osc-weapon {
   display: grid;
   // fixed Hit/Damage/Atk columns so buttons are a consistent width per type and
-  // double-digit dice (1d10+2) don't shift the layout.
-  grid-template-columns: minmax(0, 1fr) 62px 82px 96px;
+  // double-digit dice (1d10+2) don't shift the layout. Scaled off --fs-lg so the
+  // tracks grow with the font-size setting (--fs-lg = 16px at md).
+  grid-template-columns:
+    minmax(0, 1fr)
+    calc(var(--fs-lg, 16px) * 3.875)
+    calc(var(--fs-lg, 16px) * 5.125)
+    calc(var(--fs-lg, 16px) * 6);
   gap: var(--spacer-3);
   align-items: center;
 }

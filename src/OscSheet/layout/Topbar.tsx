@@ -1,8 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import type { TopbarVM } from "@domain/vm-types";
 import { toggleTheme } from "@src/OscSheet/theme";
-import { cycleFontScale, getFontScaleSetting } from "@src/OscSheet/fontScale";
+import { setFontScale, getFontScaleSetting } from "@src/OscSheet/fontScale";
+import type { FontScale } from "@src/OscSheet/fontScale";
+import { Segmented } from "@src/OscSheet/components/ui/Segmented";
 import { FEATURES } from "@app/features";
+
+const FONT_SCALE_OPTIONS: { value: FontScale; label: string }[] = [
+  { value: "md", label: "A" },
+  { value: "lg", label: "A+" },
+  { value: "xl", label: "A++" },
+];
 
 type Props = {
   vm: TopbarVM;
@@ -119,18 +127,14 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
             {menuOpen && <div className="osc-tb-menu">{actionButtons}</div>}
           </div>
         )}
-        {/* SPIKE (OSC-102): cycle Default→Large→Larger font scale. */}
-        <button
-          type="button"
-          className="osc-tb-btn icon u-inline-flex u-items-center u-gap-2"
-          onClick={cycleFontScale}
-          title={`Font size: ${getFontScaleSetting()} — click to cycle`}
-          aria-label="Cycle font size"
-        >
-          <span className="i u-fs-xs" aria-hidden="true">
-            A
-          </span>
-        </button>
+        <div role="group" aria-label="Font size" title="Font size">
+          <Segmented
+            className="osc-tb-fontscale"
+            options={FONT_SCALE_OPTIONS}
+            value={getFontScaleSetting()}
+            onValueChange={setFontScale}
+          />
+        </div>
         <button
           type="button"
           className="osc-tb-btn icon u-inline-flex u-items-center u-gap-2"
