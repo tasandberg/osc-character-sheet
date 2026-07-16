@@ -121,14 +121,20 @@
   // locked 30px chip at every font scale — riding the full --fs-3xl overflowed
   // the box and clipped the low-sitting IM Fell numerals.
   font-size: var(--fs-2xl, 21px);
-  line-height: 1;
+  // 0.95 trims the line box just enough to afford the 2px optical lift below
+  // while still fitting the 30px chip at Large (measured slack ~0.5px).
+  line-height: 0.95;
   // Clamp to the box height so the focus border never overflows the parent.
   height: 100%;
   box-sizing: border-box;
   color: var(--crimson);
   border: 1px solid transparent;
   border-radius: var(--r-sm, 4px);
-  padding: 0;
+  // IM Fell numerals sit low; bottom padding lifts them to optical centre. Kept
+  // ≤2px so the value still clears the box at Large (padding trims the content
+  // box, and the line-height trim above buys the headroom). NOT a transform —
+  // that would carry the focus border out of the box.
+  padding: 0 0 2px;
   -moz-appearance: textfield;
   appearance: textfield;
 }
