@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { TopbarVM } from "@domain/vm-types";
-import { toggleTheme } from "@src/OscSheet/theme";
+import { SettingsModal } from "@features/settings/SettingsModal";
 import { FEATURES } from "@app/features";
 
 type Props = {
@@ -13,11 +13,12 @@ type Props = {
 
 /** Persistent topbar: level, XP, and sheet controls. The bar stays dark in both
  *  themes (--ink). Rest and Level Up are gated behind FEATURES until implemented;
- *  Edit opens the Edit Character modal; the theme toggle is live. At XS the
- *  action buttons collapse into a ⋮ overflow menu. */
+ *  Edit opens the Edit Character modal; the cog opens per-user sheet settings
+ *  (theme + font size). At XS the action buttons collapse into a ⋮ overflow menu. */
 export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
   const pct = vm.pct;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click.
@@ -121,15 +122,14 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
         <button
           type="button"
           className="osc-tb-btn icon u-inline-flex u-items-center u-gap-2"
-          onClick={toggleTheme}
-          title="Toggle colour scheme"
-          aria-label="Toggle colour scheme"
+          onClick={() => setSettingsOpen(true)}
+          title="Settings"
+          aria-label="Settings"
         >
-          <span className="i u-fs-xs" aria-hidden="true">
-            ◐
-          </span>
+          <i className="i fa-solid fa-gear u-fs-xs" aria-hidden="true" />
         </button>
       </div>
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }

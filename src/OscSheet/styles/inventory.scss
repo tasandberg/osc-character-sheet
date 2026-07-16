@@ -101,7 +101,11 @@
 
 .osc-inv-row {
   display: grid;
-  grid-template-columns: 18px 30px 1fr 52px 44px 44px;
+  grid-template-columns:
+    18px 30px 1fr
+    calc(var(--fs-base, 16px) * 3.25)
+    calc(var(--fs-base, 16px) * 2.75)
+    calc(var(--fs-base, 16px) * 2.75);
   align-items: center;
   gap: var(--spacer-2);
   padding: var(--spacer-2) var(--spacer-1);
@@ -273,7 +277,7 @@
   justify-content: flex-start;
 }
 .osc-inv-th-caret {
-  font-size: 8px; // stylelint-disable-line declaration-property-value-disallowed-list -- 8px sort-caret glyph (reserve space so labels don't shift)
+  font-size: 0.8em; // tracks the --fs-3xs header so it scales with the font setting
   width: 6px;
 }
 
@@ -719,7 +723,11 @@
 .osc-coin-row,
 .osc-coin-total {
   display: grid;
-  grid-template-columns: 18px 30px minmax(0, 1fr) 74px 56px 64px;
+  grid-template-columns:
+    18px 30px minmax(0, 1fr)
+    calc(var(--fs-base, 16px) * 4.625)
+    calc(var(--fs-base, 16px) * 3.5)
+    calc(var(--fs-base, 16px) * 4);
   column-gap: var(--spacer-2);
   align-items: center;
 }
@@ -1102,7 +1110,7 @@
   border-radius: var(--r-sm, 4px);
   padding: 1px 6px;
   i {
-    font-size: 9px; // stylelint-disable-line declaration-property-value-disallowed-list -- 9px tag-icon glyph
+    font-size: 0.9em; // tracks the --fs-3xs tag text so it scales with the font setting
     color: var(--gold-dim);
   }
 }

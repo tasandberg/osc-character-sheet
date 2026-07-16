@@ -21,8 +21,8 @@
   color: var(--text-dim);
 }
 .field-hint {
-  font-family: var(--serif);
-  font-style: italic;
+  font-family: var(--sans);
+  font-style: normal;
   font-size: var(--fs-xs);
   color: var(--text-mute);
   line-height: 1.4;

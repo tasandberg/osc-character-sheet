@@ -120,11 +120,11 @@
 .osc-topbar .osc-tb-btn.up:hover:not(:disabled) {
   background: var(--gold-dim, var(--gold));
 }
-// Pin the theme toggle to the far right on its own, so it stays put even when the
+// Pin the settings cog to the far right on its own, so it stays put even when the
 // owner action cluster (which normally carries the push-right margin) is absent —
 // e.g. the read-only sheet, where no Rest/Level Up/Edit/overflow buttons render.
 // In owner mode the actions' own margin-left:auto absorbs the free space first, so
-// this is a no-op there (toggle stays adjacent to the actions at the right edge).
+// this is a no-op there (cog stays adjacent to the actions at the right edge).
 // margin-left:auto (far-right pin, both owner + read-only) lives in JSX as `u-ml-auto`.
 .osc-topbar .osc-tb-btn.icon {
   padding: 6px 8px;
@@ -216,7 +216,7 @@
 .osc-vitals {
   grid-area: vitals;
   align-self: start;
-  width: 184px;
+  width: calc(var(--fs-base, 16px) * 11.5);
   display: grid;
   // minmax(0,…) so a wide value can't auto-expand a track past its share and
   // shove the sibling card out of the container.
@@ -297,8 +297,9 @@
     border-color 0.12s,
     color 0.12s;
 }
-.osc-vital.hp:hover .vv-step,
-.osc-vital.hp:focus-within .vv-step {
+// Owner-only reveal: read-only sheets have no steppers, so don't surface them.
+.osc-sheet-app:not(.is-readonly) .osc-vital.hp:hover .vv-step,
+.osc-sheet-app:not(.is-readonly) .osc-vital.hp:focus-within .vv-step {
   opacity: 1;
 }
 .osc-vital .vv-step:hover {
@@ -341,7 +342,7 @@
 }
 // borderless: just the stamp label + value, so HP/AC stay the only "boxes"
 .osc-tile {
-  width: 52px; // uniform, compact
+  min-width: 52px; // min 52px; MOVE grows to fit its label
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
@@ -355,6 +356,7 @@
   display: block;
   width: 100%;
   text-align: center;
+  white-space: nowrap;
   font-size: var(--fs-3xs, 10px);
   padding: 3px 4px 2px;
 }
@@ -610,8 +612,13 @@
 .osc-weapon {
   display: grid;
   // fixed Hit/Damage/Atk columns so buttons are a consistent width per type and
-  // double-digit dice (1d10+2) don't shift the layout.
-  grid-template-columns: minmax(0, 1fr) 62px 82px 96px;
+  // double-digit dice (1d10+2) don't shift the layout. Scaled off --fs-base so the
+  // tracks grow with the font-size setting (--fs-base = 16px at Medium).
+  grid-template-columns:
+    minmax(0, 1fr)
+    calc(var(--fs-base, 16px) * 3.875)
+    calc(var(--fs-base, 16px) * 5.125)
+    calc(var(--fs-base, 16px) * 6);
   gap: var(--spacer-3);
   align-items: center;
 }
@@ -1037,6 +1044,12 @@
   }
   .osc-vital .vv-input {
     display: inline-block;
+  }
+  // Read-only sheets render no .vv-input (onSetHp is undefined), so the input
+  // can't stand in for the hidden static value — keep .vv-value shown or the HP
+  // number vanishes entirely at XS.
+  .osc-sheet-app.is-readonly .osc-vital .vv-value {
+    display: block;
   }
   // Init/HD/Move: borderless + small, three across (inherit the compact base)
   .osc-substats {

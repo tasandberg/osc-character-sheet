@@ -103,7 +103,7 @@ export function EditModal({ open, onClose }: { open: boolean; onClose: () => voi
   const hdDefault = defaults.hd;
   const hdOverridden = !!hdDefault && hdVal !== hdDefault;
 
-  const footer = <Button variant="primary" onClick={onClose}>Done</Button>;
+  const footer = <Button variant="primary" onClick={onClose}>Close</Button>;
 
   return (
     <Modal open={open} title="Edit Character" onClose={onClose} footer={footer} className="fe-modal">

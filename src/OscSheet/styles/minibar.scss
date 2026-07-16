@@ -42,6 +42,17 @@
   }
 }
 
+// Safari-only: .osc-sheet-body is a container-query container (container-type:
+// inline-size). WebKit mis-resolves a sticky child's top anchor inside a query
+// container, leaving a gap above the pinned minibar (Chrome is flush). We can't
+// drop container-type (the responsive layout needs it) or use overflow-x:clip
+// (it computes back to hidden next to overflow-y:auto). Forcing the pinned
+// minibar onto its own compositing layer makes WebKit recompute the sticky top
+// flush. `@supports (-webkit-hyphens: none)` targets Safari only.
+@supports (-webkit-hyphens: none) {
+  .osc-minibar.is-collapsed { will-change: transform; }
+}
+
 .osc-mb-portrait {
   flex: 0 0 auto;
   width: 32px;
@@ -106,24 +117,39 @@
   text-align: center;
   cursor: text;
   font-family: var(--display);
-  font-size: var(--fs-3xl, 24px);
-  line-height: 1;
+  // Capped at --fs-2xl (matches the AC value) so the glyph line box fits the
+  // locked 30px chip at every font scale — riding the full --fs-3xl overflowed
+  // the box and clipped the low-sitting IM Fell numerals.
+  font-size: var(--fs-2xl, 21px);
+  // 0.95 trims the line box just enough to afford the 2px optical lift below
+  // while still fitting the 30px chip at Large (measured slack ~0.5px).
+  line-height: 0.95;
   // Clamp to the box height so the focus border never overflows the parent.
-  // IM Fell numerals sit low, so lift the glyph with bottom padding (not a
-  // transform, which would carry the border up out of the box).
   height: 100%;
   box-sizing: border-box;
   color: var(--crimson);
   border: 1px solid transparent;
   border-radius: var(--r-sm, 4px);
-  padding: 0 0 var(--spacer-1);
+  // IM Fell numerals sit low; bottom padding lifts them to optical centre. Kept
+  // ≤2px so the value still clears the box at Large (padding trims the content
+  // box, and the line-height trim above buys the headroom). NOT a transform —
+  // that would carry the focus border out of the box.
+  padding: 0 0 2px;
   -moz-appearance: textfield;
   appearance: textfield;
 }
 .osc-sheet-app .osc-mb-hp-input:focus { border-color: var(--crimson); background: var(--bg, #181612); }
 .osc-mb-hp-input::-webkit-inner-spin-button,
 .osc-mb-hp-input::-webkit-outer-spin-button { appearance: none; margin: 0; }
-.osc-sheet-app .osc-mb-hp-static { cursor: default; }
+.osc-sheet-app .osc-mb-hp-static {
+  cursor: default;
+  // The read-only value is a <span> but shares .osc-mb-hp-input, which sets
+  // `appearance: textfield`. Safari paints a non-input with textfield appearance
+  // as an empty form control (invisible on the dark chip); Chrome ignores it.
+  // Reset the appearance and pin the WebKit text-paint colour so the value shows.
+  appearance: none;
+  -webkit-text-fill-color: var(--crimson);
+}
 
 .osc-mb-hp-max {
   font-family: var(--mono);
@@ -162,8 +188,9 @@
   transition: opacity 0.12s ease, border-color 0.12s ease, color 0.12s ease;
   &:hover { border-color: var(--gold); color: var(--text, #e5dec8); }
 }
-// hover the HP box: fade labels out, steppers in
-.osc-mb-hp:hover {
+// hover the HP box: fade labels out, steppers in. Owner-only — a read-only sheet
+// has no steppers to reveal, so the swap must not fire (would just blank the stamp).
+.osc-sheet-app:not(.is-readonly) .osc-mb-hp:hover {
   .osc-mb-stamp,
   .osc-mb-hp-max { opacity: 0; }
   .osc-mb-hp-btn { opacity: 1; pointer-events: auto; }
