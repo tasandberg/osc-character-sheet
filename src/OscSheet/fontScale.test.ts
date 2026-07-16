@@ -7,6 +7,16 @@ import {
   FONT_SCALE_FACTOR,
 } from "@src/OscSheet/fontScale";
 
+describe("FONT_SCALE_FACTOR", () => {
+  it("is a clean ± around the 16px base", () => {
+    expect(FONT_SCALE_FACTOR).toEqual({
+      compact: 0.875,
+      medium: 1,
+      large: 1.125,
+    });
+  });
+});
+
 describe("resolveFontScale", () => {
   it("defaults to medium for unknown/empty input", () => {
     expect(resolveFontScale(undefined)).toBe("medium");
@@ -26,17 +36,17 @@ describe("resolveFontScale", () => {
 });
 
 describe("applyFontScale", () => {
-  it("clears --fs-scale at compact and sets the multiplier otherwise", () => {
+  it("clears --fs-scale at medium and sets the multiplier otherwise", () => {
     const el = document.createElement("div");
     applyFontScale(el, "large");
     expect(el.style.getPropertyValue("--fs-scale")).toBe(
       String(FONT_SCALE_FACTOR.large),
     );
-    applyFontScale(el, "medium");
-    expect(el.style.getPropertyValue("--fs-scale")).toBe(
-      String(FONT_SCALE_FACTOR.medium),
-    );
     applyFontScale(el, "compact");
+    expect(el.style.getPropertyValue("--fs-scale")).toBe(
+      String(FONT_SCALE_FACTOR.compact),
+    );
+    applyFontScale(el, "medium");
     expect(el.style.getPropertyValue("--fs-scale")).toBe("");
   });
 });
