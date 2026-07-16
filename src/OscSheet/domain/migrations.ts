@@ -46,8 +46,10 @@ export function buildActorUpdate(flags: Flags): UpdatePayload | null {
 
 // --- client-side localStorage migration (every user, no GM gate) --------------
 
-/** localStorage keys to carry over: [old, new]. The theme entry is Foundry's
- *  client-setting storage (`<namespace>.<key>`); theme is client-scoped. */
+/** localStorage keys to carry over: [old, new]. The theme entry is legacy: it
+ *  moved Foundry's old client-setting localStorage (`<namespace>.<key>`). Theme is
+ *  now `user`-scoped (server-stored), so the moved value is unread — a harmless
+ *  no-op kept for the reactor-sheet→osc rename; old values fall back to default. */
 const LOCAL_STORAGE_MOVES: ReadonlyArray<[string, string]> = [
   [`${OLD_MODULE_ID}.theme`, `${MODULE_ID}.theme`],
   ["reactorSheetSettings", "oscSheetSettings"],
@@ -133,8 +135,8 @@ export async function runWorldMigration(): Promise<void> {
 
     // 4: world-scoped settings stored under the old namespace — copy to the new
     // namespace when a matching world setting is still registered. Old orphaned
-    // docs are left in place (harmless). Today only `theme` exists and it's
-    // client-scoped, so this is future-proofing.
+    // docs are left in place (harmless). No world-scoped settings exist yet
+    // (theme + fontScale are user-scoped), so this is future-proofing.
     const worldDocs = game.settings.storage.get("world") ?? [];
     for (const doc of worldDocs) {
       if (!doc.key?.startsWith(`${OLD_MODULE_ID}.`)) continue;
