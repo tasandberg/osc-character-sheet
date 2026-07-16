@@ -37,11 +37,8 @@ export function getThemeSetting(): Theme {
   }
 }
 
-/** Flip dark⇄cream via the client setting; onChange re-renders sheets and
+/** Set the theme via the client setting; onChange re-renders sheets and
  *  `_onRender` applies it. No-ops outside Foundry (Storybook/tests). */
-export function toggleTheme(): void {
-  const settings = getGame()?.settings;
-  if (!settings) return;
-  const next: Theme = getThemeSetting() === "dark" ? "cream" : "dark";
-  void settings.set(SETTING_NS, SETTING_KEY, next);
+export function setTheme(theme: Theme): void {
+  void getGame()?.settings?.set(SETTING_NS, SETTING_KEY, theme);
 }

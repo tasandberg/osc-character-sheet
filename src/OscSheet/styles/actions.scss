@@ -120,11 +120,11 @@
 .osc-topbar .osc-tb-btn.up:hover:not(:disabled) {
   background: var(--gold-dim, var(--gold));
 }
-// Pin the theme toggle to the far right on its own, so it stays put even when the
+// Pin the settings cog to the far right on its own, so it stays put even when the
 // owner action cluster (which normally carries the push-right margin) is absent —
 // e.g. the read-only sheet, where no Rest/Level Up/Edit/overflow buttons render.
 // In owner mode the actions' own margin-left:auto absorbs the free space first, so
-// this is a no-op there (toggle stays adjacent to the actions at the right edge).
+// this is a no-op there (cog stays adjacent to the actions at the right edge).
 // margin-left:auto (far-right pin, both owner + read-only) lives in JSX as `u-ml-auto`.
 .osc-topbar .osc-tb-btn.icon {
   padding: 6px 8px;
@@ -132,11 +132,6 @@
 // font-size (--fs-xs) lives in JSX as `u-fs-xs` on the `.i` glyph.
 .osc-topbar .osc-tb-btn .i {
   line-height: 1;
-}
-// Compact the font-scale Segmented so it doesn't crowd the topbar.
-.osc-topbar .osc-tb-fontscale button {
-  padding: 4px 7px;
-  letter-spacing: 0.04em;
 }
 
 // --- header band ---
