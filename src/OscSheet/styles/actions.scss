@@ -1054,6 +1054,12 @@
   .osc-vital .vv-input {
     display: inline-block;
   }
+  // Read-only sheets render no .vv-input (onSetHp is undefined), so the input
+  // can't stand in for the hidden static value — keep .vv-value shown or the HP
+  // number vanishes entirely at XS.
+  .osc-sheet-app.is-readonly .osc-vital .vv-value {
+    display: block;
+  }
   // Init/HD/Move: borderless + small, three across (inherit the compact base)
   .osc-substats {
     display: grid;

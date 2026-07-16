@@ -141,7 +141,15 @@
 .osc-sheet-app .osc-mb-hp-input:focus { border-color: var(--crimson); background: var(--bg, #181612); }
 .osc-mb-hp-input::-webkit-inner-spin-button,
 .osc-mb-hp-input::-webkit-outer-spin-button { appearance: none; margin: 0; }
-.osc-sheet-app .osc-mb-hp-static { cursor: default; }
+.osc-sheet-app .osc-mb-hp-static {
+  cursor: default;
+  // The read-only value is a <span> but shares .osc-mb-hp-input, which sets
+  // `appearance: textfield`. Safari paints a non-input with textfield appearance
+  // as an empty form control (invisible on the dark chip); Chrome ignores it.
+  // Reset the appearance and pin the WebKit text-paint colour so the value shows.
+  appearance: none;
+  -webkit-text-fill-color: var(--crimson);
+}
 
 .osc-mb-hp-max {
   font-family: var(--mono);
