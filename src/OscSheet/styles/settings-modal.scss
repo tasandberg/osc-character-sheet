@@ -23,5 +23,15 @@
   .osc-settings-modal {
     max-width: 380px;
     margin: 0;
+    // More generous + symmetric vertical breathing room than the DS default
+    // (head 18/…/14, body 18/18). The head padding-top sits a touch under the
+    // body's bottom to offset the display title's line-height leading, so the
+    // *visible* top gap (above the title) matches the bottom gap (below the last
+    // control) — measured ~24px top / ~25px bottom. Horizontal padding unchanged.
+    .modal-head { padding-top: var(--spacer-5); } // 20px
+    .modal-body {
+      padding-top: var(--spacer-6); // 24px
+      padding-bottom: var(--spacer-6);
+    }
   }
 }
