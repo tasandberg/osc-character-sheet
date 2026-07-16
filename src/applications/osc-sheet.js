@@ -63,8 +63,8 @@ class OscSheet extends ReactActorSheetV2 {
       scope: "client",
       config: true,
       type: String,
-      choices: { md: "Default", lg: "Large", xl: "Larger" },
-      default: "md",
+      choices: { compact: "Compact", medium: "Medium", large: "Large" },
+      default: "medium",
       onChange: () => {
         for (const app of foundry.applications.instances.values()) {
           if (app instanceof OscSheet) app.render();

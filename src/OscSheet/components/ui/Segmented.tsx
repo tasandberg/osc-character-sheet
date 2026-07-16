@@ -1,6 +1,7 @@
 import { cx } from "./cx";
+import type { ReactNode } from "react";
 
-type Option<T extends string> = { value: T; label: string };
+type Option<T extends string> = { value: T; label: ReactNode };
 type Props<T extends string> = {
   options: Option<T>[];
   value: T;

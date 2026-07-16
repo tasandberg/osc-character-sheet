@@ -54,7 +54,7 @@ describe("Topbar settings", () => {
   it("opens the settings modal on cog click", () => {
     act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
-    expect(q(".modal-head .ttl")?.textContent).toBe("Settings");
+    expect(q(".modal-head .ttl")?.textContent).toBe("User settings");
     // both settings groups present
     expect(q('[aria-label="Theme"]')).toBeTruthy();
     expect(q('[aria-label="Font size"]')).toBeTruthy();
@@ -67,7 +67,7 @@ describe("Topbar settings", () => {
     act(() => byText('[aria-label="Theme"] button', "Cream")!.click());
     expect(set).toHaveBeenCalledWith("osc-character-sheet", "theme", "cream");
 
-    act(() => byText('[aria-label="Font size"] button', "A++")!.click());
-    expect(set).toHaveBeenCalledWith("osc-character-sheet", "fontScale", "xl");
+    act(() => byText('[aria-label="Font size"] button', "Large")!.click());
+    expect(set).toHaveBeenCalledWith("osc-character-sheet", "fontScale", "large");
   });
 });

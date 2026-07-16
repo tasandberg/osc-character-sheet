@@ -8,31 +8,35 @@ import {
 } from "@src/OscSheet/fontScale";
 
 describe("resolveFontScale", () => {
-  it("defaults to md for unknown/empty input", () => {
-    expect(resolveFontScale(undefined)).toBe("md");
-    expect(resolveFontScale("")).toBe("md");
-    expect(resolveFontScale("nonsense")).toBe("md");
+  it("defaults to medium for unknown/empty input", () => {
+    expect(resolveFontScale(undefined)).toBe("medium");
+    expect(resolveFontScale("")).toBe("medium");
+    expect(resolveFontScale("nonsense")).toBe("medium");
   });
 
   it("accepts the valid scales", () => {
-    expect(resolveFontScale("md")).toBe("md");
-    expect(resolveFontScale("lg")).toBe("lg");
-    expect(resolveFontScale("xl")).toBe("xl");
+    expect(resolveFontScale("compact")).toBe("compact");
+    expect(resolveFontScale("medium")).toBe("medium");
+    expect(resolveFontScale("large")).toBe("large");
   });
 
   it("exposes the scale list", () => {
-    expect(FONT_SCALES).toEqual(["md", "lg", "xl"]);
+    expect(FONT_SCALES).toEqual(["compact", "medium", "large"]);
   });
 });
 
 describe("applyFontScale", () => {
-  it("clears --fs-scale at md and sets the multiplier otherwise", () => {
+  it("clears --fs-scale at compact and sets the multiplier otherwise", () => {
     const el = document.createElement("div");
-    applyFontScale(el, "xl");
+    applyFontScale(el, "large");
     expect(el.style.getPropertyValue("--fs-scale")).toBe(
-      String(FONT_SCALE_FACTOR.xl),
+      String(FONT_SCALE_FACTOR.large),
     );
-    applyFontScale(el, "md");
+    applyFontScale(el, "medium");
+    expect(el.style.getPropertyValue("--fs-scale")).toBe(
+      String(FONT_SCALE_FACTOR.medium),
+    );
+    applyFontScale(el, "compact");
     expect(el.style.getPropertyValue("--fs-scale")).toBe("");
   });
 });

@@ -1,22 +1,25 @@
-export const FONT_SCALES = ["md", "lg", "xl"] as const;
+export const FONT_SCALES = ["compact", "medium", "large"] as const;
 export type FontScale = (typeof FONT_SCALES)[number];
 
 // Multiplier baked into each --fs-* token emit (tokens.scss: `calc(<rem> *
 // var(--fs-scale,1))`), so raising it grows every token-sized text at once.
+// medium (1.15×) is the default. Deferred follow-up: bake 1.15 into the base
+// rem and make compact/large relative, so the default needs no --fs-scale.
 export const FONT_SCALE_FACTOR: Record<FontScale, number> = {
-  md: 1,
-  lg: 1.15,
-  xl: 1.3,
+  compact: 1,
+  medium: 1.15,
+  large: 1.3,
 };
 
 export function resolveFontScale(value: unknown): FontScale {
-  return value === "lg" || value === "xl" ? value : "md";
+  return value === "compact" || value === "large" ? value : "medium";
 }
 
-/** Apply a font scale to a sheet's root element by setting --fs-scale, the
- *  multiplier the --fs-* token emit reads. md (1×) clears the override. */
+// Apply a font scale to a sheet's root element by setting --fs-scale, the
+// multiplier the --fs-* token emit reads. compact (1×) matches the token
+// fallback, so it clears the override; medium/large set it explicitly.
 export function applyFontScale(root: HTMLElement, scale: FontScale): void {
-  if (scale === "md") root.style.removeProperty("--fs-scale");
+  if (scale === "compact") root.style.removeProperty("--fs-scale");
   else root.style.setProperty("--fs-scale", String(FONT_SCALE_FACTOR[scale]));
 }
 
@@ -37,7 +40,7 @@ export function getFontScaleSetting(): FontScale {
   try {
     return resolveFontScale(getGame()?.settings?.get(SETTING_NS, SETTING_KEY));
   } catch {
-    return "md";
+    return "medium";
   }
 }
 
