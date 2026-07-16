@@ -1,0 +1,27 @@
+// src/OscSheet/styles/settings-modal.scss
+// App-local Settings modal sizing + containment. Content lives in the
+// SettingsModal component; DS primitive styles in vellum/components.css.
+// Mirrors edit-modal.scss (scrim containment) but is @use'd from styles.scss so
+// it also loads in Storybook, not just the app entry.
+
+// Wrapped in .osc-sheet-app to beat the element reset in styles.scss and to
+// match the edit-modal.scss / minibar.scss convention.
+.osc-sheet-app {
+  // Confine the Settings modal's overlay to the sheet window, not the whole
+  // viewport. The DS default .modal-scrim is position:fixed over the viewport;
+  // .osc-sheet-app is the positioned ancestor, so an absolute scrim fills the
+  // sheet instead. (Same fix as edit-modal.scss.)
+  .modal-scrim:has(.osc-settings-modal) {
+    position: absolute;
+    inset: 0;
+    z-index: 60;
+    padding: var(--spacer-4); // 16px
+  }
+  // Sparse content (theme + font size), so cap narrower than the 540px DS
+  // default to keep it proportionate; .modal's width:100% still shrinks it
+  // below the cap on narrow sheets.
+  .osc-settings-modal {
+    max-width: 380px;
+    margin: 0;
+  }
+}
