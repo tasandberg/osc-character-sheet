@@ -45,7 +45,7 @@ class OscSheet extends ReactActorSheetV2 {
     game.settings.register(MODULE_ID, "theme", {
       name: "Sheet theme",
       hint: "Color theme for the OSC Character Sheet.",
-      scope: "client",
+      scope: "user",
       config: true,
       type: String,
       choices: { dark: "Dark", cream: "Cream" },
@@ -60,7 +60,7 @@ class OscSheet extends ReactActorSheetV2 {
     game.settings.register("osc-character-sheet", "fontScale", {
       name: "Sheet font size",
       hint: "Scales all sheet text up for readability.",
-      scope: "client",
+      scope: "user",
       config: true,
       type: String,
       choices: { compact: "Compact", medium: "Medium", large: "Large" },
