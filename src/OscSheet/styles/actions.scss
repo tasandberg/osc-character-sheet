@@ -297,8 +297,9 @@
     border-color 0.12s,
     color 0.12s;
 }
-.osc-vital.hp:hover .vv-step,
-.osc-vital.hp:focus-within .vv-step {
+// Owner-only reveal: read-only sheets have no steppers, so don't surface them.
+.osc-sheet-app:not(.is-readonly) .osc-vital.hp:hover .vv-step,
+.osc-sheet-app:not(.is-readonly) .osc-vital.hp:focus-within .vv-step {
   opacity: 1;
 }
 .osc-vital .vv-step:hover {

@@ -163,8 +163,9 @@
   transition: opacity 0.12s ease, border-color 0.12s ease, color 0.12s ease;
   &:hover { border-color: var(--gold); color: var(--text, #e5dec8); }
 }
-// hover the HP box: fade labels out, steppers in
-.osc-mb-hp:hover {
+// hover the HP box: fade labels out, steppers in. Owner-only — a read-only sheet
+// has no steppers to reveal, so the swap must not fire (would just blank the stamp).
+.osc-sheet-app:not(.is-readonly) .osc-mb-hp:hover {
   .osc-mb-stamp,
   .osc-mb-hp-max { opacity: 0; }
   .osc-mb-hp-btn { opacity: 1; pointer-events: auto; }
