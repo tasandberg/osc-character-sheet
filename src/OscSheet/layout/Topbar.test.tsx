@@ -60,7 +60,7 @@ describe("Topbar settings", () => {
     expect(q('[aria-label="Font size"]')).toBeTruthy();
   });
 
-  it("closes the modal via the Done footer button", () => {
+  it("closes the modal via the Close footer button", () => {
     act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
     expect(q(".modal")).toBeTruthy();
