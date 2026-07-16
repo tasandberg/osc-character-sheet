@@ -313,15 +313,6 @@
   min-width: 0;
   text-align: center;
   cursor: text;
-  // Explicit font/colour mirroring the .vv-big value this input replaces at XS.
-  // The `input { all: unset }` reset drops the inherited colour + font; Safari
-  // then paints the value invisible (Chrome happens to keep inheriting). This
-  // selector (0,2,0) beats the reset (0,1,2). HP is the only editable vital, so
-  // the value is crimson at the XS .vv-big size.
-  font-family: var(--display);
-  font-size: var(--fs-3xl, 24px);
-  line-height: 1.05;
-  color: var(--crimson);
   border: 1px solid transparent; // plain value until focused
   border-radius: var(--r-sm, 4px);
   padding: 1px 0;
