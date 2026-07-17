@@ -288,10 +288,10 @@ describe("selectEncumbrance", () => {
     expect(e.bands).toEqual([25, 37.5, 50]);
   });
 
-  it("basic variant: bar position = base tier + treasure fill within the segment", () => {
-    // combined spectrum gauge: armor sets the base tier (here 2, below the 800 threshold),
-    // treasure fills WITHIN that segment toward the next tier line. position = 2 + 400/800
-    // = 2.5; pct = 2.5 / 3. Colour stops sit on the tier lines (33.3/66.7/100%).
+  it("basic variant: fill AND colour track carried treasure vs the threshold", () => {
+    // basic answers "how worried about my load?" → bar = treasure / 800. Armor does NOT
+    // move the bar (its slowdown shows in the tier-tinted rates). 400/800 = 50% amber.
+    // Colour stops sit on the tier lines (33.3/66.7/100%) so the fill edge climbs green→red.
     const actor = {
       system: {
         encumbrance: {
@@ -302,15 +302,12 @@ describe("selectEncumbrance", () => {
       },
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
-    expect(e.tier).toBe(2);
     expect(e.label).toBe("400 / 800 cn"); // treasure carried vs threshold (800 default)
-    expect(e.pct).toBeCloseTo(2.5 / 3); // (tier 2 + 400/800) / max tier 3
+    expect(e.pct).toBeCloseTo(0.5); // 400 treasure / 800 threshold — armor tier ignored
     expect(e.bands).toEqual([100 / 3, 200 / 3, 100]);
   });
 
-  it("basic variant: at/above the threshold the tier has bumped, so position = tier", () => {
-    // 900 >= 800 → the system already counted the treasure into `tier`; position = tier,
-    // no double-count. tier 3 (top) → pct = 3/3 = 1, the red end of the spectrum.
+  it("basic variant: treasure at/above the threshold tops the bar out at 100%", () => {
     const actor = {
       system: {
         encumbrance: {
@@ -321,23 +318,24 @@ describe("selectEncumbrance", () => {
       },
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
-    expect(e.tier).toBe(3);
-    expect(e.pct).toBe(1); // position = tier 3, not 3 + 900/800
+    expect(e.pct).toBe(1); // clamped: 900 treasure > 800 threshold — the red end
   });
 
-  it("basic variant: unarmored + low treasure fills within the green (tier 0) segment", () => {
+  it("basic variant: heavy armor + low treasure stays a LOW (green) fill", () => {
+    // tier 2 from armor, but only 15 treasure → the bar barely fills and reads green;
+    // the encumbrance shows in the tier-tinted rates, not the bar length.
     const actor = {
       system: {
         encumbrance: {
-          value: 400, max: 1600, enabled: true, variant: "basic", steps: [50],
-          encumbered: false, atFirstBreakpoint: false, atSecondBreakpoint: false, atThirdBreakpoint: false,
+          value: 15, max: 1600, enabled: true, variant: "basic", steps: [50],
+          encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: true, atThirdBreakpoint: false,
         },
-        movement: { base: 120, encounter: 40, overland: 24 },
+        movement: { base: 60, encounter: 20, overland: 12 },
       },
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
-    expect(e.tier).toBe(0);
-    expect(e.pct).toBeCloseTo(0.5 / 3); // (tier 0 + 400/800) / 3 — low, still green
+    expect(e.tier).toBe(2); // rates tinted tier 2 (orange/red)
+    expect(e.pct).toBeCloseTo(15 / 800); // ~1.9% — a short green bar, not a full orange one
   });
 
   it("labels item-based encumbrance in items, not cn", () => {

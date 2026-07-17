@@ -425,22 +425,19 @@ export function selectEncumbrance(
     e.encumbered,
   ];
   const tier = (breakpoints.lastIndexOf(true) + 1) as EncumbranceTier;
-  // Basic encumbrance is categorical, but the tier already FOLDS IN both axes: armor
-  // sets the integer base tier and crossing the significant-treasure threshold bumps it
-  // one more. Turn that into ONE continuous position so the bar reads as a combined
-  // spectrum gauge, not a discrete step: below the threshold the armor tier is the base
-  // and treasure fills WITHIN that segment toward the next tier line; at/above it the
-  // system has already bumped `tier`, so position = tier (continuous across the cross).
-  // Scale to basic's max tier (3) and paint the green→red spectrum with stops on the
-  // tier lines (BASIC_TIER_BANDS). Weight/slot variants keep their real value/max fill.
+  // Basic encumbrance answers ONE question — "how worried should I be about my load?" —
+  // so the bar tracks carried TREASURE toward the significant-treasure threshold (`e.value`
+  // in basic is exactly the treasure cn, coins included). Armor does NOT move the bar; its
+  // slowdown already shows in the tier-tinted rate numbers. Both fill AND colour ride the
+  // treasure fraction: the green→red spectrum stops sit on evenly-spaced tier lines
+  // (BASIC_TIER_BANDS), so low treasure reads green, mid amber/orange, and 800 tops out
+  // red. Weight/slot variants keep their real value/max fill + system breakpoints.
   const isBasic = e.variant === "basic";
   const threshold = significantTreasure();
   let pct: number;
   let bands: number[];
   if (isBasic) {
-    const treasureFrac = threshold > 0 ? Math.min(1, e.value / threshold) : 0;
-    const position = e.value < threshold ? tier + treasureFrac : tier;
-    pct = Math.min(1, position / BASIC_MAX_TIER);
+    pct = threshold > 0 ? Math.min(1, e.value / threshold) : 0;
     bands = BASIC_TIER_BANDS;
   } else {
     pct = e.max > 0 ? Math.min(1, e.value / e.max) : 0;
@@ -470,9 +467,7 @@ export function selectEncumbrance(
   };
 }
 
-/** Basic tier tops out at the 3rd breakpoint (armor + significant treasure). */
-const BASIC_MAX_TIER = 3;
-/** Tier lines as % of the 3-tier scale — colour stops for the basic spectrum. */
+/** Evenly-spaced tier lines (% of the bar) — colour stops for the basic treasure spectrum. */
 const BASIC_TIER_BANDS = [100 / 3, 200 / 3, 100];
 
 /** Half-width (in %) of the colour fade centred on each tier threshold. */
