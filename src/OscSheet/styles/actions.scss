@@ -384,9 +384,13 @@
 
   z-index: var(--z-tooltip);
   min-width: 150px;
-  display: flex; // open state; inline `display:none` hides it when closed
-  flex-direction: column;
-  gap: 3px;
+  // 2-col grid: label | value. The label column grows (1fr) to eat the slack; every value
+  // (rates AND status) lives in the same right-aligned column, so they all end flush at the
+  // table's right edge. Inline `display:none` hides it when closed (overrides grid).
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr) max-content;
+  column-gap: var(--spacer-3);
+  row-gap: 3px;
   padding: var(--spacer-2) var(--spacer-2);
   background: var(--bg-2, #1f1c17);
   border: 1px solid var(--gold-soft);
@@ -394,21 +398,40 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
   pointer-events: none; // display-only; never intercept clicks on content below
 }
+// small section-label header atop the popover, divided from the rate rows
+.osc-move-pop .hd {
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  padding-bottom: 3px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--border-soft, #2c2823);
+  grid-column: 1 / -1; // header spans all columns
+}
 .osc-move-pop .r {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--spacer-3);
+  display: contents; // dissolve the row so its cells land directly in the grid
 }
 .osc-move-pop .k {
   font-family: var(--sans);
   font-size: var(--fs-xs, 12px);
   color: var(--text-dim, #b5ad97);
 }
+// value cell: rates + status share one right-aligned column so every value ends flush at
+// the table's right edge. The number keeps the body colour, the unit is muted.
 .osc-move-pop .vv {
+  grid-column: 2;
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
-  color: var(--enc-c, var(--text)); // tinted only on rows carrying a tier class
+  text-align: right;
   white-space: nowrap; // the pop widens for "Severely encumbered" rather than wrapping it
+  color: var(--enc-c, var(--text)); // tinted only on rows carrying a tier class
+}
+// on a rate row the number keeps the value colour; only the unit dims.
+.osc-move-pop .unit {
+  color: var(--text-mute);
 }
 
 // --- abilities: 3-up (6-up wide) grid of ability plaques ---

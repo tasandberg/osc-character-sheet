@@ -1,12 +1,9 @@
-import type { CharacterEncumbrance } from "@ose-foundry-core/types";
-import type { OSEActor, OseItem } from "@domain/types";
+import type { OseItem } from "@domain/types";
 import type {
   InventorySortKey,
   SortDir,
   InventoryVM,
   InventoryItemVM,
-  EncumbranceVM,
-  EncumbranceTier,
   CoinVM,
 } from "@domain/vm-types";
 import { FLAGS, readFlag } from "@domain/flags";
@@ -329,159 +326,9 @@ export function sortEquipped(items: InventoryItemVM[]): InventoryItemVM[] {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Encumbrance
-// ---------------------------------------------------------------------------
-
-// Status by tier — indexed by EncumbranceTier. OSE has no localized labels for
-// weight tiers, so these are ours; tier itself comes from the system's breakpoints.
-const TIER_STATUS = [
-  "Unencumbered",
-  "Lightly encumbered",
-  "Heavily encumbered",
-  "Severely encumbered",
-  "Overloaded",
-] as const;
-
-/** OSE's default significant-treasure threshold, in cn (basic encumbrance). */
-export const DEFAULT_SIGNIFICANT_TREASURE = 800;
-
-/**
- * World significant-treasure setting (basic encumbrance), in cn. OSE registers it as a
- * NUMBER — coercing it to a boolean fed `true` into the encumbrance ctor, where
- * `options.significantTreasure || 800` kept the `true` and made every threshold check
- * `value >= true`, i.e. tripping at 1cn of treasure. Safe in non-Foundry tests.
- */
-export function significantTreasure(): number {
-  try {
-    const settings = game.settings as { get(ns: string, key: string): unknown };
-    const v = Number(settings.get(game.system.id, "significantTreasure"));
-    return Number.isFinite(v) && v > 0 ? v : DEFAULT_SIGNIFICANT_TREASURE;
-  } catch {
-    return DEFAULT_SIGNIFICANT_TREASURE;
-  }
-}
-
-/**
- * Constructor shape of OSE's active encumbrance class (variant per world setting).
- * The `ose` types package exports the CharacterEncumbrance *instance* interface but
- * not the variant classes (nor a matching ctor sig), so the ctor is spelled here.
- */
-type EncumbranceCtor = new (
-  max: number,
-  items: OseItem[],
-  options: { significantTreasure: number; scores: unknown },
-  strMod: number,
-) => CharacterEncumbrance;
-
-export function selectEncumbrance(
-  actor: OSEActor,
-  items?: OseItem[],
-): EncumbranceVM {
-  const live = actor.system.encumbrance;
-  // A partial/mock actor may lack encumbrance entirely — fall back to a disabled
-  // readout (moveBands still read off actor.system.movement below) rather than crash.
-  if (!live) {
-    const movement = actor.system.movement;
-    return {
-      enabled: false,
-      value: 0,
-      max: 0,
-      pct: 0,
-      tier: 0,
-      status: TIER_STATUS[0],
-      label: "",
-      moveBands: {
-        encounter: movement?.encounter ?? 0,
-        explore: movement?.base ?? 0,
-        travel: movement?.overland ?? 0,
-      },
-      bands: [],
-    };
-  }
-  // Optimistically recompute from the overlaid items via OSE's OWN encumbrance class,
-  // mirroring the system's construction, so equip/nest/consume/qty changes reflect
-  // instantly instead of waiting for the actor to re-prep. `max` (STR-derived cap) is
-  // item-independent so it's taken off the live instance. No items ⇒ live instance (tests).
-  const e =
-    items === undefined
-      ? live
-      : new (live.constructor as unknown as EncumbranceCtor)(
-          live.max,
-          items,
-          {
-            significantTreasure: significantTreasure(),
-            scores: actor.system.scores,
-          },
-          actor.system.scores?.str?.mod ?? 0,
-        );
-  const movement = actor.system.movement;
-  // Tier = highest breakpoint reached (over-limit tops out at 4); use the system's
-  // variant-aware flags, not our own % buckets.
-  const breakpoints = [
-    e.atFirstBreakpoint,
-    e.atSecondBreakpoint,
-    e.atThirdBreakpoint,
-    e.encumbered,
-  ];
-  const tier = (breakpoints.lastIndexOf(true) + 1) as EncumbranceTier;
-  // Basic encumbrance is categorical (armor + treasure threshold) — value/max in cn
-  // has no bearing on the tier, so a weight bar/readout would contradict the status.
-  // Drive the bar off the tier (basic tops out at the 3rd breakpoint) and drop the
-  // misleading cn load. Weight/slot variants keep their real value/max load + fill.
-  const isBasic = e.variant === "basic";
-  const pct = isBasic
-    ? Math.min(1, tier / BASIC_TIER_CAP)
-    : e.max > 0
-      ? Math.min(1, e.value / e.max)
-      : 0;
-  const unit = e.variant === "itembased" ? "items" : "cn";
-  return {
-    enabled: e.enabled,
-    value: e.value,
-    max: e.max,
-    pct,
-    tier,
-    status: TIER_STATUS[tier],
-    label: isBasic ? "" : `${e.value} / ${e.max} ${unit}`,
-    moveBands: {
-      encounter: movement?.encounter ?? 0,
-      explore: movement?.base ?? 0,
-      travel: movement?.overland ?? 0,
-    },
-    // The bar's colour must change exactly where the tier does. For weight/slot
-    // variants the axis IS weight, so the stops are the system's own breakpoints
-    // (`steps`, already variant- and mode-aware). Basic's bar has no weight axis
-    // (see above) — there are no thresholds to plot, so it gets no stops and paints
-    // solid in the current tier's colour instead of implying fictitious ones.
-    bands: isBasic ? [] : (e.steps ?? []),
-  };
-}
-
-/** Basic tops out at the 3rd breakpoint — its synthetic bar fills tier/3. */
-const BASIC_TIER_CAP = 3;
-
-/** Half-width (in %) of the colour fade centred on each tier threshold. */
-const ENC_FADE_HALF = 4;
-
-/**
- * CSS colour-stop list for the encumbrance bar. Each tier holds its pure `--enc-N`
- * colour across its band, then fades into the next over a narrow window CENTRED on
- * the real threshold — so at a boundary % the colour is exactly 50/50 between the two
- * tiers (the tier change still reads at the right spot), but the segments blend
- * smoothly instead of butting hard edges. No thresholds ⇒ a solid bar in the current
- * tier's colour. Colours are the shared `--enc-N` tokens — one tier, one colour.
- */
-export function encBarStops({ bands, tier }: Pick<EncumbranceVM, "bands" | "tier">): string {
-  if (bands.length === 0) return `var(--enc-${tier}) 0 100%`;
-  const stops = ["var(--enc-0) 0%"];
-  bands.forEach((t, i) => {
-    const from = Math.max(0, t - ENC_FADE_HALF);
-    const to = Math.min(100, t + ENC_FADE_HALF);
-    // hold this tier's colour up to the fade's start, then ramp to the next by its end
-    stops.push(`var(--enc-${Math.min(i, 4)}) ${from}%`);
-    stops.push(`var(--enc-${Math.min(i + 1, 4)}) ${to}%`);
-  });
-  stops.push(`var(--enc-${Math.min(bands.length, 4)}) 100%`);
-  return stops.join(", ");
-}
+export {
+  DEFAULT_SIGNIFICANT_TREASURE,
+  encBarStops,
+  selectEncumbrance,
+  significantTreasure,
+} from "./encumbrance";

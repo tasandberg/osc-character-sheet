@@ -190,15 +190,21 @@ export interface EncumbranceVM {
   max: number;
   /** Fraction 0–1 for the progress bar. */
   pct: number;
-  /** Movement-rate tier, from OSE breakpoint flags (not our own % buckets). */
+  /** Colour tier — the band the fill (`pct`) sits in among `bands`. Drives the bar's
+   *  colour and the movement-score tint alike; never armor-driven. */
   tier: EncumbranceTier;
   /** e.g. "Unencumbered" — derived from `tier`. */
   status: string;
   /** Variant-aware value/max readout, e.g. "1071 / 1600 cn" or "10 / 16 items". */
   label: string;
+  /** Basic mode only: equipped armor weight class, surfaced as its own popover row
+   *  (it slows movement but does not tint the bar). Undefined for other variants. */
+  armorTier?: "unarmored" | "light" | "heavy";
   /** The three movement rates at the current tier (same source as the header MOVE pop). */
   moveBands: MoveBands;
   /** Tier boundaries as % of the bar, from the system's own variant-aware `steps`
-   *  (empty when the bar's axis isn't weight — see selectEncumbrance). */
+   *  (empty when the bar paints a single solid colour — see selectEncumbrance). */
   bands: number[];
+  /** Solid bar colour when `bands` is empty (basic-immobile → red). Defaults to `tier`. */
+  barTier?: EncumbranceTier;
 }
