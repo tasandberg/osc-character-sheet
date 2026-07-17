@@ -57,6 +57,20 @@ class OscSheet extends ReactActorSheetV2 {
       },
     });
 
+    game.settings.register(MODULE_ID, "disableMemorization", {
+      name: "Disable spell memorization",
+      hint: "Casters may cast any known spell while spell slots remain for its level, and favorite spells for the Actions tab (fits spell-point / free-casting tables).",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: false,
+      onChange: () => {
+        for (const app of foundry.applications.instances.values()) {
+          if (app instanceof OscSheet) app.render();
+        }
+      },
+    });
+
     game.settings.register(MODULE_ID, "fontScale", {
       name: "Sheet font size",
       hint: "Scales all sheet text up for readability.",
