@@ -805,13 +805,19 @@
   color: var(--text, #e5dec8);
 }
 
-// Valuable (non-coin) rows have no drag handle / qty input — read-only qty cell.
+// Valuable (non-coin) rows show a read-only qty in the SAME slot as a coin's
+// editable <input>. Match the input's box metrics exactly — font-size, padding,
+// and (transparent) border width — so the static number lands in the identical
+// column position; only the field chrome (border/background) is dropped and the
+// number dimmed to read as non-interactive.
 .osc-coin-qty-ro {
   text-align: right;
   white-space: nowrap;
   font-family: var(--mono);
-  font-size: var(--fs-xs, 12px);
+  font-size: var(--fs-sm, 13px);
   color: var(--text-dim, #b5ad97);
+  padding: 5px 8px;
+  border: 1px solid transparent;
 }
 // Valuable rows are read-only: the name is the sole edit path (opens the item
 // sheet), so give it a link-like underline on hover; dim the numeric cells one
