@@ -165,6 +165,10 @@ export interface SpellLevelVM {
   prepared: OseSpell[];
   /** Every known spell at this level (for the expandable spellbook). */
   spellbook: OseSpell[];
+  /** Free-casting mode (memorization disabled): cast any known spell while points remain. */
+  freeCasting: boolean;
+  /** Free-casting point budget for the level: used = points spent, max = slot capacity. */
+  points: { used: number; max: number };
 }
 
 export interface CoinVM {

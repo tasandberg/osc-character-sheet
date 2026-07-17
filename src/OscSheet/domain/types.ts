@@ -209,6 +209,12 @@ export type OseSpell = OseItem & {
     damage?: string;
     memorized: number;
     cast: number;
+    /** Optional roll formula, e.g. "1d6+1" — attack spells only. */
+    roll?: string;
   };
   spendSpell: ({ skipDialog }: { skipDialog: boolean }) => Promise<void>;
+  /** Post the spell's chat card (with follow-up roll buttons). */
+  show: () => Promise<unknown>;
+  /** Roll the spell's `system.roll` formula, posting a card. */
+  rollFormula: (options?: Record<string, unknown>) => Promise<unknown>;
 };
