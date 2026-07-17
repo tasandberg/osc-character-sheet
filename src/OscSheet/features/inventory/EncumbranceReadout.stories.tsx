@@ -97,12 +97,29 @@ export const ClippedAncestor = () => {
   );
 };
 
-// Basic encumbrance: no weight axis, so the bar paints solid in the tier colour.
-export const BasicVariant = () => {
-  const e: EncumbranceVM = { ...vm(2, 0, "Heavily encumbered"), pct: 2 / 3, label: "", bands: [] };
-  return (
-    <div className="osc-inv" style={{ padding: 16, width: 520 }}>
-      <Head e={e} />
-    </div>
-  );
+// Basic encumbrance: the bar gauges carried TREASURE against the 1600 cap — green below
+// the significant-treasure line (50%), yellow above, solid red once immobile at the cap.
+const basicVm = (tier: EncumbranceVM["tier"], value: number, status: string): EncumbranceVM => {
+  const immobile = value >= 1600;
+  return {
+    ...vm(tier, value, status),
+    pct: Math.min(1, value / 1600),
+    label: `${value} / 1600 cn`,
+    bands: immobile ? [] : [50],
+    barTier: immobile ? 3 : tier,
+  };
 };
+
+export const BasicVariant = () => (
+  <div className="osc-inv" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 16, width: 520 }}>
+    {[
+      basicVm(0, 0, "Unencumbered"),
+      basicVm(0, 400, "Unencumbered"),
+      basicVm(1, 800, "Lightly encumbered"),
+      basicVm(1, 1200, "Lightly encumbered"),
+      basicVm(4, 1600, "Overloaded"),
+    ].map((e) => (
+      <Head key={e.value} e={e} />
+    ))}
+  </div>
+);

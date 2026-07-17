@@ -49,12 +49,16 @@ afterEach(() => {
   container.remove();
 });
 
-/** The popover rows as "label|value" pairs — the tooltip's whole visible content. */
+/** The popover rows as "label|value" pairs — the tooltip's whole visible content.
+    Rate rows split the value into number + unit cells; the status row keeps a `.vv`. */
 function tooltipRows(scope: HTMLElement): string[] {
-  return [...scope.querySelectorAll(".osc-move-pop .r")].map(
-    (r) =>
-      `${r.querySelector(".k")?.textContent}|${r.querySelector(".vv")?.textContent}`,
-  );
+  return [...scope.querySelectorAll(".osc-move-pop .r")].map((r) => {
+    const k = r.querySelector(".k")?.textContent;
+    const vv = r.querySelector(".vv")?.textContent;
+    const v =
+      vv ?? `${r.querySelector(".num")?.textContent} ${r.querySelector(".unit")?.textContent}`;
+    return `${k}|${v}`;
+  });
 }
 
 describe("EncumbranceReadout", () => {
@@ -80,10 +84,10 @@ describe("EncumbranceReadout", () => {
     // one shared component ⇒ byte-identical rows in both places
     expect(encRows).toEqual(moveRows);
     expect(encRows).toEqual([
-      "Encounter|30ft/round",
-      "Explore|90ft/turn",
-      "Travel|18 mi/day",
       "Encumbrance|Heavily encumbered",
+      "Encounter|30 ft",
+      "Explore|90 ft",
+      "Travel|18 mi",
     ]);
   });
 });

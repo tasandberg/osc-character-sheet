@@ -486,6 +486,16 @@
 // xs / mobile (bottom-tabs layout): drop the Type column to save width, and swap
 // the "Uses" pip sub-row for the inline Use pill on the item row.
 @container app (max-width: 479px) {
+  // xs: the encumbrance readout drops below the Inventory title, left-aligned,
+  // instead of sharing its line (no room for both on a narrow sheet).
+  .osc-inv-head {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .osc-enc-readout {
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
   .osc-inv-row {
     grid-template-columns: 18px 30px 1fr 44px 44px;
   }
@@ -701,6 +711,7 @@
 }
 .osc-whead .wt {
   margin-left: auto;
+  white-space: nowrap;
   font-family: var(--mono);
   font-size: var(--fs-2xs, 11px);
   color: var(--text-faint, #6a6354);
@@ -793,7 +804,7 @@
 }
 .osc-coin-wt {
   text-align: right;
-  white-space: nowrap;
+  white-space: nowrap; // keep "1,300 cn" on one line — never split the unit off
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
   color: var(--text-dim, #b5ad97);
@@ -845,6 +856,7 @@
 .osc-coin-total .tw {
   grid-column: 5;
   text-align: right;
+  white-space: nowrap;
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
   color: var(--text-dim, #b5ad97);
@@ -852,6 +864,7 @@
 .osc-coin-total .tv {
   grid-column: 6;
   text-align: right;
+  white-space: nowrap;
   font-family: var(--mono);
   font-weight: 700;
   font-size: var(--fs-xs, 12px);

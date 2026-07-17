@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import type { EncumbranceVM, IdentityVM, VitalsVM } from "@domain/vm-types";
-import { formatMod } from "@domain/format";
+import { armorTierLabel, formatMod } from "@domain/format";
 import { Stamp } from "@ui/Stamp";
 import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
@@ -91,6 +91,11 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
             bands={m}
             tier={encumbrance?.enabled ? encumbrance.tier : undefined}
             status={encumbrance?.enabled ? encumbrance.status : undefined}
+            armor={
+              encumbrance?.enabled && encumbrance.armorTier
+                ? armorTierLabel(encumbrance.armorTier)
+                : undefined
+            }
           />
         </div>
       </div>
