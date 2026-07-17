@@ -65,7 +65,7 @@ import type { OseItem } from "@domain/types";
 export function InventoryView({
   inventory,
   encumbrance,
-  coins,
+  wealth,
   onSetCoin,
   onCreate,
   onEquip,
@@ -279,7 +279,7 @@ export function InventoryView({
         {encumbrance.enabled && <EncumbranceReadout e={encumbrance} />}
       </div>
       <WealthSection
-        coins={coins}
+        wealth={wealth}
         onSetCoin={onSetCoin}
         onOpen={onOpen}
         onContext={openMenu}

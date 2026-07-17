@@ -1,78 +1,70 @@
-// Wealth section for the Inventory tab — coins are real Foundry items, surfaced
-// here rather than abstracted away: rows reuse the item-row image/name/handle and
-// the shared sortable column headers, the name opens the item sheet, and a
-// right-click gives the item context menu.
+// Treasure section for the Inventory tab — coins and non-coin valuables (gems,
+// jewellery) are real Foundry items, surfaced here in ONE table rather than
+// abstracted away: rows reuse the item-row image/name/handle and the shared
+// sortable column headers, the name opens the item sheet, and a right-click gives
+// the item context menu.
 import { useEffect, useState } from "react";
-import type { CoinVM, SortDir } from "@domain/vm-types";
+import type { CoinWealthRow, SortDir, WealthSortKey, WealthRow as WealthRowVM } from "@domain/vm-types";
+import { sortWealth } from "@features/inventory/inventory";
 import { useDragReorder } from "@features/inventory/useDragReorder";
-import { ItemImage } from "@features/inventory/ItemImage";
+import { WealthRow } from "@features/inventory/WealthRow";
+import { fmtCoin } from "@features/inventory/fmtCoin";
 import { SortHeader } from "@features/inventory/SortHeader";
 import type { OnContext } from "@features/inventory/types";
 import { useOscSheetContext } from "@app/context";
 import { Button } from "@ui/Button";
 import { cx } from "@ui/cx";
 
-type CoinSortKey = "manual" | "coin" | "qty" | "weight" | "value";
-
-/** Coin/gp number: integers get thousands separators, fractions trim to ≤2 dp. */
-function fmtCoin(n: number): string {
-  return Number.isInteger(n) ? n.toLocaleString("en-US") : (+n.toFixed(2)).toString();
-}
-
-/** Wealth section: a header bar (overlapping coin dots · total gp · carried weight)
- *  that toggles a coin table — per-denomination qty (editable), weight, and gp
- *  value, with a totals row. Columns are sortable and rows are drag-reorderable
- *  (a drag bakes the current order as the manual baseline). Coins are 1 cn each,
- *  so qty edits feed the encumbrance figure too. */
+/** Treasure section: a header bar (overlapping coin dots + gem · total gp · carried
+ *  weight) that toggles ONE table of wealth rows — coins and non-coin valuables in
+ *  a single dataset, sharing the same grid, columns, and row component (only the
+ *  qty cell differs: an editable input for coins, a static number for valuables).
+ *  A column-header click sorts ALL rows together (coins and valuables interleaved
+ *  by that field); manual order is selectWealth's order (or a dragged baseline).
+ *  The total folds every row into one gp figure. Coins are 1 cn each, so qty edits
+ *  feed the encumbrance figure too. */
 export function WealthSection({
-  coins,
+  wealth,
   onSetCoin,
   onOpen,
   onContext,
 }: {
-  coins: CoinVM[];
+  /** Unified row list: coins (canonical order) then non-coin valuables. */
+  wealth: WealthRowVM[];
   onSetCoin: (id: string, value: number) => void;
-  /** Click a coin name → open its item sheet (like an item row). */
+  /** Click a coin/valuable name → open its item sheet (like an item row). */
   onOpen: (id: string) => void;
-  /** Right-click a coin row → the shared item context menu (View / Delete). */
+  /** Right-click a row → the shared item context menu (View / Delete). */
   onContext: OnContext;
 }) {
   // Read-only sheets (non-owners): coin qty is view-only, no drag-reorder.
   const { canEdit } = useOscSheetContext();
   const [open, setOpen] = useState(false);
-  const [order, setOrder] = useState<string[]>([]);
-  const [sort, setSort] = useState<{ key: CoinSortKey; dir: SortDir }>({ key: "manual", dir: "asc" });
-  // In-progress qty edits (live totals) committed to the actor on blur/Enter.
+  // Manual order as row ids (survives qty edits); [] = selectWealth's own order.
+  const [manualOrder, setManualOrder] = useState<string[]>([]);
+  const [sort, setSort] = useState<{ key: WealthSortKey; dir: SortDir }>({ key: "manual", dir: "asc" });
+  // In-progress coin qty edits (live totals) committed to the actor on blur/Enter.
   const [draft, setDraft] = useState<Record<string, string>>({});
 
-  // Manual order: saved drag order (still-present denoms) then any new ones in
-  // selectCoins' canonical pp→cp order — keeps the order stable across qty edits.
-  const byDenom = new Map(coins.map((c) => [c.denom, c] as const));
-  const present = coins.map((c) => c.denom);
-  const manual = [
-    ...order.filter((d) => present.includes(d)),
-    ...present.filter((d) => !order.includes(d)),
-  ]
-    .map((d) => byDenom.get(d))
-    .filter((c): c is CoinVM => !!c);
-
-  const qtyOf = (c: CoinVM) => {
+  // Draft-aware live coin qty (empty/NaN → 0). Valuables carry a static qty.
+  const draftQty = (c: CoinWealthRow) => {
     const d = draft[c.denom];
-    const n = d != null ? parseInt(d, 10) : c.value;
+    const n = d != null ? parseInt(d, 10) : c.qty;
     return Number.isNaN(n) ? 0 : Math.max(0, n);
   };
 
-  // Sorted view: manual = the drag order; a column sort orders a copy by that key.
-  const rows = sort.key === "manual"
-    ? manual
-    : [...manual].sort((a, b) => {
-        const cmp = sort.key === "coin"
-          ? a.name.localeCompare(b.name)
-          : sort.key === "value"
-            ? qtyOf(a) * a.gpEach - qtyOf(b) * b.gpEach
-            : qtyOf(a) - qtyOf(b); // qty or weight (1 cn each)
-        return sort.dir === "asc" ? cmp : -cmp;
-      });
+  // Manual order: saved drag order (still-present ids) then any new rows in
+  // selectWealth's canonical order — keeps the order stable across qty edits.
+  const byId = new Map(wealth.map((r) => [r.id, r] as const));
+  const ordered = [
+    ...manualOrder.filter((id) => byId.has(id)),
+    ...wealth.map((r) => r.id).filter((id) => !manualOrder.includes(id)),
+  ].map((id) => byId.get(id)!);
+
+  // The whole list sorted together (coins + valuables interleaved); manual keeps
+  // the order above. Sort reads each row's committed figures, so it doesn't churn
+  // while a coin qty is mid-edit.
+  const rows = sortWealth(ordered, sort.key, sort.dir);
 
   const dnd = useDragReorder({
     enabled: canEdit,
@@ -81,7 +73,7 @@ export function WealthSection({
       const next = [...rows];
       const [m] = next.splice(from, 1);
       next.splice(to, 0, m);
-      setOrder(next.map((c) => c.denom));
+      setManualOrder(next.map((r) => r.id));
       setSort({ key: "manual", dir: "asc" });
     },
   });
@@ -89,29 +81,36 @@ export function WealthSection({
   // Commit on blur/Enter, but KEEP the draft so the input keeps showing the typed
   // value through the async actor round-trip (clearing it here would flash the
   // stale prop). The effect below drops the draft once the actor value catches up.
-  const commit = (c: CoinVM) => onSetCoin(c.id, qtyOf(c));
+  const commit = (c: CoinWealthRow) => onSetCoin(c.id, draftQty(c));
 
   useEffect(() => {
     setDraft((d) => {
       let next = d;
-      for (const c of coins) {
-        const dv = next[c.denom];
-        if (dv != null && parseInt(dv, 10) === c.value) {
+      for (const r of wealth) {
+        if (r.kind !== "coin") continue;
+        const dv = next[r.denom];
+        if (dv != null && parseInt(dv, 10) === r.qty) {
           if (next === d) next = { ...d };
-          delete next[c.denom];
+          delete next[r.denom];
         }
       }
       return next;
     });
-  }, [coins]);
+  }, [wealth]);
 
-  const onSort = (key: CoinSortKey) =>
+  const onSort = (key: WealthSortKey) =>
     setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
 
-  const totalGp = rows.reduce((s, c) => s + qtyOf(c) * c.gpEach, 0);
-  const weight = rows.reduce((s, c) => s + qtyOf(c), 0);
-  const dots = rows.filter((c) => qtyOf(c) > 0).map((c) => c.denom);
-  const hasCoins = rows.length > 0;
+  // Live (draft-aware) figures for the section total, order-independent.
+  const liveWeight = (r: WealthRowVM) => (r.kind === "coin" ? draftQty(r) : r.weight);
+  const liveValue = (r: WealthRowVM) => (r.kind === "coin" ? draftQty(r) * r.gpEach : r.value);
+  const totalGp = wealth.reduce((s, r) => s + liveValue(r), 0);
+  const weight = wealth.reduce((s, r) => s + liveWeight(r), 0);
+  const dots = wealth
+    .filter((r): r is CoinWealthRow => r.kind === "coin" && draftQty(r) > 0)
+    .map((r) => r.denom);
+  const hasValuables = wealth.some((r) => r.kind === "treasure");
+  const hasContent = wealth.length > 0;
 
   return (
     <section className="osc-wsec">
@@ -120,34 +119,40 @@ export function WealthSection({
         className={cx("osc-whead", open && "open")}
         data-testid="wealth-toggle"
         aria-expanded={open}
-        disabled={!hasCoins}
+        disabled={!hasContent}
         onClick={() => setOpen((o) => !o)}
       >
         <span className="coins" aria-hidden="true">
-          {(dots.length ? dots : ["GP"]).map((d) => (
+          {dots.map((d) => (
             <span key={d} className={`ci ${d.toLowerCase()}`} />
           ))}
+          {!dots.length && !hasValuables && <span className="ci gp" />}
+          {hasValuables && (
+            <i className="osc-wgem fa-solid fa-gem" aria-hidden="true" />
+          )}
         </span>
-        <span className="key">Wealth</span>
+        <span className="key">Treasure</span>
         <span className="v">{fmtCoin(totalGp)}<small>gp</small></span>
-        {hasCoins && <i className="osc-wcaret fa-solid fa-caret-right" aria-hidden="true" />}
+        {hasContent && <i className="osc-wcaret fa-solid fa-caret-right" aria-hidden="true" />}
         <span className="wt">{fmtCoin(weight)} cn</span>
       </button>
 
-      {!hasCoins && (
-        <p className="osc-wsec-empty">Drop coin items here to track your wealth.</p>
+      {!hasContent && (
+        <p className="osc-wsec-empty">Drop coins, gems, or other valuables here to track your treasure.</p>
       )}
 
-      {open && hasCoins && (
+      {open && hasContent && (
         <div className="osc-cointab">
+          {/* One unified, fully-sortable table: units live in the headers so rows
+              render bare numbers; a header click sorts every row together. */}
           <div className="osc-coin-colhead" role="row">
             <span aria-hidden="true" /> {/* drag */}
             <SortHeader
-              label="Coin"
+              label="Item"
               className="osc-inv-th-item"
-              active={sort.key === "coin"}
+              active={sort.key === "item"}
               dir={sort.dir}
-              onClick={() => onSort("coin")}
+              onClick={() => onSort("item")}
             />
             <SortHeader
               label="Qty"
@@ -157,77 +162,53 @@ export function WealthSection({
               onClick={() => onSort("qty")}
             />
             <SortHeader
-              label="Weight"
+              label="Weight (cn)"
               className="osc-coin-th-num"
               active={sort.key === "weight"}
               dir={sort.dir}
               onClick={() => onSort("weight")}
             />
             <SortHeader
-              label="Value"
+              label="Value (gp)"
               className="osc-coin-th-num"
               active={sort.key === "value"}
               dir={sort.dir}
               onClick={() => onSort("value")}
             />
           </div>
-          {rows.map((c, i) => {
-            const rp = dnd.rowProps("coin", i);
-            return (
-              <div
-                key={c.id}
-                className={cx("osc-coin-row", dnd.rowClass("coin", i))}
-                onDragOver={rp.onDragOver}
-                onDrop={rp.onDrop}
-                onDragEnd={rp.onDragEnd}
-                // coins are real items: right-click → View / Delete (no equip/consume)
-                onContextMenu={(e) =>
-                  onContext(e, { id: c.id, name: c.name, equipped: null, quantity: null })
-                }
-              >
-                <span
-                  className="osc-inv-drag"
-                  title="Drag to reorder"
-                  draggable={canEdit}
-                  onDragStart={rp.onDragStart}
-                  onDragEnd={rp.onDragEnd}
-                >
-                  <i className="fa-solid fa-grip-lines" aria-hidden="true" />
-                </span>
-                <ItemImage img={c.img} monogram={c.denom} />
-                <div className="osc-inv-name-c">
-                  <div className="osc-inv-name-row">
-                    <button type="button" className="osc-inv-name" onClick={() => onOpen(c.id)}>
-                      <span className="nm">{c.name}</span>
-                    </button>
-                  </div>
-                </div>
-                <input
-                  className="osc-coin-qty"
-                  type="number"
-                  min={0}
-                  inputMode="numeric"
-                  draggable={false}
-                  data-testid={`coin-qty-${c.denom.toLowerCase()}`}
-                  value={draft[c.denom] ?? String(c.value)}
-                  aria-label={`${c.name} quantity`}
-                  // Read-only sheets: coin qty is view-only.
-                  readOnly={!canEdit}
-                  disabled={!canEdit}
-                  onChange={(e) => setDraft((d) => ({ ...d, [c.denom]: e.target.value }))}
-                  onFocus={(e) => e.currentTarget.select()}
-                  onKeyDown={(e) => { if (e.key === "Enter") { commit(c); setOpen(false); } }}
-                  onBlur={() => commit(c)}
-                />
-                <span className="osc-coin-wt">{fmtCoin(qtyOf(c))} cn</span>
-                <span className="osc-coin-val">{fmtCoin(qtyOf(c) * c.gpEach)} gp</span>
-              </div>
-            );
-          })}
+
+          {rows.map((row, i) =>
+            row.kind === "coin" ? (
+              <WealthRow
+                key={row.id}
+                row={{ ...row, qty: draftQty(row), weight: draftQty(row), value: draftQty(row) * row.gpEach }}
+                index={i}
+                canEdit={canEdit}
+                dnd={dnd}
+                inputValue={draft[row.denom] ?? String(row.qty)}
+                onOpen={onOpen}
+                onContext={onContext}
+                onQtyChange={(v) => setDraft((d) => ({ ...d, [row.denom]: v }))}
+                onQtyCommit={() => commit(row)}
+                onQtyCommitClose={() => { commit(row); setOpen(false); }}
+              />
+            ) : (
+              <WealthRow
+                key={row.id}
+                row={row}
+                index={i}
+                canEdit={canEdit}
+                dnd={dnd}
+                onOpen={onOpen}
+                onContext={onContext}
+              />
+            ),
+          )}
+
           <div className="osc-coin-total">
             <span className="lab">Total</span>
-            <span className="tw">{fmtCoin(weight)} cn</span>
-            <span className="tv">{fmtCoin(totalGp)} gp</span>
+            <span className="tw">{fmtCoin(weight)}</span>
+            <span className="tv">{fmtCoin(totalGp)}</span>
           </div>
           <div className="osc-coin-done">
             <Button variant="outline" size="sm" onClick={() => setOpen(false)}>

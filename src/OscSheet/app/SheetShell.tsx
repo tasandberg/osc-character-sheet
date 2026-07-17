@@ -15,7 +15,7 @@ import {
 import {
   selectInventory,
   selectEncumbrance,
-  selectCoins,
+  selectWealth,
 } from "@features/inventory/inventory";
 import {
   createItem,
@@ -378,7 +378,7 @@ export default function SheetShell() {
           <InventoryView
             inventory={selectInventory(invItems as OseItem[])}
             encumbrance={encumbrance}
-            coins={selectCoins(invItems as OseItem[])}
+            wealth={selectWealth(invItems as OseItem[])}
             onSetCoin={onSetCoin}
             onCreate={onCreateItem}
             onEquip={onEquipItem}

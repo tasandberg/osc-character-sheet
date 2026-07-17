@@ -181,6 +181,62 @@ export interface CoinVM {
   gpEach: number;
 }
 
+/** A non-coin treasure item (gem, jewellery, …) surfaced in the Treasure section.
+ *  Identified by `system.treasure === true`; kept out of the main inventory list. */
+export interface TreasureVM {
+  id: string;
+  name: string;
+  img: string;
+  /** 2-letter fallback monogram when the item has no art. */
+  monogram: string;
+  /** Stack count; singletons (nulled `quantity`) fall back to 1. */
+  qty: number;
+  /** Carried weight in cn (cumulative — qty already folded in). */
+  weight: number;
+  /** gp value of one unit (system.cost). */
+  cost: number;
+  /** Summed gp value: qty × cost. */
+  value: number;
+}
+
+/** Fields shared by every row of the unified Treasure table (coins + valuables). */
+interface WealthRowShared {
+  /** Backing Foundry item id. */
+  id: string;
+  name: string;
+  img: string;
+  /** 2-letter fallback shown when the item has no art. */
+  monogram: string;
+  /** Coin count (editable) or treasure stack count (read-only). */
+  qty: number;
+  /** Carried weight in cn. */
+  weight: number;
+  /** Row gp value. */
+  value: number;
+}
+
+/** An editable coin denomination row. */
+export interface CoinWealthRow extends WealthRowShared {
+  kind: "coin";
+  /** Uppercase denomination label, e.g. "GP" (also the manual-order/draft key). */
+  denom: string;
+  /** gp value of one coin — the row value recomputes live as the qty is edited. */
+  gpEach: number;
+}
+
+/** A read-only non-coin treasure row (gem, jewellery, …). */
+export interface TreasureWealthRow extends WealthRowShared {
+  kind: "treasure";
+}
+
+/** A single row of the Treasure table: coins and valuables in one list, rendered
+ *  by one row component that branches on `kind` only for the interactive bits. */
+export type WealthRow = CoinWealthRow | TreasureWealthRow;
+
+/** Sortable columns of the unified Treasure table. `manual` = selectWealth's
+ *  order (coins pp→cp, then valuables); the rest sort ALL rows together. */
+export type WealthSortKey = "manual" | "item" | "qty" | "weight" | "value";
+
 /** 0 unencumbered · 1/2/3 OSE movement breakpoints · 4 overloaded (over max). */
 export type EncumbranceTier = 0 | 1 | 2 | 3 | 4;
 

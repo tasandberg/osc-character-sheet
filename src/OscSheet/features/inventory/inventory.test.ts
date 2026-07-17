@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { selectInventory, selectEncumbrance, selectCoins, sortInventory, sortEquipped, coinDenom, encBarStops } from "@features/inventory/inventory";
+import { selectInventory, selectEncumbrance, selectCoins, selectTreasure, selectWealth, sortWealth, sortInventory, sortEquipped, coinDenom, encBarStops } from "@features/inventory/inventory";
 import type { OseItem, OSEActor } from "@domain/types";
 import { MODULE_ID, FLAGS } from "@domain/flags";
 
@@ -15,13 +15,13 @@ const items: OseItem[] = [
   mk("weapon", "Dagger",          { damage: "1d4", melee: true, missile: true, equipped: false, weight: 20, quantity: { value: 1, max: 0 }, tags: [{ label: "Light", icon: "" }, { label: "Thrown", icon: "" }] }),
   mk("armor",  "Ring of protection", { equipped: false, weight: 0, quantity: { value: 1, max: 0 } }),
   mk("item",   "Iron rations",    { weight: 80, quantity: { value: 7, max: 7 } }),
-  mk("item",   "Gold piece",      { tags: [{ value: "Currency" }], quantity: { value: 50, max: 0 } }),
+  mk("item",   "Gold piece",      { treasure: true, tags: [{ value: "Currency" }], quantity: { value: 50, max: 0 } }),
 ];
 
 describe("selectInventory", () => {
   const vm = selectInventory(items);
 
-  it("flat list excludes currency, count = 3", () => {
+  it("flat list excludes treasure (coins), count = 3", () => {
     expect(vm.count).toBe(3);
     expect(vm.items.map((i) => i.name)).toEqual(["Dagger", "Ring of protection", "Iron rations"]);
   });
@@ -511,6 +511,106 @@ describe("selectCoins", () => {
     expect(by).toEqual({ GP: 1, EP: 0.5, CP: 0.01 });
     // total = 1·1 + 300·0.5 + 50·0.01 = 151.5 gp
     expect(coins.reduce((s, c) => s + c.value * c.gpEach, 0)).toBeCloseTo(151.5);
+  });
+});
+
+describe("selectInventory — treasure filtering", () => {
+  it("keeps a treasure-flagged gem OUT of the main list (surfaces in Treasure instead)", () => {
+    const vm = selectInventory([
+      mk("weapon", "Sword", { weight: 30 }),
+      mk("item", "Ruby", { treasure: true, weight: 1, cost: 500, quantity: { value: 2 } }),
+    ]);
+    expect(vm.items.map((i) => i.name)).toEqual(["Sword"]);
+    expect(vm.count).toBe(1);
+  });
+
+  it("pulls treasure out of a container too, so it never double-renders", () => {
+    const vm = selectInventory([
+      mk("container", "Chest", { weight: 100 }, { id: "chest" }),
+      mk("item", "Emerald", { treasure: true, weight: 1, cost: 900, containerId: "chest" }, { id: "gem" }),
+    ]);
+    expect(vm.items.map((i) => i.id)).toEqual(["chest"]);
+    expect(vm.items[0].children).toEqual([]);
+  });
+});
+
+describe("selectTreasure", () => {
+  it("lists non-coin treasure with summed value (qty × cost), sorted by name", () => {
+    const t = selectTreasure([
+      mk("weapon", "Sword", { weight: 30 }), // not treasure → excluded
+      mk("item", "Ruby", { treasure: true, weight: 1, cost: 500, quantity: { value: 2 } }),
+      mk("item", "Amethyst", { treasure: true, weight: 1, cost: 100, quantity: { value: 3 } }),
+      mk("item", "GP", { treasure: true, cost: 1, quantity: { value: 50 } }), // coin → excluded
+    ]);
+    expect(t.map((x) => x.name)).toEqual(["Amethyst", "Ruby"]);
+    expect(t.find((x) => x.name === "Ruby")).toMatchObject({ qty: 2, value: 1000 });
+    expect(t.find((x) => x.name === "Amethyst")).toMatchObject({ qty: 3, value: 300 });
+  });
+
+  it("falls back to qty 1 for a singleton (nulled quantity)", () => {
+    const t = selectTreasure([
+      mk("item", "Jewelled crown", { treasure: true, weight: 10, cost: 1000 }),
+    ]);
+    expect(t[0]).toMatchObject({ qty: 1, value: 1000, monogram: "JC" });
+  });
+
+  it("excludes Currency-tagged items even without a denom name", () => {
+    const t = selectTreasure([
+      mk("item", "Trade bar", { treasure: true, cost: 10, tags: [{ value: "Currency" }] }),
+    ]);
+    expect(t).toEqual([]);
+  });
+});
+
+describe("selectWealth", () => {
+  it("merges coins (canonical order) then valuables into one tagged row list", () => {
+    const w = selectWealth([
+      mk("item", "Ruby", { treasure: true, weight: 1, cost: 500, quantity: { value: 2 } }),
+      mk("item", "GP", { treasure: true, cost: 1, quantity: { value: 50 } }),
+      mk("item", "SP", { treasure: true, cost: 0.1, quantity: { value: 8 } }),
+    ]);
+    // coins first (pp→cp: gp before sp), valuables last
+    expect(w.map((r) => [r.kind, r.name])).toEqual([
+      ["coin", "GP"],
+      ["coin", "SP"],
+      ["treasure", "Ruby"],
+    ]);
+  });
+
+  it("coin rows carry denom/gpEach and 1-cn weight; valuables carry summed value", () => {
+    const w = selectWealth([
+      mk("item", "GP", { treasure: true, cost: 1, quantity: { value: 50 } }),
+      mk("item", "Ruby", { treasure: true, weight: 1, cost: 500, quantity: { value: 2 } }),
+    ]);
+    expect(w[0]).toMatchObject({ kind: "coin", denom: "GP", gpEach: 1, qty: 50, weight: 50, value: 50 });
+    expect(w[1]).toMatchObject({ kind: "treasure", qty: 2, weight: 1, value: 1000 });
+  });
+});
+
+describe("sortWealth", () => {
+  // GP (152gp), SP (0.8gp), Diamond (3 × 500 = 1500gp) — coins + a gem in one list.
+  const rows = selectWealth([
+    mk("item", "GP", { treasure: true, cost: 1, quantity: { value: 152 } }),
+    mk("item", "SP", { treasure: true, cost: 0.1, quantity: { value: 8 } }),
+    mk("item", "Diamond", { treasure: true, weight: 3, cost: 500, quantity: { value: 3 } }),
+  ]);
+
+  it("sorts coins and treasure together by value desc — the gem outranks the coins", () => {
+    expect(sortWealth(rows, "value", "desc").map((r) => r.name)).toEqual(["Diamond", "GP", "SP"]);
+  });
+
+  it("sorts coins and treasure together by name (interleaved, not two groups)", () => {
+    expect(sortWealth(rows, "item", "asc").map((r) => r.name)).toEqual(["Diamond", "GP", "SP"]);
+  });
+
+  it("sorts by qty across kinds", () => {
+    // qty: Diamond 3, SP 8, GP 152
+    expect(sortWealth(rows, "qty", "asc").map((r) => r.name)).toEqual(["Diamond", "SP", "GP"]);
+  });
+
+  it("manual is a passthrough of selectWealth's order (coins first, then gems)", () => {
+    expect(sortWealth(rows, "manual", "asc")).toBe(rows);
+    expect(rows.map((r) => r.name)).toEqual(["GP", "SP", "Diamond"]);
   });
 });
 

@@ -260,16 +260,12 @@
     color: var(--text, #e5dec8);
   }
 }
-// Right-aligned columns (Type, Wt): shrink the header to the cell's right edge and
-// move the sort caret left of the label (order, not row-reverse), so the label sits
-// flush over its right-aligned data.
+// Right-aligned columns (Type, Wt): shrink the header to the cell's right edge so
+// the label sits flush over its right-aligned data. The caret is left of the label
+// for every header (see SortHeader), so nothing to reorder here.
 .osc-inv .osc-inv-th-wt,
 .osc-inv .osc-inv-th-cat {
   justify-self: end;
-}
-.osc-inv .osc-inv-th-wt .osc-inv-th-caret,
-.osc-inv .osc-inv-th-cat .osc-inv-th-caret {
-  order: -1;
 }
 // "Item" header spans the image + name columns so it starts at the image edge
 .osc-inv .osc-inv-th-item {
@@ -638,7 +634,7 @@
   margin: 0 0 var(--spacer-5);
 }
 
-// header bar — full-width button: overlapping coin dots · "Wealth" · gp total ·
+// header bar — full-width button: overlapping coin dots · "Treasure" · gp total ·
 // caret · carried weight (far right).
 .osc-inv .osc-whead {
   display: flex;
@@ -665,6 +661,15 @@
 }
 .osc-whead .coins .ci:first-child {
   margin-left: 0;
+}
+// gem marker in the coin stack — signals non-coin treasure is present
+.osc-whead .osc-wgem {
+  margin-left: 3px;
+  font-size: var(--fs-3xs, 10px);
+  color: var(--accent-alt);
+}
+.osc-whead .coins .ci + .osc-wgem {
+  margin-left: 5px;
 }
 .osc-whead .key {
   font-family: var(--sans);
@@ -736,19 +741,24 @@
   display: grid;
   grid-template-columns:
     18px 30px minmax(0, 1fr)
-    calc(var(--fs-base, 16px) * 4.625)
-    calc(var(--fs-base, 16px) * 4.25)
-    calc(var(--fs-base, 16px) * 4.25);
-  column-gap: var(--spacer-4);
+    calc(var(--fs-base, 16px) * 5)
+    calc(var(--fs-base, 16px) * 5.5)
+    calc(var(--fs-base, 16px) * 5.5);
+  // roomy gap so the QTY sort caret clears "WEIGHT (CN)" and the unit-bearing
+  // headers don't collide with the next column.
+  column-gap: var(--spacer-3);
   align-items: center;
 }
 .osc-coin-colhead {
-  padding: 0 0 var(--spacer-1);
+  // top pad separates the header row from the "TREASURE …gp" section header above
+  padding: var(--spacer-3) 0 var(--spacer-1);
   border-bottom: 2px solid var(--border, #3a342c);
 }
-// right-align the numeric sort headers (reuses the shared .osc-inv-th button)
+// right-align the numeric sort headers (reuses the shared .osc-inv-th button);
+// keep the unit-bearing labels ("Weight (cn)") on one line.
 .osc-inv .osc-coin-th-num {
   justify-content: flex-end;
+  white-space: nowrap;
 }
 
 .osc-coin-row {
@@ -805,6 +815,21 @@
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
   color: var(--text, #e5dec8);
+}
+
+// Valuable (non-coin) rows show a read-only qty in the SAME slot as a coin's
+// editable <input>, and must be visually indistinguishable from it apart from
+// the missing field chrome. Match the input's box metrics exactly — font-size,
+// padding, (transparent) border width — AND its text colour, so the static
+// number lands in the identical position and reads the same weight.
+.osc-coin-qty-ro {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text, #e5dec8);
+  padding: 5px 8px;
+  border: 1px solid transparent;
 }
 
 .osc-coin-total {
