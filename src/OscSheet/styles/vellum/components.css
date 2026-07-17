@@ -261,29 +261,48 @@
 }
 .pill-select .pill {
   display: inline-flex;
-  align-items: baseline;
-  gap: var(--spacer-1);
+  align-items: center;
+  gap: var(--spacer-2);
   background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text-mute);
-  font-family: var(--sans);
+  font-family: var(--display);
   font-weight: 500;
-  font-size: var(--fs-2xs);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.03em;
   padding: 4px 11px;
   border-radius: 999px;
   cursor: pointer;
   transition: color 0.12s, border-color 0.12s, background 0.12s;
 }
-.pill-select .pill .ct { font-family: var(--mono); color: var(--text-faint); letter-spacing: 0; }
+/* count → a flat, muted circle (level slot count). Token-only, so the DS decides the
+   per-theme shade: inactive recedes (--bg-2), active stands out (--border, the more
+   prominent neutral in every theme) with a brass number. */
+.pill-select .pill .ct {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.95em;
+  height: 1.95em;
+  padding: 0 0.3em;
+  border-radius: 999px;
+  background: var(--bg-2);
+  font-family: var(--mono);
+  font-size: 0.8em;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--text-mute);
+}
 .pill-select .pill:hover:not(.on) { color: var(--text-dim); border-color: var(--text-faint); }
 .pill-select .pill.on {
   color: var(--accent-alt);
   border-color: var(--accent-alt);
   background: color-mix(in oklab, var(--accent-alt) 12%, transparent);
 }
-.pill-select .pill.on .ct { color: var(--accent-alt); }
+.pill-select .pill.on .ct {
+  background: var(--border);
+  color: var(--accent-alt);
+}
 
 /* ─── Icon button — transparent square wrapping a single glyph ───────────
    Canonical replacement for the hand-rolled .ft-chev/.ft-del/.osc-feat-add/

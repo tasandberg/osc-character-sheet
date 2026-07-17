@@ -43,7 +43,7 @@ export function PillSelect<T extends string | number>({
           onClick={() => onValueChange(o.value)}
         >
           {o.label}
-          {o.count != null && <span className="ct">({o.count})</span>}
+          {o.count != null && <span className="ct">{o.count}</span>}
         </button>
       ))}
     </div>

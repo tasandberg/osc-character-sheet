@@ -94,6 +94,13 @@
 .osc-spell .sp-cast { font-family: var(--sans); }
 // name + cast dots on one line (dots to the right of the name)
 .osc-spell .spn-row { display: inline-flex; align-items: baseline; gap: var(--spacer-2); min-width: 0; }
+// brass L{n} level badge (shared SpellLevelBadge) — IM Fell, not the mono .tag default
+.osc-sheet-app .tag.sp-lvl {
+  font-family: var(--display);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.02em;
+  padding: 2px 8px 1px;
+}
 .osc-spell .sp-actions { display: inline-flex; align-items: center; gap: var(--spacer-2); }
 // remove (free a slot) — small trashcan after the cast dots — is now
 // <IconButton variant="danger" size="sm">; see .icon-btn in components.css.
@@ -109,7 +116,7 @@
   color: var(--text-mute, #8a8270); white-space: nowrap;
 }
 .osc-spell-free.spent .pool { color: var(--text-faint, #6a6354); }
-.osc-spell-free.spent .spn-row .tag { text-decoration: line-through; opacity: 0.6; }
+.osc-spell-free.spent .spn-row .tag { opacity: 0.6; }
 
 // --- spellbook toggle (dashed divider with caret) ---
 .osc-sheet-app .osc-bookbtn {

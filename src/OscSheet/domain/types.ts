@@ -205,11 +205,9 @@ export type OseSpell = OseItem & {
     range: string;
     duration: string;
     save: string;
-    /** Damage formula, e.g. "1d6+1". Optional — only attack spells carry it. */
-    damage?: string;
     memorized: number;
     cast: number;
-    /** Optional roll formula, e.g. "1d6+1" — attack spells only. */
+    /** Optional roll formula, e.g. "1d6+1" — attack spells only (OSE `system.roll`). */
     roll?: string;
   };
   spendSpell: ({ skipDialog }: { skipDialog: boolean }) => Promise<void>;

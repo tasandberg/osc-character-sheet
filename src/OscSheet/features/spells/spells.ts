@@ -2,24 +2,24 @@ import type { OSEActor, OseSpell } from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
 import { MODULE_ID, FLAGS, readFlag, setFlag, unsetFlag } from "@domain/flags";
 
-/** One part of the prepared-row meta line, e.g. { kind: "damage", text: "1d6+1" }. */
+/** One part of the prepared-row meta line, e.g. { kind: "roll", text: "1d6+1" }. */
 export interface SpellMetaPart {
-  kind: "range" | "duration" | "save" | "damage";
+  kind: "range" | "duration" | "save" | "roll";
   text: string;
 }
 
 /**
  * The `R 150' · D 1 turn · no save · 1d6+1` meta line for a prepared spell.
- * Pure: range / duration / save / damage, in that order, dropping empty fields.
- * "no save" renders for spells with no save; the consumer tints `damage` crimson.
+ * Pure: range / duration / save / roll formula, in that order, dropping empty fields.
+ * "no save" renders for spells with no save; the consumer tints the roll formula crimson.
  */
 export function spellMeta(spell: OseSpell): SpellMetaPart[] {
-  const { range, duration, save, damage } = spell.system;
+  const { range, duration, save, roll } = spell.system;
   const parts: SpellMetaPart[] = [];
   if (range) parts.push({ kind: "range", text: `R ${range}` });
   if (duration) parts.push({ kind: "duration", text: `D ${duration}` });
   parts.push({ kind: "save", text: save ? `save ${save}` : "no save" });
-  if (damage) parts.push({ kind: "damage", text: damage });
+  if (roll) parts.push({ kind: "roll", text: roll });
   return parts;
 }
 

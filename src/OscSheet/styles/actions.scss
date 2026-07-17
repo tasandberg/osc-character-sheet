@@ -593,35 +593,16 @@
 // cast dots = <Pips size="sm">; dot styling now lives in vellum (.pips + .pips.sm).
 // cast button (shared by Actions + Spells rows) — small dark rounded button;
 // "spent" is disabled + dimmed.
+// The cast/spent control is the shared Vellum <Button variant="outline" tone="brass"
+// size="xs">; these rules only center the spinner and hold the pill width so it doesn't
+// resize mid-cast — the look, size, and uppercasing come from `.btn`.
 .osc-sheet-app .sp-cast {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 4.5em; // fits "cast"/"spent" so the centered spinner doesn't resize the button
-  font-family: var(--sans);
-  font-size: var(--fs-xs, 12px);
-  color: var(--gold);
-  cursor: pointer;
-  background: var(--bg-2, #1f1c17);
-  border: 1px solid var(--border, #3a342c);
-  border-radius: var(--r-md, 6px);
-  padding: var(--spacer-1) var(--spacer-3);
-  transition:
-    background 0.12s,
-    border-color 0.12s,
-    color 0.12s;
-  &:hover:not(:disabled) {
-    background: var(--surface-2, #2e2a23);
-    border-color: var(--gold-soft);
-  }
-  &:disabled {
-    color: var(--text-faint, #6a6354);
-    cursor: default;
-  }
-  // keep the spinner brass even though :disabled dims the text
-  &[aria-busy="true"] {
-    color: var(--gold);
-  }
+  // hold the label's width so swapping "cast"/"spent" for the spinner (its only
+  // content change — the button element itself never re-renders) can't shrink it.
+  min-width: 5em;
 }
 
 // --- attacks: woodcut weapon cards (ported from prototype .fvtt-weapon) ---

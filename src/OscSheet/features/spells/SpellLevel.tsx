@@ -3,8 +3,7 @@ import { useOscSheetContext } from "@app/context";
 import type { OseSpell } from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
 import { spellMeta, castFree, isFavorite, toggleFavorite } from "@features/spells/spells";
-import { SpellCastRow } from "@features/spells/SpellCastRow";
-import { FreeCastRow } from "@features/spells/FreeCastRow";
+import { SpellRow } from "@features/spells/SpellRow";
 import { cx } from "@ui/cx";
 import { Pips } from "@ui/Pips";
 
@@ -21,7 +20,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
 
   const meta = (spell: OseSpell) =>
     spellMeta(spell).map((p) => (
-      <span key={p.kind} className={cx(p.kind === "damage" && "dmg")}>
+      <span key={p.kind} className={cx(p.kind === "roll" && "dmg")}>
         {p.text}
       </span>
     ));
@@ -37,7 +36,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
           </span>
           <Pips
             total={points.max}
-            filled={points.used}
+            filled={points.max - points.used}
             hollow
             className="slots"
             aria-hidden="true"
@@ -50,11 +49,13 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
           </div>
         ) : (
           spellbook.map((spell) => (
-            <FreeCastRow
+            <SpellRow
               key={spell._id as string}
               spell={spell}
               meta={meta(spell)}
-              exhausted={exhausted}
+              free
+              spent={exhausted}
+              spentTitle="No spell points left at this level (Study to recover)"
               favorite={isFavorite(spell)}
               onToggleFavorite={canEdit ? () => void toggleFavorite(spell) : undefined}
               canCast={canEdit}
@@ -111,18 +112,24 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
           <div className="none">None memorised — open the spellbook.</div>
         </div>
       ) : (
-        prepared.map((spell) => (
-          <SpellCastRow
-            key={spell._id as string}
-            spell={spell}
-            rowClass="osc-spell"
-            meta={meta(spell)}
-            canCast={canEdit}
-            onCast={() => cast(spell)}
-            onUnprepare={canEdit ? () => unprepare(spell) : undefined}
-            onOpenName={() => spell.sheet.render(true)}
-          />
-        ))
+        prepared.map((spell) => {
+          const left = spell.system.cast ?? 0;
+          const total = Math.max(spell.system.memorized ?? 0, left);
+          return (
+            <SpellRow
+              key={spell._id as string}
+              spell={spell}
+              meta={meta(spell)}
+              pips={{ total, filled: left }}
+              spent={left <= 0}
+              spentTitle={`${spell.name} — spent (Rest to recover)`}
+              canCast={canEdit}
+              onCast={() => cast(spell)}
+              onUnprepare={canEdit ? () => unprepare(spell) : undefined}
+              onOpenName={() => spell.sheet.render(true)}
+            />
+          );
+        })
       )}
 
       <button
