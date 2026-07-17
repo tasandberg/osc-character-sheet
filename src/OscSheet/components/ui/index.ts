@@ -20,6 +20,7 @@ export { Toggle } from "./Toggle";
 export { Check } from "./Check";
 export { Radio } from "./Radio";
 export { Segmented } from "./Segmented";
+export { PillSelect } from "./PillSelect";
 export { Tabs } from "./Tabs";
 export { ProgressBar } from "./ProgressBar";
 export { Die } from "./Die";

@@ -33,11 +33,11 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         <div className="osc-spellhead">
           <span className="lv">Level {level}</span>
           <span className="sc">
-            {points.max - points.used} / {points.max} points
+            {points.max - points.used} / {points.max} remaining
           </span>
           <Pips
             total={points.max}
-            filled={points.max - points.used}
+            filled={points.used}
             hollow
             className="slots"
             aria-hidden="true"

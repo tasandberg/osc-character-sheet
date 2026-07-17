@@ -2,7 +2,7 @@ import { cx } from "./cx";
 import type { HTMLAttributes, ReactNode } from "react";
 
 type Props = HTMLAttributes<HTMLSpanElement> & {
-  intent?: "teal" | "crimson" | "forest" | "mustard" | "solid" | "count";
+  intent?: "teal" | "crimson" | "forest" | "mustard" | "brass" | "solid" | "count";
   /** `chip` = the square, dark, icon-first weapon-tag box (default = pill). */
   variant?: "chip";
   /** FontAwesome glyph class (e.g. "fa-sword") rendered before the label. */

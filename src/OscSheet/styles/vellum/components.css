@@ -251,6 +251,40 @@
 }
 .segmented button:hover:not(.on) { color: var(--text-dim); }
 
+/* ─── Pill select — wrapping discrete single-select pills with counts ─────
+   Level tabs etc. Unlike `.segmented` (connected, filled active), pills are
+   separate, wrap to multiple rows, and the active pill takes a brass outline. */
+.pill-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacer-2);
+}
+.pill-select .pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacer-1);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-mute);
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: var(--fs-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.pill-select .pill .ct { font-family: var(--mono); color: var(--text-faint); letter-spacing: 0; }
+.pill-select .pill:hover:not(.on) { color: var(--text-dim); border-color: var(--text-faint); }
+.pill-select .pill.on {
+  color: var(--accent-alt);
+  border-color: var(--accent-alt);
+  background: color-mix(in oklab, var(--accent-alt) 12%, transparent);
+}
+.pill-select .pill.on .ct { color: var(--accent-alt); }
+
 /* ─── Icon button — transparent square wrapping a single glyph ───────────
    Canonical replacement for the hand-rolled .ft-chev/.ft-del/.osc-feat-add/
    .osc-lang-go/.sp-trash one-offs. Neutral by default; intents via variants. */
@@ -463,6 +497,7 @@
 .tag.crimson { color: var(--crimson); border-color: var(--crimson); background: color-mix(in oklab, var(--crimson) 10%, transparent); }
 .tag.forest  { color: var(--forest);  border-color: var(--forest);  background: color-mix(in oklab, var(--forest) 12%, transparent); }
 .tag.mustard { color: var(--mustard); border-color: var(--mustard); background: color-mix(in oklab, var(--mustard) 12%, transparent); }
+.tag.brass   { color: var(--accent-alt); border-color: var(--accent-alt); background: color-mix(in oklab, var(--accent-alt) 12%, transparent); }
 .tag.solid   { background: var(--ink); color: var(--stamp-text); border-color: var(--ink); font-family: var(--display); font-size: var(--fs-2xs); letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px 2px; }
 /* count — brass-solid numeric pill (container item counts, etc.) */
 .tag.count   { background: var(--accent-alt-dim); border-color: var(--accent-alt-dim); color: var(--on-accent); font-size: var(--fs-2xs); padding: 1px 7px; min-width: 16px; justify-content: center; }

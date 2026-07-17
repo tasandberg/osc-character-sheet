@@ -22,6 +22,9 @@
 
 .osc-spelllevel + .osc-spelllevel { margin-top: var(--spacer-3); }
 
+// free-casting level-pill selector sits between the section title and the panel
+.osc-spells .osc-spelltabs { margin: var(--spacer-2) 0 var(--spacer-3); }
+
 // --- level head: badge · ready count · slot pips ---
 .osc-spellhead {
   display: flex; align-items: center; gap: var(--spacer-2);
@@ -95,6 +98,18 @@
 // remove (free a slot) — small trashcan after the cast dots — is now
 // <IconButton variant="danger" size="sm">; see .icon-btn in components.css.
 .osc-spell.spent .spn { text-decoration: line-through; color: var(--text-mute, #8a8270); }
+
+// --- free-casting rows (memorization disabled) ---
+// A leading favorite-star column turns the 2-col grid into 3 cols.
+.osc-spell-free.has-star { grid-template-columns: auto 1fr auto; }
+.osc-spell-free .sp-fav.on { color: var(--accent-alt); }
+// inline "{left}/{max} · slots" pool readout on the Actions favorites list
+.osc-spell-free .pool {
+  font-family: var(--mono); font-size: var(--fs-3xs, 10px);
+  color: var(--text-mute, #8a8270); white-space: nowrap;
+}
+.osc-spell-free.spent .pool { color: var(--text-faint, #6a6354); }
+.osc-spell-free.spent .spn-row .tag { text-decoration: line-through; opacity: 0.6; }
 
 // --- spellbook toggle (dashed divider with caret) ---
 .osc-sheet-app .osc-bookbtn {

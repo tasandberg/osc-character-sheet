@@ -38,13 +38,17 @@ export function MemorizedSpells({ actor }: Props) {
         <SectionTitle hint="favorites — click to cast">Spells</SectionTitle>
         <div className="fvtt-castlist">
           {favorites.map((spell) => {
-            const max = (slots[spell.system.lvl] ?? { max: 0 }).max;
+            const lvl = spell.system.lvl;
+            const max = (slots[lvl] ?? { max: 0 }).max;
+            const left = pointsLeftAt(actor, lvl, max);
             return (
               <FreeCastRow
                 key={spell._id as string}
                 spell={spell}
                 meta={meta(spell)}
-                exhausted={pointsLeftAt(actor, spell.system.lvl, max) <= 0}
+                levelTag={lvl}
+                pool={{ used: max - left, max }}
+                exhausted={left <= 0}
                 canCast={canEdit}
                 onCast={() => castFree(actor, spell, max)}
                 onOpenName={() => spell.sheet.render(true)}
