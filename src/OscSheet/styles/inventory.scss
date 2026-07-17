@@ -739,7 +739,8 @@
   align-items: center;
 }
 .osc-coin-colhead {
-  padding: 0 0 var(--spacer-1);
+  // top pad separates the header row from the "TREASURE …gp" section header above
+  padding: var(--spacer-3) 0 var(--spacer-1);
   border-bottom: 2px solid var(--border, #3a342c);
 }
 // right-align the numeric sort headers (reuses the shared .osc-inv-th button);
@@ -806,28 +807,18 @@
 }
 
 // Valuable (non-coin) rows show a read-only qty in the SAME slot as a coin's
-// editable <input>. Match the input's box metrics exactly — font-size, padding,
-// and (transparent) border width — so the static number lands in the identical
-// column position; only the field chrome (border/background) is dropped and the
-// number dimmed to read as non-interactive.
+// editable <input>, and must be visually indistinguishable from it apart from
+// the missing field chrome. Match the input's box metrics exactly — font-size,
+// padding, (transparent) border width — AND its text colour, so the static
+// number lands in the identical position and reads the same weight.
 .osc-coin-qty-ro {
   text-align: right;
   white-space: nowrap;
   font-family: var(--mono);
   font-size: var(--fs-sm, 13px);
-  color: var(--text-dim, #b5ad97);
+  color: var(--text, #e5dec8);
   padding: 5px 8px;
   border: 1px solid transparent;
-}
-// Valuable rows are read-only: the name is the sole edit path (opens the item
-// sheet), so give it a link-like underline on hover; dim the numeric cells one
-// step to mark the row non-interactive.
-.osc-inv .osc-coin-row--ro .osc-inv-name:hover .nm {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.osc-coin-row--ro .osc-coin-val {
-  color: var(--text-dim, #b5ad97);
 }
 
 .osc-coin-total {

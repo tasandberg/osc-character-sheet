@@ -37,11 +37,7 @@ export function WealthRow({
   const rp = isCoin ? dnd.rowProps("coin", coinIndex) : {};
   return (
     <div
-      className={cx(
-        "osc-coin-row",
-        !isCoin && "osc-coin-row--ro",
-        isCoin && dnd.rowClass("coin", coinIndex),
-      )}
+      className={cx("osc-coin-row", isCoin && dnd.rowClass("coin", coinIndex))}
       onDragOver={rp.onDragOver}
       onDrop={rp.onDrop}
       onDragEnd={rp.onDragEnd}
@@ -50,19 +46,17 @@ export function WealthRow({
         onContext(e, { id: row.id, name: row.name, equipped: null, quantity: null })
       }
     >
-      {isCoin ? (
-        <span
-          className="osc-inv-drag"
-          title="Drag to reorder"
-          draggable={canEdit}
-          onDragStart={rp.onDragStart}
-          onDragEnd={rp.onDragEnd}
-        >
-          <i className="fa-solid fa-grip-lines" aria-hidden="true" />
-        </span>
-      ) : (
-        <span aria-hidden="true" /> // no drag: cross-section moves need a data write
-      )}
+      {/* Handle column is visually identical for both kinds; only coins wire the
+          drag (valuable reorder needs a cross-section data write — see notes). */}
+      <span
+        className="osc-inv-drag"
+        title="Drag to reorder"
+        draggable={isCoin && canEdit}
+        onDragStart={isCoin ? rp.onDragStart : undefined}
+        onDragEnd={isCoin ? rp.onDragEnd : undefined}
+      >
+        <i className="fa-solid fa-grip-lines" aria-hidden="true" />
+      </span>
       <ItemImage img={row.img} monogram={row.monogram} />
       <div className="osc-inv-name-c">
         <div className="osc-inv-name-row">
