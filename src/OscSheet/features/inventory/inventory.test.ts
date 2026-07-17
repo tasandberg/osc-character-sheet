@@ -288,13 +288,13 @@ describe("selectEncumbrance", () => {
     expect(e.bands).toEqual([25, 37.5, 50]);
   });
 
-  it("basic variant: bar fills from tier, load reads treasure vs threshold", () => {
+  it("basic variant: bar fills from treasure/threshold, colour from tier", () => {
     // total carried cn is meaningless in basic (tier comes from armor/treasure); e.value
     // here is the carried TREASURE cn, shown against the significant-treasure threshold.
     const actor = {
       system: {
         encumbrance: {
-          value: 100, max: 1600, enabled: true, variant: "basic", steps: [50],
+          value: 400, max: 1600, enabled: true, variant: "basic", steps: [50],
           encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: true, atThirdBreakpoint: false,
         },
         movement: { base: 60, encounter: 20, overland: 12 },
@@ -302,10 +302,24 @@ describe("selectEncumbrance", () => {
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
     expect(e.tier).toBe(2);
-    expect(e.label).toBe("100 / 800 cn"); // treasure carried vs threshold (800 default)
-    expect(e.pct).toBeCloseTo(2 / 3); // bar tracks the tier, not 100/1600
+    expect(e.label).toBe("400 / 800 cn"); // treasure carried vs threshold (800 default)
+    expect(e.pct).toBeCloseTo(0.5); // 400 treasure / 800 threshold, not 400/1600
     // basic's bar has no weight axis, so it plots no thresholds (it paints solid)
     expect(e.bands).toEqual([]);
+  });
+
+  it("basic variant: treasure at/over threshold tops the bar out at 100%", () => {
+    const actor = {
+      system: {
+        encumbrance: {
+          value: 900, max: 1600, enabled: true, variant: "basic", steps: [50],
+          encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: false, atThirdBreakpoint: false,
+        },
+        movement: { base: 60, encounter: 20, overland: 12 },
+      },
+    } as unknown as OSEActor;
+    const e = selectEncumbrance(actor);
+    expect(e.pct).toBe(1); // clamped: 900 treasure > 800 threshold
   });
 
   it("labels item-based encumbrance in items, not cn", () => {

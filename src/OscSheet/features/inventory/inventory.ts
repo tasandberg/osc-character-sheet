@@ -425,16 +425,19 @@ export function selectEncumbrance(
     e.encumbered,
   ];
   const tier = (breakpoints.lastIndexOf(true) + 1) as EncumbranceTier;
-  // Basic encumbrance is categorical (armor + treasure threshold) — total carried cn
-  // has no bearing on the tier, so a weight bar/readout off value/max would contradict
-  // the status. Drive the bar off the tier (basic tops out at the 3rd breakpoint), and
-  // read the load as carried treasure vs the significant-treasure threshold (`e.value`
-  // in basic is exactly the treasure cn — coins included) since THAT is the number that
-  // tells a basic player how close they are to slowing. Weight/slot variants keep their
-  // real value/max load + fill.
+  // Basic encumbrance is categorical (armor + treasure threshold), so total carried cn
+  // is meaningless — but carried TREASURE vs the significant-treasure threshold IS a real
+  // continuous number (`e.value` in basic is exactly the treasure cn, coins included), and
+  // it's what tells a basic player how close they are to slowing. Fill the bar off that
+  // ratio (a true gauge) and keep the COLOUR on the current tier — so treasure fills the
+  // bar toward the threshold, then the breakpoint trips and the tier colour advances.
+  // Weight/slot variants keep their real value/max load + fill.
   const isBasic = e.variant === "basic";
+  const threshold = significantTreasure();
   const pct = isBasic
-    ? Math.min(1, tier / BASIC_TIER_CAP)
+    ? threshold > 0
+      ? Math.min(1, e.value / threshold)
+      : 0
     : e.max > 0
       ? Math.min(1, e.value / e.max)
       : 0;
@@ -447,7 +450,7 @@ export function selectEncumbrance(
     tier,
     status: TIER_STATUS[tier],
     label: isBasic
-      ? `${e.value} / ${significantTreasure()} cn`
+      ? `${e.value} / ${threshold} cn`
       : `${e.value} / ${e.max} ${unit}`,
     moveBands: {
       encounter: movement?.encounter ?? 0,
@@ -462,9 +465,6 @@ export function selectEncumbrance(
     bands: isBasic ? [] : (e.steps ?? []),
   };
 }
-
-/** Basic tops out at the 3rd breakpoint — its synthetic bar fills tier/3. */
-const BASIC_TIER_CAP = 3;
 
 /** Half-width (in %) of the colour fade centred on each tier threshold. */
 const ENC_FADE_HALF = 4;
