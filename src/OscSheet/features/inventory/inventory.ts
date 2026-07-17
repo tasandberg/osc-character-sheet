@@ -8,6 +8,7 @@ import type {
   EncumbranceVM,
   EncumbranceTier,
   CoinVM,
+  TreasureVM,
 } from "@domain/vm-types";
 import { FLAGS, readFlag } from "@domain/flags";
 
@@ -82,6 +83,44 @@ export function selectCoins(items: OseItem[]): CoinVM[] {
       },
     ];
   });
+}
+
+/**
+ * Non-coin treasure (gems, jewellery, …) for the Treasure section — every item
+ * with `system.treasure === true` that isn't a coin. Pulled from the flat item
+ * list regardless of containment, so treasure nested in a container surfaces here
+ * (and, since selectInventory filters the same flag, ONLY here — no double-render).
+ */
+export function selectTreasure(items: OseItem[]): TreasureVM[] {
+  return items
+    .filter(
+      (it) =>
+        it.system?.treasure &&
+        !coinDenom(it.name as string) &&
+        !isCurrency(it),
+    )
+    .map((it) => {
+      const s = it.system as {
+        cost?: number;
+        quantity?: { value?: number };
+        cumulativeWeight?: number;
+        weight?: number;
+      };
+      // Singletons null `quantity` (see toVM) — a section total must fall back to 1.
+      const qty = s.quantity?.value ?? 1;
+      const cost = s.cost ?? 0;
+      return {
+        id: it._id as string,
+        name: it.name as string,
+        img: (it.img as string) ?? "",
+        monogram: monogram(it.name as string),
+        qty,
+        weight: s.cumulativeWeight ?? s.weight ?? 0,
+        cost,
+        value: qty * cost,
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 // Standard OSE gp value per coin — fallback when an item's system.cost is unset.
@@ -204,14 +243,14 @@ function toVM(
 // selectInventory
 // ---------------------------------------------------------------------------
 
-/** Equipment list for the inventory tab. Coins stay in the coin editor. */
+/** Equipment list for the inventory tab. Treasure (coins + gems) lives in the
+ *  Treasure section, so it's filtered out here on the `system.treasure` flag. */
 export function selectInventory(items: OseItem[]): InventoryVM {
-  // Physical item types only — keeps spells, abilities, etc. out of inventory. Also exclude coins.
+  // Physical item types only — keeps spells, abilities, etc. out of inventory.
+  // Treasure-flagged items (coins, gems, jewellery) surface in the Treasure
+  // section instead, so exclude any item with `system.treasure === true`.
   const physical = items.filter(
-    (it) =>
-      (it.type as string) in CATEGORY &&
-      !isCurrency(it) &&
-      !coinDenom(it.name as string),
+    (it) => (it.type as string) in CATEGORY && !it.system?.treasure,
   );
 
   // Index by id for O(1) child lookups

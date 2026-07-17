@@ -50,6 +50,10 @@ const coins = [
   { denom: "GP", id: "gp", name: "Gold Pieces", img: "", value: 152, gpEach: 1 },
   { denom: "SP", id: "sp", name: "Silver Pieces", img: "", value: 8, gpEach: 0.1 },
 ];
+const treasure = [
+  { id: "t1", name: "Diamond", img: "", monogram: "DI", qty: 3, weight: 3, cost: 500, value: 1500 },
+  { id: "t2", name: "Gold necklace", img: "", monogram: "GN", qty: 1, weight: 10, cost: 800, value: 800 },
+];
 
 const log = (label: string) => (...args: unknown[]) => console.log(label, ...args);
 
@@ -59,6 +63,7 @@ export const Default = () => (
       inventory={inventory}
       encumbrance={encumbrance}
       coins={coins}
+      treasure={treasure}
       onSetCoin={log("setCoin")}
       onCreate={log("create")}
       onEquip={log("equip")}

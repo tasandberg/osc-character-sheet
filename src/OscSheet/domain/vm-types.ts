@@ -181,6 +181,24 @@ export interface CoinVM {
   gpEach: number;
 }
 
+/** A non-coin treasure item (gem, jewellery, …) surfaced in the Treasure section.
+ *  Identified by `system.treasure === true`; kept out of the main inventory list. */
+export interface TreasureVM {
+  id: string;
+  name: string;
+  img: string;
+  /** 2-letter fallback monogram when the item has no art. */
+  monogram: string;
+  /** Stack count; singletons (nulled `quantity`) fall back to 1. */
+  qty: number;
+  /** Carried weight in cn (cumulative — qty already folded in). */
+  weight: number;
+  /** gp value of one unit (system.cost). */
+  cost: number;
+  /** Summed gp value: qty × cost. */
+  value: number;
+}
+
 /** 0 unencumbered · 1/2/3 OSE movement breakpoints · 4 overloaded (over max). */
 export type EncumbranceTier = 0 | 1 | 2 | 3 | 4;
 

@@ -66,6 +66,7 @@ export function InventoryView({
   inventory,
   encumbrance,
   coins,
+  treasure,
   onSetCoin,
   onCreate,
   onEquip,
@@ -280,6 +281,7 @@ export function InventoryView({
       </div>
       <WealthSection
         coins={coins}
+        treasure={treasure}
         onSetCoin={onSetCoin}
         onOpen={onOpen}
         onContext={openMenu}

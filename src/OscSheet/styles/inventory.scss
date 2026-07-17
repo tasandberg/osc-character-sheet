@@ -656,6 +656,15 @@
 .osc-whead .coins .ci:first-child {
   margin-left: 0;
 }
+// gem marker in the coin stack — signals non-coin treasure is present
+.osc-whead .osc-wgem {
+  margin-left: 3px;
+  font-size: var(--fs-3xs, 10px);
+  color: var(--accent-alt);
+}
+.osc-whead .coins .ci + .osc-wgem {
+  margin-left: 5px;
+}
 .osc-whead .key {
   font-family: var(--sans);
   font-weight: 600;
@@ -792,6 +801,31 @@
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
   color: var(--text, #e5dec8);
+}
+
+// Treasure subsection divider — a small gem-tagged label between coins and gems.
+.osc-tr-subhead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-2);
+  padding: var(--spacer-3) 0 var(--spacer-1);
+  margin-top: var(--spacer-1);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-3xs, 10px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute, #8a8270);
+}
+.osc-tr-subhead i {
+  color: var(--accent-alt);
+}
+// Treasure rows have no drag handle / qty input — read-only display.
+.osc-tr-qty {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-dim, #b5ad97);
 }
 
 .osc-coin-total {

@@ -16,6 +16,7 @@ import {
   selectInventory,
   selectEncumbrance,
   selectCoins,
+  selectTreasure,
 } from "@features/inventory/inventory";
 import {
   createItem,
@@ -379,6 +380,7 @@ export default function SheetShell() {
             inventory={selectInventory(invItems as OseItem[])}
             encumbrance={encumbrance}
             coins={selectCoins(invItems as OseItem[])}
+            treasure={selectTreasure(invItems as OseItem[])}
             onSetCoin={onSetCoin}
             onCreate={onCreateItem}
             onEquip={onEquipItem}

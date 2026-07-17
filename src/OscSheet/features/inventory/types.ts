@@ -4,6 +4,7 @@ import type {
   EncumbranceVM,
   InventoryItemVM,
   CoinVM,
+  TreasureVM,
   InventorySortKey,
   SortDir,
 } from "@domain/vm-types";
@@ -48,6 +49,8 @@ export type Props = {
   inventory: InventoryVM;
   encumbrance: EncumbranceVM;
   coins: CoinVM[];
+  /** Non-coin treasure (gems, jewellery) shown alongside coins in the section. */
+  treasure: TreasureVM[];
   onSetCoin: (id: string, value: number) => void;
 } & Ops;
 
