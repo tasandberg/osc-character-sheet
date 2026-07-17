@@ -304,11 +304,13 @@ describe("selectEncumbrance", () => {
     const e = selectEncumbrance(actor);
     expect(e.label).toBe("400 / 1600 cn"); // treasure carried vs the 1600 immobile cap
     expect(e.pct).toBeCloseTo(0.25); // 400 treasure / 1600 cap — armor tier ignored
-    expect(e.bands).toEqual([50]); // the lone significant-treasure line
+    expect(e.tier).toBe(0); // 25% fill sits below the significant line — green
+    // significant line + two visual stops ramping yellow→red toward the cap
+    expect(e.bands).toEqual([50, 75, 90]);
     expect(e.barTier).toBe(e.tier); // not immobile — solid colour unused, defaults to tier
   });
 
-  it("basic variant: treasure ≥ the significant line but < cap reads yellow", () => {
+  it("basic variant: treasure past the significant line ramps toward red", () => {
     const actor = {
       system: {
         encumbrance: {
@@ -320,7 +322,8 @@ describe("selectEncumbrance", () => {
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
     expect(e.pct).toBeCloseTo(0.75); // 1200 / 1600, past the 50% significant line
-    expect(e.bands).toEqual([50]); // green below the line, yellow above — no red
+    expect(e.bands).toEqual([50, 75, 90]); // ramps yellow→red as it nears the cap
+    expect(e.tier).toBe(2); // 75% fill — mid-ramp (amber), climbing to red near the cap
   });
 
   it("basic variant: treasure at/above the cap is immobile — full red bar", () => {
@@ -336,25 +339,28 @@ describe("selectEncumbrance", () => {
     const e = selectEncumbrance(actor);
     expect(e.pct).toBe(1); // treasure hits the cap — bar full
     expect(e.bands).toEqual([]); // solid, not a gradient
-    expect(e.barTier).toBe(3); // crimson — immobile
+    expect(e.tier).toBe(4); // overloaded
+    expect(e.status).toBe("Overloaded");
+    expect(e.barTier).toBe(4); // solid dim-red — immobile
     expect(e.label).toBe("1600 / 1600 cn");
   });
 
   it("basic variant: heavy armor + low treasure stays a LOW (green) fill", () => {
-    // tier 2 from armor, but only 15 treasure → the bar barely fills and reads green;
-    // the encumbrance shows in the tier-tinted rates, not the bar length.
+    // Armor slows movement in basic OSE but must NOT tint the bar/scores: with only 15
+    // treasure the fill is short and green (tier 0). Armor surfaces as its own tier.
     const actor = {
       system: {
         encumbrance: {
           value: 15, max: 1600, enabled: true, variant: "basic", steps: [50],
-          encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: true, atThirdBreakpoint: false,
+          encumbered: false, atFirstBreakpoint: false, atSecondBreakpoint: true, atThirdBreakpoint: false,
         },
         movement: { base: 60, encounter: 20, overland: 12 },
       },
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
-    expect(e.tier).toBe(2); // rates tinted tier 2 (orange/red)
-    expect(e.pct).toBeCloseTo(15 / 1600); // ~0.9% — a short green bar, not a full orange one
+    expect(e.tier).toBe(0); // fill is green — armor no longer bumps the colour
+    expect(e.armorTier).toBe("heavy"); // surfaced separately (atSecond && !atFirst)
+    expect(e.pct).toBeCloseTo(15 / 1600); // ~0.9% — a short green bar
   });
 
   it("labels item-based encumbrance in items, not cn", () => {
@@ -384,7 +390,6 @@ describe("significant treasure (basic encumbrance)", () => {
     enabled = true;
     max: number;
     value: number;
-    steps: number[] = [];
     encumbered = false;
     atSecondBreakpoint = false;
     atThirdBreakpoint = false;
@@ -401,6 +406,10 @@ describe("significant treasure (basic encumbrance)", () => {
     }
     get atFirstBreakpoint() {
       return this.value >= this.threshold;
+    }
+    // mirror the real basic class: a single step at the significant-treasure line
+    get steps() {
+      return [(100 * this.threshold) / this.max];
     }
   }
 
@@ -442,7 +451,8 @@ describe("significant treasure (basic encumbrance)", () => {
     const e = selectEncumbrance(basicActor(), [hoard]);
     expect(e.pct).toBe(1);
     expect(e.bands).toEqual([]);
-    expect(e.barTier).toBe(3);
+    expect(e.barTier).toBe(4); // overloaded — solid dim-red
+    expect(e.status).toBe("Overloaded");
   });
 });
 

@@ -85,9 +85,9 @@ describe("EncumbranceReadout", () => {
     expect(encRows).toEqual(moveRows);
     expect(encRows).toEqual([
       "Encumbrance|Heavily encumbered",
-      "Encounter|30 ft/round",
-      "Explore|90 ft/turn",
-      "Travel|18 mi/day",
+      "Encounter|30 ft",
+      "Explore|90 ft",
+      "Travel|18 mi",
     ]);
   });
 });

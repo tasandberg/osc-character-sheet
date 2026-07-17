@@ -416,25 +416,27 @@ export function selectEncumbrance(
           actor.system.scores?.str?.mod ?? 0,
         );
   const movement = actor.system.movement;
-  // Tier = highest breakpoint reached (over-limit tops out at 4); use the system's
-  // variant-aware flags, not our own % buckets.
-  const breakpoints = [
-    e.atFirstBreakpoint,
-    e.atSecondBreakpoint,
-    e.atThirdBreakpoint,
-    e.encumbered,
-  ];
-  const tier = (breakpoints.lastIndexOf(true) + 1) as EncumbranceTier;
+  const sigTreasure = significantTreasure();
   // Basic encumbrance gauges carried TREASURE (`e.value` in basic is exactly the treasure cn,
-  // coins included) against the 1600-cn immobile cap (`e.max`): the bar fills value/max and
-  // reads green below the significant-treasure line (`steps[0]`, ~50% at defaults), yellow
-  // above it, and solid red once treasure hits the cap (immobile). Armor does NOT move the
-  // bar — its slowdown shows in the tier-tinted rate numbers. Weight/slot variants keep their
-  // own value/max fill + system breakpoint bands.
+  // coins included) against the 1600-cn immobile cap (`e.max`): the bar fills value/max, reads
+  // green below the significant-treasure line (`steps[0]`, ~50% at defaults), then ramps
+  // yellow→red as the load nears the cap (solid red once immobile). Weight/slot variants keep
+  // their own value/max fill + system breakpoint bands.
   const immobile = e.variant === "basic" && e.value >= e.max;
   const pct = e.max > 0 ? Math.min(1, e.value / e.max) : 0;
-  const bands = immobile ? [] : (e.steps ?? []);
-  const barTier: EncumbranceTier = immobile ? 3 : tier;
+  // Colour breakpoints (% of cap). The SAME list drives the bar's colour transitions AND the
+  // tier that tints the movement scores, so the two can never disagree. Basic OSE exposes a
+  // single step (the treasure line); we add two visual stops so the fill escalates toward red
+  // instead of holding flat yellow up to the cap.
+  const steps = immobile ? [] : (e.steps ?? []);
+  const bands =
+    e.variant === "basic" && steps.length === 1
+      ? [steps[0], steps[0] + (100 - steps[0]) / 2, 90]
+      : steps;
+  // Tier = the band the fill sits in — NOT armor-driven. Armor slows movement in basic OSE
+  // but must not tint the bar/scores; it surfaces as its own popover row (see armorTier).
+  const overloaded = immobile || e.encumbered;
+  const tier = fillTier(pct, bands, overloaded);
   const unit = e.variant === "itembased" ? "items" : "cn";
   return {
     enabled: e.enabled,
@@ -444,17 +446,45 @@ export function selectEncumbrance(
     tier,
     status: TIER_STATUS[tier],
     label: `${e.value} / ${e.max} ${unit}`,
+    armorTier: basicArmorTier(e, sigTreasure),
     moveBands: {
       encounter: movement?.encounter ?? 0,
       explore: movement?.base ?? 0,
       travel: movement?.overland ?? 0,
     },
-    // Colour stops. Weight/slot & basic-mobile: the fade sits on the system's own breakpoints
-    // (`steps`) — for basic that's the lone significant-treasure line, so the fill reads green
-    // below it, yellow above. Basic-immobile drops to empty bands + a red `barTier` (solid).
     bands,
-    barTier,
+    // Solid-fill colour when bands is empty (basic-immobile → red enc-4).
+    barTier: tier,
   };
+}
+
+/**
+ * Colour tier for a fill: how many breakpoints `pct` (0–1) has crossed, clamped 0–4.
+ * `overloaded` (over the immobile cap, or the system's `encumbered` flag) forces the top
+ * tier. Bar transitions and movement-score colour both read from this, so they agree.
+ */
+function fillTier(pct: number, bands: number[], overloaded: boolean): EncumbranceTier {
+  if (overloaded) return 4;
+  const p = pct * 100;
+  const crossed = bands.reduce((n, b) => (p >= b ? n + 1 : n), 0);
+  return Math.min(crossed, 4) as EncumbranceTier;
+}
+
+/**
+ * Basic-mode armour tier, recovered from the system's breakpoint flags + treasure state.
+ * Armour slows movement in basic OSE but must NOT tint the bar/scores — this drives a
+ * dedicated popover row instead. Undefined for non-basic variants.
+ */
+function basicArmorTier(
+  e: CharacterEncumbrance,
+  sigTreasure: number,
+): "unarmored" | "light" | "heavy" | undefined {
+  if (e.variant !== "basic") return undefined;
+  const heavy = e.atThirdBreakpoint || (e.atSecondBreakpoint && !e.atFirstBreakpoint);
+  if (heavy) return "heavy";
+  const overTreasure = e.value >= sigTreasure;
+  const light = e.atSecondBreakpoint || (e.atFirstBreakpoint && !overTreasure);
+  return light ? "light" : "unarmored";
 }
 
 /** Half-width (in %) of the colour fade centred on each tier threshold. */

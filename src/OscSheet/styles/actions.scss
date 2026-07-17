@@ -384,12 +384,11 @@
 
   z-index: var(--z-tooltip);
   min-width: 150px;
-  // 3-col grid: label | number | unit. The label column grows (1fr) to eat the slack, so
-  // the number and unit pack together on the right — number right-aligned in its column,
-  // unit left-aligned immediately after (tightened via the .unit margin below). The rates
-  // read as one tidy table. Inline `display:none` hides it when closed (overrides grid).
+  // 2-col grid: label | value. The label column grows (1fr) to eat the slack; every value
+  // (rates AND status) lives in the same right-aligned column, so they all end flush at the
+  // table's right edge. Inline `display:none` hides it when closed (overrides grid).
   display: grid;
-  grid-template-columns: minmax(max-content, 1fr) max-content max-content;
+  grid-template-columns: minmax(max-content, 1fr) max-content;
   column-gap: var(--spacer-3);
   row-gap: 3px;
   padding: var(--spacer-2) var(--spacer-2);
@@ -420,33 +419,19 @@
   font-size: var(--fs-xs, 12px);
   color: var(--text-dim, #b5ad97);
 }
-// rate cells: number right-aligns (col 2), unit left-aligns (col 3) → aligned columns.
-.osc-move-pop .num,
-.osc-move-pop .unit {
-  font-family: var(--mono);
-  font-size: var(--fs-xs, 12px);
-  white-space: nowrap;
-}
-.osc-move-pop .num {
-  text-align: right;
-  color: var(--text);
-}
-.osc-move-pop .unit {
-  margin-left: calc(var(--spacer-3) * -1 + var(--spacer-1)); // tighter than label↔number
-  text-align: left;
-  color: var(--text-mute);
-}
-// encumbrance status: one value spanning the number+unit columns, keeping the tier tint.
-// min-width:0 stops the long status ("Heavily encumbered") from stretching those two
-// content-sized columns and reopening the number↔unit gap on the rate rows.
+// value cell: rates + status share one right-aligned column so every value ends flush at
+// the table's right edge. The number keeps the body colour, the unit is muted.
 .osc-move-pop .vv {
-  grid-column: 2 / -1;
-  min-width: 0;
+  grid-column: 2;
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
-  text-align: left;
-  color: var(--enc-c, var(--text)); // tinted only on rows carrying a tier class
+  text-align: right;
   white-space: nowrap; // the pop widens for "Severely encumbered" rather than wrapping it
+  color: var(--enc-c, var(--text)); // tinted only on rows carrying a tier class
+}
+// on a rate row the number keeps the value colour; only the unit dims.
+.osc-move-pop .unit {
+  color: var(--text-mute);
 }
 
 // --- abilities: 3-up (6-up wide) grid of ability plaques ---

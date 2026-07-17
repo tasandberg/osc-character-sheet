@@ -706,6 +706,7 @@
 }
 .osc-whead .wt {
   margin-left: auto;
+  white-space: nowrap;
   font-family: var(--mono);
   font-size: var(--fs-2xs, 11px);
   color: var(--text-faint, #6a6354);
@@ -736,9 +737,9 @@
   grid-template-columns:
     18px 30px minmax(0, 1fr)
     calc(var(--fs-base, 16px) * 4.625)
-    calc(var(--fs-base, 16px) * 3.5)
-    calc(var(--fs-base, 16px) * 4);
-  column-gap: var(--spacer-2);
+    calc(var(--fs-base, 16px) * 4.25)
+    calc(var(--fs-base, 16px) * 4.25);
+  column-gap: var(--spacer-4);
   align-items: center;
 }
 .osc-coin-colhead {
@@ -793,12 +794,14 @@
 }
 .osc-coin-wt {
   text-align: right;
+  white-space: nowrap; // keep "1,300 cn" on one line — never split the unit off
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
   color: var(--text-dim, #b5ad97);
 }
 .osc-coin-val {
   text-align: right;
+  white-space: nowrap;
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
   color: var(--text, #e5dec8);
@@ -828,6 +831,7 @@
 .osc-coin-total .tw {
   grid-column: 5;
   text-align: right;
+  white-space: nowrap;
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
   color: var(--text-dim, #b5ad97);
@@ -835,6 +839,7 @@
 .osc-coin-total .tv {
   grid-column: 6;
   text-align: right;
+  white-space: nowrap;
   font-family: var(--mono);
   font-weight: 700;
   font-size: var(--fs-xs, 12px);

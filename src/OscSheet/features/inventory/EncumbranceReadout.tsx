@@ -4,7 +4,7 @@
 // rates replace the old tier WORD — the load number stays. Hover shows the shared
 // MoveTooltip: same rows, same component as the header MOVE stat hover.
 import type { EncumbranceVM } from "@domain/vm-types";
-import { encTierClass, moveRatesLabel } from "@domain/format";
+import { armorTierLabel, encTierClass, moveRatesLabel } from "@domain/format";
 import { cx } from "@ui/cx";
 import { MoveRates, MoveTooltip } from "@ui/MovePop";
 
@@ -21,7 +21,12 @@ export function EncumbranceReadout({ e }: { e: EncumbranceVM }) {
         aria-label={`Movement: ${moveRatesLabel(e.moveBands)}${e.status ? `. ${e.status}` : ""}`}
       >
         <MoveRates bands={e.moveBands} />
-        <MoveTooltip bands={e.moveBands} tier={e.tier} status={e.status} />
+        <MoveTooltip
+          bands={e.moveBands}
+          tier={e.tier}
+          status={e.status}
+          armor={e.armorTier ? armorTierLabel(e.armorTier) : undefined}
+        />
       </span>
       <i className="fa fa-dot u-text-faint" />
       {e.label && <span className="load u-text-faint">{e.label}</span>}

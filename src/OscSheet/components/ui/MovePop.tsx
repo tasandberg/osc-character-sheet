@@ -12,19 +12,21 @@ import type { EncumbranceTier, MoveBands } from "@domain/vm-types";
 import { encTierClass } from "@domain/format";
 import { cx } from "@ui/cx";
 
-/** A rate line: label + number + unit, laid out as three grid cells so the numbers
-    align in one column and the units in the next (see .osc-move-pop grid). */
+/** A rate line: label + a right-aligned value (number + unit). The value shares the
+    single right-aligned column with the status rows, so every value ends flush at the
+    table's right edge (see .osc-move-pop grid). */
 function RateRow({ k, n, u }: { k: ReactNode; n: ReactNode; u: ReactNode }) {
   return (
     <span className="r">
       <span className="k">{k}</span>
-      <span className="num">{n}</span>
-      <span className="unit">{u}</span>
+      <span className="vv">
+        <span className="num">{n}</span> <span className="unit">{u}</span>
+      </span>
     </span>
   );
 }
 
-/** A status line: label + a value spanning the number+unit columns; `vClass` tints it. */
+/** A status line: label + a right-aligned value; `vClass` tints it. */
 function PopRow({ k, v, vClass }: { k: ReactNode; v: ReactNode; vClass?: string }) {
   return (
     <span className="r">
@@ -92,24 +94,30 @@ export function MoveTooltip({
   bands,
   tier,
   status,
+  armor,
 }: {
   bands: MoveBands;
   /** Omit both to show rates only (e.g. encumbrance tracking disabled). */
   tier?: EncumbranceTier;
   status?: string;
+  /** Basic mode only: equipped armor tier label ("Light"/"Heavy"). Its own row since
+      armor slows movement without colouring the encumbrance bar. */
+  armor?: string;
 }) {
   const { ref, style } = useTriggerAnchoredFixed();
   return (
     <span className="osc-move-pop" role="tooltip" ref={ref} style={style}>
       <span className="hd">Movement</span>
+      {armor && <PopRow k="Armor" v={armor} />}
       {tier !== undefined && status && (
         <PopRow k="Encumbrance" v={status} vClass={encTierClass(tier)} />
       )}
-      {/* per-unit suffixes match the OSE rate the value is quoted in — don't cross
-          them: explore is per turn, encounter per round, travel miles per day. */}
-      <RateRow k="Encounter" n={bands.encounter} u="ft/round" />
-      <RateRow k="Explore" n={bands.explore} u="ft/turn" />
-      <RateRow k="Travel" n={bands.travel} u="mi/day" />
+      {/* the row label (Encounter/Explore/Travel) already names the OSE time frame,
+          so the value carries only its distance unit — ft for the two on-map rates,
+          mi for overland travel. */}
+      <RateRow k="Encounter" n={bands.encounter} u="ft" />
+      <RateRow k="Explore" n={bands.explore} u="ft" />
+      <RateRow k="Travel" n={bands.travel} u="mi" />
     </span>
   );
 }
