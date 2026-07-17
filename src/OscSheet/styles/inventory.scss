@@ -490,6 +490,16 @@
 // xs / mobile (bottom-tabs layout): drop the Type column to save width, and swap
 // the "Uses" pip sub-row for the inline Use pill on the item row.
 @container app (max-width: 479px) {
+  // xs: the encumbrance readout drops below the Inventory title, left-aligned,
+  // instead of sharing its line (no room for both on a narrow sheet).
+  .osc-inv-head {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .osc-enc-readout {
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
   .osc-inv-row {
     grid-template-columns: 18px 30px 1fr 44px 44px;
   }
