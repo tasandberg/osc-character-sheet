@@ -12,7 +12,19 @@ import type { EncumbranceTier, MoveBands } from "@domain/vm-types";
 import { encTierClass } from "@domain/format";
 import { cx } from "@ui/cx";
 
-/** One key/value line inside the popover; `vClass` tints the value (tier colour). */
+/** A rate line: label + number + unit, laid out as three grid cells so the numbers
+    align in one column and the units in the next (see .osc-move-pop grid). */
+function RateRow({ k, n, u }: { k: ReactNode; n: ReactNode; u: ReactNode }) {
+  return (
+    <span className="r">
+      <span className="k">{k}</span>
+      <span className="num">{n}</span>
+      <span className="unit">{u}</span>
+    </span>
+  );
+}
+
+/** A status line: label + a value spanning the number+unit columns; `vClass` tints it. */
 function PopRow({ k, v, vClass }: { k: ReactNode; v: ReactNode; vClass?: string }) {
   return (
     <span className="r">
@@ -89,11 +101,12 @@ export function MoveTooltip({
   const { ref, style } = useTriggerAnchoredFixed();
   return (
     <span className="osc-move-pop" role="tooltip" ref={ref} style={style}>
+      <span className="hd">Movement</span>
       {/* per-unit suffixes match the OSE rate the value is quoted in — don't cross
           them: explore is per turn, encounter per round, travel miles per day. */}
-      <PopRow k="Encounter" v={`${bands.encounter}ft/round`} />
-      <PopRow k="Explore" v={`${bands.explore}ft/turn`} />
-      <PopRow k="Travel" v={`${bands.travel} mi/day`} />
+      <RateRow k="Encounter" n={bands.encounter} u="ft/round" />
+      <RateRow k="Explore" n={bands.explore} u="ft/turn" />
+      <RateRow k="Travel" n={bands.travel} u="mi/day" />
       {tier !== undefined && status && (
         <PopRow k="Encumbrance" v={status} vClass={encTierClass(tier)} />
       )}
