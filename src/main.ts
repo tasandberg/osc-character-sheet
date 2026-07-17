@@ -21,7 +21,8 @@ export function initialize() {
   // passes a native HTMLElement (not jQuery), matching the OSE system.
   foundry.helpers.Hooks.on(
     "renderChatMessageHTML",
-    (message: ChatMessage, html: HTMLElement) => onRenderChatMessage(message, html),
+    (message: ChatMessage, html: HTMLElement) =>
+      onRenderChatMessage(message, html),
   );
 
   foundry.helpers.Hooks.once("ready", async () => {
@@ -35,8 +36,7 @@ export function initialize() {
     // sheet on its next render — exercises the ErrorBoundary fallback (and the
     // opt-in crash reporter). Harmless unless explicitly called.
     const mod = game.modules?.get(MODULE_ID) as unknown as
-      | { api?: Record<string, unknown> }
-      | undefined;
+      { api?: Record<string, unknown> } | undefined;
     if (mod) {
       mod.api = {
         crashTest: () => window.dispatchEvent(new Event("osc-crash-test")),
@@ -49,7 +49,7 @@ export function initialize() {
       {
         types: ["character", "npc"],
         makeDefault: true,
-        label: "OSC Character Sheet",
+        label: "Enhanced Character Sheet",
       },
     );
   });
