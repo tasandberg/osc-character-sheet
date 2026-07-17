@@ -628,7 +628,7 @@
   margin: 0 0 var(--spacer-5);
 }
 
-// header bar — full-width button: overlapping coin dots · "Wealth" · gp total ·
+// header bar — full-width button: overlapping coin dots · "Treasure" · gp total ·
 // caret · carried weight (far right).
 .osc-inv .osc-whead {
   display: flex;
@@ -734,19 +734,23 @@
   display: grid;
   grid-template-columns:
     18px 30px minmax(0, 1fr)
-    calc(var(--fs-base, 16px) * 4.625)
-    calc(var(--fs-base, 16px) * 3.5)
-    calc(var(--fs-base, 16px) * 4);
-  column-gap: var(--spacer-2);
+    calc(var(--fs-base, 16px) * 5)
+    calc(var(--fs-base, 16px) * 5.5)
+    calc(var(--fs-base, 16px) * 5.5);
+  // roomy gap so the QTY sort caret clears "WEIGHT (CN)" and the unit-bearing
+  // headers don't collide with the next column.
+  column-gap: var(--spacer-3);
   align-items: center;
 }
 .osc-coin-colhead {
   padding: 0 0 var(--spacer-1);
   border-bottom: 2px solid var(--border, #3a342c);
 }
-// right-align the numeric sort headers (reuses the shared .osc-inv-th button)
+// right-align the numeric sort headers (reuses the shared .osc-inv-th button);
+// keep the unit-bearing labels ("Weight (cn)") on one line.
 .osc-inv .osc-coin-th-num {
   justify-content: flex-end;
+  white-space: nowrap;
 }
 
 .osc-coin-row {
@@ -792,39 +796,35 @@
 }
 .osc-coin-wt {
   text-align: right;
+  white-space: nowrap;
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
   color: var(--text-dim, #b5ad97);
 }
 .osc-coin-val {
   text-align: right;
+  white-space: nowrap;
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
   color: var(--text, #e5dec8);
 }
 
-// Treasure subsection divider — a small gem-tagged label between coins and gems.
-.osc-tr-subhead {
-  display: flex;
-  align-items: center;
-  gap: var(--spacer-2);
-  padding: var(--spacer-3) 0 var(--spacer-1);
-  margin-top: var(--spacer-1);
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: var(--fs-3xs, 10px);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-mute, #8a8270);
-}
-.osc-tr-subhead i {
-  color: var(--accent-alt);
-}
-// Treasure rows have no drag handle / qty input — read-only display.
-.osc-tr-qty {
+// Valuable (non-coin) rows have no drag handle / qty input — read-only qty cell.
+.osc-coin-qty-ro {
   text-align: right;
+  white-space: nowrap;
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
+  color: var(--text-dim, #b5ad97);
+}
+// Valuable rows are read-only: the name is the sole edit path (opens the item
+// sheet), so give it a link-like underline on hover; dim the numeric cells one
+// step to mark the row non-interactive.
+.osc-inv .osc-coin-row--ro .osc-inv-name:hover .nm {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.osc-coin-row--ro .osc-coin-val {
   color: var(--text-dim, #b5ad97);
 }
 

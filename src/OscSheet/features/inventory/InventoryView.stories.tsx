@@ -1,5 +1,7 @@
 import { InventoryView } from "@features/inventory";
-import type { InventoryItemVM, InventoryVM, EncumbranceVM } from "@domain/vm-types";
+import { OscSheetContext } from "@app/context";
+import type { OscSheetContextValue } from "@domain/types";
+import type { InventoryItemVM, InventoryVM, EncumbranceVM, WealthRow } from "@domain/vm-types";
 
 export default { title: "Inventory / InventoryView" };
 
@@ -45,25 +47,36 @@ const inventory: InventoryVM = {
 };
 
 const encumbrance: EncumbranceVM = { enabled: true, value: 380, max: 1600, pct: 0.2375, tier: 0, status: "Unencumbered", label: "380 / 1600 cn", moveBands: { encounter: 40, explore: 120, travel: 24 }, bands: [25, 37.5, 50] };
-const coins = [
-  { denom: "PP", id: "pp", name: "Platinum Pieces", img: "", value: 0, gpEach: 5 },
-  { denom: "GP", id: "gp", name: "Gold Pieces", img: "", value: 152, gpEach: 1 },
-  { denom: "SP", id: "sp", name: "Silver Pieces", img: "", value: 8, gpEach: 0.1 },
-];
-const treasure = [
-  { id: "t1", name: "Diamond", img: "", monogram: "DI", qty: 3, weight: 3, cost: 500, value: 1500 },
-  { id: "t2", name: "Gold necklace", img: "", monogram: "GN", qty: 1, weight: 10, cost: 800, value: 800 },
+const coin = (denom: string, qty: number, gpEach: number): WealthRow => ({
+  kind: "coin", denom, id: denom.toLowerCase(), name: `${denom} coins`, img: "",
+  monogram: denom, gpEach, qty, weight: qty, value: qty * gpEach,
+});
+const valuable = (id: string, name: string, monogram: string, qty: number, weight: number, cost: number): WealthRow => ({
+  kind: "treasure", id, name, img: "", monogram, qty, weight, value: qty * cost,
+});
+
+// Coins (canonical order) then read-only valuables — the merged Treasure table.
+const wealth: WealthRow[] = [
+  coin("PP", 0, 5),
+  coin("GP", 152, 1),
+  coin("SP", 8, 0.1),
+  valuable("t1", "Diamond", "DI", 3, 3, 500),
+  valuable("t2", "Gold necklace", "GN", 1, 10, 800),
 ];
 
 const log = (label: string) => (...args: unknown[]) => console.log(label, ...args);
 
-export const Default = () => (
-  <div className="osc-sheet-app" style={{ maxWidth: 560, padding: 16 }}>
+// InventoryView / WealthSection read `canEdit` + `items` off the sheet context —
+// provide an owner stub so the story renders.
+const ctx = { canEdit: true, items: [] } as unknown as OscSheetContextValue;
+
+const View = (over: Partial<Parameters<typeof InventoryView>[0]> = {}) => (
+  <OscSheetContext.Provider value={ctx}>
+    <div className="osc-sheet-app" style={{ maxWidth: 560, padding: 16 }}>
     <InventoryView
       inventory={inventory}
       encumbrance={encumbrance}
-      coins={coins}
-      treasure={treasure}
+      wealth={wealth}
       onSetCoin={log("setCoin")}
       onCreate={log("create")}
       onEquip={log("equip")}
@@ -75,6 +88,33 @@ export const Default = () => (
       onReorderEquipped={log("reorderEquipped")}
       onNest={log("nest")}
       onSend={log("send")}
+      {...over}
     />
-  </div>
+    </div>
+  </OscSheetContext.Provider>
 );
+
+export const Default = () => View();
+
+// Large coin sum — the value column must render the bare number (units in the
+// header) without wrapping "gp" to a second line.
+export const BigTotal = () =>
+  View({
+    wealth: [
+      coin("PP", 480, 5),
+      coin("GP", 2452, 1),
+      coin("SP", 8, 0.1),
+      valuable("t1", "Diamond", "DI", 3, 3, 500),
+      valuable("t2", "Gold necklace", "GN", 1, 10, 800),
+    ],
+  });
+
+// Valuables but no coins — the column headers still render so the gem rows get
+// labelled Item/Qty/Weight/Value columns.
+export const GemsNoCoins = () =>
+  View({
+    wealth: [
+      valuable("t1", "Diamond", "DI", 3, 3, 500),
+      valuable("t2", "Gold necklace", "GN", 1, 10, 800),
+    ],
+  });

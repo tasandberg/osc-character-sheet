@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { selectInventory, selectEncumbrance, selectCoins, selectTreasure, sortInventory, sortEquipped, coinDenom, encBarStops } from "@features/inventory/inventory";
+import { selectInventory, selectEncumbrance, selectCoins, selectTreasure, selectWealth, sortInventory, sortEquipped, coinDenom, encBarStops } from "@features/inventory/inventory";
 import type { OseItem, OSEActor } from "@domain/types";
 import { MODULE_ID, FLAGS } from "@domain/flags";
 
@@ -462,6 +462,31 @@ describe("selectTreasure", () => {
       mk("item", "Trade bar", { treasure: true, cost: 10, tags: [{ value: "Currency" }] }),
     ]);
     expect(t).toEqual([]);
+  });
+});
+
+describe("selectWealth", () => {
+  it("merges coins (canonical order) then valuables into one tagged row list", () => {
+    const w = selectWealth([
+      mk("item", "Ruby", { treasure: true, weight: 1, cost: 500, quantity: { value: 2 } }),
+      mk("item", "GP", { treasure: true, cost: 1, quantity: { value: 50 } }),
+      mk("item", "SP", { treasure: true, cost: 0.1, quantity: { value: 8 } }),
+    ]);
+    // coins first (pp→cp: gp before sp), valuables last
+    expect(w.map((r) => [r.kind, r.name])).toEqual([
+      ["coin", "GP"],
+      ["coin", "SP"],
+      ["treasure", "Ruby"],
+    ]);
+  });
+
+  it("coin rows carry denom/gpEach and 1-cn weight; valuables carry summed value", () => {
+    const w = selectWealth([
+      mk("item", "GP", { treasure: true, cost: 1, quantity: { value: 50 } }),
+      mk("item", "Ruby", { treasure: true, weight: 1, cost: 500, quantity: { value: 2 } }),
+    ]);
+    expect(w[0]).toMatchObject({ kind: "coin", denom: "GP", gpEach: 1, qty: 50, weight: 50, value: 50 });
+    expect(w[1]).toMatchObject({ kind: "treasure", qty: 2, weight: 1, value: 1000 });
   });
 });
 

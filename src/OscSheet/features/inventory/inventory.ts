@@ -9,6 +9,7 @@ import type {
   EncumbranceTier,
   CoinVM,
   TreasureVM,
+  WealthRow,
 } from "@domain/vm-types";
 import { FLAGS, readFlag } from "@domain/flags";
 
@@ -121,6 +122,40 @@ export function selectTreasure(items: OseItem[]): TreasureVM[] {
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * The Treasure table's unified row list: coins first (canonical pp→cp order),
+ * then non-coin valuables (name order). One array, one row shape (`WealthRow`),
+ * so a single row component renders both — branching on `kind` only for the
+ * interactive bits (coins edit their qty + drag; valuables are read-only). The
+ * live coin qty/weight/value are recomputed in the component as edits land, so a
+ * coin row's numbers here are its committed baseline.
+ */
+export function selectWealth(items: OseItem[]): WealthRow[] {
+  const coins: WealthRow[] = selectCoins(items).map((c) => ({
+    kind: "coin",
+    id: c.id,
+    name: c.name,
+    img: c.img,
+    monogram: c.denom,
+    denom: c.denom,
+    gpEach: c.gpEach,
+    qty: c.value,
+    weight: c.value, // coins are 1 cn each
+    value: c.value * c.gpEach,
+  }));
+  const valuables: WealthRow[] = selectTreasure(items).map((t) => ({
+    kind: "treasure",
+    id: t.id,
+    name: t.name,
+    img: t.img,
+    monogram: t.monogram,
+    qty: t.qty,
+    weight: t.weight,
+    value: t.value,
+  }));
+  return [...coins, ...valuables];
 }
 
 // Standard OSE gp value per coin — fallback when an item's system.cost is unset.

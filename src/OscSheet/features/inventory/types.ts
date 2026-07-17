@@ -3,8 +3,7 @@ import type {
   InventoryVM,
   EncumbranceVM,
   InventoryItemVM,
-  CoinVM,
-  TreasureVM,
+  WealthRow,
   InventorySortKey,
   SortDir,
 } from "@domain/vm-types";
@@ -48,9 +47,8 @@ export type OnContext = (e: React.MouseEvent, item: CtxItem) => void;
 export type Props = {
   inventory: InventoryVM;
   encumbrance: EncumbranceVM;
-  coins: CoinVM[];
-  /** Non-coin treasure (gems, jewellery) shown alongside coins in the section. */
-  treasure: TreasureVM[];
+  /** Unified Treasure-table rows: coins + non-coin valuables in one list. */
+  wealth: WealthRow[];
   onSetCoin: (id: string, value: number) => void;
 } & Ops;
 
