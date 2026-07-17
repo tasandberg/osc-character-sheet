@@ -28,7 +28,8 @@ export function SortHeader({
       title={title}
       onClick={onClick}
     >
-      {label}
+      {/* Caret sits to the LEFT of the label (shared by the items + wealth tables)
+          so it never crowds the next column on a right-aligned header. */}
       <i
         className={cx(
           "osc-inv-th-caret",
@@ -37,6 +38,7 @@ export function SortHeader({
         )}
         aria-hidden="true"
       />
+      {label}
     </button>
   );
 }
