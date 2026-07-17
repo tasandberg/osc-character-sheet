@@ -199,6 +199,8 @@ export interface EncumbranceVM {
   /** The three movement rates at the current tier (same source as the header MOVE pop). */
   moveBands: MoveBands;
   /** Tier boundaries as % of the bar, from the system's own variant-aware `steps`
-   *  (empty when the bar's axis isn't weight — see selectEncumbrance). */
+   *  (empty when the bar paints a single solid colour — see selectEncumbrance). */
   bands: number[];
+  /** Solid bar colour when `bands` is empty (basic-immobile → red). Defaults to `tier`. */
+  barTier?: EncumbranceTier;
 }

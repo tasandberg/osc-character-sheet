@@ -288,10 +288,10 @@ describe("selectEncumbrance", () => {
     expect(e.bands).toEqual([25, 37.5, 50]);
   });
 
-  it("basic variant: fill AND colour track carried treasure vs the threshold", () => {
-    // basic answers "how worried about my load?" → bar = treasure / 800. Armor does NOT
-    // move the bar (its slowdown shows in the tier-tinted rates). 400/800 = 50% amber.
-    // Colour stops sit on the tier lines (33.3/66.7/100%) so the fill edge climbs green→red.
+  it("basic variant: bar fills treasure vs the 1600 cap, green below the significant line", () => {
+    // basic gauges carried treasure against the immobile cap → bar = treasure / max (1600).
+    // 400/1600 = 25%, under the significant line (steps[0] = 50%), so it reads green. Armor
+    // does NOT move the bar (its slowdown shows in the tier-tinted rates).
     const actor = {
       system: {
         encumbrance: {
@@ -302,23 +302,42 @@ describe("selectEncumbrance", () => {
       },
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
-    expect(e.label).toBe("400 / 800 cn"); // treasure carried vs threshold (800 default)
-    expect(e.pct).toBeCloseTo(0.5); // 400 treasure / 800 threshold — armor tier ignored
-    expect(e.bands).toEqual([100 / 3, 200 / 3, 100]);
+    expect(e.label).toBe("400 / 1600 cn"); // treasure carried vs the 1600 immobile cap
+    expect(e.pct).toBeCloseTo(0.25); // 400 treasure / 1600 cap — armor tier ignored
+    expect(e.bands).toEqual([50]); // the lone significant-treasure line
+    expect(e.barTier).toBe(e.tier); // not immobile — solid colour unused, defaults to tier
   });
 
-  it("basic variant: treasure at/above the threshold tops the bar out at 100%", () => {
+  it("basic variant: treasure ≥ the significant line but < cap reads yellow", () => {
     const actor = {
       system: {
         encumbrance: {
-          value: 900, max: 1600, enabled: true, variant: "basic", steps: [50],
-          encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: true, atThirdBreakpoint: true,
+          value: 1200, max: 1600, enabled: true, variant: "basic", steps: [50],
+          encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: false, atThirdBreakpoint: false,
+        },
+        movement: { base: 60, encounter: 20, overland: 12 },
+      },
+    } as unknown as OSEActor;
+    const e = selectEncumbrance(actor);
+    expect(e.pct).toBeCloseTo(0.75); // 1200 / 1600, past the 50% significant line
+    expect(e.bands).toEqual([50]); // green below the line, yellow above — no red
+  });
+
+  it("basic variant: treasure at/above the cap is immobile — full red bar", () => {
+    const actor = {
+      system: {
+        encumbrance: {
+          value: 1600, max: 1600, enabled: true, variant: "basic", steps: [50],
+          encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: false, atThirdBreakpoint: false,
         },
         movement: { base: 30, encounter: 10, overland: 6 },
       },
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
-    expect(e.pct).toBe(1); // clamped: 900 treasure > 800 threshold — the red end
+    expect(e.pct).toBe(1); // treasure hits the cap — bar full
+    expect(e.bands).toEqual([]); // solid, not a gradient
+    expect(e.barTier).toBe(3); // crimson — immobile
+    expect(e.label).toBe("1600 / 1600 cn");
   });
 
   it("basic variant: heavy armor + low treasure stays a LOW (green) fill", () => {
@@ -335,7 +354,7 @@ describe("selectEncumbrance", () => {
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
     expect(e.tier).toBe(2); // rates tinted tier 2 (orange/red)
-    expect(e.pct).toBeCloseTo(15 / 800); // ~1.9% — a short green bar, not a full orange one
+    expect(e.pct).toBeCloseTo(15 / 1600); // ~0.9% — a short green bar, not a full orange one
   });
 
   it("labels item-based encumbrance in items, not cn", () => {
@@ -408,14 +427,22 @@ describe("significant treasure (basic encumbrance)", () => {
     expect(selectEncumbrance(basicActor(), [hoard]).tier).toBe(1);
   });
 
-  it("reads the load as carried treasure vs the threshold", () => {
+  it("reads the load as carried treasure vs the 1600 cap", () => {
     const gems = mk("item", "Gems", { treasure: true, weight: 1, quantity: { value: 181 } });
-    expect(selectEncumbrance(basicActor(), [gems]).label).toBe("181 / 800 cn");
+    expect(selectEncumbrance(basicActor(), [gems]).label).toBe("181 / 1600 cn");
   });
 
-  it("shows 0 against the threshold when carrying no treasure", () => {
+  it("shows 0 against the cap when carrying no treasure", () => {
     const sword = mk("weapon", "Sword", { weight: 60, quantity: { value: 1 } });
-    expect(selectEncumbrance(basicActor(), [sword]).label).toBe("0 / 800 cn");
+    expect(selectEncumbrance(basicActor(), [sword]).label).toBe("0 / 1600 cn");
+  });
+
+  it("goes immobile (full red bar) once treasure reaches the cap", () => {
+    const hoard = mk("item", "Coins", { treasure: true, weight: 1, quantity: { value: 1600 } });
+    const e = selectEncumbrance(basicActor(), [hoard]);
+    expect(e.pct).toBe(1);
+    expect(e.bands).toEqual([]);
+    expect(e.barTier).toBe(3);
   });
 });
 
@@ -443,9 +470,20 @@ describe("encBarStops", () => {
     expect(encBarStops({ bands: [], tier: 2 })).toBe("var(--enc-2) 0 100%");
   });
 
-  it("spans the full 4-colour spectrum (enc-3 reachable) on the basic tier bands", () => {
-    // basic passes the tier lines as bands; the spectrum must run green→amber→orange→red,
-    // i.e. reach enc-3 at the 100% end (not top out at enc-2).
+  it("paints solid in barTier when set (basic-immobile → red), overriding tier", () => {
+    expect(encBarStops({ bands: [], tier: 1, barTier: 3 })).toBe("var(--enc-3) 0 100%");
+  });
+
+  it("basic's lone significant line reads green below, yellow above (no red mid-bar)", () => {
+    const stops = encBarStops({ bands: [50], tier: 0 });
+    expect(stops).toBe(
+      "var(--enc-0) 0%, var(--enc-0) 46%, var(--enc-1) 54%, var(--enc-1) 100%",
+    );
+  });
+
+  it("spans the full 4-colour spectrum (enc-3 reachable) across three weight bands", () => {
+    // weight/slot pass the system breakpoints as bands; the spectrum must run
+    // green→amber→orange→red, i.e. reach enc-3 at the 100% end (not top out at enc-2).
     const stops = encBarStops({ bands: [100 / 3, 200 / 3, 100], tier: 2 });
     expect(stops).toContain("var(--enc-3)");
     expect(stops.endsWith("var(--enc-3) 100%")).toBe(true);

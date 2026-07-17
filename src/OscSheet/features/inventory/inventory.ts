@@ -425,24 +425,16 @@ export function selectEncumbrance(
     e.encumbered,
   ];
   const tier = (breakpoints.lastIndexOf(true) + 1) as EncumbranceTier;
-  // Basic encumbrance answers ONE question — "how worried should I be about my load?" —
-  // so the bar tracks carried TREASURE toward the significant-treasure threshold (`e.value`
-  // in basic is exactly the treasure cn, coins included). Armor does NOT move the bar; its
-  // slowdown already shows in the tier-tinted rate numbers. Both fill AND colour ride the
-  // treasure fraction: the green→red spectrum stops sit on evenly-spaced tier lines
-  // (BASIC_TIER_BANDS), so low treasure reads green, mid amber/orange, and 800 tops out
-  // red. Weight/slot variants keep their real value/max fill + system breakpoints.
-  const isBasic = e.variant === "basic";
-  const threshold = significantTreasure();
-  let pct: number;
-  let bands: number[];
-  if (isBasic) {
-    pct = threshold > 0 ? Math.min(1, e.value / threshold) : 0;
-    bands = BASIC_TIER_BANDS;
-  } else {
-    pct = e.max > 0 ? Math.min(1, e.value / e.max) : 0;
-    bands = e.steps ?? [];
-  }
+  // Basic encumbrance gauges carried TREASURE (`e.value` in basic is exactly the treasure cn,
+  // coins included) against the 1600-cn immobile cap (`e.max`): the bar fills value/max and
+  // reads green below the significant-treasure line (`steps[0]`, ~50% at defaults), yellow
+  // above it, and solid red once treasure hits the cap (immobile). Armor does NOT move the
+  // bar — its slowdown shows in the tier-tinted rate numbers. Weight/slot variants keep their
+  // own value/max fill + system breakpoint bands.
+  const immobile = e.variant === "basic" && e.value >= e.max;
+  const pct = e.max > 0 ? Math.min(1, e.value / e.max) : 0;
+  const bands = immobile ? [] : (e.steps ?? []);
+  const barTier: EncumbranceTier = immobile ? 3 : tier;
   const unit = e.variant === "itembased" ? "items" : "cn";
   return {
     enabled: e.enabled,
@@ -451,24 +443,19 @@ export function selectEncumbrance(
     pct,
     tier,
     status: TIER_STATUS[tier],
-    label: isBasic
-      ? `${e.value} / ${threshold} cn`
-      : `${e.value} / ${e.max} ${unit}`,
+    label: `${e.value} / ${e.max} ${unit}`,
     moveBands: {
       encounter: movement?.encounter ?? 0,
       explore: movement?.base ?? 0,
       travel: movement?.overland ?? 0,
     },
-    // The bar's colour must change exactly where the tier does. For weight/slot variants
-    // the axis IS weight, so the stops are the system's own breakpoints (`steps`). Basic's
-    // axis is the tier position (see above), so its stops sit on the tier lines — the
-    // fill edge carries the current tier's colour and the whole gauge reads as a spectrum.
+    // Colour stops. Weight/slot & basic-mobile: the fade sits on the system's own breakpoints
+    // (`steps`) — for basic that's the lone significant-treasure line, so the fill reads green
+    // below it, yellow above. Basic-immobile drops to empty bands + a red `barTier` (solid).
     bands,
+    barTier,
   };
 }
-
-/** Evenly-spaced tier lines (% of the bar) — colour stops for the basic treasure spectrum. */
-const BASIC_TIER_BANDS = [100 / 3, 200 / 3, 100];
 
 /** Half-width (in %) of the colour fade centred on each tier threshold. */
 const ENC_FADE_HALF = 4;
@@ -478,11 +465,15 @@ const ENC_FADE_HALF = 4;
  * colour across its band, then fades into the next over a narrow window CENTRED on
  * the real threshold — so at a boundary % the colour is exactly 50/50 between the two
  * tiers (the tier change still reads at the right spot), but the segments blend
- * smoothly instead of butting hard edges. No thresholds ⇒ a solid bar in the current
- * tier's colour. Colours are the shared `--enc-N` tokens — one tier, one colour.
+ * smoothly instead of butting hard edges. No thresholds ⇒ a solid bar in `barTier`'s
+ * colour (falling back to `tier`). Colours are the shared `--enc-N` tokens — one tier, one colour.
  */
-export function encBarStops({ bands, tier }: Pick<EncumbranceVM, "bands" | "tier">): string {
-  if (bands.length === 0) return `var(--enc-${tier}) 0 100%`;
+export function encBarStops({
+  bands,
+  tier,
+  barTier,
+}: Pick<EncumbranceVM, "bands" | "tier" | "barTier">): string {
+  if (bands.length === 0) return `var(--enc-${barTier ?? tier}) 0 100%`;
   const stops = ["var(--enc-0) 0%"];
   bands.forEach((t, i) => {
     const from = Math.max(0, t - ENC_FADE_HALF);
