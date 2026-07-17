@@ -288,9 +288,10 @@ describe("selectEncumbrance", () => {
     expect(e.bands).toEqual([25, 37.5, 50]);
   });
 
-  it("basic variant: bar fills from treasure/threshold, colour from tier", () => {
-    // total carried cn is meaningless in basic (tier comes from armor/treasure); e.value
-    // here is the carried TREASURE cn, shown against the significant-treasure threshold.
+  it("basic variant: bar position = base tier + treasure fill within the segment", () => {
+    // combined spectrum gauge: armor sets the base tier (here 2, below the 800 threshold),
+    // treasure fills WITHIN that segment toward the next tier line. position = 2 + 400/800
+    // = 2.5; pct = 2.5 / 3. Colour stops sit on the tier lines (33.3/66.7/100%).
     const actor = {
       system: {
         encumbrance: {
@@ -303,23 +304,40 @@ describe("selectEncumbrance", () => {
     const e = selectEncumbrance(actor);
     expect(e.tier).toBe(2);
     expect(e.label).toBe("400 / 800 cn"); // treasure carried vs threshold (800 default)
-    expect(e.pct).toBeCloseTo(0.5); // 400 treasure / 800 threshold, not 400/1600
-    // basic's bar has no weight axis, so it plots no thresholds (it paints solid)
-    expect(e.bands).toEqual([]);
+    expect(e.pct).toBeCloseTo(2.5 / 3); // (tier 2 + 400/800) / max tier 3
+    expect(e.bands).toEqual([100 / 3, 200 / 3, 100]);
   });
 
-  it("basic variant: treasure at/over threshold tops the bar out at 100%", () => {
+  it("basic variant: at/above the threshold the tier has bumped, so position = tier", () => {
+    // 900 >= 800 → the system already counted the treasure into `tier`; position = tier,
+    // no double-count. tier 3 (top) → pct = 3/3 = 1, the red end of the spectrum.
     const actor = {
       system: {
         encumbrance: {
           value: 900, max: 1600, enabled: true, variant: "basic", steps: [50],
-          encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: false, atThirdBreakpoint: false,
+          encumbered: false, atFirstBreakpoint: true, atSecondBreakpoint: true, atThirdBreakpoint: true,
         },
-        movement: { base: 60, encounter: 20, overland: 12 },
+        movement: { base: 30, encounter: 10, overland: 6 },
       },
     } as unknown as OSEActor;
     const e = selectEncumbrance(actor);
-    expect(e.pct).toBe(1); // clamped: 900 treasure > 800 threshold
+    expect(e.tier).toBe(3);
+    expect(e.pct).toBe(1); // position = tier 3, not 3 + 900/800
+  });
+
+  it("basic variant: unarmored + low treasure fills within the green (tier 0) segment", () => {
+    const actor = {
+      system: {
+        encumbrance: {
+          value: 400, max: 1600, enabled: true, variant: "basic", steps: [50],
+          encumbered: false, atFirstBreakpoint: false, atSecondBreakpoint: false, atThirdBreakpoint: false,
+        },
+        movement: { base: 120, encounter: 40, overland: 24 },
+      },
+    } as unknown as OSEActor;
+    const e = selectEncumbrance(actor);
+    expect(e.tier).toBe(0);
+    expect(e.pct).toBeCloseTo(0.5 / 3); // (tier 0 + 400/800) / 3 — low, still green
   });
 
   it("labels item-based encumbrance in items, not cn", () => {
@@ -423,8 +441,16 @@ describe("encBarStops", () => {
     );
   });
 
-  it("paints solid in the current tier's colour when there are no thresholds (basic)", () => {
+  it("paints solid in the current tier's colour when there are no thresholds", () => {
     expect(encBarStops({ bands: [], tier: 2 })).toBe("var(--enc-2) 0 100%");
+  });
+
+  it("spans the full 4-colour spectrum (enc-3 reachable) on the basic tier bands", () => {
+    // basic passes the tier lines as bands; the spectrum must run green→amber→orange→red,
+    // i.e. reach enc-3 at the 100% end (not top out at enc-2).
+    const stops = encBarStops({ bands: [100 / 3, 200 / 3, 100], tier: 2 });
+    expect(stops).toContain("var(--enc-3)");
+    expect(stops.endsWith("var(--enc-3) 100%")).toBe(true);
   });
 });
 

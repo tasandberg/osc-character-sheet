@@ -425,22 +425,27 @@ export function selectEncumbrance(
     e.encumbered,
   ];
   const tier = (breakpoints.lastIndexOf(true) + 1) as EncumbranceTier;
-  // Basic encumbrance is categorical (armor + treasure threshold), so total carried cn
-  // is meaningless — but carried TREASURE vs the significant-treasure threshold IS a real
-  // continuous number (`e.value` in basic is exactly the treasure cn, coins included), and
-  // it's what tells a basic player how close they are to slowing. Fill the bar off that
-  // ratio (a true gauge) and keep the COLOUR on the current tier — so treasure fills the
-  // bar toward the threshold, then the breakpoint trips and the tier colour advances.
-  // Weight/slot variants keep their real value/max load + fill.
+  // Basic encumbrance is categorical, but the tier already FOLDS IN both axes: armor
+  // sets the integer base tier and crossing the significant-treasure threshold bumps it
+  // one more. Turn that into ONE continuous position so the bar reads as a combined
+  // spectrum gauge, not a discrete step: below the threshold the armor tier is the base
+  // and treasure fills WITHIN that segment toward the next tier line; at/above it the
+  // system has already bumped `tier`, so position = tier (continuous across the cross).
+  // Scale to basic's max tier (3) and paint the green→red spectrum with stops on the
+  // tier lines (BASIC_TIER_BANDS). Weight/slot variants keep their real value/max fill.
   const isBasic = e.variant === "basic";
   const threshold = significantTreasure();
-  const pct = isBasic
-    ? threshold > 0
-      ? Math.min(1, e.value / threshold)
-      : 0
-    : e.max > 0
-      ? Math.min(1, e.value / e.max)
-      : 0;
+  let pct: number;
+  let bands: number[];
+  if (isBasic) {
+    const treasureFrac = threshold > 0 ? Math.min(1, e.value / threshold) : 0;
+    const position = e.value < threshold ? tier + treasureFrac : tier;
+    pct = Math.min(1, position / BASIC_MAX_TIER);
+    bands = BASIC_TIER_BANDS;
+  } else {
+    pct = e.max > 0 ? Math.min(1, e.value / e.max) : 0;
+    bands = e.steps ?? [];
+  }
   const unit = e.variant === "itembased" ? "items" : "cn";
   return {
     enabled: e.enabled,
@@ -457,14 +462,18 @@ export function selectEncumbrance(
       explore: movement?.base ?? 0,
       travel: movement?.overland ?? 0,
     },
-    // The bar's colour must change exactly where the tier does. For weight/slot
-    // variants the axis IS weight, so the stops are the system's own breakpoints
-    // (`steps`, already variant- and mode-aware). Basic's bar has no weight axis
-    // (see above) — there are no thresholds to plot, so it gets no stops and paints
-    // solid in the current tier's colour instead of implying fictitious ones.
-    bands: isBasic ? [] : (e.steps ?? []),
+    // The bar's colour must change exactly where the tier does. For weight/slot variants
+    // the axis IS weight, so the stops are the system's own breakpoints (`steps`). Basic's
+    // axis is the tier position (see above), so its stops sit on the tier lines — the
+    // fill edge carries the current tier's colour and the whole gauge reads as a spectrum.
+    bands,
   };
 }
+
+/** Basic tier tops out at the 3rd breakpoint (armor + significant treasure). */
+const BASIC_MAX_TIER = 3;
+/** Tier lines as % of the 3-tier scale — colour stops for the basic spectrum. */
+const BASIC_TIER_BANDS = [100 / 3, 200 / 3, 100];
 
 /** Half-width (in %) of the colour fade centred on each tier threshold. */
 const ENC_FADE_HALF = 4;
