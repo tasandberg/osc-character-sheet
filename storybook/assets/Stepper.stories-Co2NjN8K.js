@@ -1,0 +1,4 @@
+import{i as e,s as t}from"./preload-helper-xPQekRTU.js";import{n,t as r}from"./iframe-UGy2tOm0.js";import{n as i,t as a}from"./Stepper-DHyAKZHp.js";var o,s,c,l,u;e((()=>{o=t(n(),1),i(),s=r(),c={title:`Controls / Stepper`},l=()=>{let[e,t]=o.useState(8);return(0,s.jsx)(a,{value:e,onValueChange:t,min:0,max:9})},l.__docgenInfo={description:``,methods:[],displayName:`Interactive`},l.parameters={...l.parameters,docs:{...l.parameters?.docs,source:{originalSource:`() => {
+  const [hp, setHp] = React.useState(8);
+  return <Stepper value={hp} onValueChange={setHp} min={0} max={9} />;
+}`,...l.parameters?.docs?.source}}},u=[`Interactive`]}))();export{l as Interactive,u as __namedExportsOrder,c as default};
