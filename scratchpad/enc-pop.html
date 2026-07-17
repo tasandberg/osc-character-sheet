@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../dist/main.css">
+<style>
+  body { margin: 0; background: #0c0b09; }
+  .stage { padding: 40px; display: flex; gap: 48px; align-items: flex-start; }
+  .osc-move-pop { position: static !important; } /* JS normally sets fixed+coords */
+  .cap { font: 12px "JetBrains Mono", monospace; color: #b5ad97; margin: 0 0 10px; }
+</style>
+</head>
+<body>
+<div class="osc-sheet-app"><div class="osc-sheet">
+<div class="stage">
+  <div>
+    <p class="cap">unencumbered</p>
+    <span class="osc-move-pop" role="tooltip">
+      <span class="hd">Movement</span>
+      <span class="r"><span class="k">Encounter</span><span class="num">40</span><span class="unit">ft/round</span></span>
+      <span class="r"><span class="k">Explore</span><span class="num">120</span><span class="unit">ft/turn</span></span>
+      <span class="r"><span class="k">Travel</span><span class="num">24</span><span class="unit">mi/day</span></span>
+      <span class="r"><span class="k">Encumbrance</span><span class="vv enc-t0">Unencumbered</span></span>
+    </span>
+  </div>
+  <div>
+    <p class="cap">heavily encumbered</p>
+    <span class="osc-move-pop" role="tooltip">
+      <span class="hd">Movement</span>
+      <span class="r"><span class="k">Encounter</span><span class="num">10</span><span class="unit">ft/round</span></span>
+      <span class="r"><span class="k">Explore</span><span class="num">30</span><span class="unit">ft/turn</span></span>
+      <span class="r"><span class="k">Travel</span><span class="num">6</span><span class="unit">mi/day</span></span>
+      <span class="r"><span class="k">Encumbrance</span><span class="vv enc-t3">Heavily encumbered</span></span>
+    </span>
+  </div>
+</div>
+</div></div>
+</body>
+</html>

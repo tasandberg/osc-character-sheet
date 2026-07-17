@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../dist/main.css">
+<style>
+  body { margin: 0; background: #0c0b09; }
+  .stage { padding: 28px 32px; display: flex; flex-direction: column; gap: 24px; width: 520px; }
+  .panel .cap { font: 12px/1.4 "JetBrains Mono", monospace; color: #b5ad97; margin: 0 0 10px; }
+  .panel .cap b { color: #e5dec8; }
+  .panel .cap .pct { color: #8a8270; }
+  .osc-inv-head { width: 100%; }
+</style>
+</head>
+<body>
+<div class="osc-sheet-app">
+<div class="osc-sheet">
+<div class="stage" id="stage"></div>
+</div>
+</div>
+<script>
+const T = 800;             // significant treasure threshold
+const BASIC_MAX_TIER = 3;
+const BANDS = [100/3, 200/3, 100];
+const ENC_FADE_HALF = 4;
+
+// mirror encBarStops() from inventory.ts
+function encBarStops(bands, tier) {
+  if (bands.length === 0) return `var(--enc-${tier}) 0 100%`;
+  const stops = ["var(--enc-0) 0%"];
+  bands.forEach((t, i) => {
+    const from = Math.max(0, t - ENC_FADE_HALF);
+    const to = Math.min(100, t + ENC_FADE_HALF);
+    stops.push(`var(--enc-${Math.min(i, 4)}) ${from}%`);
+    stops.push(`var(--enc-${Math.min(i + 1, 4)}) ${to}%`);
+  });
+  stops.push(`var(--enc-${Math.min(bands.length, 4)}) 100%`);
+  return stops.join(", ");
+}
+
+// mirror the basic branch of selectEncumbrance(): fill AND colour = treasure/threshold;
+// the tier (armor + treasure cross) only tints the RATE numbers, not the bar.
+function basic(baseTier, treasure) {
+  const pct = Math.min(1, treasure / T);
+  const tier = treasure >= T ? baseTier + 1 : baseTier; // for the rate tint only
+  return { tier: Math.min(tier, 3), pct };
+}
+
+const MOVE = { // rough OSE basic rates per tier: encounter ft / explore ft / travel mi
+  0: {enc:40, exp:120, mi:24},
+  1: {enc:30, exp:90,  mi:18},
+  2: {enc:20, exp:60,  mi:12},
+  3: {enc:10, exp:30,  mi:6},
+};
+
+// [label, armorLabel, baseTier(no treasure), treasure]
+const states = [
+  ["Unarmored, 0",     "unarmored", 0, 0],
+  ["Unarmored, 400",   "unarmored", 0, 400],
+  ["Unarmored, 800",   "unarmored", 0, 800],
+  ["Light armor, 0",   "light",     1, 0],
+  ["Light armor, 400", "light",     1, 400],
+  ["Heavy armor, 15",  "heavy",     2, 15],
+  ["Heavy armor, 400", "heavy",     2, 400],
+  ["Heavy armor, 800", "heavy",     2, 800],
+];
+
+const stage = document.getElementById("stage");
+for (const [label, , baseTier, tr] of states) {
+  const { tier, pct } = basic(baseTier, tr);
+  const p = Math.round(pct * 1000) / 10;      // 1-decimal %
+  const m = MOVE[tier];
+  const panel = document.createElement("div");
+  panel.className = "panel";
+  panel.innerHTML = `
+    <p class="cap"><b>${label}</b> — rate tier ${tier}, fill <span class="pct">${p}%</span></p>
+    <div class="osc-inv-head enc-rule" style="--enc-pct:${p}%;--enc-stops:${encBarStops(BANDS, tier)}">
+      <h3 class="section-title u-mb-1">Inventory</h3>
+      <span class="osc-enc-readout enc-t${tier}">
+        <span class="rates" tabindex="0">
+          <span class="rate">${m.enc}ft</span><span class="sep" aria-hidden="true">/</span><span class="rate">${m.exp}ft</span><span class="sep" aria-hidden="true">/</span><span class="rate">${m.mi}mi</span>
+        </span>
+        <i class="fa fa-dot u-text-faint"></i>
+        <span class="load u-text-faint">${tr} / ${T} cn</span>
+      </span>
+    </div>`;
+  stage.appendChild(panel);
+}
+</script>
+</body>
+</html>

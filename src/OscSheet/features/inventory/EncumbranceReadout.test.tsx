@@ -84,10 +84,10 @@ describe("EncumbranceReadout", () => {
     // one shared component ⇒ byte-identical rows in both places
     expect(encRows).toEqual(moveRows);
     expect(encRows).toEqual([
+      "Encumbrance|Heavily encumbered",
       "Encounter|30 ft/round",
       "Explore|90 ft/turn",
       "Travel|18 mi/day",
-      "Encumbrance|Heavily encumbered",
     ]);
   });
 });

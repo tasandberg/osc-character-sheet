@@ -102,14 +102,14 @@ export function MoveTooltip({
   return (
     <span className="osc-move-pop" role="tooltip" ref={ref} style={style}>
       <span className="hd">Movement</span>
+      {tier !== undefined && status && (
+        <PopRow k="Encumbrance" v={status} vClass={encTierClass(tier)} />
+      )}
       {/* per-unit suffixes match the OSE rate the value is quoted in — don't cross
           them: explore is per turn, encounter per round, travel miles per day. */}
       <RateRow k="Encounter" n={bands.encounter} u="ft/round" />
       <RateRow k="Explore" n={bands.explore} u="ft/turn" />
       <RateRow k="Travel" n={bands.travel} u="mi/day" />
-      {tier !== undefined && status && (
-        <PopRow k="Encumbrance" v={status} vClass={encTierClass(tier)} />
-      )}
     </span>
   );
 }
