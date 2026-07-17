@@ -233,6 +233,10 @@ export interface TreasureWealthRow extends WealthRowShared {
  *  by one row component that branches on `kind` only for the interactive bits. */
 export type WealthRow = CoinWealthRow | TreasureWealthRow;
 
+/** Sortable columns of the unified Treasure table. `manual` = selectWealth's
+ *  order (coins pp→cp, then valuables); the rest sort ALL rows together. */
+export type WealthSortKey = "manual" | "item" | "qty" | "weight" | "value";
+
 /** 0 unencumbered · 1/2/3 OSE movement breakpoints · 4 overloaded (over max). */
 export type EncumbranceTier = 0 | 1 | 2 | 3 | 4;
 

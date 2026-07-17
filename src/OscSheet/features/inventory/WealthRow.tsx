@@ -10,7 +10,7 @@ import { cx } from "@ui/cx";
 
 export function WealthRow({
   row,
-  coinIndex,
+  index,
   canEdit,
   dnd,
   inputValue,
@@ -21,8 +21,8 @@ export function WealthRow({
   onQtyCommitClose,
 }: {
   row: WealthRowVM;
-  /** Position within the coin subset — drives drag reorder. -1 for valuables. */
-  coinIndex: number;
+  /** Position in the unified sorted list — the drag-reorder index for every row. */
+  index: number;
   canEdit: boolean;
   dnd: Dnd;
   /** Controlled coin-input value (draft-aware); coin rows only. */
@@ -34,10 +34,12 @@ export function WealthRow({
   onQtyCommitClose?: () => void;
 }) {
   const isCoin = row.kind === "coin";
-  const rp = isCoin ? dnd.rowProps("coin", coinIndex) : {};
+  // One dnd list for the whole table: every row both initiates and receives a
+  // drag through the same mechanism, so coins and valuables reorder identically.
+  const rp = dnd.rowProps("wealth", index);
   return (
     <div
-      className={cx("osc-coin-row", isCoin && dnd.rowClass("coin", coinIndex))}
+      className={cx("osc-coin-row", dnd.rowClass("wealth", index))}
       onDragOver={rp.onDragOver}
       onDrop={rp.onDrop}
       onDragEnd={rp.onDragEnd}
@@ -46,14 +48,12 @@ export function WealthRow({
         onContext(e, { id: row.id, name: row.name, equipped: null, quantity: null })
       }
     >
-      {/* Handle column is visually identical for both kinds; only coins wire the
-          drag (valuable reorder needs a cross-section data write — see notes). */}
       <span
         className="osc-inv-drag"
         title="Drag to reorder"
-        draggable={isCoin && canEdit}
-        onDragStart={isCoin ? rp.onDragStart : undefined}
-        onDragEnd={isCoin ? rp.onDragEnd : undefined}
+        draggable={canEdit}
+        onDragStart={rp.onDragStart}
+        onDragEnd={rp.onDragEnd}
       >
         <i className="fa-solid fa-grip-lines" aria-hidden="true" />
       </span>

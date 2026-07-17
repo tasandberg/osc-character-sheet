@@ -10,6 +10,7 @@ import type {
   CoinVM,
   TreasureVM,
   WealthRow,
+  WealthSortKey,
 } from "@domain/vm-types";
 import { FLAGS, readFlag } from "@domain/flags";
 
@@ -156,6 +157,33 @@ export function selectWealth(items: OseItem[]): WealthRow[] {
     value: t.value,
   }));
   return [...coins, ...valuables];
+}
+
+/**
+ * Sort the WHOLE Treasure list — coins and valuables together, interleaved by the
+ * chosen field (not two groups). `manual` keeps the caller's order (selectWealth's
+ * canonical order, or a dragged baseline). name = string compare; qty/weight/value
+ * = numeric on the row's committed figures. Returns a new array; `manual` is a
+ * no-op passthrough.
+ */
+export function sortWealth(
+  rows: WealthRow[],
+  key: WealthSortKey,
+  dir: SortDir,
+): WealthRow[] {
+  if (key === "manual") return rows;
+  const f = dir === "asc" ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    const cmp =
+      key === "item"
+        ? a.name.localeCompare(b.name)
+        : key === "qty"
+          ? a.qty - b.qty
+          : key === "weight"
+            ? a.weight - b.weight
+            : a.value - b.value;
+    return cmp * f;
+  });
 }
 
 // Standard OSE gp value per coin — fallback when an item's system.cost is unset.

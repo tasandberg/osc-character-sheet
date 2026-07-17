@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { selectInventory, selectEncumbrance, selectCoins, selectTreasure, selectWealth, sortInventory, sortEquipped, coinDenom, encBarStops } from "@features/inventory/inventory";
+import { selectInventory, selectEncumbrance, selectCoins, selectTreasure, selectWealth, sortWealth, sortInventory, sortEquipped, coinDenom, encBarStops } from "@features/inventory/inventory";
 import type { OseItem, OSEActor } from "@domain/types";
 import { MODULE_ID, FLAGS } from "@domain/flags";
 
@@ -487,6 +487,33 @@ describe("selectWealth", () => {
     ]);
     expect(w[0]).toMatchObject({ kind: "coin", denom: "GP", gpEach: 1, qty: 50, weight: 50, value: 50 });
     expect(w[1]).toMatchObject({ kind: "treasure", qty: 2, weight: 1, value: 1000 });
+  });
+});
+
+describe("sortWealth", () => {
+  // GP (152gp), SP (0.8gp), Diamond (3 × 500 = 1500gp) — coins + a gem in one list.
+  const rows = selectWealth([
+    mk("item", "GP", { treasure: true, cost: 1, quantity: { value: 152 } }),
+    mk("item", "SP", { treasure: true, cost: 0.1, quantity: { value: 8 } }),
+    mk("item", "Diamond", { treasure: true, weight: 3, cost: 500, quantity: { value: 3 } }),
+  ]);
+
+  it("sorts coins and treasure together by value desc — the gem outranks the coins", () => {
+    expect(sortWealth(rows, "value", "desc").map((r) => r.name)).toEqual(["Diamond", "GP", "SP"]);
+  });
+
+  it("sorts coins and treasure together by name (interleaved, not two groups)", () => {
+    expect(sortWealth(rows, "item", "asc").map((r) => r.name)).toEqual(["Diamond", "GP", "SP"]);
+  });
+
+  it("sorts by qty across kinds", () => {
+    // qty: Diamond 3, SP 8, GP 152
+    expect(sortWealth(rows, "qty", "asc").map((r) => r.name)).toEqual(["Diamond", "SP", "GP"]);
+  });
+
+  it("manual is a passthrough of selectWealth's order (coins first, then gems)", () => {
+    expect(sortWealth(rows, "manual", "asc")).toBe(rows);
+    expect(rows.map((r) => r.name)).toEqual(["GP", "SP", "Diamond"]);
   });
 });
 
