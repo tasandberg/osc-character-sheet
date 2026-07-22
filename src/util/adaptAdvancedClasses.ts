@@ -12,7 +12,7 @@ import logger from "@src/util/logger";
  */
 
 /** The advanced tome's raw per-class shape (only the fields we consume). */
-interface RawAdvancedClass {
+export interface RawAdvancedClass {
   /** Display name, e.g. "Bard". */
   menu: string;
   /** Slug, e.g. "bard" — fallback when `menu` is missing. */
@@ -111,27 +111,42 @@ type ClassesWithAdvanced = (typeof CONFIG.OSE)["classes"] & {
   advanced: Record<string, OseClass>;
 };
 
-/**
- * Boot-time adapter: if the advanced tome's raw class data is present, adapt
- * every class and store the result at `CONFIG.OSE.classes.advanced`. No-op when
- * the global is absent (tome not installed). Returns the count adapted.
- */
-export function installAdvancedClasses(): number {
-  const advanced = (globalThis as { OSE?: { data?: { classes?: { advanced?: Record<string, RawAdvancedClass> } } } })
-    .OSE?.data?.classes?.advanced;
-  if (!advanced || typeof advanced !== "object") {
-    logger("No OSE.data.classes.advanced found; skipping advanced class adapter");
-    return 0;
-  }
-
+/** Adapt a raw class map into `CONFIG.OSE.classes.advanced`; return the count. */
+function adaptInto(advanced: Record<string, RawAdvancedClass>): number {
   const classes = CONFIG.OSE.classes as ClassesWithAdvanced;
   const target: Record<string, OseClass> = (classes.advanced ??= {});
   for (const raw of Object.values(advanced)) {
     const def = adaptAdvancedClass(raw);
     target[def.name] = def;
   }
-
   const count = Object.keys(target).length;
   logger(`Adapted ${count} advanced classes into CONFIG.OSE.classes.advanced`);
   return count;
+}
+
+/**
+ * Boot-time adapter. Prefers the tome's raw class data on the `OSE` global (set
+ * only when OSR Character Builder is active); otherwise, if the Advanced Fantasy
+ * tome is installed, fetches and extracts the data straight from its script so
+ * advanced classes work without OSRCB. No-op when neither source is available.
+ * Returns the count adapted.
+ */
+export async function installAdvancedClasses(): Promise<number> {
+  const advanced = (globalThis as { OSE?: { data?: { classes?: { advanced?: Record<string, RawAdvancedClass> } } } })
+    .OSE?.data?.classes?.advanced;
+  if (advanced && typeof advanced === "object") {
+    return adaptInto(advanced);
+  }
+
+  if (game.modules?.get("ose-advancedfantasytome")?.active) {
+    const { fetchAdvancedClassesFromTome } = await import("@src/util/fetchTomeClassData");
+    const fetched = await fetchAdvancedClassesFromTome();
+    if (fetched) {
+      logger("Loaded advanced classes from the tome script (OSRCB not active)");
+      return adaptInto(fetched);
+    }
+  }
+
+  logger("No OSE.data.classes.advanced found; skipping advanced class adapter");
+  return 0;
 }
