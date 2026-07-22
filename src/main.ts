@@ -29,7 +29,7 @@ export function initialize() {
     logger("Initializing React application");
     migrateLocalStorage(); // every user; independent of the GM world pass
     await runWorldMigration();
-    installAdvancedClasses();
+    await installAdvancedClasses();
     registerSendItemSocket(); // GM relay for cross-owner "Send Item" transfers
 
     // Debug API. `crashTest()` throws a deliberate error inside any open OSC
