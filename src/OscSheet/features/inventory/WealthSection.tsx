@@ -10,7 +10,7 @@ import { useDragReorder } from "@features/inventory/useDragReorder";
 import { WealthRow } from "@features/inventory/WealthRow";
 import { fmtCoin } from "@features/inventory/fmtCoin";
 import { SortHeader } from "@features/inventory/SortHeader";
-import type { OnContext } from "@features/inventory/types";
+import type { ItemDragData, OnContext } from "@features/inventory/types";
 import { useOscSheetContext } from "@app/context";
 import { Button } from "@ui/Button";
 import { cx } from "@ui/cx";
@@ -26,12 +26,15 @@ import { cx } from "@ui/cx";
 export function WealthSection({
   wealth,
   onSetCoin,
+  itemDragData,
   onOpen,
   onContext,
 }: {
   /** Unified row list: coins (canonical order) then non-coin valuables. */
   wealth: WealthRowVM[];
   onSetCoin: (id: string, value: number) => void;
+  /** Foundry item drag-data per row id — lets treasure rows drop onto the hotbar / Item Piles. */
+  itemDragData: ItemDragData;
   /** Click a coin/valuable name → open its item sheet (like an item row). */
   onOpen: (id: string) => void;
   /** Right-click a row → the shared item context menu (View / Delete). */
@@ -185,6 +188,7 @@ export function WealthSection({
                 index={i}
                 canEdit={canEdit}
                 dnd={dnd}
+                itemDragData={itemDragData}
                 inputValue={draft[row.denom] ?? String(row.qty)}
                 onOpen={onOpen}
                 onContext={onContext}
@@ -199,6 +203,7 @@ export function WealthSection({
                 index={i}
                 canEdit={canEdit}
                 dnd={dnd}
+                itemDragData={itemDragData}
                 onOpen={onOpen}
                 onContext={onContext}
               />

@@ -5,7 +5,7 @@
 import type { WealthRow as WealthRowVM } from "@domain/vm-types";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { fmtCoin } from "@features/inventory/fmtCoin";
-import type { Dnd, OnContext } from "@features/inventory/types";
+import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { cx } from "@ui/cx";
 
 export function WealthRow({
@@ -13,6 +13,7 @@ export function WealthRow({
   index,
   canEdit,
   dnd,
+  itemDragData,
   inputValue,
   onOpen,
   onContext,
@@ -25,6 +26,9 @@ export function WealthRow({
   index: number;
   canEdit: boolean;
   dnd: Dnd;
+  /** Foundry item drag-data for this row (coins/valuables are real items) so a drag
+   *  carries `{type:"Item",uuid,…}` — droppable onto the hotbar and Item Piles. */
+  itemDragData: ItemDragData;
   /** Controlled coin-input value (draft-aware); coin rows only. */
   inputValue?: string;
   onOpen: (id: string) => void;
@@ -36,7 +40,7 @@ export function WealthRow({
   const isCoin = row.kind === "coin";
   // One dnd list for the whole table: every row both initiates and receives a
   // drag through the same mechanism, so coins and valuables reorder identically.
-  const rp = dnd.rowProps("wealth", index);
+  const rp = dnd.rowProps("wealth", index, { dragPayload: () => itemDragData(row.id) });
   return (
     <div
       className={cx("osc-coin-row", dnd.rowClass("wealth", index))}
