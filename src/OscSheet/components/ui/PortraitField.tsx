@@ -17,8 +17,13 @@ export function PortraitField({
   const openPicker = () => {
     // foundry.applications.apps.FilePicker.implementation in v13+; fall back to the legacy global.
     const FP =
-      (foundry as unknown as { applications?: { apps?: { FilePicker?: { implementation?: unknown } } } })
-        .applications?.apps?.FilePicker?.implementation ??
+      (
+        foundry as unknown as {
+          applications?: {
+            apps?: { FilePicker?: { implementation?: unknown } };
+          };
+        }
+      ).applications?.apps?.FilePicker?.implementation ??
       (globalThis as unknown as { FilePicker?: unknown }).FilePicker;
     if (!FP) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,8 +35,18 @@ export function PortraitField({
   };
 
   return (
-    <button type="button" className={cx("ed-portrait", className)} onClick={openPicker} title="Change portrait" aria-label="Change portrait">
-      {src ? <img src={src} alt="" /> : <span className="ed-portrait-ph">{placeholder}</span>}
+    <button
+      type="button"
+      className={cx("ed-portrait", className)}
+      onClick={openPicker}
+      title="Change portrait"
+      aria-label="Change portrait"
+    >
+      {src ? (
+        <img src={src} alt="" />
+      ) : (
+        <span className="ed-portrait-ph">{placeholder}</span>
+      )}
     </button>
   );
 }

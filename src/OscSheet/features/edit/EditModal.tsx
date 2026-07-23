@@ -7,7 +7,6 @@ import {
   ConfirmDialog,
   OverrideValue,
   StampCell,
-  InlineButton,
   PortraitField,
   NumberInput,
   ValidatedInput,
@@ -20,7 +19,8 @@ import {
   availableClassNames,
   classSource,
 } from "@domain/classRules";
-import type { OSEActor, OSESave } from "@domain/types";
+import type { OSESave } from "@domain/types";
+import { HitDiceField } from "./HitDiceField";
 
 const SOURCE_TAG = {
   advanced: ["Advanced", "teal"],
@@ -34,68 +34,10 @@ function classFace(name: string): ReactNode {
   return (
     <>
       <span className="combobox-optlabel">{name.replace(/-/g, " ")}</span>
-      <Tag intent={intent} size="xs">{text}</Tag>
+      <Tag intent={intent} size="xs">
+        {text}
+      </Tag>
     </>
-  );
-}
-
-// A hit-die formula must be a valid Roll AND actually contain a die term.
-const validateHd = (v: string) =>
-  /d\d/i.test(v) && Roll.validate(v) ? null : "invalid dice formula";
-
-// Freeform hit-dice formula field: validates the roll string on blur (via
-// ValidatedInput), committing only when valid; the roll button uses the
-// last committed value.
-function HitDiceField({
-  actor,
-  hdVal,
-  hdDefault,
-  hdOverridden,
-  onCommit,
-  onResetRequest,
-}: {
-  actor: OSEActor;
-  hdVal: string;
-  hdDefault: string | null | undefined;
-  hdOverridden: boolean;
-  onCommit: (v: string) => void;
-  onResetRequest: () => void;
-}) {
-  const rollHd = () => {
-    const speaker = ChatMessage.getSpeaker({ actor });
-    void new Roll(hdVal).toMessage(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { speaker, flavor: `Hit Dice — ${hdVal}` } as any,
-    );
-  };
-
-  return (
-    <div className="ed-field" style={{ gridColumn: "7 / span 3" }}>
-      <span className="lab">Hit Dice</span>
-      <InlineButton
-        className="ed-rollbtn"
-        title={`Roll ${hdVal} hit points`}
-        onClick={rollHd}
-      >
-        <i className="fa-solid fa-dice-d20" aria-hidden="true" />
-      </InlineButton>
-      <ValidatedInput
-        className="ed-input mono"
-        value={hdVal}
-        validate={validateHd}
-        onCommit={onCommit}
-        spellCheck={false}
-        hint={
-          hdDefault != null ? (
-            <OverrideValue
-              overridden={hdOverridden}
-              defaultText={`default · ${hdDefault}`}
-              onResetRequest={onResetRequest}
-            />
-          ) : undefined
-        }
-      />
-    </div>
   );
 }
 
@@ -180,70 +122,96 @@ export function EditModal({
               {sys.details.class.replace(/-/g, " ")}
             </em>
           </SectionTitle>
-          <div className="ed-id-top">
+          <div className="ed-id-grid">
             <PortraitField
               src={actor.img}
               onPick={(path) => set("img", path)}
             />
-            <div className="ed-id-grid">
-              <label className="ed-field" style={{ gridColumn: "1 / span 8" }}>
-                <span className="lab">Name</span>
-                <ValidatedInput
-                  className="ed-input"
-                  value={actor.name}
-                  validate={(v) => (v ? null : "name can’t be empty")}
-                  onCommit={(v) => set("name", v)}
-                />
-              </label>
-              <label className="ed-field" style={{ gridColumn: "9 / span 4" }}>
-                <span className="lab">Title</span>
-                <ValidatedInput
-                  className="ed-input"
-                  value={sys.details.title}
-                  validate={() => null}
-                  onCommit={(v) => set("system.details.title", v)}
-                />
-              </label>
-            </div>
-          </div>
-          <div className="ed-idgrid">
-            <label className="ed-field" style={{ gridColumn: "1 / span 3" }}>
-              <span className="lab">Alignment</span>
-              <select
-                className="ed-input"
-                value={sys.details.alignment}
-                onChange={(e) =>
-                  set("system.details.alignment", e.target.value)
-                }
-              >
-                {ALIGNMENTS.map((a) => (
-                  <option key={a}>{a}</option>
-                ))}
-              </select>
+            <label className="ed-field" style={{ gridColumn: "span 3" }}>
+              <span className="lab">Name</span>
+              <ValidatedInput
+                className="input"
+                value={actor.name}
+                validate={(v) => (v ? null : "name can’t be empty")}
+                onCommit={(v) => set("name", v)}
+              />
             </label>
-            <label className="ed-field" style={{ gridColumn: "4 / span 3" }}>
+            <label className="ed-field" style={{ gridColumn: "span 4" }}>
+              <span className="lab">
+                Class <span className="hint">GM</span>
+              </span>
+              <Combobox
+                disabled={!isGM}
+                value={sys.details.class}
+                options={(classNames ?? []).map((c) => ({
+                  value: c,
+                  label: c.replace(/-/g, " "),
+                  node: classFace(c),
+                }))}
+                onCommit={(v) => set("system.details.class", v)}
+                renderValue={classFace}
+                createHint="Type to set a custom class"
+                newOptionLabel={(q) => `Custom: “${q}”`}
+              />
+            </label>
+            <label className="ed-field" style={{ gridColumn: "span 2" }}>
               <span className="lab">Level</span>
               <NumberInput
-                className="ed-input mono"
+                className="input mono"
                 value={level}
                 min={1}
                 max={defaults.maxLevel}
                 onCommit={(n) => set("system.details.level", n)}
               />
             </label>
-            <label className="ed-field" style={{ gridColumn: "7 / span 3" }}>
+            <label className="ed-field" style={{ gridColumn: "span 3" }}>
+              <span className="lab">Title</span>
+              <ValidatedInput
+                className="input"
+                value={sys.details.title}
+                validate={() => null}
+                onCommit={(v) => set("system.details.title", v)}
+              />
+            </label>
+            <label className="ed-field" style={{ gridColumn: "span 4" }}>
+              <span className="lab">Alignment</span>
+              <Combobox
+                value={sys.details.alignment}
+                options={ALIGNMENTS.map((a) => ({ value: a, label: a }))}
+                onCommit={(v) => set("system.details.alignment", v)}
+                createHint="Type to set a custom alignment"
+                newOptionLabel={(q) => `Custom: “${q}”`}
+              />
+            </label>
+
+            <HitDiceField
+              style={{ gridColumn: "span 2" }}
+              actor={actor}
+              hdVal={hdVal}
+              hdDefault={hdDefault}
+              hdOverridden={hdOverridden}
+              onCommit={(v) => set("system.hp.hd", v)}
+              onResetRequest={() =>
+                requestConfirm(
+                  "Reset Hit Dice?",
+                  `Revert to the class default of ${hdDefault}.`,
+                  () => set("system.hp.hd", hdDefault!),
+                )
+              }
+            />
+            <label className="ed-field" style={{ gridColumn: "span 3" }}>
               <span className="lab">Current XP</span>
               <NumberInput
-                className="ed-input mono"
+                className="input mono"
                 value={sys.details.xp.value}
                 min={0}
                 onCommit={(n) => set("system.details.xp.value", n)}
               />
             </label>
-            <label className="ed-field" style={{ gridColumn: "10 / span 3" }}>
+            <label className="ed-field" style={{ gridColumn: "span 3" }}>
               <span className="lab">Next Level</span>
               <NumberInput
-                className="ed-input mono"
+                className="input mono"
                 value={sys.details.xp.next}
                 min={0}
                 onCommit={(n) => set("system.details.xp.next", n)}
@@ -262,44 +230,30 @@ export function EditModal({
                 />
               )}
             </label>
-
-            <label className="ed-field" style={{ gridColumn: "1 / span 3" }}>
+            <label className="ed-field" style={{ gridColumn: "span 2" }}>
               <span className="lab">Current HP</span>
               <NumberInput
-                className="ed-input mono"
+                className="input mono"
                 value={sys.hp.value}
                 min={0}
                 max={sys.hp.max}
                 onCommit={(n) => set("system.hp.value", n)}
               />
             </label>
-            <label className="ed-field" style={{ gridColumn: "4 / span 3" }}>
+            <label className="ed-field" style={{ gridColumn: "span 2" }}>
               <span className="lab">Max HP</span>
               <NumberInput
-                className="ed-input mono"
+                className="input mono"
                 value={sys.hp.max}
                 min={1}
                 onCommit={(n) => set("system.hp.max", n)}
               />
             </label>
-            <HitDiceField
-              actor={actor}
-              hdVal={hdVal}
-              hdDefault={hdDefault}
-              hdOverridden={hdOverridden}
-              onCommit={(v) => set("system.hp.hd", v)}
-              onResetRequest={() =>
-                requestConfirm(
-                  "Reset Hit Dice?",
-                  `Revert to the class default of ${hdDefault}.`,
-                  () => set("system.hp.hd", hdDefault!),
-                )
-              }
-            />
-            <div className="ed-field" style={{ gridColumn: "10 / span 3" }}>
+
+            <div className="ed-field" style={{ gridColumn: "span 2" }}>
               <span className="lab">Initiative Mod</span>
               <NumberInput
-                className="ed-input mono"
+                className="input mono"
                 value={initEff}
                 onCommit={(n) => set("system.initiative.mod", n - dexInit)}
               />
@@ -315,26 +269,6 @@ export function EditModal({
                 }
               />
             </div>
-
-            {isGM && classNames.length > 0 && (
-              <label className="ed-field" style={{ gridColumn: "1 / span 6" }}>
-                <span className="lab">
-                  Class <span className="hint">GM</span>
-                </span>
-                <Combobox
-                  value={sys.details.class}
-                  options={classNames.map((c) => ({
-                    value: c,
-                    label: c.replace(/-/g, " "),
-                    node: classFace(c),
-                  }))}
-                  onCommit={(v) => set("system.details.class", v)}
-                  renderValue={classFace}
-                  createHint="Type to set a custom class"
-                  newOptionLabel={(q) => `Custom: “${q}”`}
-                />
-              </label>
-            )}
           </div>
         </div>
 
@@ -415,7 +349,7 @@ export function EditModal({
               <label className="ed-field" key={k}>
                 <span className="lab">{n}</span>
                 <select
-                  className="ed-input mono"
+                  className="input mono"
                   value={sys.exploration[k]}
                   onChange={(e) =>
                     set(`system.exploration.${k}`, Number(e.target.value))
