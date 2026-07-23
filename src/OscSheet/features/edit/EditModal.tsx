@@ -24,18 +24,18 @@ import type { OSESave } from "@domain/types";
 import { HitDiceField } from "./HitDiceField";
 
 const SOURCE_TAG = {
-  advanced: ["Advanced", "teal"],
-  classic: ["Classic", "brass"],
-  custom: ["Custom", "mustard"],
+  advanced: ["ADV", "teal", "Advanced Fantasy"],
+  classic: ["SRD", "brass", "Classic Fantasy SRD"],
+  custom: ["CUS", "mustard", "Custom"],
 } as const;
 
 // One face for both dropdown rows and the at-rest chip, so they stay identical.
 function classFace(name: string): ReactNode {
-  const [text, intent] = SOURCE_TAG[classSource(name)];
+  const [text, intent, title] = SOURCE_TAG[classSource(name)];
   return (
     <>
       <span className="combobox-optlabel">{name.replace(/-/g, " ")}</span>
-      <Tag intent={intent} size="xs">
+      <Tag intent={intent} size="xs" title={title}>
         {text}
       </Tag>
     </>

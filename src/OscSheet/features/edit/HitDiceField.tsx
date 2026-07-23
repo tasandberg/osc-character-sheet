@@ -52,10 +52,10 @@ export function HitDiceField({
         onCommit={onCommit}
         spellCheck={false}
         hint={
-          hdDefault != null ? (
+          hdDefault != hdVal ? (
             <OverrideValue
               overridden={hdOverridden}
-              defaultText={`default · ${hdDefault}`}
+              defaultText={`${hdDefault}`}
               onResetRequest={onResetRequest}
             />
           ) : undefined
