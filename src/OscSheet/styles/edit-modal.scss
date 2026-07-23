@@ -19,72 +19,174 @@
   }
   // Cap the form width on wide windows (it centers via the scrim's place-items);
   // .modal's width:100% still shrinks it below the cap on narrow sheets.
-  .fe-modal { container-type: inline-size; container-name: fwin; max-width: 760px; max-height: 100%; margin: 0; }
-  .fe-modal-body { display: flex; flex-direction: column; gap: 20px; }
+  .fe-modal {
+    container-type: inline-size;
+    container-name: fwin;
+    max-width: 760px;
+    max-height: 100%;
+    margin: 0;
+  }
+  .fe-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
 
-  .ed-sec { display: flex; flex-direction: column; gap: 12px; }
-  .ed-sec > .section-title { margin: 0; font-size: var(--fs-2xl); }
+  .ed-sec {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ed-sec > .section-title {
+    margin: 0;
+    font-size: var(--fs-2xl);
+  }
   // Class name in the Identity header — real serif italic (the display face is
   // small-caps with no true italic), slightly dimmed as an annotation.
-  .ed-id-class { font-family: var(--serif); font-style: italic; color: var(--text-dim); }
+  .ed-id-class {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--text-dim);
+  }
 
-  .ed-id-top { display: flex; gap: 14px; align-items: stretch; }
-  .ed-id-top .ed-portrait { align-self: stretch; height: auto; }
-  .ed-id-grid { flex: 1 1 auto; min-width: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; align-content: start; }
-  .ed-idgrid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; align-items: start; }
-  .ed-id-grid .ed-field, .ed-idgrid .ed-field { min-width: 0; }
-  .ed-id-grid .lab, .ed-idgrid .lab { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.06em; }
-  .ed-idgrid .ed-locked { font-size: var(--fs-sm); padding: 9px 11px; width: 100%; }
+  .ed-portrait {
+    width: 100%;
+    height: auto;
+    grid-column: 1 / span 3;
+    grid-row: 1 / span 2;
+  }
+  .ed-id-grid {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 14px;
+    align-content: start;
+  }
+  .ed-idgrid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+  }
+  .ed-id-grid .ed-field,
+  .ed-idgrid .ed-field {
+    min-width: 0;
+  }
+  .ed-id-grid .lab,
+  .ed-idgrid .lab {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.06em;
+  }
+  .ed-idgrid .ed-locked {
+    font-size: var(--fs-sm);
+    padding: 9px 11px;
+    width: 100%;
+  }
 
-  .ed-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; position: relative; }
+  .ed-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+    position: relative;
+  }
   .ed-field > .lab {
-    font-family: var(--sans); font-weight: 600;
-    font-size: var(--fs-3xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: var(--fs-3xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
   }
-  .ed-field .hint { font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-mute); line-height: 1.4; }
-
-  .ed-input {
-    background: var(--surface); border: 1px solid var(--border); color: var(--text);
-    font-family: var(--sans); font-size: var(--fs-sm);
-    padding: 9px 11px; border-radius: var(--r-sm); width: 100%; min-width: 0;
-    outline: none; box-sizing: border-box; transition: border-color .12s, background .12s;
-    -moz-appearance: textfield;
+  .ed-field .hint {
+    font-family: var(--mono);
+    font-size: var(--fs-3xs);
+    color: var(--text-mute);
+    line-height: 1.4;
   }
-  .ed-input::-webkit-outer-spin-button, .ed-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .ed-input:focus { border-color: var(--teal); background: var(--bg); }
-  .ed-input.is-error, .ed-input.is-error:focus { border-color: var(--crimson); }
-  .ed-input.mono { font-family: var(--mono); }
-  select.ed-input { cursor: pointer; }
 
   .ed-locked {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: var(--bg-2); border: 1px dashed var(--border); border-radius: var(--r-sm);
-    padding: 8px 11px; color: var(--text-dim);
-    font-family: var(--display); font-size: var(--fs-md); letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--bg-2);
+    border: 1px dashed var(--border);
+    border-radius: var(--r-sm);
+    padding: 8px 11px;
+    color: var(--text-dim);
+    font-family: var(--display);
+    font-size: var(--fs-md);
+    letter-spacing: 0.02em;
   }
 
   // HD inline roll button — corner placement + d20 sizing (the InlineButton
   // primitive owns only the look; placement is this consumer's job).
-  .ed-field .ed-rollbtn { position: absolute; top: -2px; right: 0; width: 18px; height: 18px; line-height: 0; z-index: 3; }
-  .ed-field .ed-rollbtn .fa-dice-d20 { font-size: var(--fs-md); }
+  .ed-field .ed-rollbtn {
+    position: absolute;
+    top: -2px;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    line-height: 0;
+    z-index: 3;
+  }
+  .ed-field .ed-rollbtn .fa-dice-d20 {
+    font-size: var(--fs-md);
+  }
 
-  .ed-cells { display: grid; gap: 8px; }
-  .ed-cells.ed-abil { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .ed-cells.ed-save { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .ed-cells {
+    display: grid;
+    gap: 8px;
+  }
+  .ed-cells.ed-abil {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .ed-cells.ed-save {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 
-  .ed-skills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
-  .ed-skills .ed-field > .lab { text-transform: none; letter-spacing: 0.02em; font-family: var(--serif); font-style: italic; font-size: var(--fs-xs); color: var(--text-dim); font-weight: 400; }
+  .ed-skills {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 14px;
+  }
+  .ed-skills .ed-field > .lab {
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: var(--fs-xs);
+    color: var(--text-dim);
+    font-weight: 400;
+  }
 
-  // Identity grids are 4-up via per-field grid-column spans (set inline in JSX);
-  // collapse to 2-up on narrow modals so labels/inputs aren't crushed. The
-  // !important beats the inline grid-column so fields auto-flow into 2 columns.
+  // Narrow modal: keep the 12-col grid but override the wide inline spans.
+  // Fields go half-width (span 6); comboboxes take the full row (span 12);
+  // the portrait shrinks to a small square (span 3, single row).
   @container fwin (max-width: 560px) {
-    .ed-id-grid, .ed-idgrid { grid-template-columns: 1fr 1fr; }
-    .ed-id-grid > .ed-field, .ed-idgrid > .ed-field { grid-column: auto !important; }
+    .ed-id-grid > .ed-field,
+    .ed-idgrid > .ed-field {
+      grid-column: span 6 !important;
+    }
+    .ed-id-grid > .ed-field:has(.combobox),
+    .ed-idgrid > .ed-field:has(.combobox) {
+      grid-column: span 12 !important;
+    }
+    .ed-portrait {
+      grid-column: span 3 !important;
+      grid-row: span 1 !important;
+    }
   }
 
   @container fwin (max-width: 520px) {
-    .ed-cells.ed-abil { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .ed-skills { grid-template-columns: 1fr; }
+    .ed-cells.ed-abil {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .ed-skills {
+      grid-template-columns: 1fr;
+    }
   }
 }
