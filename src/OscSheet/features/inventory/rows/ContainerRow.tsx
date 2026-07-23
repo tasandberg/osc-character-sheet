@@ -39,6 +39,15 @@ export function ContainerRow({
 }) {
   const group = gkey(item.id);
   const count = item.children.length;
+  // The whole header row is draggable; it reorders among root items AND accepts
+  // items dropped onto it (nest).
+  const rp = dnd.rowProps(ROOT, index, {
+    container: true,
+    containerZone: item.id,
+    ownZone: ROOT,
+    acceptCrossGroup: (from) => from !== EQUIPPED,
+    dragPayload: () => itemDragData(item.id),
+  });
   // Open or shut, the whole container is one nest target: its header row, its child
   // rows, and (when empty) its body all resolve to a drop-into on this container.
   const isDropTarget =
@@ -57,7 +66,6 @@ export function ContainerRow({
 
   return (
     <div className={cx("osc-inv-container", isDropTarget && "is-drop-target")}>
-      {/* The header row reorders among root items AND accepts items dropped onto it (nest). */}
       <div
         className={cx(
           "osc-inv-row",
@@ -66,13 +74,7 @@ export function ContainerRow({
           dnd.rowClass(ROOT, index),
         )}
         onContextMenu={(e) => onContext(e, item)}
-        {...dnd.rowProps(ROOT, index, {
-          container: true,
-          containerZone: item.id,
-          ownZone: ROOT,
-          acceptCrossGroup: (from) => from !== EQUIPPED,
-          dragPayload: () => itemDragData(item.id),
-        })}
+        {...rp}
       >
         <span className="osc-inv-drag" aria-hidden="true">
           <i className="fa-solid fa-grip-lines" />

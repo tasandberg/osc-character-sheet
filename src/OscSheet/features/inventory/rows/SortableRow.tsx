@@ -144,31 +144,29 @@ export function SortableRow({
   onContext: OnContext;
   onSetQty: (id: string, value: number) => void;
 }) {
-  // No handle: the whole row is draggable. Clicks on the inner buttons/inputs still
-  // fire (a click is a press without movement), so name/equip/qty stay interactive.
+  // The whole row is draggable (and stays a drop target). Clicks on the inner
+  // buttons/inputs still fire — a click is a press without movement — so
+  // name/equip/qty stay interactive.
+  // Root rows accept a container child dropped among them (un-nest); a container's
+  // child rows accept a foreign item (nest into that container). Neither accepts a
+  // tray tile — equipped-tray drags onto the list are routed to unequip instead.
+  const rp = dnd.rowProps(group, index, {
+    ownZone: group,
+    nestZone,
+    acceptCrossGroup: (from) => from !== EQUIPPED,
+    dragPayload: () => itemDragData(item.id),
+  });
   return (
     <>
       <div
-        className={cx(
-          "osc-inv-row",
-          "is-sortable",
-          dnd.rowClass(group, index),
-        )}
+        className={cx("osc-inv-row", "is-sortable", dnd.rowClass(group, index))}
         style={
           depth > 0
             ? ({ "--osc-inv-depth": depth } as React.CSSProperties)
             : undefined
         }
         onContextMenu={(e) => onContext(e, item)}
-        // Root rows accept a container child dropped among them (un-nest); a container's
-        // child rows accept a foreign item (nest into that container). Neither accepts a
-        // tray tile — equipped-tray drags onto the list are routed to unequip instead.
-        {...dnd.rowProps(group, index, {
-          ownZone: group,
-          nestZone,
-          acceptCrossGroup: (from) => from !== EQUIPPED,
-          dragPayload: () => itemDragData(item.id),
-        })}
+        {...rp}
       >
         <span className="osc-inv-drag" aria-hidden="true">
           <i className="fa-solid fa-grip-lines" />

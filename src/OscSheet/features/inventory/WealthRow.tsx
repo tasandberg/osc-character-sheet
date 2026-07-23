@@ -38,27 +38,26 @@ export function WealthRow({
   onQtyCommitClose?: () => void;
 }) {
   const isCoin = row.kind === "coin";
-  // One dnd list for the whole table: every row both initiates and receives a
-  // drag through the same mechanism, so coins and valuables reorder identically.
-  const rp = dnd.rowProps("wealth", index, { dragPayload: () => itemDragData(row.id) });
+  // One dnd list for the whole table: the whole row is draggable and a drop
+  // target — so coins and valuables reorder identically to item rows.
+  const rp = dnd.rowProps("wealth", index, {
+    dragPayload: () => itemDragData(row.id),
+  });
   return (
     <div
       className={cx("osc-coin-row", dnd.rowClass("wealth", index))}
-      onDragOver={rp.onDragOver}
-      onDrop={rp.onDrop}
-      onDragEnd={rp.onDragEnd}
+      {...rp}
       // coins/valuables are real items: right-click → View / Delete (no equip/consume)
       onContextMenu={(e) =>
-        onContext(e, { id: row.id, name: row.name, equipped: null, quantity: null })
+        onContext(e, {
+          id: row.id,
+          name: row.name,
+          equipped: null,
+          quantity: null,
+        })
       }
     >
-      <span
-        className="osc-inv-drag"
-        title="Drag to reorder"
-        draggable={canEdit}
-        onDragStart={rp.onDragStart}
-        onDragEnd={rp.onDragEnd}
-      >
+      <span className="osc-inv-drag" title="Drag to reorder">
         <i className="fa-solid fa-grip-lines" aria-hidden="true" />
       </span>
       <ItemImage img={row.img} monogram={row.monogram} />
@@ -89,7 +88,9 @@ export function WealthRow({
           disabled={!canEdit}
           onChange={(e) => onQtyChange?.(e.target.value)}
           onFocus={(e) => e.currentTarget.select()}
-          onKeyDown={(e) => { if (e.key === "Enter") onQtyCommitClose?.(); }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onQtyCommitClose?.();
+          }}
           onBlur={() => onQtyCommit?.()}
         />
       ) : (
