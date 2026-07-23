@@ -112,21 +112,42 @@
   border-bottom: 1px solid var(--border-soft, #2c2823);
   transition: background 0.1s;
 
-  &.is-dragging,
-  &.dragging {
+  // Fade the row's content, not the row element itself — the drop insertion line
+  // is a box-shadow on the row, and a dragged row can also be the drop target
+  // (dragging + drop-after), so fading the element would render the teal line
+  // semi-transparent. Fading only children keeps the line solid.
+  &.is-dragging > *,
+  &.dragging > * {
     opacity: 0.4;
   }
   &.is-drop-target {
     border-bottom-color: var(--teal, #1f7575);
     background: color-mix(in srgb, var(--teal, #1f7575) 8%, transparent);
   }
-  // Insertion line — a 2px rule painted on the hovered row's leading/trailing edge.
-  // box-shadow (not border) so it overlays without shifting the grid: no reflow.
-  &.drop-before {
-    box-shadow: inset 0 2px 0 0 var(--teal, #1f7575);
-  }
+  // Insertion line — a single 2px rule centred on the row edge via an overlay
+  // pseudo-element (not box-shadow, which the row's border splits into a double
+  // line). "after N" and "before N+1" both land on the exact same border pixel,
+  // so it stays put until the insertion index actually changes — no hop, no
+  // reflow. The pseudo isn't a child, so the dragging fade (`> *`) leaves it solid.
+  &.drop-before,
   &.drop-after {
-    box-shadow: inset 0 -2px 0 0 var(--teal, #1f7575);
+    position: relative;
+  }
+  &.drop-before::before,
+  &.drop-after::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--teal, #1f7575);
+    pointer-events: none;
+  }
+  &.drop-before::before {
+    top: -1px;
+  }
+  &.drop-after::after {
+    bottom: -1px;
   }
 }
 
@@ -307,7 +328,6 @@
   align-items: center;
   justify-content: center;
   color: var(--text-faint, #6a6354);
-  cursor: grab;
   font-size: var(--fs-xs, 12px);
   line-height: 1;
   padding: var(--spacer-1);
@@ -608,12 +628,19 @@
   background: color-mix(in oklab, var(--accent-alt) 9%, transparent);
 }
 
-// the whole row is draggable (buttons inside still take clicks)
-.osc-inv-row.is-sortable {
-  cursor: grab;
-  &:active {
-    cursor: grabbing;
-  }
+// The whole row is draggable, but reads as a normal row at rest — regular cursor
+// on hover, the grabbing fist only while a drag is held. Interactive children
+// (name button, qty input, equip/use controls) keep their own cursors.
+.osc-inv-row.is-sortable:active,
+.osc-coin-row:active {
+  cursor: grabbing;
+}
+// While a drag is in flight the source row is no longer under the pointer, so
+// :active drops — flag the sheet root for the drag's lifetime and force the
+// grabbing cursor everywhere until drop/end.
+.osc-sheet-app.osc-dnd-active,
+.osc-sheet-app.osc-dnd-active * {
+  cursor: grabbing !important;
 }
 
 // Dragging an equipped tray tile down into the list → unequip drop target.
@@ -766,13 +793,27 @@
   border-bottom: 1px solid var(--border-soft, #2c2823);
 }
 // drop-line affordance (matches the items rows)
-.osc-coin-row.drop-before {
-  box-shadow: inset 0 2px 0 0 var(--teal, #1f7575);
-}
+.osc-coin-row.drop-before,
 .osc-coin-row.drop-after {
-  box-shadow: inset 0 -2px 0 0 var(--teal, #1f7575);
+  position: relative;
 }
-.osc-coin-row.dragging {
+.osc-coin-row.drop-before::before,
+.osc-coin-row.drop-after::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--teal, #1f7575);
+  pointer-events: none;
+}
+.osc-coin-row.drop-before::before {
+  top: -1px;
+}
+.osc-coin-row.drop-after::after {
+  bottom: -1px;
+}
+.osc-coin-row.dragging > * {
   opacity: 0.4;
 }
 .osc-inv .osc-coin-qty {
@@ -993,14 +1034,12 @@
 .osc-equip-tcard {
   position: relative;
 }
-// tiles drag to reorder within the tray (own order)
-.osc-equip-tcard.is-sortable {
-  cursor: grab;
-  &:active {
-    cursor: grabbing;
-  }
+// tiles drag to reorder within the tray (own order) — regular at rest, the
+// grabbing fist only while a drag is held.
+.osc-equip-tcard.is-sortable:active {
+  cursor: grabbing;
 }
-.osc-equip-tcard.dragging {
+.osc-equip-tcard.dragging > * {
   opacity: 0.4;
 }
 // horizontal insertion line on the leading/trailing edge of the hovered tile (teal)
