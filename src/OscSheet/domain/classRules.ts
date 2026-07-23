@@ -3,7 +3,7 @@ import type { OSEActor, OSESave } from "@domain/types";
 const SAVE_ORDER: OSESave[] = ["death", "wand", "paralysis", "breath", "spell"];
 
 type ClassDef = {
-  levels: { xp: number; hd: string; saves: number[] }[];
+  levels: { xp: number; hd: string; thac0: number; saves: number[] }[];
   /** Minimum ability scores required by the class, e.g. { cha: 9 }. */
   requirements?: Record<string, number>;
 };
@@ -17,6 +17,8 @@ export type ClassDefaults = {
   /** XP needed to reach the next level; null at max level. */
   nextXp: number | null;
   saves: Record<OSESave, number> | null;
+  /** Descending THAC0 for the current level; null for custom/unmatched. */
+  thac0: number | null;
   /** Minimum ability scores required by the class (ability key → min). */
   requirements: Record<string, number>;
 };
@@ -94,6 +96,7 @@ export function selectClassDefaults(actor: OSEActor): ClassDefaults {
       levelXp: null,
       nextXp: null,
       saves: null,
+      thac0: null,
       requirements: {},
     };
 
@@ -111,6 +114,7 @@ export function selectClassDefaults(actor: OSEActor): ClassDefaults {
     levelXp: row?.xp ?? null,
     nextXp: nextRow?.xp ?? null,
     saves,
+    thac0: row?.thac0 ?? null,
     requirements: def.requirements ?? {},
   };
 }

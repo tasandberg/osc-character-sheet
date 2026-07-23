@@ -19,6 +19,7 @@ import {
   availableClassNames,
   classSource,
 } from "@domain/classRules";
+import { usesAscendingAC } from "@domain/chat/targeting";
 import type { OSESave } from "@domain/types";
 import { HitDiceField } from "./HitDiceField";
 
@@ -98,6 +99,19 @@ export function EditModal({
   const hdVal = sys.hp.hd || defaults.hd || `${level}d8`;
   const hdDefault = defaults.hd;
   const hdOverridden = !!hdDefault && hdVal !== hdDefault;
+
+  // --- Attack (THAC0 descending / Attack Bonus ascending) ---
+  const ascendingAC = usesAscendingAC();
+  const atkLabel = ascendingAC ? "Attack Bonus" : "THAC0";
+  const atkKey = ascendingAC ? "system.thac0.bba" : "system.thac0.value";
+  const atkVal = ascendingAC ? sys.thac0.bba : sys.thac0.value;
+  const atkDefault =
+    defaults.thac0 == null
+      ? null
+      : ascendingAC
+        ? 19 - defaults.thac0
+        : defaults.thac0;
+  const atkOverridden = atkDefault != null && atkVal !== atkDefault;
 
   const footer = (
     <Button variant="primary" onClick={onClose}>
@@ -268,6 +282,28 @@ export function EditModal({
                   )
                 }
               />
+            </div>
+
+            <div className="ed-field" style={{ gridColumn: "1 / span 3" }}>
+              <span className="lab">{atkLabel}</span>
+              <NumberInput
+                className="input mono"
+                value={atkVal}
+                onCommit={(n) => set(atkKey, n)}
+              />
+              {atkDefault != null && (
+                <OverrideValue
+                  overridden={atkOverridden}
+                  defaultText={`default · ${atkDefault}`}
+                  onResetRequest={() =>
+                    requestConfirm(
+                      `Reset ${atkLabel}?`,
+                      `Revert to the class default of ${atkDefault}.`,
+                      () => set(atkKey, atkDefault),
+                    )
+                  }
+                />
+              )}
             </div>
           </div>
         </div>
