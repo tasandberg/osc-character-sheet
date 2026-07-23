@@ -1,0 +1,4 @@
+import{i as e,s as t}from"./preload-helper-xPQekRTU.js";import{n,t as r}from"./iframe-mr9N0WzD.js";import{n as i,t as a}from"./SettingsModal-9LpW6-c7.js";var o,s,c,l,u;e((()=>{o=t(n(),1),i(),s=r(),c={title:`Overlays / SettingsModal`},l=()=>{let[e,t]=o.useState(!0);return(0,s.jsx)(a,{open:e,onClose:()=>t(!1)})},l.__docgenInfo={description:``,methods:[],displayName:`Open`},l.parameters={...l.parameters,docs:{...l.parameters?.docs,source:{originalSource:`() => {
+  const [open, setOpen] = React.useState(true);
+  return <SettingsModal open={open} onClose={() => setOpen(false)} />;
+}`,...l.parameters?.docs?.source}}},u=[`Open`]}))();export{l as Open,u as __namedExportsOrder,c as default};
