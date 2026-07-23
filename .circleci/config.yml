@@ -46,10 +46,19 @@ jobs:
       - run:
           name: Setup Node.js 22 and pnpm 10.33.0
           command: |
+            export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             nvm install 22
             nvm alias default 22
             corepack enable
             corepack prepare pnpm@10.33.0 --activate
+            # Each CircleCI `run` starts a fresh shell — persist nvm (and thus the
+            # node 22 + corepack pnpm shims) into every later step via $BASH_ENV.
+            {
+              echo 'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"'
+              echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+              echo 'nvm use default >/dev/null'
+            } >> "$BASH_ENV"
             node --version && pnpm --version
 
       - run:
