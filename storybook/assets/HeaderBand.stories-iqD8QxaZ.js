@@ -1,0 +1,32 @@
+import{i as e,s as t}from"./preload-helper-xPQekRTU.js";import{n,t as r}from"./iframe-Cahecsa8.js";import{n as i,t as a}from"./Stamp-BkboHUwF.js";import{n as o,t as s}from"./useHpInput-B_MKU7E5.js";import{i as c,n as l,o as u,r as d,s as f}from"./MovePop-DavUy8JC.js";function p(e,t=.6){let n=(0,h.useRef)(null);return(0,h.useLayoutEffect)(()=>{let e=n.current;if(!e)return;let r=()=>{e.style.setProperty(`--fit-scale`,`1`);let n=e.clientWidth,r=e.scrollWidth,i=r>n&&r>0?Math.max(t,n/r):1;e.style.setProperty(`--fit-scale`,String(i))};r();let i=new ResizeObserver(r);return i.observe(e),()=>i.disconnect()},[e,t]),n}function m({identity:e,vitals:t,encumbrance:n,onSetHp:r,onPortraitContextMenu:i,canEditPortrait:s}){let d=t.moveBands,f=p(e.name),m=o({value:t.hp.value,max:t.hp.max,onSet:r??(()=>{})});return(0,g.jsxs)(`div`,{className:`osc-head`,children:[(0,g.jsx)(`div`,{className:`osc-portrait-wrap profile`,children:(0,g.jsx)(`img`,{className:`osc-portrait profile-img`,src:e.img||void 0,alt:e.name,"data-action":s?`editImage`:void 0,"data-edit":`img`,title:e.name,onContextMenu:i})}),(0,g.jsxs)(`div`,{className:`osc-ident`,children:[(0,g.jsx)(`div`,{className:`osc-name`,ref:f,children:e.name}),(0,g.jsxs)(`div`,{className:`osc-class`,children:[e.classLabel,` `,e.level,e.title?` · ${e.title}`:``,` · `,e.alignment]})]}),(0,g.jsxs)(`div`,{className:`osc-substats`,children:[(0,g.jsxs)(`div`,{className:`osc-tile`,children:[(0,g.jsx)(a,{children:`INIT`}),(0,g.jsx)(`div`,{className:`osc-tile-v`,children:u(t.initMod)})]}),(0,g.jsxs)(`div`,{className:`osc-tile`,children:[(0,g.jsx)(a,{children:`HD`}),(0,g.jsx)(`div`,{className:`osc-tile-v`,children:t.hd})]}),(0,g.jsxs)(`div`,{className:`osc-tile osc-tile-move`,children:[(0,g.jsx)(a,{children:`MOVE`}),(0,g.jsxs)(`div`,{className:`osc-tile-v`,children:[t.move,`ft`]}),(0,g.jsx)(l,{bands:d,tier:n?.enabled?n.tier:void 0,status:n?.enabled?n.status:void 0,armor:n?.enabled&&n.armorTier?c(n.armorTier):void 0})]})]}),(0,g.jsxs)(`div`,{className:`osc-vitals`,children:[(0,g.jsxs)(`div`,{className:`osc-vital hp`,children:[(0,g.jsx)(a,{className:`vv-l`,children:`HP`}),(0,g.jsxs)(`div`,{className:`vv-row`,children:[r&&(0,g.jsx)(`button`,{type:`button`,className:`vv-step`,"aria-label":`Lose 1 HP`,onClick:m.dec,children:`−`}),(0,g.jsx)(`div`,{className:`vv-big vv-value`,children:t.hp.value}),r&&(0,g.jsx)(`input`,{className:`vv-big vv-input`,"aria-label":`Current HP`,...m.inputProps},m.key),r&&(0,g.jsx)(`button`,{type:`button`,className:`vv-step`,"aria-label":`Heal 1 HP`,onClick:m.inc,children:`+`})]}),(0,g.jsxs)(`div`,{className:`vv-sub`,children:[(0,g.jsxs)(`span`,{className:`full`,children:[`Max `,t.hp.max]}),(0,g.jsxs)(`span`,{className:`short`,children:[`/`,t.hp.max]})]})]}),(0,g.jsxs)(`div`,{className:`osc-vital ac`,children:[(0,g.jsx)(a,{className:`vv-l`,children:`AC`}),(0,g.jsx)(`div`,{className:`vv-row`,children:(0,g.jsx)(`div`,{className:`vv-big`,"data-testid":`ac-value`,children:t.ac.value})}),(0,g.jsxs)(`div`,{className:`vv-sub`,children:[(0,g.jsx)(`span`,{className:`full`,children:t.ac.ascending?`Ascending`:`Descending`}),(0,g.jsx)(`span`,{className:`short`,children:t.ac.ascending?`asc`:`desc`})]})]})]})]})}var h,g,_=e((()=>{h=t(n(),1),f(),i(),d(),s(),g=r(),m.__docgenInfo={description:`Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
+ · HP/AC in medium, and stack them in the rail.`,methods:[],displayName:`HeaderBand`,props:{identity:{required:!0,tsType:{name:`IdentityVM`},description:``},vitals:{required:!0,tsType:{name:`VitalsVM`},description:``},encumbrance:{required:!1,tsType:{name:`EncumbranceVM`},description:`Drives the encumbrance line in the MOVE hover — why the rates are what they are.`},onSetHp:{required:!1,tsType:{name:`signature`,type:`function`,raw:`(value: number) => void`,signature:{arguments:[{type:{name:`number`},name:`value`}],return:{name:`void`}}},description:`Commit a new current-HP value; when provided, HP renders an editable input.`},onPortraitContextMenu:{required:!1,tsType:{name:`ReactMouseEventHandler`,raw:`React.MouseEventHandler<HTMLImageElement>`,elements:[{name:`HTMLImageElement`}]},description:`Right-click on the portrait (e.g. Token Variant Art's picker).`},canEditPortrait:{required:!1,tsType:{name:`boolean`},description:"When true, left-click opens the image FilePicker (core `editImage` action)."}}}})),v,y,b,x,S,C,w;e((()=>{_(),v=r(),y={title:`Shell / HeaderBand`},b={name:`Eldra Vey`,img:``,classLabel:`Magic-User`,level:3,alignment:`Neutral`,title:`Conjurer`},x={enabled:!0,value:700,max:1600,pct:700/1600,tier:2,status:`Heavily encumbered`,label:`700 / 1600 cn`,moveBands:{encounter:20,explore:60,travel:12},bands:[25,37.5,50]},S=()=>(0,v.jsx)(m,{identity:b,vitals:{hp:{value:8,max:9},ac:{value:12,ascending:!0},initMod:1,hd:`3d4`,move:120,moveBands:{encounter:40,explore:120,travel:24}}}),C=()=>(0,v.jsx)(m,{identity:b,vitals:{hp:{value:8,max:9},ac:{value:12,ascending:!0},initMod:1,hd:`3d4`,move:60,moveBands:x.moveBands},encumbrance:x}),S.__docgenInfo={description:``,methods:[],displayName:`Default`},C.__docgenInfo={description:`Hover MOVE: the rates plus the tier that explains them — same tint as the inventory line.`,methods:[],displayName:`Encumbered`},S.parameters={...S.parameters,docs:{...S.parameters?.docs,source:{originalSource:`() => <HeaderBand identity={identity} vitals={{
+  hp: {
+    value: 8,
+    max: 9
+  },
+  ac: {
+    value: 12,
+    ascending: true
+  },
+  initMod: 1,
+  hd: "3d4",
+  move: 120,
+  moveBands: {
+    encounter: 40,
+    explore: 120,
+    travel: 24
+  }
+}} />`,...S.parameters?.docs?.source}}},C.parameters={...C.parameters,docs:{...C.parameters?.docs,source:{originalSource:`() => <HeaderBand identity={identity} vitals={{
+  hp: {
+    value: 8,
+    max: 9
+  },
+  ac: {
+    value: 12,
+    ascending: true
+  },
+  initMod: 1,
+  hd: "3d4",
+  move: 60,
+  moveBands: encumbrance.moveBands
+}} encumbrance={encumbrance} />`,...C.parameters?.docs?.source},description:{story:`Hover MOVE: the rates plus the tier that explains them — same tint as the inventory line.`,...C.parameters?.docs?.description}}},w=[`Default`,`Encumbered`]}))();export{S as Default,C as Encumbered,w as __namedExportsOrder,y as default};
