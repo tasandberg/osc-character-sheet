@@ -1,0 +1,217 @@
+version: 2.1
+
+# E2E suite converted from .github/workflows/e2e.yml.
+#
+# Executor choice — `machine`, not `docker` + setup_remote_docker:
+# the GH job runs the felddy/foundryvtt container directly on the runner,
+# publishes it on localhost:30000, and bind-mounts a data dir into it. With
+# CircleCI's remote-docker the daemon lives on a separate host, so neither
+# `-p` (localhost reachability for Playwright) nor `-v` (bind mount of the
+# assembled /data dir) would work. A `machine` VM gives a local Docker daemon
+# plus sudo, matching the GH ubuntu-latest runner exactly.
+#
+# resource_class: large = 4 vCPU / 15 GB — the requested large 4-cpu executor.
+#
+# Not translated (GH-specific, intentionally dropped):
+#  - The "Detect E2E-relevant changes" gate existed only because `e2e` is a
+#    REQUIRED GitHub check that must always report; CircleCI has no equivalent
+#    always-green-required-check constraint, so the job simply runs when
+#    triggered. (Add path filtering via the path-filtering orb if desired.)
+#  - GH `concurrency` (one-license serialization): enable "Auto-cancel
+#    redundant workflows" in CircleCI project settings to mirror it.
+
+jobs:
+  e2e:
+    machine:
+      image: ubuntu-2404:current
+    resource_class: large
+    environment:
+      FOUNDRY_VERSION: "14"
+      FOUNDRY_PORT: "30000"
+      WORLD_ID: e2e
+      FOUNDRY_URL: http://localhost:30000
+      DATA_DIR: /home/circleci/.foundry-ci
+    steps:
+      - checkout
+
+      # Secrets come from a CircleCI context / project env vars, never hardcoded.
+      - run:
+          name: Fail early if Foundry credentials are missing
+          command: |
+            if [ -z "$FOUNDRY_USERNAME" ] || [ -z "$FOUNDRY_PASSWORD" ]; then
+              echo "FOUNDRY_USERNAME and FOUNDRY_PASSWORD must be set (context/project env vars)." >&2
+              exit 1
+            fi
+
+      - run:
+          name: Install Node.js 22 and pnpm 10.33.0
+          command: |
+            # System-wide install (NodeSource) — on PATH for every step, no nvm.
+            curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            sudo corepack enable
+            corepack prepare pnpm@10.33.0 --activate
+            node --version && pnpm --version
+
+      - run:
+          name: Pull Foundry image and resolve version
+          command: |
+            docker pull "felddy/foundryvtt:${FOUNDRY_VERSION}"
+            # felddy labels the image with the exact build it installs — stabilizes the cache key.
+            RESOLVED=$(docker image inspect "felddy/foundryvtt:${FOUNDRY_VERSION}" \
+              --format '{{ index .Config.Labels "com.foundryvtt.version" }}' || true)
+            [ -z "$RESOLVED" ] && RESOLVED="$FOUNDRY_VERSION"
+            echo "$RESOLVED" > /tmp/foundry-resolved.txt
+            echo "Resolved Foundry build: $RESOLVED"
+
+      # Caching the Foundry zip (felddy's CONTAINER_CACHE) is the biggest win: warm boot ~5-10s.
+      # Key is derived from the resolved-build file written above.
+      - restore_cache:
+          keys:
+            - foundry-dist-{{ checksum "/tmp/foundry-resolved.txt" }}
+            - foundry-dist-
+
+      - run:
+          name: Build the osc-character-sheet module
+          command: |
+            pnpm install --frozen-lockfile
+            pnpm build
+
+      - run:
+          name: Assemble Foundry data directory (OSE + osc-character-sheet + world)
+          command: |
+            mkdir -p "${DATA_DIR}"
+            tools/e2e/setup-data-dir.sh "${DATA_DIR}" "${PWD}"
+            # felddy runs as uid:gid 1000:1000; without this its /data write test fails and it
+            # exits immediately (felddy/foundryvtt-docker#1197).
+            sudo chown -R 1000:1000 "${DATA_DIR}"
+
+      # Start the container first so it boots while runner deps install below.
+      - run:
+          name: Start Foundry container
+          command: |
+            docker run -d --name foundry \
+              -p "${FOUNDRY_PORT}:30000" \
+              -v "${DATA_DIR}:/data" \
+              -e FOUNDRY_USERNAME="${FOUNDRY_USERNAME}" \
+              -e FOUNDRY_PASSWORD="${FOUNDRY_PASSWORD}" \
+              -e CONTAINER_CACHE=/data/container_cache \
+              -e FOUNDRY_MINIFY_STATIC_FILES=true \
+              -e FOUNDRY_TELEMETRY=false \
+              -e "FOUNDRY_WORLD=${WORLD_ID}" \
+              "felddy/foundryvtt:${FOUNDRY_VERSION}"
+
+      - restore_cache:
+          keys:
+            - playwright-{{ checksum "tools/e2e/package.json" }}
+
+      - run:
+          name: Install E2E runner dependencies
+          working_directory: tools/e2e
+          command: |
+            npm install --no-package-lock --no-audit --no-fund
+            # packages.microsoft.com intermittently ships a malformed Release file that
+            # breaks `--with-deps`' apt-get update. Chromium's deps come from the standard
+            # Ubuntu archive, so drop the MS sources.
+            sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list \
+                       /etc/apt/sources.list.d/azure-cli.list || true
+            npx playwright install chromium --with-deps
+
+      - save_cache:
+          key: playwright-{{ checksum "tools/e2e/package.json" }}
+          paths:
+            - ~/.cache/ms-playwright
+
+      - run:
+          name: Wait for Foundry to be healthy
+          command: |
+            echo "Waiting for the Foundry container to become healthy..."
+            for i in $(seq 1 60); do
+              status=$(docker inspect -f '{{ .State.Health.Status }}' foundry 2>/dev/null || echo missing)
+              state=$(docker inspect -f '{{ .State.Status }}' foundry 2>/dev/null || echo missing)
+              echo "  [$((i*5))s] health=$status state=$state"
+              if [ "$status" = "healthy" ]; then echo "Container healthy."; exit 0; fi
+              if [ "$state" = "exited" ]; then
+                echo "Foundry container exited before becoming healthy." >&2
+                docker logs foundry || true
+                exit 1
+              fi
+              sleep 5
+            done
+            echo "Foundry container did not become healthy in time." >&2
+            docker logs foundry || true
+            exit 1
+
+      # First-boot activation (see tools/e2e/activate-world.mjs): accept the EULA (generates
+      # the host-bound license signature), then restart so felddy's FOUNDRY_WORLD auto-launches
+      # the world server-side. Clear the stale lock felddy leaves behind.
+      - run:
+          name: Accept EULA
+          working_directory: tools/e2e
+          command: |
+            node activate-world.mjs --phase eula \
+              --url "http://localhost:${FOUNDRY_PORT}" \
+              --wait 240
+
+      - run:
+          name: Restart Foundry to auto-launch the world
+          command: |
+            docker stop -t 30 foundry
+            sudo rm -rf "${DATA_DIR}/Config/options.json.lock"
+            docker start foundry
+            echo "Waiting for the restarted container to become healthy..."
+            for i in $(seq 1 36); do
+              status=$(docker inspect -f '{{ .State.Health.Status }}' foundry 2>/dev/null || echo missing)
+              state=$(docker inspect -f '{{ .State.Status }}' foundry 2>/dev/null || echo missing)
+              echo "  [$((i*5))s] health=$status state=$state"
+              if [ "$status" = "healthy" ]; then echo "Container healthy."; exit 0; fi
+              if [ "$state" = "exited" ]; then
+                echo "Foundry container exited during restart." >&2
+                docker logs --since 5m foundry || true
+                exit 1
+              fi
+              sleep 5
+            done
+            echo "Foundry container did not become healthy after restart." >&2
+            docker logs --since 5m foundry || true
+            exit 1
+
+      - run:
+          name: Wait for world activation
+          working_directory: tools/e2e
+          command: |
+            node activate-world.mjs --phase await \
+              --url "http://localhost:${FOUNDRY_PORT}" \
+              --wait 240
+
+      - run:
+          name: Run Playwright E2E suite
+          working_directory: tools/e2e
+          command: npx playwright test --forbid-only --workers=1
+
+      - store_artifacts:
+          path: tools/e2e/playwright-report
+          destination: playwright-report
+
+      # Traces (retain-on-failure) + screenshots (only-on-failure) land here.
+      - store_artifacts:
+          path: tools/e2e/test-results
+          destination: test-results
+
+      - run:
+          name: Dump Foundry logs on failure
+          when: on_fail
+          command: docker logs foundry || true
+
+      - save_cache:
+          key: foundry-dist-{{ checksum "/tmp/foundry-resolved.txt" }}
+          paths:
+            - /home/circleci/.foundry-ci/container_cache
+
+workflows:
+  e2e:
+    jobs:
+      - e2e:
+          # FOUNDRY_USERNAME / FOUNDRY_PASSWORD live in this context.
+          context:
+            - foundry-license
