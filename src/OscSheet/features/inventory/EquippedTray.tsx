@@ -117,7 +117,13 @@ export function EquippedTray({
           : undefined
       }
     >
-      {items.map((item, i) => (
+      {items.map((item, i) => {
+        const rp = dnd.rowProps(EQUIPPED, i, {
+          ownZone: EQUIPPED,
+          axis: "x",
+          dragPayload: () => itemDragData(item.id),
+        });
+        return (
         <div
           key={item.id}
           className={cx(
@@ -126,11 +132,7 @@ export function EquippedTray({
             dnd.rowClass(EQUIPPED, i),
           )}
           onContextMenu={(e) => onContext(e, item)}
-          {...dnd.rowProps(EQUIPPED, i, {
-            ownZone: EQUIPPED,
-            axis: "x",
-            dragPayload: () => itemDragData(item.id),
-          })}
+          {...rp}
         >
           <button
             type="button"
@@ -173,7 +175,8 @@ export function EquippedTray({
             )}
           </span>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

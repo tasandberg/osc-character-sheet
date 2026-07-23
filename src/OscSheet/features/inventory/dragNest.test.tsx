@@ -50,10 +50,11 @@ function Harness({ collapsed }: { collapsed: boolean }) {
   const byId = indexById(items);
   const noop = () => {};
   const drag = () => undefined;
+  // stand-in for an equipped-tray tile (whole-tile draggable): its drags must never nest
+  const tray = dnd.rowProps(EQUIPPED, 0, { axis: "x" });
   return (
     <div>
-      {/* stand-in for an equipped-tray tile: its drags must never nest */}
-      <div data-testid="tray" {...dnd.rowProps(EQUIPPED, 0, { axis: "x" })} />
+      <div data-testid="tray" {...tray} />
       <SortableRow
         item={rope}
         index={0}
@@ -110,8 +111,11 @@ function fire(el: Element, type: string) {
   });
 }
 
+// The grip (.osc-inv-drag) is the drag initiator; a tray tile is draggable whole,
+// so fall back to the element itself when it has no grip.
 function dragOnto(source: Element, target: Element) {
-  fire(source, "dragstart");
+  const handle = source.querySelector(".osc-inv-drag") ?? source;
+  fire(handle, "dragstart");
   fire(target, "dragover");
   fire(target, "drop");
 }
