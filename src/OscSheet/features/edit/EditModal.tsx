@@ -209,17 +209,13 @@ export function EditModal({
           <div className="ed-idgrid">
             <label className="ed-field" style={{ gridColumn: "1 / span 3" }}>
               <span className="lab">Alignment</span>
-              <select
-                className="ed-input"
+              <Combobox
                 value={sys.details.alignment}
-                onChange={(e) =>
-                  set("system.details.alignment", e.target.value)
-                }
-              >
-                {ALIGNMENTS.map((a) => (
-                  <option key={a}>{a}</option>
-                ))}
-              </select>
+                options={ALIGNMENTS.map((a) => ({ value: a, label: a }))}
+                onCommit={(v) => set("system.details.alignment", v)}
+                createHint="Type to set a custom alignment"
+                newOptionLabel={(q) => `Custom: “${q}”`}
+              />
             </label>
             <label className="ed-field" style={{ gridColumn: "4 / span 3" }}>
               <span className="lab">Level</span>

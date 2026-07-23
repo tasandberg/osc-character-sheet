@@ -142,3 +142,49 @@ describe("EditModal class combobox", () => {
     expect(classInput().value).toBe("cleric"); // display must follow the committed value
   });
 });
+
+const alignmentInput = () =>
+  Array.from(container.querySelectorAll<HTMLElement>(".ed-field"))
+    .find((f) => f.querySelector(".lab")?.textContent?.startsWith("Alignment"))
+    ?.querySelector("input") as HTMLInputElement;
+
+describe("EditModal alignment combobox", () => {
+  it("commits a preset B/X alignment on selection", async () => {
+    const actor = makeActor();
+    act(() =>
+      root.render(
+        <OscSheetProvider
+          initialActor={actor}
+          source={actor}
+          contextConnector={connector}
+          canEdit
+        >
+          <EditModal open onClose={() => {}} />
+        </OscSheetProvider>,
+      ),
+    );
+
+    const input = alignmentInput();
+    expect(input.value).toBe("Neutral");
+
+    act(() => input.focus());
+    const chaotic = Array.from(
+      document.querySelectorAll<HTMLElement>('[role="option"]'),
+    ).find((r) => r.textContent === "Chaotic")!;
+    await act(async () => {
+      chaotic.dispatchEvent(
+        new MouseEvent("pointerdown", {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+        }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(actor.update as ReturnType<typeof vi.fn>).toHaveBeenCalledWith({
+      "system.details.alignment": "Chaotic",
+    });
+    expect(actor.system.details.alignment).toBe("Chaotic");
+  });
+});
