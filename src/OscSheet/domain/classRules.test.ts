@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { selectClassDefaults, normalizeClassName } from "@domain/classRules";
+import {
+  selectClassDefaults,
+  normalizeClassName,
+  classSource,
+} from "@domain/classRules";
 import type { OSEActor } from "@domain/types";
 
 const FIGHTER = {
@@ -26,7 +30,9 @@ const MAGIC_USER = {
 
 beforeEach(() => {
   (globalThis as unknown as { CONFIG: unknown }).CONFIG = {
-    OSE: { classes: { classic: { Fighter: FIGHTER, "Magic-User": MAGIC_USER } } },
+    OSE: {
+      classes: { classic: { Fighter: FIGHTER, "Magic-User": MAGIC_USER } },
+    },
   };
 });
 afterEach(() => {
@@ -34,7 +40,7 @@ afterEach(() => {
 });
 
 const actorAt = (cls: string, level: number) =>
-  ({ system: { details: { class: cls, level } } } as unknown as OSEActor);
+  ({ system: { details: { class: cls, level } } }) as unknown as OSEActor;
 
 describe("normalizeClassName", () => {
   it("matches case-insensitively", () => {
@@ -58,7 +64,13 @@ describe("selectClassDefaults", () => {
     expect(d.maxLevel).toBe(2);
     expect(d.hd).toBe("1d8");
     expect(d.nextXp).toBe(2000);
-    expect(d.saves).toEqual({ death: 12, wand: 13, paralysis: 14, breath: 15, spell: 16 });
+    expect(d.saves).toEqual({
+      death: 12,
+      wand: 13,
+      paralysis: 14,
+      breath: 15,
+      spell: 16,
+    });
   });
   it("returns null nextXp at max level", () => {
     expect(selectClassDefaults(actorAt("Fighter", 2)).nextXp).toBeNull();
@@ -75,7 +87,13 @@ describe("selectClassDefaults", () => {
     expect(d.matched).toBe(true);
     expect(d.hd).toBe("1d4");
     expect(d.nextXp).toBe(2500);
-    expect(d.saves).toEqual({ death: 13, wand: 14, paralysis: 13, breath: 16, spell: 15 });
+    expect(d.saves).toEqual({
+      death: 13,
+      wand: 14,
+      paralysis: 13,
+      breath: 16,
+      spell: 15,
+    });
   });
 });
 
@@ -89,7 +107,13 @@ describe("selectClassDefaults — advanced classes", () => {
     ],
   };
   // Advanced Fighter with a different XP table than the classic FIGHTER above.
-  const ADV_FIGHTER = { name: "Fighter", levels: [{ xp: 0, hd: "1d8", saves: [12, 13, 14, 15, 16] }, { xp: 2200, hd: "2d8", saves: [10, 11, 12, 13, 14] }] };
+  const ADV_FIGHTER = {
+    name: "Fighter",
+    levels: [
+      { xp: 0, hd: "1d8", saves: [12, 13, 14, 15, 16] },
+      { xp: 2200, hd: "2d8", saves: [10, 11, 12, 13, 14] },
+    ],
+  };
 
   beforeEach(() => {
     (globalThis as unknown as { CONFIG: unknown }).CONFIG = {
@@ -113,5 +137,40 @@ describe("selectClassDefaults — advanced classes", () => {
     // classic Fighter L1→L2 = 2000; advanced Fighter = 2200
     expect(selectClassDefaults(actorAt("Fighter", 1)).nextXp).toBe(2200);
     expect(normalizeClassName("Bard")).toBe("Bard");
+  });
+});
+
+describe("classSource", () => {
+  beforeEach(() => {
+    (globalThis as unknown as { CONFIG: unknown }).CONFIG = {
+      OSE: {
+        classes: {
+          classic: { Fighter: FIGHTER, "Magic-User": MAGIC_USER },
+          advanced: { Bard: {}, Fighter: {} },
+        },
+      },
+    };
+  });
+
+  it("classifies classic-only classes", () => {
+    expect(classSource("Magic-User")).toBe("classic");
+  });
+  it("classifies advanced-only classes", () => {
+    expect(classSource("Bard")).toBe("advanced");
+  });
+  it("classifies unknown classes as custom", () => {
+    expect(classSource("Hangman")).toBe("custom");
+    expect(classSource("")).toBe("custom");
+  });
+  it("canonicalizes before matching (case + hyphen/space)", () => {
+    expect(classSource("magic user")).toBe("classic");
+    expect(classSource("bard")).toBe("advanced");
+  });
+  it("prefers advanced over classic when a name is in both", () => {
+    expect(classSource("Fighter")).toBe("advanced");
+  });
+  it("is custom when no CONFIG maps exist", () => {
+    (globalThis as unknown as { CONFIG: unknown }).CONFIG = { OSE: {} };
+    expect(classSource("Fighter")).toBe("custom");
   });
 });

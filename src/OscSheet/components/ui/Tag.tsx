@@ -5,6 +5,8 @@ type Props = HTMLAttributes<HTMLSpanElement> & {
   intent?: "teal" | "crimson" | "forest" | "mustard" | "brass" | "solid" | "count";
   /** `chip` = the square, dark, icon-first weapon-tag box (default = pill). */
   variant?: "chip";
+  /** `xs` = tighter, lower-profile pill (default = standard). */
+  size?: "xs";
   /** FontAwesome glyph class (e.g. "fa-sword") rendered before the label. */
   icon?: string;
   /** Hover popover content (reuses the shared `.tag-pop` treatment). */
@@ -19,6 +21,7 @@ type Props = HTMLAttributes<HTMLSpanElement> & {
 export function Tag({
   intent,
   variant,
+  size,
   icon,
   tooltip,
   onRemove,
@@ -28,7 +31,7 @@ export function Tag({
   ...rest
 }: Props) {
   return (
-    <span className={cx("tag", variant, intent, className)} {...rest}>
+    <span className={cx("tag", variant, intent, size, className)} {...rest}>
       {icon && <i className={cx("fa-solid", icon)} aria-hidden="true" />}
       {children}
       {tooltip != null && (

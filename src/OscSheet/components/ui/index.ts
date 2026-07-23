@@ -15,6 +15,7 @@ export { Textarea } from "./Textarea";
 export { ProseMirrorEditor } from "./ProseMirrorEditor";
 export { RichText } from "./RichText";
 export { Select } from "./Select";
+export { Combobox } from "./Combobox";
 export { Stepper } from "./Stepper";
 export { Toggle } from "./Toggle";
 export { Check } from "./Check";
