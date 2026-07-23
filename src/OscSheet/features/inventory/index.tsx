@@ -281,6 +281,7 @@ export function InventoryView({
       <WealthSection
         wealth={wealth}
         onSetCoin={onSetCoin}
+        itemDragData={itemDragData}
         onOpen={onOpen}
         onContext={openMenu}
       />
