@@ -187,7 +187,7 @@ jobs:
       - run:
           name: Run Playwright E2E suite
           working_directory: tools/e2e
-          command: npx playwright test --forbid-only --workers=2
+          command: npx playwright test --forbid-only --workers=1
 
       - store_artifacts:
           path: tools/e2e/playwright-report
