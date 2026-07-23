@@ -29,8 +29,12 @@ g.CONFIG = {
   OSE: {
     classes: {
       classic: {
-        cleric: { levels: [{ xp: 0, hd: "1d6", saves: [1, 2, 3, 4, 5] }] },
-        fighter: { levels: [{ xp: 0, hd: "1d8", saves: [1, 2, 3, 4, 5] }] },
+        cleric: {
+          levels: [{ xp: 0, hd: "1d6", thac0: 19, saves: [1, 2, 3, 4, 5] }],
+        },
+        fighter: {
+          levels: [{ xp: 0, hd: "1d8", thac0: 19, saves: [1, 2, 3, 4, 5] }],
+        },
       },
     },
   },
@@ -57,6 +61,7 @@ function makeActor(): OSEActor {
         cha: { value: 10, mod: 0 },
       },
       hp: { value: 5, max: 5, hd: "1d8" },
+      thac0: { value: 17, bba: 2 },
       saves: {
         death: { value: 12 },
         wand: { value: 13 },
@@ -98,6 +103,34 @@ const classInput = () =>
   Array.from(container.querySelectorAll<HTMLElement>(".ed-field"))
     .find((f) => f.querySelector(".lab")?.textContent?.startsWith("Class"))
     ?.querySelector("input") as HTMLInputElement;
+
+function setValue(el: HTMLInputElement, value: string) {
+  const setter = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    "value",
+  )!.set!;
+  setter.call(el, value);
+  el.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+const fieldByLabel = (label: string) =>
+  Array.from(container.querySelectorAll<HTMLElement>(".ed-field")).find(
+    (f) => f.querySelector(".lab")?.textContent === label,
+  );
+
+const renderModal = (actor: OSEActor) =>
+  act(() =>
+    root.render(
+      <OscSheetProvider
+        initialActor={actor}
+        source={actor}
+        contextConnector={connector}
+        canEdit
+      >
+        <EditModal open onClose={() => {}} />
+      </OscSheetProvider>,
+    ),
+  );
 
 describe("EditModal class combobox", () => {
   it("reflects the selected class after commit", async () => {
@@ -186,5 +219,68 @@ describe("EditModal alignment combobox", () => {
       "system.details.alignment": "Chaotic",
     });
     expect(actor.system.details.alignment).toBe("Chaotic");
+  });
+});
+
+describe("EditModal THAC0 / Attack Bonus", () => {
+  it("shows THAC0 (descending) with the class default and override flag", async () => {
+    const actor = makeActor();
+    await renderModal(actor);
+
+    const field = fieldByLabel("THAC0")!;
+    expect(field).toBeTruthy();
+    expect(field.querySelector("input")!.value).toBe("17");
+    // stored 17 ≠ class default 19 → overridden reset link with default text
+    const reset = field.querySelector(".ed-resetlink");
+    expect(reset).toBeTruthy();
+    expect(reset!.textContent).toContain("default · 19");
+  });
+
+  it("commits system.thac0.value on edit (descending)", async () => {
+    const actor = makeActor();
+    await renderModal(actor);
+
+    const input = fieldByLabel("THAC0")!.querySelector("input")!;
+    await act(async () => {
+      input.focus();
+      setValue(input, "15");
+      input.blur();
+      await Promise.resolve();
+    });
+
+    expect(actor.update as ReturnType<typeof vi.fn>).toHaveBeenCalledWith({
+      "system.thac0.value": 15,
+    });
+  });
+
+  it("shows Attack Bonus and commits system.thac0.bba (ascending)", async () => {
+    (g.game as Record<string, unknown>).settings = { get: () => true };
+    (g.game as Record<string, unknown>).system = { id: "ose" };
+    try {
+      const actor = makeActor();
+      await renderModal(actor);
+
+      const field = fieldByLabel("Attack Bonus")!;
+      expect(field).toBeTruthy();
+      expect(field.querySelector("input")!.value).toBe("2");
+      // default = 19 - class thac0(19) = 0; stored bba 2 ≠ 0 → overridden
+      const reset = field.querySelector(".ed-resetlink");
+      expect(reset!.textContent).toContain("default · 0");
+
+      const input = field.querySelector("input")!;
+      await act(async () => {
+        input.focus();
+        setValue(input, "4");
+        input.blur();
+        await Promise.resolve();
+      });
+
+      expect(actor.update as ReturnType<typeof vi.fn>).toHaveBeenCalledWith({
+        "system.thac0.bba": 4,
+      });
+    } finally {
+      delete (g.game as Record<string, unknown>).settings;
+      delete (g.game as Record<string, unknown>).system;
+    }
   });
 });

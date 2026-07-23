@@ -13,7 +13,7 @@ const FIGHTER = {
   source: "Classic Fantasy",
   levels: [
     { xp: 0, hd: "1d8", thac0: 19, saves: [12, 13, 14, 15, 16] },
-    { xp: 2000, hd: "2d8", thac0: 19, saves: [11, 12, 13, 14, 15] },
+    { xp: 2000, hd: "2d8", thac0: 17, saves: [11, 12, 13, 14, 15] },
   ],
 };
 
@@ -64,6 +64,7 @@ describe("selectClassDefaults", () => {
     expect(d.maxLevel).toBe(2);
     expect(d.hd).toBe("1d8");
     expect(d.nextXp).toBe(2000);
+    expect(d.thac0).toBe(19);
     expect(d.saves).toEqual({
       death: 12,
       wand: 13,
@@ -75,11 +76,15 @@ describe("selectClassDefaults", () => {
   it("returns null nextXp at max level", () => {
     expect(selectClassDefaults(actorAt("Fighter", 2)).nextXp).toBeNull();
   });
+  it("derives the per-level thac0 (L2 differs from L1)", () => {
+    expect(selectClassDefaults(actorAt("Fighter", 2)).thac0).toBe(17);
+  });
   it("returns matched=false and null tables for unknown classes", () => {
     const d = selectClassDefaults(actorAt("Bard", 3));
     expect(d.matched).toBe(false);
     expect(d.hd).toBeNull();
     expect(d.saves).toBeNull();
+    expect(d.thac0).toBeNull();
     expect(d.maxLevel).toBe(14);
   });
   it("resolves Magic User (space in actor) to Magic-User config entry", () => {
@@ -102,16 +107,16 @@ describe("selectClassDefaults — advanced classes", () => {
     name: "Bard",
     requirements: { cha: 13, dex: 9 },
     levels: [
-      { xp: 0, hd: "1d6", saves: [13, 14, 13, 16, 15] },
-      { xp: 1500, hd: "2d6", saves: [13, 14, 13, 16, 14] },
+      { xp: 0, hd: "1d6", thac0: 19, saves: [13, 14, 13, 16, 15] },
+      { xp: 1500, hd: "2d6", thac0: 19, saves: [13, 14, 13, 16, 14] },
     ],
   };
   // Advanced Fighter with a different XP table than the classic FIGHTER above.
   const ADV_FIGHTER = {
     name: "Fighter",
     levels: [
-      { xp: 0, hd: "1d8", saves: [12, 13, 14, 15, 16] },
-      { xp: 2200, hd: "2d8", saves: [10, 11, 12, 13, 14] },
+      { xp: 0, hd: "1d8", thac0: 19, saves: [12, 13, 14, 15, 16] },
+      { xp: 2200, hd: "2d8", thac0: 16, saves: [10, 11, 12, 13, 14] },
     ],
   };
 
@@ -136,6 +141,7 @@ describe("selectClassDefaults — advanced classes", () => {
   it("prefers advanced data over classic for a same-named class", () => {
     // classic Fighter L1→L2 = 2000; advanced Fighter = 2200
     expect(selectClassDefaults(actorAt("Fighter", 1)).nextXp).toBe(2200);
+    expect(selectClassDefaults(actorAt("Fighter", 2)).thac0).toBe(16);
     expect(normalizeClassName("Bard")).toBe("Bard");
   });
 });
