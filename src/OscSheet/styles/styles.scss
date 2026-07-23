@@ -203,7 +203,11 @@
 // Repo-local (this sheet only) — the shared @osc/vellum package stays untouched.
 // Values preserve the existing sticky-head number (7); everything popover-and-up
 // is new headroom above it.
-.osc-sheet {
+// Defined on both the window frame (.osc-sheet) and the app root (.osc-sheet-app):
+// modals/popovers portal to .osc-sheet-app, outside the .osc-sheet frame, and must
+// still resolve these tokens (else z-index falls back to auto and dropdowns sink).
+.osc-sheet,
+.osc-sheet-app {
   --z-base: 0; // normal flow
   --z-raised: 1; // small inline lifts (carets, chevrons)
   --z-sticky: 7; // sticky section heads inside the scroll body

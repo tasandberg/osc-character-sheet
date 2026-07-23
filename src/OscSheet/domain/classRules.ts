@@ -21,7 +21,11 @@ export type ClassDefaults = {
   requirements: Record<string, number>;
 };
 
-const canon = (s: string) => (s ?? "").trim().toLowerCase().replace(/[-\s]+/g, " ");
+const canon = (s: string) =>
+  (s ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[-\s]+/g, " ");
 
 /**
  * Class-definition maps to search, in priority order. Advanced Fantasy classes
@@ -31,7 +35,10 @@ const canon = (s: string) => (s ?? "").trim().toLowerCase().replace(/[-\s]+/g, "
  * defaults. Falls back to classic; both maps are absent → no defaults.
  */
 function classMaps(): Record<string, ClassDef>[] {
-  const c = (CONFIG.OSE?.classes ?? {}) as { advanced?: unknown; classic?: unknown };
+  const c = (CONFIG.OSE?.classes ?? {}) as {
+    advanced?: unknown;
+    classic?: unknown;
+  };
   return [c.advanced, c.classic].filter(Boolean) as Record<string, ClassDef>[];
 }
 
@@ -50,6 +57,25 @@ export function normalizeClassName(raw: string): string | null {
   return findClass(raw)?.key ?? null;
 }
 
+/**
+ * Provenance of a class name: `advanced` (Advanced Fantasy tome), `classic`
+ * (core rules), or `custom` (not in either CONFIG map). Advanced wins when a
+ * name lives in both, mirroring `classMaps` priority.
+ */
+export function classSource(name: string): "classic" | "advanced" | "custom" {
+  const want = canon(name);
+  if (!want) return "custom";
+  const c = (CONFIG.OSE?.classes ?? {}) as {
+    advanced?: unknown;
+    classic?: unknown;
+  };
+  const has = (m: unknown) =>
+    !!m && Object.keys(m as object).some((k) => canon(k) === want);
+  if (has(c.advanced)) return "advanced";
+  if (has(c.classic)) return "classic";
+  return "custom";
+}
+
 /** All class names available in CONFIG.OSE.classes (advanced + classic), unique + sorted. */
 export function availableClassNames(): string[] {
   const names = new Set<string>();
@@ -60,12 +86,23 @@ export function availableClassNames(): string[] {
 export function selectClassDefaults(actor: OSEActor): ClassDefaults {
   const { class: cls, level } = actor.system.details;
   const def = findClass(cls)?.def;
-  if (!def) return { matched: false, maxLevel: 14, hd: null, levelXp: null, nextXp: null, saves: null, requirements: {} };
+  if (!def)
+    return {
+      matched: false,
+      maxLevel: 14,
+      hd: null,
+      levelXp: null,
+      nextXp: null,
+      saves: null,
+      requirements: {},
+    };
 
   const row = def.levels[level - 1];
   const nextRow = def.levels[level]; // 0-indexed: index `level` is the next level
   const saves = row
-    ? (Object.fromEntries(SAVE_ORDER.map((k, i) => [k, row.saves[i]])) as Record<OSESave, number>)
+    ? (Object.fromEntries(
+        SAVE_ORDER.map((k, i) => [k, row.saves[i]]),
+      ) as Record<OSESave, number>)
     : null;
   return {
     matched: true,

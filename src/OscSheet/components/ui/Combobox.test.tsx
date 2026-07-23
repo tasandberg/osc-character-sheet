@@ -5,7 +5,9 @@ import { createRoot, type Root } from "react-dom/client";
 import { Combobox, type ComboOption, type ComboboxProps } from "./Combobox";
 import { filterOptions, shouldShowCreate } from "./comboboxFilter";
 
-(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+(
+  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
 
 const OPTIONS: ComboOption[] = [
   { value: "assassin", label: "Assassin" },
@@ -19,8 +21,12 @@ describe("filterOptions", () => {
     expect(filterOptions(OPTIONS, "  ")).toHaveLength(OPTIONS.length);
   });
   it("narrows case-insensitively by label substring", () => {
-    expect(filterOptions(OPTIONS, "as").map((o) => o.value)).toEqual(["assassin"]);
-    expect(filterOptions(OPTIONS, "GHT").map((o) => o.value)).toEqual(["fighter"]);
+    expect(filterOptions(OPTIONS, "as").map((o) => o.value)).toEqual([
+      "assassin",
+    ]);
+    expect(filterOptions(OPTIONS, "GHT").map((o) => o.value)).toEqual([
+      "fighter",
+    ]);
   });
 });
 
@@ -47,7 +53,10 @@ function Harness(props: Partial<ComboboxProps>) {
       {...props}
       value={v}
       options={props.options ?? OPTIONS}
-      onCommit={(next) => { onCommit(next); setV(next); }}
+      onCommit={(next) => {
+        onCommit(next);
+        setV(next);
+      }}
     />
   );
 }
@@ -56,16 +65,27 @@ const render = (props: Partial<ComboboxProps> = {}) =>
   act(() => root.render(<Harness {...props} />));
 
 const input = () => container.querySelector("input") as HTMLInputElement;
-const rows = () => Array.from(container.querySelectorAll('[role="option"]')) as HTMLElement[];
-const optionRows = () => rows().filter((r) => !r.className.includes("combobox-create"));
+const rows = () =>
+  Array.from(document.querySelectorAll('[role="option"]')) as HTMLElement[];
+const optionRows = () =>
+  rows().filter((r) => !r.className.includes("combobox-create"));
 
 function setValue(el: HTMLInputElement, value: string) {
-  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
+  const setter = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    "value",
+  )!.set!;
   setter.call(el, value);
   el.dispatchEvent(new Event("input", { bubbles: true }));
 }
 const key = (el: HTMLElement, k: string) =>
-  el.dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true }));
+  el.dispatchEvent(
+    new KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true }),
+  );
+const pointerDown = (el: HTMLElement, button = 0) =>
+  el.dispatchEvent(
+    new MouseEvent("pointerdown", { bubbles: true, cancelable: true, button }),
+  );
 
 beforeEach(() => {
   onCommit.mockClear();
@@ -87,12 +107,20 @@ describe("Combobox", () => {
     expect(optionRows().map((r) => r.textContent)).toEqual(["Fighter"]);
   });
 
-  it("commits the option's value (not its label) on click", () => {
+  it("commits the option's value (not its label) on pointerdown", () => {
     render();
     act(() => input().focus());
     act(() => setValue(input(), "magic"));
-    act(() => rows()[0].click());
+    act(() => pointerDown(optionRows()[0]));
     expect(onCommit).toHaveBeenCalledExactlyOnceWith("magic-user");
+  });
+
+  it("ignores non-primary pointer buttons on an option", () => {
+    render();
+    act(() => input().focus());
+    act(() => setValue(input(), "magic"));
+    act(() => pointerDown(optionRows()[0], 2));
+    expect(onCommit).not.toHaveBeenCalled();
   });
 
   it("commits the trimmed typed text via the Create row", () => {
@@ -101,7 +129,7 @@ describe("Combobox", () => {
     act(() => setValue(input(), "  Warlock  "));
     const create = rows().find((r) => r.className.includes("combobox-create"))!;
     expect(create.textContent).toContain("Warlock");
-    act(() => create.click());
+    act(() => pointerDown(create));
     expect(onCommit).toHaveBeenCalledExactlyOnceWith("Warlock");
   });
 
@@ -136,7 +164,9 @@ describe("Combobox", () => {
     act(() => input().focus());
     act(() => setValue(input(), "Warlock"));
     expect(rows()).toHaveLength(0);
-    expect(rows().some((r) => r.className.includes("combobox-create"))).toBe(false);
+    expect(rows().some((r) => r.className.includes("combobox-create"))).toBe(
+      false,
+    );
   });
 
   it("renders a custom create-row label via newOptionLabel", () => {
@@ -145,12 +175,15 @@ describe("Combobox", () => {
     act(() => setValue(input(), "Warlock"));
     const create = rows().find((r) => r.className.includes("combobox-create"))!;
     expect(create.textContent).toContain("Custom: Warlock");
-    act(() => create.click());
+    act(() => pointerDown(create));
     expect(onCommit).toHaveBeenCalledExactlyOnceWith("Warlock");
   });
 
   it("renders a per-option node while filtering by label", () => {
-    const opts: ComboOption[] = OPTIONS.map((o) => ({ ...o, node: <span data-test={o.value}>{o.label} ·</span> }));
+    const opts: ComboOption[] = OPTIONS.map((o) => ({
+      ...o,
+      node: <span data-test={o.value}>{o.label} ·</span>,
+    }));
     render({ options: opts });
     act(() => input().focus());
     act(() => setValue(input(), "fig"));
@@ -161,17 +194,62 @@ describe("Combobox", () => {
   it("highlights the current value when opened", () => {
     render({ value: "fighter" });
     act(() => input().focus());
-    const highlighted = rows().find((r) => r.className.includes("is-highlighted"));
+    const highlighted = rows().find((r) =>
+      r.className.includes("is-highlighted"),
+    );
     expect(highlighted?.textContent).toBe("Fighter");
   });
 
   it("closes on re-click when untouched, keeping the value", () => {
     render({ value: "fighter" });
     act(() => input().focus()); // first focus opens
-    expect(container.querySelector(".combobox-pop")).not.toBeNull();
-    act(() => input().dispatchEvent(new MouseEvent("mousedown", { bubbles: true })));
-    expect(container.querySelector(".combobox-pop")).toBeNull();
+    expect(document.querySelector(".combobox-pop")).not.toBeNull();
+    act(() =>
+      input().dispatchEvent(new MouseEvent("mousedown", { bubbles: true })),
+    );
+    expect(document.querySelector(".combobox-pop")).toBeNull();
     expect(onCommit).not.toHaveBeenCalled();
+    expect(input().value).toBe("Fighter");
+  });
+
+  it("renders the value as a chip at rest, hidden text, when renderValue is given", () => {
+    render({
+      value: "fighter",
+      renderValue: (v) => <span data-test="chip">{v}!</span>,
+    });
+    const chip = container.querySelector(".combobox-chip");
+    expect(chip).not.toBeNull();
+    expect(chip?.querySelector("[data-test=chip]")?.textContent).toBe(
+      "fighter!",
+    );
+    expect(input().classList.contains("is-chip")).toBe(true);
+  });
+
+  it("reveals the raw input value on focus, replacing the chip", () => {
+    render({
+      value: "fighter",
+      renderValue: (v) => <span data-test="chip">{v}!</span>,
+    });
+    expect(container.querySelector(".combobox-chip")).not.toBeNull();
+    act(() => input().focus());
+    // Focus swaps the chip for the editable value so it can be selected/typed over.
+    expect(container.querySelector(".combobox-chip")).toBeNull();
+    expect(input().classList.contains("is-chip")).toBe(false);
+    expect(input().value).toBe("Fighter");
+    act(() => setValue(input(), "War"));
+    expect(input().value).toBe("War");
+  });
+
+  it("shows no chip for an empty value, falling back to placeholder", () => {
+    render({ value: "", renderValue: (v) => <span>{v}</span> });
+    expect(container.querySelector(".combobox-chip")).toBeNull();
+    expect(input().classList.contains("is-chip")).toBe(false);
+  });
+
+  it("renders plain input text when renderValue is omitted", () => {
+    render({ value: "fighter" });
+    expect(container.querySelector(".combobox-chip")).toBeNull();
+    expect(input().classList.contains("is-chip")).toBe(false);
     expect(input().value).toBe("Fighter");
   });
 
@@ -180,7 +258,7 @@ describe("Combobox", () => {
     act(() => input().focus());
     expect(document.activeElement).toBe(input());
     act(() => setValue(input(), "magic"));
-    act(() => rows()[0].click());
+    act(() => pointerDown(rows()[0]));
     expect(document.activeElement).not.toBe(input());
   });
 });
