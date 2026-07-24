@@ -73,11 +73,11 @@ export default function SheetShell() {
     ac: selectAc(aac, ac, equippedArmor, isAscending),
     initMod: scores.dex.init + (initiative?.mod ?? 0),
     hd: hp.hd,
-    move: movement.base,
+    move: Math.floor(movement.base),
     moveBands: {
-      encounter: movement.encounter,
-      explore: movement.base,
-      travel: movement.overland,
+      encounter: Math.floor(movement.encounter),
+      explore: Math.floor(movement.base),
+      travel: Math.floor(movement.overland),
     },
   };
   // One encumbrance VM for both consumers — the header MOVE hover and the inventory

@@ -43,7 +43,7 @@ export interface OscSheetContextValue {
    *  sheet). Components hide/disable write affordances when false. */
   canEdit: boolean;
   updateActor: (updateData: {
-    [key: string]: string | number | string[];
+    [key: string]: string | number | boolean | string[];
   }) => Promise<OSEActor | void>;
   /** Apply an optimistic patch (flat dot-paths) to a doc immediately, run the real
    *  Foundry write, and reconcile/rollback async. `key` = item `_id` or "actor".
@@ -66,6 +66,9 @@ export type OSEActor = Actor & {
   system: {
     aac: CharacterAC;
     ac: CharacterAC;
+    config?: {
+      movementAuto?: boolean;
+    };
     details: {
       alignment: string;
       class: string;
@@ -135,7 +138,9 @@ export type OSEActor = Actor & {
     save: OSESave,
     options: { event?: RollEvent; fastForward?: boolean; chatMessage?: string }
   ) => void;
-  update: (updateData: { [key: string]: string | number }) => Promise<OSEActor>;
+  update: (updateData: {
+    [key: string]: string | number | boolean;
+  }) => Promise<OSEActor>;
 };
 
 export type OseItem = Omit<Item, "type"> & {

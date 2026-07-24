@@ -35,7 +35,7 @@ function OscSheetProvider({
   };
 
   async function updateActor(updateData: {
-    [key: string]: string | number;
+    [key: string]: string | number | boolean;
   }): Promise<OSEActor | void> {
     // Read-only sheets short-circuit the actor write layer: a defence-in-depth
     // backstop so any UI path that slips the per-control canEdit gating still
