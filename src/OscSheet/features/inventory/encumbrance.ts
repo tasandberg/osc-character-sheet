@@ -42,9 +42,9 @@ export function selectEncumbrance(actor: OSEActor, items?: OseItem[]): Encumbran
       status: TIER_STATUS[0],
       label: "",
       moveBands: {
-        encounter: movement?.encounter ?? 0,
-        explore: movement?.base ?? 0,
-        travel: movement?.overland ?? 0,
+        encounter: Math.floor(movement?.encounter ?? 0),
+        explore: Math.floor(movement?.base ?? 0),
+        travel: Math.floor(movement?.overland ?? 0),
       },
       bands: [],
     };
@@ -83,9 +83,9 @@ export function selectEncumbrance(actor: OSEActor, items?: OseItem[]): Encumbran
     label: `${e.value} / ${e.max} ${unit}`,
     armorTier: basicArmorTier(e, sigTreasure),
     moveBands: {
-      encounter: movement?.encounter ?? 0,
-      explore: movement?.base ?? 0,
-      travel: movement?.overland ?? 0,
+      encounter: Math.floor(movement?.encounter ?? 0),
+      explore: Math.floor(movement?.base ?? 0),
+      travel: Math.floor(movement?.overland ?? 0),
     },
     bands,
     barTier: tier,

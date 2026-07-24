@@ -12,6 +12,7 @@ import {
   ValidatedInput,
   Combobox,
   Tag,
+  Check,
 } from "@src/OscSheet/components/ui";
 import { useOscSheetContext } from "@app/context";
 import {
@@ -82,7 +83,7 @@ export function EditModal({
 
   const sys = actor.system;
   const defaults = selectClassDefaults(actor);
-  const set = (key: string, value: string | number) =>
+  const set = (key: string, value: string | number | boolean) =>
     void updateActor({ [key]: value });
 
   // --- Identity / progression ---
@@ -112,6 +113,15 @@ export function EditModal({
         ? 19 - defaults.thac0
         : defaults.thac0;
   const atkOverridden = atkDefault != null && atkVal !== atkDefault;
+
+  // --- Movement ---
+  // Mirror OSE's own sheet: show system.movement.base (the derived getter —
+  // encumbrance-scaled when auto, raw when manual), disabled while auto-calculate is
+  // on. The checkbox only toggles the flag. Floored so a breakpoint fraction doesn't
+  // render as e.g. 82.5; editing (auto off) writes the raw base.
+  const movementAuto = sys.config?.movementAuto ?? true;
+  const rawMoveBase = actor._source?.system?.movement?.base ?? 120;
+  const moveShown = Math.floor(sys.movement?.base ?? rawMoveBase);
 
   const footer = (
     <Button variant="primary" onClick={onClose}>
@@ -244,7 +254,7 @@ export function EditModal({
                 />
               )}
             </label>
-            <label className="ed-field" style={{ gridColumn: "span 2" }}>
+            <label className="ed-field" style={{ gridColumn: "span 3" }}>
               <span className="lab">Current HP</span>
               <NumberInput
                 className="input mono"
@@ -264,7 +274,7 @@ export function EditModal({
               />
             </label>
 
-            <div className="ed-field" style={{ gridColumn: "span 2" }}>
+            <div className="ed-field" style={{ gridColumn: "span 3" }}>
               <span className="lab">Initiative Mod</span>
               <NumberInput
                 className="input mono"
@@ -284,7 +294,7 @@ export function EditModal({
               />
             </div>
 
-            <div className="ed-field" style={{ gridColumn: "1 / span 3" }}>
+            <div className="ed-field" style={{ gridColumn: "span 3" }}>
               <span className="lab">{atkLabel}</span>
               <NumberInput
                 className="input mono"
@@ -304,6 +314,26 @@ export function EditModal({
                   }
                 />
               )}
+            </div>
+
+            <div className="ed-field" style={{ gridColumn: "span 4" }}>
+              <span className="lab">Base Movement</span>
+              <NumberInput
+                className="input mono"
+                value={moveShown}
+                min={0}
+                disabled={movementAuto}
+                onCommit={(n) => set("system.movement.base", n)}
+              />
+              <Check
+                className="ed-movecalc"
+                checked={movementAuto}
+                onChange={(e) =>
+                  set("system.config.movementAuto", e.target.checked)
+                }
+              >
+                Auto-calculate movement
+              </Check>
             </div>
           </div>
         </div>
