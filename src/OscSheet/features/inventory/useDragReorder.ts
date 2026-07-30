@@ -125,6 +125,16 @@ export function useDragReorder(
     return {
       draggable: true,
       onDragStart: (e) => {
+        // Selecting text in a row's input fires dragstart on the input, which bubbles
+        // here. That drag never reaches our onDragEnd, so the row stayed faded.
+        if (
+          (e.target as HTMLElement | null)?.closest(
+            "input, textarea, select, [contenteditable='true']",
+          )
+        ) {
+          e.preventDefault();
+          return;
+        }
         setDrag({ group, idx });
         e.dataTransfer.effectAllowed = "move";
         const payload = o.dragPayload?.() ?? `${group}:${idx}`;

@@ -374,29 +374,21 @@
   text-underline-offset: 2px;
 }
 // Shared by the header MOVE tile and the inventory encumbrance line (see MovePop.tsx).
-// Positioned in JS as `position: fixed` (inline style) so it escapes any overflow-
-// clipping ancestor — the character rail self-scrolls, and fixed with no transformed
-// ancestor is not clipped by it. `display:none` (inline) when closed. z-index keeps it
-// above sheet content (carets, sticky heads) when the layers happen to overlap.
+// Placed by HoverPop: `position: fixed` (inline) so it escapes any overflow-clipping
+// ancestor — the character rail self-scrolls — and `visibility: hidden` when closed.
+// z-index keeps it above sheet content (carets, sticky heads) when layers overlap.
 .osc-move-pop {
   // don't inherit the anchor's tier tint — only a `.vv.enc-t*` row opts back in
   --enc-c: initial;
 
-  z-index: var(--z-tooltip);
   min-width: 150px;
   // 2-col grid: label | value. The label column grows (1fr) to eat the slack; every value
   // (rates AND status) lives in the same right-aligned column, so they all end flush at the
-  // table's right edge. Inline `display:none` hides it when closed (overrides grid).
+  // table's right edge.
   display: grid;
   grid-template-columns: minmax(max-content, 1fr) max-content;
   column-gap: var(--spacer-3);
   row-gap: 3px;
-  padding: var(--spacer-2) var(--spacer-2);
-  background: var(--bg-2, #1f1c17);
-  border: 1px solid var(--gold-soft);
-  border-radius: var(--r-lg, 10px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-  pointer-events: none; // display-only; never intercept clicks on content below
 }
 // small section-label header atop the popover, divided from the rate rows
 .osc-move-pop .hd {

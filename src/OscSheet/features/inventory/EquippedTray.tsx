@@ -1,10 +1,13 @@
 // Equipped tray — dashed-bordered row of large ink-stamp tiles, one per
 // equipped item, each with a hover popover. Click a tile to unequip.
+// The popover is a HoverPop (fixed + JS-anchored): centred under its tile, it would
+// otherwise be clipped by the sheet body's overflow at the sheet's left edge.
 import { useState } from "react";
 import type { InventoryItemVM } from "@domain/vm-types";
 import { weightLabel, EQUIPPED } from "@features/inventory/groups";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { useOscSheetContext } from "@app/context";
+import { HoverPop } from "@ui/HoverPop";
 import { Monogram } from "@ui/Monogram";
 import { cx } from "@ui/cx";
 
@@ -139,7 +142,6 @@ export function EquippedTray({
             className="osc-equip-tt"
             onClick={() => onOpen(item.id)}
             aria-label={item.name}
-            title={item.name}
           >
             <Monogram
               img={item.img}
@@ -147,7 +149,7 @@ export function EquippedTray({
               className={item.img ? "" : "osc-equip-tt-ic"}
             />
           </button>
-          <span className="osc-equip-tt-pop" role="tooltip">
+          <HoverPop className="osc-equip-tt-pop" align="center">
             <span className="osc-equip-tt-pop-nm">{item.name}</span>
             <span className="osc-equip-tt-pop-type">{item.category}</span>
             <span className="osc-equip-tt-pop-stats">
@@ -173,7 +175,7 @@ export function EquippedTray({
                 ))}
               </span>
             )}
-          </span>
+          </HoverPop>
         </div>
         );
       })}

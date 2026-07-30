@@ -215,6 +215,44 @@
   --z-tooltip: 30; // hover popovers — above sticky heads and carets
 }
 
+// --- hover popovers -------------------------------------------------------
+// One shell for every HoverPop: appearance, stacking, arrow, fade. Callers add only
+// their own content layout and width. --anchor-x comes from HoverPop, so the arrow
+// keeps pointing at the trigger even when the card is clamped to the sheet.
+.osc-hoverpop {
+  z-index: var(--z-tooltip);
+  padding: var(--spacer-2) var(--spacer-3);
+  border: 1px solid var(--border, #3a342c);
+  border-radius: var(--r-md, 6px);
+  background: var(--surface-2, #2c2823);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.32);
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  // Closing is immediate; opening waits, so brushing past a tile doesn't flash a card.
+  transition:
+    opacity 0.12s,
+    transform 0.12s;
+
+  &[data-open] {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.15s;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    left: var(--anchor-x, 50%);
+    top: -5px;
+    width: 9px;
+    height: 9px;
+    transform: translateX(-50%) rotate(45deg);
+    background: var(--surface-2, #2c2823);
+    border-left: 1px solid var(--border, #3a342c);
+    border-top: 1px solid var(--border, #3a342c);
+  }
+}
+
 // --- encumbrance tier colours ---------------------------------------------
 // One tier → one colour, everywhere: the inventory rates line, the tier string in
 // both hover popovers, and the load bar's gradient stops. Vellum tokens only —
