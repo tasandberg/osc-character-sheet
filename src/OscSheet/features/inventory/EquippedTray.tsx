@@ -141,8 +141,10 @@ export function EquippedTray({
             type="button"
             className="osc-equip-tt"
             onClick={() => onOpen(item.id)}
+            // No `title`: the HoverPop below already names the item, and the browser's
+            // own grey tooltip drew over it in a different visual language. aria-label
+            // keeps the accessible name.
             aria-label={item.name}
-            title={item.name}
           >
             <Monogram
               img={item.img}
