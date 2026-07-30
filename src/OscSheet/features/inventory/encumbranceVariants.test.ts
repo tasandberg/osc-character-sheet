@@ -8,14 +8,14 @@ import {
   loadHeading,
   sectionCountLabel,
 } from "@features/inventory/groups";
-import { selectInventory } from "@features/inventory/inventory";
+import { selectInventory, selectWealth } from "@features/inventory/inventory";
 import type { InventoryItemVM } from "@domain/vm-types";
 import type { OseItem } from "@domain/types";
 
 const mkVM = (o: Partial<InventoryItemVM> = {}): InventoryItemVM => ({
   id: "x", name: "X", img: "", category: "Gear", categoryRank: 2, damage: "",
   tags: [], monogram: "XX", weight: 0, slots: 0, cost: 0, armorClass: null,
-  sort: 0, equippedSort: 0, equipped: null, quantity: null, treasure: false,
+  sort: 0, equippedSort: 0, equipped: null, quantity: null, treasure: false, coinsOrGems: false,
   isContainer: false, children: [], ...o,
 });
 
@@ -24,14 +24,20 @@ const mkVM = (o: Partial<InventoryItemVM> = {}): InventoryItemVM => ({
 const sword = mkVM({ id: "sword", name: "Sword", weight: 60, slots: 1 });
 const arrows = mkVM({ id: "arrows", name: "Arrows", weight: 10, slots: 17 });
 const unset = mkVM({ id: "unset", name: "Unset gear", weight: 0, slots: 0 });
-// treasure gets slots: 0 from slotsOf — it's bucketed globally by the Treasure section.
-const coins = mkVM({ id: "gp", name: "GP", weight: 900, slots: 0, treasure: true });
+// coins/gems get slots: 0 from slotsOf — bucketed globally by the Treasure section.
+const coins = mkVM({
+  id: "gp", name: "GP", weight: 900, slots: 0, treasure: true, coinsOrGems: true,
+});
+// A valuable the system does NOT bucket: treasure, but ordinary slots all the same.
+const idol = mkVM({
+  id: "idol", name: "Golden idol", weight: 200, slots: 3, treasure: true,
+});
 const pack = mkVM({
   id: "pack", name: "Backpack", weight: 20, slots: 1, isContainer: true,
   children: [mkVM({ id: "rope", name: "Rope", weight: 50, slots: 2 })],
 });
 
-const inventory = [sword, arrows, unset, coins, pack];
+const inventory = [sword, arrows, unset, coins, idol, pack];
 
 /** Every variant the system's enum carries, plus the no-encumbrance case. */
 const CN_VARIANTS = [undefined, "", "basic", "detailed", "complete"] as const;
@@ -63,15 +69,28 @@ describe("slot derivation", () => {
     expect(vm.items.find((i) => i.name === "Backpack")!.slots).toBe(0);
   });
 
-  it("gives treasure no slots — it is bucketed globally, 100 to a slot", () => {
-    const vm = selectInventory([
-      mkItem("item", "Gem", {
-        treasure: true, itemslots: 1, quantity: { value: 900, max: 0 },
+  // Treasure is filtered out of the main list into the Treasure section, so its slot
+  // figure surfaces on the wealth rows rather than on an inventory row.
+  it("gives coins/gems no slots — they are bucketed globally, 100 to a slot", () => {
+    const [row] = selectWealth([
+      mkItem("item", "Gems", {
+        treasure: true, isCoinsOrGems: true, itemslots: 1,
+        quantity: { value: 900, max: 0 },
       }),
     ]);
-    // Counting it per-row would make section totals disagree with their rows, and
-    // ceil(qty × itemslots) is the wrong rule for treasure anyway.
-    for (const it of vm.items) expect(it.slots).toBe(0);
+    // ceil(qty × itemslots) is the wrong rule for these — the section buckets them.
+    expect(row.coinsOrGems).toBe(true);
+    expect(row.kind === "treasure" && row.slots).toBe(0);
+  });
+
+  it("gives a non-bucketed valuable ordinary slots", () => {
+    const [row] = selectWealth([
+      mkItem("item", "Golden idol", {
+        treasure: true, itemslots: 2, quantity: { value: 3, max: 0 },
+      }),
+    ]);
+    expect(row.coinsOrGems).toBe(false);
+    expect(row.kind === "treasure" && row.slots).toBe(6);
   });
 });
 
@@ -90,9 +109,14 @@ describe("row figures across every variant", () => {
     for (const v of CN_VARIANTS) expect(loadText(countedLoad(unset, v))).toBe("—");
   });
 
-  it("treasure has no per-row slot figure, but does have a weight", () => {
+  it("coins/gems have no per-row slot figure, but do have a weight", () => {
     expect(loadText(countedLoad(coins, "itembased"))).toBe("—");
     for (const v of CN_VARIANTS) expect(loadText(countedLoad(coins, v))).toBe("900 cn");
+  });
+
+  it("a valuable the system does not bucket keeps a real slot figure", () => {
+    expect(loadText(countedLoad(idol, "itembased"))).toBe("3");
+    for (const v of CN_VARIANTS) expect(loadText(countedLoad(idol, v))).toBe("200 cn");
   });
 });
 
@@ -104,15 +128,15 @@ describe("column heading follows the same variant", () => {
 });
 
 describe("section totals across every variant", () => {
-  // 6 rows once the container's child is flattened.
-  it("sums slots under itembased, excluding treasure", () => {
-    // 1 + 17 + 0 + 1 + 2 = 21; the coin row contributes nothing per-row.
-    expect(sectionCountLabel(inventory, "itembased")).toBe("6 items · 21 slots");
+  // 7 rows once the container's child is flattened.
+  it("sums slots under itembased, excluding only the bucketed coins/gems", () => {
+    // 1 + 17 + 0 + 3 + 1 + 2 = 24; the coin row contributes nothing per-row.
+    expect(sectionCountLabel(inventory, "itembased")).toBe("7 items · 24 slots");
   });
 
   it("sums cn for every other variant", () => {
     for (const v of CN_VARIANTS) {
-      expect(sectionCountLabel(inventory, v)).toBe("6 items · 1040 cn");
+      expect(sectionCountLabel(inventory, v)).toBe("7 items · 1240 cn");
     }
   });
 

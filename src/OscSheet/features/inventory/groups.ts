@@ -19,15 +19,16 @@ export interface CountedLoad {
 
 /** The load cell for one row. Under item-based encumbrance this is the item's slots —
  *  a literal 0 (an unset GM value the sheet should surface, not hide behind a dash);
- *  treasure has no per-row figure at all (it's counted per section, 100 to a slot).
- *  Every other variant keeps the cn behaviour, dash included. */
+ *  coins and gems have no per-row figure at all (they're counted per section, 100 to a
+ *  slot). Every other variant keeps the cn behaviour, dash included. */
 export function countedLoad(
   item: InventoryItemVM,
   variant?: string,
 ): CountedLoad {
   if (variant !== "itembased") return weightLoad(item.weight);
-  // Treasure carries no per-row slot figure (see slotsOf) — the section totals it.
-  if (item.treasure) return { value: "—", unit: "" };
+  // Coins/gems carry no per-row slot figure (see slotsOf) — the section totals them.
+  // Other valuables take ordinary slots, so they show a real number.
+  if (item.coinsOrGems) return { value: "—", unit: "" };
   return { value: String(item.slots), unit: "" };
 }
 

@@ -18,7 +18,7 @@ const mkItem = (o: Partial<InventoryItemVM> = {}): InventoryItemVM => ({
   id: "arrows", name: "Arrows", img: "", category: "Weapon", categoryRank: 0,
   damage: "", tags: [], monogram: "AR", weight: 5, slots: 1, cost: 0, armorClass: null,
   sort: 0, equippedSort: 0, equipped: null, quantity: { value: 3, max: 5 },
-  treasure: false, isContainer: false, children: [], ...o,
+  treasure: false, coinsOrGems: false, isContainer: false, children: [], ...o,
 });
 
 let container: HTMLDivElement;

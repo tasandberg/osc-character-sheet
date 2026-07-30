@@ -137,8 +137,11 @@ export interface InventoryItemVM {
   equipped: boolean | null;
   /** null unless the item is a stack (qty > 1) or charged (max set). */
   quantity: { value: number; max: number } | null;
-  /** `system.treasure` — coins/gems/valuables, counted per section rather than per row. */
+  /** `system.treasure` — coins, gems and other valuables; shown in the Treasure section. */
   treasure: boolean;
+  /** The narrower subset the system buckets at 100 to a slot (`system.isCoinsOrGems`), so
+   *  it carries no per-row slot figure. Other valuables count their slots normally. */
+  coinsOrGems: boolean;
   isContainer: boolean;
   children: InventoryItemVM[]; // [] unless container; nested by containerId
 }
@@ -188,6 +191,12 @@ export interface CoinVM {
   value: number;
   /** gp value of one coin of this denom (system.cost, std fallback) — for the wealth total. */
   gpEach: number;
+  /** System-derived: bucketed at 100 to a slot. Our coin naming is broader than the
+   *  system's, so a coin row is not automatically one of these. */
+  coinsOrGems: boolean;
+  /** Per-unit item slots, for the rows that aren't bucketed — the count has to follow
+   *  the live (draft) qty, so it can't be pre-multiplied. */
+  itemslots: number;
 }
 
 /** A non-coin treasure item (gem, jewellery, …) surfaced in the Treasure section.
@@ -206,6 +215,10 @@ export interface TreasureVM {
   cost: number;
   /** Summed gp value: qty × cost. */
   value: number;
+  /** System-derived: bucketed at 100 to a slot (a gem), rather than counted per row. */
+  coinsOrGems: boolean;
+  /** Carried item slots — 0 when bucketed. */
+  slots: number;
 }
 
 /** Fields shared by every row of the unified Treasure table (coins + valuables). */
@@ -222,6 +235,9 @@ interface WealthRowShared {
   weight: number;
   /** Row gp value. */
   value: number;
+  /** `system.isCoinsOrGems` — the rows the system buckets at 100 to a slot. The rest
+   *  (a gold idol, a silver crown) take ordinary item slots, per row. */
+  coinsOrGems: boolean;
 }
 
 /** An editable coin denomination row. */
@@ -231,11 +247,16 @@ export interface CoinWealthRow extends WealthRowShared {
   denom: string;
   /** gp value of one coin — the row value recomputes live as the qty is edited. */
   gpEach: number;
+  /** Per-unit item slots. Kept per-unit (not folded with qty) because an un-bucketed
+   *  coin row's slot count has to follow the qty being typed. */
+  itemslots: number;
 }
 
 /** A read-only non-coin treasure row (gem, jewellery, …). */
 export interface TreasureWealthRow extends WealthRowShared {
   kind: "treasure";
+  /** Carried item slots (qty already folded in); 0 when the row is bucketed. */
+  slots: number;
 }
 
 /** A single row of the Treasure table: coins and valuables in one list, rendered

@@ -33,7 +33,7 @@ export function WealthSection({
 }: {
   /** Unified row list: coins (canonical order) then non-coin valuables. */
   wealth: WealthRowVM[];
-  /** Active encumbrance variant — item-based counts treasure per section, not per row. */
+  /** Active encumbrance variant — item-based buckets coins/gems per section, not per row. */
   variant?: string;
   onSetCoin: (id: string, value: number) => void;
   /** Foundry item drag-data per row id — lets treasure rows drop onto the hotbar / Item Piles. */
@@ -112,13 +112,30 @@ export function WealthSection({
   const liveValue = (r: WealthRowVM) => (r.kind === "coin" ? draftQty(r) * r.gpEach : r.value);
   const totalGp = wealth.reduce((s, r) => s + liveValue(r), 0);
   const weight = wealth.reduce((s, r) => s + liveWeight(r), 0);
-  // Item-based encumbrance buckets treasure globally: 100 coins/gems to one slot. No
-  // per-row figure exists, so only the section total is real (rows show a dash).
   const itemBased = variant === "itembased";
-  const slots = Math.ceil(
-    wealth.reduce((s, r) => s + (r.kind === "coin" ? draftQty(r) : r.qty), 0) / 100,
-  );
+  // Draft-aware qty: only coins are editable, so only they can be mid-edit.
+  const liveQty = (r: WealthRowVM) => (r.kind === "coin" ? draftQty(r) : r.qty);
+  // Item-based encumbrance buckets coins and gems globally — 100 to one slot, ceiled once
+  // over the lot, so they have no per-row figure. Every OTHER valuable is an ordinary item
+  // and takes its own slots, which is why the section total is a sum of the two rules.
+  const rowSlots = (r: WealthRowVM) =>
+    r.coinsOrGems
+      ? 0
+      : r.kind === "coin"
+        ? Math.ceil(liveQty(r) * r.itemslots)
+        : r.slots;
+  const bucketed = wealth.reduce((s, r) => s + (r.coinsOrGems ? liveQty(r) : 0), 0);
+  const slots =
+    Math.ceil(bucketed / 100) + wealth.reduce((s, r) => s + rowSlots(r), 0);
   const load = itemBased ? `${slots} slots` : `${fmtCoin(weight)} cn`;
+  // The row's load cell: cn normally, slots under item-based — a dash only for the rows
+  // the section buckets, which genuinely have no per-row figure.
+  const rowLoad = (r: WealthRowVM) =>
+    !itemBased
+      ? fmtCoin(liveWeight(r))
+      : r.coinsOrGems
+        ? "—"
+        : String(rowSlots(r));
   const dots = wealth
     .filter((r): r is CoinWealthRow => r.kind === "coin" && draftQty(r) > 0)
     .map((r) => r.denom);
@@ -199,7 +216,7 @@ export function WealthSection({
                 canEdit={canEdit}
                 dnd={dnd}
                 itemDragData={itemDragData}
-                perRowLoad={!itemBased}
+                load={rowLoad(row)}
                 inputValue={draft[row.denom] ?? String(row.qty)}
                 onOpen={onOpen}
                 onContext={onContext}
@@ -215,7 +232,7 @@ export function WealthSection({
                 canEdit={canEdit}
                 dnd={dnd}
                 itemDragData={itemDragData}
-                perRowLoad={!itemBased}
+                load={rowLoad(row)}
                 onOpen={onOpen}
                 onContext={onContext}
               />

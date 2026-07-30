@@ -20,7 +20,7 @@ const item = (o: Partial<InventoryItemVM> & { id: string; name: string }): Inven
   equippedSort: 0,
   equipped: null,
   quantity: null,
-  treasure: false,
+  treasure: false, coinsOrGems: false,
   isContainer: false,
   children: [],
   ...o,
@@ -52,9 +52,11 @@ const encumbrance: EncumbranceVM = { enabled: true, variant: "basic", value: 380
 const coin = (denom: string, qty: number, gpEach: number): WealthRow => ({
   kind: "coin", denom, id: denom.toLowerCase(), name: `${denom} coins`, img: "",
   monogram: denom, gpEach, qty, weight: qty, value: qty * gpEach,
+  coinsOrGems: true, itemslots: 0,
 });
 const valuable = (id: string, name: string, monogram: string, qty: number, weight: number, cost: number): WealthRow => ({
   kind: "treasure", id, name, img: "", monogram, qty, weight, value: qty * cost,
+  coinsOrGems: false, slots: 1,
 });
 
 // Coins (canonical order) then read-only valuables — the merged Treasure table.

@@ -7,6 +7,7 @@ import type {
   SortDir,
 } from "@domain/vm-types";
 import { monogram } from "./monogram";
+import { bucketsAsCoinsOrGems, slotsOf } from "./slots";
 
 const COIN_DENOMS = ["pp", "gp", "ep", "sp", "cp"] as const;
 
@@ -74,6 +75,8 @@ export function selectCoins(items: OseItem[]): CoinVM[] {
         img: (it.img as string) ?? "",
         value: it.system.quantity?.value ?? 0,
         gpEach: cost > 0 ? cost : (GP_PER_COIN[d] ?? 0),
+        coinsOrGems: bucketsAsCoinsOrGems(it),
+        itemslots: it.system.itemslots ?? 0,
       },
     ];
   });
@@ -112,6 +115,8 @@ export function selectTreasure(items: OseItem[]): TreasureVM[] {
         weight: s.cumulativeWeight ?? s.weight ?? 0,
         cost,
         value: qty * cost,
+        coinsOrGems: bucketsAsCoinsOrGems(it),
+        slots: slotsOf(it),
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -137,6 +142,8 @@ export function selectWealth(items: OseItem[]): WealthRow[] {
     qty: c.value,
     weight: c.value, // coins are 1 cn each
     value: c.value * c.gpEach,
+    coinsOrGems: c.coinsOrGems,
+    itemslots: c.itemslots,
   }));
   const valuables: WealthRow[] = selectTreasure(items).map((t) => ({
     kind: "treasure",
@@ -147,6 +154,8 @@ export function selectWealth(items: OseItem[]): WealthRow[] {
     qty: t.qty,
     weight: t.weight,
     value: t.value,
+    coinsOrGems: t.coinsOrGems,
+    slots: t.slots,
   }));
   return [...coins, ...valuables];
 }

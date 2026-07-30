@@ -31,7 +31,7 @@ const item = (id: string, over: Partial<InventoryItemVM> = {}): InventoryItemVM 
   equippedSort: 100,
   equipped: false,
   quantity: null,
-  treasure: false,
+  treasure: false, coinsOrGems: false,
   isContainer: false,
   children: [],
   ...over,

@@ -164,6 +164,10 @@ export type OseItem = Omit<Item, "type"> & {
     itemslots?: number;
     /** `item` type only — ceil(itemslots × quantity). Absent on weapon/armor/container. */
     cumulativeItemslots?: number;
+    /** System-derived: treasure the system buckets at 100 to a slot, matched on a
+     *  coin/gem tag or a coin name. Read it off the item — the match list is the
+     *  system's to own, and it is localised. */
+    isCoinsOrGems?: boolean;
   };
   rollWeapon: (options: { skipDialog: boolean }) => void;
   update: (updateData: {
