@@ -635,6 +635,12 @@
 .osc-coin-row:active {
   cursor: grabbing;
 }
+// cursor inherits and our inputs are `all: unset`, so the row's grabbing fist leaked
+// into them on mousedown. Needs the :active parent to out-specify the rule above.
+.osc-inv-row:active :is(input, textarea),
+.osc-coin-row:active :is(input, textarea) {
+  cursor: text;
+}
 // While a drag is in flight the source row is no longer under the pointer, so
 // :active drops — flag the sheet root for the drag's lifetime and force the
 // grabbing cursor everywhere until drop/end.
