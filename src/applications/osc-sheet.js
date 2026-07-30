@@ -87,7 +87,7 @@ class OscSheet extends ReactActorSheetV2 {
     });
   }
 
-  // Local builds append the branch + sha they were built FROM, so a stale dist is
+  // Local builds append the branch they were built FROM, so a stale dist is
   // obvious in the titlebar. Empty in CI, so released builds keep a clean title.
   get title() {
     return __BUILD_STAMP__ ? `${super.title} — ${__BUILD_STAMP__}` : super.title;

@@ -6,15 +6,17 @@ import fs from "node:fs";
 import path from "path";
 import { execSync } from "node:child_process";
 
-/** Branch + short sha of the build, so a sheet's titlebar says which build is loaded —
- *  not what's checked out now. Those differ exactly when you forget to rebuild. Empty
- *  in CI, so released builds keep a clean title. */
+/** Branch the build came from, so a sheet's titlebar says which build is loaded — not
+ *  what's checked out now. Those differ exactly when you forget to rebuild. A trailing
+ *  `*` means the build included uncommitted changes. Empty in CI, so releases are clean. */
 function buildStamp(): string {
   if (process.env.CI) return "";
   try {
-    const git = (cmd: string) => execSync(`git ${cmd}`, { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
-    const dirty = git("status --porcelain") ? "*" : "";
-    return `${git("rev-parse --abbrev-ref HEAD")} @ ${git("rev-parse --short HEAD")}${dirty}`;
+    const git = (cmd: string) =>
+      execSync(`git ${cmd}`, { stdio: ["ignore", "pipe", "ignore"] })
+        .toString()
+        .trim();
+    return `${git("rev-parse --abbrev-ref HEAD")}${git("status --porcelain") ? "*" : ""}`;
   } catch {
     return "";
   }
