@@ -15,11 +15,16 @@ name: E2E Test Suite
 on:
   push:
     branches: [main]
-  # pull_request_target (not pull_request) so the job can read the license
-  # secrets, which GitHub never exposes to fork-PR workflows. The Checkout step
-  # then pulls the PR head — i.e. runs untrusted code with secrets present — so
-  # the `if` below gates it: same-repo PRs auto-run; fork PRs only after a
-  # maintainer applies the `safe-to-test` label.
+  # Same-repo PRs use plain pull_request: secrets are available, the workflow comes
+  # from the PR itself (so changes to it can be tested before merge), and no untrusted
+  # code runs with secrets.
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  # Forks only. GitHub never exposes secrets to fork pull_request runs, so those need
+  # pull_request_target — which runs the workflow from the BASE branch and then checks
+  # out the PR head, i.e. untrusted code with secrets present. Gated by the job `if`
+  # below on a maintainer applying `safe-to-test`.
   pull_request_target:
     branches: [main]
     types: [opened, synchronize, reopened, labeled]
@@ -32,10 +37,16 @@ concurrency:
 
 jobs:
   e2e:
+    # Exactly one run per PR: same-repo goes through pull_request, forks through
+    # pull_request_target once labelled. Without the repo check a same-repo PR would
+    # fire both and run the suite twice against one Foundry licence.
     if: >-
-      github.event_name != 'pull_request_target' ||
-      github.event.pull_request.head.repo.full_name == github.repository ||
-      contains(github.event.pull_request.labels.*.name, 'safe-to-test')
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'pull_request_target' &&
+        github.event.pull_request.head.repo.full_name != github.repository &&
+        contains(github.event.pull_request.labels.*.name, 'safe-to-test'))
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
