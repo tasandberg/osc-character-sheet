@@ -12,7 +12,10 @@ export default defineConfig({
   testDir: "./specs",
   globalSetup: "./global-setup.ts",
   fullyParallel: true,
-  workers: 2,
+  // 1 on purpose: the CI box is already saturated running serially — 2 workers ran no
+  // faster and 3 ran slower, both timing out. A resource ceiling, not a correctness one,
+  // so raise it if the runner grows.
+  workers: 1,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],
   // Foundry ops run far slower on the free shared CI runners (sheet render, roll
