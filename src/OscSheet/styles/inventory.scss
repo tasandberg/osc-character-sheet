@@ -1178,12 +1178,6 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  // Optical alignment: the chip's own 1px border + 6px padding inset its TEXT, so a
-  // box-flush chip reads as indented against the labels above. Pull the leading chip
-  // out by that inset so the words line up, not the boxes.
-  &:first-child {
-    margin-left: -7px;
-  }
   font-family: var(--sans);
   font-size: var(--fs-3xs, 10px);
   color: var(--text-dim, #b5ad97);
