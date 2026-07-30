@@ -427,6 +427,77 @@ describe("selectEncumbrance", () => {
   });
 });
 
+describe("item-based encumbrance: the STR modifier", () => {
+  // Stands in for OSE's item-based class. Its `max`/`pct` getters deliberately leave the
+  // STR modifier out; the packed figures put it on the limit — so those are what we read.
+  // Mirrors the system's own math: the modifier only applies with the world setting on,
+  // only when positive, and only in packed mode.
+  const fake = (
+    carried: number,
+    { strMod = 0, setting = false, equipped = false } = {},
+  ) => {
+    const max = 16;
+    const mod = setting && strMod > 0 ? strMod : 0;
+    return {
+      system: {
+        encumbrance: {
+          variant: "itembased", enabled: true, steps: [62.5, 75, 87.5],
+          value: carried, max, encumbered: carried > max + mod,
+          usingEquippedEncumbrance: equipped,
+          packedPct: Math.min(100, ((carried - mod) / max) * 100),
+          equippedPct: Math.min(100, (carried / max) * 100),
+          packedLabel: `${carried}/${max + mod}`,
+          equippedLabel: `${carried}/${max}`,
+        },
+        movement: { base: 120, encounter: 40, overland: 24 },
+      },
+    } as unknown as OSEActor;
+  };
+
+  it("setting on, positive mod: the limit rises and the bar eases off", () => {
+    // The bug: `max` alone reported 16/16 at 100% and flagged the character overloaded.
+    const e = selectEncumbrance(fake(16, { strMod: 2, setting: true }));
+    expect(e.label).toBe("16 / 18 items");
+    expect(e.pct).toBeCloseTo(0.875);
+    expect(e.status).not.toBe("Overloaded");
+  });
+
+  it("setting off: the modifier is ignored entirely", () => {
+    const e = selectEncumbrance(fake(16, { strMod: 2, setting: false }));
+    expect(e.label).toBe("16 / 16 items");
+    expect(e.pct).toBe(1);
+  });
+
+  it("a negative modifier never lowers the limit", () => {
+    const e = selectEncumbrance(fake(16, { strMod: -3, setting: true }));
+    expect(e.label).toBe("16 / 16 items");
+    expect(e.pct).toBe(1);
+  });
+
+  it("equipped mode takes the equipped figures, which carry no modifier", () => {
+    const e = selectEncumbrance(fake(8, { strMod: 2, setting: true, equipped: true }));
+    expect(e.label).toBe("8 / 16 items");
+    expect(e.pct).toBeCloseTo(0.5);
+  });
+
+  it("other variants keep deriving from value/max, packed fields or not", () => {
+    const actor = {
+      system: {
+        encumbrance: {
+          variant: "detailed", enabled: true, steps: [25, 37.5, 50],
+          value: 800, max: 1600, encumbered: false,
+          // a stray packed readout must not leak into a non-item-based variant
+          usingEquippedEncumbrance: false, packedPct: 12.5, packedLabel: "2/16",
+        },
+        movement: { base: 120, encounter: 40, overland: 24 },
+      },
+    } as unknown as OSEActor;
+    const e = selectEncumbrance(actor);
+    expect(e.label).toBe("800 / 1600 cn");
+    expect(e.pct).toBeCloseTo(0.5);
+  });
+});
+
 describe("significant treasure (basic encumbrance)", () => {
   // Stands in for OSE's basic encumbrance class, incl. the line that made the old
   // boolean bite: `options.significantTreasure || 800` keeps a `true`, turning every
