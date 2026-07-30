@@ -41,8 +41,7 @@ export function HoverPop({
   /** `start` = card's left edge on the trigger's; `center` = centred under it. */
   align?: HoverPopAlign;
   role?: string;
-  /** Trigger bottom → card top. A card whose ::before arrow pokes ABOVE its top edge
-      must pass `GAP + arrow height`, or the arrow's tip lands on the trigger. */
+  /** Trigger bottom → card top. Add the arrow's height if the card draws one. */
   gap?: number;
   children: ReactNode;
 }) {

@@ -141,9 +141,6 @@ export function EquippedTray({
             type="button"
             className="osc-equip-tt"
             onClick={() => onOpen(item.id)}
-            // No `title`: the HoverPop below already names the item, and the browser's
-            // own grey tooltip drew over it in a different visual language. aria-label
-            // keeps the accessible name.
             aria-label={item.name}
           >
             <Monogram
@@ -152,8 +149,7 @@ export function EquippedTray({
               className={item.img ? "" : "osc-equip-tt-ic"}
             />
           </button>
-          {/* gap 11, not the default 6: this card's arrow (9px square rotated 45° at
-              top:-5px) reaches ~7px above the card, so 11 leaves ~4px under the tile. */}
+          {/* gap 11: the arrow reaches ~7px above the card */}
           <HoverPop className="osc-equip-tt-pop" align="center" gap={11}>
             <span className="osc-equip-tt-pop-nm">{item.name}</span>
             <span className="osc-equip-tt-pop-type">{item.category}</span>

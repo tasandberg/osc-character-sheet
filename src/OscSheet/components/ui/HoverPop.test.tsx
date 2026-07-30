@@ -156,9 +156,7 @@ function Tray() {
 }
 
 describe("both hover cards share HoverPop", () => {
-  // Same mechanism, one deliberate difference: only the equipped card draws an arrow,
-  // and that arrow pokes above the card's top edge, so it needs a bigger gap or its tip
-  // sits on the tile. The movement card has no arrow and keeps the default.
+  // Same mechanism; only the equipped card draws an arrow, so only it needs a bigger gap.
   it("places both cards off their trigger, the arrowed one clear of it", () => {
     act(() => root.render(<Tray />));
     const equipPop = container.querySelector<HTMLElement>(".osc-equip-tt-pop")!;
@@ -168,8 +166,7 @@ describe("both hover cards share HoverPop", () => {
 
     stubRect(tile, { left: 300, width: 50, bottom: 240 });
     hover(tile, "pointerenter");
-    // 240 + 11: the arrow reaches ~7px up, leaving ~4px of air under the tile
-    expect(equipPop.style.top).toBe("251px");
+    expect(equipPop.style.top).toBe("251px"); // 240 + 11
 
     act(() =>
       root.render(
