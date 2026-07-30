@@ -26,6 +26,7 @@ export function countedLoad(
   variant?: string,
 ): CountedLoad {
   if (variant !== "itembased") return weightLoad(item.weight);
+  // Treasure carries no per-row slot figure (see slotsOf) — the section totals it.
   if (item.treasure) return { value: "—", unit: "" };
   return { value: String(item.slots), unit: "" };
 }
@@ -49,11 +50,13 @@ export function flattenItems(list: InventoryItemVM[]): InventoryItemVM[] {
 export function sectionCountLabel(
   items: InventoryItemVM[],
   variant?: string,
+  cap?: number,
 ): string {
   const all = flattenItems(items);
   const load = all.reduce((s, it) => s + (loadValue(it, variant) || 0), 0);
   const unit = variant === "itembased" ? "slots" : "cn";
-  return `${all.length} ${all.length === 1 ? "item" : "items"} · ${load} ${unit}`;
+  const figure = cap === undefined ? `${load}` : `${load} / ${cap}`;
+  return `${all.length} ${all.length === 1 ? "item" : "items"} · ${figure} ${unit}`;
 }
 
 export function indexById(

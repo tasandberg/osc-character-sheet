@@ -265,6 +265,8 @@ export interface EncumbranceVM {
   status: string;
   /** Variant-aware value/max readout, e.g. "1071 / 1600 cn" or "10 / 16 items". */
   label: string;
+  /** Item-based only: the equipped track's cap, so the Equipped section can show "5 / 9". */
+  equippedMax?: number;
   /** Basic mode only: equipped armor weight class, surfaced as its own popover row
    *  (it slows movement but does not tint the bar). Undefined for other variants. */
   armorTier?: "unarmored" | "light" | "heavy";

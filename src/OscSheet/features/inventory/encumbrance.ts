@@ -47,13 +47,17 @@ type ItemBasedEncumbrance = CharacterEncumbrance & {
 function itemBasedReadout(e: ItemBasedEncumbrance): {
   pct?: number;
   label?: string;
+  equippedMax?: number;
 } {
   const equipped = e.usingEquippedEncumbrance;
   const pct = equipped ? e.equippedPct : e.packedPct;
   const label = equipped ? e.equippedLabel : e.packedLabel;
+  // equippedLabel is "value/max" — the only place the equipped cap is exposed.
+  const cap = Number(e.equippedLabel?.split("/")[1]);
   return {
     pct: Number.isFinite(pct) ? Math.min(1, pct / 100) : undefined,
     label: label?.replace("/", " / "),
+    equippedMax: Number.isFinite(cap) ? cap : undefined,
   };
 }
 
@@ -112,6 +116,7 @@ export function selectEncumbrance(actor: OSEActor, items?: OseItem[]): Encumbran
     tier,
     status: TIER_STATUS[tier],
     label: `${itemBased?.label ?? `${e.value} / ${e.max}`} ${unit}`,
+    equippedMax: itemBased?.equippedMax,
     armorTier: basicArmorTier(e, sigTreasure),
     moveBands: {
       encounter: Math.floor(movement?.encounter ?? 0),

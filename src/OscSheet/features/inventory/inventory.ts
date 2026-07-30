@@ -89,11 +89,14 @@ function armorClassOf(item: OseItem): { label: string; value: number } | null {
 function slotsOf(item: OseItem): number {
   const s = item.system;
   const slots = s.itemslots ?? 0;
+  // Treasure is bucketed globally (100 to a slot, ceiled once over the lot), so it has no
+  // honest per-row figure — the Treasure section totals it instead. Counting it here too
+  // would make every section total disagree with the rows above it.
+  if (s.treasure) return 0;
   if (item.type === "weapon" || item.type === "armor") return slots;
-  // Containers ship quantity 0 (system schema default) — a bag you carry is one bag.
-  const qty =
-    item.type === "container" ? s.quantity?.value || 1 : (s.quantity?.value ?? 1);
-  return s.cumulativeItemslots ?? Math.ceil(slots * qty);
+  // Containers ship quantity 0, so the system counts them as 0 slots. Coercing that to 1
+  // would read better but would stop our totals matching the system's own figure.
+  return s.cumulativeItemslots ?? Math.ceil(slots * (s.quantity?.value ?? 1));
 }
 
 function toVM(

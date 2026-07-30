@@ -299,6 +299,7 @@ export function InventoryView({
               title="Equipped items"
               items={inventory.equipped}
               variant={variant}
+              cap={variant === "itembased" ? encumbrance.equippedMax : undefined}
             />
             <EquippedTray
               items={trayItems}

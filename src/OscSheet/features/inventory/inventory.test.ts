@@ -192,9 +192,9 @@ describe("item slots", () => {
     expect(slotsOf(mk("item", "Rope", { weight: 50, quantity: { value: 1, max: 0 } }))).toBe(0);
   });
 
-  it("a container counts its own slot once despite its quantity default of 0", () => {
+  it("a container folds in quantity like the system does — 0 by default, so 0 slots", () => {
     const backpack = mk("container", "Backpack", { itemslots: 1, quantity: { value: 0, max: 0 } });
-    expect(slotsOf(backpack)).toBe(1);
+    expect(slotsOf(backpack)).toBe(0);
   });
 });
 

@@ -107,7 +107,7 @@
     calc(var(--fs-base, 16px) * 2.75)
     calc(var(--fs-base, 16px) * 2.75);
   align-items: center;
-  gap: var(--spacer-2);
+  gap: var(--spacer-3);
   padding: var(--spacer-2) var(--spacer-1);
   border-bottom: 1px solid var(--border-soft, #2c2823);
   transition: background 0.1s;
@@ -284,9 +284,11 @@
 // Right-aligned columns (Type, Wt): shrink the header to the cell's right edge so
 // the label sits flush over its right-aligned data. The caret is left of the label
 // for every header (see SortHeader), so nothing to reorder here.
-.osc-inv .osc-inv-th-wt,
 .osc-inv .osc-inv-th-cat {
-  justify-self: end;
+  justify-self: start;
+}
+.osc-inv .osc-inv-th-wt {
+  justify-self: center;
 }
 // "Item" header spans the image + name columns so it starts at the image edge
 .osc-inv .osc-inv-th-item {
@@ -500,7 +502,7 @@
   text-transform: uppercase;
   color: var(--text-faint, #6a6354);
   white-space: nowrap;
-  text-align: right;
+  text-align: left;
 }
 
 // xs / mobile (bottom-tabs layout): drop the Type column to save width, and swap
@@ -588,7 +590,7 @@
   font-family: var(--mono);
   font-size: var(--fs-xs, 12px);
   color: var(--text-mute, #8a8270);
-  text-align: right;
+  text-align: center;
   white-space: nowrap;
 }
 
