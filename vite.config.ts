@@ -4,6 +4,21 @@ import foundryReact from "foundry-vtt-react/vite";
 import svgr from "vite-plugin-svgr";
 import fs from "node:fs";
 import path from "path";
+import { execSync } from "node:child_process";
+
+/** Branch + short sha of the build, so a sheet's titlebar says which build is loaded —
+ *  not what's checked out now. Those differ exactly when you forget to rebuild. Empty
+ *  in CI, so released builds keep a clean title. */
+function buildStamp(): string {
+  if (process.env.CI) return "";
+  try {
+    const git = (cmd: string) => execSync(`git ${cmd}`, { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+    const dirty = git("status --porcelain") ? "*" : "";
+    return `${git("rev-parse --abbrev-ref HEAD")} @ ${git("rev-parse --short HEAD")}${dirty}`;
+  } catch {
+    return "";
+  }
+}
 
 // foundryReact() owns the Foundry-specific config (base, root, server.proxy,
 // build input/output) — derived from module.json. Only app-specific config lives here.
@@ -16,6 +31,7 @@ const config: UserConfig = {
     __SENTRY_DEBUG__: false,
     // Baked module id — beta builds set MODULE_ID to isolate flags/settings/socket.
     __MODULE_ID__: JSON.stringify(process.env.MODULE_ID ?? "osc-character-sheet"),
+    __BUILD_STAMP__: JSON.stringify(buildStamp()),
   },
   resolve: {
     // Note: react/react-dom dedupe is handled by foundryReact() — no need to set it here.

@@ -87,6 +87,12 @@ class OscSheet extends ReactActorSheetV2 {
     });
   }
 
+  // Local builds append the branch + sha they were built FROM, so a stale dist is
+  // obvious in the titlebar. Empty in CI, so released builds keep a clean title.
+  get title() {
+    return __BUILD_STAMP__ ? `${super.title} — ${__BUILD_STAMP__}` : super.title;
+  }
+
   async _onRender(context, options) {
     await super._onRender(context, options);
     const theme = resolveTheme(game.settings.get(MODULE_ID, "theme"));
