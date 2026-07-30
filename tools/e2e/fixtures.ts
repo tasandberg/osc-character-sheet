@@ -74,35 +74,40 @@ export const test = base.extend<
         const g = globalThis as any;
         const observerId = g.game.users.getName(observer)?.id;
         if (!observerId) throw new Error(`Observer user "${observer}" not seeded`);
+        // One atomic create: items and the sheetClass flag are part of the payload,
+        // never follow-up updates. A later `flags.core.sheetClass` update fires
+        // ClientDocument#_onSheetChange on EVERY client holding the actor, closing
+        // its open sheet and re-rendering a fresh one. Reaching the slow observer
+        // session mid-spec, that detached the sheet under Playwright's cursor.
         const actor = await g.Actor.create({
           name: f.name,
           type: "character",
           // OBSERVER (2): can view the sheet, cannot edit. Set at creation so the
           // observer session never sees a permission-less intermediate state.
           ownership: { [observerId]: g.CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER },
-        });
-        await actor.createEmbeddedDocuments("Item", [
-          {
-            name: f.weapon,
-            type: "weapon",
-            // Equipped so it appears in the Attacks table (selectAttacks skips
-            // unequipped weapons). The equip spec toggles the armor, not this.
-            system: {
-              damage: "1d4",
-              melee: true,
-              missile: true,
-              equipped: true,
-              quantity: { value: 1 },
+          flags: { core: { sheetClass } },
+          items: [
+            {
+              name: f.weapon,
+              type: "weapon",
+              // Equipped so it appears in the Attacks table (selectAttacks skips
+              // unequipped weapons). The equip spec toggles the armor, not this.
+              system: {
+                damage: "1d4",
+                melee: true,
+                missile: true,
+                equipped: true,
+                quantity: { value: 1 },
+              },
             },
-          },
-          { name: f.armor, type: "armor", system: { equipped: false } },
-          {
-            name: f.coin,
-            type: "item",
-            system: { treasure: true, quantity: { value: 50 } },
-          },
-        ]);
-        await actor.setFlag("core", "sheetClass", sheetClass);
+            { name: f.armor, type: "armor", system: { equipped: false } },
+            {
+              name: f.coin,
+              type: "item",
+              system: { treasure: true, quantity: { value: 50 } },
+            },
+          ],
+        });
         return actor.id as string;
       },
       { f: fighter, observer: observerUserName(slot), sheetClass: SHEET_CLASS },
