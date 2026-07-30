@@ -67,7 +67,7 @@ describe("HoverPop", () => {
     hover(trigger, "pointerenter");
     expect(pop.style.position).toBe("fixed");
     expect(pop.style.visibility).toBe("");
-    expect(pop.style.top).toBe("106px"); // trigger bottom + 6 gap
+    expect(pop.style.top).toBe("111px"); // trigger bottom + 11 gap (clears the arrow)
     expect(pop.style.left).toBe("200px"); // align="start" → trigger's left edge
 
     hover(trigger, "pointerleave");
@@ -156,17 +156,18 @@ function Tray() {
 }
 
 describe("both hover cards share HoverPop", () => {
-  // Same mechanism; only the equipped card draws an arrow, so only it needs a bigger gap.
-  it("places both cards off their trigger, the arrowed one clear of it", () => {
+  it("places both cards identically and gives both the shared shell", () => {
     act(() => root.render(<Tray />));
     const equipPop = container.querySelector<HTMLElement>(".osc-equip-tt-pop")!;
     const tile = equipPop.parentElement!;
     expect(tile.className).toContain("osc-equip-tcard");
     expect(equipPop.style.position).toBe("fixed");
+    expect(equipPop.className).toContain("osc-hoverpop");
 
     stubRect(tile, { left: 300, width: 50, bottom: 240 });
     hover(tile, "pointerenter");
     expect(equipPop.style.top).toBe("251px"); // 240 + 11
+    expect(equipPop.hasAttribute("data-open")).toBe(true);
 
     act(() =>
       root.render(
@@ -179,7 +180,8 @@ describe("both hover cards share HoverPop", () => {
     const trigger = movePop.parentElement!;
     stubRect(trigger, { left: 300, width: 50, bottom: 240 });
     hover(trigger, "pointerenter");
-    expect(movePop.style.top).toBe("246px"); // no arrow → default 6
+    expect(movePop.style.top).toBe("251px");
     expect(movePop.style.position).toBe(equipPop.style.position);
+    expect(movePop.className).toContain("osc-hoverpop");
   });
 });

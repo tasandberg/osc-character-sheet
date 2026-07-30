@@ -381,7 +381,6 @@
   // don't inherit the anchor's tier tint — only a `.vv.enc-t*` row opts back in
   --enc-c: initial;
 
-  z-index: var(--z-tooltip);
   min-width: 150px;
   // 2-col grid: label | value. The label column grows (1fr) to eat the slack; every value
   // (rates AND status) lives in the same right-aligned column, so they all end flush at the
@@ -390,12 +389,6 @@
   grid-template-columns: minmax(max-content, 1fr) max-content;
   column-gap: var(--spacer-3);
   row-gap: 3px;
-  padding: var(--spacer-2) var(--spacer-2);
-  background: var(--bg-2, #1f1c17);
-  border: 1px solid var(--gold-soft);
-  border-radius: var(--r-lg, 10px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-  pointer-events: none; // display-only; never intercept clicks on content below
 }
 // small section-label header atop the popover, divided from the rate rows
 .osc-move-pop .hd {

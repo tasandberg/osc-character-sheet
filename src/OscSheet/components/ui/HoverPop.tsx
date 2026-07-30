@@ -17,8 +17,11 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { cx } from "./cx";
 
-const GAP = 6; // trigger bottom → card top, for a card with no arrow
+// trigger bottom → card top. 11 not 6: the arrow reaches ~7px above the card, so this
+// leaves ~4px of air under the trigger.
+const GAP = 11;
 const EDGE = 8; // smallest gap the card keeps from the sheet's (or viewport's) edge
 
 const HIDDEN: CSSProperties = {
@@ -34,15 +37,12 @@ export function HoverPop({
   className,
   align = "start",
   role = "tooltip",
-  gap = GAP,
   children,
 }: {
   className?: string;
   /** `start` = card's left edge on the trigger's; `center` = centred under it. */
   align?: HoverPopAlign;
   role?: string;
-  /** Trigger bottom → card top. Add the arrow's height if the card draws one. */
-  gap?: number;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -64,7 +64,7 @@ export function HoverPop({
       const left = Math.min(Math.max(wanted, min), Math.max(min, right - w - EDGE));
       setStyle({
         position: "fixed",
-        top: r.bottom + gap,
+        top: r.bottom + GAP,
         left,
         // keeps an arrow under the trigger's centre even when the card is clamped
         "--anchor-x": `${r.left + r.width / 2 - left}px`,
@@ -95,10 +95,16 @@ export function HoverPop({
       window.removeEventListener("scroll", reposition, true);
       window.removeEventListener("resize", reposition);
     };
-  }, [align, gap]);
+  }, [align]);
 
   return (
-    <span className={className} role={role} ref={ref} style={style}>
+    <span
+      className={cx("osc-hoverpop", className)}
+      role={role}
+      ref={ref}
+      style={style}
+      data-open={style.visibility === "hidden" ? undefined : ""}
+    >
       {children}
     </span>
   );

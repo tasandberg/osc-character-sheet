@@ -149,8 +149,7 @@ export function EquippedTray({
               className={item.img ? "" : "osc-equip-tt-ic"}
             />
           </button>
-          {/* gap 11: the arrow reaches ~7px above the card */}
-          <HoverPop className="osc-equip-tt-pop" align="center" gap={11}>
+          <HoverPop className="osc-equip-tt-pop" align="center">
             <span className="osc-equip-tt-pop-nm">{item.name}</span>
             <span className="osc-equip-tt-pop-type">{item.category}</span>
             <span className="osc-equip-tt-pop-stats">

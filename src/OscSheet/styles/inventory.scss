@@ -1042,6 +1042,10 @@
 .osc-equip-tcard.dragging > * {
   opacity: 0.4;
 }
+// A fixed child inside the drag-image snapshot paints against the viewport, not the tile.
+.osc-equip-tcard.dragging .osc-hoverpop {
+  display: none;
+}
 // horizontal insertion line on the leading/trailing edge of the hovered tile (teal)
 .osc-equip-tcard.drop-before::before,
 .osc-equip-tcard.drop-after::after {
@@ -1085,45 +1089,13 @@
   line-height: 1;
 }
 
-// hover popover with item detail. Position comes from HoverPop (inline `position:
-// fixed` + JS-anchored) — absolute here got clipped by the sheet body's overflow.
+// Item detail — appearance and placement are .osc-hoverpop / HoverPop; content only here.
 .osc-equip-tt-pop {
-  transform: translateY(4px);
-  z-index: var(--z-tooltip);
   min-width: 132px;
   max-width: 200px;
   display: flex;
   flex-direction: column;
   gap: 3px;
-  padding: var(--spacer-2) var(--spacer-3);
-  border-radius: var(--r-md, 6px);
-  background: var(--surface-2, #2c2823);
-  border: 1px solid var(--border, #3a342c);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.32);
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    opacity 0.12s,
-    transform 0.12s;
-  // --anchor-x = the tile's centre relative to the card's left edge, so the arrow
-  // keeps pointing at its tile even when HoverPop clamps the card to the viewport.
-  &::before {
-    content: "";
-    position: absolute;
-    left: var(--anchor-x, 50%);
-    top: -5px;
-    transform: translateX(-50%) rotate(45deg);
-    width: 9px;
-    height: 9px;
-    background: var(--surface-2, #2c2823);
-    border-left: 1px solid var(--border, #3a342c);
-    border-top: 1px solid var(--border, #3a342c);
-  }
-}
-.osc-equip-tcard:hover .osc-equip-tt-pop,
-.osc-equip-tcard:focus-within .osc-equip-tt-pop {
-  opacity: 1;
-  transform: translateY(0);
 }
 .osc-equip-tt-pop-nm {
   font-family: var(--display);
