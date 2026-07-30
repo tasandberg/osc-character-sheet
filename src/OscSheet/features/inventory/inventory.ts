@@ -7,6 +7,7 @@ import type {
 } from "@domain/vm-types";
 import { FLAGS, readFlag } from "@domain/flags";
 import { monogram } from "./monogram";
+import { bucketsAsCoinsOrGems, slotsOf } from "./slots";
 
 /** Manual order position: our own flag, falling back to Foundry's sort for un-migrated items. */
 function orderOf(item: OseItem): number {
@@ -84,21 +85,6 @@ function armorClassOf(item: OseItem): { label: string; value: number } | null {
     : { label: "AC", value: s.ac?.value ?? 0 };
 }
 
-/** Carried item slots, mirroring the system's item-based encumbrance model: `item` and
- *  `container` fold in quantity, `weapon`/`armor` count their slots once whatever the qty. */
-function slotsOf(item: OseItem): number {
-  const s = item.system;
-  const slots = s.itemslots ?? 0;
-  // Treasure is bucketed globally (100 to a slot, ceiled once over the lot), so it has no
-  // honest per-row figure — the Treasure section totals it instead. Counting it here too
-  // would make every section total disagree with the rows above it.
-  if (s.treasure) return 0;
-  if (item.type === "weapon" || item.type === "armor") return slots;
-  // Containers ship quantity 0, so the system counts them as 0 slots. Coercing that to 1
-  // would read better but would stop our totals matching the system's own figure.
-  return s.cumulativeItemslots ?? Math.ceil(slots * (s.quantity?.value ?? 1));
-}
-
 function toVM(
   item: OseItem,
   children: InventoryItemVM[] = [],
@@ -130,6 +116,7 @@ function toVM(
     equipped: "equipped" in s ? !!s.equipped : null,
     quantity: hasQty ? { value: q.value, max: q.max || q.value } : null,
     treasure: !!s.treasure,
+    coinsOrGems: bucketsAsCoinsOrGems(item),
     isContainer: item.type === "container",
     children,
   };

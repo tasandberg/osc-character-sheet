@@ -202,7 +202,7 @@ describe("sortInventory", () => {
   const mkVM = (overrides: Partial<import("@domain/vm-types").InventoryItemVM>): import("@domain/vm-types").InventoryItemVM => ({
     id: "x", name: "X", img: "", category: "Gear", categoryRank: 2,
     damage: "", tags: [], monogram: "XX", weight: 0, slots: 0, cost: 0, armorClass: null, sort: 0, equippedSort: 0,
-    equipped: null, quantity: null, treasure: false, isContainer: false, children: [],
+    equipped: null, quantity: null, treasure: false, coinsOrGems: false, isContainer: false, children: [],
     ...overrides,
   });
 
@@ -273,7 +273,7 @@ describe("sortEquipped", () => {
   const mkVM = (id: string, name: string, equippedSort: number): import("@domain/vm-types").InventoryItemVM => ({
     id, name, img: "", category: "Gear", categoryRank: 2, damage: "", tags: [],
     monogram: "XX", weight: 0, slots: 0, cost: 0, armorClass: null, sort: 0, equippedSort, equipped: true, quantity: null,
-    treasure: false, isContainer: false, children: [],
+    treasure: false, coinsOrGems: false, isContainer: false, children: [],
   });
 
   it("orders by equippedSort, ties broken by name", () => {

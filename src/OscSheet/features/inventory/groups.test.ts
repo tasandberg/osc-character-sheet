@@ -12,7 +12,7 @@ import type { InventoryItemVM } from "@domain/vm-types";
 const mkVM = (o: Partial<InventoryItemVM> = {}): InventoryItemVM => ({
   id: "x", name: "X", img: "", category: "Gear", categoryRank: 2, damage: "",
   tags: [], monogram: "XX", weight: 0, slots: 0, cost: 0, armorClass: null,
-  sort: 0, equippedSort: 0, equipped: null, quantity: null, treasure: false,
+  sort: 0, equippedSort: 0, equipped: null, quantity: null, treasure: false, coinsOrGems: false,
   isContainer: false, children: [], ...o,
 });
 
@@ -28,8 +28,14 @@ describe("countedLoad", () => {
     expect(loadText(countedLoad(mkVM({ slots: 0, weight: 50 }), "itembased"))).toBe("0");
   });
 
-  it("itembased: treasure has no honest per-row figure (counted per section)", () => {
-    expect(loadText(countedLoad(mkVM({ treasure: true, slots: 2 }), "itembased"))).toBe("—");
+  it("itembased: coins/gems have no honest per-row figure (counted per section)", () => {
+    expect(
+      loadText(countedLoad(mkVM({ treasure: true, coinsOrGems: true, slots: 0 }), "itembased")),
+    ).toBe("—");
+  });
+
+  it("itembased: other valuables are ordinary items and keep their slot figure", () => {
+    expect(loadText(countedLoad(mkVM({ treasure: true, slots: 2 }), "itembased"))).toBe("2");
   });
 
   it("other variants keep the cn behaviour, dash for weightless included", () => {

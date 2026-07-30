@@ -19,12 +19,13 @@ import type { OscSheetContextValue } from "@domain/types";
 const coin: CoinWealthRow = {
   kind: "coin", id: "gp", denom: "GP", gpEach: 1, name: "Gold Pieces",
   img: "", monogram: "GP", qty: 5, weight: 5, value: 5,
+  coinsOrGems: true, itemslots: 0,
 };
 
 const mkItem = (id: string): InventoryItemVM => ({
   id, name: id, img: "", category: "Gear", categoryRank: 2, damage: "", tags: [],
   monogram: id[0]!, weight: 1, slots: 1, cost: 0, armorClass: null, sort: 100, equippedSort: 100,
-  equipped: false, quantity: null, treasure: false, isContainer: false, children: [],
+  equipped: false, quantity: null, treasure: false, coinsOrGems: false, isContainer: false, children: [],
 });
 
 const noop = () => {};
@@ -62,7 +63,7 @@ function WealthHarness({ itemDragData }: { itemDragData: (id: string) => string 
   const dnd = useDragReorder({ enabled: true, onReorder: noop });
   return (
     <WealthRow
-      row={coin} index={0} canEdit dnd={dnd} itemDragData={itemDragData}
+      row={coin} index={0} canEdit dnd={dnd} itemDragData={itemDragData} load="5"
       inputValue="5" onOpen={noop} onContext={noop}
       onQtyChange={noop} onQtyCommit={noop} onQtyCommitClose={noop}
     />
