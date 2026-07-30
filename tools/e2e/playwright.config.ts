@@ -12,7 +12,7 @@ export default defineConfig({
   testDir: "./specs",
   globalSetup: "./global-setup.ts",
   fullyParallel: true,
-  workers: 3,
+  workers: 2,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],
   // Foundry ops run far slower on the free shared CI runners (sheet render, roll
