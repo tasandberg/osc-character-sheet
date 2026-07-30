@@ -35,6 +35,7 @@ export function selectEncumbrance(actor: OSEActor, items?: OseItem[]): Encumbran
     const movement = actor.system.movement;
     return {
       enabled: false,
+      variant: "",
       value: 0,
       max: 0,
       pct: 0,
@@ -75,6 +76,7 @@ export function selectEncumbrance(actor: OSEActor, items?: OseItem[]): Encumbran
   const unit = e.variant === "itembased" ? "items" : "cn";
   return {
     enabled: e.enabled,
+    variant: e.variant,
     value: e.value,
     max: e.max,
     pct,

@@ -17,6 +17,7 @@ import type { EncumbranceVM, VitalsVM } from "@domain/vm-types";
 
 const enc: EncumbranceVM = {
   enabled: true,
+  variant: "basic",
   value: 700,
   max: 1600,
   pct: 700 / 1600,

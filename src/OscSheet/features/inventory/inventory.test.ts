@@ -164,11 +164,45 @@ describe("selectInventory — container tree", () => {
   });
 });
 
+describe("item slots", () => {
+  const slotsOf = (item: OseItem) => selectInventory([item]).items[0].slots;
+
+  it("weapon/armor ignore quantity; item/container fold it in", () => {
+    const q = { value: 3, max: 0 };
+    expect(slotsOf(mk("weapon", "Spears", { itemslots: 1, quantity: q }))).toBe(1);
+    expect(slotsOf(mk("armor", "Shields", { itemslots: 2, quantity: q }))).toBe(2);
+    expect(slotsOf(mk("item", "Rations", { itemslots: 1, quantity: q }))).toBe(3);
+  });
+
+  it("fractional slots × quantity round up", () => {
+    const torches = mk("item", "Torches", { itemslots: 0.2, quantity: { value: 6, max: 6 } });
+    expect(slotsOf(torches)).toBe(2);
+  });
+
+  it("prefers the system's own cumulativeItemslots when present", () => {
+    const rations = mk("item", "Rations", {
+      itemslots: 1,
+      cumulativeItemslots: 7,
+      quantity: { value: 7, max: 7 },
+    });
+    expect(slotsOf(rations)).toBe(7);
+  });
+
+  it("an unset itemslots reads 0 — the GM's value to fill in, not ours to invent", () => {
+    expect(slotsOf(mk("item", "Rope", { weight: 50, quantity: { value: 1, max: 0 } }))).toBe(0);
+  });
+
+  it("a container counts its own slot once despite its quantity default of 0", () => {
+    const backpack = mk("container", "Backpack", { itemslots: 1, quantity: { value: 0, max: 0 } });
+    expect(slotsOf(backpack)).toBe(1);
+  });
+});
+
 describe("sortInventory", () => {
   const mkVM = (overrides: Partial<import("@domain/vm-types").InventoryItemVM>): import("@domain/vm-types").InventoryItemVM => ({
     id: "x", name: "X", img: "", category: "Gear", categoryRank: 2,
-    damage: "", tags: [], monogram: "XX", weight: 0, cost: 0, armorClass: null, sort: 0, equippedSort: 0,
-    equipped: null, quantity: null, isContainer: false, children: [],
+    damage: "", tags: [], monogram: "XX", weight: 0, slots: 0, cost: 0, armorClass: null, sort: 0, equippedSort: 0,
+    equipped: null, quantity: null, treasure: false, isContainer: false, children: [],
     ...overrides,
   });
 
@@ -202,6 +236,19 @@ describe("sortInventory", () => {
     expect(result.map((i) => i.id)).toEqual(["ro", "sh", "sw", "bx"]);
   });
 
+  it("itembased: the load column sorts by slots, not cn", () => {
+    // Slot order is the reverse of the cn order — so a stale cn sort would show.
+    const heavy = mkVM({ id: "heavy", weight: 100, slots: 1 });
+    const light = mkVM({ id: "light", weight: 1, slots: 4 });
+    expect(
+      sortInventory([heavy, light], "weight", "desc", "itembased").map((i) => i.id),
+    ).toEqual(["light", "heavy"]);
+    expect(sortInventory([heavy, light], "weight", "desc").map((i) => i.id)).toEqual([
+      "heavy",
+      "light",
+    ]);
+  });
+
   it("equipped state does not affect order (no hoisting)", () => {
     const a = mkVM({ id: "a", name: "Aaa", categoryRank: 2, equipped: false });
     const b = mkVM({ id: "b", name: "Zzz", categoryRank: 2, equipped: true });
@@ -225,8 +272,8 @@ describe("sortInventory", () => {
 describe("sortEquipped", () => {
   const mkVM = (id: string, name: string, equippedSort: number): import("@domain/vm-types").InventoryItemVM => ({
     id, name, img: "", category: "Gear", categoryRank: 2, damage: "", tags: [],
-    monogram: "XX", weight: 0, cost: 0, armorClass: null, sort: 0, equippedSort, equipped: true, quantity: null,
-    isContainer: false, children: [],
+    monogram: "XX", weight: 0, slots: 0, cost: 0, armorClass: null, sort: 0, equippedSort, equipped: true, quantity: null,
+    treasure: false, isContainer: false, children: [],
   });
 
   it("orders by equippedSort, ties broken by name", () => {

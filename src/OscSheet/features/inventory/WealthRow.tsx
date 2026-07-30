@@ -14,6 +14,7 @@ export function WealthRow({
   canEdit,
   dnd,
   itemDragData,
+  perRowLoad = true,
   inputValue,
   onOpen,
   onContext,
@@ -29,6 +30,9 @@ export function WealthRow({
   /** Foundry item drag-data for this row (coins/valuables are real items) so a drag
    *  carries `{type:"Item",uuid,…}` — droppable onto the hotbar and Item Piles. */
   itemDragData: ItemDragData;
+  /** False under item-based encumbrance: treasure is counted per section, so the row's
+   *  load cell has no honest number to show. */
+  perRowLoad?: boolean;
   /** Controlled coin-input value (draft-aware); coin rows only. */
   inputValue?: string;
   onOpen: (id: string) => void;
@@ -96,7 +100,9 @@ export function WealthRow({
       ) : (
         <span className="osc-coin-qty-ro">{fmtCoin(row.qty)}</span>
       )}
-      <span className="osc-coin-wt">{fmtCoin(row.weight)}</span>
+      <span className="osc-coin-wt">
+        {perRowLoad ? fmtCoin(row.weight) : "—"}
+      </span>
       <span className="osc-coin-val">{fmtCoin(row.value)}</span>
     </div>
   );

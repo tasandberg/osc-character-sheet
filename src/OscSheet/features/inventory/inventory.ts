@@ -84,6 +84,18 @@ function armorClassOf(item: OseItem): { label: string; value: number } | null {
     : { label: "AC", value: s.ac?.value ?? 0 };
 }
 
+/** Carried item slots, mirroring the system's item-based encumbrance model: `item` and
+ *  `container` fold in quantity, `weapon`/`armor` count their slots once whatever the qty. */
+function slotsOf(item: OseItem): number {
+  const s = item.system;
+  const slots = s.itemslots ?? 0;
+  if (item.type === "weapon" || item.type === "armor") return slots;
+  // Containers ship quantity 0 (system schema default) — a bag you carry is one bag.
+  const qty =
+    item.type === "container" ? s.quantity?.value || 1 : (s.quantity?.value ?? 1);
+  return s.cumulativeItemslots ?? Math.ceil(slots * qty);
+}
+
 function toVM(
   item: OseItem,
   children: InventoryItemVM[] = [],
@@ -107,12 +119,14 @@ function toVM(
     tags: itemTags(item),
     monogram: monogram(item.name as string),
     weight: s.cumulativeWeight ?? s.weight ?? 0,
+    slots: slotsOf(item),
     cost: (s as { cost?: number }).cost ?? 0,
     armorClass: armorClassOf(item),
     sort: orderOf(item),
     equippedSort: equippedOrderOf(item),
     equipped: "equipped" in s ? !!s.equipped : null,
     quantity: hasQty ? { value: q.value, max: q.max || q.value } : null,
+    treasure: !!s.treasure,
     isContainer: item.type === "container",
     children,
   };
@@ -208,11 +222,18 @@ export const SORT_DEFAULT_DIR: Record<InventorySortKey, SortDir> = {
   weight: "desc", // heaviest first
 };
 
-/** Pure sort — by `key`/`dir`. Returns a new array, recurses into children. */
+/** The load figure a row shows and sorts on: item slots under item-based encumbrance, cn otherwise. */
+export function loadValue(item: InventoryItemVM, variant?: string): number {
+  return variant === "itembased" ? item.slots : item.weight;
+}
+
+/** Pure sort — by `key`/`dir`. Returns a new array, recurses into children.
+ *  `variant` keeps the load column sorting by whatever it displays. */
 export function sortInventory(
   list: InventoryItemVM[],
   key: InventorySortKey,
   dir: SortDir = SORT_DEFAULT_DIR[key],
+  variant?: string,
 ): InventoryItemVM[] {
   const f = dir === "asc" ? 1 : -1;
   const sorted = [...list].sort((a, b) => {
@@ -228,12 +249,12 @@ export function sortInventory(
       case "name":
         return a.name.localeCompare(b.name) * f;
       case "weight":
-        return (a.weight - b.weight) * f;
+        return (loadValue(a, variant) - loadValue(b, variant)) * f;
     }
   });
   return sorted.map((it) =>
     it.children.length > 0
-      ? { ...it, children: sortInventory(it.children, key, dir) }
+      ? { ...it, children: sortInventory(it.children, key, dir, variant) }
       : it,
   );
 }

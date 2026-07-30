@@ -78,6 +78,9 @@ export function InventoryView({
   onNest,
   onSend,
 }: Props) {
+  // Active encumbrance scheme — under "itembased" every load figure on the tab is in
+  // item slots rather than coins, so it travels down to the rows, headers and totals.
+  const variant = encumbrance.variant;
   // Rows always render in manual order (from `groups`); a sort-header click bakes the
   // chosen order into the `order` flag and returns here, so drags keep sticking.
   const [sort] = useState<SortState>({ key: "manual", dir: "asc" });
@@ -86,7 +89,7 @@ export function InventoryView({
   const [lastSort, setLastSort] = useState<SortState | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set()); // containers collapsed by default
   const [groups, setGroups] = useState<Groups>(() =>
-    buildGroups(inventory.items, sort),
+    buildGroups(inventory.items, sort, variant),
   );
   // The equipped tray keeps its OWN order (ids), independent of the All-Items list.
   const [equippedIds, setEquippedIds] = useState<string[]>(() =>
@@ -129,12 +132,12 @@ export function InventoryView({
   // Cheap structural signature of the inventory data (ids + nesting + order + sort key),
   // computed without sorting. Groups are rebuilt from props only when this changes.
   // Drag no longer mutates groups mid-gesture, so there's nothing to fight here.
-  let dataSig = `${sort.key}:${sort.dir}`;
+  let dataSig = `${sort.key}:${sort.dir}:${variant}`;
   for (const it of inventory.items) {
     dataSig += `|${it.id},${it.sort}${it.isContainer ? `[${it.children.map((c) => `${c.id},${c.sort}`).join("/")}]` : ""}`;
   }
   useEffect(() => {
-    setGroups(buildGroups(inventory.items, sort));
+    setGroups(buildGroups(inventory.items, sort, variant));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataSig]);
 
@@ -233,7 +236,7 @@ export function InventoryView({
           ? "desc"
           : "asc"
         : SORT_DEFAULT_DIR[key];
-    const next = buildGroups(inventory.items, { key, dir });
+    const next = buildGroups(inventory.items, { key, dir }, variant);
     setGroups(next);
     persist(next);
     setLastSort({ key, dir });
@@ -247,7 +250,7 @@ export function InventoryView({
       return next;
     });
 
-  const sortedTop = sortInventory(inventory.items, sort.key, sort.dir);
+  const sortedTop = sortInventory(inventory.items, sort.key, sort.dir, variant);
   // Tray uses its own order (equippedIds), NOT the All-Items sort. Drop stale ids
   // (item just unequipped/deleted) so tile indices match the array the drag
   // handlers splice — keep `trayItems`/`trayIds` index-aligned.
@@ -280,6 +283,7 @@ export function InventoryView({
       </div>
       <WealthSection
         wealth={wealth}
+        variant={variant}
         onSetCoin={onSetCoin}
         itemDragData={itemDragData}
         onOpen={onOpen}
@@ -291,11 +295,16 @@ export function InventoryView({
       <div className="osc-inv-stickyhead">
         {inventory.equipped.length > 0 && (
           <div className="osc-inv-sec osc-inv-sec--equipped">
-            <SectionCount title="Equipped items" items={inventory.equipped} />
+            <SectionCount
+              title="Equipped items"
+              items={inventory.equipped}
+              variant={variant}
+            />
             <EquippedTray
               items={trayItems}
               dnd={dnd}
               itemDragData={itemDragData}
+              variant={variant}
               onOpen={onOpen}
               onContext={openMenu}
               // Equip-by-drop only for an All-Items row drag (not a tray-internal reorder).
@@ -316,6 +325,7 @@ export function InventoryView({
         <SectionCount
           title="All Items"
           items={sortedTop}
+          variant={variant}
           controls={canEdit ? <AddItemMenu onCreate={onCreate} /> : undefined}
         />
       </div>
@@ -361,6 +371,7 @@ export function InventoryView({
         >
           <SortHeaderRow
             sort={lastSort ?? { key: "manual", dir: "asc" }}
+            variant={variant}
             onSort={onSort}
           />
           {rootIds.map((id, index) => {
@@ -377,6 +388,7 @@ export function InventoryView({
                 dnd={dnd}
                 itemDragData={itemDragData}
                 canEdit={canEdit}
+                variant={variant}
                 onToggle={toggleCollapse}
                 onEquip={onEquip}
                 onOpen={onOpen}
@@ -393,6 +405,7 @@ export function InventoryView({
                 dnd={dnd}
                 itemDragData={itemDragData}
                 canEdit={canEdit}
+                variant={variant}
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
