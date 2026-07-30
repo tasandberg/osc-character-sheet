@@ -2,8 +2,8 @@ import { test, expect } from "../fixtures";
 import { openCharacterSheet, itemGet } from "../helpers";
 
 test.describe("wealth / coins", () => {
-  test("editing a coin quantity persists to the coin item", async ({ gamePage }) => {
-    const sheet = await openCharacterSheet(gamePage);
+  test("editing a coin quantity persists to the coin item", async ({ gamePage, fighter }) => {
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
     await sheet.locator('[data-testid="tab-inventory"]').click();
 
     await sheet.locator('[data-testid="wealth-toggle"]').click();
@@ -14,7 +14,7 @@ test.describe("wealth / coins", () => {
     await gp.blur();
 
     await expect
-      .poll(() => itemGet(gamePage, "Gold piece", "system.quantity.value"), { timeout: 15_000 })
+      .poll(() => itemGet(gamePage, fighter.name, fighter.coin, "system.quantity.value"), { timeout: 15_000 })
       .toBe(123);
   });
 });

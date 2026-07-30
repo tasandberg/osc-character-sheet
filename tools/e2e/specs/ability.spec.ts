@@ -2,8 +2,8 @@ import { test, expect } from "../fixtures";
 import { openCharacterSheet, chatCount, confirmRollDialogIfPresent } from "../helpers";
 
 test.describe("ability checks", () => {
-  test("rolling a STR check posts a chat message", async ({ gamePage }) => {
-    const sheet = await openCharacterSheet(gamePage);
+  test("rolling a STR check posts a chat message", async ({ gamePage, fighter }) => {
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
     await sheet.locator('[data-testid="tab-actions"]').click();
 
     const before = await chatCount(gamePage);

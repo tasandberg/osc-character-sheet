@@ -1,16 +1,17 @@
 import { chromium, type FullConfig } from "@playwright/test";
-import { joinAsGM, ACTOR_NAME, OBSERVER_NAME } from "./helpers";
+import { joinAsGM, gmUserName, observerUserName } from "./helpers";
 
 const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/, "");
 const MODULE_ID = "osc-character-sheet";
-const SHEET_CLASS = "ose.OscSheet";
 
 /**
- * Before any spec runs: join as GM, enable the osc-character-sheet module (the world
- * fixture ships none enabled), then seed a known "E2E Fighter" character with a
- * weapon, armor and coins, pinned to the OSC sheet. Specs assume this actor.
+ * Before any spec runs: enable the osc-character-sheet module (the world fixture ships
+ * none enabled), then seed one passwordless GM + one passwordless OBSERVER player per
+ * parallel slot. Actors are per-test (see the `fighter` fixture); users can't be, because
+ * a Foundry user's hotbar / assigned character / flags are shared by every session of
+ * that user — which is what made two workers collide.
  */
-export default async function globalSetup(_config: FullConfig): Promise<void> {
+export default async function globalSetup(config: FullConfig): Promise<void> {
   const browser = await chromium.launch({
     headless: true,
     args: ["--enable-unsafe-swiftshader"],
@@ -39,72 +40,39 @@ export default async function globalSetup(_config: FullConfig): Promise<void> {
       });
     }
 
-    // Seed the fixture actor (idempotent: remove a prior one first).
-    await page.evaluate(
-      async ({ name, sheetClass }) => {
+    const slots = Math.max(1, config.workers);
+    const names = Array.from({ length: slots }, (_, i) => ({
+      gm: gmUserName(i),
+      observer: observerUserName(i),
+    }));
+
+    // Idempotent: recreate the slot users each run so stale state can't leak in.
+    await page.evaluate(async (users) => {
+      const g = globalThis as any;
+      for (const { gm, observer } of users) {
+        for (const [name, role] of [
+          [gm, g.CONST.USER_ROLES.GAMEMASTER],
+          [observer, g.CONST.USER_ROLES.PLAYER],
+        ] as const) {
+          const existing = g.game.users.getName(name);
+          if (existing) await existing.delete();
+          await g.User.create({ name, role });
+        }
+      }
+    }, names);
+
+    const ok = await page.evaluate(
+      ({ users, mod }) => {
         const g = globalThis as any;
-        const existing = g.game.actors.getName(name);
-        if (existing) await existing.delete();
-
-        const actor = await g.Actor.create({ name, type: "character" });
-        await actor.createEmbeddedDocuments("Item", [
-          {
-            name: "Dagger",
-            type: "weapon",
-            // Equipped so it appears in the Attacks table (selectAttacks skips
-            // unequipped weapons). The equip spec toggles the armor, not this.
-            system: {
-              damage: "1d4",
-              melee: true,
-              missile: true,
-              equipped: true,
-              quantity: { value: 1 },
-            },
-          },
-          {
-            name: "Leather Armor",
-            type: "armor",
-            system: { equipped: false },
-          },
-          {
-            name: "Gold piece",
-            type: "item",
-            system: { treasure: true, quantity: { value: 50 } },
-          },
-        ]);
-        await actor.setFlag("core", "sheetClass", sheetClass);
+        return (
+          !!g.game.modules.get(mod)?.active &&
+          users.every((u: any) => g.game.users.getName(u.gm) && g.game.users.getName(u.observer))
+        );
       },
-      { name: ACTOR_NAME, sheetClass: SHEET_CLASS },
+      { users: names, mod: MODULE_ID },
     );
-
-    // Seed a passwordless PLAYER user with OBSERVER (view-only) permission on the
-    // fixture actor — drives the read-only-sheet spec (a non-owner opening a
-    // character they don't own). Idempotent: recreate the user each run.
-    await page.evaluate(
-      async ({ actorName, userName }) => {
-        const g = globalThis as any;
-        const existing = g.game.users.getName(userName);
-        if (existing) await existing.delete();
-        const user = await g.User.create({
-          name: userName,
-          role: g.CONST.USER_ROLES.PLAYER, // 1
-        });
-        const actor = g.game.actors.getName(actorName);
-        // OBSERVER (2): can view the sheet, cannot edit. Owner (GM) stays intact.
-        await actor.update({
-          [`ownership.${user.id}`]: g.CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER,
-        });
-      },
-      { actorName: ACTOR_NAME, userName: OBSERVER_NAME },
-    );
-
-    // Sanity: actor exists and resolves the OSC sheet class.
-    const ok = await page.evaluate((name) => {
-      const actor = (globalThis as any).game.actors.getName(name);
-      return !!actor && actor.items.size >= 3;
-    }, ACTOR_NAME);
-    if (!ok) throw new Error("Seed actor was not created with its items");
-    console.log(`[global-setup] seeded "${ACTOR_NAME}" at ${URL}`);
+    if (!ok) throw new Error("Module not active, or slot users were not created");
+    console.log(`[global-setup] ${MODULE_ID} enabled, ${slots} user slot(s) seeded at ${URL}`);
   } finally {
     await page.close();
     await browser.close();

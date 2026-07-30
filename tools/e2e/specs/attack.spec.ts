@@ -2,11 +2,11 @@ import { test, expect } from "../fixtures";
 import { openCharacterSheet, chatCount, confirmRollDialogIfPresent, itemId } from "../helpers";
 
 test.describe("weapon attacks", () => {
-  test("toggling attack mode and rolling to hit posts a chat message", async ({ gamePage }) => {
-    const sheet = await openCharacterSheet(gamePage);
+  test("toggling attack mode and rolling to hit posts a chat message", async ({ gamePage, fighter }) => {
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
     await sheet.locator('[data-testid="tab-actions"]').click();
 
-    const dagger = await itemId(gamePage, "Dagger");
+    const dagger = await itemId(gamePage, fighter.name, fighter.weapon);
 
     // Dagger is melee+missile → a segmented mode toggle. Switch to missile.
     const missile = sheet.locator(`[data-testid="attack-mode-missile-${dagger}"]`);

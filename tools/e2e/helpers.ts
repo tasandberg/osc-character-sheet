@@ -1,9 +1,10 @@
 import type { Page, Locator } from "@playwright/test";
 
-export const ACTOR_NAME = "E2E Fighter";
-/** Passwordless player user seeded by global-setup with OBSERVER (view-only)
- *  permission on ACTOR_NAME — drives the read-only sheet spec. */
-export const OBSERVER_NAME = "E2E Observer";
+/** Per-parallel-slot users, seeded by global-setup. Sessions of the SAME Foundry user
+ *  share a hotbar, `user.character` and flags, so each slot needs its own pair. */
+export const gmUserName = (slot: number) => `E2E GM ${slot}`;
+export const observerUserName = (slot: number) => `E2E Observer ${slot}`;
+
 const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/, "");
 
 declare const game: any;
@@ -27,18 +28,18 @@ export async function joinAsUser(page: Page, label: string): Promise<void> {
   });
 }
 
-/** Join the running world as the passwordless Gamemaster and wait for game.ready. */
+/** Join as the world fixture's built-in Gamemaster (global-setup only; specs use their slot's GM). */
 export async function joinAsGM(page: Page): Promise<void> {
   await joinAsUser(page, "Gamemaster");
 }
 
 /**
- * Open the seeded actor's sheet and return its root locator. The OSC sheet
- * registers under `ose.OscSheet` with makeDefault, and global-setup pins the
- * actor's core.sheetClass flag, so render() shows the OSC sheet.
+ * Open `actorName`'s sheet and return its root locator. The OSC sheet registers under
+ * `ose.OscSheet` with makeDefault, and the actor fixture pins the actor's
+ * core.sheetClass flag, so render() shows the OSC sheet.
  */
-export async function openCharacterSheet(page: Page): Promise<Locator> {
-  await page.evaluate(async (name) => {
+export async function openCharacterSheet(page: Page, actorName: string): Promise<Locator> {
+  const appId = await page.evaluate(async (name) => {
     const g = globalThis as any;
     // Foundry parks a persistent #notifications overlay (min-resolution warning
     // under headless) over the sheet, intercepting clicks. Let pointer events
@@ -51,10 +52,14 @@ export async function openCharacterSheet(page: Page): Promise<Locator> {
     }
     g.ui?.notifications?.clear?.();
 
-    const actor = g.game.actors.getName(name);
-    if (!actor) throw new Error(`Seed actor "${name}" not found`);
-    // Rendering this React sheet is the expensive step on a 2-core runner, so
-    // render only once and reuse it across specs (the shared session keeps it up).
+    // The actor is created in the GM session; an observer session learns about it
+    // over the socket, so wait rather than throwing on the first miss.
+    let actor = g.game.actors.getName(name);
+    for (let i = 0; i < 100 && !actor; i++) {
+      await new Promise((r) => setTimeout(r, 100));
+      actor = g.game.actors.getName(name);
+    }
+    if (!actor) throw new Error(`Actor "${name}" not found`);
     if (!actor.sheet.rendered) await actor.sheet.render(true);
     // First render races: the render() promise can resolve before the element is
     // attached, and setPosition() calls getComputedStyle() on it. Wait for it.
@@ -62,17 +67,15 @@ export async function openCharacterSheet(page: Page): Promise<Locator> {
       await new Promise((r) => setTimeout(r, 50));
     // Force the wide (large) layout tier so the horizontal tab bar renders.
     actor.sheet.setPosition?.({ width: 920, height: 820 });
-  }, ACTOR_NAME);
-  const sheet = page.locator(".osc-sheet").first();
+    return actor.sheet.element?.id as string;
+  }, actorName);
+  // Address this actor's window by id: a page may briefly hold another sheet.
+  const sheet = appId ? page.locator(`[id="${appId}"]`) : page.locator(".osc-sheet").first();
   await sheet.waitFor({ state: "visible", timeout: 30_000 });
   return sheet;
 }
 
-/**
- * Reset between specs that share one booted page + one open sheet: close any roll
- * dialogs left over from a spec, but leave the OSC sheet itself open (so the
- * next spec reuses the render) and Foundry's core UI alone.
- */
+/** Close any roll dialogs a spec left behind, leaving Foundry's core UI alone. */
 export async function closeDialogs(page: Page): Promise<void> {
   await page.evaluate(() => {
     for (const app of (globalThis as any).foundry.applications.instances.values()) {
@@ -89,39 +92,44 @@ export async function chatCount(page: Page): Promise<number> {
   return page.evaluate(() => (globalThis as any).game.messages.size);
 }
 
-/** Read a value off the seeded actor by dot-path (e.g. "system.scores.str.value"). */
-export async function actorGet(page: Page, path: string): Promise<unknown> {
+/** Read a value off an actor by dot-path (e.g. "system.scores.str.value"). */
+export async function actorGet(page: Page, actorName: string, path: string): Promise<unknown> {
   return page.evaluate(
     ({ name, p }) => {
       const actor = (globalThis as any).game.actors.getName(name);
       return (globalThis as any).foundry.utils.getProperty(actor, p);
     },
-    { name: ACTOR_NAME, p: path },
+    { name: actorName, p: path },
   );
 }
 
-/** Embedded item id on the seeded actor, by item name. */
-export async function itemId(page: Page, name: string): Promise<string> {
+/** Embedded item id on an actor, by item name. */
+export async function itemId(page: Page, actorName: string, name: string): Promise<string> {
   const id = await page.evaluate(
     ({ actor, item }) => {
       const a = (globalThis as any).game.actors.getName(actor);
       return a?.items.getName(item)?.id ?? null;
     },
-    { actor: ACTOR_NAME, item: name },
+    { actor: actorName, item: name },
   );
-  if (!id) throw new Error(`Item "${name}" not found on ${ACTOR_NAME}`);
+  if (!id) throw new Error(`Item "${name}" not found on ${actorName}`);
   return id as string;
 }
 
 /** Read a value off an embedded item by name + dot-path. */
-export async function itemGet(page: Page, name: string, path: string): Promise<unknown> {
+export async function itemGet(
+  page: Page,
+  actorName: string,
+  name: string,
+  path: string,
+): Promise<unknown> {
   return page.evaluate(
     ({ actor, item, p }) => {
       const a = (globalThis as any).game.actors.getName(actor);
       const it = a?.items.getName(item);
       return (globalThis as any).foundry.utils.getProperty(it, p);
     },
-    { actor: ACTOR_NAME, item: name, p: path },
+    { actor: actorName, item: name, p: path },
   );
 }
 

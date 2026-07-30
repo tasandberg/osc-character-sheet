@@ -2,8 +2,8 @@ import { test, expect } from "../fixtures";
 import { openCharacterSheet } from "../helpers";
 
 test.describe("tab navigation", () => {
-  test("switching tabs updates the selected tab and panel", async ({ gamePage }) => {
-    const sheet = await openCharacterSheet(gamePage);
+  test("switching tabs updates the selected tab and panel", async ({ gamePage, fighter }) => {
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
 
     const inventoryTab = sheet.locator('[data-testid="tab-inventory"]');
     await inventoryTab.click();

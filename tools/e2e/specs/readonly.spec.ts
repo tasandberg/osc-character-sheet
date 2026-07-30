@@ -41,8 +41,9 @@ test.describe("read-only sheet (non-owner)", () => {
 
   test("observer sees a view-only sheet with no edit affordances", async ({
     observerPage,
+    fighter,
   }) => {
-    const sheet = await openCharacterSheet(observerPage);
+    const sheet = await openCharacterSheet(observerPage, fighter.name);
     await expect(sheet).toBeVisible();
 
     // Root affordance suppression marker is present (owner sheets omit it).
@@ -125,8 +126,9 @@ test.describe("read-only sheet (non-owner)", () => {
   // so the observer's toHaveCount(0) checks above aren't passing vacuously.
   test("owner sheet exposes the affordances the observer is denied", async ({
     gamePage,
+    fighter,
   }) => {
-    const sheet = await openCharacterSheet(gamePage);
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
     // Owner sheet is editable → no read-only marker.
     await expect(sheet.locator(".osc-sheet-app.is-readonly")).toHaveCount(0);
 

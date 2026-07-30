@@ -25,10 +25,25 @@ PRs run automatically; fork PRs need a maintainer's `safe-to-test` label.
 | --- | --- |
 | `setup-data-dir.sh` | Assembles a Foundry `/data` dir: the pinned OSE release (`OSE_VERSION`, default 2.2.2; `compatibility.verified` bumped to `14` for CI), the freshly-built osc-character-sheet module (`module.json` + `dist` + `lang`), and the minimal `e2e` world fixture. |
 | `activate-world.mjs` | First-boot activation: `--phase eula` accepts the EULA (generates the host-bound license signature), the caller restarts the container so felddy's `FOUNDRY_WORLD` auto-launches the world, `--phase await` polls `/api/status` until active. |
-| `global-setup.ts` | Joins as Gamemaster, enables the osc-character-sheet module + reloads, seeds the `E2E Fighter` character (weapon/armor/coins) pinned to the OSC sheet, and seeds a passwordless `E2E Observer` PLAYER user with OBSERVER (view-only) permission on that actor. Runs once before the specs. |
+| `global-setup.ts` | Joins as Gamemaster, enables the osc-character-sheet module + reloads, then seeds one passwordless GM (`E2E GM <slot>`) and one passwordless OBSERVER player (`E2E Observer <slot>`) per parallel slot. Runs once before the specs. |
 | `helpers.ts` | `joinAsUser` / `joinAsGM`, `openCharacterSheet` (forces the wide layout), chat/item readers. |
-| `fixtures.ts` | Worker-scoped `gamePage` (Gamemaster) and `observerPage` (the `E2E Observer` view-only player) — each its own browser context against the one shared server. |
+| `fixtures.ts` | Worker-scoped `gamePage` / `observerPage` (this slot's GM and view-only player, each its own browser context), plus the test-scoped `fighter` actor. |
 | `specs/*.spec.ts` | One spec per core flow: smoke, tabs, ability, save, attack, equip, coin, and `readonly` (non-owner view-only sheet). |
+
+### Parallel isolation
+
+All workers share one Foundry world (one license, one server), so isolation is per test:
+
+- **Per test:** the `fighter` fixture creates its own actor (weapon/armor/coins, pinned to
+  the OSC sheet, view-only for this slot's observer) and deletes it afterwards, along with
+  any hotbar macro OSE named after its weapon. The weapon name is tagged per test because
+  macros are world-global.
+- **Per parallel slot:** its own GM and observer user. Two sessions of one Foundry *user*
+  share that user's hotbar, assigned character and flags, so sharing `Gamemaster` across
+  workers is what made the earlier 2-worker trial flake.
+
+With that, no spec needs to run serially: `playwright.config.ts` sets `fullyParallel: true`
+and `workers: 3`.
 
 ### Read-only (non-owner) coverage
 

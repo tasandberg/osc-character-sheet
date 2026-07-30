@@ -1,5 +1,5 @@
-import { test, expect } from "../fixtures";
-import { openCharacterSheet, itemId, ACTOR_NAME } from "../helpers";
+import { test, expect, type Fighter } from "../fixtures";
+import { openCharacterSheet, itemId } from "../helpers";
 
 declare const game: any;
 
@@ -18,8 +18,6 @@ declare const game: any;
  * Playwright's native dragTo is unreliable for Foundry's HTML5 DnD + canvas
  * hotbar, hence the deterministic event dispatch.
  */
-
-const MACRO_NAME = "Dagger";
 
 /**
  * In the page: fire a real `dragstart` on `sourceSel` (optionally resolved to its
@@ -66,36 +64,25 @@ async function dragSourceToHotbar(
 }
 
 test.describe("drag weapon to macro hotbar", () => {
-  test.beforeAll(async ({ gamePage }) => {
-    // rollItemMacro resolves the item off the speaker's actor; with no token
-    // selected, give the GM an assigned character so the macro finds the Dagger.
-    await gamePage.evaluate(async (name) => {
-      const actor = game.actors.getName(name);
-      await game.user.update({ character: actor.id });
-    }, ACTOR_NAME);
+  // rollItemMacro resolves the item off the speaker's actor; with no token selected,
+  // give this slot's GM an assigned character so the macro finds the weapon. The
+  // fighter is per-test, so this is per-test too (the fixture drops the macro after).
+  test.beforeEach(async ({ gamePage, fighter }) => {
+    await gamePage.evaluate((id) => game.user.update({ character: id }), fighter.id);
   });
 
-  test.afterAll(async ({ gamePage }) => {
-    await gamePage.evaluate(() => game.user.update({ character: null })).catch(() => {});
-  });
-
-  // Keep reruns clean: drop the macro this spec created and clear hotbar slots.
   test.afterEach(async ({ gamePage }) => {
-    await gamePage
-      .evaluate(async (name) => {
-        for (const m of [...game.macros].filter((x: any) => x.name === name)) await m.delete();
-        const slots = game.user.getHotbarMacros?.() ?? [];
-        for (const s of slots) if (s?.macro) await game.user.unassignHotbarMacro(s.slot);
-      }, MACRO_NAME)
-      .catch(() => {});
+    await gamePage.evaluate(() => game.user.update({ character: null })).catch(() => {});
   });
 
   async function expectDropCreatesExecutableMacro(
     gamePage: import("@playwright/test").Page,
+    fighter: Fighter,
     sourceSel: string,
     toRow = false,
   ): Promise<void> {
-    const dagger = await itemId(gamePage, "Dagger");
+    const macroName = fighter.weapon;
+    const dagger = await itemId(gamePage, fighter.name, fighter.weapon);
     const payload = await dragSourceToHotbar(gamePage, sourceSel.replace("{id}", dagger), toRow);
 
     // The component wrote real item drag-data (not the reorder fallback payload).
@@ -104,13 +91,13 @@ test.describe("drag weapon to macro hotbar", () => {
 
     // OSE's hotbarDrop created the item macro.
     await expect
-      .poll(() => gamePage.evaluate((n) => !!game.macros.getName(n), MACRO_NAME), {
+      .poll(() => gamePage.evaluate((n) => !!game.macros.getName(n), macroName), {
         timeout: 10_000,
       })
       .toBe(true);
 
     // Executing it runs rollItemMacro → item.roll() → the weapon-attack dialog.
-    await gamePage.evaluate((n) => game.macros.getName(n).execute(), MACRO_NAME);
+    await gamePage.evaluate((n) => game.macros.getName(n).execute(), macroName);
     const dialog = gamePage.locator(".application.dialog").first();
     await expect(dialog).toBeVisible({ timeout: 15_000 });
 
@@ -120,22 +107,31 @@ test.describe("drag weapon to macro hotbar", () => {
     else await dialog.locator("button.header-control[data-action='close'], a.header-control").first().click().catch(() => {});
   }
 
-  test("Attack button drops a macro that opens the weapon dialog", async ({ gamePage }) => {
-    const sheet = await openCharacterSheet(gamePage);
+  test("Attack button drops a macro that opens the weapon dialog", async ({
+    gamePage,
+    fighter,
+  }) => {
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
     await sheet.locator('[data-testid="tab-actions"]').click();
-    await expectDropCreatesExecutableMacro(gamePage, '[data-testid="weapon-attack-{id}"]');
+    await expectDropCreatesExecutableMacro(gamePage, fighter, '[data-testid="weapon-attack-{id}"]');
   });
 
-  test("weapon image drops a macro that opens the weapon dialog", async ({ gamePage }) => {
-    const sheet = await openCharacterSheet(gamePage);
+  test("weapon image drops a macro that opens the weapon dialog", async ({
+    gamePage,
+    fighter,
+  }) => {
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
     await sheet.locator('[data-testid="tab-actions"]').click();
-    await expectDropCreatesExecutableMacro(gamePage, '[data-testid="weapon-img-{id}"]');
+    await expectDropCreatesExecutableMacro(gamePage, fighter, '[data-testid="weapon-img-{id}"]');
   });
 
-  test("inventory row drops a macro that opens the weapon dialog", async ({ gamePage }) => {
-    const sheet = await openCharacterSheet(gamePage);
+  test("inventory row drops a macro that opens the weapon dialog", async ({
+    gamePage,
+    fighter,
+  }) => {
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
     await sheet.locator('[data-testid="tab-inventory"]').click();
     // The whole row is draggable; resolve from the row's equip button to its root.
-    await expectDropCreatesExecutableMacro(gamePage, '[data-testid="equip-{id}"]', true);
+    await expectDropCreatesExecutableMacro(gamePage, fighter, '[data-testid="equip-{id}"]', true);
   });
 });

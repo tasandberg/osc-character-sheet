@@ -1,13 +1,13 @@
 import { test, expect } from "../fixtures";
-import { openCharacterSheet, ACTOR_NAME } from "../helpers";
+import { openCharacterSheet } from "../helpers";
 
 // A non-caster fighter shows four tabs; the Spells tab only appears for
 // spellcasters (actor.system.spells.enabled).
 const TABS = ["actions", "inventory", "abilities", "notes"] as const;
 
 test.describe("smoke", () => {
-  test("character sheet opens with its tab bar", async ({ gamePage }) => {
-    const sheet = await openCharacterSheet(gamePage);
+  test("character sheet opens with its tab bar", async ({ gamePage, fighter }) => {
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
 
     await expect(sheet).toBeVisible();
     for (const id of TABS) {
@@ -24,7 +24,7 @@ test.describe("smoke", () => {
       const a = g.game.actors.getName(name);
       const asc = !!g.game.settings.get(g.game.system.id, "ascendingAC");
       return String(asc ? a.system.aac.value : a.system.ac.value);
-    }, ACTOR_NAME);
+    }, fighter.name);
     await expect(sheet.locator('[data-testid="ac-value"]')).toHaveText(expectedAc);
   });
 });
