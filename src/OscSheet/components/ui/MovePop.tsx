@@ -3,14 +3,13 @@
 // call sites render it, neither re-composes the rows, so the two hovers can never
 // drift apart again. The tier→colour helper lives in @domain/format (encTierClass).
 //
-// The popover is `position: fixed`, positioned in JS off its trigger's rect. Fixed
-// (with no transformed ancestor — verified for the sheet shell) is NOT clipped by an
-// ancestor's `overflow: auto/hidden`, so the popover renders in full even when it
-// lives inside a self-scrolling container like the capped character rail.
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+// Placement/visibility is HoverPop's job (fixed + JS-anchored, so no ancestor's
+// `overflow: auto` can clip it); this file only supplies the rows.
+import { type ReactNode } from "react";
 import type { EncumbranceTier, MoveBands } from "@domain/vm-types";
 import { encTierClass } from "@domain/format";
 import { cx } from "@ui/cx";
+import { HoverPop } from "@ui/HoverPop";
 
 /** A rate line: label + a right-aligned value (number + unit). The value shares the
     single right-aligned column with the status rows, so every value ends flush at the
@@ -36,54 +35,6 @@ function PopRow({ k, v, vClass }: { k: ReactNode; v: ReactNode; vClass?: string 
   );
 }
 
-// Hidden until the trigger (this element's parent) is hovered/focused; then pinned
-// with `position: fixed` just under the trigger. Repositions on scroll/resize so it
-// stays glued while open. Returns the ref for the popover element + its inline style.
-function useTriggerAnchoredFixed(): {
-  ref: React.RefObject<HTMLSpanElement | null>;
-  style: CSSProperties;
-} {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [style, setStyle] = useState<CSSProperties>({ display: "none" });
-
-  useEffect(() => {
-    const trigger = ref.current?.parentElement;
-    if (!trigger) return;
-    let open = false;
-    const place = () => {
-      const r = trigger.getBoundingClientRect();
-      setStyle({ position: "fixed", top: r.bottom + 6, left: r.left });
-    };
-    const show = () => {
-      open = true;
-      place();
-    };
-    const hide = () => {
-      open = false;
-      setStyle({ display: "none" });
-    };
-    const reposition = () => {
-      if (open) place();
-    };
-    trigger.addEventListener("pointerenter", show);
-    trigger.addEventListener("pointerleave", hide);
-    trigger.addEventListener("focusin", show);
-    trigger.addEventListener("focusout", hide);
-    window.addEventListener("scroll", reposition, true);
-    window.addEventListener("resize", reposition);
-    return () => {
-      trigger.removeEventListener("pointerenter", show);
-      trigger.removeEventListener("pointerleave", hide);
-      trigger.removeEventListener("focusin", show);
-      trigger.removeEventListener("focusout", hide);
-      window.removeEventListener("scroll", reposition, true);
-      window.removeEventListener("resize", reposition);
-    };
-  }, []);
-
-  return { ref, style };
-}
-
 /**
  * The one and only movement popover body: the three OSE rates (full labels, each in
  * its own unit) plus the encumbrance tier that explains them. Rendered verbatim by
@@ -104,9 +55,8 @@ export function MoveTooltip({
       armor slows movement without colouring the encumbrance bar. */
   armor?: string;
 }) {
-  const { ref, style } = useTriggerAnchoredFixed();
   return (
-    <span className="osc-move-pop" role="tooltip" ref={ref} style={style}>
+    <HoverPop className="osc-move-pop">
       <span className="hd">Movement</span>
       {armor && <PopRow k="Armor" v={armor} />}
       {tier !== undefined && status && (
@@ -118,7 +68,7 @@ export function MoveTooltip({
       <RateRow k="Encounter" n={bands.encounter} u="ft" />
       <RateRow k="Explore" n={bands.explore} u="ft" />
       <RateRow k="Travel" n={bands.travel} u="mi" />
-    </span>
+    </HoverPop>
   );
 }
 

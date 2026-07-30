@@ -1089,13 +1089,11 @@
   line-height: 1;
 }
 
-// hover popover with item detail
+// hover popover with item detail. Position comes from HoverPop (inline `position:
+// fixed` + JS-anchored) — absolute here got clipped by the sheet body's overflow.
 .osc-equip-tt-pop {
-  position: absolute;
-  left: 50%;
-  top: calc(100% + 8px);
-  transform: translate(-50%, 4px);
-  z-index: 12;
+  transform: translateY(4px);
+  z-index: var(--z-tooltip);
   min-width: 132px;
   max-width: 200px;
   display: flex;
@@ -1111,10 +1109,12 @@
   transition:
     opacity 0.12s,
     transform 0.12s;
+  // --anchor-x = the tile's centre relative to the card's left edge, so the arrow
+  // keeps pointing at its tile even when HoverPop clamps the card to the viewport.
   &::before {
     content: "";
     position: absolute;
-    left: 50%;
+    left: var(--anchor-x, 50%);
     top: -5px;
     transform: translateX(-50%) rotate(45deg);
     width: 9px;
@@ -1124,9 +1124,10 @@
     border-top: 1px solid var(--border, #3a342c);
   }
 }
-.osc-equip-tcard:hover .osc-equip-tt-pop {
+.osc-equip-tcard:hover .osc-equip-tt-pop,
+.osc-equip-tcard:focus-within .osc-equip-tt-pop {
   opacity: 1;
-  transform: translate(-50%, 0);
+  transform: translateY(0);
 }
 .osc-equip-tt-pop-nm {
   font-family: var(--display);
