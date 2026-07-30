@@ -25,6 +25,14 @@ const TAB_ANCHOR: Record<(typeof NON_INVENTORY_TABS)[number], string> = {
 };
 
 test.describe("read-only sheet (non-owner)", () => {
+  // The widest spec in the suite, and the only one that pays for a second session:
+  // ~53 page operations at 1-4s each on the CI box, plus the ~55s observerPage boot,
+  // which Playwright charges to the first test that requests that worker fixture.
+  // It measured ~210s and so never fit the 150s default — it has been timing out on
+  // the first attempt and passing on retry since well before per-test actors. Budget
+  // for what it actually costs instead of leaving it on the cliff.
+  test.describe.configure({ timeout: process.env.CI ? 360_000 : 120_000 });
+
   // observerPage is worker-scoped + shared, so tidy up anything this spec opened
   // (context menu, dialogs) and capture the observer sheet on failure — the global
   // afterEach only covers gamePage.
@@ -41,8 +49,9 @@ test.describe("read-only sheet (non-owner)", () => {
 
   test("observer sees a view-only sheet with no edit affordances", async ({
     observerPage,
+    fighter,
   }) => {
-    const sheet = await openCharacterSheet(observerPage);
+    const sheet = await openCharacterSheet(observerPage, fighter.name);
     await expect(sheet).toBeVisible();
 
     // Root affordance suppression marker is present (owner sheets omit it).
@@ -125,8 +134,9 @@ test.describe("read-only sheet (non-owner)", () => {
   // so the observer's toHaveCount(0) checks above aren't passing vacuously.
   test("owner sheet exposes the affordances the observer is denied", async ({
     gamePage,
+    fighter,
   }) => {
-    const sheet = await openCharacterSheet(gamePage);
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
     // Owner sheet is editable → no read-only marker.
     await expect(sheet.locator(".osc-sheet-app.is-readonly")).toHaveCount(0);
 

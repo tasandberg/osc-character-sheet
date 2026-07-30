@@ -1,47 +1,132 @@
 import { test as base, expect, type Page } from "@playwright/test";
-import { joinAsGM, joinAsUser, closeDialogs, OBSERVER_NAME } from "./helpers";
+import { joinAsUser, closeDialogs, gmUserName, observerUserName } from "./helpers";
+
+const SHEET_CLASS = "ose.OscSheet";
+
+/** A fighter owned by exactly one test: unique actor, unique weapon name. */
+export type Fighter = {
+  name: string;
+  id: string;
+  /** Tagged per test — OSE names the hotbar macro after the item, and macros are world-global. */
+  weapon: string;
+  armor: string;
+  /** Untagged: the sheet classifies coins by item name ("Gold piece" -> gp). */
+  coin: string;
+};
 
 /**
  * Foundry's `game.ready` boot (~40s on a 2-core CI runner under software WebGL)
- * dominates each spec. Booting per test would pay it 7×. Instead a worker-scoped
- * page joins once and every spec reuses that booted session — global-setup has
- * already enabled the module and seeded the actor, so the world is ready.
+ * dominates each spec, so the two sessions stay worker-scoped and every test in the
+ * worker reuses them. Isolation comes from the data instead:
  *
- * Specs share this page, so they aren't isolated: afterEach closes the sheet and
- * any roll dialog to stop UI bleeding between them. They already share one worker
- * and one seeded actor, and their assertions are written relatively
- * (before/after counts, !wasEquipped), so order independence holds.
- *
- * `observerPage` is the second user: its own context/page joined as the seeded
- * passwordless OBSERVER player (view-only permission on the fixture actor). It
- * drives the read-only-sheet spec. Kept worker-scoped for the same boot-cost
- * reason as `gamePage`.
+ *  - Each parallel slot joins as its OWN seeded GM and observer user. Sessions of one
+ *    Foundry user share that user's hotbar, assigned character and flags, so reusing
+ *    "Gamemaster" across workers made specs stomp each other (the #113 2-worker flake).
+ *  - Each TEST gets its own `fighter` actor, created and deleted by the fixture, with a
+ *    tagged weapon name so the macro it drops onto the hotbar is its own document.
  */
-export const test = base.extend<object, { gamePage: Page; observerPage: Page }>({
+export const test = base.extend<
+  { fighter: Fighter },
+  { gamePage: Page; observerPage: Page; slot: number }
+>({
+  slot: [async ({}, use, workerInfo) => use(workerInfo.parallelIndex), { scope: "worker" }],
+
   gamePage: [
-    async ({ browser }, use) => {
+    async ({ browser, slot }, use) => {
       const context = await browser.newContext({
         viewport: { width: 1920, height: 1080 },
       });
       const page = await context.newPage();
-      await joinAsGM(page);
+      await joinAsUser(page, gmUserName(slot));
       await use(page);
       await context.close();
     },
     { scope: "worker" },
   ],
+
+  // The second user: view-only permission on this test's fighter, driving the
+  // read-only-sheet spec. Worker-scoped for the same boot-cost reason as `gamePage`.
   observerPage: [
-    async ({ browser }, use) => {
+    async ({ browser, slot }, use) => {
       const context = await browser.newContext({
         viewport: { width: 1920, height: 1080 },
       });
       const page = await context.newPage();
-      await joinAsUser(page, OBSERVER_NAME);
+      await joinAsUser(page, observerUserName(slot));
       await use(page);
       await context.close();
     },
     { scope: "worker" },
   ],
+
+  fighter: async ({ gamePage, slot }, use, testInfo) => {
+    const tag = `${slot}-${testInfo.testId}-${testInfo.repeatEachIndex}`;
+    const fighter: Fighter = {
+      name: `E2E Fighter ${tag}`,
+      id: "",
+      weapon: `Dagger ${tag}`,
+      armor: "Leather Armor",
+      coin: "Gold piece",
+    };
+
+    fighter.id = await gamePage.evaluate(
+      async ({ f, observer, sheetClass }) => {
+        const g = globalThis as any;
+        const observerId = g.game.users.getName(observer)?.id;
+        if (!observerId) throw new Error(`Observer user "${observer}" not seeded`);
+        // One atomic create: items and the sheetClass flag are part of the payload,
+        // never follow-up updates. A later `flags.core.sheetClass` update fires
+        // ClientDocument#_onSheetChange on EVERY client holding the actor, closing
+        // its open sheet and re-rendering a fresh one. Reaching the slow observer
+        // session mid-spec, that detached the sheet under Playwright's cursor.
+        const actor = await g.Actor.create({
+          name: f.name,
+          type: "character",
+          // OBSERVER (2): can view the sheet, cannot edit. Set at creation so the
+          // observer session never sees a permission-less intermediate state.
+          ownership: { [observerId]: g.CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER },
+          flags: { core: { sheetClass } },
+          items: [
+            {
+              name: f.weapon,
+              type: "weapon",
+              // Equipped so it appears in the Attacks table (selectAttacks skips
+              // unequipped weapons). The equip spec toggles the armor, not this.
+              system: {
+                damage: "1d4",
+                melee: true,
+                missile: true,
+                equipped: true,
+                quantity: { value: 1 },
+              },
+            },
+            { name: f.armor, type: "armor", system: { equipped: false } },
+            {
+              name: f.coin,
+              type: "item",
+              system: { treasure: true, quantity: { value: 50 } },
+            },
+          ],
+        });
+        return actor.id as string;
+      },
+      { f: fighter, observer: observerUserName(slot), sheetClass: SHEET_CLASS },
+    );
+
+    await use(fighter);
+
+    // Drop everything this test named: the actor (closing its sheets) and any hotbar
+    // macro OSE created for its weapon.
+    await gamePage
+      .evaluate(async ({ id, weapon }) => {
+        const g = globalThis as any;
+        for (const m of g.game.macros.filter((x: any) => x.name === weapon)) await m.delete();
+        for (const s of g.game.user.getHotbarMacros?.() ?? [])
+          if (s?.macro) await g.game.user.unassignHotbarMacro(s.slot);
+        await g.game.actors.get(id)?.delete();
+      }, fighter)
+      .catch(() => {});
+  },
 });
 
 test.afterEach(async ({ gamePage }, testInfo) => {

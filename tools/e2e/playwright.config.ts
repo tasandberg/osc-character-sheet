@@ -1,15 +1,20 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Foundry serves one world per license, and the seeded actor is shared mutable
-// state — so run serially with a single worker. The CI workflow boots Foundry and
-// activates the world before invoking `playwright test`; globalSetup only joins
-// and seeds the fixture actor.
+// All workers share one Foundry world (one license, one server), so isolation is per
+// test rather than per server: each parallel slot joins as its own seeded GM/observer
+// user and each test owns its own actor (see fixtures.ts). That makes the specs
+// order-independent, so `fullyParallel` spreads tests — not just files — across workers.
+// The CI workflow boots Foundry and activates the world before invoking `playwright
+// test`; globalSetup enables the module and seeds the per-slot users.
 const BASE_URL = process.env.FOUNDRY_URL || "http://localhost:30000";
 
 export default defineConfig({
   testDir: "./specs",
   globalSetup: "./global-setup.ts",
-  fullyParallel: false,
+  fullyParallel: true,
+  // 1 on purpose: the CI box is already saturated running serially — 2 workers ran no
+  // faster and 3 ran slower, both timing out. A resource ceiling, not a correctness one,
+  // so raise it if the runner grows.
   workers: 1,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],
