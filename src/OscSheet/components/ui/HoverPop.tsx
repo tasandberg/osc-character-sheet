@@ -18,7 +18,7 @@ import {
   type ReactNode,
 } from "react";
 
-const GAP = 6; // trigger bottom → card top
+const GAP = 6; // trigger bottom → card top, for a card with no arrow
 const EDGE = 8; // smallest gap the card keeps from the sheet's (or viewport's) edge
 
 const HIDDEN: CSSProperties = {
@@ -34,12 +34,16 @@ export function HoverPop({
   className,
   align = "start",
   role = "tooltip",
+  gap = GAP,
   children,
 }: {
   className?: string;
   /** `start` = card's left edge on the trigger's; `center` = centred under it. */
   align?: HoverPopAlign;
   role?: string;
+  /** Trigger bottom → card top. A card whose ::before arrow pokes ABOVE its top edge
+      must pass `GAP + arrow height`, or the arrow's tip lands on the trigger. */
+  gap?: number;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -61,7 +65,7 @@ export function HoverPop({
       const left = Math.min(Math.max(wanted, min), Math.max(min, right - w - EDGE));
       setStyle({
         position: "fixed",
-        top: r.bottom + GAP,
+        top: r.bottom + gap,
         left,
         // keeps an arrow under the trigger's centre even when the card is clamped
         "--anchor-x": `${r.left + r.width / 2 - left}px`,
@@ -92,7 +96,7 @@ export function HoverPop({
       window.removeEventListener("scroll", reposition, true);
       window.removeEventListener("resize", reposition);
     };
-  }, [align]);
+  }, [align, gap]);
 
   return (
     <span className={className} role={role} ref={ref} style={style}>

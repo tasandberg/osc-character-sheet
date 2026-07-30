@@ -150,7 +150,9 @@ export function EquippedTray({
               className={item.img ? "" : "osc-equip-tt-ic"}
             />
           </button>
-          <HoverPop className="osc-equip-tt-pop" align="center">
+          {/* gap 11, not the default 6: this card's arrow (9px square rotated 45° at
+              top:-5px) reaches ~7px above the card, so 11 leaves ~4px under the tile. */}
+          <HoverPop className="osc-equip-tt-pop" align="center" gap={11}>
             <span className="osc-equip-tt-pop-nm">{item.name}</span>
             <span className="osc-equip-tt-pop-type">{item.category}</span>
             <span className="osc-equip-tt-pop-stats">
