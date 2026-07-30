@@ -4,7 +4,7 @@ import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
 import { UsesRow } from "@features/inventory/rows/UsesRow";
 import { Button } from "@ui/Button";
-import { weightLabel, EQUIPPED } from "@features/inventory/groups";
+import { countedLoad, loadText, EQUIPPED } from "@features/inventory/groups";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { cx } from "@ui/cx";
 
@@ -81,12 +81,14 @@ function InlineUse({
 function RowInner({
   item,
   canEdit,
+  variant,
   onEquip,
   onOpen,
   onSetQty,
 }: {
   item: InventoryItemVM;
   canEdit: boolean;
+  variant?: string;
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onSetQty: (id: string, value: number) => void;
@@ -110,7 +112,7 @@ function RowInner({
         }
       />
       <span className="osc-inv-rowcat">{item.category}</span>
-      <span className="osc-inv-wt">{weightLabel(item.weight)}</span>
+      <span className="osc-inv-wt">{loadText(countedLoad(item, variant))}</span>
       <RowEquip item={item} onEquip={onEquip} />
     </>
   );
@@ -125,6 +127,7 @@ export function SortableRow({
   dnd,
   itemDragData,
   canEdit,
+  variant,
   onEquip,
   onOpen,
   onContext,
@@ -139,6 +142,8 @@ export function SortableRow({
   dnd: Dnd;
   itemDragData: ItemDragData;
   canEdit: boolean;
+  /** Active encumbrance variant — picks the load unit (slots vs cn). */
+  variant?: string;
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onContext: OnContext;
@@ -174,6 +179,7 @@ export function SortableRow({
         <RowInner
           item={item}
           canEdit={canEdit}
+          variant={variant}
           onEquip={onEquip}
           onOpen={onOpen}
           onSetQty={onSetQty}

@@ -164,11 +164,45 @@ describe("selectInventory — container tree", () => {
   });
 });
 
+describe("item slots", () => {
+  const slotsOf = (item: OseItem) => selectInventory([item]).items[0].slots;
+
+  it("weapon/armor ignore quantity; item/container fold it in", () => {
+    const q = { value: 3, max: 0 };
+    expect(slotsOf(mk("weapon", "Spears", { itemslots: 1, quantity: q }))).toBe(1);
+    expect(slotsOf(mk("armor", "Shields", { itemslots: 2, quantity: q }))).toBe(2);
+    expect(slotsOf(mk("item", "Rations", { itemslots: 1, quantity: q }))).toBe(3);
+  });
+
+  it("fractional slots × quantity round up", () => {
+    const torches = mk("item", "Torches", { itemslots: 0.2, quantity: { value: 6, max: 6 } });
+    expect(slotsOf(torches)).toBe(2);
+  });
+
+  it("prefers the system's own cumulativeItemslots when present", () => {
+    const rations = mk("item", "Rations", {
+      itemslots: 1,
+      cumulativeItemslots: 7,
+      quantity: { value: 7, max: 7 },
+    });
+    expect(slotsOf(rations)).toBe(7);
+  });
+
+  it("an unset itemslots reads 0 — the GM's value to fill in, not ours to invent", () => {
+    expect(slotsOf(mk("item", "Rope", { weight: 50, quantity: { value: 1, max: 0 } }))).toBe(0);
+  });
+
+  it("a container folds in quantity like the system does — 0 by default, so 0 slots", () => {
+    const backpack = mk("container", "Backpack", { itemslots: 1, quantity: { value: 0, max: 0 } });
+    expect(slotsOf(backpack)).toBe(0);
+  });
+});
+
 describe("sortInventory", () => {
   const mkVM = (overrides: Partial<import("@domain/vm-types").InventoryItemVM>): import("@domain/vm-types").InventoryItemVM => ({
     id: "x", name: "X", img: "", category: "Gear", categoryRank: 2,
-    damage: "", tags: [], monogram: "XX", weight: 0, cost: 0, armorClass: null, sort: 0, equippedSort: 0,
-    equipped: null, quantity: null, isContainer: false, children: [],
+    damage: "", tags: [], monogram: "XX", weight: 0, slots: 0, cost: 0, armorClass: null, sort: 0, equippedSort: 0,
+    equipped: null, quantity: null, treasure: false, isContainer: false, children: [],
     ...overrides,
   });
 
@@ -202,6 +236,19 @@ describe("sortInventory", () => {
     expect(result.map((i) => i.id)).toEqual(["ro", "sh", "sw", "bx"]);
   });
 
+  it("itembased: the load column sorts by slots, not cn", () => {
+    // Slot order is the reverse of the cn order — so a stale cn sort would show.
+    const heavy = mkVM({ id: "heavy", weight: 100, slots: 1 });
+    const light = mkVM({ id: "light", weight: 1, slots: 4 });
+    expect(
+      sortInventory([heavy, light], "weight", "desc", "itembased").map((i) => i.id),
+    ).toEqual(["light", "heavy"]);
+    expect(sortInventory([heavy, light], "weight", "desc").map((i) => i.id)).toEqual([
+      "heavy",
+      "light",
+    ]);
+  });
+
   it("equipped state does not affect order (no hoisting)", () => {
     const a = mkVM({ id: "a", name: "Aaa", categoryRank: 2, equipped: false });
     const b = mkVM({ id: "b", name: "Zzz", categoryRank: 2, equipped: true });
@@ -225,8 +272,8 @@ describe("sortInventory", () => {
 describe("sortEquipped", () => {
   const mkVM = (id: string, name: string, equippedSort: number): import("@domain/vm-types").InventoryItemVM => ({
     id, name, img: "", category: "Gear", categoryRank: 2, damage: "", tags: [],
-    monogram: "XX", weight: 0, cost: 0, armorClass: null, sort: 0, equippedSort, equipped: true, quantity: null,
-    isContainer: false, children: [],
+    monogram: "XX", weight: 0, slots: 0, cost: 0, armorClass: null, sort: 0, equippedSort, equipped: true, quantity: null,
+    treasure: false, isContainer: false, children: [],
   });
 
   it("orders by equippedSort, ties broken by name", () => {
@@ -377,6 +424,77 @@ describe("selectEncumbrance", () => {
     expect(e.label).toBe("10 / 16 items");
     // item-based steps differ per mode (packed vs equipped) — take them as given
     expect(e.bands).toEqual([62.5, 75, 87.5]);
+  });
+});
+
+describe("item-based encumbrance: the STR modifier", () => {
+  // Stands in for OSE's item-based class. Its `max`/`pct` getters deliberately leave the
+  // STR modifier out; the packed figures put it on the limit — so those are what we read.
+  // Mirrors the system's own math: the modifier only applies with the world setting on,
+  // only when positive, and only in packed mode.
+  const fake = (
+    carried: number,
+    { strMod = 0, setting = false, equipped = false } = {},
+  ) => {
+    const max = 16;
+    const mod = setting && strMod > 0 ? strMod : 0;
+    return {
+      system: {
+        encumbrance: {
+          variant: "itembased", enabled: true, steps: [62.5, 75, 87.5],
+          value: carried, max, encumbered: carried > max + mod,
+          usingEquippedEncumbrance: equipped,
+          packedPct: Math.min(100, ((carried - mod) / max) * 100),
+          equippedPct: Math.min(100, (carried / max) * 100),
+          packedLabel: `${carried}/${max + mod}`,
+          equippedLabel: `${carried}/${max}`,
+        },
+        movement: { base: 120, encounter: 40, overland: 24 },
+      },
+    } as unknown as OSEActor;
+  };
+
+  it("setting on, positive mod: the limit rises and the bar eases off", () => {
+    // The bug: `max` alone reported 16/16 at 100% and flagged the character overloaded.
+    const e = selectEncumbrance(fake(16, { strMod: 2, setting: true }));
+    expect(e.label).toBe("16 / 18 items");
+    expect(e.pct).toBeCloseTo(0.875);
+    expect(e.status).not.toBe("Overloaded");
+  });
+
+  it("setting off: the modifier is ignored entirely", () => {
+    const e = selectEncumbrance(fake(16, { strMod: 2, setting: false }));
+    expect(e.label).toBe("16 / 16 items");
+    expect(e.pct).toBe(1);
+  });
+
+  it("a negative modifier never lowers the limit", () => {
+    const e = selectEncumbrance(fake(16, { strMod: -3, setting: true }));
+    expect(e.label).toBe("16 / 16 items");
+    expect(e.pct).toBe(1);
+  });
+
+  it("equipped mode takes the equipped figures, which carry no modifier", () => {
+    const e = selectEncumbrance(fake(8, { strMod: 2, setting: true, equipped: true }));
+    expect(e.label).toBe("8 / 16 items");
+    expect(e.pct).toBeCloseTo(0.5);
+  });
+
+  it("other variants keep deriving from value/max, packed fields or not", () => {
+    const actor = {
+      system: {
+        encumbrance: {
+          variant: "detailed", enabled: true, steps: [25, 37.5, 50],
+          value: 800, max: 1600, encumbered: false,
+          // a stray packed readout must not leak into a non-item-based variant
+          usingEquippedEncumbrance: false, packedPct: 12.5, packedLabel: "2/16",
+        },
+        movement: { base: 120, encounter: 40, overland: 24 },
+      },
+    } as unknown as OSEActor;
+    const e = selectEncumbrance(actor);
+    expect(e.label).toBe("800 / 1600 cn");
+    expect(e.pct).toBeCloseTo(0.5);
   });
 });
 

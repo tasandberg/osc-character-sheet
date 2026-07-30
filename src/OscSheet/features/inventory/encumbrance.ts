@@ -26,8 +26,40 @@ type EncumbranceCtor = new (
   max: number,
   items: OseItem[],
   options: { significantTreasure: number; scores: unknown },
-  strMod: number,
 ) => CharacterEncumbrance;
+
+/** The item-based scheme's own derived figures, which the shared `CharacterEncumbrance`
+ *  type stops short of. Its `max`/`pct` getters drop the STR modifier that these apply,
+ *  so the readout has to come from here (see OSE's item-based encumbrance model). */
+type ItemBasedEncumbrance = CharacterEncumbrance & {
+  readonly usingEquippedEncumbrance: boolean;
+  /** 0–100, with the (setting-gated, positive-only) STR modifier off the numerator. */
+  readonly packedPct: number;
+  readonly equippedPct: number;
+  /** "carried/limit" — the packed limit already includes the STR modifier. */
+  readonly packedLabel: string;
+  readonly equippedLabel: string;
+};
+
+/** OSE's own item-based readout: the active (packed or equipped) figures, spaced to match
+ *  the other variants' labels. Taken verbatim so the STR modifier lands exactly where the
+ *  system puts it — on the limit, gated on the world setting, negatives clamped away. */
+function itemBasedReadout(e: ItemBasedEncumbrance): {
+  pct?: number;
+  label?: string;
+  equippedMax?: number;
+} {
+  const equipped = e.usingEquippedEncumbrance;
+  const pct = equipped ? e.equippedPct : e.packedPct;
+  const label = equipped ? e.equippedLabel : e.packedLabel;
+  // equippedLabel is "value/max" — the only place the equipped cap is exposed.
+  const cap = Number(e.equippedLabel?.split("/")[1]);
+  return {
+    pct: Number.isFinite(pct) ? Math.min(1, pct / 100) : undefined,
+    label: label?.replace("/", " / "),
+    equippedMax: Number.isFinite(cap) ? cap : undefined,
+  };
+}
 
 export function selectEncumbrance(actor: OSEActor, items?: OseItem[]): EncumbranceVM {
   const live = actor.system.encumbrance;
@@ -35,6 +67,7 @@ export function selectEncumbrance(actor: OSEActor, items?: OseItem[]): Encumbran
     const movement = actor.system.movement;
     return {
       enabled: false,
+      variant: "",
       value: 0,
       max: 0,
       pct: 0,
@@ -59,12 +92,13 @@ export function selectEncumbrance(actor: OSEActor, items?: OseItem[]): Encumbran
             significantTreasure: significantTreasure(),
             scores: actor.system.scores,
           },
-          actor.system.scores?.str?.mod ?? 0,
         );
   const movement = actor.system.movement;
   const sigTreasure = significantTreasure();
   const immobile = e.variant === "basic" && e.value >= e.max;
-  const pct = e.max > 0 ? Math.min(1, e.value / e.max) : 0;
+  const itemBased =
+    e.variant === "itembased" ? itemBasedReadout(e as ItemBasedEncumbrance) : null;
+  const pct = itemBased?.pct ?? (e.max > 0 ? Math.min(1, e.value / e.max) : 0);
   const steps = immobile ? [] : (e.steps ?? []);
   const bands =
     e.variant === "basic" && steps.length === 1
@@ -75,12 +109,14 @@ export function selectEncumbrance(actor: OSEActor, items?: OseItem[]): Encumbran
   const unit = e.variant === "itembased" ? "items" : "cn";
   return {
     enabled: e.enabled,
+    variant: e.variant,
     value: e.value,
     max: e.max,
     pct,
     tier,
     status: TIER_STATUS[tier],
-    label: `${e.value} / ${e.max} ${unit}`,
+    label: `${itemBased?.label ?? `${e.value} / ${e.max}`} ${unit}`,
+    equippedMax: itemBased?.equippedMax,
     armorTier: basicArmorTier(e, sigTreasure),
     moveBands: {
       encounter: Math.floor(movement?.encounter ?? 0),

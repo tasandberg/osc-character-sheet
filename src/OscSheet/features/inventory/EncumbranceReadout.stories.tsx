@@ -12,7 +12,7 @@ export default { title: "Inventory / EncumbranceReadout" };
 const STEPS = [25, 37.5, 50];
 
 const vm = (tier: EncumbranceVM["tier"], value: number, status: string): EncumbranceVM => ({
-  enabled: true,
+  enabled: true, variant: "basic",
   value,
   max: 1600,
   pct: Math.min(1, value / 1600),

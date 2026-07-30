@@ -25,6 +25,7 @@ import { cx } from "@ui/cx";
  *  feed the encumbrance figure too. */
 export function WealthSection({
   wealth,
+  variant,
   onSetCoin,
   itemDragData,
   onOpen,
@@ -32,6 +33,8 @@ export function WealthSection({
 }: {
   /** Unified row list: coins (canonical order) then non-coin valuables. */
   wealth: WealthRowVM[];
+  /** Active encumbrance variant — item-based counts treasure per section, not per row. */
+  variant?: string;
   onSetCoin: (id: string, value: number) => void;
   /** Foundry item drag-data per row id — lets treasure rows drop onto the hotbar / Item Piles. */
   itemDragData: ItemDragData;
@@ -109,6 +112,13 @@ export function WealthSection({
   const liveValue = (r: WealthRowVM) => (r.kind === "coin" ? draftQty(r) * r.gpEach : r.value);
   const totalGp = wealth.reduce((s, r) => s + liveValue(r), 0);
   const weight = wealth.reduce((s, r) => s + liveWeight(r), 0);
+  // Item-based encumbrance buckets treasure globally: 100 coins/gems to one slot. No
+  // per-row figure exists, so only the section total is real (rows show a dash).
+  const itemBased = variant === "itembased";
+  const slots = Math.ceil(
+    wealth.reduce((s, r) => s + (r.kind === "coin" ? draftQty(r) : r.qty), 0) / 100,
+  );
+  const load = itemBased ? `${slots} slots` : `${fmtCoin(weight)} cn`;
   const dots = wealth
     .filter((r): r is CoinWealthRow => r.kind === "coin" && draftQty(r) > 0)
     .map((r) => r.denom);
@@ -137,7 +147,7 @@ export function WealthSection({
         <span className="key">Treasure</span>
         <span className="v">{fmtCoin(totalGp)}<small>gp</small></span>
         {hasContent && <i className="osc-wcaret fa-solid fa-caret-right" aria-hidden="true" />}
-        <span className="wt">{fmtCoin(weight)} cn</span>
+        <span className="wt">{load}</span>
       </button>
 
       {!hasContent && (
@@ -165,7 +175,7 @@ export function WealthSection({
               onClick={() => onSort("qty")}
             />
             <SortHeader
-              label="Weight (cn)"
+              label={itemBased ? "Slots" : "Weight (cn)"}
               className="osc-coin-th-num"
               active={sort.key === "weight"}
               dir={sort.dir}
@@ -189,6 +199,7 @@ export function WealthSection({
                 canEdit={canEdit}
                 dnd={dnd}
                 itemDragData={itemDragData}
+                perRowLoad={!itemBased}
                 inputValue={draft[row.denom] ?? String(row.qty)}
                 onOpen={onOpen}
                 onContext={onContext}
@@ -204,6 +215,7 @@ export function WealthSection({
                 canEdit={canEdit}
                 dnd={dnd}
                 itemDragData={itemDragData}
+                perRowLoad={!itemBased}
                 onOpen={onOpen}
                 onContext={onContext}
               />
@@ -212,7 +224,7 @@ export function WealthSection({
 
           <div className="osc-coin-total">
             <span className="lab">Total</span>
-            <span className="tw">{fmtCoin(weight)}</span>
+            <span className="tw">{itemBased ? slots : fmtCoin(weight)}</span>
             <span className="tv">{fmtCoin(totalGp)}</span>
           </div>
           <div className="osc-coin-done">

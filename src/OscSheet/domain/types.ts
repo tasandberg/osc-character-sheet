@@ -160,6 +160,10 @@ export type OseItem = Omit<Item, "type"> & {
     tags?: { label: string; value: string; icon: string }[];
     treasure: boolean;
     weight: number;
+    /** GM-authored item slots (Item-Based Encumbrance). Schema default 0 for `item`, 1 otherwise. */
+    itemslots?: number;
+    /** `item` type only — ceil(itemslots × quantity). Absent on weapon/armor/container. */
+    cumulativeItemslots?: number;
   };
   rollWeapon: (options: { skipDialog: boolean }) => void;
   update: (updateData: {

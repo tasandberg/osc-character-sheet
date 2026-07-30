@@ -7,6 +7,7 @@ const identity = { name: "Eldra Vey", img: "", classLabel: "Magic-User", level: 
 
 const encumbrance: EncumbranceVM = {
   enabled: true,
+  variant: "basic",
   value: 700,
   max: 1600,
   pct: 700 / 1600,

@@ -4,7 +4,12 @@
 // otherwise be clipped by the sheet body's overflow at the sheet's left edge.
 import { useState } from "react";
 import type { InventoryItemVM } from "@domain/vm-types";
-import { weightLabel, EQUIPPED } from "@features/inventory/groups";
+import {
+  countedLoad,
+  loadHeading,
+  loadText,
+  EQUIPPED,
+} from "@features/inventory/groups";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { useOscSheetContext } from "@app/context";
 import { HoverPop } from "@ui/HoverPop";
@@ -53,9 +58,10 @@ export function RowEquip({
   );
 }
 
-/** Full item stats for the equipped popover: AC/AAC, damage, qty, cost, weight. */
+/** Full item stats for the equipped popover: AC/AAC, damage, qty, cost, load. */
 function equippedStats(
   item: InventoryItemVM,
+  variant?: string,
 ): { label: string; value: string }[] {
   const stats: { label: string; value: string }[] = [];
   if (item.armorClass)
@@ -70,7 +76,10 @@ function equippedStats(
       value: `${item.quantity.value} / ${item.quantity.max}`,
     });
   stats.push({ label: "Cost", value: `${item.cost} gp` });
-  stats.push({ label: "Wgt", value: weightLabel(item.weight) });
+  stats.push({
+    label: loadHeading(variant).stat,
+    value: loadText(countedLoad(item, variant)),
+  });
   return stats;
 }
 
@@ -78,6 +87,7 @@ export function EquippedTray({
   items,
   dnd,
   itemDragData,
+  variant,
   onOpen,
   onContext,
   equipDropActive,
@@ -86,6 +96,8 @@ export function EquippedTray({
   items: InventoryItemVM[];
   dnd: Dnd;
   itemDragData: ItemDragData;
+  /** Active encumbrance variant — picks the popover's load unit (slots vs cn). */
+  variant?: string;
   onOpen: (id: string) => void;
   onContext: OnContext;
   /** An All-Items row is mid-drag — the tray is a live equip drop target. */
@@ -153,7 +165,7 @@ export function EquippedTray({
             <span className="osc-equip-tt-pop-nm">{item.name}</span>
             <span className="osc-equip-tt-pop-type">{item.category}</span>
             <span className="osc-equip-tt-pop-stats">
-              {equippedStats(item).map((st) => (
+              {equippedStats(item, variant).map((st) => (
                 <span className="osc-equip-tt-pop-stat" key={st.label}>
                   <span className="k">{st.label}</span>
                   <span className="v">{st.value}</span>

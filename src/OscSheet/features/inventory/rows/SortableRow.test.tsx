@@ -15,16 +15,24 @@ import type { OscSheetContextValue } from "@domain/types";
 
 const mkItem = (o: Partial<InventoryItemVM> = {}): InventoryItemVM => ({
   id: "arrows", name: "Arrows", img: "", category: "Weapon", categoryRank: 0,
-  damage: "", tags: [], monogram: "AR", weight: 5, cost: 0, armorClass: null,
+  damage: "", tags: [], monogram: "AR", weight: 5, slots: 1, cost: 0, armorClass: null,
   sort: 0, equippedSort: 0, equipped: null, quantity: { value: 3, max: 5 },
-  isContainer: false, children: [], ...o,
+  treasure: false, isContainer: false, children: [], ...o,
 });
 
 let container: HTMLDivElement;
 let root: Root;
 const onSetQty = vi.fn();
 
-function Harness({ item, canEdit }: { item: InventoryItemVM; canEdit: boolean }) {
+function Harness({
+  item,
+  canEdit,
+  variant,
+}: {
+  item: InventoryItemVM;
+  canEdit: boolean;
+  variant?: string;
+}) {
   const dnd = useDragReorder({ onNest: () => {}, onReorder: () => {} });
   const noop = () => {};
   return (
@@ -36,6 +44,7 @@ function Harness({ item, canEdit }: { item: InventoryItemVM; canEdit: boolean })
       dnd={dnd}
       itemDragData={() => undefined}
       canEdit={canEdit}
+      variant={variant}
       onEquip={noop}
       onOpen={noop}
       onContext={noop}
@@ -45,14 +54,16 @@ function Harness({ item, canEdit }: { item: InventoryItemVM; canEdit: boolean })
 }
 
 const ctx = { canEdit: true } as OscSheetContextValue;
-const render = (item: InventoryItemVM, canEdit = true) =>
+const render = (item: InventoryItemVM, canEdit = true, variant?: string) =>
   act(() =>
     root.render(
       <OscSheetContext.Provider value={ctx}>
-        <Harness item={item} canEdit={canEdit} />
+        <Harness item={item} canEdit={canEdit} variant={variant} />
       </OscSheetContext.Provider>,
     ),
   );
+
+const loadCell = () => container.querySelector(".osc-inv-wt")?.textContent;
 
 const inlineUse = () =>
   container.querySelector<HTMLButtonElement>(".osc-inv-useinline");
@@ -104,11 +115,21 @@ describe("SortableRow inline Use pill", () => {
 
   it("WT cell shows the weight with its cn unit", () => {
     render(mkItem({ weight: 15 }));
-    expect(container.querySelector(".osc-inv-wt")?.textContent).toBe("15 cn");
+    expect(loadCell()).toBe("15 cn");
   });
 
   it("WT cell shows an em dash for weightless items", () => {
     render(mkItem({ weight: 0 }));
-    expect(container.querySelector(".osc-inv-wt")?.textContent).toBe("—");
+    expect(loadCell()).toBe("—");
+  });
+
+  it("itembased: the cell shows item slots instead of cn", () => {
+    render(mkItem({ weight: 15, slots: 2 }), true, "itembased");
+    expect(loadCell()).toBe("2");
+  });
+
+  it("itembased: zero slots show a literal 0, not the weightless dash", () => {
+    render(mkItem({ weight: 15, slots: 0 }), true, "itembased");
+    expect(loadCell()).toBe("0");
   });
 });

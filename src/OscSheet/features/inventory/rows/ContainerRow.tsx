@@ -3,7 +3,13 @@ import type { InventoryItemVM } from "@domain/vm-types";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
 import { NameCell, SortableRow } from "@features/inventory/rows/SortableRow";
-import { weightLabel, gkey, ROOT, EQUIPPED } from "@features/inventory/groups";
+import {
+  countedLoad,
+  loadText,
+  gkey,
+  ROOT,
+  EQUIPPED,
+} from "@features/inventory/groups";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
@@ -17,6 +23,7 @@ export function ContainerRow({
   dnd,
   itemDragData,
   canEdit,
+  variant,
   onToggle,
   onEquip,
   onOpen,
@@ -31,6 +38,8 @@ export function ContainerRow({
   dnd: Dnd;
   itemDragData: ItemDragData;
   canEdit: boolean;
+  /** Active encumbrance variant — picks the load unit (slots vs cn). */
+  variant?: string;
   onToggle: (id: string) => void;
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
@@ -87,7 +96,7 @@ export function ContainerRow({
           trailing={caret}
         />
         <span className="osc-inv-rowcat">{item.category}</span>
-        <span className="osc-inv-wt">{weightLabel(item.weight)}</span>
+        <span className="osc-inv-wt">{loadText(countedLoad(item, variant))}</span>
         <RowEquip item={item} onEquip={onEquip} />
       </div>
 
@@ -112,6 +121,7 @@ export function ContainerRow({
                 dnd={dnd}
                 itemDragData={itemDragData}
                 canEdit={canEdit}
+                variant={variant}
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={onContext}

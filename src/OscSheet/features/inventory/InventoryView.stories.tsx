@@ -13,12 +13,14 @@ const item = (o: Partial<InventoryItemVM> & { id: string; name: string }): Inven
   tags: [],
   monogram: o.name.slice(0, 2).toUpperCase(),
   weight: 0,
+  slots: 1,
   cost: 0,
   armorClass: null,
   sort: 0,
   equippedSort: 0,
   equipped: null,
   quantity: null,
+  treasure: false,
   isContainer: false,
   children: [],
   ...o,
@@ -46,7 +48,7 @@ const inventory: InventoryVM = {
   groups: [],
 };
 
-const encumbrance: EncumbranceVM = { enabled: true, value: 380, max: 1600, pct: 0.2375, tier: 0, status: "Unencumbered", label: "380 / 1600 cn", moveBands: { encounter: 40, explore: 120, travel: 24 }, bands: [25, 37.5, 50] };
+const encumbrance: EncumbranceVM = { enabled: true, variant: "basic", value: 380, max: 1600, pct: 0.2375, tier: 0, status: "Unencumbered", label: "380 / 1600 cn", moveBands: { encounter: 40, explore: 120, travel: 24 }, bands: [25, 37.5, 50] };
 const coin = (denom: string, qty: number, gpEach: number): WealthRow => ({
   kind: "coin", denom, id: denom.toLowerCase(), name: `${denom} coins`, img: "",
   monogram: denom, gpEach, qty, weight: qty, value: qty * gpEach,

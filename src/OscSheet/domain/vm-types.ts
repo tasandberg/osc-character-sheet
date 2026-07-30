@@ -124,6 +124,9 @@ export interface InventoryItemVM {
   /** Short monogram for the grid card when the item has no real art. */
   monogram: string;
   weight: number;
+  /** Carried item slots under Item-Based Encumbrance — the stored GM value, folded
+   *  with quantity for item/container types only (weapon/armor count once). 0 when unset. */
+  slots: number;
   /** Item cost in gp (system.cost). 0 when unset. */
   cost: number;
   /** Armour class for armour items — label is "AC"/"AAC" per the ascendingAC setting. null otherwise. */
@@ -134,6 +137,8 @@ export interface InventoryItemVM {
   equipped: boolean | null;
   /** null unless the item is a stack (qty > 1) or charged (max set). */
   quantity: { value: number; max: number } | null;
+  /** `system.treasure` — coins/gems/valuables, counted per section rather than per row. */
+  treasure: boolean;
   isContainer: boolean;
   children: InventoryItemVM[]; // [] unless container; nested by containerId
 }
@@ -246,6 +251,9 @@ export type EncumbranceTier = 0 | 1 | 2 | 3 | 4;
 
 export interface EncumbranceVM {
   enabled: boolean;
+  /** Active scheme from the system setting ("basic" | "detailed" | "complete" | "itembased");
+   *  "" when the actor exposes no encumbrance. Drives the load unit shown across the tab. */
+  variant: string;
   value: number;
   max: number;
   /** Fraction 0–1 for the progress bar. */
@@ -257,6 +265,8 @@ export interface EncumbranceVM {
   status: string;
   /** Variant-aware value/max readout, e.g. "1071 / 1600 cn" or "10 / 16 items". */
   label: string;
+  /** Item-based only: the equipped track's cap, so the Equipped section can show "5 / 9". */
+  equippedMax?: number;
   /** Basic mode only: equipped armor weight class, surfaced as its own popover row
    *  (it slows movement but does not tint the bar). Undefined for other variants. */
   armorTier?: "unarmored" | "light" | "heavy";
