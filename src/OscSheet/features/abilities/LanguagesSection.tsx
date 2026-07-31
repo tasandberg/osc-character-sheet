@@ -77,7 +77,7 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
 
       <div className="osc-langs tw:flex tw:flex-wrap tw:items-center tw:gap-1">
         {current.length === 0 && !editing && (
-          <span className="osc-langs-empty tw:font-serif tw:text-sm tw:italic tw:text-text-faint">
+          <span className="osc-langs-empty tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint">
             None
           </span>
         )}
@@ -95,7 +95,7 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
       {editing && (
         <div className="osc-lang-add tw:mt-3 tw:flex tw:items-center tw:gap-2">
           <input
-            className="osc-lang-input tw:max-w-[220px] tw:min-w-0 tw:flex-1 tw:rounded-sm tw:border tw:border-border-soft tw:bg-bg-2 tw:px-2 tw:py-1 tw:font-mono tw:text-xs tw:text-text tw:placeholder:text-text-faint tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-gold"
+            className="osc-lang-input tw:max-w-[220px] tw:min-w-0 tw:flex-1 tw:rounded-sm tw:border tw:border-border-soft tw:bg-bg-2 tw:px-2 tw:py-1 tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text tw:placeholder:text-text-faint tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-gold"
             type="text"
             list="osc-lang-choices"
             placeholder="Add a language…"

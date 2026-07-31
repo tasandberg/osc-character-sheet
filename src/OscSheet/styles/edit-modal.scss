@@ -52,6 +52,19 @@
     height: auto;
   }
 
+  // RESTORED. This rule was deleted in favour of the `ED_HINT` string in
+  // features/edit/classes.ts, but `OverrideValue` — which renders most of these
+  // hints (`DEX -2`, `default · 19`) — was never changed to use it, and has zero
+  // commits on this branch. Without the rule the hints inherit the modal's
+  // display serif instead of mono. Call sites that DO pass ED_HINT set the same
+  // values, so the two agree either way.
+  .ed-field .hint {
+    font-family: var(--mono);
+    font-size: var(--fs-3xs);
+    color: var(--text-mute);
+    line-height: 1.4;
+  }
+
   // Overrides `.check`'s own font-size + colour for the movement checkbox.
   .ed-field .ed-movecalc {
     margin-top: 2px;

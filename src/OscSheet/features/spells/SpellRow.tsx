@@ -71,7 +71,7 @@ export function SpellRow({
   // Exclusive strings: a spent row is struck and muted, and loses the gold
   // hover with it (the old `.osc-spell.spent .spn` won over `.spn:hover`).
   const spn = cx(
-    "spn tw:cursor-pointer tw:font-display tw:text-lg",
+    "spn tw:cursor-pointer tw:font-display tw:text-[length:var(--fs-lg)]",
     spent ? "tw:text-text-mute tw:line-through" : "tw:text-text tw:hover:text-gold",
   );
   const name = onOpenName ? (
@@ -124,7 +124,7 @@ export function SpellRow({
           {pool && (
             <span
               className={cx(
-                "pool tw:font-mono tw:text-3xs tw:whitespace-nowrap",
+                "pool tw:font-mono tw:text-[length:var(--fs-3xs)] tw:whitespace-nowrap",
                 spent ? "tw:text-text-faint" : "tw:text-text-mute",
               )}
             >
@@ -144,7 +144,7 @@ export function SpellRow({
           )}
         </span>
         {/* the " · " separators and the .dmg tint stay in spells.scss */}
-        <span className="spm tw:mt-[1px] tw:block tw:font-mono tw:text-3xs tw:text-text-mute">
+        <span className="spm tw:mt-[1px] tw:block tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-text-mute">
           {meta}
         </span>
       </div>

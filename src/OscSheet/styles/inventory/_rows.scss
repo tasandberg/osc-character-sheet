@@ -131,7 +131,12 @@
 // shared default is gold), tighten the gap, and shrink them to 7×7 — all scoped to
 // inventory so the spell/cast <Pips size="sm"> stays 9×9. Unlayered because the
 // shared `.pips` rules are unlayered too.
-.osc-inv-pips {
+//
+// Qualified with `.pips` for SPECIFICITY, not for matching: vellum's own rule is
+// scoped to `.osc-sheet .pips` (0,2,0), so a bare `.osc-inv-pips` (0,1,0) loses
+// and the gap silently reverts to the shared 4px. The old `.osc-inv` ancestor
+// used to supply this; it was dropped as a reset qualifier, which it also was.
+.osc-inv-pips.pips {
   flex: 1;
   min-width: 0;
   gap: 2px;
@@ -355,6 +360,11 @@
   }
   .osc-inv-useinline {
     display: inline-flex;
+  }
+  // Tighter name gap at XS, where the row has ~140px for the name. Nothing
+  // renders a gap utility on this element, so (0,1,0) later in source is enough.
+  .osc-inv-name {
+    gap: var(--spacer-1);
   }
 }
 

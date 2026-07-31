@@ -66,13 +66,13 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
         <Monogram
           img={feature.img}
           monogram={monogram}
-          className="ft-ic tw:grid tw:size-10 tw:flex-none tw:place-items-center tw:rounded-md tw:bg-ink tw:font-display tw:text-xl tw:text-stamp-text"
+          className="ft-ic tw:grid tw:size-10 tw:flex-none tw:place-items-center tw:rounded-md tw:bg-ink tw:font-display tw:text-[length:var(--fs-xl)] tw:text-stamp-text"
           imgClassName="tw:object-cover"
         />
         <div className="ft-main tw:flex tw:min-w-0 tw:flex-1 tw:flex-col tw:items-start tw:gap-[3px]">
           <button
             type="button"
-            className="ft-title tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-display tw:text-lg tw:tracking-[0.01em] tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
+            className="ft-title tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-display tw:text-[length:var(--fs-lg)] tw:tracking-[0.01em] tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
             title={`Open ${feature.name}`}
             onClick={(e) => {
               e.stopPropagation();
@@ -84,12 +84,12 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
           {(feature.requiresLabel || feature.rollTag) && (
             <div className="ft-tags tw:flex tw:flex-wrap tw:gap-1">
               {feature.requiresLabel && (
-                <span className={`${FT_TAG} tw:text-3xs`}>{feature.requiresLabel}</span>
+                <span className={`${FT_TAG} tw:text-[length:var(--fs-3xs)]`}>{feature.requiresLabel}</span>
               )}
               {feature.rollTag && (
                 <button
                   type="button"
-                  className={`${FT_TAG} ft-tag-roll tw:cursor-pointer tw:text-2xs tw:leading-[1.2] tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:border-gold-soft tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-1 tw:focus-visible:outline-gold`}
+                  className={`${FT_TAG} ft-tag-roll tw:cursor-pointer tw:text-[length:var(--fs-2xs)] tw:leading-[1.2] tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:border-gold-soft tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-1 tw:focus-visible:outline-gold`}
                   title={`Roll ${feature.rollTag}`}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -103,7 +103,7 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
           )}
         </div>
         <IconButton
-          className="ft-chev tw:text-md"
+          className="ft-chev tw:text-[length:var(--fs-md)]"
           aria-expanded={open}
           aria-label={open ? "Collapse" : "Expand"}
           onClick={(e) => {

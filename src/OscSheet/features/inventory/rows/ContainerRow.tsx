@@ -72,7 +72,7 @@ export function ContainerRow({
         // it. The rotation itself stays in _rows.scss.
         "tw:relative tw:z-[var(--z-raised)] tw:inline-flex tw:items-center tw:justify-center",
         "tw:px-1 tw:py-0 tw:bg-transparent tw:border-none tw:cursor-pointer",
-        "tw:text-sm tw:leading-flush tw:text-text-mute tw:hover:text-text",
+        "tw:text-[length:var(--fs-sm)] tw:leading-flush tw:text-text-mute tw:hover:text-text",
         "tw:transition-[color] tw:duration-[120ms]",
         collapsed && "collapsed",
       )}

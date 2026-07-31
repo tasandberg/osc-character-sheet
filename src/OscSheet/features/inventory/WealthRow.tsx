@@ -83,7 +83,7 @@ export function WealthRow({
       </div>
       {isCoin ? (
         <input
-          className="osc-coin-qty tw:w-full tw:min-w-0 tw:rounded-sm tw:border tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-right tw:font-mono tw:text-sm tw:text-text tw:transition-[border-color] tw:duration-[120ms] tw:hover:border-border tw:focus:border-accent-alt tw:focus:outline-none"
+          className="osc-coin-qty tw:w-full tw:min-w-0 tw:rounded-sm tw:border tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-right tw:font-mono tw:text-[length:var(--fs-sm)] tw:text-text tw:transition-[border-color] tw:duration-[120ms] tw:hover:border-border tw:focus:border-accent-alt tw:focus:outline-none"
           type="number"
           min={0}
           inputMode="numeric"
@@ -106,15 +106,15 @@ export function WealthRow({
         // <input>, and must be indistinguishable from it apart from the missing
         // field chrome — hence the identical box metrics (font-size, padding,
         // transparent 1px border) and text colour.
-        <span className="osc-coin-qty-ro tw:border tw:border-transparent tw:px-2 tw:py-[5px] tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-sm tw:text-text">
+        <span className="osc-coin-qty-ro tw:border tw:border-transparent tw:px-2 tw:py-[5px] tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-sm)] tw:text-text">
           {fmtCoin(row.qty)}
         </span>
       )}
       {/* nowrap on both: never split "1,300 cn" off its unit */}
-      <span className="osc-coin-wt tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-xs tw:text-text-dim tw:@max-md/app:hidden">
+      <span className="osc-coin-wt tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-dim tw:@max-md/app:hidden">
         {load}
       </span>
-      <span className="osc-coin-val tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-xs tw:text-text tw:@max-md/app:hidden">
+      <span className="osc-coin-val tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text tw:@max-md/app:hidden">
         {fmtCoin(row.value)}
       </span>
     </div>

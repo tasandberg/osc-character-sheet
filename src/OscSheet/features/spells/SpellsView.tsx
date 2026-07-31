@@ -54,7 +54,7 @@ export default function Spells() {
         {canEdit && (
           <button
             type="button"
-            className="osc-rest tw:ml-auto tw:inline-flex tw:items-center tw:gap-1 tw:self-center tw:cursor-pointer tw:rounded-md tw:border tw:border-border tw:bg-surface-2 tw:px-[11px] tw:py-1 tw:font-sans tw:text-xs tw:font-medium tw:tracking-[0.02em] tw:whitespace-nowrap tw:text-text tw:transition-[background,border-color] tw:duration-[120ms] tw:hover:border-gold"
+            className="osc-rest tw:ml-auto tw:inline-flex tw:items-center tw:gap-1 tw:self-center tw:cursor-pointer tw:rounded-md tw:border tw:border-border tw:bg-surface-2 tw:px-[11px] tw:py-1 tw:font-sans tw:text-[length:var(--fs-xs)] tw:font-medium tw:tracking-[0.02em] tw:whitespace-nowrap tw:text-text tw:transition-[background,border-color] tw:duration-[120ms] tw:hover:border-gold"
             onClick={refresh}
             disabled={busy}
             aria-busy={busy}

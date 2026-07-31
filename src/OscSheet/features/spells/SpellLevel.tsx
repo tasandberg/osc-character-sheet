@@ -13,13 +13,13 @@ const HEAD =
 /** `--stamp-text` is the light on-ink cream (same as the save stamps) — it reads
  *  on the ink chip in BOTH themes and is lighter than the gold accent. */
 const HEAD_LV =
-  "lv tw:rounded-sm tw:bg-ink tw:px-2 tw:pt-[3px] tw:pb-[2px] tw:font-display tw:text-xs tw:tracking-[0.06em] tw:text-stamp-text";
-const HEAD_SC = "sc tw:font-mono tw:text-xs tw:text-text-mute";
+  "lv tw:rounded-sm tw:bg-ink tw:px-2 tw:pt-[3px] tw:pb-[2px] tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.06em] tw:text-stamp-text";
+const HEAD_SC = "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
 
 /** Spellbook entry — a dashed card, clickable (button) when the sheet is
  *  editable and static (span) when it isn't. */
 const BOOKSPELL =
-  "osc-bookspell tw:flex tw:cursor-pointer tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-sm tw:text-text-dim tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:not-disabled:border-solid tw:hover:not-disabled:border-gold-dim tw:disabled:cursor-not-allowed tw:disabled:opacity-40";
+  "osc-bookspell tw:flex tw:cursor-pointer tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:not-disabled:border-solid tw:hover:not-disabled:border-gold-dim tw:disabled:cursor-not-allowed tw:disabled:opacity-40";
 
 /**
  * One spell level: ink-stamp "Level N" badge + "used / max ready" + slot pips,
@@ -60,7 +60,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         {spellbook.length === 0 ? (
           <div className="osc-spell tw:text-text-faint">
             {/* spans the row, left-aligned (the grid is 1fr auto) */}
-            <div className="tw:col-span-full tw:font-serif tw:text-sm tw:italic">
+            <div className="tw:col-span-full tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic">
               No spells known at this level.
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
       {prepared.length === 0 ? (
         <div className="osc-spell tw:text-text-faint">
           {/* spans the row, left-aligned (the grid is 1fr auto) */}
-          <div className="tw:col-span-full tw:font-serif tw:text-sm tw:italic">
+          <div className="tw:col-span-full tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic">
             None memorised — open the spellbook.
           </div>
         </div>
@@ -155,7 +155,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
       <button
         type="button"
         className={cx(
-          "osc-bookbtn tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-dashed tw:border-border tw:bg-transparent tw:px-3 tw:py-2 tw:font-display tw:text-xs tw:tracking-[0.04em] tw:text-text-mute tw:hover:text-text",
+          "osc-bookbtn tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-dashed tw:border-border tw:bg-transparent tw:px-3 tw:py-2 tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.04em] tw:text-text-mute tw:hover:text-text",
           bookOpen ? "tw:rounded-none" : "tw:rounded-b-[7px]",
         )}
         onClick={() => setBookOpen((o) => !o)}
@@ -174,7 +174,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         // 2-col once the sheet body has room, 1-col when narrow.
         <div className="osc-book tw:grid tw:grid-cols-1 tw:gap-1 tw:rounded-b-[7px] tw:border tw:border-t-0 tw:border-border-soft tw:bg-bg-2 tw:p-2 tw:@min-[470px]/sheet:grid-cols-2">
           {spellbook.length === 0 ? (
-            <div className="osc-book-empty tw:col-span-full tw:px-2 tw:py-1 tw:font-serif tw:text-sm tw:italic tw:text-text-faint">
+            <div className="osc-book-empty tw:col-span-full tw:px-2 tw:py-1 tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint">
               No spells known at this level.
             </div>
           ) : (

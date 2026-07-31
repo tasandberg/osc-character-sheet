@@ -99,7 +99,7 @@ export function UsesRow({
         ) : (
           // `display` stays in _rows.scss (it toggles with [data-overflow] and
           // has to beat the unlayered `.btn` sibling rules).
-          <span className="osc-inv-uses-count tw:font-mono tw:text-2xs tw:text-text-mute">
+          <span className="osc-inv-uses-count tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute">
             {value}/{total}
           </span>
         )}

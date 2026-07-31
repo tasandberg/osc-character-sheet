@@ -69,11 +69,11 @@ export const FullHeader = () => {
         type="button"
         className="osc-whead tw:flex tw:w-full tw:items-center tw:gap-3 tw:px-[2px] tw:pt-[7px] tw:pb-[9px] tw:text-left"
       >
-        <span className="key tw:font-sans tw:text-xs tw:font-semibold tw:tracking-[0.13em] tw:uppercase tw:text-text-mute">
+        <span className="key tw:font-sans tw:text-[length:var(--fs-xs)] tw:font-semibold tw:tracking-[0.13em] tw:uppercase tw:text-text-mute">
           Wealth
         </span>
-        <span className="v tw:font-display tw:text-lg tw:leading-flush tw:text-accent-alt">152 gp</span>
-        <span className="wt tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-2xs tw:text-text-faint">
+        <span className="v tw:font-display tw:text-[length:var(--fs-lg)] tw:leading-flush tw:text-accent-alt">152 gp</span>
+        <span className="wt tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-faint">
           140 cn
         </span>
       </button>

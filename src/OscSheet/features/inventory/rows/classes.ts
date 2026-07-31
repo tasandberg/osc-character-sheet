@@ -28,15 +28,15 @@ export const INV_HEADROW = `${ROW_BASE} osc-inv-headrow tw:pt-0 tw:pb-1 tw:borde
  *  ordered by Tailwind, not by the order you write them, so a `tw:text-text`
  *  written "after" a `tw:text-text-faint` here would still lose to it. */
 export const MICRO_LABEL =
-  "tw:font-sans tw:text-3xs tw:font-semibold tw:tracking-[0.08em] tw:uppercase";
+  "tw:font-sans tw:text-[length:var(--fs-3xs)] tw:font-semibold tw:tracking-[0.08em] tw:uppercase";
 
 /** Per-row category badge (col 4). Dropped at xs to buy the name column width. */
 export const INV_ROWCAT = `osc-inv-rowcat ${MICRO_LABEL} tw:text-text-faint tw:whitespace-nowrap tw:text-left tw:@max-md/app:hidden`;
 
 /** Load cell (col 5) — "N cn" / "N slots" / "—". */
 export const INV_WT =
-  "osc-inv-wt tw:font-mono tw:text-xs tw:text-text-mute tw:text-center tw:whitespace-nowrap";
+  "osc-inv-wt tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute tw:text-center tw:whitespace-nowrap";
 
 /** Inline meta suffix after the item name — weapon damage, stack quantity. */
 export const INV_QTYTAG =
-  "osc-inv-qtytag tw:font-mono tw:text-2xs tw:text-text-mute tw:whitespace-nowrap tw:flex-none";
+  "osc-inv-qtytag tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute tw:whitespace-nowrap tw:flex-none";
