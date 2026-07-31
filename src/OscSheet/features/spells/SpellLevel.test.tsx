@@ -67,6 +67,8 @@ const actorOf = (cls: string) =>
 const cleric = actorOf("Cleric");
 /** No entry in CONFIG.OSE.classes → no rulebook slot table to default from. */
 const homebrew = actorOf("Warlock");
+/** Stored lowercase — the default line should still name the class canonically. */
+const lowercase = actorOf("cleric");
 /** A recognized class, but a level past the end of its progression table. */
 const offTable = {
   ...cleric,
@@ -163,8 +165,11 @@ describe("slot maximum dialog", () => {
   it("opens from the pencil at the level's current maximum, under a label", () => {
     render();
     expect(openDialog().value).toBe("2");
+    // The containment rule is `.modal-scrim:has(.modal-inset)` — assert the
+    // structure that selector needs, since jsdom applies no CSS.
+    expect(q(".modal-scrim > .modal.modal-inset.osc-slot-modal")).not.toBeNull();
     expect(text(".modal-body .field-label")).toBe("Level 1 spell slots:");
-    expect(text(".osc-slotdefault")).toBe("Default for level 1 class: 2");
+    expect(text(".osc-slotdefault")).toBe("Default for Cleric 3: 2");
   });
 
   it("saves the typed value to the level's maximum", () => {
@@ -180,6 +185,12 @@ describe("slot maximum dialog", () => {
     type(openDialog(), "4");
     act(() => byLabel("Cancel").click());
     expect(updateActor).not.toHaveBeenCalled();
+  });
+
+  it("names the class canonically, whatever case it was stored in", () => {
+    render(lowercase);
+    openDialog();
+    expect(text(".osc-slotdefault")).toBe("Default for Cleric 3: 2");
   });
 
   it("puts the class default back when the default line is clicked", () => {

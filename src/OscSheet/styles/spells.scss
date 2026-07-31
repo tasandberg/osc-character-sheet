@@ -23,5 +23,16 @@
 // tint stays a rule rather than a utility on one of the two call sites.
 .osc-spell .spm .dmg { color: var(--crimson); }
 
+// --- slot-maximum dialog ---
+// One labelled number field, so cap it well under the 540px DS default; `.modal`
+// keeps width:100% below the cap on narrow sheets. Containment is the shared
+// `.modal-inset` (shell.scss); the max-height override is needed with it because
+// the DS caps against 100vh, and inside an absolute scrim that's the wrong box.
+.osc-sheet-app .osc-slot-modal {
+  max-width: 340px;
+  max-height: 100%;
+  margin: 0;
+}
+
 // --- free-casting rows (memorization disabled) ---
 .osc-spell-free.spent .spn-row .tag { opacity: 0.6; }

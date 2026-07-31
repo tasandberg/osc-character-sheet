@@ -36,7 +36,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
   if (!open) return null;
   const footer = <Button variant="primary" onClick={onClose}>Close</Button>;
   return (
-    <Modal open={open} title="Preferences" onClose={onClose} footer={footer} className="osc-settings-modal">
+    <Modal open={open} title="Preferences" onClose={onClose} footer={footer} className="modal-inset osc-settings-modal">
       <div className="u-stack u-gap-5">
         <Field label="Theme" hint="Applies to your sheets only.">
           <div role="group" aria-label="Theme">

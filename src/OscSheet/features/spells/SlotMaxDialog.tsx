@@ -6,6 +6,7 @@ import { Field } from "@ui/Field";
 import { InlineButton } from "@ui/InlineButton";
 import { Modal } from "@ui/Modal";
 import { NumberInput } from "@ui/NumberInput";
+import { normalizeClassName } from "@domain/classRules";
 import { slotMaxPath } from "@features/spells/spells";
 
 type Props = {
@@ -24,12 +25,16 @@ type Props = {
  * resolves. Renders nothing on a read-only sheet.
  */
 export function SlotMaxDialog({ level, max, defaultMax }: Props) {
-  const { canEdit, updateActor } = useOscSheetContext();
+  const { actor, canEdit, updateActor } = useOscSheetContext();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(max);
   if (!canEdit) return null;
 
   const label = `Edit Level ${level} slots`;
+  // Canonical class name + character level — the same "Cleric 3" the header shows.
+  // Only ever rendered when a default resolved, so the class is one we matched.
+  const { class: rawClass, level: charLevel } = actor.system.details;
+  const who = `${normalizeClassName(rawClass) ?? rawClass} ${charLevel}`;
   const close = () => setOpen(false);
   const save = () => {
     void updateActor({ [slotMaxPath(level)]: draft });
@@ -56,6 +61,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
         open={open}
         title={`Level ${level} spell slots`}
         onClose={close}
+        className="modal-inset osc-slot-modal"
         footer={
           <>
             <Button variant="ghost" onClick={close}>
@@ -86,7 +92,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
               className="osc-slotdefault tw:underline tw:decoration-dotted tw:underline-offset-2"
               onClick={() => setDraft(defaultMax)}
             >
-              Default for level {level} class: {defaultMax}
+              Default for {who}: {defaultMax}
             </InlineButton>
           )}
         </p>

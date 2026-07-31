@@ -145,7 +145,7 @@ export function EditModal({
       title="Edit Character"
       onClose={onClose}
       footer={footer}
-      className="fe-modal"
+      className="modal-inset fe-modal"
     >
       <div className="fe-modal-body tw:flex tw:flex-col tw:gap-5">
         {/* Identity */}
