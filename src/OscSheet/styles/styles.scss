@@ -227,6 +227,56 @@
   }
 }
 
+// --- conditional reveal ----------------------------------------------------
+// Generic show/hide fade any component can opt into: keep the element MOUNTED
+// and toggle `.is-out`. Mounted is the whole point — an element React has
+// unmounted cannot animate on its way out.
+//
+// Keyframes, not a transition, because the exit has to END in a non-rendered
+// state: opacity moves between the 1% and 99% stops, and the element goes
+// `visibility: hidden` at 100% (held by `forwards`). Opacity alone would leave
+// it clickable and tabbable; `visibility` — not `display` — is what keeps its
+// box, so the surrounding layout never reflows as it comes and goes.
+// `visibility: hidden` also takes it out of the tab order and the a11y tree.
+//
+// `.fade-in` doubles as the animation gate: something that starts life hidden
+// adds it only AFTER first paint, so opening a panel never flashes the thing it
+// means to keep hidden. `.is-out` on its own is the un-animated hidden state.
+// Repo-local (this sheet only); the vendored @osc/vellum copies stay untouched.
+// 0.12s ease is the speed the rest of the sheet already fades at.
+.is-out:not(.fade-in) {
+  visibility: hidden;
+}
+.fade-in {
+  animation: fade-in 0.12s ease;
+}
+.fade-in.is-out {
+  animation: fade-out 0.12s ease forwards;
+  pointer-events: none; // don't stay clickable through the fade-out
+}
+
+@keyframes fade-in {
+  0%,
+  1% { opacity: 0; }
+  99%,
+  100% { opacity: 1; }
+}
+@keyframes fade-out {
+  0%,
+  1% { opacity: 1; }
+  99% { opacity: 0; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+// Vestibular sensitivity: same end states, reached instantly.
+@media (prefers-reduced-motion: reduce) {
+  .fade-in { animation: none; }
+  .fade-in.is-out {
+    animation: none;
+    visibility: hidden;
+  }
+}
+
 // --- z-index scale --------------------------------------------------------
 // A small, ordered set of stacking layers so components reference an intent
 // (`--z-tooltip`) instead of a magic integer, and so a hover popover can never

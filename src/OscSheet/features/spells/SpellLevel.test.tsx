@@ -130,6 +130,18 @@ const type = (field: HTMLInputElement, value: string) =>
     field.dispatchEvent(new Event("input", { bubbles: true }));
     field.blur();
   });
+/** The reset group stays mounted and laid out so it can fade both ways and the
+ *  dialog never resizes; `.is-out` is the hidden state (opacity → visibility,
+ *  styles.scss). jsdom applies no CSS, so assert the class and the `inert`
+ *  attribute that backs it up — the latter is what actually proves the hidden
+ *  group is untabbable here. */
+const hidden = () => {
+  const group = q(".osc-slotdefaults");
+  if (!group) return null;
+  const out = group.classList.contains("is-out");
+  expect(group.hasAttribute("inert")).toBe(out);
+  return out;
+};
 const byLabel = (label: string) =>
   Array.from(host.querySelectorAll<HTMLButtonElement>(".modal button")).find(
     (b) => b.textContent?.trim() === label,
@@ -170,6 +182,27 @@ describe("slot maximum dialog", () => {
     expect(q(".modal-scrim > .modal.modal-inset.osc-slot-modal")).not.toBeNull();
     expect(text(".modal-body .field-label")).toBe("Level 1 spell slots:");
     expect(text(".osc-slotdefault")).toBe("Default 2");
+    // Sitting at the default: nothing to reset to, so the group is hidden —
+    // still mounted and holding its space, so the dialog doesn't resize.
+    expect(hidden()).toBe(true);
+    expect(q(".osc-slotdefaults")).not.toBeNull();
+  });
+
+  it("reveals the reset group only while the value differs from the default", () => {
+    render();
+    const field = openDialog();
+    expect(hidden()).toBe(true);
+    type(field, "5");
+    expect(hidden()).toBe(false);
+    // Link then trailing question mark, travelling together as one group.
+    const group = q<HTMLElement>(".osc-slotdefaults")!;
+    expect(Array.from(group.children).map((c) => c.className.split(" ")[0])).toEqual([
+      "inline-btn",
+      "icon-btn",
+    ]);
+    expect(q(".osc-slotinfo .fa-circle-info")).not.toBeNull();
+    type(field, "2");
+    expect(hidden()).toBe(true);
   });
 
   it("saves the typed value to the level's maximum", () => {
@@ -213,10 +246,12 @@ describe("slot maximum dialog", () => {
     const field = openDialog();
     type(field, "7");
     expect(field.value).toBe("7");
+    expect(hidden()).toBe(false);
     const line = q<HTMLButtonElement>(".osc-slotdefault")!;
     expect(line.tagName).toBe("BUTTON");
     act(() => line.click());
     expect(field.value).toBe("2");
+    expect(hidden()).toBe(true);
   });
 
   it("clamps a negative maximum to zero", () => {
@@ -227,16 +262,26 @@ describe("slot maximum dialog", () => {
     expect(updateActor).toHaveBeenCalledWith({ "system.spells.1.max": 0 });
   });
 
+  it("keeps the hidden group out of the tab order", () => {
+    render();
+    openDialog();
+    const group = q<HTMLElement>(".osc-slotdefaults")!;
+    expect(group.classList.contains("is-out")).toBe(true);
+    expect(group.hasAttribute("inert")).toBe(true);
+    expect(q<HTMLElement>(".osc-slotinfo")!.closest("[inert]")).toBe(group);
+  });
+
   it("offers no default line for an unrecognized class", () => {
     render(homebrew);
     expect(openDialog().value).toBe("0");
-    expect(q(".osc-slotdefault")).toBeNull();
+    expect(q(".osc-slotdefaults")).toBeNull();
+    expect(q(".osc-slotinfo")).toBeNull();
     expect(text(".modal-body")).toContain("No rulebook default");
   });
 
   it("offers no default line for a level past the class table", () => {
     render(offTable);
     expect(openDialog().value).toBe("0");
-    expect(q(".osc-slotdefault")).toBeNull();
+    expect(q(".osc-slotdefaults")).toBeNull();
   });
 });

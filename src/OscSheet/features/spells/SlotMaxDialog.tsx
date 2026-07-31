@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useOscSheetContext } from "@app/context";
 import { Button } from "@ui/Button";
+import { cx } from "@ui/cx";
 import { IconButton } from "@ui/IconButton";
 import { Field } from "@ui/Field";
 import { InlineButton } from "@ui/InlineButton";
@@ -29,6 +30,14 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
   const { actor, canEdit, updateActor } = useOscSheetContext();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(max);
+  // The group starts hidden whenever the value is already the default; animating
+  // that first paint would flash it on open, so the fade arms one frame later.
+  const [animate, setAnimate] = useState(false);
+  useEffect(() => {
+    if (!open) return setAnimate(false);
+    const id = requestAnimationFrame(() => setAnimate(true));
+    return () => cancelAnimationFrame(id);
+  }, [open]);
   if (!canEdit) return null;
 
   const label = `Edit Level ${level} slots`;
@@ -41,6 +50,8 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
   const tip =
     `Level ${charLevel} ${cls} — ${defaultMax} Level ${level} spell ` +
     `${defaultMax === 1 ? "slot" : "slots"} by default.`;
+  // Nothing to reset to while the field already holds the default.
+  const hidden = draft === defaultMax;
   const close = () => setOpen(false);
   const save = () => {
     void updateActor({ [slotMaxPath(level)]: draft });
@@ -79,7 +90,53 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
           </>
         }
       >
-        <Field label={`Level ${level} spell slots:`}>
+        <Field
+          label={`Level ${level} spell slots:`}
+          // The sub-input line rides in Field's own hint slot, so all three pieces
+          // stack on the ONE gap the primitive owns — no margin of ours to reconcile.
+          hint={
+            defaultMax == null ? (
+              <span className="tw:italic">
+                No rulebook default for this class and level — this level holds whatever you set
+                here.
+              </span>
+            ) : (
+              // Mounted and laid out whether or not it shows, so it can animate BOTH
+              // ways and the dialog never resizes around it; `.is-out` is the hidden
+              // state and `.fade-in` the animation (styles.scss). At the default there
+              // is nothing to reset to, so the link and its tooltip go together —
+              // keyed to the live field, not the stored value.
+              <span
+                className={cx(
+                  "osc-slotdefaults tw:inline-flex tw:items-center tw:gap-1",
+                  animate && "fade-in",
+                  hidden && "is-out",
+                )}
+                // Belt and braces with `visibility: hidden`: no tab stop and no
+                // hoverable tooltip even if the stylesheet never loads.
+                inert={hidden}
+              >
+                <InlineButton
+                  className="osc-slotdefault tw:underline tw:decoration-dotted tw:underline-offset-2"
+                  onClick={() => setDraft(defaultMax)}
+                >
+                  Default {defaultMax}
+                </InlineButton>
+                {/* Hover AND focus reveal the same sentence (HoverPop listens to both);
+                    the aria-label carries it for anyone who sees neither. */}
+                <IconButton size="sm" className="osc-slotinfo" aria-label={tip}>
+                  <i className="fa-solid fa-circle-info" aria-hidden="true" />
+                  <HoverPop
+                    align="center"
+                    className="osc-slot-tip tw:max-w-[220px] tw:font-sans tw:text-[length:var(--fs-xs)] tw:leading-snug tw:text-text-dim"
+                  >
+                    {tip}
+                  </HoverPop>
+                </IconButton>
+              </span>
+            )
+          }
+        >
           <NumberInput
             className="input mono osc-slotmax tw:w-[8ch]"
             value={draft}
@@ -87,34 +144,6 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
             onCommit={setDraft}
           />
         </Field>
-
-        <p className="tw:mt-3 tw:font-sans tw:text-[length:var(--fs-sm)] tw:text-text-mute">
-          {defaultMax == null ? (
-            <span className="tw:italic">
-              No rulebook default for this class and level — this level holds whatever you set here.
-            </span>
-          ) : (
-            <span className="tw:inline-flex tw:items-center tw:gap-1">
-              <InlineButton
-                className="osc-slotdefault tw:underline tw:decoration-dotted tw:underline-offset-2"
-                onClick={() => setDraft(defaultMax)}
-              >
-                Default {defaultMax}
-              </InlineButton>
-              {/* Hover AND focus reveal the same sentence (HoverPop listens to both);
-                  the aria-label carries it for anyone who sees neither. */}
-              <IconButton size="sm" className="osc-slotinfo" aria-label={tip}>
-                <i className="fa-solid fa-circle-info" aria-hidden="true" />
-                <HoverPop
-                  align="center"
-                  className="osc-slot-tip tw:max-w-[220px] tw:font-sans tw:text-[length:var(--fs-xs)] tw:leading-snug tw:text-text-dim"
-                >
-                  {tip}
-                </HoverPop>
-              </IconButton>
-            </span>
-          )}
-        </p>
       </Modal>
     </>
   );
