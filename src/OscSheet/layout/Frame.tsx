@@ -29,18 +29,19 @@ export function Frame({ tabs, active, onSelect, children, topbar, header, railEx
       <div className="osc-topbar">
         {topbar ?? <Placeholder label="Topbar" hint="Lv · XP · Rest · Level Up · Edit · Theme (P4a)" />}
       </div>
-      <div className="osc-body">
+      <div className="osc-body tw:relative tw:flex tw:min-h-0 tw:flex-1 tw:bg-bg">
         <div className="osc-sheet-body">
           {minibar}
           <div className="osc-pad">
             <div className="osc-twopane">
               <div className="osc-left">
                 {header ?? <Placeholder label="Header" hint="portrait · name · class · alignment · vitals (P4b)" />}
-                <div className="osc-rail-extra">
+                {/* hidden in the collapsed left column; relocates into the expanded rail */}
+                <div className="osc-rail-extra tw:hidden tw:@twopane/sheet:mt-3 tw:@twopane/sheet:block">
                   {railExtra ?? <Placeholder label="Saves & Skills" hint="D/W/P/B/S · exploration — expanded rail (P4d)" />}
                 </div>
               </div>
-              <div className="osc-right">
+              <div className="osc-right tw:min-w-0">
                 <TabBar tabs={tabs} active={active} onSelect={onSelect} />
                 <div id="osc-tabpanel" role="tabpanel">
                   {children}

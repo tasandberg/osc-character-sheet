@@ -4,6 +4,7 @@ import { SectionHeader } from "@ui/SectionHeader";
 import { IconButton } from "@ui/IconButton";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
+import { FLAVOUR } from "@features/abilities/classes";
 
 /** INT literacy/spoken mods resolve to localized labels on the actor; compose a flavour line. */
 function useFlavour(): string | null {
@@ -74,9 +75,11 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
         }
       />
 
-      <div className="osc-langs">
+      <div className="osc-langs tw:flex tw:flex-wrap tw:items-center tw:gap-1">
         {current.length === 0 && !editing && (
-          <span className="osc-langs-empty">None</span>
+          <span className="osc-langs-empty tw:font-serif tw:text-sm tw:italic tw:text-text-faint">
+            None
+          </span>
         )}
         {current.map((lang) => (
           <Tag
@@ -90,9 +93,9 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
       </div>
 
       {editing && (
-        <div className="osc-lang-add">
+        <div className="osc-lang-add tw:mt-3 tw:flex tw:items-center tw:gap-2">
           <input
-            className="osc-lang-input"
+            className="osc-lang-input tw:max-w-[220px] tw:min-w-0 tw:flex-1 tw:rounded-sm tw:border tw:border-border-soft tw:bg-bg-2 tw:px-2 tw:py-1 tw:font-mono tw:text-xs tw:text-text tw:placeholder:text-text-faint tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-gold"
             type="text"
             list="osc-lang-choices"
             placeholder="Add a language…"
@@ -122,7 +125,7 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
         </div>
       )}
 
-      {flavour && <p className="osc-flavour">{flavour}</p>}
+      {flavour && <p className={FLAVOUR}>{flavour}</p>}
     </section>
   );
 }

@@ -23,6 +23,16 @@ import {
 import { usesAscendingAC } from "@domain/chat/targeting";
 import type { OSESave } from "@domain/types";
 import { HitDiceField } from "./HitDiceField";
+import {
+  ED_FIELD,
+  ED_HINT,
+  LAB_ID,
+  LAB_SKILL,
+  SPAN_2,
+  SPAN_3,
+  SPAN_4,
+  SPAN_COMBO,
+} from "./classes";
 
 const SOURCE_TAG = {
   advanced: ["ADV", "teal", "Advanced Fantasy"],
@@ -137,22 +147,25 @@ export function EditModal({
       footer={footer}
       className="fe-modal"
     >
-      <div className="fe-modal-body">
+      <div className="fe-modal-body tw:flex tw:flex-col tw:gap-5">
         {/* Identity */}
-        <div className="ed-sec">
+        <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
           <SectionTitle>
             Identity &amp; Vitals:{" "}
-            <em className="ed-id-class">
+            {/* real serif italic — the display face is small-caps with no true
+                italic — slightly dimmed as an annotation */}
+            <em className="ed-id-class tw:font-serif tw:italic tw:text-text-dim">
               {sys.details.class.replace(/-/g, " ")}
             </em>
           </SectionTitle>
-          <div className="ed-id-grid">
+          <div className="ed-id-grid tw:flex-auto tw:min-w-0 tw:grid tw:grid-cols-12 tw:gap-[14px] tw:content-start">
             <PortraitField
+              className="tw:col-start-1 tw:col-span-3 tw:row-start-1 tw:row-span-2 tw:@max-[560px]/fwin:row-span-1"
               src={actor.img}
               onPick={(path) => set("img", path)}
             />
-            <label className="ed-field" style={{ gridColumn: "span 3" }}>
-              <span className="lab">Name</span>
+            <label className={`${ED_FIELD} ${SPAN_3}`}>
+              <span className={LAB_ID}>Name</span>
               <ValidatedInput
                 className="input"
                 value={actor.name}
@@ -160,9 +173,9 @@ export function EditModal({
                 onCommit={(v) => set("name", v)}
               />
             </label>
-            <label className="ed-field" style={{ gridColumn: "span 4" }}>
-              <span className="lab">
-                Class <span className="hint">GM</span>
+            <label className={`${ED_FIELD} ${SPAN_COMBO}`}>
+              <span className={LAB_ID}>
+                Class <span className={ED_HINT}>GM</span>
               </span>
               <Combobox
                 disabled={!isGM}
@@ -178,8 +191,8 @@ export function EditModal({
                 newOptionLabel={(q) => `Custom: “${q}”`}
               />
             </label>
-            <label className="ed-field" style={{ gridColumn: "span 2" }}>
-              <span className="lab">Level</span>
+            <label className={`${ED_FIELD} ${SPAN_2}`}>
+              <span className={LAB_ID}>Level</span>
               <NumberInput
                 className="input mono"
                 value={level}
@@ -188,8 +201,8 @@ export function EditModal({
                 onCommit={(n) => set("system.details.level", n)}
               />
             </label>
-            <label className="ed-field" style={{ gridColumn: "span 3" }}>
-              <span className="lab">Title</span>
+            <label className={`${ED_FIELD} ${SPAN_3}`}>
+              <span className={LAB_ID}>Title</span>
               <ValidatedInput
                 className="input"
                 value={sys.details.title}
@@ -197,8 +210,8 @@ export function EditModal({
                 onCommit={(v) => set("system.details.title", v)}
               />
             </label>
-            <label className="ed-field" style={{ gridColumn: "span 4" }}>
-              <span className="lab">Alignment</span>
+            <label className={`${ED_FIELD} ${SPAN_COMBO}`}>
+              <span className={LAB_ID}>Alignment</span>
               <Combobox
                 value={sys.details.alignment}
                 options={ALIGNMENTS.map((a) => ({ value: a, label: a }))}
@@ -209,7 +222,7 @@ export function EditModal({
             </label>
 
             <HitDiceField
-              style={{ gridColumn: "span 2" }}
+              className={SPAN_2}
               actor={actor}
               hdVal={hdVal}
               hdDefault={hdDefault}
@@ -223,8 +236,8 @@ export function EditModal({
                 )
               }
             />
-            <label className="ed-field" style={{ gridColumn: "span 3" }}>
-              <span className="lab">Current XP</span>
+            <label className={`${ED_FIELD} ${SPAN_3}`}>
+              <span className={LAB_ID}>Current XP</span>
               <NumberInput
                 className="input mono"
                 value={sys.details.xp.value}
@@ -232,8 +245,8 @@ export function EditModal({
                 onCommit={(n) => set("system.details.xp.value", n)}
               />
             </label>
-            <label className="ed-field" style={{ gridColumn: "span 3" }}>
-              <span className="lab">Next Level</span>
+            <label className={`${ED_FIELD} ${SPAN_3}`}>
+              <span className={LAB_ID}>Next Level</span>
               <NumberInput
                 className="input mono"
                 value={sys.details.xp.next}
@@ -254,8 +267,8 @@ export function EditModal({
                 />
               )}
             </label>
-            <label className="ed-field" style={{ gridColumn: "span 3" }}>
-              <span className="lab">Current HP</span>
+            <label className={`${ED_FIELD} ${SPAN_3}`}>
+              <span className={LAB_ID}>Current HP</span>
               <NumberInput
                 className="input mono"
                 value={sys.hp.value}
@@ -264,8 +277,8 @@ export function EditModal({
                 onCommit={(n) => set("system.hp.value", n)}
               />
             </label>
-            <label className="ed-field" style={{ gridColumn: "span 2" }}>
-              <span className="lab">Max HP</span>
+            <label className={`${ED_FIELD} ${SPAN_2}`}>
+              <span className={LAB_ID}>Max HP</span>
               <NumberInput
                 className="input mono"
                 value={sys.hp.max}
@@ -274,8 +287,8 @@ export function EditModal({
               />
             </label>
 
-            <div className="ed-field" style={{ gridColumn: "span 3" }}>
-              <span className="lab">Initiative Mod</span>
+            <div className={`${ED_FIELD} ${SPAN_3}`}>
+              <span className={LAB_ID}>Initiative Mod</span>
               <NumberInput
                 className="input mono"
                 value={initEff}
@@ -294,8 +307,8 @@ export function EditModal({
               />
             </div>
 
-            <div className="ed-field" style={{ gridColumn: "span 3" }}>
-              <span className="lab">{atkLabel}</span>
+            <div className={`${ED_FIELD} ${SPAN_3}`}>
+              <span className={LAB_ID}>{atkLabel}</span>
               <NumberInput
                 className="input mono"
                 value={atkVal}
@@ -316,8 +329,8 @@ export function EditModal({
               )}
             </div>
 
-            <div className="ed-field" style={{ gridColumn: "span 4" }}>
-              <span className="lab">Base Movement</span>
+            <div className={`${ED_FIELD} ${SPAN_4}`}>
+              <span className={LAB_ID}>Base Movement</span>
               <NumberInput
                 className="input mono"
                 value={moveShown}
@@ -339,9 +352,9 @@ export function EditModal({
         </div>
 
         {/* Ability Scores */}
-        <div className="ed-sec">
+        <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
           <SectionTitle hint="raw scores">Ability Scores</SectionTitle>
-          <div className="ed-cells ed-abil">
+          <div className="ed-cells ed-abil tw:grid tw:gap-2 tw:grid-cols-6 tw:@max-[520px]/fwin:grid-cols-3">
             {ABIL_ORDER.map((k) => {
               const req = defaults.requirements[k];
               const below = req != null && sys.scores[k].value < req;
@@ -371,11 +384,11 @@ export function EditModal({
         </div>
 
         {/* Saving Throws */}
-        <div className="ed-sec">
+        <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
           <SectionTitle hint="roll ≥ target · default shown">
             Saving Throws
           </SectionTitle>
-          <div className="ed-cells ed-save">
+          <div className="ed-cells ed-save tw:grid tw:gap-2 tw:grid-cols-5">
             {SAVE_DEFS.map(({ k, n }) => {
               const def = defaults.saves?.[k] ?? null;
               const value = sys.saves[k].value;
@@ -408,12 +421,12 @@ export function EditModal({
         </div>
 
         {/* Exploration */}
-        <div className="ed-sec">
+        <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
           <SectionTitle hint="1-in-6 chances">Exploration</SectionTitle>
-          <div className="ed-skills">
+          <div className="ed-skills tw:grid tw:grid-cols-2 tw:gap-x-[14px] tw:gap-y-3 tw:@max-[520px]/fwin:grid-cols-1">
             {SKILL_DEFS.map(({ k, n }) => (
-              <label className="ed-field" key={k}>
-                <span className="lab">{n}</span>
+              <label className={ED_FIELD} key={k}>
+                <span className={LAB_SKILL}>{n}</span>
                 <select
                   className="input mono"
                   value={sys.exploration[k]}

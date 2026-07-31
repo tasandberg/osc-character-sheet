@@ -47,12 +47,20 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
 
   return (
     <div ref={ref} className={`osc-minibar${collapsed ? " is-collapsed" : ""}`} aria-hidden={!collapsed}>
-      <img className="osc-mb-portrait" src={identity.img || undefined} alt="" />
-      <div className="osc-mb-ident">
-        <div className="osc-mb-name">{identity.name}</div>
-        <div className="osc-mb-class">{identity.classLabel} {identity.level}</div>
+      <img
+        className="osc-mb-portrait tw:h-8 tw:w-8 tw:flex-none tw:rounded-sm tw:border tw:border-border-soft tw:object-cover"
+        src={identity.img || undefined}
+        alt=""
+      />
+      <div className="osc-mb-ident tw:min-w-0 tw:flex-auto">
+        <div className="osc-mb-name tw:truncate tw:font-display tw:text-[length:var(--fs-md)] tw:leading-tight tw:text-text">
+          {identity.name}
+        </div>
+        <div className="osc-mb-class tw:truncate tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute">
+          {identity.classLabel} {identity.level}
+        </div>
       </div>
-      <div className="osc-mb-vitals">
+      <div className="osc-mb-vitals tw:flex tw:flex-none tw:items-center tw:gap-2">
         <div className="osc-mb-hp">
           {/* hover swaps label/max → −/+ steppers; grid-stacked so width never shifts */}
           <span className="osc-mb-hp-slot">
@@ -80,7 +88,9 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
             <span className="osc-mb-hp-input osc-mb-hp-static">{vitals.hp.value}</span>
           )}
           <span className="osc-mb-hp-slot">
-            <span className="osc-mb-hp-max">/{vitals.hp.max}</span>
+            <span className="osc-mb-hp-max tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute">
+              /{vitals.hp.max}
+            </span>
             {onSetHp && (
               <button
                 type="button"
@@ -96,7 +106,9 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
         </div>
         <div className="osc-mb-ac">
           <Stamp className="osc-mb-stamp">AC</Stamp>
-          <span className="osc-mb-ac-v">{vitals.ac.value}</span>
+          <span className="osc-mb-ac-v tw:font-display tw:text-[length:var(--fs-2xl)] tw:leading-flush tw:text-teal">
+            {vitals.ac.value}
+          </span>
         </div>
       </div>
     </div>

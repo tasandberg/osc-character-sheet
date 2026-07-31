@@ -1,30 +1,15 @@
 // Notes tab. View mode renders Foundry-enriched rich text in our own static card
 // (natural flow → fits content, page scrolls). A pencil swaps in Foundry's
 // <prose-mirror> for editing; its Save persists and returns to the static view.
-
-.osc-notes-tab {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacer-5, 20px);
-}
-
-// ── Static view card ───────────────────────────────────────────────────────
-.osc-rich-text {
-  position: relative;
-  max-width: 640px; // comfortable reading measure, not the full tab width
-  background: var(--bg-2, #1f1c17); // subtle: barely lifted off the page
-  border: 1px solid var(--border-soft, #2c2823);
-  border-radius: var(--r-md, 6px);
-  padding: var(--spacer-2, 8px) var(--spacer-3, 12px);
-}
-// Edit pencil, pinned top-right. Qualified with .osc-rich-text (0,2,0) so `position`
-// beats the `.osc-sheet-app :is(button,…) { all: unset }` reset (0,1,1) —
-// otherwise it resets to static and drops into normal flow above the text.
-.osc-rich-text .osc-rich-text-edit { position: absolute; top: var(--spacer-2, 8px); right: var(--spacer-2, 8px); z-index: 2; }
-// Shared prose typography (.osc-rich-text-body) lives in rich-text.scss.
-.osc-rich-text-empty { margin: 0; color: var(--text-faint, #8a8270); font-style: italic; }
+//
+// The tab, the card and the pencil are `tw:` utilities on the markup
+// (NotesView / EditableContent). What survives here is the <prose-mirror>
+// reshaping below: selectors reaching into Foundry-rendered internals, which no
+// utility can carry.
 
 // ── Edit mode (Foundry <prose-mirror>) ─────────────────────────────────────
+// Reading measure matches the view card. Set here rather than as a utility
+// because the element belongs to the shared <ProseMirrorEditor>, not to Notes.
 .osc-prosemirror { max-width: 640px; }
 .osc-prosemirror prose-mirror {
   border: 1px solid var(--border-soft, #2c2823);

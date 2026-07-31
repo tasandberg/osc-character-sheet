@@ -10,13 +10,7 @@
   padding: var(--spacer-2) var(--spacer-4);
 }
 
-.osc-body {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  position: relative;
-  background: var(--bg);
-}
+// .osc-body is utilities in Frame.tsx.
 
 .osc-sheet-body {
   flex: 1;
@@ -39,26 +33,11 @@
   border-bottom: 1px solid var(--border-soft, #2c2823);
   margin-bottom: 3px;
 }
-.osc-right { min-width: 0; }
+// .osc-right's min-width: 0 is a utility in Frame.tsx.
 
 // ----- vertical right-edge tab rail (narrow default) -----
-.osc-tabrail {
-  flex: 0 0 auto;
-  width: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  // No top padding: the first/active tab sits flush against the top bar.
-  // (The 14px the prototype used reads as a stray light block in cream.)
-  padding-top: 0;
-  gap: var(--spacer-1);
-  background: var(--bg-2, #1f1c17);
-  border-left: 1px solid var(--border, #3a342c);
-}
-// Qualified with .osc-tabrail so these win over the `.osc-sheet-app button`
-// reset (0,1,1) in styles.scss — otherwise `all: unset` strips writing-mode/flex
-// and the label renders as clipped horizontal text instead of the vertical rail.
-.osc-tabrail .osc-tab {
+// The rail box and its two hide gates (xs / lg) are utilities in TabRail.tsx.
+.osc-tab {
   position: relative;
   flex: 0 0 auto;
   min-height: 96px;
@@ -105,9 +84,8 @@
 .osc-tab.active .osc-tab-ic { color: var(--gold); }
 
 // ----- bottom nav bar (XS only; hidden by default) -----
-.osc-bottombar { display: none; }
-// Qualified with .osc-bottombar so these beat the .osc-sheet-app button reset (0,1,1).
-.osc-bottombar .osc-botbtn {
+// The bar box and its XS reveal are utilities in BottomBar.tsx.
+.osc-botbtn {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -126,21 +104,21 @@
   letter-spacing: 0.03em;
   transition: color 0.12s;
 }
-.osc-bottombar .osc-botbtn-ic {
+.osc-botbtn-ic {
   font-size: var(--fs-lg, 16px);
   color: var(--gold-dim, var(--gold));
   line-height: 1;
 }
-.osc-bottombar .osc-botbtn-lbl { line-height: 1; }
-.osc-bottombar .osc-botbtn:hover { color: var(--text-dim, #b5ad97); }
-.osc-bottombar .osc-botbtn.active {
+.osc-botbtn-lbl { line-height: 1; }
+.osc-botbtn:hover { color: var(--text-dim, #b5ad97); }
+.osc-botbtn.active {
   color: var(--gold);
   border-top-color: var(--gold);
 }
-.osc-bottombar .osc-botbtn.active .osc-botbtn-ic { color: var(--gold); }
+.osc-botbtn.active .osc-botbtn-ic { color: var(--gold); }
 
 // ----- horizontal tab bar (shown when wide) -----
-.osc-htabs { display: none; }
+// The bar box and its lg reveal are utilities in TabBar.tsx.
 
 // ----- placeholder layout region -----
 .osc-placeholder {
@@ -158,17 +136,11 @@
   background: color-mix(in srgb, var(--surface, #23201a) 40%, transparent);
 }
 .osc-placeholder + .osc-placeholder { margin-top: var(--spacer-3); }
-.osc-ph-label {
-  font-family: var(--sans);
-  font-size: var(--fs-sm, 13px);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-.osc-ph-hint { font-size: var(--fs-3xs, 10px); color: var(--text-faint, #6a6354); }
+// .osc-ph-label / .osc-ph-hint type is utilities in Placeholder.tsx.
 
 // Saves & Skills relocates: hidden in the left column when collapsed (it renders
 // inside the Actions tab content there), shown in the left rail when expanded.
-.osc-rail-extra { display: none; }
+// Both states are utilities in Frame.tsx.
 // Saves & Exploration show inside the Actions body when collapsed; the matching
 // @container rule below hides them once they relocate into the expanded rail.
 .actions-only { display: block; }
@@ -211,7 +183,6 @@
     overflow-y: auto;
     overflow-x: hidden; // never a horizontal scrollbar — over-wide content clips, not scrolls
   }
-  .osc-rail-extra { display: block; margin-top: var(--spacer-3); }
   .actions-only { display: none; }
 
   // header band reflow in the narrow left rail — stack: portrait, name, HP/AC, Init/HD/Move
@@ -252,15 +223,7 @@
 // Center tabs replace the right rail exactly when the two-pane engages.
 // sheet two-pane = 700; rail is 40px wide, so sheet 700 ⟺ app ≈ 740.
 @container app (min-width: 740px) {
-  .osc-tabrail { display: none; }
-  .osc-htabs {
-    display: flex;
-    gap: var(--spacer-1);
-    margin-bottom: var(--spacer-4);
-    border-bottom: 2px solid var(--border, #3a342c);
-  }
-  // Qualified (see .osc-tabrail .osc-tab note) so it beats the button reset.
-  .osc-htabs .osc-htab {
+  .osc-htab {
     display: inline-flex;
     align-items: center;
     gap: var(--spacer-2); // 7→8 (nearest token)
@@ -296,13 +259,6 @@
 // XS nav swap only — the header + topbar XS overrides live in actions.scss (after
 // the base rules) so they win the cascade; shell.scss loads first and would lose.
 @container app (max-width: 479px) {
-  .osc-tabrail { display: none; }
-  .osc-bottombar {
-    display: flex;
-    flex: 0 0 auto;
-    border-top: 1px solid var(--border, #3a342c);
-    background: var(--bg-2, #1f1c17);
-  }
   // content clears the bottom bar
   .osc-sheet-body { padding-bottom: var(--spacer-1); }
   .osc-pad { padding-bottom: 68px; } // 68px = bottom-bar height clearance; no clean token
