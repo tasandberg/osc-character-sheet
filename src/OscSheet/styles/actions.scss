@@ -143,9 +143,8 @@
 
 // --- abilities: 3-up (6-up wide) grid of ability plaques ---
 // The plaque box + stamp/value/mod styling lives in vellum as `.plaque-ability`
-// (StatPlaque variant="ability"); the grid container is now utilities on
-// AbilityPlaques.tsx. `.osc-abilities` stays on the element as a hook. XS
-// flattens the plaques — see the container block at the bottom.
+// (StatPlaque variant="ability"). The grid container is in actions-features.scss
+// — AbilityPlaques.tsx is NOT converted. XS flattens the plaques (block below).
 
 // --- section title override (prototype: 2px border-bottom, not 3px thick) ---
 // STAYS SCSS, and cannot move. This is a blanket override of the vellum
@@ -182,11 +181,8 @@
   letter-spacing: 0;
 }
 
-// --- saves/exploration tab nav (rail, large view) — keeps the column above the fold ---
-// Nav + tabs are now utilities on SavesExploration.tsx. The `.osc-se-nav`
-// qualification that used to pad every tab selector is gone: it existed only to
-// beat `.osc-sheet-app :is(button,…) { all: unset }`, and that reset now sits in
-// `@layer base`, which unlayered utilities out-rank. Nothing is left to keep.
+// --- saves/exploration tab nav (rail, large view) ---
+// Nav + tabs are in actions-features.scss; SavesExploration.tsx is NOT converted.
 
 // --- saves & exploration cards (rows → cards) ---
 // Saves: 5-up grid of ink-stamp · mono target · tiny label. The save-card box +
@@ -194,11 +190,13 @@
 // vellum as `.plaque-save` (StatPlaque variant="save"); `display:grid` and the
 // gap are utilities on the containers.
 //
-// Only the column templates stay here, and deliberately: the rail variants below
-// are parent-context overrides (`.osc-rail-extra .fvtt-saves`), which no utility
-// can express. At (0,2,0) they tie with a scoped utility and utilities are
-// imported last — so a `tw:grid-cols-5` on the element would silently beat the
-// rail's 3-up and the column would overflow.
+// NOT converted. The column templates are here; the grid itself, the cards and
+// the tab nav are in actions-features.scss — restored, because the deletion that
+// took them assumed a conversion of SavesExploration.tsx that never happened.
+//
+// The templates would stay here regardless: the rail variants below are
+// parent-context overrides (`.osc-rail-extra .fvtt-saves`), which no utility can
+// express, and at (0,2,0) they tie with a scoped utility that is imported last.
 .fvtt-saves {
   grid-template-columns: repeat(5, 1fr);
 }
@@ -216,24 +214,21 @@
 .osc-rail-extra .fvtt-explore {
   grid-template-columns: 1fr;
 }
-// Box, type and spacing are utilities on ExplorationGrid; the roll affordance
-// stays here because `.fvtt-skill.rollable:hover` (0,3,0) has to out-rank the
-// base surface utilities (0,2,0) — a `tw:hover:` variant would tie with them and
-// win only by Tailwind's own ordering, not by anything this file controls.
+// Box, type and spacing are in actions-features.scss (ExplorationGrid is NOT
+// converted). Only the roll affordance stays here.
 .fvtt-skill {
   @include rollable-card;
 }
 
 // --- memorized spells quick-cast ---
-// Container (`.fvtt-castlist`) is utilities on MemorizedSpells; the rows reuse
-// the Spells-tab `.osc-spell` (see spells.scss). The cast/spent control is the
-// shared Vellum <Button variant="outline" tone="brass">; its centring and its
-// fixed pill width are utilities on SpellRow. The `.osc-sheet-app` that used to
-// qualify `.sp-cast` was a reset qualification and is gone with it.
+// `.fvtt-castlist` and the cast control's centring/pill width are in
+// actions-features.scss (MemorizedSpells is NOT converted). The rows reuse the
+// Spells-tab `.osc-spell` (see spells.scss).
 
 // --- attacks: woodcut weapon cards (ported from prototype .fvtt-weapon) ---
 // Card grid: Item (icon + name/tags) | Hit | Damage | tall brass Atk button.
-// `.osc-wtable` is utilities on AttacksTable.
+// AttacksTable is NOT converted — `.osc-wtable` and the card's box, info column,
+// monogram, name, tags and hit/dmg cells are in actions-features.scss.
 //
 // NOTE: `.osc-whdr` has no markup — AttacksTable renders no column-header row —
 // so the rule below is live for `.osc-weapon` only. Left as found rather than
@@ -265,10 +260,9 @@
   text-align: center;
 }
 
-// The card box, its info column, the monogram, the name and the tag strip are
-// all utilities on AttacksTable (see WeaponRow). What's left of the weapon card
-// below is the segmented kind switch's corner maths, the segment colour states,
-// and the `& + &` divider — none of which a utility can say.
+// What's left of the weapon card below is the segmented kind switch's corner
+// maths, the segment colour states, and the `& + &` divider — none of which a
+// utility can say. The card's own box is in actions-features.scss.
 //
 // `.wname-btn` keeps one declaration: the reset gives a button
 // `font-family: var(--sans)`, and there is no font-family utility to inherit
@@ -284,9 +278,9 @@
 // kind switch — when a weapon has BOTH melee+missile, the two kinds become a
 // joined segmented control (unmistakably a switch, not a quality chip). The
 // selected segment fills SOLID with its accent; the other is a hoverable button.
-// The switch's own box is utilities; only the end-cap radius maths stays — it is
-// a calc off --r-sm on `> :first-child` / `> :last-child`, which is structural
-// position, not a class the JSX can carry.
+// The switch's own box is in actions-features.scss; only the end-cap radius
+// maths stays — a calc off --r-sm on `> :first-child` / `> :last-child`, which is
+// structural position, not a class the JSX can carry.
 .kind-switch {
   // no overflow: hidden — it clipped the segs' .tag-pop hover tooltips; the
   // end segments round their own outer corners instead
@@ -297,7 +291,7 @@
     border-radius: 0 calc(var(--r-sm, 4px) - 1px) calc(var(--r-sm, 4px) - 1px) 0;
   }
 }
-// Segment layout is utilities. The FILL states stay here on purpose: the
+// Segment layout is in actions-features.scss. The FILL states stay here: the
 // selected fill has to out-rank the hover fill, and both would be class-level
 // utilities at (0,2,0) / (0,3,0) whose relative order Tailwind decides — so
 // `hover:bg-surface-2` could paint over a selected segment. As SCSS the
@@ -368,11 +362,7 @@
 }
 
 // Hit / Damage — plain clickable cells: a small HIT/DMG label over the value
-// (hit = mode icon + modifier; dmg = full formula), with a full-formula popover.
-// Wholly utilities now (see WeaponRow); the hit/dmg hover colours are written as
-// two exclusive strings there rather than one base plus a `.dmg` override, since
-// Tailwind — not the element's class order — decides which colour utility wins.
-// The `.osc-sheet-app` qualification went with them: it only beat the reset.
+// (hit = mode icon + modifier; dmg = full formula). In actions-features.scss.
 
 // compact brass "Attack" button (composite hit + damage via OSE weapon dialog)
 // NOTE: no markup carries `.fvtt-atk` — AttacksTable renders the shared Vellum
