@@ -2,7 +2,7 @@
 import type { InventorySortKey } from "@domain/vm-types";
 import { SortHeader } from "@features/inventory/SortHeader";
 import { loadHeading } from "@features/inventory/groups";
-import { INV_ROW, MICRO_LABEL } from "@features/inventory/rows/classes";
+import { INV_HEADROW, MICRO_LABEL } from "@features/inventory/rows/classes";
 import type { SortState } from "@features/inventory/types";
 import { cx } from "@ui/cx";
 
