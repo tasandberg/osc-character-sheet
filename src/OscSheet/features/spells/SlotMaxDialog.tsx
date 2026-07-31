@@ -4,6 +4,7 @@ import { Button } from "@ui/Button";
 import { IconButton } from "@ui/IconButton";
 import { Field } from "@ui/Field";
 import { InlineButton } from "@ui/InlineButton";
+import { HoverPop } from "@ui/HoverPop";
 import { Modal } from "@ui/Modal";
 import { NumberInput } from "@ui/NumberInput";
 import { normalizeClassName } from "@domain/classRules";
@@ -31,10 +32,15 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
   if (!canEdit) return null;
 
   const label = `Edit Level ${level} slots`;
-  // Canonical class name + character level — the same "Cleric 3" the header shows.
-  // Only ever rendered when a default resolved, so the class is one we matched.
+  // Canonical class name — the same spelling the header shows. Only ever read
+  // when a default resolved, so the class is one the tables matched.
   const { class: rawClass, level: charLevel } = actor.system.details;
-  const who = `${normalizeClassName(rawClass) ?? rawClass} ${charLevel}`;
+  const cls = normalizeClassName(rawClass) ?? rawClass;
+  // No article and no pluralised class name: OseClass carries neither a plural
+  // nor an article, and both would mangle names like Elf, Assassin or a custom class.
+  const tip =
+    `Level ${charLevel} ${cls} — ${defaultMax} Level ${level} spell ` +
+    `${defaultMax === 1 ? "slot" : "slots"} by default.`;
   const close = () => setOpen(false);
   const save = () => {
     void updateActor({ [slotMaxPath(level)]: draft });
@@ -88,12 +94,25 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
               No rulebook default for this class and level — this level holds whatever you set here.
             </span>
           ) : (
-            <InlineButton
-              className="osc-slotdefault tw:underline tw:decoration-dotted tw:underline-offset-2"
-              onClick={() => setDraft(defaultMax)}
-            >
-              Default for {who}: {defaultMax}
-            </InlineButton>
+            <span className="tw:inline-flex tw:items-center tw:gap-1">
+              <InlineButton
+                className="osc-slotdefault tw:underline tw:decoration-dotted tw:underline-offset-2"
+                onClick={() => setDraft(defaultMax)}
+              >
+                Default {defaultMax}
+              </InlineButton>
+              {/* Hover AND focus reveal the same sentence (HoverPop listens to both);
+                  the aria-label carries it for anyone who sees neither. */}
+              <IconButton size="sm" className="osc-slotinfo" aria-label={tip}>
+                <i className="fa-solid fa-circle-info" aria-hidden="true" />
+                <HoverPop
+                  align="center"
+                  className="osc-slot-tip tw:max-w-[220px] tw:font-sans tw:text-[length:var(--fs-xs)] tw:leading-snug tw:text-text-dim"
+                >
+                  {tip}
+                </HoverPop>
+              </IconButton>
+            </span>
           )}
         </p>
       </Modal>

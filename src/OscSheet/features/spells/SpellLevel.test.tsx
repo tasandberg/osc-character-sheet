@@ -169,7 +169,7 @@ describe("slot maximum dialog", () => {
     // structure that selector needs, since jsdom applies no CSS.
     expect(q(".modal-scrim > .modal.modal-inset.osc-slot-modal")).not.toBeNull();
     expect(text(".modal-body .field-label")).toBe("Level 1 spell slots:");
-    expect(text(".osc-slotdefault")).toBe("Default for Cleric 3: 2");
+    expect(text(".osc-slotdefault")).toBe("Default 2");
   });
 
   it("saves the typed value to the level's maximum", () => {
@@ -187,10 +187,25 @@ describe("slot maximum dialog", () => {
     expect(updateActor).not.toHaveBeenCalled();
   });
 
-  it("names the class canonically, whatever case it was stored in", () => {
+  it("spells the detail out in the info tooltip, class named canonically", () => {
     render(lowercase);
     openDialog();
-    expect(text(".osc-slotdefault")).toBe("Default for Cleric 3: 2");
+    expect(text(".osc-slot-tip")).toBe("Level 3 Cleric — 2 Level 1 spell slots by default.");
+  });
+
+  it("reaches the tooltip without a mouse: focusing the icon opens it", () => {
+    render();
+    openDialog();
+    const info = q<HTMLButtonElement>(".osc-slotinfo")!;
+    const pop = q<HTMLElement>(".osc-slot-tip")!;
+    // Same sentence on the accessible name, so it is never mouse-only.
+    expect(info.getAttribute("aria-label")).toBe(pop.textContent);
+    expect(info.tabIndex).toBe(0);
+    expect(pop.hasAttribute("data-open")).toBe(false);
+    act(() => info.focus());
+    expect(pop.hasAttribute("data-open")).toBe(true);
+    act(() => info.blur());
+    expect(pop.hasAttribute("data-open")).toBe(false);
   });
 
   it("puts the class default back when the default line is clicked", () => {
