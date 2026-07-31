@@ -4,6 +4,7 @@ import type { OseSpell } from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
 import { spellMeta, castFree, isFavorite, toggleFavorite } from "@features/spells/spells";
 import { SpellRow } from "@features/spells/SpellRow";
+import { SlotMaxField } from "@features/spells/SlotMaxField";
 import { cx } from "@ui/cx";
 import { Pips } from "@ui/Pips";
 
@@ -15,6 +16,8 @@ const HEAD =
 const HEAD_LV =
   "lv tw:rounded-sm tw:bg-ink tw:px-2 tw:pt-[3px] tw:pb-[2px] tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.06em] tw:text-stamp-text";
 const HEAD_SC = "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
+/** Same readout, but the max is an input — so it lays its parts out itself. */
+const HEAD_SC_ROW = `${HEAD_SC} tw:inline-flex tw:items-center tw:gap-1`;
 
 /** Spellbook entry — a dashed card, clickable (button) when the sheet is
  *  editable and static (span) when it isn't. */
@@ -29,8 +32,13 @@ const BOOKSPELL =
  */
 export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   const { actor, canEdit } = useOscSheetContext();
-  const { level, slots, occupied, prepared, spellbook, freeCasting, points } = vm;
+  const { level, slots, defaultMax, overridden, occupied, prepared, spellbook, freeCasting, points } =
+    vm;
   const [bookOpen, setBookOpen] = useState(false);
+
+  const slotMax = (
+    <SlotMaxField level={level} max={slots.max} defaultMax={defaultMax} overridden={overridden} />
+  );
 
   const meta = (spell: OseSpell) =>
     spellMeta(spell).map((p) => (
@@ -45,8 +53,10 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
       <div className="osc-spelllevel">
         <div className={HEAD}>
           <span className={HEAD_LV}>Level {level}</span>
-          <span className={HEAD_SC}>
-            {points.max - points.used} / {points.max} remaining
+          <span className={HEAD_SC_ROW}>
+            <span>{points.max - points.used} /</span>
+            {slotMax}
+            <span>remaining</span>
           </span>
           <Pips
             total={points.max}
@@ -111,8 +121,10 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
     <div className="osc-spelllevel">
       <div className={HEAD}>
         <span className={HEAD_LV}>Level {level}</span>
-        <span className={HEAD_SC}>
-          {slots.used} / {slots.max} ready
+        <span className={HEAD_SC_ROW}>
+          <span>{slots.used} /</span>
+          {slotMax}
+          <span>ready</span>
         </span>
         <Pips
           total={slots.max}
