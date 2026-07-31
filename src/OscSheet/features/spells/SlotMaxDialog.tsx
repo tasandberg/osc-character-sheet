@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOscSheetContext } from "@app/context";
 import { Button } from "@ui/Button";
 import { IconButton } from "@ui/IconButton";
+import { Field } from "@ui/Field";
 import { InlineButton } from "@ui/InlineButton";
 import { Modal } from "@ui/Modal";
 import { NumberInput } from "@ui/NumberInput";
@@ -18,9 +19,9 @@ type Props = {
 /**
  * Pencil in the level head → a dialog that sets this level's slot maximum.
  * The class tables can't describe custom classes or house rules, so the stored
- * value always wins; "Set to default" puts the rulebook number back, and the
- * whole default row is dropped when there is no matching class+level entry.
- * Renders nothing on a read-only sheet.
+ * value always wins; the default line doubles as the button that puts the
+ * rulebook number back, and drops out entirely when no class+level entry
+ * resolves. Renders nothing on a read-only sheet.
  */
 export function SlotMaxDialog({ level, max, defaultMax }: Props) {
   const { canEdit, updateActor } = useOscSheetContext();
@@ -66,30 +67,27 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
           </>
         }
       >
-        <label className="tw:flex tw:items-center tw:gap-3">
+        <Field label={`Level ${level} spell slots:`}>
           <NumberInput
-            className="input mono osc-slotmax tw:w-[6ch]"
+            className="input mono osc-slotmax tw:w-[8ch]"
             value={draft}
             min={0}
             onCommit={setDraft}
           />
-          <span className="tw:font-sans tw:text-[length:var(--fs-sm)] tw:text-text-dim">
-            slots memorisable at level {level}
-          </span>
-        </label>
+        </Field>
 
-        <p className="tw:mt-4 tw:flex tw:flex-wrap tw:items-baseline tw:gap-2 tw:font-sans tw:text-[length:var(--fs-sm)] tw:text-text-mute">
+        <p className="tw:mt-3 tw:font-sans tw:text-[length:var(--fs-sm)] tw:text-text-mute">
           {defaultMax == null ? (
             <span className="tw:italic">
               No rulebook default for this class and level — this level holds whatever you set here.
             </span>
           ) : (
-            <>
-              <span>
-                Default Level {level} slots for your class and level: {defaultMax}
-              </span>
-              <InlineButton onClick={() => setDraft(defaultMax)}>Set to default</InlineButton>
-            </>
+            <InlineButton
+              className="osc-slotdefault tw:underline tw:decoration-dotted tw:underline-offset-2"
+              onClick={() => setDraft(defaultMax)}
+            >
+              Default for level {level} class: {defaultMax}
+            </InlineButton>
           )}
         </p>
       </Modal>

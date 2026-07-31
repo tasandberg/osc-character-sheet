@@ -160,10 +160,11 @@ describe("SpellLevel head", () => {
 });
 
 describe("slot maximum dialog", () => {
-  it("opens from the pencil at the level's current maximum", () => {
+  it("opens from the pencil at the level's current maximum, under a label", () => {
     render();
     expect(openDialog().value).toBe("2");
-    expect(text(".modal-body")).toContain("Default Level 1 slots for your class and level: 2");
+    expect(text(".modal-body .field-label")).toBe("Level 1 spell slots:");
+    expect(text(".osc-slotdefault")).toBe("Default for level 1 class: 2");
   });
 
   it("saves the typed value to the level's maximum", () => {
@@ -181,12 +182,14 @@ describe("slot maximum dialog", () => {
     expect(updateActor).not.toHaveBeenCalled();
   });
 
-  it("puts the class default back", () => {
+  it("puts the class default back when the default line is clicked", () => {
     render();
     const field = openDialog();
     type(field, "7");
     expect(field.value).toBe("7");
-    act(() => byLabel("Set to default").click());
+    const line = q<HTMLButtonElement>(".osc-slotdefault")!;
+    expect(line.tagName).toBe("BUTTON");
+    act(() => line.click());
     expect(field.value).toBe("2");
   });
 
@@ -198,17 +201,16 @@ describe("slot maximum dialog", () => {
     expect(updateActor).toHaveBeenCalledWith({ "system.spells.1.max": 0 });
   });
 
-  it("offers no default line or reset for an unrecognized class", () => {
+  it("offers no default line for an unrecognized class", () => {
     render(homebrew);
     expect(openDialog().value).toBe("0");
-    expect(text(".modal-body")).not.toContain("Default Level");
-    expect(byLabel("Set to default")).toBeUndefined();
+    expect(q(".osc-slotdefault")).toBeNull();
+    expect(text(".modal-body")).toContain("No rulebook default");
   });
 
-  it("offers no default line or reset for a level past the class table", () => {
+  it("offers no default line for a level past the class table", () => {
     render(offTable);
     expect(openDialog().value).toBe("0");
-    expect(text(".modal-body")).not.toContain("Default Level");
-    expect(byLabel("Set to default")).toBeUndefined();
+    expect(q(".osc-slotdefault")).toBeNull();
   });
 });
