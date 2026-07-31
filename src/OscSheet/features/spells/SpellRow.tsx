@@ -122,7 +122,12 @@ export function SpellRow({
             />
           )}
           {pool && (
-            <span className="pool">
+            <span
+              className={cx(
+                "pool tw:font-mono tw:text-3xs tw:whitespace-nowrap",
+                spent ? "tw:text-text-faint" : "tw:text-text-mute",
+              )}
+            >
               {pool.max - pool.used}/{pool.max} · slots
             </span>
           )}
@@ -138,15 +143,18 @@ export function SpellRow({
             </IconButton>
           )}
         </span>
-        <span className="spm">{meta}</span>
+        {/* the " · " separators and the .dmg tint stay in spells.scss */}
+        <span className="spm tw:mt-[1px] tw:block tw:font-mono tw:text-3xs tw:text-text-mute">
+          {meta}
+        </span>
       </div>
       {canCast && (
-        <span className="sp-actions">
+        <span className="sp-actions tw:inline-flex tw:items-center tw:gap-2">
           <Button
             variant="outline"
             tone="brass"
             size="sm"
-            className="sp-cast"
+            className="sp-cast tw:font-sans"
             disabled={spent || casting}
             aria-busy={casting}
             onClick={handleCast}

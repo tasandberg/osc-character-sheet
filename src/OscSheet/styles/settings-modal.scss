@@ -4,8 +4,15 @@
 // Mirrors edit-modal.scss (scrim containment) but is @use'd from styles.scss so
 // it also loads in Storybook, not just the app entry.
 
-// Wrapped in .osc-sheet-app to beat the element reset in styles.scss and to
-// match the edit-modal.scss / minibar.scss convention.
+// None of this converts to `tw:` utilities: the scrim rule is a `:has()`, and
+// every other selector reaches INTO Modal's own markup (`.modal`, `.modal-head`,
+// `.modal-body`, `.modal-foot`) — the component takes a className on its root
+// only, so there is no element of ours to hang a utility on.
+//
+// Wrapped in .osc-sheet-app for the specificity, not for the element reset (that
+// now sits in `@layer base`, which every unlayered rule already outranks): each
+// rule overrides an unlayered vellum primitive at (0,2,0) on the same property,
+// and the extra class is what wins it on specificity rather than source order.
 .osc-sheet-app {
   // Confine the Settings modal's overlay to the sheet window, not the whole
   // viewport. The DS default .modal-scrim is position:fixed over the viewport;
