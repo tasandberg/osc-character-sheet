@@ -1,11 +1,15 @@
 import type { Preview, Decorator } from "@storybook/react-vite";
-// SAME import order as the app + Ladle: fonts → tokens → components → sheet base.
-// Vite applies postcss.config.mjs (Vellum scoper) to the vellum/* files.
+// SAME import order as the app: fonts → tokens → components → sheet base →
+// Tailwind. Vite applies postcss.config.mjs (Vellum scoper) to the vellum/* files.
 import "../src/OscSheet/styles/vellum/fonts.css";
 import "../src/OscSheet/styles/vellum/tokens.scss";
 import "../src/OscSheet/styles/vellum/utilities.scss";
 import "../src/OscSheet/styles/vellum/components.css";
 import "../src/OscSheet/styles/styles.scss";
+// LAST, exactly as in index.tsx — the utilities are unlayered, so source order is
+// what keeps them above our own stylesheets. Storybook's own vite config must
+// carry the tailwindcss() plugin or this import is inert (see main.ts).
+import "../src/OscSheet/styles/vellum/tailwind.css";
 
 const withSheet: Decorator = (Story, ctx) => {
   const cream = ctx.globals.theme === "cream";

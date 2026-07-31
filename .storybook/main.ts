@@ -2,6 +2,7 @@ import type { StorybookConfig } from "@storybook/react-vite";
 import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
+import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -26,7 +27,10 @@ const config: StorybookConfig = {
       // load that config, so define it here or any story importing flags.ts (theme/
       // fontScale → the settings modal) crashes with "__MODULE_ID__ is not defined".
       define: { __MODULE_ID__: JSON.stringify("osc-character-sheet") },
-      plugins: [react(), svgr()],
+      // tailwindcss() is not optional: without it preview.tsx's tailwind.css
+      // import is inert and every converted component renders with its
+      // utilities missing — which reads as a styling bug, not a config one.
+      plugins: [react(), svgr(), tailwindcss()],
       resolve: {
         // Mirror vite.config.ts aliases so layout/features stories resolve.
         alias: {
