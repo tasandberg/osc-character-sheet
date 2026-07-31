@@ -60,8 +60,15 @@
  * source order still puts utilities above our own CSS. The reset stays in
  * `@layer base`, which unlayered utilities also outrank.
  *
- * The tradeoff is real: we give up the tidy layer story to survive a host we
- * don't control. Re-layering these reintroduces the bug. */
+ * The tradeoff is real, and it has a second half worth knowing: unlayered,
+ * precedence between a utility and our OWN bespoke CSS falls back to
+ * specificity then source order. A scoped utility lands at (0,2,0) —
+ * `.osc-sheet .tw\:w-full` — so a bespoke rule carrying three classes would
+ * beat it. Audited across 108 converted elements: zero such conflicts and zero
+ * ties today, so nothing currently depends on it. But a future `.a .b .c` rule
+ * would silently win over a utility, where under layers it could not.
+ *
+ * Re-layering these reintroduces the third-party bug. */
 @import "tailwindcss/utilities.css" prefix(tw) source(none);
 
 @source "../../features";
