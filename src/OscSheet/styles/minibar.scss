@@ -72,7 +72,14 @@
 // Label uses the shared ink-stamp <Stamp size="sm"> (black bar, cream caps);
 // this class is just a hover hook for the −/+ swap. Keep styling on .stamp.
 
-.osc-mb-hp-input {
+// `.osc-sheet-app` is here for SPECIFICITY, not to beat the element reset.
+// `ose-advancedfantasytome` ships a bare `input[type="number"] { width: 2em }`,
+// which at (0,1,1) beats a lone `.osc-mb-hp-input` at (0,1,0) and widens this
+// field by ~43%. Dropping the ancestor as "just a reset qualifier" is what let
+// that happen — it was carrying both jobs. This is the same third-party rule the
+// unlayered utilities exist to out-rank; that fix protects utilities, and this
+// width comes from bespoke CSS, so it needs its own guard.
+.osc-sheet-app .osc-mb-hp-input {
   width: 1.4em;
   min-width: 0;
   text-align: center;
