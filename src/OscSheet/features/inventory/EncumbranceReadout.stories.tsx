@@ -64,18 +64,27 @@ export const FullHeader = () => {
   return (
     <div className="osc-inv" style={{ padding: 16, width: 480 }}>
       <Head e={e} />
-      <button type="button" className="osc-whead" style={{ display: "flex", width: "100%" }}>
-        <span className="key">Wealth</span>
-        <span className="v">152 gp</span>
-        <span className="wt">140 cn</span>
+      {/* whead utilities mirror WealthSection.tsx — that component owns the real markup */}
+      <button
+        type="button"
+        className="osc-whead tw:flex tw:w-full tw:items-center tw:gap-3 tw:px-[2px] tw:pt-[7px] tw:pb-[9px] tw:text-left"
+      >
+        <span className="key tw:font-sans tw:text-xs tw:font-semibold tw:tracking-[0.13em] tw:uppercase tw:text-text-mute">
+          Wealth
+        </span>
+        <span className="v tw:font-display tw:text-lg tw:leading-flush tw:text-accent-alt">152 gp</span>
+        <span className="wt tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-2xs tw:text-text-faint">
+          140 cn
+        </span>
       </button>
-      <div className="osc-inv-sec-head">
+      {/* head/count utilities mirror SectionCount.tsx — that component owns the real markup */}
+      <div className="osc-inv-sec-head tw:flex tw:w-full tw:items-center tw:gap-2 tw:pt-1 tw:pb-2 tw:bg-bg tw:text-text-mute">
         <span className="section-title sub">Equipped items</span>
-        <span className="osc-inv-sec-count">4 items · 230 cn</span>
+        <span className="osc-inv-sec-count tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-faint">4 items · 230 cn</span>
       </div>
-      <div className="osc-inv-sec-head">
+      <div className="osc-inv-sec-head tw:flex tw:w-full tw:items-center tw:gap-2 tw:pt-1 tw:pb-2 tw:bg-bg tw:text-text-mute">
         <span className="section-title sub">All items</span>
-        <span className="osc-inv-sec-count">9 items · 306 cn</span>
+        <span className="osc-inv-sec-count tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-faint">9 items · 306 cn</span>
       </div>
     </div>
   );

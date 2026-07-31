@@ -7,7 +7,14 @@ import { Monogram } from "@ui/Monogram";
  *  doesn't start a native image-drag — the whole row owns the drag. */
 export function ItemImage({ img, monogram }: { img: string; monogram: string }) {
   return (
-    <span className="osc-inv-img" aria-hidden="true">
+    <span
+      className={
+        "osc-inv-img tw:inline-flex tw:items-center tw:justify-center " +
+        "tw:w-[30px] tw:h-[30px] tw:rounded-sm tw:overflow-hidden " +
+        "tw:bg-ink tw:border tw:border-border"
+      }
+      aria-hidden="true"
+    >
       <Monogram
         img={img}
         monogram={monogram}

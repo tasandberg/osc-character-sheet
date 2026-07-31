@@ -1,48 +1,30 @@
 
 // ---------------------------------------------------------------------------
 // Sections (Equipped tray + All Items) + sticky pinning
+//
+// Layout/spacing/type plumbing for these blocks now rides as tw: utilities on
+// the JSX (index.tsx, SectionCount.tsx, EquippedTray.tsx). What stays here is
+// what utilities can't express honestly: the sticky pin and its minibar
+// coupling, the tray's dashed ink-stamp identity and drag states, and
+// generated content.
 // ---------------------------------------------------------------------------
-
-.osc-inv-sec {
-  margin: var(--spacer-3) 0;
-}
 
 // The equipped tray + the All-Items header live together in one sticky block
 // (.osc-inv-stickyhead) so they pin to the scroll top as a single opaque unit —
 // no JS height measuring, no see-through gap between two separately-sticky bands.
 // Scroll container is .osc-sheet-body.
+// Hand-written on purpose: minibar.scss retargets this `top` to --osc-minibar-h
+// in the medium band so the head parks flush below the collapsed minibar. That
+// cross-stylesheet coupling is the point and can't live on the element.
 .osc-inv-stickyhead {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
   background: var(--bg);
 }
-.osc-inv-stickyhead .osc-inv-sec--equipped {
-  margin: 0 0 var(--spacer-3);
-}
-// breathing room below the sticky "All Items" header so the table (and its
-// outline-offset drop outline) clears the sticky band instead of being clipped.
-.osc-inv-sec--carried {
-  margin-top: var(--spacer-3);
-}
-// static (non-collapsible) header: title on the left, "N items · X cn" on the right
-.osc-inv-sec-head {
-  display: flex;
-  align-items: center;
-  gap: var(--spacer-2);
-  width: 100%;
-  padding: var(--spacer-1) 0 var(--spacer-2);
-  background: var(--bg);
-  color: var(--text-mute, #8a8270);
-}
-// section title is now <SectionTitle variant="sub">; see .section-title.sub
-.osc-inv-sec-count {
-  font-family: var(--mono);
-  font-size: var(--fs-2xs, 11px);
-  color: var(--text-faint, #6a6354);
-  margin-left: auto;
-  white-space: nowrap;
-}
+
+// Section head → descendants owned by other components; styling them from the
+// head is the only place the relationship exists, so it stays a stylesheet rule.
 .osc-inv-sec-head > .menu-host {
   display: inline-flex;
 }
@@ -58,12 +40,9 @@
 }
 
 // --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
+// Flex/gap/padding are utilities on the element; the dashed rule, its radius and
+// the drop-target transition are the tray's identity and stay here.
 .osc-equip-tray {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacer-2);
-  align-items: flex-start;
-  padding: var(--spacer-3);
   border: 1.5px dashed var(--border-soft, #2c2823);
   border-radius: var(--r-md, 6px);
   transition:
@@ -76,6 +55,9 @@
   border-color: var(--teal);
   background: color-mix(in oklab, var(--teal) 8%, transparent);
 }
+
+// Containing block for the insertion lines below — kept with the rules that
+// need it rather than split across the JSX.
 .osc-equip-tcard {
   position: relative;
 }
@@ -109,7 +91,11 @@
 .osc-equip-tcard.drop-after::after {
   right: -5px;
 }
-.osc-inv .osc-equip-tt {
+// The ink-stamp tile itself — fixed stamp square, teal rule, art bleeding to the
+// edges. Bespoke appearance, kept whole. (The `all: unset` reset it out-ranks now
+// sits in @layer base, and unlayered CSS beats any layer, so the old `.osc-inv`
+// specificity padding is gone.)
+.osc-equip-tt {
   position: relative;
   width: 50px;
   height: 50px;
@@ -128,85 +114,9 @@
     object-fit: cover;
   }
 }
-.osc-equip-tt-ic {
-  font-family: var(--display);
-  font-size: var(--fs-xl, 18px);
-  line-height: 1;
-}
 
-// Item detail — appearance and placement are .osc-hoverpop / HoverPop; content only here.
-.osc-equip-tt-pop {
-  min-width: 132px;
-  max-width: 200px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.osc-equip-tt-pop-nm {
-  font-family: var(--display);
-  font-size: var(--fs-base, 15px);
-  color: var(--text, #e5dec8);
-  line-height: 1.1;
-}
-.osc-equip-tt-pop-type {
-  font-family: var(--sans);
-  font-size: var(--fs-3xs, 10px);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-mute, #8a8270);
-}
-// stat rows — label on the left, mono value on the right
-.osc-equip-tt-pop-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-top: var(--spacer-1);
-  padding-top: var(--spacer-1);
-  border-top: 1px solid var(--border-soft, #2c2823);
-}
-.osc-equip-tt-pop-stat {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--spacer-3);
-  .k {
-    font-family: var(--sans);
-    font-size: var(--fs-3xs, 10px);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-faint, #6a6354);
-  }
-  .v {
-    font-family: var(--mono);
-    font-size: var(--fs-xs, 12px);
-    color: var(--text-dim, #b5ad97);
-  }
-}
-// quality tags
-.osc-equip-tt-pop-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacer-1);
-  margin-top: var(--spacer-1);
-  padding-top: var(--spacer-1);
-  border-top: 1px solid var(--border-soft, #2c2823);
-}
-.osc-equip-tt-pop-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-family: var(--sans);
-  font-size: var(--fs-3xs, 10px);
-  color: var(--text-dim, #b5ad97);
-  background: var(--bg-2, #1f1c17);
-  border: 1px solid var(--border-soft, #2c2823);
-  border-radius: var(--r-sm, 4px);
-  padding: 1px 6px;
-  i {
-    font-size: 0.9em; // tracks the --fs-3xs tag text so it scales with the font setting
-    color: var(--gold-dim);
-  }
-}
+// Item detail (.osc-equip-tt-pop*) — appearance and placement are
+// .osc-hoverpop / HoverPop; its content layout is now utilities on the JSX.
 
 // ---------------------------------------------------------------------------
 // Right-click context menu

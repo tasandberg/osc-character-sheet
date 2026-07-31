@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { SortDir } from "@domain/vm-types";
+import { MICRO_LABEL } from "@features/inventory/rows/classes";
 import { cx } from "@ui/cx";
 
 /** A sortable column header button (caret + aria-sort). Key-agnostic so both the
@@ -23,7 +24,19 @@ export function SortHeader({
   return (
     <button
       type="button"
-      className={cx("osc-inv-th", className, active && "active")}
+      className={cx(
+        "osc-inv-th",
+        "tw:inline-flex tw:items-center tw:gap-1 tw:min-w-0 tw:bg-transparent tw:cursor-pointer",
+        MICRO_LABEL,
+        "tw:transition-[color] tw:duration-[120ms]",
+        // active wins over hover, as the old `&.active` after `&:hover` did —
+        // as utilities the hover variant would sort last and take an active
+        // header back to the dim colour on hover, so the two are exclusive.
+        active
+          ? "active tw:text-text"
+          : "tw:text-text-faint tw:hover:text-text-dim",
+        className,
+      )}
       aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"}
       title={title}
       onClick={onClick}
@@ -33,6 +46,8 @@ export function SortHeader({
       <i
         className={cx(
           "osc-inv-th-caret",
+          // 0.8em tracks the --fs-3xs header so it scales with the font setting
+          "tw:text-[0.8em] tw:w-[6px]",
           "fa-solid",
           active && (dir === "asc" ? "fa-caret-up" : "fa-caret-down"),
         )}

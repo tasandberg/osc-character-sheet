@@ -264,9 +264,17 @@ export function InventoryView({
   const equippedDragActive = dnd.drag?.group === EQUIPPED; // a tray tile is mid-drag
 
   return (
-    <section className="osc-inv">
+    <section className="osc-inv tw:flex tw:flex-col">
       <div
-        className={cx("osc-inv-head", encumbrance.enabled && "enc-rule")}
+        className={cx(
+          "osc-inv-head",
+          // title + readout share one line and the readout never wraps below —
+          // except at xs, where there's no room for both.
+          "tw:flex tw:items-baseline tw:justify-between tw:flex-nowrap",
+          "tw:gap-x-3 tw:gap-y-1 tw:pb-2 tw:mt-6 tw:mb-5",
+          "tw:@max-md/app:flex-wrap tw:@max-md/app:justify-start",
+          encumbrance.enabled && "enc-rule",
+        )}
         // the header underline doubles as the encumbrance load bar (see .enc-rule);
         // --enc-stops cuts the colour at the system's real tier thresholds
         style={
@@ -294,7 +302,7 @@ export function InventoryView({
           two never separate into a see-through gap (no JS height measuring). */}
       <div className="osc-inv-stickyhead">
         {inventory.equipped.length > 0 && (
-          <div className="osc-inv-sec osc-inv-sec--equipped">
+          <div className="osc-inv-sec osc-inv-sec--equipped tw:mb-3">
             <SectionCount
               title="Equipped items"
               items={inventory.equipped}
@@ -331,7 +339,9 @@ export function InventoryView({
         />
       </div>
 
-      <section className="osc-inv-sec osc-inv-sec--carried">
+      {/* my-3 top edge is breathing room below the sticky "All Items" header, so the
+          table (and its outline-offset drop outline) clears the band, not clipped by it. */}
+      <section className="osc-inv-sec osc-inv-sec--carried tw:my-3">
         <div
           className={cx(
             "osc-inv-list",

@@ -176,6 +176,25 @@
 //
 // Do not "tidy" this back out of its layer.
 @layer base {
+  // The one line of preflight we DO need — and the reason is not obvious.
+  //
+  // Tailwind's `border-<style>` utilities set `border-style` on ALL FOUR sides,
+  // while `border-b` sets a width on one. Preflight normally supplies the
+  // missing half with a global `border-width: 0`, so `border-b border-dotted`
+  // means "dotted line underneath". We ship no preflight, so the other three
+  // sides had a style but no width, fell back to the CSS initial `medium`, and
+  // painted a 3px dotted BOX around the encumbrance readout.
+  //
+  // Scoped to our subtree and confined to `base`, so it is one declaration
+  // rather than a whole reset, and Foundry's own chrome never sees it. This is
+  // NOT `tailwindcss/base.css` — importing that would destroy the reset below.
+  .osc-sheet-app *,
+  .osc-sheet-app ::before,
+  .osc-sheet-app ::after {
+    border-width: 0;
+    border-style: solid;
+  }
+
   .osc-sheet-app :is(button, input, select, textarea):not(prose-mirror *) {
     all: unset;
     box-sizing: border-box;

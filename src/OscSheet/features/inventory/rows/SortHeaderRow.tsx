@@ -2,7 +2,9 @@
 import type { InventorySortKey } from "@domain/vm-types";
 import { SortHeader } from "@features/inventory/SortHeader";
 import { loadHeading } from "@features/inventory/groups";
+import { INV_ROW, MICRO_LABEL } from "@features/inventory/rows/classes";
 import type { SortState } from "@features/inventory/types";
+import { cx } from "@ui/cx";
 
 export function SortHeaderRow({
   sort,
@@ -28,13 +30,31 @@ export function SortHeaderRow({
     />
   );
   return (
-    <div className="osc-inv-row osc-inv-headrow" role="row">
+    <div className={INV_HEADROW} role="row">
       <span aria-hidden="true" /> {/* drag */}
       {/* "Item" spans the image + name columns so it left-aligns to the image */}
       {th("name", "Item", "osc-inv-th-item")}
-      {th("category", "Type", "osc-inv-th-cat")}
-      {th("weight", loadHeading(variant).column, "osc-inv-th-wt")}
-      <span className="osc-inv-thlabel osc-inv-thlabel-eq">Equip</span>
+      {/* right-aligned data columns: shrink the header to the cell edge so the
+          label sits over its own column. Type is dropped at xs with the data. */}
+      {th(
+        "category",
+        "Type",
+        "osc-inv-th-cat tw:justify-self-start tw:@max-md/app:hidden",
+      )}
+      {th(
+        "weight",
+        loadHeading(variant).column,
+        "osc-inv-th-wt tw:justify-self-center",
+      )}
+      <span
+        className={cx(
+          "osc-inv-thlabel",
+          MICRO_LABEL,
+          "tw:text-text-faint tw:text-center",
+        )}
+      >
+        Equip
+      </span>
     </div>
   );
 }

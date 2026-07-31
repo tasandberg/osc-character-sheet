@@ -20,11 +20,12 @@ export function SectionCount({
   cap?: number;
   controls?: ReactNode;
 }) {
+  // bg-bg is load-bearing: this head sits inside the sticky block and must be opaque.
   return (
-    <div className="osc-inv-sec-head">
+    <div className="osc-inv-sec-head tw:flex tw:w-full tw:items-center tw:gap-2 tw:pt-1 tw:pb-2 tw:bg-bg tw:text-text-mute">
       <SectionTitle variant="sub">{title}</SectionTitle>
       {controls}
-      <span className="osc-inv-sec-count">
+      <span className="osc-inv-sec-count tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-faint">
         {sectionCountLabel(items, variant, cap)}
       </span>
     </div>

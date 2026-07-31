@@ -15,6 +15,11 @@ import { useOscSheetContext } from "@app/context";
 import { Button } from "@ui/Button";
 import { cx } from "@ui/cx";
 
+/** One coin dot in the header stack. The negative margin overlaps the previous
+ *  dot; _wealth.scss adds the bg-coloured ring that makes the overlap read as a
+ *  pile, and the per-denomination fill. */
+const DOT = "tw:inline-block tw:size-[11px] tw:flex-none tw:rounded-full tw:-ml-[4px] tw:first:ml-0";
+
 /** Treasure section: a header bar (overlapping coin dots + gem · total gp · carried
  *  weight) that toggles ONE table of wealth rows — coins and non-coin valuables in
  *  a single dataset, sharing the same grid, columns, and row component (only the
@@ -143,39 +148,65 @@ export function WealthSection({
   const hasContent = wealth.length > 0;
 
   return (
-    <section className="osc-wsec">
+    <section className="osc-wsec tw:mb-5">
+      {/* header bar — full-width button: overlapping coin dots · "Treasure" ·
+          gp total · caret · carried weight (far right). */}
       <button
         type="button"
-        className={cx("osc-whead", open && "open")}
+        className={cx(
+          "osc-whead",
+          "tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-3 tw:px-[2px] tw:pt-[7px] tw:pb-[9px] tw:text-left tw:disabled:cursor-default",
+          open && "open",
+        )}
         data-testid="wealth-toggle"
         aria-expanded={open}
         disabled={!hasContent}
         onClick={() => setOpen((o) => !o)}
       >
-        <span className="coins" aria-hidden="true">
+        <span className="coins tw:inline-flex" aria-hidden="true">
           {dots.map((d) => (
-            <span key={d} className={`ci ${d.toLowerCase()}`} />
+            <span key={d} className={cx("ci", d.toLowerCase(), DOT)} />
           ))}
-          {!dots.length && !hasValuables && <span className="ci gp" />}
+          {!dots.length && !hasValuables && <span className={cx("ci gp", DOT)} />}
           {hasValuables && (
-            <i className="osc-wgem fa-solid fa-gem" aria-hidden="true" />
+            // gem marker in the coin stack — signals non-coin treasure is present.
+            // Wider gap when it follows a dot (was a `.ci + .osc-wgem` sibling rule).
+            <i
+              className={cx(
+                "osc-wgem fa-solid fa-gem tw:text-3xs tw:text-accent-alt",
+                dots.length ? "tw:ml-[5px]" : "tw:ml-[3px]",
+              )}
+              aria-hidden="true"
+            />
           )}
         </span>
-        <span className="key">Treasure</span>
-        <span className="v">{fmtCoin(totalGp)}<small>gp</small></span>
+        <span className="key tw:font-sans tw:text-xs tw:font-semibold tw:tracking-[0.13em] tw:uppercase tw:text-text-mute">
+          Treasure
+        </span>
+        <span className="v tw:font-display tw:text-lg tw:leading-flush tw:text-accent-alt">
+          {fmtCoin(totalGp)}
+          <small className="tw:ml-[2px] tw:font-mono tw:text-2xs tw:text-accent-alt tw:opacity-75">gp</small>
+        </span>
         {hasContent && <i className="osc-wcaret fa-solid fa-caret-right" aria-hidden="true" />}
-        <span className="wt">{load}</span>
+        <span className="wt tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-2xs tw:text-text-faint">
+          {load}
+        </span>
       </button>
 
       {!hasContent && (
-        <p className="osc-wsec-empty">Drop coins, gems, or other valuables here to track your treasure.</p>
+        <p className="osc-wsec-empty tw:mt-0 tw:mb-2 tw:ml-[2px] tw:font-serif tw:text-sm tw:italic tw:text-text-faint">
+          Drop coins, gems, or other valuables here to track your treasure.</p>
       )}
 
       {open && hasContent && (
-        <div className="osc-cointab">
+        <div className="osc-cointab tw:mt-[2px] tw:rounded-md tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:pt-[3px] tw:pb-[9px]">
           {/* One unified, fully-sortable table: units live in the headers so rows
-              render bare numbers; a header click sorts every row together. */}
-          <div className="osc-coin-colhead" role="row">
+              render bare numbers; a header click sorts every row together. The top
+              pad separates this row from the "TREASURE …gp" header above. */}
+          <div
+            className="osc-coin-colhead tw:grid tw:items-center tw:gap-x-3 tw:border-b-2 tw:border-border tw:pt-3 tw:pb-1"
+            role="row"
+          >
             <span aria-hidden="true" /> {/* drag */}
             <SortHeader
               label="Item"
@@ -186,21 +217,21 @@ export function WealthSection({
             />
             <SortHeader
               label="Qty"
-              className="osc-coin-th-num"
+              className="osc-coin-th-num tw:justify-end tw:whitespace-nowrap"
               active={sort.key === "qty"}
               dir={sort.dir}
               onClick={() => onSort("qty")}
             />
             <SortHeader
               label={itemBased ? "Slots" : "Weight (cn)"}
-              className="osc-coin-th-num"
+              className="osc-coin-th-num tw:justify-end tw:whitespace-nowrap"
               active={sort.key === "weight"}
               dir={sort.dir}
               onClick={() => onSort("weight")}
             />
             <SortHeader
               label="Value (gp)"
-              className="osc-coin-th-num"
+              className="osc-coin-th-num tw:justify-end tw:whitespace-nowrap"
               active={sort.key === "value"}
               dir={sort.dir}
               onClick={() => onSort("value")}
@@ -239,12 +270,21 @@ export function WealthSection({
             ),
           )}
 
-          <div className="osc-coin-total">
-            <span className="lab">Total</span>
-            <span className="tw">{itemBased ? slots : fmtCoin(weight)}</span>
-            <span className="tv">{fmtCoin(totalGp)}</span>
+          {/* No top border — the last coin row's bottom rule is the divider (avoids a
+              double line). Hidden in the xs column along with the Weight/Value cells. */}
+          <div className="osc-coin-total tw:mt-[2px] tw:grid tw:items-baseline tw:gap-x-3 tw:pt-2 tw:pb-[1px] tw:@max-md/app:hidden">
+            <span className="lab tw:col-start-3 tw:font-sans tw:text-3xs tw:font-semibold tw:tracking-[0.12em] tw:uppercase tw:text-text-mute">
+              Total
+            </span>
+            <span className="tw tw:col-start-5 tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-xs tw:text-text-dim">
+              {itemBased ? slots : fmtCoin(weight)}
+            </span>
+            <span className="tv tw:col-start-6 tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-xs tw:font-bold tw:text-accent-alt">
+              {fmtCoin(totalGp)}
+            </span>
           </div>
-          <div className="osc-coin-done">
+          {/* explicit close affordance under the table */}
+          <div className="osc-coin-done tw:mt-3 tw:flex tw:justify-end">
             <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
               Done
             </Button>
