@@ -54,3 +54,6 @@ ds-bundle/
 
 # Personal identity mapping (local only)
 .mailmap
+
+# visual-regression harness output (tools/visual)
+tools/visual/out/
