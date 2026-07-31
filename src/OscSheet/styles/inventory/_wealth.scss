@@ -1,0 +1,302 @@
+// ---------------------------------------------------------------------------
+// Coin editor
+// ---------------------------------------------------------------------------
+
+// Wealth section (below the Inventory header): a header bar whose caret toggles a
+// drag-reorderable coin table. Sits in the same rhythm as Equipped / All Items.
+.osc-wsec {
+  margin: 0 0 var(--spacer-5);
+}
+
+// header bar — full-width button: overlapping coin dots · "Treasure" · gp total ·
+// caret · carried weight (far right).
+.osc-inv .osc-whead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-3);
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 7px 2px 9px;
+  cursor: pointer;
+  text-align: left;
+}
+.osc-inv .osc-whead:disabled {
+  cursor: default;
+}
+.osc-whead .coins {
+  display: inline-flex;
+}
+.osc-whead .coins .ci {
+  width: 11px;
+  height: 11px;
+  margin-left: -4px;
+  box-shadow: 0 0 0 1.5px var(--bg, #181612); // ring in the page bg → reads as stacked coins
+}
+.osc-whead .coins .ci:first-child {
+  margin-left: 0;
+}
+// gem marker in the coin stack — signals non-coin treasure is present
+.osc-whead .osc-wgem {
+  margin-left: 3px;
+  font-size: var(--fs-3xs, 10px);
+  color: var(--accent-alt);
+}
+.osc-whead .coins .ci + .osc-wgem {
+  margin-left: 5px;
+}
+.osc-whead .key {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-xs, 12px);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-mute, #8a8270);
+}
+.osc-whead .v {
+  font-family: var(--display);
+  font-size: var(--fs-lg, 16px);
+  color: var(--accent-alt);
+  line-height: 1;
+}
+.osc-whead .v small {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--accent-alt);
+  opacity: 0.75;
+  margin-left: 2px;
+}
+.osc-whead .osc-wcaret {
+  font-size: var(--fs-md, 15px);
+  color: var(--text-mute, #8a8270);
+  transition:
+    transform 0.18s,
+    color 0.15s;
+  // the rotate() below makes this a stacking context — pin it to the raised layer
+  // so it stays below hover tooltips instead of poking through them.
+  position: relative;
+  z-index: var(--z-raised);
+}
+.osc-whead.open .osc-wcaret {
+  transform: rotate(90deg);
+}
+.osc-inv .osc-whead:hover:not(:disabled) .osc-wcaret {
+  color: var(--text, #e5dec8);
+}
+.osc-whead .wt {
+  margin-left: auto;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--text-faint, #6a6354);
+}
+
+.osc-wsec-empty {
+  margin: 0 0 var(--spacer-2) 2px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: var(--fs-sm, 13px);
+  color: var(--text-faint, #6a6354);
+}
+
+// coin table — card; rows mirror the items table (handle · ink-icon · name …)
+.osc-cointab {
+  background: var(--bg-2, #1f1c17);
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-md, 6px);
+  padding: 3px 12px 9px;
+  margin-top: 2px;
+}
+// Grid mirrors the items table (handle · 30px image · name · …) so the coin rows
+// read as siblings; the trailing Qty/Weight/Value columns are coin-specific.
+.osc-coin-colhead,
+.osc-coin-row,
+.osc-coin-total {
+  display: grid;
+  grid-template-columns:
+    18px 30px minmax(0, 1fr)
+    calc(var(--fs-base, 16px) * 5)
+    calc(var(--fs-base, 16px) * 5.5)
+    calc(var(--fs-base, 16px) * 5.5);
+  // roomy gap so the QTY sort caret clears "WEIGHT (CN)" and the unit-bearing
+  // headers don't collide with the next column.
+  column-gap: var(--spacer-3);
+  align-items: center;
+}
+.osc-coin-colhead {
+  // top pad separates the header row from the "TREASURE …gp" section header above
+  padding: var(--spacer-3) 0 var(--spacer-1);
+  border-bottom: 2px solid var(--border, #3a342c);
+}
+// right-align the numeric sort headers (reuses the shared .osc-inv-th button);
+// keep the unit-bearing labels ("Weight (cn)") on one line.
+.osc-inv .osc-coin-th-num {
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+.osc-coin-row {
+  padding: var(--spacer-2) 0;
+  border-bottom: 1px solid var(--border-soft, #2c2823);
+}
+// drop-line affordance (matches the items rows)
+.osc-coin-row.drop-before,
+.osc-coin-row.drop-after {
+  position: relative;
+}
+.osc-coin-row.drop-before::before,
+.osc-coin-row.drop-after::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--teal, #1f7575);
+  pointer-events: none;
+}
+.osc-coin-row.drop-before::before {
+  top: -1px;
+}
+.osc-coin-row.drop-after::after {
+  bottom: -1px;
+}
+.osc-coin-row.dragging > * {
+  opacity: 0.4;
+}
+.osc-inv .osc-coin-qty {
+  width: 100%;
+  min-width: 0;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text, #e5dec8);
+  background: var(--surface, #23201a);
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-sm, 4px);
+  padding: 5px 8px;
+  transition: border-color 0.12s;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.osc-inv .osc-coin-qty:hover {
+  border-color: var(--border, #3a342c);
+}
+.osc-inv .osc-coin-qty:focus {
+  border-color: var(--accent-alt);
+  outline: none;
+}
+.osc-inv .osc-coin-qty::-webkit-inner-spin-button,
+.osc-inv .osc-coin-qty::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.osc-coin-wt {
+  text-align: right;
+  white-space: nowrap; // keep "1,300 cn" on one line — never split the unit off
+  font-family: var(--mono);
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-dim, #b5ad97);
+}
+.osc-coin-val {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: var(--fs-xs, 12px);
+  color: var(--text, #e5dec8);
+}
+
+// Valuable (non-coin) rows show a read-only qty in the SAME slot as a coin's
+// editable <input>, and must be visually indistinguishable from it apart from
+// the missing field chrome. Match the input's box metrics exactly — font-size,
+// padding, (transparent) border width — AND its text colour, so the static
+// number lands in the identical position and reads the same weight.
+.osc-coin-qty-ro {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text, #e5dec8);
+  padding: 5px 8px;
+  border: 1px solid transparent;
+}
+
+.osc-coin-total {
+  align-items: baseline;
+  // no top border — the last coin row's bottom rule is the divider (avoids a double line)
+  padding: 8px 0 1px;
+  margin-top: 2px;
+}
+// explicit close affordance under the table
+.osc-coin-done {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacer-3);
+}
+.osc-coin-total .lab {
+  grid-column: 3;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-3xs, 10px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute, #8a8270);
+}
+.osc-coin-total .tw {
+  grid-column: 5;
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-dim, #b5ad97);
+}
+.osc-coin-total .tv {
+  grid-column: 6;
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--fs-xs, 12px);
+  color: var(--accent-alt);
+}
+
+// Per-denomination dot colours (handoff palette; hex fallbacks are stylelint-allowed).
+.osc-inv .ci {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+.osc-inv .ci.pp {
+  background: var(--coin-pp, #cfd2da);
+}
+.osc-inv .ci.gp {
+  background: var(--accent-alt);
+}
+.osc-inv .ci.ep {
+  background: var(--coin-ep, #cdbb78);
+}
+.osc-inv .ci.sp {
+  background: var(--coin-sp, #b9bcc4);
+}
+.osc-inv .ci.cp {
+  background: var(--coin-cp, #b1734a);
+}
+
+// xs / narrow inventory column: drop Weight + Value columns and the total row.
+// Header children: 1 drag · 2 Coin · 3 Qty · 4 Weight · 5 Value.
+@container app (max-width: 479px) {
+  .osc-coin-colhead,
+  .osc-coin-row {
+    grid-template-columns: 18px 30px minmax(0, 1fr) 92px;
+  }
+  .osc-coin-colhead > :nth-child(4),
+  .osc-coin-colhead > :nth-child(5) {
+    display: none;
+  }
+  .osc-coin-wt,
+  .osc-coin-val,
+  .osc-coin-total {
+    display: none;
+  }
+}

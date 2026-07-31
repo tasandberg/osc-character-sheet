@@ -1,0 +1,318 @@
+
+// ---------------------------------------------------------------------------
+// Sections (Equipped tray + All Items) + sticky pinning
+// ---------------------------------------------------------------------------
+
+.osc-inv-sec {
+  margin: var(--spacer-3) 0;
+}
+
+// The equipped tray + the All-Items header live together in one sticky block
+// (.osc-inv-stickyhead) so they pin to the scroll top as a single opaque unit —
+// no JS height measuring, no see-through gap between two separately-sticky bands.
+// Scroll container is .osc-sheet-body.
+.osc-inv-stickyhead {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: var(--bg);
+}
+.osc-inv-stickyhead .osc-inv-sec--equipped {
+  margin: 0 0 var(--spacer-3);
+}
+// breathing room below the sticky "All Items" header so the table (and its
+// outline-offset drop outline) clears the sticky band instead of being clipped.
+.osc-inv-sec--carried {
+  margin-top: var(--spacer-3);
+}
+// static (non-collapsible) header: title on the left, "N items · X cn" on the right
+.osc-inv-sec-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-2);
+  width: 100%;
+  padding: var(--spacer-1) 0 var(--spacer-2);
+  background: var(--bg);
+  color: var(--text-mute, #8a8270);
+}
+// section title is now <SectionTitle variant="sub">; see .section-title.sub
+.osc-inv-sec-count {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--text-faint, #6a6354);
+  margin-left: auto;
+  white-space: nowrap;
+}
+.osc-inv-sec-head > .menu-host {
+  display: inline-flex;
+}
+// translateY is optical: the all-caps label's centre sits above its box centre.
+.osc-inv-sec-head .icon-btn {
+  color: var(--text-mute);
+  transform: translateY(-1px);
+}
+// hang the box left of the trigger so the caret keeps its natural 14px inset and
+// still lands on the 18px button's centre.
+.osc-inv-sec-head .menu.is-popover.align-start {
+  left: -12px;
+}
+
+// --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
+.osc-equip-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacer-2);
+  align-items: flex-start;
+  padding: var(--spacer-3);
+  border: 1.5px dashed var(--border-soft, #2c2823);
+  border-radius: var(--r-md, 6px);
+  transition:
+    border-color 0.12s,
+    background 0.12s;
+}
+// Dragging an item over the tray to equip it — dotted teal accent (equip = teal).
+.osc-equip-tray.is-drop-target {
+  border-style: dotted;
+  border-color: var(--teal);
+  background: color-mix(in oklab, var(--teal) 8%, transparent);
+}
+.osc-equip-tcard {
+  position: relative;
+}
+// tiles drag to reorder within the tray (own order) — regular at rest, the
+// grabbing fist only while a drag is held.
+.osc-equip-tcard.is-sortable:active {
+  cursor: grabbing;
+}
+.osc-equip-tcard.dragging > * {
+  opacity: 0.4;
+}
+// A fixed child inside the drag-image snapshot paints against the viewport, not the tile.
+.osc-equip-tcard.dragging .osc-hoverpop {
+  display: none;
+}
+// horizontal insertion line on the leading/trailing edge of the hovered tile (teal)
+.osc-equip-tcard.drop-before::before,
+.osc-equip-tcard.drop-after::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  background: var(--teal, #1f7575);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.osc-equip-tcard.drop-before::before {
+  left: -5px;
+}
+.osc-equip-tcard.drop-after::after {
+  right: -5px;
+}
+.osc-inv .osc-equip-tt {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: var(--ink, #070605);
+  color: var(--stamp-text, #e5dec8);
+  border: 1.5px solid var(--teal);
+  border-radius: var(--r-sm, 4px);
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+.osc-equip-tt-ic {
+  font-family: var(--display);
+  font-size: var(--fs-xl, 18px);
+  line-height: 1;
+}
+
+// Item detail — appearance and placement are .osc-hoverpop / HoverPop; content only here.
+.osc-equip-tt-pop {
+  min-width: 132px;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.osc-equip-tt-pop-nm {
+  font-family: var(--display);
+  font-size: var(--fs-base, 15px);
+  color: var(--text, #e5dec8);
+  line-height: 1.1;
+}
+.osc-equip-tt-pop-type {
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-mute, #8a8270);
+}
+// stat rows — label on the left, mono value on the right
+.osc-equip-tt-pop-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--spacer-1);
+  padding-top: var(--spacer-1);
+  border-top: 1px solid var(--border-soft, #2c2823);
+}
+.osc-equip-tt-pop-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacer-3);
+  .k {
+    font-family: var(--sans);
+    font-size: var(--fs-3xs, 10px);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-faint, #6a6354);
+  }
+  .v {
+    font-family: var(--mono);
+    font-size: var(--fs-xs, 12px);
+    color: var(--text-dim, #b5ad97);
+  }
+}
+// quality tags
+.osc-equip-tt-pop-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacer-1);
+  margin-top: var(--spacer-1);
+  padding-top: var(--spacer-1);
+  border-top: 1px solid var(--border-soft, #2c2823);
+}
+.osc-equip-tt-pop-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--sans);
+  font-size: var(--fs-3xs, 10px);
+  color: var(--text-dim, #b5ad97);
+  background: var(--bg-2, #1f1c17);
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-sm, 4px);
+  padding: 1px 6px;
+  i {
+    font-size: 0.9em; // tracks the --fs-3xs tag text so it scales with the font setting
+    color: var(--gold-dim);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Right-click context menu
+// ---------------------------------------------------------------------------
+
+.osc-ctx {
+  position: fixed;
+  z-index: 1000;
+  min-width: 168px;
+  padding: var(--spacer-1);
+  background: var(--surface, #23201a);
+  border: 1px solid var(--border, #3a342c);
+  border-radius: var(--r-md, 6px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+.osc-ctx-title {
+  font-family: var(--display);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text-dim, #b5ad97);
+  padding: var(--spacer-1) var(--spacer-2) var(--spacer-2);
+  border-bottom: 1px solid var(--border-soft, #2c2823);
+  margin-bottom: var(--spacer-1);
+}
+.osc-inv .osc-ctx-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-2);
+  width: 100%;
+  padding: var(--spacer-2);
+  border-radius: var(--r-sm, 4px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text, #e5dec8);
+  i {
+    width: 16px;
+    text-align: center;
+    color: var(--text-mute, #8a8270);
+  }
+  &:hover {
+    background: var(--surface-2, #2c2823);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  &.is-danger:hover {
+    background: color-mix(in srgb, var(--crimson, #c75044) 18%, transparent);
+  }
+  &.is-danger i {
+    color: var(--crimson, #c75044);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Send Item dialog (target picker + stack split)
+// ---------------------------------------------------------------------------
+
+// Layout/size/color come from u-* utilities in the JSX; only the bespoke target
+// button (hover / selected color-mix / disabled) and its icon tile live here.
+.osc-send-targets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+// Button selectors qualified with .osc-inv (the dialog is a DOM descendant) so
+// they beat the `.osc-sheet-app button { all: unset }` reset.
+.osc-inv .osc-send-target {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-3);
+  width: 100%;
+  padding: var(--spacer-2) var(--spacer-3);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-md, 6px);
+  font-family: var(--sans);
+  font-size: var(--fs-md, 14px);
+  color: var(--text, #e5dec8);
+  &:hover {
+    background: var(--bg-2, #1f1c17);
+  }
+  &.is-selected {
+    border-color: var(--accent-alt, #c89e54);
+    background: color-mix(in srgb, var(--accent-alt, #c89e54) 12%, transparent);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+.osc-send-target-ic {
+  width: var(--spacer-8);
+  height: var(--spacer-8);
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--r-sm, 4px);
+  background: var(--bg-2, #1f1c17);
+  font-family: var(--display);
+  color: var(--text-dim, #b5ad97);
+  object-fit: cover;
+}
