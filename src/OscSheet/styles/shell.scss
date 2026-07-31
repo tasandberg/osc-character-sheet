@@ -237,7 +237,15 @@
     border-radius: var(--r-md, 6px);
     padding: 5px 6px var(--spacer-1); // 5px optical top, 6px optical sides, 4px bottom
   }
-  .osc-twopane .osc-tile .stamp { font-size: var(--fs-2xs, 11px); padding: 5px 8px 3px; }
+  // 2px sides, not 8px: in the rail the three tiles are equal 1fr columns of a
+  // ~204px pane, and `.osc-tile .stamp` is `width: 100%`, so the stamp cannot
+  // grow to fit its label — "MOVE" overflowed its ink chip and read as a
+  // clipped word. The base rule's comment ("MOVE grows to fit its label") only
+  // holds in the flex layouts; the grid here overrides it. Widening the column
+  // instead would break the tiles' uniformity, and shrinking the font undoes
+  // the deliberate size bump above, so the padding is what gives. Verified at
+  // all three font scales — 8px and even 4px still clip at `large`.
+  .osc-twopane .osc-tile .stamp { font-size: var(--fs-2xs, 11px); padding: 5px 2px 3px; }
   .osc-twopane .osc-tile-v { font-size: var(--fs-xs, 12px); }
 }
 
