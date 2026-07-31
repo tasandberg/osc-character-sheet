@@ -3,136 +3,15 @@
 // Pure layout on top of the Vellum component classes; colors come from tokens.
 
 // --- topbar (ported from prototype .fvtt-topbar) ---
-// Always dark: --ink and the stamp-* text tokens are constant across themes, so
-// the bar reads identically in dark and cream.
-.osc-topbar {
-  background: var(--ink, #070605);
-  border-bottom: 1px solid var(--border, #3a342c);
-  // top · sides · bottom — a touch more breathing room under the bar.
-  padding: var(--spacer-1) var(--spacer-2) var(--spacer-2);
-}
-// .osc-topbar-inner layout (flex row / center / gap spacer-2 / wrap) lives in the
-// JSX as `u-row u-wrap`.
-.osc-tb-lv {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.05;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-.osc-tb-lv b {
-  font-family: var(--display);
-  font-size: var(--fs-sm, 13px);
-  letter-spacing: 0.05em;
-  color: var(--gold);
-}
-.osc-tb-lv.next b {
-  color: var(--stamp-text-dim, #b5ad97);
-}
-.osc-tb-lv .cur {
-  font-family: var(--mono);
-  font-size: var(--fs-3xs, 10px);
-  color: var(--stamp-text-faint, rgba(229, 222, 200, 0.35));
-  margin-top: 1px;
-}
-.osc-tb-xp {
-  flex: 1;
-  min-width: 44px;
-  max-width: 50%;
-}
-.osc-tb-bar {
-  position: relative;
-  height: 16px;
-  border: 1px solid rgba(229, 222, 200, 0.22);
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.35);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.osc-tb-bar i {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, var(--gold-dim, var(--gold)), var(--gold));
-  border-radius: 999px;
-}
-.osc-tb-bar .v {
-  position: relative;
-  z-index: 1;
-  font-family: var(--mono);
-  font-size: var(--fs-3xs, 10px);
-  color: var(--stamp-text, #e5dec8);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-}
-// XS overflow toggle: hidden by default, shown only at XS. Qualified with
-// `.osc-tb-btn.osc-tb-overflow` (0,3,0) so it beats `.osc-topbar .osc-tb-btn`
-// (0,2,0, defined below) — otherwise the inline-flex on every button wins and
-// the ⋮ shows at all widths.
-.osc-topbar .osc-tb-btn.osc-tb-overflow {
-  display: none;
-}
-// Inline action buttons group; hidden at XS, visible otherwise. display:contents
-// so its buttons flatten into the right-cluster wrapper's flex row (shared gap).
-.osc-tb-actions {
-  display: contents;
-}
-// The right cluster (actions + overflow + theme toggle) floats to the edge via
-// the wrapper's `u-ml-auto` in the JSX — leaving level chips + XP bar left.
-
-// Buttons qualified with .osc-topbar to beat the `.osc-sheet-app button`
-// reset (0,1,1) — same fix as .osc-tabrail .osc-tab (see shell.scss).
-.osc-topbar .osc-tb-btn {
-  // layout (inline-flex / center / gap spacer-2) lives in JSX as
-  // `u-inline-flex u-items-center u-gap-2`; chrome stays here.
-  background: transparent;
-  border: 1px solid rgba(229, 222, 200, 0.18);
-  color: var(--stamp-text-dim, #b5ad97);
-  font-family: var(--sans);
-  font-weight: 500;
-  font-size: var(--fs-3xs, 10px);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 6px 11px 5px;
-  border-radius: var(--r-sm, 4px);
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    color 0.12s,
-    border-color 0.12s,
-    background 0.12s;
-}
-.osc-topbar .osc-tb-btn:hover:not(:disabled) {
-  color: var(--stamp-text, #e5dec8);
-  border-color: rgba(229, 222, 200, 0.4);
-}
-.osc-topbar .osc-tb-btn:disabled {
-  cursor: default;
-} // inert (display pass) — keep full fidelity, no dimming
-.osc-topbar .osc-tb-btn.up {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: var(--on-accent, #070605);
-}
-.osc-topbar .osc-tb-btn.up:hover:not(:disabled) {
-  background: var(--gold-dim, var(--gold));
-}
-// Pin the settings cog to the far right on its own, so it stays put even when the
-// owner action cluster (which normally carries the push-right margin) is absent —
-// e.g. the read-only sheet, where no Rest/Level Up/Edit/overflow buttons render.
-// In owner mode the actions' own margin-left:auto absorbs the free space first, so
-// this is a no-op there (cog stays adjacent to the actions at the right edge).
-// margin-left:auto (far-right pin, both owner + read-only) lives in JSX as `u-ml-auto`.
-.osc-topbar .osc-tb-btn.icon {
-  padding: 6px 8px;
-}
-// font-size (--fs-xs) lives in JSX as `u-fs-xs` on the `.i` glyph.
-.osc-topbar .osc-tb-btn .i {
-  line-height: 1;
-}
+// The bar, the level chips, the XP bar and every button variant are utilities —
+// `.osc-topbar` on Frame.tsx, the chips on Topbar.tsx, the buttons in
+// layout/classes.ts (which explains why the variants are exclusive strings).
+// The right cluster floats to the edge via its own `ml-auto`, so the cog stays
+// pinned even on a read-only sheet where no owner actions render.
+//
+// The `.osc-topbar` qualification every button rule used to carry is gone: it
+// existed only to beat `.osc-sheet-app :is(button,…) { all: unset }`, and that
+// reset now sits in `@layer base`, which unlayered utilities out-rank.
 
 // --- header band ---
 // Grid areas let medium and rail arrange the same markup differently:
@@ -146,30 +25,12 @@
   gap: var(--spacer-2) var(--spacer-4);
   align-items: start;
 }
+// Only `grid-area` stays on the header's children: the areas are what let medium,
+// XS and the rail arrange the same markup three ways, and a named area has no
+// utility form. Everything else about these elements — box, type, and all three
+// tiers of it — is utilities in HeaderBand.tsx.
 .osc-portrait-wrap {
   grid-area: portrait;
-  position: relative;
-  align-self: stretch; // span both rows = full header height
-  width: 110px;
-}
-.osc-portrait {
-  // absolute so the IMG's intrinsic size can't inflate the row height
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: var(--r-md, 6px);
-  object-fit: cover;
-  background: radial-gradient(circle at 50% 35%, #2c281f, #15130e);
-  border: 2px solid var(--gold-dim);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
-// Click-to-edit affordance; the attribute only renders on editable sheets.
-.osc-portrait[data-action="editImage"] {
-  cursor: pointer;
-  &:hover {
-    border-color: var(--gold);
-  }
 }
 // Overlay anchor for module-injected portrait controls (see HeaderBand +
 // osc-sheet.js renderActorSheet forwarding). Class is exactly
@@ -186,25 +47,15 @@
 }
 .osc-ident {
   grid-area: ident;
-  min-width: 0;
-  overflow: hidden; // long names ellipsize instead of pushing HP/AC off-screen
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
+// The name's SIZE is the one header declaration that can't be a utility. It has
+// three values across TWO different containers (base, `sheet ≥470`, `app ≤479`),
+// and the original cascade resolves an overlap by source order — XS last. As
+// utilities the two container variants would be ordered by Tailwind, not by this
+// file, so the ≥470 bump could silently win at XS. Everything else about
+// `.osc-name` is utilities in HeaderBand.tsx.
 .osc-name {
-  font-family: var(--display);
   font-size: calc(var(--fs-4xl, 28px) * var(--fit-scale, 1));
-  line-height: 0.95;
-  letter-spacing: 0.01em;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-}
-.osc-class {
-  font-family: var(--display);
-  color: var(--gold);
-  font-size: var(--fs-md, 15px);
 }
 @container sheet (min-width: 470px) {
   .osc-name {
@@ -213,69 +64,12 @@
 }
 
 // --- HP/AC (right column in medium; top-aligned, content height) ---
+// The cards, their labels, numerals and sub-lines are utilities in HeaderBand.tsx
+// — including the XS reflow to 52×76 narrow-tall boxes. The `.vv-big` default
+// colour went with them and is not reproduced: every numeral is inside `.hp` or
+// `.ac`, so the `var(--text)` base was already dead.
 .osc-vitals {
   grid-area: vitals;
-  align-self: start;
-  width: calc(var(--fs-base, 16px) * 11.5);
-  display: grid;
-  // minmax(0,…) so a wide value can't auto-expand a track past its share and
-  // shove the sibling card out of the container.
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--spacer-2);
-}
-.osc-vital {
-  position: relative;
-  background: var(--surface);
-  border: 1px solid var(--border-soft, #2c2823);
-  border-radius: var(--r-md, 6px);
-  padding: 6px 10px 8px;
-  text-align: center;
-}
-.osc-vital.hp {
-  border-color: color-mix(in srgb, var(--crimson) 55%, transparent);
-}
-.osc-vital.ac {
-  border-color: color-mix(in srgb, var(--teal) 50%, transparent);
-}
-// .vv-l is a <Stamp>; fill the box width (black bar) like the others
-.osc-vital .vv-l {
-  display: block;
-  width: 100%;
-  margin: 0 0 2px;
-}
-.osc-vital .vv-big {
-  font-family: var(--display);
-  font-size: var(--fs-4xl, 28px);
-  line-height: 1.05;
-  margin: 1px 0;
-  color: var(--text);
-}
-.osc-vital.hp .vv-big {
-  color: var(--crimson);
-}
-.osc-vital.ac .vv-big {
-  color: var(--teal);
-}
-.osc-vital .vv-sub {
-  font-family: var(--mono);
-  font-size: var(--fs-2xs, 11px);
-  color: var(--text-mute);
-}
-.osc-vital .vv-sub .short {
-  display: none;
-} // full label by default; short shows at XS
-.osc-vital .vv-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacer-2);
-}
-// Reserve width for up to 3 digits so the value's digit count never shifts the
-// flanking − / + steppers as HP changes. tabular-nums keeps digit widths uniform.
-.osc-vital .vv-value {
-  min-width: 1.2em;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
 }
 // medium+: − / + steppers revealed on hover
 .osc-vital .vv-step {
@@ -334,97 +128,18 @@
 }
 
 // --- Init/HD/Move (under the name in medium; uniform tiles) ---
+// The tiles, their stamps and their values are utilities in HeaderBand.tsx, all
+// three tiers of them. The one rail override that stays SCSS is the stamp's side
+// padding in shell.scss — see the clipped-MOVE note there; at (0,3,0) it still
+// out-ranks the base utilities.
 .osc-substats {
   grid-area: subs;
-  align-self: start;
-  display: flex;
-  gap: var(--spacer-2);
 }
-// borderless: just the stamp label + value, so HP/AC stay the only "boxes"
-.osc-tile {
-  min-width: 52px; // min 52px; MOVE grows to fit its label
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacer-1);
-  padding: 2px 0 0;
-  text-align: center;
-}
-// smaller, snugger stamp than the default .sm
-.osc-tile .stamp {
-  display: block;
-  width: 100%;
-  text-align: center;
-  white-space: nowrap;
-  font-size: var(--fs-3xs, 10px);
-  padding: 3px 4px 2px;
-}
-.osc-tile-v {
-  font-family: var(--mono);
-  font-size: var(--fs-2xs, 11px);
-  color: var(--text);
-}
-.osc-tile-move {
-  cursor: default;
-}
-// dotted underline on the value hints at the hover breakdown (all three rates + enc)
-.osc-tile-move .osc-tile-v {
-  text-decoration: underline dotted var(--text-faint);
-  text-underline-offset: 2px;
-}
-// Shared by the header MOVE tile and the inventory encumbrance line (see MovePop.tsx).
-// Placed by HoverPop: `position: fixed` (inline) so it escapes any overflow-clipping
-// ancestor — the character rail self-scrolls — and `visibility: hidden` when closed.
-// z-index keeps it above sheet content (carets, sticky heads) when layers overlap.
-.osc-move-pop {
-  // don't inherit the anchor's tier tint — only a `.vv.enc-t*` row opts back in
-  --enc-c: initial;
-
-  min-width: 150px;
-  // 2-col grid: label | value. The label column grows (1fr) to eat the slack; every value
-  // (rates AND status) lives in the same right-aligned column, so they all end flush at the
-  // table's right edge.
-  display: grid;
-  grid-template-columns: minmax(max-content, 1fr) max-content;
-  column-gap: var(--spacer-3);
-  row-gap: 3px;
-}
-// small section-label header atop the popover, divided from the rate rows
-.osc-move-pop .hd {
-  font-family: var(--sans);
-  font-size: var(--fs-3xs, 10px);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-mute);
-  padding-bottom: 3px;
-  margin-bottom: 2px;
-  border-bottom: 1px solid var(--border-soft, #2c2823);
-  grid-column: 1 / -1; // header spans all columns
-}
-.osc-move-pop .r {
-  display: contents; // dissolve the row so its cells land directly in the grid
-}
-.osc-move-pop .k {
-  font-family: var(--sans);
-  font-size: var(--fs-xs, 12px);
-  color: var(--text-dim, #b5ad97);
-}
-// value cell: rates + status share one right-aligned column so every value ends flush at
-// the table's right edge. The number keeps the body colour, the unit is muted.
-.osc-move-pop .vv {
-  grid-column: 2;
-  font-family: var(--mono);
-  font-size: var(--fs-xs, 12px);
-  text-align: right;
-  white-space: nowrap; // the pop widens for "Severely encumbered" rather than wrapping it
-  color: var(--enc-c, var(--text)); // tinted only on rows carrying a tier class
-}
-// on a rate row the number keeps the value colour; only the unit dims.
-.osc-move-pop .unit {
-  color: var(--text-mute);
-}
+// The movement popover — shared by the header MOVE tile and the inventory
+// encumbrance line — is wholly utilities in MovePop.tsx, which is also the single
+// source for its markup. Placement stays HoverPop's job: `position: fixed`
+// (inline) so it escapes any overflow-clipping ancestor — the character rail
+// self-scrolls — and `visibility: hidden` when closed.
 
 // --- abilities: 3-up (6-up wide) grid of ability plaques ---
 // The plaque box + stamp/value/mod styling lives in vellum as `.plaque-ability`
@@ -433,6 +148,17 @@
 // flattens the plaques — see the container block at the bottom.
 
 // --- section title override (prototype: 2px border-bottom, not 3px thick) ---
+// STAYS SCSS, and cannot move. This is a blanket override of the vellum
+// `.section-title` base at (0,1,0), so vellum's own `.section-title.sub` and
+// `.section-title.bare` (both (0,2,0), and both earlier in source) still win the
+// properties they re-declare — that is what keeps the inventory's "Equipped" /
+// "All Items" heads small-caps sans and a modal title rule-less.
+//
+// As utilities on SectionTitle.tsx it would land at (0,2,0) imported LAST, tie
+// with those two variants and beat them, silently restyling every sub-head and
+// every modal title in the sheet. The variants live in the shared vellum
+// stylesheet, so the fix isn't here — it lands when the sheet consumes the
+// published package and this override can go away entirely.
 .section-title {
   font-family: var(--display);
   font-size: var(--fs-xl, 18px);
@@ -765,9 +491,7 @@
 }
 
 // --- topbar overflow menu (XS: ⋮ button + popover) ---
-.osc-tb-menu-wrap {
-  position: relative;
-}
+// `.osc-tb-menu-wrap`'s positioning context is a utility in Topbar.tsx.
 .osc-tb-menu {
   position: absolute;
   top: calc(100% + 6px);
@@ -785,6 +509,9 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   min-width: 130px;
 }
+// Stays SCSS: the SAME JSX (`actionButtons`) renders both inline on the bar and
+// inside this menu, so no utility on the element can tell the two apart. Neither
+// property is set by the button's own utilities, so nothing contests it.
 .osc-tb-menu .osc-tb-btn {
   width: 100%;
   justify-content: flex-start;
@@ -803,58 +530,16 @@
     gap: 11px; // header row gap (prototype)
     align-items: center; // portrait + name centered against the taller HP/AC
   }
-  .osc-portrait-wrap {
-    width: 54px;
-    height: 54px;
-    align-self: center;
-  } // 54×54 square (prototype)
-  .osc-portrait {
-    border: 1px solid var(--border, #3a342c);
-    box-shadow: none;
-  } // subtle 1px border at XS
-  .osc-ident {
-    overflow: hidden;
-  } // keep a long name from pushing HP/AC off-screen
+  // The compact portrait, the ellipsizing name, the 52×76 HP/AC boxes and the
+  // three-across Init/HD/Move row are `@max-md/app:` utilities in HeaderBand.tsx.
+  // Only the name's SIZE stays (see the note on `.osc-name` above).
   .osc-name {
     font-size: calc(var(--fs-2xl, 21px) * var(--fit-scale, 1));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
-  // HP/AC: 52×76 narrow-tall boxes, content top-aligned (prototype spec)
-  .osc-vitals {
-    width: 112px;
-    gap: var(--spacer-2);
-    grid-template-columns: repeat(2, 52px);
-    align-items: stretch;
-  }
-  .osc-vital {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 1px;
-    min-height: 76px;
-    padding: 5px 4px 6px;
-    border-radius: var(--r-md, 6px);
-  }
-  .osc-vital .vv-l {
-    font-size: var(--fs-2xs, 11px);
-    padding: 4px 6px 3px;
-  }
-  .osc-vital .vv-big {
-    font-size: var(--fs-3xl, 24px);
-  }
-  .osc-vital .vv-sub {
-    font-size: var(--fs-3xs, 10px);
-  }
-  .osc-vital .vv-sub .full {
-    display: none;
-  }
-  .osc-vital .vv-sub .short {
-    display: inline;
-  }
-  // HP value becomes an editable input (steppers/static value are medium+ only)
+  // HP value becomes an editable input (steppers/static value are medium+ only).
+  // These three stay SCSS with `.vv-step`/`.vv-input` (see their base rules): the
+  // hover reveal and the spin-button pseudo-elements have no utility form, and a
+  // base utility for `display` here would out-rank the read-only override below.
   .osc-vital .vv-step {
     display: none;
   }
@@ -869,15 +554,6 @@
   // number vanishes entirely at XS.
   .osc-sheet-app.is-readonly .osc-vital .vv-value {
     display: block;
-  }
-  // Init/HD/Move: borderless + small, three across (inherit the compact base)
-  .osc-substats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacer-2);
-  }
-  .osc-tile {
-    width: auto;
   }
   // attacks: two columns — weapon info (icon/name/tags) left; the roll stack
   // right: Hit and Dmg as horizontal label·value roll rows over a full-width
@@ -971,12 +647,6 @@
     padding: 0 6px 1px;
     margin-top: 2px;
   }
-  // topbar: collapse Rest / Level Up / Edit into the ⋮ overflow. The right-cluster
-  // wrapper (u-ml-auto) still floats the collapsed ⋮ + toggle group to the edge.
-  .osc-tb-actions {
-    display: none;
-  }
-  .osc-topbar .osc-tb-btn.osc-tb-overflow {
-    display: inline-flex;
-  }
+  // topbar: the Rest / Level Up / Edit → ⋮ collapse is a pair of
+  // `@max-md/app:` utilities on the two elements (Topbar.tsx).
 }

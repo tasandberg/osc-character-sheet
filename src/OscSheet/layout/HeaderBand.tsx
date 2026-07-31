@@ -27,6 +27,68 @@ function useFitText(text: string, min = 0.6) {
   return ref;
 }
 
+// Tiers are container queries: `app` for the XS compact header, `sheet` for the
+// narrow left rail in the two-pane view. The two can never both match — `sheet`
+// lives inside `app`, so it cannot be ≥700 while `app` is <480 — so their
+// relative order never decides anything. Sizes go through `var(--fs-*)` rather
+// than the `tw:text-*` scale: the tokens are `calc(<rem> * var(--fs-scale))` and
+// follow the sheet's font-size setting, the Tailwind scale is the raw rem.
+
+// Init / HD / Move tile: borderless in the flex layouts so HP/AC stay the only
+// "boxes"; in the rail it gains a real box, because there it is a grid cell.
+const TILE =
+  "osc-tile tw:flex tw:min-w-[52px] tw:flex-none tw:flex-col tw:items-center tw:gap-1 tw:pt-[2px] tw:text-center" +
+  " tw:@max-md/app:w-auto" +
+  " tw:@twopane/sheet:w-auto tw:@twopane/sheet:rounded-md tw:@twopane/sheet:border" +
+  " tw:@twopane/sheet:border-border-soft tw:@twopane/sheet:bg-surface" +
+  " tw:@twopane/sheet:px-[6px] tw:@twopane/sheet:pt-[5px] tw:@twopane/sheet:pb-1";
+
+// Smaller, snugger than the stamp's own `.sm`. The rail trims the sides further
+// still — see the clipped-MOVE note on `.osc-twopane .osc-tile .stamp` in
+// shell.scss, which stays SCSS: at (0,3,0) it out-ranks these utilities.
+const TILE_STAMP =
+  "tw:block tw:w-full tw:px-[4px] tw:pt-[3px] tw:pb-[2px] tw:text-center" +
+  " tw:text-[length:var(--fs-3xs)] tw:whitespace-nowrap";
+
+const TILE_V =
+  "osc-tile-v tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text" +
+  " tw:@twopane/sheet:text-[length:var(--fs-xs)]";
+
+// HP/AC card. Carries NO border colour: hp and ac each supply their own, and two
+// class-level utilities for one property are ordered by Tailwind rather than by
+// the order they are written, so a shared base plus an override could come out
+// either way. At XS the card becomes a 52×76 narrow-tall box.
+const VITAL =
+  "osc-vital tw:relative tw:rounded-md tw:border tw:bg-surface tw:px-[10px] tw:pt-[6px] tw:pb-[8px] tw:text-center" +
+  " tw:@max-md/app:flex tw:@max-md/app:min-h-[76px] tw:@max-md/app:flex-col tw:@max-md/app:items-center" +
+  " tw:@max-md/app:justify-start tw:@max-md/app:gap-[1px]" +
+  " tw:@max-md/app:px-[4px] tw:@max-md/app:pt-[5px] tw:@max-md/app:pb-[6px]";
+
+// The <Stamp> label fills the box width (black bar) like the others.
+const VITAL_L =
+  "vv-l tw:mb-[2px] tw:block tw:w-full" +
+  " tw:@max-md/app:px-[6px] tw:@max-md/app:pt-[4px] tw:@max-md/app:pb-[3px]" +
+  " tw:@max-md/app:text-[length:var(--fs-2xs)]";
+
+// The hero numeral. Colour is per-card, as above.
+const VITAL_BIG =
+  "vv-big tw:my-[1px] tw:font-display tw:text-[length:var(--fs-4xl)] tw:leading-[1.05]" +
+  " tw:@max-md/app:text-[length:var(--fs-3xl)]";
+
+const VITAL_SUB =
+  "vv-sub tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute" +
+  " tw:@max-md/app:text-[length:var(--fs-3xs)]";
+
+/** Full label by default; the short form takes over at XS, where the card is 52px wide. */
+const SUB_FULL = "full tw:@max-md/app:hidden";
+const SUB_SHORT = "short tw:hidden tw:@max-md/app:inline";
+
+const VV_ROW = "vv-row tw:flex tw:items-center tw:justify-center tw:gap-2";
+
+// Reserve width for the digits so the value's digit count never shifts the
+// flanking − / + steppers as HP changes; tabular-nums keeps digit widths uniform.
+const VV_VALUE = "vv-value tw:min-w-[1.2em] tw:text-center tw:tabular-nums";
+
 type Props = {
   identity: IdentityVM;
   vitals: VitalsVM;
@@ -53,13 +115,28 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           decorating modules (e.g. OSR Character Builder) inject into is created
           imperatively in osc-sheet.js — outside React's tree — so React
           never clobbers an injected child. */}
-      <div className="osc-portrait-wrap profile">
+      {/* `align-self` spans both header rows in medium (= full header height);
+          the rail and XS centre it instead. */}
+      <div className="osc-portrait-wrap profile tw:relative tw:w-[110px] tw:self-stretch tw:@max-md/app:h-[54px] tw:@max-md/app:w-[54px] tw:@max-md/app:self-center tw:@twopane/sheet:h-[120px] tw:@twopane/sheet:w-[120px] tw:@twopane/sheet:self-center">
         {/* `data-action="editImage"` (core AppV2 vocabulary) rides the frame's
             delegated click listener — no React onClick needed — and doubles as
             a compat surface for modules keyed on the core attribute. Rendered
-            only when editable so non-owners get no action and no affordance. */}
+            only when editable so non-owners get no action and no affordance.
+
+            `absolute` so the IMG's intrinsic size can't inflate the row height.
+            The hover tint is written for both tiers: container-query utilities
+            emit after `hover:` ones, so an unqualified `hover:border-gold` would
+            lose to the XS border colour at XS. */}
         <img
-          className="osc-portrait profile-img"
+          className={
+            "osc-portrait profile-img tw:absolute tw:inset-0 tw:h-full tw:w-full tw:rounded-md" +
+            " tw:border-2 tw:border-gold-dim tw:bg-[radial-gradient(circle_at_50%_35%,#2c281f,#15130e)]" +
+            " tw:object-cover tw:shadow-[0_1px_4px_rgba(0,0,0,0.4)]" +
+            " tw:@max-md/app:border tw:@max-md/app:border-border tw:@max-md/app:shadow-none" +
+            (canEditPortrait
+              ? " tw:cursor-pointer tw:hover:border-gold tw:@max-md/app:hover:border-gold"
+              : "")
+          }
           src={identity.img || undefined}
           alt={identity.name}
           data-action={canEditPortrait ? "editImage" : undefined}
@@ -68,25 +145,39 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           onContextMenu={onPortraitContextMenu}
         />
       </div>
-      <div className="osc-ident">
-        <div className="osc-name" ref={nameRef}>{identity.name}</div>
-        <div className="osc-class">
+      {/* `overflow-hidden` so a long name ellipsizes instead of pushing HP/AC
+          off-screen. In the rail the column fills its track (don't size to
+          content) so useFitText has a real width to shrink the name against. */}
+      <div className="osc-ident tw:flex tw:min-w-0 tw:flex-col tw:gap-[2px] tw:overflow-hidden tw:@twopane/sheet:w-full tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
+        {/* The name's font-size is the one thing left in actions.scss — see the
+            note there on why three tiers across two containers can't be
+            utilities. */}
+        <div
+          className="osc-name tw:overflow-hidden tw:font-display tw:leading-[0.95] tw:tracking-[0.01em] tw:whitespace-nowrap tw:text-text tw:@max-md/app:text-ellipsis tw:@twopane/sheet:self-stretch tw:@twopane/sheet:text-center"
+          ref={nameRef}
+        >
+          {identity.name}
+        </div>
+        <div className="osc-class tw:font-display tw:text-[length:var(--fs-md)] tw:text-gold tw:@twopane/sheet:text-center">
           {identity.classLabel} {identity.level}
           {identity.title ? ` · ${identity.title}` : ""} · {identity.alignment}
         </div>
       </div>
-      <div className="osc-substats">
-        <div className="osc-tile">
-          <Stamp>INIT</Stamp>
-          <div className="osc-tile-v">{formatMod(vitals.initMod)}</div>
+      <div className="osc-substats tw:flex tw:gap-2 tw:self-start tw:@max-md/app:grid tw:@max-md/app:grid-cols-3 tw:@twopane/sheet:grid tw:@twopane/sheet:w-full tw:@twopane/sheet:grid-cols-3">
+        <div className={TILE}>
+          <Stamp className={TILE_STAMP}>INIT</Stamp>
+          <div className={TILE_V}>{formatMod(vitals.initMod)}</div>
         </div>
-        <div className="osc-tile">
-          <Stamp>HD</Stamp>
-          <div className="osc-tile-v">{vitals.hd}</div>
+        <div className={TILE}>
+          <Stamp className={TILE_STAMP}>HD</Stamp>
+          <div className={TILE_V}>{vitals.hd}</div>
         </div>
-        <div className="osc-tile osc-tile-move">
-          <Stamp>MOVE</Stamp>
-          <div className="osc-tile-v">{vitals.move}ft</div>
+        <div className={`${TILE} osc-tile-move tw:cursor-default`}>
+          <Stamp className={TILE_STAMP}>MOVE</Stamp>
+          {/* dotted underline hints at the hover breakdown (all three rates + enc) */}
+          <div className={`${TILE_V} tw:underline tw:decoration-text-faint tw:decoration-dotted tw:underline-offset-[2px]`}>
+            {vitals.move}ft
+          </div>
           <MoveTooltip
             bands={m}
             tier={encumbrance?.enabled ? encumbrance.tier : undefined}
@@ -99,18 +190,20 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           />
         </div>
       </div>
-      <div className="osc-vitals">
-        <div className="osc-vital hp">
-          <Stamp className="vv-l">HP</Stamp>
-          <div className="vv-row">
+      {/* minmax(0,…) so a wide value can't auto-expand a track past its share
+          and shove the sibling card out of the container. */}
+      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*11.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:gap-2 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
+        <div className={`${VITAL} hp tw:border-[color-mix(in_srgb,var(--crimson)_55%,transparent)]`}>
+          <Stamp className={VITAL_L}>HP</Stamp>
+          <div className={VV_ROW}>
             {/* medium+: − / + steppers around the value; XS: an editable input (toggled in CSS) */}
             {onSetHp && (
               <button type="button" className="vv-step" aria-label="Lose 1 HP" onClick={hp.dec}>−</button>
             )}
-            <div className="vv-big vv-value">{vitals.hp.value}</div>
+            <div className={`${VITAL_BIG} ${VV_VALUE} tw:text-crimson`}>{vitals.hp.value}</div>
             {onSetHp && (
               <input
-                className="vv-big vv-input"
+                className={`${VITAL_BIG} vv-input tw:text-crimson`}
                 aria-label="Current HP"
                 key={hp.key}
                 {...hp.inputProps}
@@ -120,19 +213,19 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
               <button type="button" className="vv-step" aria-label="Heal 1 HP" onClick={hp.inc}>+</button>
             )}
           </div>
-          <div className="vv-sub">
-            <span className="full">Max {vitals.hp.max}</span>
-            <span className="short">/{vitals.hp.max}</span>
+          <div className={VITAL_SUB}>
+            <span className={SUB_FULL}>Max {vitals.hp.max}</span>
+            <span className={SUB_SHORT}>/{vitals.hp.max}</span>
           </div>
         </div>
-        <div className="osc-vital ac">
-          <Stamp className="vv-l">AC</Stamp>
-          <div className="vv-row">
-            <div className="vv-big" data-testid="ac-value">{vitals.ac.value}</div>
+        <div className={`${VITAL} ac tw:border-[color-mix(in_srgb,var(--teal)_50%,transparent)]`}>
+          <Stamp className={VITAL_L}>AC</Stamp>
+          <div className={VV_ROW}>
+            <div className={`${VITAL_BIG} tw:text-teal`} data-testid="ac-value">{vitals.ac.value}</div>
           </div>
-          <div className="vv-sub">
-            <span className="full">{vitals.ac.ascending ? "Ascending" : "Descending"}</span>
-            <span className="short">{vitals.ac.ascending ? "asc" : "desc"}</span>
+          <div className={VITAL_SUB}>
+            <span className={SUB_FULL}>{vitals.ac.ascending ? "Ascending" : "Descending"}</span>
+            <span className={SUB_SHORT}>{vitals.ac.ascending ? "asc" : "desc"}</span>
           </div>
         </div>
       </div>

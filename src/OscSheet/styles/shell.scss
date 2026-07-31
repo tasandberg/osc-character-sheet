@@ -185,39 +185,29 @@
   }
   .actions-only { display: none; }
 
-  // header band reflow in the narrow left rail — stack: portrait, name, HP/AC, Init/HD/Move
+  // header band reflow in the narrow left rail — stack: portrait, name, HP/AC, Init/HD/Move.
+  // Only the grid itself is left here. Every per-element rail override moved onto
+  // HeaderBand.tsx as `@twopane/sheet:` utilities, and had to: the base rules are
+  // utilities now, and a (0,2,0) `.osc-twopane .osc-x` in this file would LOSE to
+  // a (0,2,0) utility imported after it. `.osc-head` is safe to keep because its
+  // base is still SCSS — grid areas have no utility form.
   .osc-twopane .osc-head {
     grid-template-columns: 1fr;
     grid-template-areas: "portrait" "ident" "vitals" "subs";
     justify-items: center;
     gap: var(--spacer-3);
   }
-  .osc-twopane .osc-portrait-wrap { align-self: center; width: 120px; height: 120px; }
-  // Fill the rail column (don't size to content) so useFitText has a real
-  // `avail` width to shrink the name against, instead of overflowing the rail.
-  .osc-twopane .osc-ident { width: 100%; align-items: center; text-align: center; }
-  .osc-twopane .osc-name { text-align: center; align-self: stretch; }
-  .osc-twopane .osc-class { text-align: center; }
-  .osc-twopane .osc-vitals { width: 100%; }
-  .osc-twopane .osc-substats { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; }
-  // rail (the larger view): keep the boxed tiles at normal size
-  .osc-twopane .osc-tile {
-    width: auto;
-    background: var(--surface);
-    border: 1px solid var(--border-soft, #2c2823);
-    border-radius: var(--r-md, 6px);
-    padding: 5px 6px var(--spacer-1); // 5px optical top, 6px optical sides, 4px bottom
-  }
   // 2px sides, not 8px: in the rail the three tiles are equal 1fr columns of a
-  // ~204px pane, and `.osc-tile .stamp` is `width: 100%`, so the stamp cannot
+  // ~204px pane, and the tile stamp is `width: 100%`, so the stamp cannot
   // grow to fit its label — "MOVE" overflowed its ink chip and read as a
-  // clipped word. The base rule's comment ("MOVE grows to fit its label") only
-  // holds in the flex layouts; the grid here overrides it. Widening the column
-  // instead would break the tiles' uniformity, and shrinking the font undoes
-  // the deliberate size bump above, so the padding is what gives. Verified at
-  // all three font scales — 8px and even 4px still clip at `large`.
+  // clipped word. The base ("MOVE grows to fit its label") only holds in the
+  // flex layouts; the grid here overrides it. Widening the column instead would
+  // break the tiles' uniformity, and shrinking the font undoes the deliberate
+  // size bump, so the padding is what gives. Verified at all three font scales
+  // — 8px and even 4px still clip at `large`.
+  //
+  // This one CAN stay: at (0,3,0) it out-ranks the tile stamp's base utilities.
   .osc-twopane .osc-tile .stamp { font-size: var(--fs-2xs, 11px); padding: 5px 2px 3px; }
-  .osc-twopane .osc-tile-v { font-size: var(--fs-xs, 12px); }
 }
 
 // Center tabs replace the right rail exactly when the two-pane engages.
