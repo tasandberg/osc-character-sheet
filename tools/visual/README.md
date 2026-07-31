@@ -109,6 +109,11 @@ Every run creates its own actor, drives it, and deletes it along with the chat
 messages and hotbar macros it generated. Never point this at a real character —
 and note that a run that crashes mid-way leaves the actor behind.
 
+**`chat-card.png` is nondeterministic.** It contains a real attack roll, so the
+numbers differ between runs — expect ~0.5% on that shot even between two
+captures of the same build. Every other shot is deterministic; treat a non-zero
+delta on any of them as real.
+
 **Both sides of a comparison must be captured with the same actor definition.**
 Item names change text widths, which changes wrapping, which changes both the
 element count and every derived width — so a capture taken with a different

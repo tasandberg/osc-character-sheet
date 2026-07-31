@@ -364,54 +364,12 @@
 // Hit / Damage — plain clickable cells: a small HIT/DMG label over the value
 // (hit = mode icon + modifier; dmg = full formula). In actions-features.scss.
 
-// compact brass "Attack" button (composite hit + damage via OSE weapon dialog)
-// NOTE: no markup carries `.fvtt-atk` — AttacksTable renders the shared Vellum
-// <Button variant="outline" tone="brass"> instead, so this whole rule (and the
-// `grid-area: atk` for it in the XS block) is inert. Left as found; making the
-// button pick the class up again is a behaviour change, not a conversion.
-.osc-sheet-app .fvtt-atk {
-  justify-self: stretch;
-  // Chromium won't start a drag from a <button> on draggable=true alone; this
-  // opts the button in (so it drags to the macro hotbar like the weapon image).
-  -webkit-user-drag: element;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacer-1);
-  padding: var(--spacer-1) var(--spacer-3);
-  background: transparent;
-  border: 1px solid var(--gold-soft);
-  border-radius: var(--r-md, 6px);
-  color: var(--gold);
-  font-family: var(--sans);
-  font-size: var(--fs-3xs, 10px);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    border-color 0.12s,
-    background 0.12s,
-    transform 0.06s;
-  i {
-    font-size: var(--fs-sm, 13px);
-  }
-  &:hover:not(:disabled) {
-    border-color: var(--gold);
-    background: color-mix(in srgb, var(--gold) 10%, transparent);
-  }
-  &:active:not(:disabled) {
-    transform: translateY(1px);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--gold);
-    outline-offset: 1px;
-  }
-  &:disabled {
-    opacity: 0.35;
-    cursor: default;
-  }
-}
+// The Attack button is the shared Vellum <Button variant="outline" tone="brass">
+// with an icon + label — the same primitive as the "with icon" outline story.
+// The bespoke `.fvtt-atk` rules that used to sit here (appearance AND the XS
+// `grid-area: atk`) are gone: no markup has carried the class since before this
+// branch, so they styled nothing. The button keeps its place in the XS weapon
+// grid by auto-placement into the free `atk` cell, exactly as it already did.
 
 // --- wealth + movement ---
 // NOTE: nothing renders `.osc-wm`, `.osc-coins`, `.osc-moves`, `.osc-coin` or
@@ -592,14 +550,6 @@
   }
   .osc-weapon .wstat .wv {
     font-size: var(--fs-xs, 12px);
-  }
-  .osc-weapon .fvtt-atk {
-    grid-area: atk;
-    justify-self: stretch;
-    min-width: 0;
-    margin-top: var(--spacer-1);
-    padding-top: 5px;
-    padding-bottom: 5px;
   }
   // abilities: 6-across in one compact row (flat — drop the md+ gold frame/brackets)
   // The plaque base is now vellum `.plaque-ability` (0,2,0 once scoped); these XS
