@@ -3,6 +3,9 @@ import "./styles/vellum/fonts.css";
 import "./styles/vellum/tokens.scss";
 import "./styles/vellum/utilities.scss";
 import "./styles/vellum/components.css";
+// Tailwind entry — prefixed, scoped, no preflight. Before the feature
+// stylesheets so its `@layer` order declaration is the first thing seen.
+import "./styles/vellum/tailwind.css";
 import "./styles/styles.scss";
 import "./styles/edit-modal.scss";
 import OscSheetProvider from "@app/OscSheetProvider";

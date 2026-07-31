@@ -157,18 +157,29 @@
   container-type: inline-size; // outer frame: drives vertical rail ⇄ horizontal tab bar
   container-name: app;
 
-  // Scoped element reset — ONLY elements WE render inside the React app, never
-  // Foundry's window-frame controls. Classed Vellum controls (.btn/.input) still win.
-  // Excludes <prose-mirror> internals: that editor is Foundry-rendered UI
-  // (toggle button, menu, contenteditable) and must keep its own core styles.
-  :is(button, input, select, textarea):not(prose-mirror *) {
-    all: unset;
-    box-sizing: border-box;
-    font-family: var(--sans);
-  }
   a {
     color: inherit;
     text-decoration: none;
+  }
+}
+
+// Scoped element reset — ONLY elements WE render inside the React app, never
+// Foundry's window-frame controls. Excludes <prose-mirror> internals: that
+// editor is Foundry-rendered UI (toggle button, menu, contenteditable) and must
+// keep its own core styles.
+//
+// IN `@layer base` ON PURPOSE. Unlayered CSS beats every layered rule whatever
+// the specificity, so out here `all: unset` silently flattens every Tailwind
+// utility on a control — border, padding and background vanish while the text
+// utilities still apply, which reads as a styling mistake rather than a cascade
+// one. Inside `base` the layer order decides and utilities win.
+//
+// Do not "tidy" this back out of its layer.
+@layer base {
+  .osc-sheet-app :is(button, input, select, textarea):not(prose-mirror *) {
+    all: unset;
+    box-sizing: border-box;
+    font-family: var(--sans);
   }
 }
 
