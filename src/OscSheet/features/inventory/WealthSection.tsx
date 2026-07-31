@@ -222,16 +222,22 @@ export function WealthSection({
               dir={sort.dir}
               onClick={() => onSort("qty")}
             />
+            {/* Hidden at XS here as well as on the row — the two must agree, or
+                the header keeps cells the row has dropped and they wrap onto a
+                second line. Stated as a utility rather than a `:nth-child` rule
+                in SCSS: the row's cells already hide this way, and a positional
+                selector loses to the utility that sets `display` on these
+                headers. */}
             <SortHeader
               label={itemBased ? "Slots" : "Weight (cn)"}
-              className="osc-coin-th-num tw:justify-end tw:whitespace-nowrap"
+              className="osc-coin-th-num tw:justify-end tw:whitespace-nowrap tw:@max-md/app:hidden"
               active={sort.key === "weight"}
               dir={sort.dir}
               onClick={() => onSort("weight")}
             />
             <SortHeader
               label="Value (gp)"
-              className="osc-coin-th-num tw:justify-end tw:whitespace-nowrap"
+              className="osc-coin-th-num tw:justify-end tw:whitespace-nowrap tw:@max-md/app:hidden"
               active={sort.key === "value"}
               dir={sort.dir}
               onClick={() => onSort("value")}

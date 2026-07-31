@@ -104,19 +104,14 @@
   background: var(--coin-cp, #b1734a);
 }
 
-// xs / narrow inventory column: drop the Weight + Value columns. The cells and
-// the total row hide themselves with `tw:@max-md/app:hidden`; the two headers
-// can't, because `.osc-inv .osc-inv-th` (_rows.scss) owns their `display` from
-// outside any layer, and unlayered CSS outranks @layer utilities whatever the
-// specificity. Fold these in once that rule becomes utilities.
-// Header children: 1 drag · 2 Coin · 3 Qty · 4 Weight · 5 Value.
+// xs / narrow inventory column: drop the Weight + Value columns. Only the grid
+// template lives here now — every cell that disappears, header and row alike,
+// hides itself with `tw:@max-md/app:hidden`. The positional `:nth-child` rule
+// this used to need is gone: it depended on the header and the row hiding by
+// different mechanisms, which is exactly how they drifted out of step.
 @container app (max-width: 479px) {
   .osc-coin-colhead,
   .osc-coin-row {
     grid-template-columns: 18px 30px minmax(0, 1fr) 92px;
-  }
-  .osc-coin-colhead > :nth-child(4),
-  .osc-coin-colhead > :nth-child(5) {
-    display: none;
   }
 }

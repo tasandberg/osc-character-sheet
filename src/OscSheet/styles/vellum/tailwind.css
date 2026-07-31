@@ -47,7 +47,22 @@
   --container-twopane: 700px; /* sheet: single column ⇄ rail + pane */
 }
 
-@import "tailwindcss/utilities.css" layer(utilities) prefix(tw) source(none);
+/* Utilities are deliberately UNLAYERED, unlike the theme and the reset.
+ *
+ * Foundry is a shared document and other modules ship global, unscoped rules:
+ * `ose-advancedfantasytome` has a bare `input[type="number"] { width: 2em }`.
+ * Unlayered CSS beats every layered rule no matter how specific, so with these
+ * in `@layer utilities` that 2em won over `tw:w-full`, and the coin quantity
+ * fields collapsed to 28px and clipped their values. Specificity cannot rescue
+ * a layered rule — only leaving the layer can.
+ *
+ * So they sit unlayered, and this file is imported LAST (see index.tsx) so
+ * source order still puts utilities above our own CSS. The reset stays in
+ * `@layer base`, which unlayered utilities also outrank.
+ *
+ * The tradeoff is real: we give up the tidy layer story to survive a host we
+ * don't control. Re-layering these reintroduces the bug. */
+@import "tailwindcss/utilities.css" prefix(tw) source(none);
 
 @source "../../features";
 @source "../../components";
