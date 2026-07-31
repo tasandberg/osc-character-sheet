@@ -95,8 +95,10 @@
   --on-accent:     var(--ink);
 
   /* ─── Legacy aliases (so existing components keep working) ─────────── */
-  --brass:         var(--teal);
-  --brass-dim:     var(--teal-dim);
+  /* Brass is the warm gold accent (XP, treasure), NOT teal — teal is the primary/retainer
+     accent. Aliasing it to teal also froze it across themes: --teal is theme-constant. */
+  --brass:         var(--accent-alt);
+  --brass-dim:     var(--accent-alt-dim);
   --oxblood:       var(--crimson);
   --oxblood-2:     var(--crimson);
   --sage:          var(--forest);
