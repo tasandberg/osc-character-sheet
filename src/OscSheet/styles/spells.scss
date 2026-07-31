@@ -23,11 +23,5 @@
 // tint stays a rule rather than a utility on one of the two call sites.
 .osc-spell .spm .dmg { color: var(--crimson); }
 
-// --- editable slot maximum (level head) ---
-// Spinners would swamp a 3.5ch field, and their pseudo-elements have no utility form.
-.osc-slotmax { -moz-appearance: textfield; appearance: textfield; }
-.osc-slotmax::-webkit-inner-spin-button,
-.osc-slotmax::-webkit-outer-spin-button { appearance: none; margin: 0; }
-
 // --- free-casting rows (memorization disabled) ---
 .osc-spell-free.spent .spn-row .tag { opacity: 0.6; }

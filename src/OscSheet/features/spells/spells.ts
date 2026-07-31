@@ -148,7 +148,6 @@ export function selectSpellLevels(actor: OSEActor, freeCasting = memorizationDis
         level,
         slots: { used: ready, max },
         defaultMax,
-        overridden: defaultMax != null && stored != null && stored !== defaultMax,
         occupied,
         prepared,
         spellbook,

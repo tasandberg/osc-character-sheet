@@ -4,7 +4,7 @@ import type { OseSpell } from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
 import { spellMeta, castFree, isFavorite, toggleFavorite } from "@features/spells/spells";
 import { SpellRow } from "@features/spells/SpellRow";
-import { SlotMaxField } from "@features/spells/SlotMaxField";
+import { SlotMaxDialog } from "@features/spells/SlotMaxDialog";
 import { cx } from "@ui/cx";
 import { Pips } from "@ui/Pips";
 
@@ -16,8 +16,6 @@ const HEAD =
 const HEAD_LV =
   "lv tw:rounded-sm tw:bg-ink tw:px-2 tw:pt-[3px] tw:pb-[2px] tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.06em] tw:text-stamp-text";
 const HEAD_SC = "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
-/** Same readout, but the max is an input — so it lays its parts out itself. */
-const HEAD_SC_ROW = `${HEAD_SC} tw:inline-flex tw:items-center tw:gap-1`;
 
 /** Spellbook entry — a dashed card, clickable (button) when the sheet is
  *  editable and static (span) when it isn't. */
@@ -25,20 +23,19 @@ const BOOKSPELL =
   "osc-bookspell tw:flex tw:cursor-pointer tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:not-disabled:border-solid tw:hover:not-disabled:border-gold-dim tw:disabled:cursor-not-allowed tw:disabled:opacity-40";
 
 /**
- * One spell level: ink-stamp "Level N" badge + "used / max ready" + slot pips,
+ * One spell level: ink-stamp "Level N" badge + "used / max" + slot pips,
  * the prepared-spell cast rows, and an expandable spellbook of all known spells.
  * Free-casting mode (memorization disabled) lists every known spell as castable
  * while the level's point budget lasts, with a favorite star.
  */
 export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   const { actor, canEdit } = useOscSheetContext();
-  const { level, slots, defaultMax, overridden, occupied, prepared, spellbook, freeCasting, points } =
-    vm;
+  const { level, slots, defaultMax, occupied, prepared, spellbook, freeCasting, points } = vm;
   const [bookOpen, setBookOpen] = useState(false);
 
-  const slotMax = (
-    <SlotMaxField level={level} max={slots.max} defaultMax={defaultMax} overridden={overridden} />
-  );
+  // The pencil sits where the "ready"/"remaining" label used to, and carries that
+  // label's meaning in its aria-label — the head itself is now plain text.
+  const editSlots = <SlotMaxDialog level={level} max={slots.max} defaultMax={defaultMax} />;
 
   const meta = (spell: OseSpell) =>
     spellMeta(spell).map((p) => (
@@ -53,11 +50,10 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
       <div className="osc-spelllevel">
         <div className={HEAD}>
           <span className={HEAD_LV}>Level {level}</span>
-          <span className={HEAD_SC_ROW}>
-            <span>{points.max - points.used} /</span>
-            {slotMax}
-            <span>remaining</span>
+          <span className={HEAD_SC}>
+            {points.max - points.used} / {points.max}
           </span>
+          {editSlots}
           <Pips
             total={points.max}
             filled={points.max - points.used}
@@ -121,11 +117,10 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
     <div className="osc-spelllevel">
       <div className={HEAD}>
         <span className={HEAD_LV}>Level {level}</span>
-        <span className={HEAD_SC_ROW}>
-          <span>{slots.used} /</span>
-          {slotMax}
-          <span>ready</span>
+        <span className={HEAD_SC}>
+          {slots.used} / {slots.max}
         </span>
+        {editSlots}
         <Pips
           total={slots.max}
           filled={slots.used}

@@ -102,7 +102,6 @@ describe("selectSpellLevels — slot capacity", () => {
     const [lvl1, lvl2] = selectSpellLevels(actor, false);
     expect(lvl1.slots.max).toBe(2);
     expect(lvl1.defaultMax).toBe(2);
-    expect(lvl1.overridden).toBe(false);
     // Capacity is what gates memorising — 0 here is the bug that blocked it.
     expect(lvl1.occupied < lvl1.slots.max).toBe(true);
     expect(lvl2.slots.max).toBe(1);
@@ -113,12 +112,12 @@ describe("selectSpellLevels — slot capacity", () => {
     expect(selectSpellLevels(caster("Cleric", 3, {}), false).map((l) => l.level)).toEqual([1, 2]);
   });
 
-  it("prefers a stored maximum and flags it as an override", () => {
+  it("prefers a stored maximum over the class default", () => {
     withClasses();
     const actor = caster("Cleric", 3, { 1: [known("a", 1, "Cure")] }, { 1: { max: 5 } });
     const [lvl1] = selectSpellLevels(actor, false);
     expect(lvl1.slots.max).toBe(5);
-    expect(lvl1.overridden).toBe(true);
+    expect(lvl1.defaultMax).toBe(2);
   });
 
   it("honours a stored zero — a house rule can take slots away", () => {
@@ -133,7 +132,6 @@ describe("selectSpellLevels — slot capacity", () => {
     const [lvl1] = selectSpellLevels(actor, false);
     expect(lvl1.defaultMax).toBeNull();
     expect(lvl1.slots.max).toBe(3);
-    expect(lvl1.overridden).toBe(false);
   });
 
   it("slotMaxAt agrees with the panel's max", () => {
