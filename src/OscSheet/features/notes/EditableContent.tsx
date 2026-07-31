@@ -64,11 +64,14 @@ export default function EditableContent({
           />
         </div>
       ) : (
-        <div className="osc-rich-text">
+        // Static view card; max-w = a reading measure, not the full tab width.
+        <div className="osc-rich-text tw:relative tw:max-w-[640px] tw:rounded-md tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:py-2">
           {canEdit && (
+            // Pinned top-right. `tw:absolute` outranks the `all: unset` reset
+            // (@layer base) — without it the pencil drops into normal flow.
             <IconButton
               variant="accent"
-              className="osc-rich-text-edit"
+              className="osc-rich-text-edit tw:absolute tw:top-2 tw:right-2 tw:z-[2]"
               title={`Edit ${title}`}
               aria-label={`Edit ${title}`}
               onClick={() => setEditing(true)}
@@ -79,7 +82,9 @@ export default function EditableContent({
           {enriched.trim() ? (
             <RichText html={enriched} />
           ) : (
-            <p className="osc-rich-text-empty">No {title.toLowerCase()} yet.</p>
+            <p className="osc-rich-text-empty tw:m-0 tw:italic tw:text-text-faint">
+              No {title.toLowerCase()} yet.
+            </p>
           )}
         </div>
       )}

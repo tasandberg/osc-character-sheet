@@ -7,6 +7,20 @@ import { SpellRow } from "@features/spells/SpellRow";
 import { cx } from "@ui/cx";
 import { Pips } from "@ui/Pips";
 
+// --- level head: badge · ready count · slot pips ---
+const HEAD =
+  "osc-spellhead tw:flex tw:items-center tw:gap-2 tw:rounded-t-[7px] tw:border tw:border-border-soft tw:bg-surface-2 tw:px-3 tw:py-[7px]";
+/** `--stamp-text` is the light on-ink cream (same as the save stamps) — it reads
+ *  on the ink chip in BOTH themes and is lighter than the gold accent. */
+const HEAD_LV =
+  "lv tw:rounded-sm tw:bg-ink tw:px-2 tw:pt-[3px] tw:pb-[2px] tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.06em] tw:text-stamp-text";
+const HEAD_SC = "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
+
+/** Spellbook entry — a dashed card, clickable (button) when the sheet is
+ *  editable and static (span) when it isn't. */
+const BOOKSPELL =
+  "osc-bookspell tw:flex tw:cursor-pointer tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:not-disabled:border-solid tw:hover:not-disabled:border-gold-dim tw:disabled:cursor-not-allowed tw:disabled:opacity-40";
+
 /**
  * One spell level: ink-stamp "Level N" badge + "used / max ready" + slot pips,
  * the prepared-spell cast rows, and an expandable spellbook of all known spells.
@@ -29,23 +43,26 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
     const exhausted = points.used >= points.max;
     return (
       <div className="osc-spelllevel">
-        <div className="osc-spellhead">
-          <span className="lv">Level {level}</span>
-          <span className="sc">
+        <div className={HEAD}>
+          <span className={HEAD_LV}>Level {level}</span>
+          <span className={HEAD_SC}>
             {points.max - points.used} / {points.max} remaining
           </span>
           <Pips
             total={points.max}
             filled={points.max - points.used}
             hollow
-            className="slots"
+            className="slots tw:ml-auto"
             aria-hidden="true"
             glyph={<i className="fa-solid fa-diamond" />}
           />
         </div>
         {spellbook.length === 0 ? (
-          <div className="osc-spell empty">
-            <div className="none">No spells known at this level.</div>
+          <div className="osc-spell tw:text-text-faint">
+            {/* spans the row, left-aligned (the grid is 1fr auto) */}
+            <div className="tw:col-span-full tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic">
+              No spells known at this level.
+            </div>
           </div>
         ) : (
           spellbook.map((spell) => (
@@ -92,24 +109,27 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
 
   return (
     <div className="osc-spelllevel">
-      <div className="osc-spellhead">
-        <span className="lv">Level {level}</span>
-        <span className="sc">
+      <div className={HEAD}>
+        <span className={HEAD_LV}>Level {level}</span>
+        <span className={HEAD_SC}>
           {slots.used} / {slots.max} ready
         </span>
         <Pips
           total={slots.max}
           filled={slots.used}
           hollow
-          className="slots"
+          className="slots tw:ml-auto"
           aria-hidden="true"
           glyph={<i className="fa-solid fa-diamond" />}
         />
       </div>
 
       {prepared.length === 0 ? (
-        <div className="osc-spell empty">
-          <div className="none">None memorised — open the spellbook.</div>
+        <div className="osc-spell tw:text-text-faint">
+          {/* spans the row, left-aligned (the grid is 1fr auto) */}
+          <div className="tw:col-span-full tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic">
+            None memorised — open the spellbook.
+          </div>
         </div>
       ) : (
         prepared.map((spell) => {
@@ -134,24 +154,36 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
 
       <button
         type="button"
-        className={cx("osc-bookbtn", bookOpen && "open")}
+        className={cx(
+          "osc-bookbtn tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-dashed tw:border-border tw:bg-transparent tw:px-3 tw:py-2 tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.04em] tw:text-text-mute tw:hover:text-text",
+          bookOpen ? "tw:rounded-none" : "tw:rounded-b-[7px]",
+        )}
         onClick={() => setBookOpen((o) => !o)}
         aria-expanded={bookOpen}
       >
-        <i className={cx("fa-solid", bookOpen ? "fa-caret-down" : "fa-caret-right")} aria-hidden="true" />
+        <i
+          className={cx(
+            "fa-solid tw:text-[0.9em] tw:text-gold",
+            bookOpen ? "fa-caret-down" : "fa-caret-right",
+          )}
+          aria-hidden="true"
+        />
         Spellbook ({spellbook.length})
       </button>
       {bookOpen && (
-        <div className="osc-book">
+        // 2-col once the sheet body has room, 1-col when narrow.
+        <div className="osc-book tw:grid tw:grid-cols-1 tw:gap-1 tw:rounded-b-[7px] tw:border tw:border-t-0 tw:border-border-soft tw:bg-bg-2 tw:p-2 tw:@min-[470px]/sheet:grid-cols-2">
           {spellbook.length === 0 ? (
-            <div className="osc-book-empty">No spells known at this level.</div>
+            <div className="osc-book-empty tw:col-span-full tw:px-2 tw:py-1 tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint">
+              No spells known at this level.
+            </div>
           ) : (
             spellbook.map((spell) => {
               // Read-only: list known spells as static rows (no memorise action).
               if (!canEdit) {
                 return (
-                  <span key={spell._id as string} className="osc-bookspell is-static">
-                    <span className="bn">{spell.name}</span>
+                  <span key={spell._id as string} className={`${BOOKSPELL} is-static`}>
+                    <span className="bn tw:min-w-0 tw:truncate">{spell.name}</span>
                   </span>
                 );
               }
@@ -162,13 +194,17 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                 <button
                   type="button"
                   key={spell._id as string}
-                  className="osc-bookspell"
+                  className={BOOKSPELL}
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
                   title={atCapacity ? "No slots left at this level" : `Memorise ${spell.name}`}
                 >
-                  <span className="bn">{spell.name}</span>
-                  <span className="pa" aria-hidden="true">
+                  <span className="bn tw:min-w-0 tw:truncate">{spell.name}</span>
+                  {/* own line box so the FA plus centers instead of riding the serif baseline */}
+                  <span
+                    className="pa tw:ml-auto tw:inline-flex tw:items-center tw:text-[0.85em] tw:leading-flush tw:text-text-faint"
+                    aria-hidden="true"
+                  >
                     <i className="fa-solid fa-plus" />
                   </span>
                 </button>

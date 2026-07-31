@@ -53,43 +53,7 @@
   .osc-minibar.is-collapsed { will-change: transform; }
 }
 
-.osc-mb-portrait {
-  flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--r-sm, 4px);
-  object-fit: cover;
-  border: 1px solid var(--border-soft, #2c2823);
-}
-
-.osc-mb-ident {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.osc-mb-name {
-  font-family: var(--display);
-  font-size: var(--fs-md, 15px);
-  line-height: 1.1;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.osc-mb-class {
-  font-family: var(--mono);
-  font-size: var(--fs-2xs, 11px);
-  color: var(--text-mute);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.osc-mb-vitals {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: var(--spacer-2);
-}
+// .osc-mb-portrait / -ident / -name / -class / -vitals are utilities in Minibar.tsx.
 
 .osc-mb-hp,
 .osc-mb-ac {
@@ -108,9 +72,13 @@
 // Label uses the shared ink-stamp <Stamp size="sm"> (black bar, cream caps);
 // this class is just a hover hook for the −/+ swap. Keep styling on .stamp.
 
-// Qualified with .osc-sheet-app so font/colour/size beat the
-// `.osc-sheet-app input { all: unset }` reset (0,1,1) — otherwise the
-// editable HP number renders in the inherited sans/text colour, not crimson.
+// `.osc-sheet-app` is here for SPECIFICITY, not to beat the element reset.
+// `ose-advancedfantasytome` ships a bare `input[type="number"] { width: 2em }`,
+// which at (0,1,1) beats a lone `.osc-mb-hp-input` at (0,1,0) and widens this
+// field by ~43%. Dropping the ancestor as "just a reset qualifier" is what let
+// that happen — it was carrying both jobs. This is the same third-party rule the
+// unlayered utilities exist to out-rank; that fix protects utilities, and this
+// width comes from bespoke CSS, so it needs its own guard.
 .osc-sheet-app .osc-mb-hp-input {
   width: 1.4em;
   min-width: 0;
@@ -138,10 +106,10 @@
   -moz-appearance: textfield;
   appearance: textfield;
 }
-.osc-sheet-app .osc-mb-hp-input:focus { border-color: var(--crimson); background: var(--bg, #181612); }
+.osc-mb-hp-input:focus { border-color: var(--crimson); background: var(--bg, #181612); }
 .osc-mb-hp-input::-webkit-inner-spin-button,
 .osc-mb-hp-input::-webkit-outer-spin-button { appearance: none; margin: 0; }
-.osc-sheet-app .osc-mb-hp-static {
+.osc-mb-hp-static {
   cursor: default;
   // The read-only value is a <span> but shares .osc-mb-hp-input, which sets
   // `appearance: textfield`. Safari paints a non-input with textfield appearance
@@ -151,11 +119,8 @@
   -webkit-text-fill-color: var(--crimson);
 }
 
-.osc-mb-hp-max {
-  font-family: var(--mono);
-  font-size: var(--fs-2xs, 11px);
-  color: var(--text-mute);
-}
+// .osc-mb-hp-max's type is utilities in Minibar.tsx; the class stays a hook for
+// the hover swap below.
 
 // The label sits in normal flow (flex-centered by .osc-mb-hp); the −/+ stepper
 // overlays it absolutely so hover-swapping the two never shifts the layout.
@@ -166,8 +131,8 @@
   .osc-mb-stamp,
   .osc-mb-hp-max { transition: opacity 0.12s ease; }
 }
-.osc-sheet-app .osc-mb-hp-btn {
-  // boxed stepper matching the header .vv-step; beats `button { all: unset }` (0,1,1)
+.osc-mb-hp-btn {
+  // boxed stepper matching the header .vv-step
   position: absolute;
   inset: 0;
   margin: auto; // center the fixed-size box over the label
@@ -196,12 +161,8 @@
   .osc-mb-hp-btn { opacity: 1; pointer-events: auto; }
 }
 
-.osc-mb-ac-v {
-  font-family: var(--display);
-  font-size: var(--fs-2xl, 21px);
-  line-height: 1; // bigger glyph, box height unchanged
-  color: var(--teal);
-}
+// .osc-mb-ac-v is utilities in Minibar.tsx (leading-flush keeps the box height
+// unchanged under the bigger glyph).
 
 // === medium-only gates (source of truth) ===
 // Gates resolve against the nearest `app` container (.osc-sheet-app); the minibar

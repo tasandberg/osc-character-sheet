@@ -1,0 +1,77 @@
+/* Tailwind entry for the sheet — the host-DOM shape.
+ *
+ * Three things differ from a plain web app, and each is deliberate:
+ *
+ * 1. `prefix(tw)`. Foundry ships its own `.hidden`, `.flex`, `.active` and so
+ *    on. Unprefixed utilities would collide in BOTH directions — Foundry's
+ *    rules matching our elements, and ours matching its. `tw:hidden` cannot.
+ *
+ * 2. No preflight. `tailwindcss/base.css` is imported nowhere. The sheet ships
+ *    its own deliberate `all: unset` reset (styles.scss) and a second reset
+ *    fighting it over the same elements is strictly worse than one.
+ *
+ * 3. `source(none)` plus explicit `@source`. Content scanning fails silently —
+ *    an unscanned class emits nothing and reports no error — and default
+ *    detection will invent utilities out of words in prose.
+ *
+ * This file lives under styles/vellum/ so postcss.config.mjs's scoper confines
+ * every selector to `.osc-sheet`. That is what keeps Foundry's own UI —
+ * sidebar, chat, scene controls, other windows — untouched.
+ *
+ * Layer order is declared first, above every import, or precedence falls back
+ * to first-encounter order. `base` holds the sheet's reset: unlayered,
+ * `all: unset` outranks every utility no matter how specific, and silently
+ * flattens converted controls. */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme) prefix(tw);
+@import "./theme.css";
+/* Container tiers. Layout here keys off named containers — `app` (the outer
+   frame), `sheet` (the scroll body) and `fwin` (the Foundry window) — never
+   viewport media queries, because the sheet lives in a resizable window whose
+   width has nothing to do with the viewport's.
+
+   Only the edges used more than once get names; the one-offs stay arbitrary
+   (`@min-[470px]/sheet:`) rather than accumulating invented vocabulary. */
+@theme {
+  /* Stock scales off: an undeclared tier should fail to compile, not silently
+     work, and viewport breakpoints must not be reachable at all here. */
+  --container-*: initial;
+  --breakpoint-*: initial;
+
+  --spacing-0: 0px; /* vellum's scale starts at 1, so `p-0`/`min-w-0` need this */
+
+  --container-md: 480px; /* app: bottom bar ⇄ vertical rail */
+  --container-lg: 740px; /* app: rail ⇄ horizontal tab bar */
+  --container-roomy: 600px; /* sheet: content padding opens up */
+  --container-twopane: 700px; /* sheet: single column ⇄ rail + pane */
+}
+
+/* Utilities are deliberately UNLAYERED, unlike the theme and the reset.
+ *
+ * Foundry is a shared document and other modules ship global, unscoped rules:
+ * `ose-advancedfantasytome` has a bare `input[type="number"] { width: 2em }`.
+ * Unlayered CSS beats every layered rule no matter how specific, so with these
+ * in `@layer utilities` that 2em won over `tw:w-full`, and the coin quantity
+ * fields collapsed to 28px and clipped their values. Specificity cannot rescue
+ * a layered rule — only leaving the layer can.
+ *
+ * So they sit unlayered, and this file is imported LAST (see index.tsx) so
+ * source order still puts utilities above our own CSS. The reset stays in
+ * `@layer base`, which unlayered utilities also outrank.
+ *
+ * The tradeoff is real, and it has a second half worth knowing: unlayered,
+ * precedence between a utility and our OWN bespoke CSS falls back to
+ * specificity then source order. A scoped utility lands at (0,2,0) —
+ * `.osc-sheet .tw\:w-full` — so a bespoke rule carrying three classes would
+ * beat it. Audited across 108 converted elements: zero such conflicts and zero
+ * ties today, so nothing currently depends on it. But a future `.a .b .c` rule
+ * would silently win over a utility, where under layers it could not.
+ *
+ * Re-layering these reintroduces the third-party bug. */
+@import "tailwindcss/utilities.css" prefix(tw) source(none);
+
+@source "../../features";
+@source "../../components";
+@source "../../layout";
+@source "../../app";

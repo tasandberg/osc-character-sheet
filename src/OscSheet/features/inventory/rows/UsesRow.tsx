@@ -40,12 +40,24 @@ export function UsesRow({
   const set = (next: number) => canEdit && onSetQty(item.id, Math.max(0, next));
 
   return (
-    <div className="osc-inv-uses" data-overflow={overflow || undefined}>
-      <span className="osc-inv-uses-strip">
+    <div
+      // xs swaps this whole pip sub-row for the inline Use pill on the item row.
+      className="osc-inv-uses tw:flex tw:items-center tw:gap-2 tw:min-w-0 tw:@max-md/app:hidden"
+      data-overflow={overflow || undefined}
+    >
+      <span className="osc-inv-uses-strip tw:relative tw:flex tw:flex-1 tw:min-w-0 tw:min-h-[10px] tw:items-center">
         {canEdit ? (
           <button
             type="button"
-            className="osc-inv-usebtn"
+            // No `.osc-inv` ancestor any more: the `all: unset` reset moved into
+            // `@layer base`, so these utilities out-rank it on their own.
+            className={
+              "osc-inv-usebtn tw:flex tw:flex-1 tw:min-w-0 tw:items-center " +
+              "tw:p-0 tw:bg-transparent tw:border-none tw:cursor-pointer " +
+              "tw:disabled:cursor-default tw:focus-visible:outline-2 " +
+              "tw:focus-visible:outline-gold tw:focus-visible:outline-offset-2 " +
+              "tw:focus-visible:rounded-sm"
+            }
             onClick={() => set(value - 1)}
             disabled={value <= 0}
             aria-label={`Use one ${item.name}`}
@@ -85,7 +97,9 @@ export function UsesRow({
             Use
           </Button>
         ) : (
-          <span className="osc-inv-uses-count">
+          // `display` stays in _rows.scss (it toggles with [data-overflow] and
+          // has to beat the unlayered `.btn` sibling rules).
+          <span className="osc-inv-uses-count tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute">
             {value}/{total}
           </span>
         )}

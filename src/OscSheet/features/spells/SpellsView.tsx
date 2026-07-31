@@ -48,13 +48,13 @@ export default function Spells() {
 
   return (
     <section className="osc-section osc-spells">
-      <SectionTitle className="osc-spells-title">
+      <SectionTitle className="osc-spells-title tw:flex-nowrap">
         Spells
         <span className="hint">{freeCasting ? "known · slot pool" : "memorised slots"}</span>
         {canEdit && (
           <button
             type="button"
-            className="osc-rest"
+            className="osc-rest tw:ml-auto tw:inline-flex tw:items-center tw:gap-1 tw:self-center tw:cursor-pointer tw:rounded-md tw:border tw:border-border tw:bg-surface-2 tw:px-[11px] tw:py-1 tw:font-sans tw:text-[length:var(--fs-xs)] tw:font-medium tw:tracking-[0.02em] tw:whitespace-nowrap tw:text-text tw:transition-[background,border-color] tw:duration-[120ms] tw:hover:border-gold"
             onClick={refresh}
             disabled={busy}
             aria-busy={busy}
@@ -62,7 +62,7 @@ export default function Spells() {
           >
             <i
               className={cx(
-                "fa-solid",
+                "fa-solid tw:text-[0.85em] tw:text-gold",
                 busy ? "fa-spinner fa-spin" : freeCasting ? "fa-arrow-rotate-left" : "fa-campground",
               )}
               aria-hidden="true"
@@ -76,7 +76,7 @@ export default function Spells() {
         <>
           <PillSelect<number>
             ariaLabel="Spell level"
-            className="osc-spelltabs"
+            className="osc-spelltabs tw:mx-0 tw:mt-2 tw:mb-3"
             value={active?.level ?? 0}
             onValueChange={setSelectedLevel}
             options={levels.map((l) => ({ value: l.level, label: `Lv ${l.level}`, count: l.points.max }))}

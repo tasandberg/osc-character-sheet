@@ -5,6 +5,12 @@ import { RowEquip } from "@features/inventory/EquippedTray";
 import { UsesRow } from "@features/inventory/rows/UsesRow";
 import { Button } from "@ui/Button";
 import { countedLoad, loadText, EQUIPPED } from "@features/inventory/groups";
+import {
+  INV_ROW,
+  INV_ROWCAT,
+  INV_WT,
+  INV_QTYTAG,
+} from "@features/inventory/rows/classes";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { cx } from "@ui/cx";
 
@@ -36,9 +42,9 @@ export function NameCell({
           onClick={() => onOpen(item.id)}
         >
           <span className="nm">{item.name}</span>
-          {item.damage && <span className="osc-inv-qtytag">{item.damage}</span>}
+          {item.damage && <span className={INV_QTYTAG}>{item.damage}</span>}
           {!item.isContainer && item.quantity && item.quantity.value > 1 && (
-            <span className="osc-inv-qtytag">×{item.quantity.value}</span>
+            <span className={INV_QTYTAG}>×{item.quantity.value}</span>
           )}
           {badge}
         </button>
@@ -111,8 +117,8 @@ function RowInner({
           ) : undefined
         }
       />
-      <span className="osc-inv-rowcat">{item.category}</span>
-      <span className="osc-inv-wt">{loadText(countedLoad(item, variant))}</span>
+      <span className={INV_ROWCAT}>{item.category}</span>
+      <span className={INV_WT}>{loadText(countedLoad(item, variant))}</span>
       <RowEquip item={item} onEquip={onEquip} />
     </>
   );
@@ -164,7 +170,7 @@ export function SortableRow({
   return (
     <>
       <div
-        className={cx("osc-inv-row", "is-sortable", dnd.rowClass(group, index))}
+        className={cx(INV_ROW, "is-sortable", dnd.rowClass(group, index))}
         style={
           depth > 0
             ? ({ "--osc-inv-depth": depth } as React.CSSProperties)

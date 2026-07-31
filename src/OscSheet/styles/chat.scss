@@ -6,6 +6,13 @@
 // our renderChatMessageHTML handler adds to the message <li>) / `.osc-card`, the
 // card palette is set via local custom props that flip between a dark and a cream
 // variant by the Foundry theme ancestor, and we never leak onto other modules' cards.
+//
+// NOTHING here can become a `tw:` utility, for two independent reasons. The
+// utilities are emitted scoped to `.osc-sheet` (postcss.config.mjs), and a chat
+// card is never inside it. And the markup is built as an HTML string in
+// domain/chat/attackCard.ts, which Tailwind's content scanning does not see
+// (`@source` covers features/, components/, layout/, app/ — not domain/), so the
+// classes would emit nothing and fail silently. This file stays SCSS.
 
 // ─── Card palette (dark default; cream variant below) ──────────────────────
 .osc-message {

@@ -5,6 +5,10 @@ import "./styles/vellum/utilities.scss";
 import "./styles/vellum/components.css";
 import "./styles/styles.scss";
 import "./styles/edit-modal.scss";
+// Tailwind entry — prefixed, scoped, no preflight. LAST on purpose: its
+// utilities are unlayered (tailwind.css explains why), so source order is what
+// keeps them above our own stylesheets.
+import "./styles/vellum/tailwind.css";
 import OscSheetProvider from "@app/OscSheetProvider";
 import { useOscSheetContext } from "@app/context";
 import { OptimisticProvider } from "@app/OptimisticProvider";

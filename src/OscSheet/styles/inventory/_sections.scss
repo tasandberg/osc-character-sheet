@@ -1,0 +1,228 @@
+
+// ---------------------------------------------------------------------------
+// Sections (Equipped tray + All Items) + sticky pinning
+//
+// Layout/spacing/type plumbing for these blocks now rides as tw: utilities on
+// the JSX (index.tsx, SectionCount.tsx, EquippedTray.tsx). What stays here is
+// what utilities can't express honestly: the sticky pin and its minibar
+// coupling, the tray's dashed ink-stamp identity and drag states, and
+// generated content.
+// ---------------------------------------------------------------------------
+
+// The equipped tray + the All-Items header live together in one sticky block
+// (.osc-inv-stickyhead) so they pin to the scroll top as a single opaque unit —
+// no JS height measuring, no see-through gap between two separately-sticky bands.
+// Scroll container is .osc-sheet-body.
+// Hand-written on purpose: minibar.scss retargets this `top` to --osc-minibar-h
+// in the medium band so the head parks flush below the collapsed minibar. That
+// cross-stylesheet coupling is the point and can't live on the element.
+.osc-inv-stickyhead {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: var(--bg);
+}
+
+// Section head → descendants owned by other components; styling them from the
+// head is the only place the relationship exists, so it stays a stylesheet rule.
+.osc-inv-sec-head > .menu-host {
+  display: inline-flex;
+}
+// translateY is optical: the all-caps label's centre sits above its box centre.
+.osc-inv-sec-head .icon-btn {
+  color: var(--text-mute);
+  transform: translateY(-1px);
+}
+// hang the box left of the trigger so the caret keeps its natural 14px inset and
+// still lands on the 18px button's centre.
+.osc-inv-sec-head .menu.is-popover.align-start {
+  left: -12px;
+}
+
+// --- Equipped tray: dashed-bordered row of large ink-stamp tiles ---
+// Flex/gap/padding are utilities on the element; the dashed rule, its radius and
+// the drop-target transition are the tray's identity and stay here.
+.osc-equip-tray {
+  border: 1.5px dashed var(--border-soft, #2c2823);
+  border-radius: var(--r-md, 6px);
+  transition:
+    border-color 0.12s,
+    background 0.12s;
+}
+// Dragging an item over the tray to equip it — dotted teal accent (equip = teal).
+.osc-equip-tray.is-drop-target {
+  border-style: dotted;
+  border-color: var(--teal);
+  background: color-mix(in oklab, var(--teal) 8%, transparent);
+}
+
+// Containing block for the insertion lines below — kept with the rules that
+// need it rather than split across the JSX.
+.osc-equip-tcard {
+  position: relative;
+}
+// tiles drag to reorder within the tray (own order) — regular at rest, the
+// grabbing fist only while a drag is held.
+.osc-equip-tcard.is-sortable:active {
+  cursor: grabbing;
+}
+.osc-equip-tcard.dragging > * {
+  opacity: 0.4;
+}
+// A fixed child inside the drag-image snapshot paints against the viewport, not the tile.
+.osc-equip-tcard.dragging .osc-hoverpop {
+  display: none;
+}
+// horizontal insertion line on the leading/trailing edge of the hovered tile (teal)
+.osc-equip-tcard.drop-before::before,
+.osc-equip-tcard.drop-after::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  background: var(--teal, #1f7575);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.osc-equip-tcard.drop-before::before {
+  left: -5px;
+}
+.osc-equip-tcard.drop-after::after {
+  right: -5px;
+}
+// The ink-stamp tile itself — fixed stamp square, teal rule, art bleeding to the
+// edges. Bespoke appearance, kept whole. (The `all: unset` reset it out-ranks now
+// sits in @layer base, and unlayered CSS beats any layer, so the old `.osc-inv`
+// specificity padding is gone.)
+.osc-equip-tt {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: var(--ink, #070605);
+  color: var(--stamp-text, #e5dec8);
+  border: 1.5px solid var(--teal);
+  border-radius: var(--r-sm, 4px);
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// Item detail (.osc-equip-tt-pop*) — appearance and placement are
+// .osc-hoverpop / HoverPop; its content layout is now utilities on the JSX.
+
+// ---------------------------------------------------------------------------
+// Right-click context menu
+// ---------------------------------------------------------------------------
+
+.osc-ctx {
+  position: fixed;
+  z-index: 1000;
+  min-width: 168px;
+  padding: var(--spacer-1);
+  background: var(--surface, #23201a);
+  border: 1px solid var(--border, #3a342c);
+  border-radius: var(--r-md, 6px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+.osc-ctx-title {
+  font-family: var(--display);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text-dim, #b5ad97);
+  padding: var(--spacer-1) var(--spacer-2) var(--spacer-2);
+  border-bottom: 1px solid var(--border-soft, #2c2823);
+  margin-bottom: var(--spacer-1);
+}
+.osc-inv .osc-ctx-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-2);
+  width: 100%;
+  padding: var(--spacer-2);
+  border-radius: var(--r-sm, 4px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text, #e5dec8);
+  i {
+    width: 16px;
+    text-align: center;
+    color: var(--text-mute, #8a8270);
+  }
+  &:hover {
+    background: var(--surface-2, #2c2823);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  &.is-danger:hover {
+    background: color-mix(in srgb, var(--crimson, #c75044) 18%, transparent);
+  }
+  &.is-danger i {
+    color: var(--crimson, #c75044);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Send Item dialog (target picker + stack split)
+// ---------------------------------------------------------------------------
+
+// Layout/size/color come from u-* utilities in the JSX; only the bespoke target
+// button (hover / selected color-mix / disabled) and its icon tile live here.
+.osc-send-targets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+// Button selectors qualified with .osc-inv (the dialog is a DOM descendant) so
+// they beat the `.osc-sheet-app button { all: unset }` reset.
+.osc-inv .osc-send-target {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-3);
+  width: 100%;
+  padding: var(--spacer-2) var(--spacer-3);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border: 1px solid var(--border-soft, #2c2823);
+  border-radius: var(--r-md, 6px);
+  font-family: var(--sans);
+  font-size: var(--fs-md, 14px);
+  color: var(--text, #e5dec8);
+  &:hover {
+    background: var(--bg-2, #1f1c17);
+  }
+  &.is-selected {
+    border-color: var(--accent-alt, #c89e54);
+    background: color-mix(in srgb, var(--accent-alt, #c89e54) 12%, transparent);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+.osc-send-target-ic {
+  width: var(--spacer-8);
+  height: var(--spacer-8);
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--r-sm, 4px);
+  background: var(--bg-2, #1f1c17);
+  font-family: var(--display);
+  color: var(--text-dim, #b5ad97);
+  object-fit: cover;
+}

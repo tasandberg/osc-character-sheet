@@ -5,7 +5,7 @@ export default function Notes() {
   const { actor } = useOscSheetContext();
 
   return (
-    <div className="osc-notes-tab">
+    <div className="osc-notes-tab tw:flex tw:flex-col tw:gap-5">
       <EditableContent
         title="Notes"
         name="system.details.notes"

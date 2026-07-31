@@ -3,10 +3,15 @@ import type { TabItem } from "@layout/types";
 
 type Props = { tabs: TabItem[]; active: string; onSelect: (id: string) => void };
 
-/** Vertical right-edge rail (narrow layout). */
+/** Vertical right-edge rail (narrow layout). Hidden at xs (bottom bar) and lg
+ *  (horizontal tabs). No top padding — the first/active tab sits flush against
+ *  the top bar; the 14px the prototype used reads as a stray block in cream. */
 export function TabRail({ tabs, active, onSelect }: Props) {
   return (
-    <nav className="osc-tabrail" aria-label="Sheet sections">
+    <nav
+      className="osc-tabrail tw:flex tw:w-10 tw:flex-none tw:flex-col tw:items-stretch tw:gap-1 tw:border-l tw:border-border tw:bg-bg-2 tw:@max-md/app:hidden tw:@lg/app:hidden"
+      aria-label="Sheet sections"
+    >
       {tabs.map((t) => (
         <button
           key={t.id}

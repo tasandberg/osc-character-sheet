@@ -49,7 +49,11 @@ export function WealthRow({
   });
   return (
     <div
-      className={cx("osc-coin-row", dnd.rowClass("wealth", index))}
+      className={cx(
+        "osc-coin-row",
+        "tw:grid tw:items-center tw:gap-x-3 tw:py-2 tw:border-b tw:border-border-soft",
+        dnd.rowClass("wealth", index),
+      )}
       {...rp}
       // coins/valuables are real items: right-click → View / Delete (no equip/consume)
       onContextMenu={(e) =>
@@ -79,7 +83,7 @@ export function WealthRow({
       </div>
       {isCoin ? (
         <input
-          className="osc-coin-qty"
+          className="osc-coin-qty tw:w-full tw:min-w-0 tw:rounded-sm tw:border tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-right tw:font-mono tw:text-[length:var(--fs-sm)] tw:text-text tw:transition-[border-color] tw:duration-[120ms] tw:hover:border-border tw:focus:border-accent-alt tw:focus:outline-none"
           type="number"
           min={0}
           inputMode="numeric"
@@ -98,10 +102,21 @@ export function WealthRow({
           onBlur={() => onQtyCommit?.()}
         />
       ) : (
-        <span className="osc-coin-qty-ro">{fmtCoin(row.qty)}</span>
+        // Valuables show a read-only qty in the SAME slot as a coin's editable
+        // <input>, and must be indistinguishable from it apart from the missing
+        // field chrome — hence the identical box metrics (font-size, padding,
+        // transparent 1px border) and text colour.
+        <span className="osc-coin-qty-ro tw:border tw:border-transparent tw:px-2 tw:py-[5px] tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-sm)] tw:text-text">
+          {fmtCoin(row.qty)}
+        </span>
       )}
-      <span className="osc-coin-wt">{load}</span>
-      <span className="osc-coin-val">{fmtCoin(row.value)}</span>
+      {/* nowrap on both: never split "1,300 cn" off its unit */}
+      <span className="osc-coin-wt tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-dim tw:@max-md/app:hidden">
+        {load}
+      </span>
+      <span className="osc-coin-val tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text tw:@max-md/app:hidden">
+        {fmtCoin(row.value)}
+      </span>
     </div>
   );
 }

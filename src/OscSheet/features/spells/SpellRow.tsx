@@ -68,20 +68,30 @@ export function SpellRow({
   };
 
   const badge = levelTag != null ? <SpellLevelBadge level={levelTag} /> : null;
+  // Exclusive strings: a spent row is struck and muted, and loses the gold
+  // hover with it (the old `.osc-spell.spent .spn` won over `.spn:hover`).
+  const spn = cx(
+    "spn tw:cursor-pointer tw:font-display tw:text-[length:var(--fs-lg)]",
+    spent ? "tw:text-text-mute tw:line-through" : "tw:text-text tw:hover:text-gold",
+  );
   const name = onOpenName ? (
-    <a className="spn" onClick={onOpenName}>
+    <a className={spn} onClick={onOpenName}>
       {spell.name}
     </a>
   ) : (
-    <span className="spn">{spell.name}</span>
+    <span className={spn}>{spell.name}</span>
   );
 
   return (
     <div
       className={cx(
-        "osc-spell",
+        // The `.fvtt-castlist` framing rules in spells.scss out-specify the
+        // border utilities here on purpose — that list is headerless and needs
+        // its first row's top edge back.
+        "osc-spell tw:grid tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2",
+        // A leading favorite-star column turns the 2-col grid into 3.
+        onToggleFavorite ? "has-star tw:grid-cols-[auto_1fr_auto]" : "tw:grid-cols-[1fr_auto]",
         free && "osc-spell-free",
-        onToggleFavorite && "has-star",
         spent && "spent",
       )}
     >
@@ -97,8 +107,9 @@ export function SpellRow({
           <i className={cx(favorite ? "fa-solid" : "fa-regular", "fa-star")} aria-hidden="true" />
         </IconButton>
       )}
-      <div className="spinfo">
-        <span className="spn-row">
+      <div className="spinfo tw:min-w-0">
+        {/* name + cast dots on one line (dots to the right of the name) */}
+        <span className="spn-row tw:inline-flex tw:min-w-0 tw:items-baseline tw:gap-2">
           {name}
           {badge}
           {pips && (
@@ -111,7 +122,12 @@ export function SpellRow({
             />
           )}
           {pool && (
-            <span className="pool">
+            <span
+              className={cx(
+                "pool tw:font-mono tw:text-[length:var(--fs-3xs)] tw:whitespace-nowrap",
+                spent ? "tw:text-text-faint" : "tw:text-text-mute",
+              )}
+            >
               {pool.max - pool.used}/{pool.max} · slots
             </span>
           )}
@@ -127,15 +143,18 @@ export function SpellRow({
             </IconButton>
           )}
         </span>
-        <span className="spm">{meta}</span>
+        {/* the " · " separators and the .dmg tint stay in spells.scss */}
+        <span className="spm tw:mt-[1px] tw:block tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-text-mute">
+          {meta}
+        </span>
       </div>
       {canCast && (
-        <span className="sp-actions">
+        <span className="sp-actions tw:inline-flex tw:items-center tw:gap-2">
           <Button
             variant="outline"
             tone="brass"
             size="sm"
-            className="sp-cast"
+            className="sp-cast tw:font-sans"
             disabled={spent || casting}
             aria-busy={casting}
             onClick={handleCast}

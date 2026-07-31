@@ -2,6 +2,20 @@ import { useState, useRef, useEffect } from "react";
 import type { TopbarVM } from "@domain/vm-types";
 import { SettingsModal } from "@features/settings/SettingsModal";
 import { FEATURES } from "@app/features";
+import {
+  TB_BTN,
+  TB_BTN_GLYPH,
+  TB_BTN_ICON,
+  TB_BTN_LEVEL_UP,
+  TB_BTN_OVERFLOW,
+} from "@layout/classes";
+
+// Level chip: the level in display type over its XP total in mono. `shrink-0` +
+// `nowrap` keep it intact while the XP bar between the two chips absorbs the
+// slack instead.
+const LV = "osc-tb-lv tw:flex tw:shrink-0 tw:flex-col tw:items-center tw:leading-[1.05] tw:whitespace-nowrap";
+const LV_N = "tw:font-display tw:text-[length:var(--fs-sm)] tw:tracking-[0.05em]";
+const LV_XP = "cur tw:mt-[1px] tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-stamp-text-faint";
 
 type Props = {
   vm: TopbarVM;
@@ -38,12 +52,8 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
   const actionButtons = canEdit ? (
     <>
       {FEATURES.rest && (
-        <button
-          type="button"
-          className="osc-tb-btn u-inline-flex u-items-center u-gap-2"
-          disabled
-        >
-          <span className="i u-fs-xs" aria-hidden="true">
+        <button type="button" className={TB_BTN} disabled>
+          <span className={TB_BTN_GLYPH} aria-hidden="true">
             ☾
           </span>
           <span className="lbl">Rest</span>
@@ -52,13 +62,13 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
       {FEATURES.levelUp && (
         <button
           type="button"
-          className="osc-tb-btn up u-inline-flex u-items-center u-gap-2"
+          className={TB_BTN_LEVEL_UP}
           onClick={() => {
             setMenuOpen(false);
             onLevelUp();
           }}
         >
-          <span className="i u-fs-xs" aria-hidden="true">
+          <span className={TB_BTN_GLYPH} aria-hidden="true">
             ▲
           </span>
           <span className="lbl">Level Up</span>
@@ -66,13 +76,13 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
       )}
       <button
         type="button"
-        className="osc-tb-btn u-inline-flex u-items-center u-gap-2"
+        className={TB_BTN}
         onClick={() => {
           setMenuOpen(false);
           onEdit();
         }}
       >
-        <span className="i u-fs-xs" aria-hidden="true">
+        <span className={TB_BTN_GLYPH} aria-hidden="true">
           ✎
         </span>
         <span className="lbl">Edit</span>
@@ -81,38 +91,50 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
   ) : null;
 
   return (
-    <div className="osc-topbar-inner u-row u-wrap">
-      <div className="osc-tb-lv">
-        <b>Lv {vm.level}</b>
-        <span className="cur">{vm.xp.value.toLocaleString()}</span>
+    <div className="osc-topbar-inner tw:flex tw:flex-wrap tw:items-center tw:gap-2">
+      <div className={LV}>
+        <b className={`${LV_N} tw:text-gold`}>Lv {vm.level}</b>
+        <span className={LV_XP}>{vm.xp.value.toLocaleString()}</span>
       </div>
-      <div className="osc-tb-xp" title={`${vm.xp.value.toLocaleString()} XP`}>
-        <div className="osc-tb-bar">
-          <i style={{ width: `${pct}%` }} />
-          <span className="v">{vm.xp.value.toLocaleString()} XP</span>
+      <div
+        className="osc-tb-xp tw:max-w-[50%] tw:min-w-[44px] tw:flex-1"
+        title={`${vm.xp.value.toLocaleString()} XP`}
+      >
+        <div className="osc-tb-bar tw:relative tw:flex tw:h-[16px] tw:items-center tw:justify-center tw:overflow-hidden tw:rounded-[999px] tw:border tw:border-[rgba(229,222,200,0.22)] tw:bg-[rgba(0,0,0,0.35)]">
+          <i
+            className="tw:absolute tw:top-0 tw:bottom-0 tw:left-0 tw:rounded-[999px] tw:bg-[linear-gradient(90deg,var(--gold-dim),var(--gold))]"
+            style={{ width: `${pct}%` }}
+          />
+          <span className="v tw:relative tw:z-[1] tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-stamp-text tw:[text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">
+            {vm.xp.value.toLocaleString()} XP
+          </span>
         </div>
       </div>
-      <div className="osc-tb-lv next">
-        <b>Lv {vm.nextLevel}</b>
-        <span className="cur">{vm.xp.next.toLocaleString()}</span>
+      {/* The next-level chip differs from the current one only in the chip
+          colour, written as its own string: a shared base plus a `.next`
+          override would be two class-level utilities, and Tailwind — not the
+          order they are written — decides which wins. */}
+      <div className={`${LV} next`}>
+        <b className={`${LV_N} tw:text-stamp-text-dim`}>Lv {vm.nextLevel}</b>
+        <span className={LV_XP}>{vm.xp.next.toLocaleString()}</span>
       </div>
-      {/* Right cluster floats to the edge as a group (u-ml-auto). u-gap-2 spaces
-          the buttons — .osc-tb-actions is display:contents, so its buttons flatten
-          into this row and share the same gap. */}
-      <div className="u-row u-gap-1 u-ml-auto">
-        {/* Inline actions (hidden at XS via .osc-tb-actions display:none) */}
-        <div className="osc-tb-actions">{actionButtons}</div>
-        {/* XS overflow ⋮ (hidden above XS via .osc-tb-overflow display:none). Only
-            shown when there are owner actions to collapse into it. */}
+      {/* Right cluster floats to the edge as a group, leaving the level chips +
+          XP bar on the left. `ml-auto` lives here rather than on the actions so
+          the cog stays pinned on a read-only sheet, where no actions render. */}
+      <div className="tw:ml-auto tw:flex tw:items-center tw:gap-1">
+        {/* `contents` so the action buttons flatten into the cluster's flex row
+            and share its gap; at XS they collapse into the ⋮ menu instead. */}
+        <div className="osc-tb-actions tw:contents tw:@max-md/app:hidden">{actionButtons}</div>
+        {/* XS overflow ⋮. Only shown when there are owner actions to collapse. */}
         {actionButtons && (
-          <div className="osc-tb-menu-wrap" ref={menuRef}>
+          <div className="osc-tb-menu-wrap tw:relative" ref={menuRef}>
             <button
               type="button"
-              className="osc-tb-btn osc-tb-overflow u-inline-flex u-items-center u-gap-2"
+              className={TB_BTN_OVERFLOW}
               aria-label="More actions"
               onClick={() => setMenuOpen((o) => !o)}
             >
-              <span className="i u-fs-xs" aria-hidden="true">
+              <span className={TB_BTN_GLYPH} aria-hidden="true">
                 ⋮
               </span>
             </button>
@@ -121,12 +143,12 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
         )}
         <button
           type="button"
-          className="osc-tb-btn icon u-inline-flex u-items-center u-gap-2"
+          className={TB_BTN_ICON}
           onClick={() => setSettingsOpen(true)}
           title="Settings"
           aria-label="Settings"
         >
-          <i className="i fa-solid fa-gear u-fs-xs" aria-hidden="true" />
+          <i className={`${TB_BTN_GLYPH} fa-solid fa-gear`} aria-hidden="true" />
         </button>
       </div>
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />

@@ -4,7 +4,7 @@ import {
   ValidatedInput,
 } from "@src/OscSheet/components/ui";
 import type { OSEActor } from "@src/OscSheet/domain/types";
-import type { CSSProperties } from "react";
+import { ED_FIELD, LAB_ID } from "./classes";
 
 // A hit-die formula must be a valid Roll AND actually contain a die term.
 const validateHd = (v: string) =>
@@ -17,7 +17,7 @@ export function HitDiceField({
   hdOverridden,
   onCommit,
   onResetRequest,
-  style,
+  className,
 }: {
   actor: OSEActor;
   hdVal: string;
@@ -25,7 +25,8 @@ export function HitDiceField({
   hdOverridden: boolean;
   onCommit: (v: string) => void;
   onResetRequest: () => void;
-  style: CSSProperties;
+  /** Grid placement in the caller's identity grid (see edit/classes.ts). */
+  className?: string;
 }) {
   const rollHd = () => {
     const speaker = ChatMessage.getSpeaker({ actor });
@@ -36,14 +37,19 @@ export function HitDiceField({
   };
 
   return (
-    <div className="ed-field" style={style}>
-      <span className="lab">Hit Dice</span>
+    <div className={`${ED_FIELD} ${className ?? ""}`}>
+      <span className={LAB_ID}>Hit Dice</span>
+      {/* Corner placement + d20 sizing — the InlineButton primitive owns only
+          the look; where it sits is this consumer's job. */}
       <InlineButton
-        className="ed-rollbtn"
+        className="ed-rollbtn tw:absolute tw:top-[-2px] tw:right-0 tw:w-[18px] tw:h-[18px] tw:leading-[0] tw:z-3"
         title={`Roll ${hdVal} hit points`}
         onClick={rollHd}
       >
-        <i className="fa-solid fa-dice-d20" aria-hidden="true" />
+        <i
+          className="fa-solid fa-dice-d20 tw:text-[length:var(--fs-md)]"
+          aria-hidden="true"
+        />
       </InlineButton>
       <ValidatedInput
         className="input mono"

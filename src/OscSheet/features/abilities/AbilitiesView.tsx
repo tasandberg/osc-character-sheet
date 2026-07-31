@@ -5,6 +5,7 @@ import { IconButton } from "@ui/IconButton";
 import { createAbility } from "@features/abilities/createAbility";
 import { FeatureCard } from "@features/abilities/FeatureCard";
 import { LanguagesSection } from "@features/abilities/LanguagesSection";
+import { FLAVOUR } from "@features/abilities/classes";
 
 export default function Abilities() {
   const { actor, canEdit } = useOscSheetContext();
@@ -33,9 +34,9 @@ export default function Abilities() {
           }
         />
         {features.length === 0 ? (
-          <p className="osc-flavour">No abilities yet.</p>
+          <p className={FLAVOUR}>No abilities yet.</p>
         ) : (
-          <div className="fvtt-feats">
+          <div className="fvtt-feats tw:flex tw:flex-col tw:gap-2">
             {features.map((f) => (
               <FeatureCard key={f.id} feature={f} />
             ))}

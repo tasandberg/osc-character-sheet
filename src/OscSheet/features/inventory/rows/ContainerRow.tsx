@@ -10,6 +10,7 @@ import {
   ROOT,
   EQUIPPED,
 } from "@features/inventory/groups";
+import { INV_ROW, INV_ROWCAT, INV_WT } from "@features/inventory/rows/classes";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
@@ -65,7 +66,16 @@ export function ContainerRow({
   const caret = (
     <button
       type="button"
-      className={cx("osc-inv-collapse", collapsed && "collapsed")}
+      className={cx(
+        "osc-inv-collapse",
+        // the chevron rotates (a stacking context); pin it low so tooltips clear
+        // it. The rotation itself stays in _rows.scss.
+        "tw:relative tw:z-[var(--z-raised)] tw:inline-flex tw:items-center tw:justify-center",
+        "tw:px-1 tw:py-0 tw:bg-transparent tw:border-none tw:cursor-pointer",
+        "tw:text-[length:var(--fs-sm)] tw:leading-flush tw:text-text-mute tw:hover:text-text",
+        "tw:transition-[color] tw:duration-[120ms]",
+        collapsed && "collapsed",
+      )}
       aria-label={collapsed ? "Expand" : "Collapse"}
       onClick={() => onToggle(item.id)}
     >
@@ -77,7 +87,7 @@ export function ContainerRow({
     <div className={cx("osc-inv-container", isDropTarget && "is-drop-target")}>
       <div
         className={cx(
-          "osc-inv-row",
+          INV_ROW,
           "is-container",
           "is-sortable",
           dnd.rowClass(ROOT, index),
@@ -95,8 +105,8 @@ export function ContainerRow({
           badge={<Tag intent="count">{count}</Tag>}
           trailing={caret}
         />
-        <span className="osc-inv-rowcat">{item.category}</span>
-        <span className="osc-inv-wt">{loadText(countedLoad(item, variant))}</span>
+        <span className={INV_ROWCAT}>{item.category}</span>
+        <span className={INV_WT}>{loadText(countedLoad(item, variant))}</span>
         <RowEquip item={item} onEquip={onEquip} />
       </div>
 

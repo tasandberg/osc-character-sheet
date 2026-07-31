@@ -1,0 +1,481 @@
+// Inventory tab — single-column list view + encumbrance bar.
+//
+// Most of the plumbing here now lives as `tw:` utilities on the components in
+// features/inventory (see rows/classes.ts for the strings shared by more than
+// one file). What stays is what utilities can't say: the row's calc-driven grid
+// template, the load-bar gradient, drop-insertion pseudo-elements, the nesting
+// rail, and the handful of rules that have to out-rank an UNLAYERED shared
+// stylesheet (`.tag`, `.btn`, `.pips`, `.mono`, `.section-title`) — utilities
+// sit in `@layer utilities` and lose to any unlayered rule whatever its
+// specificity.
+//
+// The `.osc-inv` ancestor that used to pad every button/input selector is gone:
+// it existed only to beat `.osc-sheet-app button { all: unset }`, and that reset
+// now sits in `@layer base`, which unlayered SCSS and utilities both out-rank.
+
+// --- header: title + hint ---
+// Layout is utilities on the element; the underline stays here because
+// `.enc-rule` replaces it with the load-bar gradient below.
+.osc-inv-head {
+  border-bottom: 2px solid var(--section-rule);
+}
+// Out-specifies the unlayered vellum `.section-title` base — a utility in
+// `@layer utilities` would lose to it, so this override can't move.
+.osc-inv-head .section-title {
+  flex: 0 0 auto;
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+// Encumbrance-as-rule: the 2px header underline becomes the load bar. The tier
+// spectrum spans the whole track, each tier's colour blending into the next over a
+// narrow fade centred on the system's OWN thresholds (--enc-stops, built from
+// `encumbrance.steps` — see encBarStops), so the colour changes right where the
+// character changes tier while still reading as a smooth gradient. We reveal it
+// left→right up to --enc-pct and cover the remainder with the dim section-rule. 2px.
+.osc-inv-head.enc-rule {
+  border-bottom: none;
+  background-image:
+    // top: transparent up to --enc-pct (reveals the spectrum), dim rule beyond
+    linear-gradient(
+      to right,
+      transparent var(--enc-pct, 0%),
+      var(--section-rule) var(--enc-pct, 0%)
+    ),
+    // bottom: the tier spectrum across the entire track
+    linear-gradient(to right, var(--enc-stops, var(--enc-0)));
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 100% 2px;
+}
+
+// --- encumbrance readout (above the load bar) ---
+// Layout/type are utilities on EncumbranceReadout. The rate/separator tint stays
+// here: `.rate` and `.sep` are markup the shared MoveRates component writes, and
+// the colour is a var-with-fallback chain driven by `.enc-t*`.
+.osc-enc-readout .rate,
+.osc-enc-readout .rates .sep {
+  color: var(--enc-c, var(--text-mute));
+}
+
+// ---------------------------------------------------------------------------
+// List rows — 6-track grid
+//
+// Col widths (left → right):
+//   1. drag handle    18px  fixed
+//   2. item image     30px  thumbnail / monogram
+//   3. name           1fr   name (+count/qty) with tags beneath
+//   4. item type      3.25em small-caps category badge
+//   5. weight         2.75em "N cn" or "—"
+//   6. equip toggle   2.75em
+//
+// Only the template lives here — spacing, rule and hover transition are
+// utilities (INV_ROW). A six-track calc() template written as
+// `tw:grid-cols-[…calc(var(--fs-base,16px)*3.25)…]` is strictly less readable
+// than this table, so it stays SCSS.
+// ---------------------------------------------------------------------------
+
+.osc-inv-row {
+  display: grid;
+  grid-template-columns:
+    18px 30px 1fr
+    calc(var(--fs-base, 16px) * 3.25)
+    calc(var(--fs-base, 16px) * 2.75)
+    calc(var(--fs-base, 16px) * 2.75);
+
+  // Fade the row's content, not the row element itself — the drop insertion line
+  // is a box-shadow on the row, and a dragged row can also be the drop target
+  // (dragging + drop-after), so fading the element would render the teal line
+  // semi-transparent. Fading only children keeps the line solid.
+  &.is-dragging > *,
+  &.dragging > * {
+    opacity: 0.4;
+  }
+  &.is-drop-target {
+    border-bottom-color: var(--teal, #1f7575);
+    background: color-mix(in srgb, var(--teal, #1f7575) 8%, transparent);
+  }
+  // Insertion line — a single 2px rule centred on the row edge via an overlay
+  // pseudo-element (not box-shadow, which the row's border splits into a double
+  // line). "after N" and "before N+1" both land on the exact same border pixel,
+  // so it stays put until the insertion index actually changes — no hop, no
+  // reflow. The pseudo isn't a child, so the dragging fade (`> *`) leaves it solid.
+  &.drop-before,
+  &.drop-after {
+    position: relative;
+  }
+  &.drop-before::before,
+  &.drop-after::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--teal, #1f7575);
+    pointer-events: none;
+  }
+  &.drop-before::before {
+    top: -1px;
+  }
+  &.drop-after::after {
+    bottom: -1px;
+  }
+}
+
+// --- "Uses" line: box pips for a stackable item, "Use" fallback when too tight ---
+// The row itself, its strip and the strip button are utilities (see UsesRow).
+// What's left is the overflow swap and the pip re-tint.
+//
+// The dots are the shared Vellum <Pips square sm>; we only re-tint them brass (the
+// shared default is gold), tighten the gap, and shrink them to 7×7 — all scoped to
+// inventory so the spell/cast <Pips size="sm"> stays 9×9. Unlayered because the
+// shared `.pips` rules are unlayered too.
+//
+// Qualified with `.pips` for SPECIFICITY, not for matching: vellum's own rule is
+// scoped to `.osc-sheet .pips` (0,2,0), so a bare `.osc-inv-pips` (0,1,0) loses
+// and the gap silently reverts to the shared 4px. The old `.osc-inv` ancestor
+// used to supply this; it was dropped as a reset qualifier, which it also was.
+.osc-inv-pips.pips {
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+  overflow: hidden;
+}
+// Needs the `.sm` class too, to out-specify the shared `.pips.sm .pip` (9×9).
+.osc-inv-pips.sm .pip {
+  width: 7px;
+  height: 7px;
+}
+.osc-inv-pips .pip {
+  background: transparent;
+  border-color: var(--accent-alt, #c89e54);
+  opacity: 0.5;
+}
+.osc-inv-pips .pip.filled {
+  background: var(--accent-alt, #c89e54);
+  opacity: 1;
+}
+// Overflow: hide the pips (kept measurable via visibility) and neutralise the strip
+// button so the absolutely-positioned Use fallback owns the clicks.
+.osc-inv-uses[data-overflow] .osc-inv-pips {
+  visibility: hidden;
+}
+.osc-inv-uses[data-overflow] .osc-inv-usebtn {
+  pointer-events: none;
+}
+// Both "Use" affordances (pip-overflow fallback + xs inline) render as the shared
+// Vellum Button (`variant="outline" tone="brass" size="xs"`); these classes only
+// carry their positioning/visibility — the pill look comes from `.btn`. `display`
+// has to fight unlayered `.btn { display: inline-flex }`, so it can't be a utility.
+.osc-inv-use1,
+.osc-inv-uses-count {
+  display: none;
+}
+.osc-inv-uses[data-overflow] .osc-inv-use1,
+.osc-inv-uses[data-overflow] .osc-inv-uses-count {
+  display: inline-flex;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+// xs inline "Use" pill on the item row (name column). Hidden until the xs container
+// query swaps out the pip sub-row; same unlayered-`.btn` fight as above.
+// A little left margin gives it breathing room off the ×N tag.
+.osc-inv-useinline {
+  display: none;
+  flex: none;
+  margin-left: var(--spacer-2);
+}
+
+// --- sortable column-header row (table head) ---
+// "Item" header spans the image + name columns so it starts at the image edge.
+// Stays here: WealthSection passes this class into the shared SortHeader too, so
+// the styling can't move into markup only this tab renders.
+.osc-inv-th-item {
+  grid-column: 2 / 4;
+  justify-content: flex-start;
+}
+
+// --- item image (col 2) ---
+// The 30px box is utilities on ItemImage; these two reach into Monogram's markup,
+// and `.mono` in particular has to out-rank the unlayered vellum `.mono`.
+.osc-inv-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.osc-inv-img .mono {
+  font-family: var(--display);
+  font-size: var(--fs-2xs, 11px);
+  letter-spacing: 0.03em;
+  color: var(--text-dim, #b5ad97);
+}
+
+// --- drag handle (col 1) ---
+// Shared with the wealth coin table (WealthRow renders `.osc-inv-drag` directly),
+// which is another zone's markup — so this stays a class, not utilities.
+.osc-inv-drag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint, #6a6354);
+  font-size: var(--fs-xs, 12px);
+  line-height: 1;
+  padding: var(--spacer-1);
+  border-radius: 3px;
+  transition: color 0.12s;
+  &:active {
+    cursor: grabbing;
+  }
+  &:hover {
+    color: var(--text-mute, #8a8270);
+  }
+}
+
+// --- equip hand toggle (col 6, centred under the "Equip" header) ---
+// Rendered by EquippedTray (RowEquip), outside this zone's components.
+.osc-inv-equip-spacer {
+  display: block;
+  width: 22px;
+  justify-self: center;
+}
+.osc-inv-equip {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: var(--r-sm, 4px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint, #6a6354);
+  font-size: var(--fs-sm, 13px);
+  transition:
+    color 0.12s,
+    background 0.12s;
+  &:hover {
+    color: var(--text-dim, #b5ad97);
+    background: var(--surface-2, #2c2823);
+  }
+  &.is-on {
+    color: var(--teal);
+  }
+  &.is-on:hover {
+    color: var(--teal-dim);
+  }
+}
+
+// --- name button (col 3) ---
+// Shared with the wealth coin table (WealthRow renders `.osc-inv-name-c`,
+// `.osc-inv-name-row`, `.osc-inv-name` and `.nm` directly), so these stay classes.
+.osc-inv-name {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-2);
+  flex-wrap: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+.osc-inv-name .nm {
+  font-family: var(--display);
+  font-size: var(--fs-md, 15px);
+  color: var(--text, #e5dec8);
+  transition: color 0.12s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.osc-inv-name:hover .nm {
+  color: var(--gold);
+}
+
+// name column (col 3): name (+count) row on top, tags beneath, all left-justified
+.osc-inv-name-c {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+.osc-inv-name-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-1);
+  min-width: 0;
+  max-width: 100%;
+  .osc-inv-name {
+    flex: 0 1 auto;
+  }
+}
+
+// --- collapse chevron (small, inline with the container name text) ---
+// The button is utilities; the chevron's rotation stays here.
+.osc-inv-collapse {
+  svg,
+  i {
+    transition: transform 0.18s;
+    display: block;
+  }
+  &.collapsed svg,
+  &.collapsed i {
+    transform: rotate(-90deg);
+  }
+}
+
+// --- tags (beneath the name, left-justified) ---
+// DEAD: nothing renders `.osc-inv-tags` / `.osc-inv-tag` any more (the container
+// count moved to <Tag intent="count">). Left in place rather than deleted as part
+// of a styling conversion.
+.osc-inv-tags {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-1);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.osc-inv-tag {
+  // shrink the standard .tag to feel inline under the name
+  padding: 1px var(--spacer-2) 0;
+  font-size: var(--fs-3xs, 10px);
+  white-space: nowrap;
+}
+
+// xs / mobile (bottom-tabs layout): drop the Type column to save width, and swap
+// the "Uses" pip sub-row for the inline Use pill on the item row. Everything else
+// in this tier is a `tw:@max-md/app:` variant on the component.
+@container app (max-width: 479px) {
+  .osc-inv-row {
+    grid-template-columns: 18px 30px 1fr 44px 44px;
+  }
+  .osc-inv-useinline {
+    display: inline-flex;
+  }
+  // Tighter name gap at XS, where the row has ~140px for the name. Nothing
+  // renders a gap utility on this element, so (0,1,0) later in source is enough.
+  .osc-inv-name {
+    gap: var(--spacer-1);
+  }
+}
+
+// --- damage die / quantity ---
+// DEAD: no markup renders `.osc-inv-dmg`, `.osc-inv-qty` or `.osc-inv-qtyin` —
+// damage and stack size render as `.osc-inv-qtytag` inside the name button.
+.osc-inv-dmg {
+  font-family: var(--mono);
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-mute, #8a8270);
+  text-align: right;
+  white-space: nowrap;
+}
+.osc-inv-qty {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--text-mute, #8a8270);
+  text-align: right;
+  white-space: nowrap;
+}
+.osc-inv-qtyin {
+  width: 100%;
+  text-align: center;
+  padding: 2px 0;
+  border-radius: var(--r-sm, 4px);
+  background: var(--surface, #23201a);
+  border: 1px solid var(--border-soft, #2c2823); // always visible so it reads as a field
+  color: var(--text-dim, #b5ad97);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs, 11px);
+  cursor: text;
+  transition:
+    border-color 0.12s,
+    background 0.12s;
+  &:hover {
+    border-color: var(--border, #3a342c);
+  }
+  &:focus {
+    border-color: var(--gold);
+    color: var(--text, #e5dec8);
+  }
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+// --- nested children ---
+.osc-inv-children {
+  padding-left: calc(
+    var(--spacer-4) + var(--osc-inv-depth, 1) * var(--spacer-4)
+  );
+  position: relative;
+  .osc-inv-children {
+    --osc-inv-depth: 2;
+  }
+
+  // brass left-rail marking container membership (item icons are always ink, so a
+  // mid-brass --accent-alt-dim is used to read on dark in both themes)
+  &::before {
+    content: "";
+    position: absolute;
+    left: var(--spacer-4);
+    top: 0;
+    bottom: 0;
+    border-left: 2px solid
+      color-mix(in oklab, var(--accent-alt-dim) 55%, transparent);
+  }
+  .osc-inv-img {
+    border: 1px solid
+      color-mix(in oklab, var(--accent-alt-dim) 60%, transparent);
+  }
+}
+
+// The whole (collapsed) container is the nest drop target — dotted brass
+// outline (container = brass).
+.osc-inv-container.is-drop-target {
+  border-radius: var(--r-sm, 4px);
+  outline: 2px dotted var(--accent-alt);
+  outline-offset: -2px;
+  background: color-mix(in oklab, var(--accent-alt) 9%, transparent);
+}
+
+// The whole row is draggable, but reads as a normal row at rest — regular cursor
+// on hover, the grabbing fist only while a drag is held. Interactive children
+// (name button, qty input, equip/use controls) keep their own cursors.
+.osc-inv-row.is-sortable:active,
+.osc-coin-row:active {
+  cursor: grabbing;
+}
+// cursor inherits and our inputs are `all: unset`, so the row's grabbing fist leaked
+// into them on mousedown. Needs the :active parent to out-specify the rule above.
+.osc-inv-row:active :is(input, textarea),
+.osc-coin-row:active :is(input, textarea) {
+  cursor: text;
+}
+// While a drag is in flight the source row is no longer under the pointer, so
+// :active drops — flag the sheet root for the drag's lifetime and force the
+// grabbing cursor everywhere until drop/end.
+.osc-sheet-app.osc-dnd-active,
+.osc-sheet-app.osc-dnd-active * {
+  cursor: grabbing !important;
+}
+
+// Dragging an equipped tray tile down into the list → unequip drop target.
+.osc-inv-list.is-unequip-target {
+  border-radius: var(--r-md, 6px);
+  outline: 2px dashed color-mix(in oklab, var(--teal) 60%, transparent);
+  outline-offset: 2px;
+  background: color-mix(in oklab, var(--teal) 5%, transparent);
+}

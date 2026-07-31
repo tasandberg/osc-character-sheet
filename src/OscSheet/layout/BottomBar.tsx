@@ -3,10 +3,13 @@ import type { TabItem } from "@layout/types";
 
 type Props = { tabs: TabItem[]; active: string; onSelect: (id: string) => void };
 
-/** Horizontal bottom nav bar (XS layout; shown ≤560c via shell.scss). */
+/** Horizontal bottom nav bar; shown only at XS (app ≤ 479c), where it replaces the rail. */
 export function BottomBar({ tabs, active, onSelect }: Props) {
   return (
-    <nav className="osc-bottombar" aria-label="Sheet sections">
+    <nav
+      className="osc-bottombar tw:hidden tw:@max-md/app:flex tw:@max-md/app:flex-none tw:@max-md/app:border-t tw:@max-md/app:border-border tw:@max-md/app:bg-bg-2"
+      aria-label="Sheet sections"
+    >
       {tabs.map((t) => (
         <button
           key={t.id}

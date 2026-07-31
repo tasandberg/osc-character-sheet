@@ -1,0 +1,117 @@
+// ---------------------------------------------------------------------------
+// Coin editor
+// ---------------------------------------------------------------------------
+// The wealth section (below the Inventory header): a header bar whose caret
+// toggles a drag-reorderable coin table. Layout, type and colour plumbing lives
+// as `tw:` utilities on the markup (WealthSection / WealthRow). What survives
+// here is what a utility can't express — the shared grid template, the caret's
+// transform, the drop-line pseudo-elements, the coin-dot ring, the denomination
+// palette, and the number-input spinner suppression.
+
+// Caret: transform + transition, and the stacking pin that goes with them.
+.osc-wcaret {
+  font-size: var(--fs-md, 15px);
+  color: var(--text-mute, #8a8270);
+  transition:
+    transform 0.18s,
+    color 0.15s;
+  // the rotate() below makes this a stacking context — pin it to the raised layer
+  // so it stays below hover tooltips instead of poking through them.
+  position: relative;
+  z-index: var(--z-raised);
+}
+.osc-whead.open .osc-wcaret {
+  transform: rotate(90deg);
+}
+.osc-whead:hover:not(:disabled) .osc-wcaret {
+  color: var(--text, #e5dec8);
+}
+
+// Ring in the page bg → the dots read as one stacked pile. Geometry (size, the
+// -4px overlap) is utilities on the dot itself.
+.osc-whead .ci {
+  box-shadow: 0 0 0 1.5px var(--bg, #181612);
+}
+
+// Grid mirrors the items table (handle · 30px image · name · …) so the coin rows
+// read as siblings; the trailing Qty/Weight/Value columns are coin-specific.
+// One template shared by three elements and re-declared per tier — kept whole
+// rather than triplicated as an arbitrary value. `display: grid`, the column gap
+// (roomy, so the QTY sort caret clears "WEIGHT (CN)") and alignment are utilities.
+.osc-coin-colhead,
+.osc-coin-row,
+.osc-coin-total {
+  grid-template-columns:
+    18px 30px minmax(0, 1fr)
+    calc(var(--fs-base, 16px) * 5)
+    calc(var(--fs-base, 16px) * 5.5)
+    calc(var(--fs-base, 16px) * 5.5);
+}
+
+// drop-line affordance (matches the items rows)
+.osc-coin-row.drop-before,
+.osc-coin-row.drop-after {
+  position: relative;
+}
+.osc-coin-row.drop-before::before,
+.osc-coin-row.drop-after::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--teal, #1f7575);
+  pointer-events: none;
+}
+.osc-coin-row.drop-before::before {
+  top: -1px;
+}
+.osc-coin-row.drop-after::after {
+  bottom: -1px;
+}
+.osc-coin-row.dragging > * {
+  opacity: 0.4;
+}
+
+// Coin qty is a bare number field — no spinners. `appearance` sits with the
+// pseudo-elements that finish the job rather than being split off as a utility.
+.osc-coin-qty {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.osc-coin-qty::-webkit-inner-spin-button,
+.osc-coin-qty::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+// Per-denomination dot colours (handoff palette; hex fallbacks are stylelint-allowed).
+// `.ci` is an unprefixed class name, so the `.osc-inv` ancestor is scoping, not
+// specificity padding — it stays.
+.osc-inv .ci.pp {
+  background: var(--coin-pp, #cfd2da);
+}
+.osc-inv .ci.gp {
+  background: var(--accent-alt);
+}
+.osc-inv .ci.ep {
+  background: var(--coin-ep, #cdbb78);
+}
+.osc-inv .ci.sp {
+  background: var(--coin-sp, #b9bcc4);
+}
+.osc-inv .ci.cp {
+  background: var(--coin-cp, #b1734a);
+}
+
+// xs / narrow inventory column: drop the Weight + Value columns. Only the grid
+// template lives here now — every cell that disappears, header and row alike,
+// hides itself with `tw:@max-md/app:hidden`. The positional `:nth-child` rule
+// this used to need is gone: it depended on the header and the row hiding by
+// different mechanisms, which is exactly how they drifted out of step.
+@container app (max-width: 479px) {
+  .osc-coin-colhead,
+  .osc-coin-row {
+    grid-template-columns: 18px 30px minmax(0, 1fr) 92px;
+  }
+}
