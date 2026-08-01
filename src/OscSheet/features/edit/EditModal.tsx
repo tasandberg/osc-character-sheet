@@ -23,11 +23,11 @@ import {
 import { usesAscendingAC } from "@domain/chat/targeting";
 import type { OSESave } from "@domain/types";
 import { HitDiceField } from "./HitDiceField";
+import { ExplorationSection } from "./ExplorationSection";
 import {
   ED_FIELD,
   ED_HINT,
   LAB_ID,
-  LAB_SKILL,
   SPAN_2,
   SPAN_3,
   SPAN_4,
@@ -68,13 +68,6 @@ const SAVE_DEFS: { k: OSESave; n: string }[] = [
   { k: "breath", n: "Breath Attacks" },
   { k: "spell", n: "Spells / Rods / Staves" },
 ];
-const SKILL_DEFS: { k: "ld" | "od" | "sd" | "ft"; n: string }[] = [
-  { k: "ld", n: "Listen at Door" },
-  { k: "od", n: "Open Stuck Door" },
-  { k: "sd", n: "Find Secret Door" },
-  { k: "ft", n: "Find Room Trap" },
-];
-
 type ConfirmState = { title: string; body: string; fn: () => void } | null;
 
 export function EditModal({
@@ -419,30 +412,7 @@ export function EditModal({
           </div>
         </div>
 
-        {/* Exploration */}
-        <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
-          <SectionTitle hint="1-in-6 chances">Exploration</SectionTitle>
-          <div className="ed-skills tw:grid tw:grid-cols-2 tw:gap-x-[14px] tw:gap-y-3 tw:@max-[520px]/fwin:grid-cols-1">
-            {SKILL_DEFS.map(({ k, n }) => (
-              <label className={ED_FIELD} key={k}>
-                <span className={LAB_SKILL}>{n}</span>
-                <select
-                  className="input mono"
-                  value={sys.exploration[k]}
-                  onChange={(e) =>
-                    set(`system.exploration.${k}`, Number(e.target.value))
-                  }
-                >
-                  {[1, 2, 3, 4, 5, 6].map((x) => (
-                    <option key={x} value={x}>
-                      {x}-in-6
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ))}
-          </div>
-        </div>
+        <ExplorationSection />
       </div>
 
       <ConfirmDialog

@@ -42,9 +42,7 @@ export interface OscSheetContextValue {
   /** Global edit gate: true for owners, false for observers/limited (read-only
    *  sheet). Components hide/disable write affordances when false. */
   canEdit: boolean;
-  updateActor: (updateData: {
-    [key: string]: string | number | boolean | string[];
-  }) => Promise<OSEActor | void>;
+  updateActor: (updateData: Record<string, unknown>) => Promise<OSEActor | void>;
   /** Apply an optimistic patch (flat dot-paths) to a doc immediately, run the real
    *  Foundry write, and reconcile/rollback async. `key` = item `_id` or "actor".
    *  Provided by OptimisticProvider; undefined outside it. */
@@ -84,7 +82,7 @@ export type OSEActor = Actor & {
       };
     };
     encumbrance: CharacterEncumbrance;
-    exploration: {
+    exploration: Record<string, number | undefined> & {
       ft: number;
       ld: number;
       od: number;
@@ -138,9 +136,7 @@ export type OSEActor = Actor & {
     save: OSESave,
     options: { event?: RollEvent; fastForward?: boolean; chatMessage?: string }
   ) => void;
-  update: (updateData: {
-    [key: string]: string | number | boolean;
-  }) => Promise<OSEActor>;
+  update: (updateData: Record<string, unknown>) => Promise<OSEActor>;
 };
 
 export type OseItem = Omit<Item, "type"> & {

@@ -91,8 +91,6 @@ export interface ExplorationVM {
   label: string;
   icon: string;
   inSix: number;
-  /** Not modelled in OSE (Forage/Hunt) — fires a plain 1d6 instead of a skill roll. */
-  simple: boolean;
 }
 
 export interface TopbarVM {
