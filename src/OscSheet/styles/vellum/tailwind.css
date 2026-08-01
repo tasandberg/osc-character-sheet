@@ -25,7 +25,7 @@
 @layer theme, base, components, utilities;
 
 @import "tailwindcss/theme.css" layer(theme) prefix(tw);
-@import "./theme.css";
+@import "@old-school-chronicle/vellum/theme.css";
 /* Container tiers. Layout here keys off named containers — `app` (the outer
    frame), `sheet` (the scroll body) and `fwin` (the Foundry window) — never
    viewport media queries, because the sheet lives in a resizable window whose

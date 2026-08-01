@@ -19,9 +19,11 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
-# One license = one server: serialize, drop superseded runs.
+# One license = one server: serialize, drop superseded runs. Keyed by event name as well
+# as PR, or the pull_request_target run cancels the pull_request run on a same-repo PR and
+# then skips itself, leaving the required check with no green status.
 concurrency:
-  group: e2e-${{ github.event.pull_request.number || github.ref }}
+  group: e2e-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
