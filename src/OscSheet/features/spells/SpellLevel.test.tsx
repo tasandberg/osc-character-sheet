@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
-// Nothing writes `system.spells.<lvl>.max`, so a character who never opened OSE's
-// own sheet had 0 capacity and every spellbook entry was disabled — GitHub #124.
-// The maximum is now class-derived, and editable through the head's pencil dialog.
+// GitHub #124: nothing writes `system.spells.<lvl>.max`, so a character who never
+// opened OSE's own sheet had 0 capacity and could memorise nothing.
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -130,7 +129,7 @@ const openDialog = () => {
   return q<HTMLInputElement>(".modal .osc-slotmax")!;
 };
 const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
-/** Type into the field and blur — the same order a click on Save produces. */
+/** Type and blur — the order a click on Save produces. */
 const type = (field: HTMLInputElement, value: string) =>
   act(() => {
     field.focus();
@@ -138,11 +137,8 @@ const type = (field: HTMLInputElement, value: string) =>
     field.dispatchEvent(new Event("input", { bubbles: true }));
     field.blur();
   });
-/** The reset group stays mounted and laid out so it can fade both ways and the
- *  dialog never resizes; `.is-out` is the hidden state (opacity → visibility,
- *  styles.scss). jsdom applies no CSS, so assert the class and the `inert`
- *  attribute that backs it up — the latter is what actually proves the hidden
- *  group is untabbable here. */
+/** jsdom applies no CSS, so the hidden state is asserted through its class and
+ *  the `inert` that backs it up. */
 const hidden = () => {
   const group = q(".osc-slotdefaults");
   if (!group) return null;
@@ -190,13 +186,11 @@ describe("slot maximum dialog", () => {
   it("opens from the pencil at the level's current maximum, under a label", () => {
     render();
     expect(openDialog().value).toBe("2");
-    // The containment rule is `.modal-scrim:has(.modal-inset)` — assert the
-    // structure that selector needs, since jsdom applies no CSS.
+    // The structure `.modal-scrim:has(.modal-inset)` needs.
     expect(q(".modal-scrim > .modal.modal-inset.osc-slot-modal")).not.toBeNull();
     expect(text(".modal-body .field-label")).toBe("Level 1 spell slots:");
     expect(text(".osc-slotdefault")).toBe("Default 2");
-    // Sitting at the default: nothing to reset to, so the group is hidden —
-    // still mounted and holding its space, so the dialog doesn't resize.
+    // At the default: hidden, but still mounted so the dialog doesn't resize.
     expect(hidden()).toBe(true);
     expect(q(".osc-slotdefaults")).not.toBeNull();
   });
@@ -208,7 +202,6 @@ describe("slot maximum dialog", () => {
     type(field, "5");
     expect(hidden()).toBe(false);
     expect(anim()).toBe("in");
-    // The edit modal's reset link, then the trailing info icon — one group.
     const group = q<HTMLElement>(".osc-slotdefaults")!;
     expect(Array.from(group.children).map((c) => c.className.split(" ")[0])).toEqual([
       "ed-resetlink",
@@ -220,9 +213,7 @@ describe("slot maximum dialog", () => {
     expect(anim()).toBe("out");
   });
 
-  // A CSS animation plays whenever its class is present — including on mount —
-  // so the fade classes must never be derived from the current value. jsdom runs
-  // no animations, but their absence at open is exactly what the bug had wrong.
+  // The bug: a fade class derived from the current value plays on mount.
   it("animates nothing on open, at the default or away from it", () => {
     render();
     openDialog();
@@ -230,7 +221,6 @@ describe("slot maximum dialog", () => {
     expect(anim()).toBeNull();
     act(() => byLabel("Cancel").click());
 
-    // Mirror case: opens already differing, so it is simply there — no entry fade.
     render(overridden);
     expect(openDialog().value).toBe("5");
     expect(hidden()).toBe(false);
@@ -274,7 +264,6 @@ describe("slot maximum dialog", () => {
     openDialog();
     const info = q<HTMLButtonElement>(".osc-slotinfo")!;
     const pop = q<HTMLElement>(".osc-slot-tip")!;
-    // Same sentence on the accessible name, so it is never mouse-only.
     expect(info.getAttribute("aria-label")).toBe(pop.textContent);
     expect(info.tabIndex).toBe(0);
     expect(pop.hasAttribute("data-open")).toBe(false);

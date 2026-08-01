@@ -24,10 +24,9 @@
 .osc-spell .spm .dmg { color: var(--crimson); }
 
 // --- slot-maximum dialog ---
-// One labelled number field, so cap it well under the 540px DS default; `.modal`
-// keeps width:100% below the cap on narrow sheets. Containment is the shared
-// `.modal-inset` (shell.scss); the max-height override is needed with it because
-// the DS caps against 100vh, and inside an absolute scrim that's the wrong box.
+// One labelled number field, so cap well under the 540px DS default. max-height
+// is re-capped because the DS caps against 100vh — the wrong box inside the
+// sheet-bound scrim (`.modal-inset`, shell.scss).
 .osc-sheet-app .osc-slot-modal {
   max-width: 340px;
   max-height: 100%;

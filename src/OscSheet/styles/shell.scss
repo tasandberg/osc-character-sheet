@@ -28,13 +28,9 @@
 
 .osc-pad { padding: var(--spacer-4); }
 
-// Modal containment, opted into with `.modal-inset` on a Modal's root. The DS
-// `.modal-scrim` is position:fixed over the VIEWPORT; `.osc-sheet-app` is the
-// positioned ancestor, so an absolute scrim fills the sheet window instead —
-// what a dialog inside a Foundry window should do. A `:has()` over DS-authored
-// markup, and the `.osc-sheet-app` qualifier is the specificity that beats the
-// unlayered primitive; neither is expressible as a utility on our own elements.
-// Each modal still owns its own max-width.
+// Modal containment, opted into with `.modal-inset` on a Modal's root: the DS
+// `.modal-scrim` is fixed over the viewport, and `.osc-sheet-app` is the
+// positioned ancestor, so an absolute scrim fills the sheet window instead.
 .osc-sheet-app .modal-scrim:has(.modal-inset) {
   position: absolute;
   inset: 0;

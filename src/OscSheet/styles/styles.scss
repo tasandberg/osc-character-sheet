@@ -228,23 +228,12 @@
 }
 
 // --- conditional reveal ----------------------------------------------------
-// Generic show/hide for something that comes and goes with state: keep the
-// element MOUNTED and toggle `.is-out`. Mounted is the whole point — an element
-// React has unmounted cannot animate on its way out — and `visibility` (not
-// `display`) keeps its box, so nothing around it reflows either way.
-//
-// The RESTING states and the ANIMATIONS are deliberately different classes. A CSS
-// animation runs whenever its class is present, mount included, so a component
-// that derived `.fade-out` from "is currently hidden" would play the exit fade on
-// first paint — showing, for one beat, the very thing it means to hide. The
-// resting state is therefore `.is-out` alone, and `.fade-in` / `.fade-out` are
-// added BY the change that causes them, so opening a panel animates nothing.
-//
-// `.fade-out` ends on `visibility: hidden` (held by `forwards`) rather than
-// opacity alone, so the hidden element is neither clickable nor tabbable and is
-// out of the a11y tree — matching the resting state it lands on.
-// Repo-local (this sheet only); the vendored @osc/vellum copies stay untouched.
-// 0.12s ease is the speed the rest of the sheet already fades at.
+// Resting state (`.is-out`) and animations (`.fade-in` / `.fade-out`) are separate
+// classes ON PURPOSE: a CSS animation plays whenever its class is present, mount
+// included, so a fade class derived from "is currently hidden" plays the exit fade
+// on first paint. The consumer adds them from the change itself.
+// `visibility`, not `display`, so the hidden element keeps its box and nothing
+// around it reflows.
 .is-out {
   opacity: 0;
   visibility: hidden;
@@ -263,7 +252,6 @@
   99%,
   100% { opacity: 1; }
 }
-// Overrides `.is-out` for the duration, then lands back on it.
 @keyframes fade-out {
   0%,
   1% { opacity: 1; visibility: visible; }
@@ -271,7 +259,6 @@
   100% { opacity: 0; visibility: hidden; }
 }
 
-// Vestibular sensitivity: same end states, reached instantly.
 @media (prefers-reduced-motion: reduce) {
   .fade-in,
   .fade-out {

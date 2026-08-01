@@ -84,12 +84,8 @@ export function slotMaxPath(level: number): string {
   return `system.spells.${level}.max`;
 }
 
-/**
- * The level's stored slot maximum, or undefined when the actor has never set one.
- * The prepared `spells.slots` can't answer this — it fills every level with `max: 0`
- * — so read `_source`. Partial actors (tests, fixtures) have no `_source`: there a
- * non-zero prepared max stands in for the stored value.
- */
+/** The level's stored maximum, or undefined if never set. Read from `_source`:
+ *  prepared `spells.slots` fills every level with `max: 0` and can't say which. */
 function storedSlotMax(actor: OSEActor, level: number): number | undefined {
   const source = (
     actor._source?.system as unknown as
@@ -116,9 +112,7 @@ export function slotMaxAt(actor: OSEActor, level: number): number {
  * which is the sum of `cast` and frees as you cast — that would let you over-memorise).
  * The prepared list = every selected spell (`memorized > 0`), incl. fully-spent ones.
  * A level shows when it has capacity OR any known spell. Sorted ascending.
- * Capacity is the stored `system.spells.<lvl>.max` when the user has set one,
- * otherwise the class+level rulebook default — nothing writes that default, so
- * reading it is what gives an untouched caster any slots at all.
+ * Capacity falls back to the class+level default: nothing ever writes one.
  */
 export function selectSpellLevels(actor: OSEActor, freeCasting = memorizationDisabled()): SpellLevelVM[] {
   const { slots, spellList } = actor.system.spells;
@@ -127,7 +121,7 @@ export function selectSpellLevels(actor: OSEActor, freeCasting = memorizationDis
   const levels = new Set<number>();
   for (const lvl of Object.keys(slots)) levels.add(Number(lvl));
   for (const lvl of Object.keys(spellList)) levels.add(Number(lvl));
-  // A caster's rulebook levels show even before any spell is known or stored.
+  // A caster's levels show before any spell is known.
   for (const [lvl, max] of Object.entries(defaults)) if (max > 0) levels.add(Number(lvl));
 
   return [...levels]

@@ -33,8 +33,6 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   const { level, slots, defaultMax, occupied, prepared, spellbook, freeCasting, points } = vm;
   const [bookOpen, setBookOpen] = useState(false);
 
-  // The pencil sits where the "ready"/"remaining" label used to, and carries that
-  // label's meaning in its aria-label — the head itself is now plain text.
   const editSlots = <SlotMaxDialog level={level} max={slots.max} defaultMax={defaultMax} />;
 
   const meta = (spell: OseSpell) =>

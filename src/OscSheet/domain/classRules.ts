@@ -92,11 +92,7 @@ export function availableClassNames(): string[] {
   return [...names].sort((a, b) => a.localeCompare(b));
 }
 
-/**
- * Rulebook spell-slot maxima for the actor's class + level, keyed by spell level
- * (1-based). Null for non-casters, custom classes, and class tables that carry no
- * spell progression — those have no default, so the sheet falls back to 0.
- */
+/** Rulebook slot maxima for the actor's class+level, keyed by spell level (1-based). */
 export function selectSpellSlotDefaults(
   actor: OSEActor,
 ): Record<number, number> | null {
