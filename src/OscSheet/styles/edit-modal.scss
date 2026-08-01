@@ -11,18 +11,6 @@
 // and would only tie those rules.
 
 .osc-sheet-app {
-  // Confine the Edit modal's overlay to the sheet window, not the whole
-  // viewport. The DS default is position:fixed over the viewport;
-  // .osc-sheet-app is the positioned ancestor, so an absolute scrim fills the
-  // sheet instead. `:has()` over DS-authored markup — not expressible as a
-  // utility on our own elements.
-  .modal-scrim:has(.fe-modal) {
-    position: absolute;
-    inset: 0;
-    z-index: 60;
-    padding: var(--spacer-4); // 16px
-  }
-
   // Cap the form width on wide windows (it centers via the scrim's place-items);
   // .modal's width:100% still shrinks it below the cap on narrow sheets. Both
   // caps override `.modal`'s own, so they stay here.

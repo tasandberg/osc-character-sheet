@@ -3,7 +3,14 @@ import type { OSEActor, OSESave } from "@domain/types";
 const SAVE_ORDER: OSESave[] = ["death", "wand", "paralysis", "breath", "spell"];
 
 type ClassDef = {
-  levels: { xp: number; hd: string; thac0: number; saves: number[] }[];
+  levels: {
+    xp: number;
+    hd: string;
+    thac0: number;
+    saves: number[];
+    /** Slot maxima by spell level, index 0 = spell level 1. Casters only. */
+    spells?: number[];
+  }[];
   /** Minimum ability scores required by the class, e.g. { cha: 9 }. */
   requirements?: Record<string, number>;
 };
@@ -83,6 +90,16 @@ export function availableClassNames(): string[] {
   const names = new Set<string>();
   for (const map of classMaps()) for (const k of Object.keys(map)) names.add(k);
   return [...names].sort((a, b) => a.localeCompare(b));
+}
+
+/** Rulebook slot maxima for the actor's class+level, keyed by spell level (1-based). */
+export function selectSpellSlotDefaults(
+  actor: OSEActor,
+): Record<number, number> | null {
+  const { class: cls, level } = actor.system?.details ?? {};
+  const spells = findClass(cls ?? "")?.def.levels[(level ?? 0) - 1]?.spells;
+  if (!spells) return null;
+  return Object.fromEntries(spells.map((max, i) => [i + 1, max ?? 0]));
 }
 
 export function selectClassDefaults(actor: OSEActor): ClassDefaults {

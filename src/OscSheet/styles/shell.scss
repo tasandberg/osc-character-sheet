@@ -28,6 +28,16 @@
 
 .osc-pad { padding: var(--spacer-4); }
 
+// Modal containment, opted into with `.modal-inset` on a Modal's root: the DS
+// `.modal-scrim` is fixed over the viewport, and `.osc-sheet-app` is the
+// positioned ancestor, so an absolute scrim fills the sheet window instead.
+.osc-sheet-app .modal-scrim:has(.modal-inset) {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  padding: var(--spacer-4); // 16px
+}
+
 .osc-twopane > .osc-left {
   padding-bottom: 15px; // intentional: 15px optical offset, leave raw
   border-bottom: 1px solid var(--border-soft, #2c2823);

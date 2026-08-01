@@ -4,6 +4,7 @@ import type { OseSpell } from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
 import { spellMeta, castFree, isFavorite, toggleFavorite } from "@features/spells/spells";
 import { SpellRow } from "@features/spells/SpellRow";
+import { SlotMaxDialog } from "@features/spells/SlotMaxDialog";
 import { cx } from "@ui/cx";
 import { Pips } from "@ui/Pips";
 
@@ -22,15 +23,17 @@ const BOOKSPELL =
   "osc-bookspell tw:flex tw:cursor-pointer tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:not-disabled:border-solid tw:hover:not-disabled:border-gold-dim tw:disabled:cursor-not-allowed tw:disabled:opacity-40";
 
 /**
- * One spell level: ink-stamp "Level N" badge + "used / max ready" + slot pips,
+ * One spell level: ink-stamp "Level N" badge + "used / max" + slot pips,
  * the prepared-spell cast rows, and an expandable spellbook of all known spells.
  * Free-casting mode (memorization disabled) lists every known spell as castable
  * while the level's point budget lasts, with a favorite star.
  */
 export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   const { actor, canEdit } = useOscSheetContext();
-  const { level, slots, occupied, prepared, spellbook, freeCasting, points } = vm;
+  const { level, slots, defaultMax, occupied, prepared, spellbook, freeCasting, points } = vm;
   const [bookOpen, setBookOpen] = useState(false);
+
+  const editSlots = <SlotMaxDialog level={level} max={slots.max} defaultMax={defaultMax} />;
 
   const meta = (spell: OseSpell) =>
     spellMeta(spell).map((p) => (
@@ -46,8 +49,9 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         <div className={HEAD}>
           <span className={HEAD_LV}>Level {level}</span>
           <span className={HEAD_SC}>
-            {points.max - points.used} / {points.max} remaining
+            {points.max - points.used} / {points.max}
           </span>
+          {editSlots}
           <Pips
             total={points.max}
             filled={points.max - points.used}
@@ -112,8 +116,9 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
       <div className={HEAD}>
         <span className={HEAD_LV}>Level {level}</span>
         <span className={HEAD_SC}>
-          {slots.used} / {slots.max} ready
+          {slots.used} / {slots.max}
         </span>
+        {editSlots}
         <Pips
           total={slots.max}
           filled={slots.used}

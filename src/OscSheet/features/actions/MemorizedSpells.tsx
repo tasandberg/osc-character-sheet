@@ -8,6 +8,7 @@ import {
   selectFavoriteSpells,
   castFree,
   pointsLeftAt,
+  slotMaxAt,
 } from "@features/spells/spells";
 import { cx } from "@ui/cx";
 
@@ -31,14 +32,13 @@ export function MemorizedSpells({ actor }: Props) {
   if (memorizationDisabled()) {
     const favorites = selectFavoriteSpells(actor);
     if (favorites.length === 0) return null;
-    const slots = actor.system.spells?.slots ?? {};
     return (
       <section className="osc-section">
         <SectionTitle hint="favorites — click to cast">Spells</SectionTitle>
         <div className="fvtt-castlist">
           {favorites.map((spell) => {
             const lvl = spell.system.lvl;
-            const max = (slots[lvl] ?? { max: 0 }).max;
+            const max = slotMaxAt(actor, lvl);
             const left = pointsLeftAt(actor, lvl, max);
             return (
               <SpellRow

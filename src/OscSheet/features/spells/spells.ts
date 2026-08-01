@@ -1,6 +1,7 @@
 import type { OSEActor, OseSpell } from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
 import { MODULE_ID, FLAGS, readFlag, setFlag, unsetFlag } from "@domain/flags";
+import { selectSpellSlotDefaults } from "@domain/classRules";
 
 /** One part of the prepared-row meta line, e.g. { kind: "roll", text: "1d6+1" }. */
 export interface SpellMetaPart {
@@ -78,6 +79,32 @@ export function selectFavoriteSpells(actor: OSEActor): OseSpell[] {
   return all.filter(isFavorite).sort((a, b) => a.system.lvl - b.system.lvl);
 }
 
+/** Dot-path for a level's stored slot maximum (the manual override). */
+export function slotMaxPath(level: number): string {
+  return `system.spells.${level}.max`;
+}
+
+/** The level's stored maximum, or undefined if never set. Read from `_source`:
+ *  prepared `spells.slots` fills every level with `max: 0` and can't say which. */
+function storedSlotMax(actor: OSEActor, level: number): number | undefined {
+  const source = (
+    actor._source?.system as unknown as
+      | { spells?: Record<string, { max?: number } | undefined> }
+      | undefined
+  )?.spells;
+  if (source) {
+    const max = source[String(level)]?.max;
+    return typeof max === "number" ? max : undefined;
+  }
+  const prepared = actor.system.spells.slots[level]?.max ?? 0;
+  return prepared > 0 ? prepared : undefined;
+}
+
+/** A level's effective slot maximum: the stored override, else the class default. */
+export function slotMaxAt(actor: OSEActor, level: number): number {
+  return storedSlotMax(actor, level) ?? selectSpellSlotDefaults(actor)?.[level] ?? 0;
+}
+
 /**
  * Per-level spell panels. A slot is OCCUPIED by each `memorized` copy of a spell
  * (the selection — persists across casts and rest); `cast` is the casts remaining
@@ -85,18 +112,24 @@ export function selectFavoriteSpells(actor: OSEActor): OseSpell[] {
  * which is the sum of `cast` and frees as you cast — that would let you over-memorise).
  * The prepared list = every selected spell (`memorized > 0`), incl. fully-spent ones.
  * A level shows when it has capacity OR any known spell. Sorted ascending.
+ * Capacity falls back to the class+level default: nothing ever writes one.
  */
 export function selectSpellLevels(actor: OSEActor, freeCasting = memorizationDisabled()): SpellLevelVM[] {
   const { slots, spellList } = actor.system.spells;
   const spent = spellPointsSpent(actor);
+  const defaults = selectSpellSlotDefaults(actor) ?? {};
   const levels = new Set<number>();
   for (const lvl of Object.keys(slots)) levels.add(Number(lvl));
   for (const lvl of Object.keys(spellList)) levels.add(Number(lvl));
+  // A caster's levels show before any spell is known.
+  for (const [lvl, max] of Object.entries(defaults)) if (max > 0) levels.add(Number(lvl));
 
   return [...levels]
     .sort((a, b) => a - b)
     .map((level) => {
-      const max = (slots[level] ?? { max: 0 }).max;
+      const stored = storedSlotMax(actor, level);
+      const defaultMax = defaults[level] ?? null;
+      const max = stored ?? defaultMax ?? 0;
       const spellbook = spellList[level] ?? [];
       // `ready` (= sum of cast) drives the "X / max ready" count + pips and drops
       // as spells are cast; `occupied` (= sum of memorized) is the filled-slot
@@ -105,7 +138,16 @@ export function selectSpellLevels(actor: OSEActor, freeCasting = memorizationDis
       const occupied = spellbook.reduce((n, s) => n + (s.system.memorized ?? 0), 0);
       const prepared = spellbook.filter((s) => (s.system.memorized ?? 0) > 0);
       const points = { used: Math.min(spent[level] ?? 0, max), max };
-      return { level, slots: { used: ready, max }, occupied, prepared, spellbook, freeCasting, points };
+      return {
+        level,
+        slots: { used: ready, max },
+        defaultMax,
+        occupied,
+        prepared,
+        spellbook,
+        freeCasting,
+        points,
+      };
     })
     .filter((vm) => vm.slots.max > 0 || vm.spellbook.length > 0);
 }

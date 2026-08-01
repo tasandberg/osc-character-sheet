@@ -167,6 +167,8 @@ export interface SpellLevelVM {
   level: number;
   /** used = casts still ready (sum of `cast`, drops as you cast); max = slot capacity. */
   slots: { used: number; max: number };
+  /** Class+level rulebook slot maximum; null for custom classes and non-casters. */
+  defaultMax: number | null;
   /** Filled slots = sum of `memorized` (persists across casts); caps memorisation. */
   occupied: number;
   /** Selected spells (`memorized > 0`), shown as prepared rows (incl. fully spent). */

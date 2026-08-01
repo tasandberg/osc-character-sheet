@@ -1,7 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import {
   spellMeta,
   selectSpellLevels,
+  slotMaxAt,
   spellPointsSpent,
   pointsLeftAt,
   isFavorite,
@@ -50,6 +51,95 @@ const actorWith = (
     system: { spells: { spellList, slots, enabled: true } },
     ...(spellPoints ? { flags: { [MODULE_ID]: { spellPoints } } } : {}),
   }) as unknown as OSEActor;
+
+// A caster whose slot maxima were never typed in by hand: `slots` is all zeroes
+// and `_source.system.spells` has no entry for the level — the state every new
+// character starts in.
+const CLERIC = {
+  name: "Cleric",
+  requirements: {},
+  levels: [
+    { xp: 0, hd: "1d6", thac0: 19, saves: [11, 12, 14, 16, 15], spells: [0, 0] },
+    { xp: 1500, hd: "2d6", thac0: 19, saves: [11, 12, 14, 16, 15], spells: [1, 0] },
+    { xp: 3000, hd: "3d6", thac0: 19, saves: [11, 12, 14, 16, 15], spells: [2, 1] },
+  ],
+};
+
+const withClasses = () => {
+  (globalThis as unknown as { CONFIG: unknown }).CONFIG = {
+    OSE: { classes: { classic: { Cleric: CLERIC } } },
+  };
+};
+afterEach(() => {
+  delete (globalThis as unknown as { CONFIG?: unknown }).CONFIG;
+});
+
+const caster = (
+  cls: string,
+  level: number,
+  spellList: Record<number, OseSpell[]>,
+  storedSlots: Record<number, { max?: number }> = {},
+) =>
+  ({
+    system: {
+      details: { class: cls, level },
+      spells: {
+        spellList,
+        // What OSE's data model derives: every level present, max 0 unless stored.
+        slots: Object.fromEntries(
+          [1, 2].map((l) => [l, { used: 0, max: storedSlots[l]?.max ?? 0 }]),
+        ),
+        enabled: true,
+      },
+    },
+    _source: { system: { spells: storedSlots } },
+  }) as unknown as OSEActor;
+
+describe("selectSpellLevels — slot capacity", () => {
+  it("falls back to the class+level slot table when nothing is stored", () => {
+    withClasses();
+    const actor = caster("Cleric", 3, { 1: [known("a", 1, "Cure")] });
+    const [lvl1, lvl2] = selectSpellLevels(actor, false);
+    expect(lvl1.slots.max).toBe(2);
+    expect(lvl1.defaultMax).toBe(2);
+    // Capacity is what gates memorising — 0 here is the bug that blocked it.
+    expect(lvl1.occupied < lvl1.slots.max).toBe(true);
+    expect(lvl2.slots.max).toBe(1);
+  });
+
+  it("shows a caster's rulebook levels before any spell is known", () => {
+    withClasses();
+    expect(selectSpellLevels(caster("Cleric", 3, {}), false).map((l) => l.level)).toEqual([1, 2]);
+  });
+
+  it("prefers a stored maximum over the class default", () => {
+    withClasses();
+    const actor = caster("Cleric", 3, { 1: [known("a", 1, "Cure")] }, { 1: { max: 5 } });
+    const [lvl1] = selectSpellLevels(actor, false);
+    expect(lvl1.slots.max).toBe(5);
+    expect(lvl1.defaultMax).toBe(2);
+  });
+
+  it("honours a stored zero — a house rule can take slots away", () => {
+    withClasses();
+    const actor = caster("Cleric", 3, { 1: [known("a", 1, "Cure")] }, { 1: { max: 0 } });
+    expect(selectSpellLevels(actor, false)[0].slots.max).toBe(0);
+  });
+
+  it("has no default for a custom class, so a stored maximum is the only source", () => {
+    withClasses();
+    const actor = caster("Warlock", 3, { 1: [known("a", 1, "Cure")] }, { 1: { max: 3 } });
+    const [lvl1] = selectSpellLevels(actor, false);
+    expect(lvl1.defaultMax).toBeNull();
+    expect(lvl1.slots.max).toBe(3);
+  });
+
+  it("slotMaxAt agrees with the panel's max", () => {
+    withClasses();
+    expect(slotMaxAt(caster("Cleric", 3, {}), 1)).toBe(2);
+    expect(slotMaxAt(caster("Cleric", 1, {}), 1)).toBe(0);
+  });
+});
 
 describe("selectSpellLevels — free-casting mode", () => {
   it("carries freeCasting + a per-level point budget from slot max and the spent flag", () => {

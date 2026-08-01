@@ -58,7 +58,7 @@ export function HitDiceField({
         onCommit={onCommit}
         spellCheck={false}
         hint={
-          hdDefault != hdVal ? (
+          hdDefault && hdDefault !== hdVal ? (
             <OverrideValue
               overridden={hdOverridden}
               defaultText={`${hdDefault}`}

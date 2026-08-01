@@ -284,3 +284,34 @@ describe("EditModal THAC0 / Attack Bonus", () => {
     }
   });
 });
+
+describe("EditModal identity fields", () => {
+  it("leaves the Hit Dice hint empty when the class has no default", async () => {
+    const actor = makeActor();
+    actor.system.details.class = "homebrew";
+    await renderModal(actor);
+
+    const field = fieldByLabel("Hit Dice")!;
+    expect(field.textContent).not.toContain("null");
+    expect(field.querySelector(".ed-resetlink")).toBeNull();
+    expect(field.querySelector(".hint")).toBeNull();
+  });
+
+  it("puts no ceiling on Level, so a level past the class table is typable", async () => {
+    const actor = makeActor();
+    await renderModal(actor);
+
+    const input = fieldByLabel("Level")!.querySelector("input")!;
+    expect(input.hasAttribute("max")).toBe(false);
+    await act(async () => {
+      input.focus();
+      setValue(input, "20");
+      input.blur();
+      await Promise.resolve();
+    });
+
+    expect(actor.update as ReturnType<typeof vi.fn>).toHaveBeenCalledWith({
+      "system.details.level": 20,
+    });
+  });
+});

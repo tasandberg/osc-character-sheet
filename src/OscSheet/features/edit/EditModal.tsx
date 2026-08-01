@@ -145,7 +145,7 @@ export function EditModal({
       title="Edit Character"
       onClose={onClose}
       footer={footer}
-      className="fe-modal"
+      className="modal-inset fe-modal"
     >
       <div className="fe-modal-body tw:flex tw:flex-col tw:gap-5">
         {/* Identity */}
@@ -197,7 +197,6 @@ export function EditModal({
                 className="input mono"
                 value={level}
                 min={1}
-                max={defaults.maxLevel}
                 onCommit={(n) => set("system.details.level", n)}
               />
             </label>

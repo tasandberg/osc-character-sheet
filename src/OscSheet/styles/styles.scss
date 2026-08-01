@@ -227,6 +227,45 @@
   }
 }
 
+// --- conditional reveal ----------------------------------------------------
+// Resting state (`.is-out`) and animations (`.fade-in` / `.fade-out`) are separate
+// classes ON PURPOSE: a CSS animation plays whenever its class is present, mount
+// included, so a fade class derived from "is currently hidden" plays the exit fade
+// on first paint. The consumer adds them from the change itself.
+// `visibility`, not `display`, so the hidden element keeps its box and nothing
+// around it reflows.
+.is-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.fade-in {
+  animation: fade-in 0.12s ease;
+}
+.fade-out {
+  animation: fade-out 0.12s ease forwards;
+}
+
+@keyframes fade-in {
+  0%,
+  1% { opacity: 0; }
+  99%,
+  100% { opacity: 1; }
+}
+@keyframes fade-out {
+  0%,
+  1% { opacity: 1; visibility: visible; }
+  99% { opacity: 0; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .fade-out {
+    animation: none;
+  }
+}
+
 // --- z-index scale --------------------------------------------------------
 // A small, ordered set of stacking layers so components reference an intent
 // (`--z-tooltip`) instead of a magic integer, and so a hover popover can never
