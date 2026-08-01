@@ -44,11 +44,16 @@ describe("selectExploration", () => {
     expect(vm.find((e) => e.key === "fg")!.inSix).toBe(4);
   });
 
-  it("prefers the system value once the schema gains the field", () => {
+  it("keeps the stored target once the schema gains the field", () => {
     const actor = withSkills([{ key: "fg", inSix: 4 }], {
       ...raistlin.system.exploration,
       fg: 3,
     });
+    expect(selectExploration(actor).find((e) => e.key === "fg")!.inSix).toBe(4);
+  });
+
+  it("falls back to the system value when nothing is stored", () => {
+    const actor = withSkills([], { ...raistlin.system.exploration, fg: 3 });
     expect(selectExploration(actor).find((e) => e.key === "fg")!.inSix).toBe(3);
   });
 
@@ -80,6 +85,16 @@ describe("exploration updates", () => {
 
   it("replaces the stored entry rather than appending a duplicate", () => {
     const actor = withSkills([{ key: "fg", inSix: 2 }]);
+    expect(setTargetUpdate(actor, "fg", 5)).toEqual({
+      [SKILLS_PATH]: [{ key: "fg", inSix: 5 }],
+    });
+  });
+
+  it("keeps writing to the flag when the schema also models the skill", () => {
+    const actor = withSkills([{ key: "fg", inSix: 2 }], {
+      ...raistlin.system.exploration,
+      fg: 3,
+    });
     expect(setTargetUpdate(actor, "fg", 5)).toEqual({
       [SKILLS_PATH]: [{ key: "fg", inSix: 5 }],
     });

@@ -41,10 +41,14 @@ export function storedSkills(actor: OSEActor): ExplorationSkill[] {
   return readFlag<ExplorationSkill[]>(actor, FLAGS.explorationSkills) ?? [];
 }
 
+function storedTarget(actor: OSEActor, key: string): number | undefined {
+  return storedSkills(actor).find((s) => s.key === key)?.inSix;
+}
+
 function explorationTarget(actor: OSEActor, key: string): number {
   return (
+    storedTarget(actor, key) ??
     systemTarget(actor, key) ??
-    storedSkills(actor).find((s) => s.key === key)?.inSix ??
     knownSkill(key)?.inSix ??
     FALLBACK_IN_SIX
   );
@@ -107,7 +111,7 @@ export function setTargetUpdate(
   key: string,
   inSix: number,
 ): Record<string, unknown> {
-  if (systemTarget(actor, key) !== undefined) {
+  if (storedTarget(actor, key) === undefined && systemTarget(actor, key) !== undefined) {
     return { [`system.exploration.${key}`]: inSix };
   }
   return skillsUpdate(patchSkills(storedSkills(actor), key, { inSix }));
@@ -131,7 +135,7 @@ export function removeSkillUpdate(actor: OSEActor, key: string): Record<string, 
 }
 
 export function rollExploration(actor: OSEActor, key: string, event?: RollEvent): void {
-  if (systemTarget(actor, key) !== undefined) {
+  if (storedTarget(actor, key) === undefined && systemTarget(actor, key) !== undefined) {
     actor.rollExploration(key, { event });
     return;
   }
