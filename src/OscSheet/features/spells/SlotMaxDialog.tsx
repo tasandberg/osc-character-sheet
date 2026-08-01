@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useOscSheetContext } from "@app/context";
 import { Button } from "@ui/Button";
 import { cx } from "@ui/cx";
@@ -30,14 +30,10 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
   const { actor, canEdit, updateActor } = useOscSheetContext();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(max);
-  // The group starts hidden whenever the value is already the default; animating
-  // that first paint would flash it on open, so the fade arms one frame later.
-  const [animate, setAnimate] = useState(false);
-  useEffect(() => {
-    if (!open) return setAnimate(false);
-    const id = requestAnimationFrame(() => setAnimate(true));
-    return () => cancelAnimationFrame(id);
-  }, [open]);
+  // A CSS animation plays whenever its class is present, mount included — so the
+  // class is set by the change itself, never derived from the current value. Open
+  // at the default and no animation class exists to play.
+  const [anim, setAnim] = useState<"in" | "out" | null>(null);
   if (!canEdit) return null;
 
   const label = `Edit Level ${level} slots`;
@@ -52,6 +48,11 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
     `${defaultMax === 1 ? "slot" : "slots"} by default.`;
   // Nothing to reset to while the field already holds the default.
   const hidden = draft === defaultMax;
+  // The only two ways the value moves while the dialog is open.
+  const commit = (n: number) => {
+    if (hidden !== (n === defaultMax)) setAnim(n === defaultMax ? "out" : "in");
+    setDraft(n);
+  };
   const close = () => setOpen(false);
   const save = () => {
     void updateActor({ [slotMaxPath(level)]: draft });
@@ -68,6 +69,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
         aria-label={label}
         onClick={() => {
           setDraft(max);
+          setAnim(null); // reopening is a fresh resting state, not a change
           setOpen(true);
         }}
       >
@@ -102,15 +104,17 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
               </span>
             ) : (
               // Mounted and laid out whether or not it shows, so it can animate BOTH
-              // ways and the dialog never resizes around it; `.is-out` is the hidden
-              // state and `.fade-in` the animation (styles.scss). At the default there
-              // is nothing to reset to, so the link and its tooltip go together —
+              // ways and the dialog never resizes around it. `.is-out` is the resting
+              // hidden state; the fade classes (styles.scss) are added only by an
+              // actual change, so opening the dialog animates nothing. At the default
+              // there is nothing to reset to, so the link and its tooltip go together —
               // keyed to the live field, not the stored value.
               <span
                 className={cx(
                   "osc-slotdefaults tw:inline-flex tw:items-center tw:gap-1",
-                  animate && "fade-in",
                   hidden && "is-out",
+                  anim === "in" && "fade-in",
+                  anim === "out" && "fade-out",
                 )}
                 // Belt and braces with `visibility: hidden`: no tab stop and no
                 // hoverable tooltip even if the stylesheet never loads.
@@ -118,7 +122,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
               >
                 <InlineButton
                   className="osc-slotdefault tw:underline tw:decoration-dotted tw:underline-offset-2"
-                  onClick={() => setDraft(defaultMax)}
+                  onClick={() => commit(defaultMax)}
                 >
                   Default {defaultMax}
                 </InlineButton>
@@ -141,7 +145,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
             className="input mono osc-slotmax tw:w-[8ch]"
             value={draft}
             min={0}
-            onCommit={setDraft}
+            onCommit={commit}
           />
         </Field>
       </Modal>

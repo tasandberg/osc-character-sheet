@@ -67,6 +67,14 @@ const actorOf = (cls: string) =>
 const cleric = actorOf("Cleric");
 /** No entry in CONFIG.OSE.classes → no rulebook slot table to default from. */
 const homebrew = actorOf("Warlock");
+/** Slot max stored as 5 where the class table says 2 — opens already differing. */
+const overridden = {
+  system: {
+    details: { class: "Cleric", level: 3 },
+    spells: { spellList: { 1: [cure] }, slots: { 1: { used: 0, max: 5 } }, enabled: true },
+  },
+  _source: { system: { spells: { 1: { max: 5 } } } },
+} as unknown as OSEActor;
 /** Stored lowercase — the default line should still name the class canonically. */
 const lowercase = actorOf("cleric");
 /** A recognized class, but a level past the end of its progression table. */
@@ -142,6 +150,11 @@ const hidden = () => {
   expect(group.hasAttribute("inert")).toBe(out);
   return out;
 };
+/** "in" | "out" | null — which fade class is on the group right now. */
+const anim = () => {
+  const cl = q(".osc-slotdefaults")!.classList;
+  return cl.contains("fade-in") ? "in" : cl.contains("fade-out") ? "out" : null;
+};
 const byLabel = (label: string) =>
   Array.from(host.querySelectorAll<HTMLButtonElement>(".modal button")).find(
     (b) => b.textContent?.trim() === label,
@@ -194,6 +207,7 @@ describe("slot maximum dialog", () => {
     expect(hidden()).toBe(true);
     type(field, "5");
     expect(hidden()).toBe(false);
+    expect(anim()).toBe("in");
     // Link then trailing question mark, travelling together as one group.
     const group = q<HTMLElement>(".osc-slotdefaults")!;
     expect(Array.from(group.children).map((c) => c.className.split(" ")[0])).toEqual([
@@ -203,6 +217,35 @@ describe("slot maximum dialog", () => {
     expect(q(".osc-slotinfo .fa-circle-info")).not.toBeNull();
     type(field, "2");
     expect(hidden()).toBe(true);
+    expect(anim()).toBe("out");
+  });
+
+  // A CSS animation plays whenever its class is present — including on mount —
+  // so the fade classes must never be derived from the current value. jsdom runs
+  // no animations, but their absence at open is exactly what the bug had wrong.
+  it("animates nothing on open, at the default or away from it", () => {
+    render();
+    openDialog();
+    expect(hidden()).toBe(true);
+    expect(anim()).toBeNull();
+    act(() => byLabel("Cancel").click());
+
+    // Mirror case: opens already differing, so it is simply there — no entry fade.
+    render(overridden);
+    expect(openDialog().value).toBe("5");
+    expect(hidden()).toBe(false);
+    expect(anim()).toBeNull();
+  });
+
+  it("forgets the last fade when the dialog is reopened", () => {
+    render();
+    const field = openDialog();
+    type(field, "5");
+    expect(anim()).toBe("in");
+    act(() => byLabel("Cancel").click());
+    openDialog();
+    expect(hidden()).toBe(true);
+    expect(anim()).toBeNull();
   });
 
   it("saves the typed value to the level's maximum", () => {
@@ -252,6 +295,7 @@ describe("slot maximum dialog", () => {
     act(() => line.click());
     expect(field.value).toBe("2");
     expect(hidden()).toBe(true);
+    expect(anim()).toBe("out");
   });
 
   it("clamps a negative maximum to zero", () => {
