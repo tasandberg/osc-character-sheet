@@ -841,8 +841,8 @@
    The SectionHeader component's layout (was `.osc-feat-head` in features.scss):
    a full-width flex row with a bottom rule, the SectionTitle flexed to fill and
    its own rule/margins neutralised. `.section-header .section-title` scopes to
-   (0,3,0), outranking both the vellum `.section-title` base (0,2,0) and the
-   actions.scss override (0,1,0), so the title reset wins as before. */
+   (0,3,0), outranking the `.section-title` base at (0,2,0), so the title reset
+   wins as before. */
 .section-header {
   display: flex;
   align-items: center;
