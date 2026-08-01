@@ -146,41 +146,6 @@
 // (StatPlaque variant="ability"). The grid container is in actions-features.scss
 // — AbilityPlaques.tsx is NOT converted. XS flattens the plaques (block below).
 
-// --- section title override (prototype: 2px border-bottom, not 3px thick) ---
-// STAYS SCSS, and cannot move. This is a blanket override of the vellum
-// `.section-title` base at (0,1,0), so vellum's own `.section-title.sub` and
-// `.section-title.bare` (both (0,2,0), and both earlier in source) still win the
-// properties they re-declare — that is what keeps the inventory's "Equipped" /
-// "All Items" heads small-caps sans and a modal title rule-less.
-//
-// As utilities on SectionTitle.tsx it would land at (0,2,0) imported LAST, tie
-// with those two variants and beat them, silently restyling every sub-head and
-// every modal title in the sheet. The variants live in the shared vellum
-// stylesheet, so the fix isn't here — it lands when the sheet consumes the
-// published package and this override can go away entirely.
-.section-title {
-  font-family: var(--display);
-  font-size: var(--fs-xl, 18px);
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  color: var(--text);
-  margin: 0 0 var(--spacer-2);
-  padding-bottom: var(--spacer-1);
-  border-bottom: 2px solid var(--border);
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacer-2);
-  flex-wrap: nowrap;
-  line-height: unset;
-}
-.section-title .hint {
-  font-family: "IM Fell English", Georgia, serif;
-  font-style: italic;
-  font-size: var(--fs-xs, 12px);
-  color: var(--text-mute);
-  letter-spacing: 0;
-}
-
 // --- saves/exploration tab nav (rail, large view) ---
 // Nav + tabs are in actions-features.scss; SavesExploration.tsx is NOT converted.
 

@@ -66,21 +66,30 @@ body {
 .stamp.md  { font-size: var(--fs-md); padding: 7px 11px 5px; }
 .stamp.sm  { font-size: var(--fs-2xs); padding: 5px 8px 3px; letter-spacing: 0.1em; }
 
-/* Section title — Title Case in IM Fell SC with a thick rule underneath
-   (the "Vellum" treatment). IM Fell SC renders small caps naturally so we
-   do NOT uppercase. */
+/* Section title — Title Case in IM Fell SC with a rule underneath (the
+   "Vellum" treatment). IM Fell SC renders small caps naturally so we do NOT
+   uppercase.
+
+   The single base rule. An `actions.scss` copy used to shadow this one and
+   never applied: unscoped, it sat at (0,1,0) against this rule's (0,2,0). Its
+   values — the prototype's — are the ones kept here, so the sheet finally
+   renders what that override intended. `--section-rule` aliases `--border` in
+   both themes, which is why the two agree on the rule despite naming different
+   tokens. The `.bare` / `.sub` variants below stay at (0,3,0) and still win. */
 .section-title {
   font-family: var(--display);
-  font-size: var(--fs-2xl);
+  font-size: var(--fs-xl);
+  font-weight: 400;
   letter-spacing: 0.02em;
   color: var(--text);
   display: flex;
   align-items: baseline;
-  gap: 12px;
-  padding-bottom: 6px;
+  flex-wrap: nowrap;
+  gap: var(--spacer-2);
+  padding-bottom: var(--spacer-1);
   border-bottom: 2px solid var(--section-rule);
-  margin: var(--spacer-6) 0 var(--spacer-3) 0;
-  line-height: 1.1;
+  margin: 0 0 var(--spacer-2);
+  line-height: unset;
   text-transform: none;
 }
 .section-title .hint {
