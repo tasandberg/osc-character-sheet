@@ -4,7 +4,7 @@ import { Button } from "@ui/Button";
 import { cx } from "@ui/cx";
 import { IconButton } from "@ui/IconButton";
 import { Field } from "@ui/Field";
-import { InlineButton } from "@ui/InlineButton";
+import { OverrideValue } from "@ui/OverrideValue";
 import { HoverPop } from "@ui/HoverPop";
 import { Modal } from "@ui/Modal";
 import { NumberInput } from "@ui/NumberInput";
@@ -120,16 +120,17 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
                 // hoverable tooltip even if the stylesheet never loads.
                 inert={hidden}
               >
-                {/* Same muted-mono treatment as the edit modal's `default · X` line
-                    (`.ed-field .hint`), which OverrideValue only renders in its
-                    NON-clickable branch — hence the values here, on a real button.
-                    Hover lifts one step so it doesn't read as dead text. */}
-                <InlineButton
-                  className="osc-slotdefault tw:font-mono tw:text-[length:var(--fs-3xs)] tw:leading-[1.4] tw:text-text-mute tw:no-underline tw:hover:text-text-dim"
-                  onClick={() => commit(defaultMax)}
-                >
-                  Default {defaultMax}
-                </InlineButton>
+                {/* The edit modal's reset link, reused whole: same teal dotted
+                    treatment, same condition (value differs from its default).
+                    `.ed-resetlink` is auto-scoped to `.osc-sheet`, not to the edit
+                    modal's fields, so it styles correctly here. Only the wording is
+                    ours — the component takes the label as content. */}
+                <OverrideValue
+                  overridden
+                  className="osc-slotdefault tw:self-center"
+                  defaultText={`Default ${defaultMax}`}
+                  onResetRequest={() => commit(defaultMax)}
+                />
                 {/* Hover AND focus reveal the same sentence (HoverPop listens to both);
                     the aria-label carries it for anyone who sees neither. */}
                 <IconButton size="sm" className="osc-slotinfo" aria-label={tip}>

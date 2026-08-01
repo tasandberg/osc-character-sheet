@@ -208,10 +208,10 @@ describe("slot maximum dialog", () => {
     type(field, "5");
     expect(hidden()).toBe(false);
     expect(anim()).toBe("in");
-    // Link then trailing question mark, travelling together as one group.
+    // The edit modal's reset link, then the trailing info icon — one group.
     const group = q<HTMLElement>(".osc-slotdefaults")!;
     expect(Array.from(group.children).map((c) => c.className.split(" ")[0])).toEqual([
-      "inline-btn",
+      "ed-resetlink",
       "icon-btn",
     ]);
     expect(q(".osc-slotinfo .fa-circle-info")).not.toBeNull();
