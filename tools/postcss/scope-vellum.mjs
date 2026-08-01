@@ -1,23 +1,22 @@
-import prefixer from "postcss-prefix-selector";
+import vellumScope from "@old-school-chronicle/vellum/postcss-scope";
 
 const ROOT = ".osc-sheet";
+const scope = vellumScope({ root: ROOT });
 
-// One global PostCSS plugin (Vite resolves postcss config once, not per file),
-// so it self-filters by filePath — only files under styles/vellum/ are scoped.
-// postcss-prefix-selector passes filePath as the 4th transform arg.
-export const scopeVellum = prefixer({
-  prefix: ROOT,
-  transform(prefix, selector, prefixedSelector, filePath) {
-    if (!filePath || !filePath.includes("/styles/vellum/")) {
-      return selector; // not a Vellum file — leave untouched
-    }
-    if (selector === ":root" || selector === "html" || selector === "body") {
-      return prefix;
-    }
-    if (selector.startsWith("[data-theme")) {
-      // e.g. [data-theme="cream"] → .osc-sheet[data-theme="cream"]
-      return `${prefix}${selector}`;
-    }
-    return prefixedSelector;
+// Vite resolves postcss config once, not per file, so the path filter has to live
+// in the plugin. It is not an optimisation: chat.scss styles Foundry's own chat
+// <li> on purpose, outside .osc-sheet, and scoping it would delete the chat card.
+const SCOPED = ["/styles/vellum/", "/@old-school-chronicle/vellum/"];
+
+export const scopeVellum = {
+  postcssPlugin: "scope-vellum",
+  Rule(rule) {
+    const file = rule.source?.input?.file;
+    if (!file || !SCOPED.some((dir) => file.includes(dir))) return;
+    // The sheet's reset descends from a full-page prototype and still targets
+    // `body`. vellumScope collapses :root/html onto the root but not body, which
+    // would nest it onto a descendant that never exists.
+    rule.selectors = rule.selectors.map((sel) => (sel.trim() === "body" ? ROOT : sel));
+    scope.Rule(rule);
   },
-});
+};

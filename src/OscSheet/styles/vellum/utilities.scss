@@ -11,13 +11,13 @@
    GENERATED: the spacing/gap/color/border families below are emitted from the
    token-inventory lists + maps in this file via `@each`. To extend a family,
    add a step to its list (e.g. `$scale-full`) or an entry to its map — never
-   hand-write another rule. The font-size/radius families loop the _scales.scss
-   maps that also emit the --fs- and --r- custom properties in tokens.scss
-   (single source, no drift). Emitted values stay `var(--…)`; dart-sass
-   compiles this, then the postcss scoper prefixes `.osc-sheet` (keys off the
-   /styles/vellum/ path).
+   hand-write another rule. The font-size/radius families loop the same
+   @old-school-chronicle/vellum scale maps that emit the --fs- and --r- custom
+   properties (single source, no drift). Emitted values stay `var(--…)`;
+   dart-sass compiles this, then the postcss scoper prefixes `.osc-sheet` (keys
+   off the /styles/vellum/ path).
    ======================================================================== */
-@use "scales" as scales;
+@use "@old-school-chronicle/vellum/scales.scss" as scales;
 @use "sass:map";
 @use "sass:list";
 
@@ -130,12 +130,12 @@ $space-family:
 .u-justify-between { justify-content: space-between; }
 .u-justify-around  { justify-content: space-around; }
 
-/* ─── Font size (steps from _scales.scss $type-scale) ───────────────────── */
+/* ─── Font size (steps from vellum's $type-scale) ───────────────────────── */
 @each $s, $_ in scales.$type-scale {
   .u-fs-#{$s} { font-size: var(--fs-#{$s}); }
 }
 
-/* ─── Border radius (steps from _scales.scss $radius) ───────────────────── */
+/* ─── Border radius (steps from vellum's $radius) ───────────────────────── */
 @each $s, $_ in scales.$radius {
   .u-r-#{$s} { border-radius: var(--r-#{$s}); }
 }
@@ -158,9 +158,17 @@ $space-family:
 
 /* ─── Foundry responsive display (min-width on the `app` container) ──────── */
 /* u-foundry-{xs|md|lg}-display-{none|flex|block|grid|inline-flex}: applies at
-   the tier width AND UP. Tiers from scales.$foundry-breakpoints (source of truth). */
+   the tier width AND UP. Container queries can't read var(), so this map is the
+   source of truth — no --bp-* custom properties are emitted. Sheet-local rather
+   than a vellum scale: the tiers are edges of the Foundry window, not brand. */
+$foundry-breakpoints: (
+  "xs": 0,
+  // "sm" reserved — deliberate gap, unused for now
+  "md": 480px,
+  "lg": 740px,
+);
 $foundry-display-values: none flex block grid inline-flex;
-@each $tier, $bp in scales.$foundry-breakpoints {
+@each $tier, $bp in $foundry-breakpoints {
   @container app (min-width: #{$bp}) {
     @each $val in $foundry-display-values {
       .u-foundry-#{$tier}-display-#{$val} { display: #{$val}; }
