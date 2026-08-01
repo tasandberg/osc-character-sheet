@@ -95,7 +95,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
                 <OverrideValue
                   overridden
                   className="osc-slotdefault tw:self-center"
-                  defaultText={`Default ${defaultMax}`}
+                  defaultText={`default ${defaultMax}`}
                   onResetRequest={() => commit(defaultMax)}
                 />
                 <IconButton size="sm" className="osc-slotinfo" aria-label={tip}>

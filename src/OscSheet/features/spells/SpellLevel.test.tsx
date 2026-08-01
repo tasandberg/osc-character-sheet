@@ -189,7 +189,7 @@ describe("slot maximum dialog", () => {
     // The structure `.modal-scrim:has(.modal-inset)` needs.
     expect(q(".modal-scrim > .modal.modal-inset.osc-slot-modal")).not.toBeNull();
     expect(text(".modal-body .field-label")).toBe("Level 1 spell slots:");
-    expect(text(".osc-slotdefault")).toBe("Default 2");
+    expect(text(".osc-slotdefault")).toBe("default 2");
     // At the default: hidden, but still mounted so the dialog doesn't resize.
     expect(hidden()).toBe(true);
     expect(q(".osc-slotdefaults")).not.toBeNull();
