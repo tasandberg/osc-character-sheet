@@ -120,8 +120,12 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
                 // hoverable tooltip even if the stylesheet never loads.
                 inert={hidden}
               >
+                {/* Same muted-mono treatment as the edit modal's `default · X` line
+                    (`.ed-field .hint`), which OverrideValue only renders in its
+                    NON-clickable branch — hence the values here, on a real button.
+                    Hover lifts one step so it doesn't read as dead text. */}
                 <InlineButton
-                  className="osc-slotdefault tw:underline tw:decoration-dotted tw:underline-offset-2"
+                  className="osc-slotdefault tw:font-mono tw:text-[length:var(--fs-3xs)] tw:leading-[1.4] tw:text-text-mute tw:no-underline tw:hover:text-text-dim"
                   onClick={() => commit(defaultMax)}
                 >
                   Default {defaultMax}
