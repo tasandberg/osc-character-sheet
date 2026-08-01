@@ -33,5 +33,14 @@
   margin: 0;
 }
 
+// At the default the line is inert text, not a reset link — `.field-hint`'s sans
+// would otherwise resize it as it flips between the two states.
+.osc-sheet-app .osc-slot-modal .osc-slotdefault.hint {
+  font-family: var(--mono);
+  font-size: var(--fs-3xs);
+  color: var(--text-mute);
+  line-height: 1.4;
+}
+
 // --- free-casting rows (memorization disabled) ---
 .osc-spell-free.spent .spn-row .tag { opacity: 0.6; }

@@ -197,7 +197,6 @@ export function EditModal({
                 className="input mono"
                 value={level}
                 min={1}
-                max={defaults.maxLevel}
                 onCommit={(n) => set("system.details.level", n)}
               />
             </label>

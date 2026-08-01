@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useOscSheetContext } from "@app/context";
 import { Button } from "@ui/Button";
-import { cx } from "@ui/cx";
 import { IconButton } from "@ui/IconButton";
 import { Field } from "@ui/Field";
 import { OverrideValue } from "@ui/OverrideValue";
@@ -21,7 +20,6 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
   const { actor, canEdit, updateActor } = useOscSheetContext();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(max);
-  const [anim, setAnim] = useState<"in" | "out" | null>(null);
   if (!canEdit) return null;
 
   const label = `Edit Level ${level} slots`;
@@ -30,11 +28,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
   const tip =
     `Level ${charLevel} ${cls} — ${defaultMax} Level ${level} spell ` +
     `${defaultMax === 1 ? "slot" : "slots"} by default.`;
-  const hidden = draft === defaultMax;
-  const commit = (n: number) => {
-    if (hidden !== (n === defaultMax)) setAnim(n === defaultMax ? "out" : "in");
-    setDraft(n);
-  };
+  const overridden = draft !== defaultMax;
   const close = () => setOpen(false);
   const save = () => {
     void updateActor({ [slotMaxPath(level)]: draft });
@@ -51,7 +45,6 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
         aria-label={label}
         onClick={() => {
           setDraft(max);
-          setAnim(null);
           setOpen(true);
         }}
       >
@@ -78,20 +71,12 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
           label={`Level ${level} spell slots:`}
           hint={
             defaultMax == null ? undefined : (
-              <span
-                className={cx(
-                  "osc-slotdefaults tw:inline-flex tw:items-center tw:gap-1",
-                  hidden && "is-out",
-                  anim === "in" && "fade-in",
-                  anim === "out" && "fade-out",
-                )}
-                inert={hidden}
-              >
+              <span className="osc-slotdefaults tw:inline-flex tw:items-center tw:gap-1">
                 <OverrideValue
-                  overridden
+                  overridden={overridden}
                   className="osc-slotdefault tw:self-center"
                   defaultText={`default ${defaultMax}`}
-                  onResetRequest={() => commit(defaultMax)}
+                  onResetRequest={() => setDraft(defaultMax)}
                 />
                 <IconButton size="sm" className="osc-slotinfo" aria-label={tip}>
                   <i className="fa-solid fa-circle-info" aria-hidden="true" />
@@ -110,7 +95,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
             className="input mono osc-slotmax tw:w-[8ch]"
             value={draft}
             min={0}
-            onCommit={commit}
+            onCommit={setDraft}
           />
         </Field>
       </Modal>
