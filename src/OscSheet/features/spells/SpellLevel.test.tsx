@@ -304,17 +304,18 @@ describe("slot maximum dialog", () => {
     expect(q<HTMLElement>(".osc-slotinfo")!.closest("[inert]")).toBe(group);
   });
 
-  it("offers no default line for an unrecognized class", () => {
+  it("leaves the hint area empty for an unrecognized class", () => {
     render(homebrew);
     expect(openDialog().value).toBe("0");
     expect(q(".osc-slotdefaults")).toBeNull();
     expect(q(".osc-slotinfo")).toBeNull();
-    expect(text(".modal-body")).toContain("No rulebook default");
+    expect(q(".modal-body .field-hint")).toBeNull();
   });
 
-  it("offers no default line for a level past the class table", () => {
+  it("leaves the hint area empty for a level past the class table", () => {
     render(offTable);
     expect(openDialog().value).toBe("0");
     expect(q(".osc-slotdefaults")).toBeNull();
+    expect(q(".modal-body .field-hint")).toBeNull();
   });
 });

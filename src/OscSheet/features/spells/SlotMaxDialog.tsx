@@ -77,12 +77,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
         <Field
           label={`Level ${level} spell slots:`}
           hint={
-            defaultMax == null ? (
-              <span className="tw:italic">
-                No rulebook default for this class and level — this level holds whatever you set
-                here.
-              </span>
-            ) : (
+            defaultMax == null ? undefined : (
               <span
                 className={cx(
                   "osc-slotdefaults tw:inline-flex tw:items-center tw:gap-1",
