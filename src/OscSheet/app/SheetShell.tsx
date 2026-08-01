@@ -22,6 +22,7 @@ import {
   type InventoryItemType,
 } from "@features/inventory/createItem";
 import { flagPath, FLAGS, readFlag } from "@domain/flags";
+import { showDeleteDialog } from "@domain/foundryDialogs";
 import { collectTree, classifyRoute } from "@features/inventory/sendItem";
 import { consumeToast } from "@features/inventory/consumeToast";
 import {
@@ -223,14 +224,16 @@ export default function SheetShell() {
   };
   const onDeleteItem = (id: string) => {
     const it = resolveItem(id);
-    if (!it) return;
-    // Deleting a container: move its contents back to the top level first.
-    const kids = (invItems as OseItem[]).filter(
-      (c) => (c.system as { containerId?: string }).containerId === id,
-    );
-    if (kids.length)
-      embedUpdate(kids.map((k) => ({ _id: k._id, "system.containerId": "" })));
-    deleteItem(it);
+    if (!it || !canEdit) return;
+    showDeleteDialog(it, () => {
+      // Deleting a container: move its contents back to the top level first.
+      const kids = (invItems as OseItem[]).filter(
+        (c) => (c.system as { containerId?: string }).containerId === id,
+      );
+      if (kids.length)
+        embedUpdate(kids.map((k) => ({ _id: k._id, "system.containerId": "" })));
+      deleteItem(it);
+    });
   };
 
   // Send an item to another actor. Direct apply when I own the target; otherwise
