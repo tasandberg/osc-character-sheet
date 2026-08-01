@@ -91,7 +91,6 @@ export interface ExplorationVM {
   label: string;
   icon: string;
   inSix: number;
-  custom: boolean;
 }
 
 export interface TopbarVM {

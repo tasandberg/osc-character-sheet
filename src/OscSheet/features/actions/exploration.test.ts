@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
 import {
-  addSkillUpdate,
-  removeSkillUpdate,
-  renameSkillUpdate,
   selectExploration,
   setTargetUpdate,
   type ExplorationSkill,
@@ -34,7 +31,6 @@ describe("selectExploration", () => {
     const od = vm.find((e) => e.key === "od")!;
     expect(od.label).toBe("Open Stuck Door");
     expect(od.inSix).toBe(2);
-    expect(od.custom).toBe(false);
     expect(vm.find((e) => e.key === "fg")!.inSix).toBe(2);
     expect(vm.find((e) => e.key === "hn")!.inSix).toBe(1);
   });
@@ -57,18 +53,9 @@ describe("selectExploration", () => {
     expect(selectExploration(actor).find((e) => e.key === "fg")!.inSix).toBe(3);
   });
 
-  it("appends user-defined skills after the known ones", () => {
-    const vm = selectExploration(
-      withSkills([{ key: "open-locks", label: "Open Locks", inSix: 2 }]),
-    );
-    expect(vm).toHaveLength(7);
-    expect(vm[6]).toEqual({
-      key: "open-locks",
-      label: "Open Locks",
-      icon: "fas fa-dice-d6",
-      inSix: 2,
-      custom: true,
-    });
+  it("ignores a stored entry for a key outside the six skills", () => {
+    const vm = selectExploration(withSkills([{ key: "open-locks", inSix: 2 }]));
+    expect(vm.map((e) => e.key)).toEqual(["ld", "od", "sd", "ft", "fg", "hn"]);
   });
 });
 
@@ -100,27 +87,16 @@ describe("exploration updates", () => {
     });
   });
 
-  it("slugs a new skill's key and keeps it unique", () => {
-    const actor = withSkills([{ key: "open-locks", label: "Open Locks", inSix: 1 }]);
-    expect(addSkillUpdate(actor, "Open Locks")).toEqual({
+  it("preserves unrelated stored entries when patching one", () => {
+    const actor = withSkills([
+      { key: "hn", inSix: 3 },
+      { key: "fg", inSix: 2 },
+    ]);
+    expect(setTargetUpdate(actor, "fg", 5)).toEqual({
       [SKILLS_PATH]: [
-        { key: "open-locks", label: "Open Locks", inSix: 1 },
-        { key: "open-locks-2", label: "Open Locks", inSix: 1 },
+        { key: "hn", inSix: 3 },
+        { key: "fg", inSix: 5 },
       ],
     });
-  });
-
-  it("never mints a key that collides with a known skill", () => {
-    expect(addSkillUpdate(raistlin, "fg")).toEqual({
-      [SKILLS_PATH]: [{ key: "fg-2", label: "fg", inSix: 1 }],
-    });
-  });
-
-  it("renames and removes user-defined skills", () => {
-    const actor = withSkills([{ key: "open-locks", label: "Open Locks", inSix: 2 }]);
-    expect(renameSkillUpdate(actor, "open-locks", "Pick Locks")).toEqual({
-      [SKILLS_PATH]: [{ key: "open-locks", label: "Pick Locks", inSix: 2 }],
-    });
-    expect(removeSkillUpdate(actor, "open-locks")).toEqual({ [SKILLS_PATH]: [] });
   });
 });

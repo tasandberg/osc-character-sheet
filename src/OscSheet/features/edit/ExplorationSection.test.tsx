@@ -14,12 +14,12 @@ g.foundry = { utils: { debounce: (fn: unknown) => fn } };
 
 const SKILLS_PATH = `flags.${MODULE_ID}.explorationSkills`;
 
-function makeActor(skills: unknown[] = []): OSEActor {
+function makeActor(): OSEActor {
   const actor: Record<string, unknown> = {
     name: "Test",
     img: "x.png",
     system: { exploration: { ld: 1, od: 2, sd: 1, ft: 1 } },
-    flags: { [MODULE_ID]: { explorationSkills: skills } },
+    flags: { [MODULE_ID]: { explorationSkills: [] } },
     items: { contents: [] },
   };
   actor.update = vi.fn(async () => actor as unknown as OSEActor);
@@ -71,8 +71,8 @@ function change(select: HTMLSelectElement, value: string) {
 }
 
 describe("ExplorationSection", () => {
-  it("renders the schema skills, Forage/Hunt and any user-defined skill", () => {
-    render(makeActor([{ key: "open-locks", label: "Open Locks", inSix: 2 }]));
+  it("renders the schema skills and Forage/Hunt", () => {
+    render(makeActor());
     expect(fields().map((f) => f.querySelector(".lab")?.textContent)).toEqual([
       "Listen at Door",
       "Open Stuck Door",
@@ -80,8 +80,12 @@ describe("ExplorationSection", () => {
       "Find Trap",
       "Forage",
       "Hunt",
-      "",
     ]);
+  });
+
+  it("offers no way to add a skill", () => {
+    render(makeActor());
+    expect(container.querySelector(".ed-skill-add")).toBeNull();
   });
 
   it("commits a schema-backed skill to system data", async () => {
@@ -105,41 +109,6 @@ describe("ExplorationSection", () => {
     });
     expect(actor.update as ReturnType<typeof vi.fn>).toHaveBeenCalledWith({
       [SKILLS_PATH]: [{ key: "fg", inSix: 5 }],
-    });
-  });
-
-  it("adds a user-defined skill from the draft input", async () => {
-    const actor = makeActor();
-    render(actor);
-    const input = container.querySelector(".ed-skill-add input") as HTMLInputElement;
-    const setter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype,
-      "value",
-    )!.set!;
-    act(() => {
-      setter.call(input, "Open Locks");
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-    });
-    await act(async () => {
-      (container.querySelector(".ed-skill-add button") as HTMLButtonElement).click();
-      await Promise.resolve();
-    });
-    expect(actor.update as ReturnType<typeof vi.fn>).toHaveBeenCalledWith({
-      [SKILLS_PATH]: [{ key: "open-locks", label: "Open Locks", inSix: 1 }],
-    });
-  });
-
-  it("removes a user-defined skill", async () => {
-    const actor = makeActor([{ key: "open-locks", label: "Open Locks", inSix: 2 }]);
-    render(actor);
-    await act(async () => {
-      (
-        container.querySelector('[aria-label="Remove Open Locks"]') as HTMLButtonElement
-      ).click();
-      await Promise.resolve();
-    });
-    expect(actor.update as ReturnType<typeof vi.fn>).toHaveBeenCalledWith({
-      [SKILLS_PATH]: [],
     });
   });
 

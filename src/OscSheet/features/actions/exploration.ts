@@ -5,8 +5,6 @@ import { FLAGS, flagPath, readFlag } from "@domain/flags";
 export interface ExplorationSkill {
   key: string;
   inSix: number;
-  label?: string;
-  icon?: string;
 }
 
 interface SkillMeta {
@@ -24,9 +22,6 @@ const KNOWN_SKILLS: SkillMeta[] = [
   { key: "fg", label: "Forage", icon: "fas fa-mushroom", inSix: 2 },
   { key: "hn", label: "Hunt", icon: "fas fa-bow-arrow", inSix: 1 },
 ];
-
-const CUSTOM_ICON = "fas fa-dice-d6";
-const FALLBACK_IN_SIX = 1;
 
 function knownSkill(key: string): SkillMeta | undefined {
   return KNOWN_SKILLS.find((s) => s.key === key);
@@ -46,64 +41,25 @@ function storedTarget(actor: OSEActor, key: string): number | undefined {
 }
 
 function explorationTarget(actor: OSEActor, key: string): number {
-  return (
-    storedTarget(actor, key) ??
-    systemTarget(actor, key) ??
-    knownSkill(key)?.inSix ??
-    FALLBACK_IN_SIX
-  );
+  return storedTarget(actor, key) ?? systemTarget(actor, key) ?? knownSkill(key)!.inSix;
 }
 
 export function selectExploration(actor: OSEActor): ExplorationVM[] {
-  const custom = storedSkills(actor).filter((s) => !knownSkill(s.key));
-  return [
-    ...KNOWN_SKILLS.map(({ key, label, icon }) => ({
-      key,
-      label,
-      icon,
-      inSix: explorationTarget(actor, key),
-      custom: false,
-    })),
-    ...custom.map(({ key, label, icon }) => ({
-      key,
-      label: label ?? key,
-      icon: icon ?? CUSTOM_ICON,
-      inSix: explorationTarget(actor, key),
-      custom: true,
-    })),
-  ];
+  return KNOWN_SKILLS.map(({ key, label, icon }) => ({
+    key,
+    label,
+    icon,
+    inSix: explorationTarget(actor, key),
+  }));
 }
 
 function patchSkills(
   skills: ExplorationSkill[],
   key: string,
-  patch: Partial<ExplorationSkill>,
+  inSix: number,
 ): ExplorationSkill[] {
-  if (!skills.some((s) => s.key === key)) {
-    return [...skills, { key, inSix: knownSkill(key)?.inSix ?? FALLBACK_IN_SIX, ...patch }];
-  }
-  return skills.map((s) => (s.key === key ? { ...s, ...patch } : s));
-}
-
-function skillsUpdate(skills: ExplorationSkill[]): Record<string, unknown> {
-  return { [flagPath(FLAGS.explorationSkills)]: skills };
-}
-
-function slugify(label: string): string {
-  return label
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function freeKey(skills: ExplorationSkill[], label: string): string {
-  const base = slugify(label) || "skill";
-  const taken = (key: string) => !!knownSkill(key) || skills.some((s) => s.key === key);
-  if (!taken(base)) return base;
-  let suffix = 2;
-  while (taken(`${base}-${suffix}`)) suffix += 1;
-  return `${base}-${suffix}`;
+  if (!skills.some((s) => s.key === key)) return [...skills, { key, inSix }];
+  return skills.map((s) => (s.key === key ? { ...s, inSix } : s));
 }
 
 export function setTargetUpdate(
@@ -114,24 +70,9 @@ export function setTargetUpdate(
   if (storedTarget(actor, key) === undefined && systemTarget(actor, key) !== undefined) {
     return { [`system.exploration.${key}`]: inSix };
   }
-  return skillsUpdate(patchSkills(storedSkills(actor), key, { inSix }));
-}
-
-export function addSkillUpdate(actor: OSEActor, label: string): Record<string, unknown> {
-  const skills = storedSkills(actor);
-  return skillsUpdate([...skills, { key: freeKey(skills, label), label, inSix: FALLBACK_IN_SIX }]);
-}
-
-export function renameSkillUpdate(
-  actor: OSEActor,
-  key: string,
-  label: string,
-): Record<string, unknown> {
-  return skillsUpdate(patchSkills(storedSkills(actor), key, { label }));
-}
-
-export function removeSkillUpdate(actor: OSEActor, key: string): Record<string, unknown> {
-  return skillsUpdate(storedSkills(actor).filter((s) => s.key !== key));
+  return {
+    [flagPath(FLAGS.explorationSkills)]: patchSkills(storedSkills(actor), key, inSix),
+  };
 }
 
 export function rollExploration(actor: OSEActor, key: string, event?: RollEvent): void {
