@@ -7,7 +7,9 @@
 // - chat-message `damageApplied` flags: old damage cards lose their apply button — fine.
 // - unlinked-token actor deltas: cosmetic sort-order loss only — fine.
 
-import { MODULE_ID } from "./flags";
+import { storedSkills, type ExplorationSkill } from "@features/actions/exploration";
+
+import { FLAGS, MODULE_ID, flagDeletePath, flagPath } from "./flags";
 
 export const OLD_MODULE_ID = "reactor-sheet";
 export const OLD_SHEET_CLASS = "ose.ReactorSheet";
@@ -44,6 +46,44 @@ export function buildActorUpdate(flags: Flags): UpdatePayload | null {
   return Object.keys(update).length ? update : null;
 }
 
+// --- exploration flag convergence (no version gate) ---------------------------
+//
+// We stored Forage/Hunt targets in an actor flag because the game system had no
+// field for them. The system now models them, but a user updates the module and
+// the system independently — so this pass is a convergence, not a stamped
+// one-shot: it probes each actor for the field and runs on every `ready` until
+// no stored entry names a modelled key.
+
+/** Minimal actor shape this pass reads. */
+interface ExplorationSource {
+  /** Raw flag blob — our stored skill list lives under the module scope. */
+  flags?: Flags;
+  /** Actor system data; `exploration` gains a key once the system models it. */
+  system?: { exploration?: Record<string, unknown> };
+}
+
+/** Move stored targets the system now models into system data, dropping them
+ *  from the flag (and the flag itself once empty). Null if nothing converges. */
+export function buildExplorationConverge(actor: ExplorationSource): UpdatePayload | null {
+  const stored = storedSkills(actor);
+  const exploration = actor.system?.exploration;
+  const remaining: ExplorationSkill[] = [];
+  const update: UpdatePayload = {};
+  for (const entry of stored) {
+    if (typeof exploration?.[entry.key] !== "number") {
+      remaining.push(entry);
+      continue;
+    }
+    if (Number.isInteger(entry.inSix) && entry.inSix > 0) {
+      update[`system.exploration.${entry.key}`] = entry.inSix;
+    }
+  }
+  if (remaining.length === stored.length) return null;
+  if (remaining.length) update[flagPath(FLAGS.explorationSkills)] = remaining;
+  else update[flagDeletePath(FLAGS.explorationSkills)] = null;
+  return update;
+}
+
 // --- client-side localStorage migration (every user, no GM gate) --------------
 
 /** localStorage keys to carry over: [old, new]. The theme entry is legacy: it
@@ -77,7 +117,7 @@ interface FlaggedDoc {
   flags?: Flags;
   update(data: UpdatePayload): Promise<unknown>;
 }
-interface ActorDoc extends FlaggedDoc {
+interface ActorDoc extends FlaggedDoc, ExplorationSource {
   items: Iterable<FlaggedDoc>;
   updateEmbeddedDocuments(type: string, updates: UpdatePayload[]): Promise<unknown>;
 }
@@ -162,5 +202,21 @@ export async function runWorldMigration(): Promise<void> {
       ?.notifications?.error(
         "OSC Character Sheet: migration from reactor-sheet failed — see console. It will retry on next reload.",
       );
+  }
+}
+
+/** Converge stored exploration targets onto system data. Call from `ready` on
+ *  every load; never throws. Unlinked token actors and compendium actors are
+ *  left alone — they still read correctly through the flag. */
+export async function runExplorationConvergence(): Promise<void> {
+  const game = getGame();
+  try {
+    if (!game.users.activeGM || game.users.activeGM !== game.user) return;
+    for (const actor of game.actors) {
+      const update = buildExplorationConverge(actor);
+      if (update) await actor.update(update);
+    }
+  } catch (err) {
+    console.error(`${MODULE_ID} | exploration convergence failed`, err);
   }
 }

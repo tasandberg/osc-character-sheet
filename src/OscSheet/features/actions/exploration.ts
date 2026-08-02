@@ -1,6 +1,6 @@
 import type { OSEActor, RollEvent } from "@domain/types";
 import type { ExplorationVM } from "@domain/vm-types";
-import { FLAGS, flagPath, readFlag } from "@domain/flags";
+import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
 
 export interface ExplorationSkill {
   key: string;
@@ -19,7 +19,7 @@ const KNOWN_SKILLS: SkillMeta[] = [
   { key: "od", label: "Open Stuck Door", icon: "fas fa-door-closed", inSix: 2 },
   { key: "sd", label: "Find Secret Door", icon: "fas fa-magnifying-glass", inSix: 1 },
   { key: "ft", label: "Find Trap", icon: "fas fa-radar", inSix: 1 },
-  { key: "fg", label: "Forage", icon: "fas fa-mushroom", inSix: 2 },
+  { key: "fg", label: "Forage", icon: "fas fa-mushroom", inSix: 1 },
   { key: "hn", label: "Hunt", icon: "fas fa-bow-arrow", inSix: 1 },
 ];
 
@@ -32,7 +32,7 @@ function systemTarget(actor: OSEActor, key: string): number | undefined {
   return typeof value === "number" ? value : undefined;
 }
 
-export function storedSkills(actor: OSEActor): ExplorationSkill[] {
+export function storedSkills(actor: { flags?: unknown }): ExplorationSkill[] {
   return readFlag<ExplorationSkill[]>(actor, FLAGS.explorationSkills) ?? [];
 }
 
@@ -67,12 +67,18 @@ export function setTargetUpdate(
   key: string,
   inSix: number,
 ): Record<string, unknown> {
-  if (storedTarget(actor, key) === undefined && systemTarget(actor, key) !== undefined) {
-    return { [`system.exploration.${key}`]: inSix };
+  if (systemTarget(actor, key) === undefined) {
+    return {
+      [flagPath(FLAGS.explorationSkills)]: patchSkills(storedSkills(actor), key, inSix),
+    };
   }
-  return {
-    [flagPath(FLAGS.explorationSkills)]: patchSkills(storedSkills(actor), key, inSix),
-  };
+  const stored = storedSkills(actor);
+  const remaining = stored.filter((s) => s.key !== key);
+  const update: Record<string, unknown> = { [`system.exploration.${key}`]: inSix };
+  if (remaining.length === stored.length) return update;
+  if (remaining.length) update[flagPath(FLAGS.explorationSkills)] = remaining;
+  else update[flagDeletePath(FLAGS.explorationSkills)] = null;
+  return update;
 }
 
 export function rollExploration(actor: OSEActor, key: string, event?: RollEvent): void {

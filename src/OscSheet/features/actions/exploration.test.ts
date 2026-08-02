@@ -9,6 +9,7 @@ import { raistlin } from "@src/OscSheet/__fixtures__/raistlin";
 import type { OSEActor } from "@domain/types";
 
 const SKILLS_PATH = `flags.${MODULE_ID}.explorationSkills`;
+const DELETE_PATH = `flags.${MODULE_ID}.-=explorationSkills`;
 
 function withSkills(
   skills: ExplorationSkill[],
@@ -31,7 +32,7 @@ describe("selectExploration", () => {
     const od = vm.find((e) => e.key === "od")!;
     expect(od.label).toBe("Open Stuck Door");
     expect(od.inSix).toBe(2);
-    expect(vm.find((e) => e.key === "fg")!.inSix).toBe(2);
+    expect(vm.find((e) => e.key === "fg")!.inSix).toBe(1);
     expect(vm.find((e) => e.key === "hn")!.inSix).toBe(1);
   });
 
@@ -77,13 +78,25 @@ describe("exploration updates", () => {
     });
   });
 
-  it("keeps writing to the flag when the schema also models the skill", () => {
+  it("converges to system data and clears the flag once the schema models the skill", () => {
     const actor = withSkills([{ key: "fg", inSix: 2 }], {
       ...raistlin.system.exploration,
       fg: 3,
     });
     expect(setTargetUpdate(actor, "fg", 5)).toEqual({
-      [SKILLS_PATH]: [{ key: "fg", inSix: 5 }],
+      "system.exploration.fg": 5,
+      [DELETE_PATH]: null,
+    });
+  });
+
+  it("keeps unrelated stored entries when converging one", () => {
+    const actor = withSkills([
+      { key: "hn", inSix: 3 },
+      { key: "fg", inSix: 2 },
+    ], { ...raistlin.system.exploration, fg: 3 });
+    expect(setTargetUpdate(actor, "fg", 5)).toEqual({
+      "system.exploration.fg": 5,
+      [SKILLS_PATH]: [{ key: "hn", inSix: 3 }],
     });
   });
 
