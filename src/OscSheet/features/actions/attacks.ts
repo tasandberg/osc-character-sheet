@@ -1,20 +1,30 @@
+import { computeAttack, type AttackSettings } from "@domain/attackMath";
 import type { OSEActor } from "@domain/types";
 import type { AttackVM, AttackMode, RollSpec } from "@domain/vm-types";
 
-/** Term to append to a formula for a mod, e.g. +1 / -2 / "" for 0. */
-const term = (mod: number) => (mod === 0 ? "" : mod > 0 ? `+${mod}` : `${mod}`);
-/** Suffix shown on the pill, e.g. " +1(str)" / "" for 0. */
-const suffix = (mod: number, abil: string) => (mod === 0 ? "" : ` ${mod > 0 ? `+${mod}` : `${mod}`}(${abil})`);
-/** Always-signed term for the button display, e.g. "+0" / "+2" / "-1". */
-const signed = (mod: number) => (mod >= 0 ? `+${mod}` : `${mod}`);
-/** Full-formula popover line, e.g. "1d20 + 1 (dex)" / "1d6" for 0. */
-const tip = (base: string, mod: number, abil: string) =>
-  mod === 0 ? base : `${base} ${mod > 0 ? "+" : "−"} ${Math.abs(mod)} (${abil})`;
+/** OSE's world settings for attack maths. Safe in non-Foundry tests (both default off). */
+export function readAttackSettings(): AttackSettings {
+  const read = (key: string) => {
+    try {
+      const settings = game.settings as { get(ns: string, key: string): unknown };
+      return !!settings.get(game.system.id, key);
+    } catch {
+      return false;
+    }
+  };
+  return {
+    ascendingAC: read("ascendingAC"),
+    ignoreAttackBonusOnDamageRoll: read("ignoreAttackBonusOnDamageRoll"),
+  };
+}
 
 /** Equipped weapons → one row each. A melee+missile weapon carries both modes
  *  (melee first) so the row can toggle between them. */
-export function selectAttacks(actor: OSEActor): AttackVM[] {
-  const { weapons, scores } = actor.system;
+export function selectAttacks(
+  actor: OSEActor,
+  settings: AttackSettings = readAttackSettings(),
+): AttackVM[] {
+  const { weapons, scores, thac0, config } = actor.system;
   const out: AttackVM[] = [];
   for (const w of weapons) {
     if (!w.system.equipped) continue;
@@ -26,24 +36,30 @@ export function selectAttacks(actor: OSEActor): AttackVM[] {
       seen.add(q.label);
       qualities.push({ label: q.label, icon: q.icon ?? "" });
     }
-    const die = w.system.damage;
     const make = (kind: "melee" | "missile"): AttackMode => {
-      const ranged = kind === "missile";
-      // to-hit: str for melee, dex for missile. damage: str for melee, none for missile.
-      const hitMod = ranged ? scores.dex.mod : scores.str.mod;
-      const hitAbil = ranged ? "dex" : "str";
-      const dmgMod = ranged ? 0 : scores.str.mod;
-      const tail = ranged ? " (ranged)" : "";
+      const math = computeAttack(
+        {
+          kind,
+          die: w.system.damage,
+          weaponBonus: w.system.bonus ?? 0,
+          strMod: scores.str.mod,
+          dexMod: scores.dex.mod,
+          thac0,
+          ignoreBonusDamage: !!config?.ignoreBonusDamage,
+        },
+        settings,
+      );
+      const tail = kind === "missile" ? " (ranged)" : "";
       const hit: RollSpec = {
-        label: `1d20${suffix(hitMod, hitAbil)}`,
-        formula: `1d20${term(hitMod)}`,
+        label: math.hit.label,
+        formula: math.hit.formula,
         flavor: `${actor.name} attacks with ${w.name}${tail}`,
         kind: "hit",
         weapon: w.name as string,
       };
       const dmg: RollSpec = {
-        label: `${die}${suffix(dmgMod, "str")}`,
-        formula: `${die}${term(dmgMod)}`,
+        label: math.dmg.label,
+        formula: math.dmg.formula,
         flavor: `${actor.name} deals damage with ${w.name}${tail}`,
         kind: "damage",
         weapon: w.name as string,
@@ -53,11 +69,11 @@ export function selectAttacks(actor: OSEActor): AttackVM[] {
         kindLabel: kind === "melee" ? "Melee" : "Missile",
         hit,
         // Hit shows just the always-signed modifier (the d20 is implied by the icon).
-        hitDisplay: signed(hitMod),
-        hitTip: tip("1d20", hitMod, hitAbil),
+        hitDisplay: math.hit.display,
+        hitTip: math.hit.tip,
         dmg,
-        dmgDisplay: `${die}${signed(dmgMod)}`,
-        dmgTip: tip(die, dmgMod, "str"),
+        dmgDisplay: math.dmg.display,
+        dmgTip: math.dmg.tip,
       };
     };
     const modes: AttackMode[] = [];

@@ -1,6 +1,23 @@
 import { describe, it, expect } from "vitest";
 import { selectAttacks } from "@features/actions/attacks";
+import type { OSEActor } from "@domain/types";
 import { raistlin } from "@src/OscSheet/__fixtures__/raistlin";
+
+const withMagicDagger = (over: { ignoreBonusDamage?: boolean } = {}) =>
+  ({
+    ...raistlin,
+    system: {
+      ...raistlin.system,
+      config: { ignoreBonusDamage: over.ignoreBonusDamage },
+      thac0: { value: 19, bba: 1, mod: { melee: 0, missile: 0 } },
+      weapons: [
+        {
+          ...raistlin.system.weapons[0],
+          system: { ...raistlin.system.weapons[0].system, bonus: 1 },
+        },
+      ],
+    },
+  }) as unknown as OSEActor;
 
 describe("selectAttacks", () => {
   const vm = selectAttacks(raistlin);
@@ -33,5 +50,33 @@ describe("selectAttacks", () => {
     ]);
     // single-mode (melee-only) weapon
     expect(staff.modes.map((m) => m.kind)).toEqual(["melee"]);
+  });
+
+  it("a magic weapon's bonus lands on the roll, the display and the tip alike", () => {
+    const melee = selectAttacks(withMagicDagger(), {
+      ascendingAC: false,
+      ignoreAttackBonusOnDamageRoll: false,
+    })[0].modes[0];
+    expect(melee.hit.formula).toBe("1d20+1");
+    expect(melee.hitDisplay).toBe("+1");
+    expect(melee.hitTip).toBe("1d20 + 1 (weapon)");
+    expect(melee.dmg.formula).toBe("1d4+1");
+    expect(melee.dmgDisplay).toBe("1d4+1");
+    expect(melee.dmgTip).toBe("1d4 + 1 (weapon)");
+  });
+
+  it("respects the damage opt-outs and the ascending-AC base attack bonus", () => {
+    const worldOptOut = selectAttacks(withMagicDagger(), {
+      ascendingAC: true,
+      ignoreAttackBonusOnDamageRoll: true,
+    })[0].modes[0];
+    expect(worldOptOut.hit.formula).toBe("1d20+1+1");
+    expect(worldOptOut.dmg.formula).toBe("1d4");
+
+    const actorOptOut = selectAttacks(withMagicDagger({ ignoreBonusDamage: true }), {
+      ascendingAC: false,
+      ignoreAttackBonusOnDamageRoll: false,
+    })[0].modes[0];
+    expect(actorOptOut.dmg.formula).toBe("1d4");
   });
 });

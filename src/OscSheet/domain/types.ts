@@ -66,6 +66,8 @@ export type OSEActor = Actor & {
     ac: CharacterAC;
     config?: {
       movementAuto?: boolean;
+      /** Tweaks: drop the weapon bonus from this actor's damage rolls. */
+      ignoreBonusDamage?: boolean;
     };
     details: {
       alignment: string;
@@ -109,8 +111,9 @@ export type OSEActor = Actor & {
     };
     saves: Record<OSESave, { value: number }>;
     initiative: { value: number; mod: number };
-    /** To-hit: `value` = THAC0 (descending), `bba` = base attack bonus (ascending). */
-    thac0: { value: number; bba: number };
+    /** To-hit: `value` = THAC0 (descending), `bba` = base attack bonus (ascending),
+     *  `mod` = the Tweaks per-range attack bonuses. */
+    thac0: { value: number; bba: number; mod?: { melee?: number; missile?: number } };
     updatedAt?: string;
     weapons: OseWeapon[];
   };
@@ -182,8 +185,9 @@ export type OseWeapon = OseItem & {
     equipped: boolean;
     /** Save the target may roll against this weapon's attack. */
     save?: string;
+    /** Magic/quality plus, applied to the to-hit roll and (unless opted out) damage. */
+    bonus?: number;
   };
-  bonus: number;
 };
 
 /** Roll-comparison key, sourced from the OSE system's CONFIG (`roll_type`). */
