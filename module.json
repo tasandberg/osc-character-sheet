@@ -2,7 +2,7 @@
   "id": "osc-character-sheet",
   "title": "Enhanced Character Sheet for Old-School Essentials",
   "description": "An alternative character sheet for the Old-School Essentials system in Foundry VTT. Part of the Old-School Chronicle tool set.",
-  "version": "0.4.1",
+  "version": "0.0.0",
   "authors": [
     {
       "name": "Tim Sandberg",
@@ -53,5 +53,5 @@
   },
   "url": "https://github.com/tasandberg/osc-character-sheet",
   "manifest": "https://github.com/tasandberg/osc-character-sheet/releases/latest/download/module.json",
-  "download": "https://github.com/tasandberg/osc-character-sheet/releases/download/0.4.1/module.zip"
+  "download": "https://github.com/tasandberg/osc-character-sheet/releases/latest/download/module.zip"
 }
