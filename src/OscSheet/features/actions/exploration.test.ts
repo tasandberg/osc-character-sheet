@@ -31,7 +31,7 @@ describe("selectExploration", () => {
     const od = vm.find((e) => e.key === "od")!;
     expect(od.label).toBe("Open Stuck Door");
     expect(od.inSix).toBe(2);
-    expect(vm.find((e) => e.key === "fg")!.inSix).toBe(2);
+    expect(vm.find((e) => e.key === "fg")!.inSix).toBe(1);
     expect(vm.find((e) => e.key === "hn")!.inSix).toBe(1);
   });
 

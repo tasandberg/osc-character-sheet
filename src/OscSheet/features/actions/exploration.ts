@@ -19,7 +19,7 @@ const KNOWN_SKILLS: SkillMeta[] = [
   { key: "od", label: "Open Stuck Door", icon: "fas fa-door-closed", inSix: 2 },
   { key: "sd", label: "Find Secret Door", icon: "fas fa-magnifying-glass", inSix: 1 },
   { key: "ft", label: "Find Trap", icon: "fas fa-radar", inSix: 1 },
-  { key: "fg", label: "Forage", icon: "fas fa-mushroom", inSix: 2 },
+  { key: "fg", label: "Forage", icon: "fas fa-mushroom", inSix: 1 },
   { key: "hn", label: "Hunt", icon: "fas fa-bow-arrow", inSix: 1 },
 ];
 
@@ -32,7 +32,7 @@ function systemTarget(actor: OSEActor, key: string): number | undefined {
   return typeof value === "number" ? value : undefined;
 }
 
-export function storedSkills(actor: OSEActor): ExplorationSkill[] {
+export function storedSkills(actor: { flags?: unknown }): ExplorationSkill[] {
   return readFlag<ExplorationSkill[]>(actor, FLAGS.explorationSkills) ?? [];
 }
 

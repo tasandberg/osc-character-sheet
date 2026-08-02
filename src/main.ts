@@ -6,6 +6,7 @@ import { MODULE_ID } from "@domain/flags";
 import {
   migrateLocalStorage,
   registerMigrationSetting,
+  runExplorationConvergence,
   runWorldMigration,
 } from "@domain/migrations";
 import logger from "@src/util/logger";
@@ -29,6 +30,7 @@ export function initialize() {
     logger("Initializing React application");
     migrateLocalStorage(); // every user; independent of the GM world pass
     await runWorldMigration();
+    await runExplorationConvergence(); // after the rename pass — it reads new-scope flags
     await installAdvancedClasses();
     registerSendItemSocket(); // GM relay for cross-owner "Send Item" transfers
 
