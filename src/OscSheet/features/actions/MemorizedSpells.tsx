@@ -73,19 +73,24 @@ export function MemorizedSpells({ actor }: Props) {
     <section className="osc-section">
       <SectionTitle hint="click to cast">Memorized Spells</SectionTitle>
       <div className="fvtt-castlist">
-        {spells.map((spell) => (
-          <SpellRow
-            key={spell._id as string}
-            spell={spell}
-            meta={meta(spell)}
-            levelTag={spell.system.lvl}
-            spent={(spell.system.cast ?? 0) <= 0}
-            spentTitle={`${spell.name} — spent (Rest to recover)`}
-            canCast={canEdit}
-            onCast={() => spell.spendSpell({ skipDialog: false })}
-            onOpenName={() => spell.sheet.render(true)}
-          />
-        ))}
+        {spells.map((spell) => {
+          const left = spell.system.cast ?? 0;
+          const total = Math.max(spell.system.memorized ?? 0, left);
+          return (
+            <SpellRow
+              key={spell._id as string}
+              spell={spell}
+              meta={meta(spell)}
+              levelTag={spell.system.lvl}
+              pips={{ total, filled: left }}
+              spent={left <= 0}
+              spentTitle={`${spell.name} — spent (Rest to recover)`}
+              canCast={canEdit}
+              onCast={() => spell.spendSpell({ skipDialog: false })}
+              onOpenName={() => spell.sheet.render(true)}
+            />
+          );
+        })}
       </div>
     </section>
   );
