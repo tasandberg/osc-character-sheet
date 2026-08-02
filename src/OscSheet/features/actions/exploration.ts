@@ -1,6 +1,6 @@
 import type { OSEActor, RollEvent } from "@domain/types";
 import type { ExplorationVM } from "@domain/vm-types";
-import { FLAGS, flagPath, readFlag } from "@domain/flags";
+import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
 
 export interface ExplorationSkill {
   key: string;
@@ -67,12 +67,18 @@ export function setTargetUpdate(
   key: string,
   inSix: number,
 ): Record<string, unknown> {
-  if (storedTarget(actor, key) === undefined && systemTarget(actor, key) !== undefined) {
-    return { [`system.exploration.${key}`]: inSix };
+  if (systemTarget(actor, key) === undefined) {
+    return {
+      [flagPath(FLAGS.explorationSkills)]: patchSkills(storedSkills(actor), key, inSix),
+    };
   }
-  return {
-    [flagPath(FLAGS.explorationSkills)]: patchSkills(storedSkills(actor), key, inSix),
-  };
+  const stored = storedSkills(actor);
+  const remaining = stored.filter((s) => s.key !== key);
+  const update: Record<string, unknown> = { [`system.exploration.${key}`]: inSix };
+  if (remaining.length === stored.length) return update;
+  if (remaining.length) update[flagPath(FLAGS.explorationSkills)] = remaining;
+  else update[flagDeletePath(FLAGS.explorationSkills)] = null;
+  return update;
 }
 
 export function rollExploration(actor: OSEActor, key: string, event?: RollEvent): void {
