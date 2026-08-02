@@ -4,6 +4,7 @@ import { useOscSheetContext } from "@app/context";
 import { cx } from "@ui/cx";
 import { IconButton } from "@ui/IconButton";
 import { Monogram } from "@ui/Monogram";
+import { FavoriteStar } from "@features/abilities/FavoriteStar";
 import { RichText } from "@ui/RichText";
 
 /** Enrich raw HTML once via Foundry's TextEditor (links, inline rolls, embeds). */
@@ -102,6 +103,14 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
             </div>
           )}
         </div>
+        {canEdit && (
+          <FavoriteStar
+            className="ft-fav"
+            name={feature.name}
+            favorite={feature.favorite}
+            onToggle={feature.onToggleFavorite}
+          />
+        )}
         <IconButton
           className="ft-chev tw:text-[length:var(--fs-md)]"
           aria-expanded={open}
