@@ -22,6 +22,7 @@ export const FLAGS = {
   favorite: "favorite",
   /** Per-level spell points spent (actor flag) in free-casting mode: Record<level, number>. */
   spellPoints: "spellPoints",
+  explorationSkills: "explorationSkills",
 } as const;
 export type FlagKey = (typeof FLAGS)[keyof typeof FLAGS];
 

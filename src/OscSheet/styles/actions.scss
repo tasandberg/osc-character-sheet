@@ -447,6 +447,12 @@
   .fvtt-explore {
     grid-template-columns: 1fr;
   }
+  // Quick-cast rows: the level badge and slot pool cost a line of the name at
+  // this width. Both are visible on the Spells tab, which is left alone.
+  .fvtt-castlist .sp-lvl,
+  .fvtt-castlist .pool {
+    display: none;
+  }
   // header: portrait | name | compact HP/AC on top; Init/HD/Move full-width below
   .osc-head {
     grid-template-columns: auto 1fr auto;

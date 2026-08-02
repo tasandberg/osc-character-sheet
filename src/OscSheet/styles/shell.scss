@@ -19,8 +19,6 @@
   overflow-x: hidden;
   container-type: inline-size;
   container-name: sheet;
-  scrollbar-width: thin;
-  scrollbar-color: var(--surface-3, #3a3429) transparent;
   // collapsed-minibar height — shared so sticky inventory heads can pin below it
   // (medium layout only). Inherited by both the minibar and the tab content.
   --osc-minibar-h: 49px;
@@ -36,6 +34,16 @@
   inset: 0;
   z-index: 60;
   padding: var(--spacer-4); // 16px
+}
+
+// Every scroller in the sheet. Any element with its own scrollbar must be listed
+// here or Foundry's crimson one shows through — `scrollbar-color` is per-element,
+// and setting it also takes the element out of the ::-webkit-scrollbar rules.
+.osc-sheet-body,
+.osc-twopane > .osc-right,
+.osc-sheet-app .modal-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-3, #3a3429) transparent;
 }
 
 .osc-twopane > .osc-left {
@@ -165,8 +173,11 @@
   // NOTE: .osc-sheet-body can't be styled here — it DEFINES the `sheet` container and
   // a container query can't target its own container. Size its descendants instead:
   // .osc-pad fills the (definite, flex-derived) body height so the grid below can too.
+  // No right padding: the right pane is the scroller, so it carries that gutter
+  // itself and its scrollbar sits flush against the window edge.
   .osc-pad {
-    padding: var(--spacer-6) var(--spacer-6);
+    padding: var(--spacer-6);
+    padding-right: 0;
     height: 100%;
   }
   .osc-twopane {
@@ -192,6 +203,7 @@
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden; // never a horizontal scrollbar — over-wide content clips, not scrolls
+    padding-right: var(--spacer-6); // gutter sits left of the scrollbar, not right of it
   }
   .actions-only { display: none; }
 
