@@ -25,7 +25,7 @@ export interface AttackInput {
 
 /** One contributing part of a roll. */
 export interface AttackTerm {
-  /** `"die"`, or the name of the modifier: `str` / `dex` / `weapon` / `tweaks` / `bba`. */
+  /** `"die"`, or the name of the modifier: `str` / `dex` / `weapon` / `tweaks` / `ab`. */
   label: string;
   /** The dice expression for the die term, a signed integer for every other. */
   value: string | number;
@@ -82,7 +82,7 @@ export function computeAttack(input: AttackInput, settings: AttackSettings): Att
   const die = input.die || "1d6";
 
   const hit = compose("1d20", [
-    { label: "bba", value: bba },
+    { label: "ab", value: bba },
     ability,
     { label: "tweaks", value: tweak },
     { label: "weapon", value: bonus },

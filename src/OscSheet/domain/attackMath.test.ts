@@ -116,7 +116,7 @@ describe("computeAttack", () => {
     expect(computeAttack(input({ thac0 }), settings()).hit.formula).toBe("1d20");
     const ascending = computeAttack(input({ thac0 }), settings({ ascendingAC: true }));
     expect(ascending.hit.formula).toBe("1d20+2");
-    expect(ascending.hit.terms).toContainEqual({ label: "bba", value: 2 });
+    expect(ascending.hit.terms).toContainEqual({ label: "ab", value: 2 });
     expect(ascending.dmg.formula).toBe("1d8");
   });
 
@@ -140,7 +140,7 @@ describe("computeAttack", () => {
     expect(hit.formula).toBe("1d20+3+1+1+2");
     expect(hit.total).toBe(7);
     expect(hit.display).toBe("+7");
-    expect(hit.tip).toBe("1d20 + 3 (bba) + 1 (str) + 1 (tweaks) + 2 (weapon)");
+    expect(hit.tip).toBe("1d20 + 3 (ab) + 1 (str) + 1 (tweaks) + 2 (weapon)");
     expect(dmg.formula).toBe("1d8+2+1+1");
     expect(dmg.display).toBe("1d8+4");
   });
