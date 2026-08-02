@@ -6,7 +6,6 @@ import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import { Monogram } from "@ui/Monogram";
 import { Button } from "@src/OscSheet/components/ui";
-import { HoverPop } from "@ui/HoverPop";
 
 type Props = {
   attacks: AttackVM[];
@@ -183,7 +182,9 @@ function WeaponRow({
           />
           {mode.hitDisplay}
         </span>
-        <HoverPop>{`Roll to hit · ${mode.hitTip}`}</HoverPop>
+        <span className="tag-pop" role="tooltip">
+          {`Roll to hit · ${mode.hitTip}`}
+        </span>
       </button>
       <button
         type="button"
@@ -194,7 +195,9 @@ function WeaponRow({
       >
         <span className="sl">Dmg</span>
         <span className="wv">{mode.dmgDisplay}</span>
-        <HoverPop>{`Roll damage · ${mode.dmgTip}`}</HoverPop>
+        <span className="tag-pop" role="tooltip">
+          {`Roll damage · ${mode.dmgTip}`}
+        </span>
       </button>
 
       {/* Always rendered; read-only (non-owner) shows it disabled — the composite
