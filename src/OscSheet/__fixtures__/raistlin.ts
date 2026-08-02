@@ -50,8 +50,8 @@ export const raistlin = {
       {
         name: "Dagger",
         img: "",
-        bonus: 0,
         system: {
+          bonus: 0,
           damage: "1d4",
           qualities: [{ label: "Thrown", value: "thrown", icon: "fa-bullseye-pointer" }],
           description: "",
@@ -63,8 +63,8 @@ export const raistlin = {
       {
         name: "Quarterstaff",
         img: "",
-        bonus: 0,
         system: {
+          bonus: 0,
           damage: "1d6",
           qualities: [
             { label: "Two-handed", value: "twohanded", icon: "fa-hand-fist" },

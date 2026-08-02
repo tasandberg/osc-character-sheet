@@ -53,13 +53,13 @@ export interface RollSpec {
 export interface AttackMode {
   kind: AttackKind;
   kindLabel: string;
-  /** To-hit roll (1d20 + ability mod). */
+  /** To-hit roll (1d20 + ability mod + weapon bonus + Tweaks/BBA — see `computeAttack`). */
   hit: RollSpec;
   /** Button text — always-signed mono, e.g. "+2" / "+0". */
   hitDisplay: string;
   /** Full hit formula with named mods for the popover, e.g. "1d20 + 1 (dex)". */
   hitTip: string;
-  /** Damage roll (weapon die + ability mod). */
+  /** Damage roll (weapon die + melee str mod + weapon bonus unless opted out). */
   dmg: RollSpec;
   /** Button text — always-signed mono, e.g. "1d6+0" / "1d10+2". */
   dmgDisplay: string;
