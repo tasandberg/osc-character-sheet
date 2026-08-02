@@ -172,7 +172,7 @@ function WeaponRow({
         data-testid={`weapon-hit-${a.itemId}`}
         disabled={!onRoll}
         onClick={() => onRoll?.(mode.hit)}
-        title={`Roll to hit · ${mode.hitTip}`}
+        aria-label={`Roll to hit · ${mode.hitTip}`}
       >
         <span className="sl">Hit</span>
         <span className="wv">
@@ -183,7 +183,7 @@ function WeaponRow({
           {mode.hitDisplay}
         </span>
         <span className="tag-pop" role="tooltip">
-          {mode.hitTip}
+          {`Roll to hit · ${mode.hitTip}`}
         </span>
       </button>
       <button
@@ -191,12 +191,12 @@ function WeaponRow({
         className="wstat dmg"
         disabled={!onRoll}
         onClick={() => onRoll?.(mode.dmg)}
-        title={`Roll damage · ${mode.dmgTip}`}
+        aria-label={`Roll damage · ${mode.dmgTip}`}
       >
         <span className="sl">Dmg</span>
         <span className="wv">{mode.dmgDisplay}</span>
         <span className="tag-pop" role="tooltip">
-          {mode.dmgTip}
+          {`Roll damage · ${mode.dmgTip}`}
         </span>
       </button>
 
