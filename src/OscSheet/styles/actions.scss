@@ -185,6 +185,14 @@
   @include rollable-card;
 }
 
+// Favorited abilities reuse the exploration row but show name, target and
+// formula at one size. (0,3,0) is required: the base sizes are UNLAYERED, so a
+// `tw:` utility on the element would lose to them regardless of specificity.
+.fvtt-skill.osc-fav-ability .skv,
+.fvtt-skill.osc-fav-ability .skv i {
+  font-size: var(--fs-sm, 13px);
+}
+
 // --- memorized spells quick-cast ---
 // `.fvtt-castlist` and the cast control's centring/pill width are in
 // actions-features.scss (MemorizedSpells is NOT converted). The rows reuse the
@@ -434,6 +442,11 @@
 // MUST live here (after the base .osc-head / .osc-tb-* rules) to win the cascade —
 // shell.scss loads earlier, so XS overrides placed there lose at equal specificity.
 @container app (max-width: 479px) {
+  // Exploration and favorited abilities: 2-up leaves no room for the label, so
+  // both stack. They share the .fvtt-explore grid.
+  .fvtt-explore {
+    grid-template-columns: 1fr;
+  }
   // Quick-cast rows: the level badge and slot pool cost a line of the name at
   // this width. Both are visible on the Spells tab, which is left alone.
   .fvtt-castlist .sp-lvl,

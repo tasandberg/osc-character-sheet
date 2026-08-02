@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
-import { selectFeatures } from "@features/abilities/features";
+import { selectFeatures, selectFavoriteAbilities } from "@features/abilities/features";
 import type { OSEActor, OseAbility } from "@domain/types";
 
 // selectFeatures composes the roll tag from CONFIG.OSE.roll_type (a Foundry global).
@@ -9,20 +9,26 @@ beforeAll(() => {
   };
 });
 
+const MODULE_ID = "osc-character-sheet";
+
 type AbilityMock = {
   _id: string;
   name: string;
   img?: string;
   roll?: () => void;
+  favorite?: boolean;
   // partial ability system — full OseItem system has many required fields the VM ignores
   system?: Partial<OseAbility["system"]>;
 };
 
-function ability(partial: AbilityMock): OseAbility {
+function ability({ favorite, ...partial }: AbilityMock): OseAbility {
   return {
     img: "icons/x.svg",
     roll: vi.fn(),
+    setFlag: vi.fn(),
+    unsetFlag: vi.fn(),
     ...partial,
+    flags: favorite ? { [MODULE_ID]: { favorite: true } } : {},
     system: { description: "", ...(partial.system ?? {}) },
   } as unknown as OseAbility;
 }
@@ -87,5 +93,50 @@ describe("selectFeatures", () => {
       ability({ _id: "a4", name: "Gamma", system: { requirements: "elf" } }),
     ]);
     expect(selectFeatures(actor).map((f) => f.name)).toEqual(["Alpha", "Gamma", "Beta", "Zeta"]);
+  });
+
+  it("reads the favorite flag off the backing item", () => {
+    const actor = actorWith([
+      ability({ _id: "a1", name: "Hide", favorite: true }),
+      ability({ _id: "a2", name: "Listen" }),
+    ]);
+    expect(selectFeatures(actor).map((f) => f.favorite)).toEqual([true, false]);
+  });
+
+  it("onToggleFavorite sets the flag when unset and unsets it when set", () => {
+    const off = ability({ _id: "a1", name: "Listen" });
+    selectFeatures(actorWith([off]))[0].onToggleFavorite();
+    expect(off.setFlag).toHaveBeenCalledWith(MODULE_ID, "favorite", true);
+    expect(off.unsetFlag).not.toHaveBeenCalled();
+
+    const on = ability({ _id: "a2", name: "Hide", favorite: true });
+    selectFeatures(actorWith([on]))[0].onToggleFavorite();
+    expect(on.unsetFlag).toHaveBeenCalledWith(MODULE_ID, "favorite");
+    expect(on.setFlag).not.toHaveBeenCalled();
+  });
+
+  it("onActivate calls the item's roll method for a passive feature too", () => {
+    const item = ability({ _id: "a1", name: "Read Magic", system: { roll: "" } });
+    const [vm] = selectFeatures(actorWith([item]));
+    expect(vm.onRoll).toBeUndefined();
+    vm.onActivate();
+    expect(item.roll).toHaveBeenCalledOnce();
+  });
+});
+
+describe("selectFavoriteAbilities", () => {
+  it("returns only favorited features, keeping the requirements-then-name sort", () => {
+    const actor = actorWith([
+      ability({ _id: "a1", name: "Zeta", favorite: true, system: {} }),
+      ability({ _id: "a2", name: "Beta", system: { requirements: "thief" } }),
+      ability({ _id: "a3", name: "Alpha", favorite: true, system: { requirements: "elf" } }),
+      ability({ _id: "a4", name: "Gamma", favorite: true, system: { requirements: "elf" } }),
+    ]);
+    expect(selectFavoriteAbilities(actor).map((f) => f.name)).toEqual(["Alpha", "Gamma", "Zeta"]);
+  });
+
+  it("returns an empty list when nothing is favorited", () => {
+    const actor = actorWith([ability({ _id: "a1", name: "Hide", system: {} })]);
+    expect(selectFavoriteAbilities(actor)).toEqual([]);
   });
 });

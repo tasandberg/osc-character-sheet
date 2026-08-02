@@ -2,6 +2,9 @@ import type { OSEActor, OseSpell } from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
 import { MODULE_ID, FLAGS, readFlag, setFlag, unsetFlag } from "@domain/flags";
 import { selectSpellSlotDefaults } from "@domain/classRules";
+import { isFavorite } from "@domain/favorites";
+
+export { isFavorite, toggleFavorite } from "@domain/favorites";
 
 /** One part of the prepared-row meta line, e.g. { kind: "roll", text: "1d6+1" }. */
 export interface SpellMetaPart {
@@ -57,18 +60,6 @@ export async function castFree(actor: OSEActor, spell: OseSpell, max: number): P
 /** Rest in free-casting mode: clear all spent points. */
 export function resetSpellPoints(actor: OSEActor): Promise<unknown> {
   return unsetFlag(actor, FLAGS.spellPoints);
-}
-
-/** Whether a spell is favorited (shown on the Actions tab in free-casting mode). */
-export function isFavorite(spell: OseSpell): boolean {
-  return !!readFlag<boolean>(spell, FLAGS.favorite);
-}
-
-/** Toggle a spell's favorite flag. */
-export function toggleFavorite(spell: OseSpell): Promise<unknown> {
-  return isFavorite(spell)
-    ? unsetFlag(spell, FLAGS.favorite)
-    : setFlag(spell, FLAGS.favorite, true);
 }
 
 /** Favorited spells across all levels, sorted by level then name (Actions tab, free-casting). */

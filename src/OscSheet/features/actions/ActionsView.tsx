@@ -11,6 +11,8 @@ import { postRollCard } from "@domain/chat/attackCard";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { AbilityPlaques } from "@features/actions/AbilityPlaques";
 import { AttacksTable } from "@features/actions/AttacksTable";
+import { FavoriteAbilities } from "@features/actions/FavoriteAbilities";
+import { selectFavoriteAbilities } from "@features/abilities/features";
 import { MemorizedSpells } from "@features/actions/MemorizedSpells";
 import { SavesGrid, ExplorationGrid } from "@features/actions/SavesExploration";
 import { SectionTitle } from "@ui/SectionTitle";
@@ -55,6 +57,7 @@ export function ActionsView({ actor }: Props) {
     <>
       <AbilityPlaques abilities={selectAbilities(actor)} onRoll={onAbility} />
       <AttacksTable attacks={attacks} onRoll={onRoll} onAttack={canEdit ? onAttack : undefined} onOpen={onOpenWeapon} dragData={dragData} canAttack={canEdit} />
+      <FavoriteAbilities features={selectFavoriteAbilities(actor)} dragData={dragData} />
       <MemorizedSpells actor={actor} />
       {/* .actions-only: hidden at lg (Saves/Exploration live in the rail there). */}
       <section className="osc-section actions-only">

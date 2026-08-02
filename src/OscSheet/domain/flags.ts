@@ -18,7 +18,7 @@ export const FLAGS = {
   /** Manual order position of an equipped item within the equipped tray —
    *  independent of `order` (its row position in the All-Items list). */
   equippedOrder: "equippedOrder",
-  /** Spell flagged to appear on the Actions tab when memorization is disabled. */
+  /** Item flagged to appear on the Actions tab (spells: only when memorization is disabled). */
   favorite: "favorite",
   /** Per-level spell points spent (actor flag) in free-casting mode: Record<level, number>. */
   spellPoints: "spellPoints",
