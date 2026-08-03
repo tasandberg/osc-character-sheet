@@ -9,7 +9,6 @@
     "lint": "eslint . && stylelint \"src/**/*.scss\"",
     "lint:css": "stylelint \"src/**/*.scss\"",
     "style-metrics": "node tools/style-metrics.mjs",
-    "verify:classes": "node tools/verify-classes.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",

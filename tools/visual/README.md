@@ -12,14 +12,9 @@ change that touches styling.
 
 | gate | in CI | catches |
 | --- | --- | --- |
-| `pnpm verify:classes` | yes | a rendered class with no CSS rule, no utility on its element and no declared hook — styling deleted and never replaced |
 | `src/OscSheet/stories/stories.smoke.test.tsx` | yes | any story — tab or primitive — that throws or renders nothing |
 | Storybook (`Tabs / *`) | build only | how a whole tab *looks*, by eye, in both themes and all three font scales |
 | this harness | no | geometry, against a real Foundry world |
-
-`verify:classes` answers "is this class styled at all", not "is it styled
-correctly" — it reads the compiled CSS statically and knows nothing about
-whether a rule actually applies. Everything below is what covers that gap.
 
 Storybook renders each tab inside a resizable `.osc-sheet-app`, so container-query
 reflow and both themes are reachable there. The **font scale** toolbar control

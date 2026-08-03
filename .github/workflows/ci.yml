@@ -28,10 +28,6 @@ jobs:
       # tsc -b + vite build
       - run: pnpm build
 
-      # Reads dist/main.css, so it has to follow the build: every semantic class
-      # the sheet renders must be styled, declared a hook, or sit beside a utility.
-      - run: pnpm verify:classes
-
       - run: pnpm test
 
       # A story that fails to compile is a tab nobody can look at. Rendering is

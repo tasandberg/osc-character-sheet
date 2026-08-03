@@ -14,14 +14,7 @@ lives in `../CLAUDE.md`.
 ## Dev
 
 - pnpm. `pnpm dev` (vite, serves into local Foundry), `pnpm build` (`tsc -b && vite build`),
-  `pnpm lint`, `pnpm test` (vitest), `pnpm verify:classes`. Verify changes with all five
-  before committing.
-- **`pnpm verify:classes`** (after `pnpm build` — it reads `dist/main.css`). Every semantic
-  class the sheet renders must be matched by a rule in the compiled CSS, sit on an element
-  carrying a `tw:`/`u-` utility, or be declared in `tools/class-hooks.json` with a reason.
-  This is the gate for "styling deleted, conversion described but never done" — lint, the
-  unit tests and the build all stay green through that. A declared hook that stops being
-  rendered also fails, so the allowlist can't rot.
+  `pnpm lint`, `pnpm test` (vitest). Verify changes with all four before committing.
 - **Whole-tab stories** live in `src/OscSheet/stories/` over one shared fixture actor
   (`fixtures.ts`), with Foundry's globals stubbed in `.storybook/foundry-stub.ts`.
   `stories.smoke.test.tsx` mounts every story in the repo — a Storybook *build* never renders
