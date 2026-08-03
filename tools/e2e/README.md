@@ -26,9 +26,9 @@ PRs run automatically; fork PRs need a maintainer's `safe-to-test` label.
 | `setup-data-dir.sh` | Assembles a Foundry `/data` dir: the pinned OSE release (`OSE_VERSION`, default 2.2.2; `compatibility.verified` bumped to `14` for CI), the freshly-built osc-character-sheet module (`module.json` + `dist` + `lang`), and the minimal `e2e` world fixture. |
 | `activate-world.mjs` | First-boot activation: `--phase eula` accepts the EULA (generates the host-bound license signature), the caller restarts the container so felddy's `FOUNDRY_WORLD` auto-launches the world, `--phase await` polls `/api/status` until active. |
 | `global-setup.ts` | Joins as Gamemaster, enables the osc-character-sheet module + reloads, then seeds one passwordless GM (`E2E GM <slot>`) and one passwordless OBSERVER player (`E2E Observer <slot>`) per parallel slot. Runs once before the specs. |
-| `helpers.ts` | `joinAsUser` / `joinAsGM`, `openCharacterSheet` (forces the wide layout), chat/item readers. |
+| `helpers.ts` | `joinAsUser` / `joinAsGM`, `openCharacterSheet` (forces the wide layout), chat/item readers, and the layout primitives `boxesOf` / `rowsOf`. |
 | `fixtures.ts` | Worker-scoped `gamePage` / `observerPage` (this slot's GM and view-only player, each its own browser context), plus the test-scoped `fighter` actor. |
-| `specs/*.spec.ts` | One spec per core flow: smoke, tabs, ability, save, attack, equip, coin, and `readonly` (non-owner view-only sheet). |
+| `specs/*.spec.ts` | One spec per core flow: smoke, tabs, ability, save, attack, equip, coin, `readonly` (non-owner view-only sheet), and `surfaces` (per-tab feature surfaces + layout invariants). |
 
 ### Parallel isolation
 
@@ -52,6 +52,24 @@ exposes no edit affordances: HP steppers, editable portrait, Edit modal, and
 per-tab edit controls (abilities/notes), plus the inventory tab — no equip
 toggles, no draggable rows/tray tiles/coin grips, disabled coin qty, and a
 view-only item context menu (only "View Item").
+
+### Layout coverage (the visual gate)
+
+`specs/surfaces.spec.ts` walks every tab, asserts each one's feature surface renders,
+and adds cheap geometry invariants on top — because presence is blind to the failure
+that motivated this: a stylesheet deletion left ability plaques and saves stacking
+one-per-row and a weapon icon at full width, all still perfectly visible, with every
+gate green.
+
+The invariants use `boxesOf` / `rowsOf` from `helpers.ts` and assert relationships —
+row counts, share-of-parent widths — never pixel values, so an intentional redesign
+passes and a collapse fails. **No `toHaveScreenshot`**: CI renders under software
+WebGL and a dev machine does not, so a pixel baseline would be flaky across
+environments.
+
+When adding one, verify it can fail: delete the styling it guards, confirm red, then
+restore. Two candidates were measured against a stripped stylesheet and came out too
+close to the healthy value to keep — see the exploration note in the spec.
 
 ## Running locally
 
