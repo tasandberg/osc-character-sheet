@@ -1,4 +1,8 @@
 import type { Preview, Decorator } from "@storybook/react-vite";
+// FIRST — several feature modules touch game/CONFIG/foundry at module scope, so
+// the stubs have to exist before any story module is evaluated.
+import "./foundry-stub";
+import { FONT_SCALE_FACTOR, resolveFontScale } from "../src/OscSheet/fontScale";
 // SAME import order as the app: fonts → tokens → components → sheet base →
 // Tailwind. Vite applies postcss.config.mjs (Vellum scoper) to the vellum/* files.
 import "../src/OscSheet/styles/vellum/fonts.css";
@@ -14,6 +18,9 @@ import "../src/OscSheet/styles/vellum/tailwind.css";
 
 const withSheet: Decorator = (Story, ctx) => {
   const cream = ctx.globals.theme === "cream";
+  // Without this, every story renders at 1× and a defect that only appears at
+  // compact/large is invisible here — the same blind spot the tabs had.
+  const scale = FONT_SCALE_FACTOR[resolveFontScale(ctx.globals.fontScale)];
   return (
     <div className="osc-sheet" data-theme={cream ? "cream" : undefined}>
       {/* resize handle: drag-test the container-query reflow, as in Ladle */}
@@ -25,7 +32,8 @@ const withSheet: Decorator = (Story, ctx) => {
           width: 640,
           maxWidth: "100%",
           padding: 16,
-        }}
+          ...(scale === 1 ? {} : { "--fs-scale": String(scale) }),
+        } as React.CSSProperties}
       >
         <Story />
       </div>
@@ -45,6 +53,20 @@ const preview: Preview = {
         items: [
           { value: "default", title: "Default (dark)" },
           { value: "cream", title: "Cream" },
+        ],
+        dynamicTitle: true,
+      },
+    },
+    fontScale: {
+      description: "Sheet font scale (--fs-scale)",
+      defaultValue: "medium",
+      toolbar: {
+        title: "Font",
+        icon: "zoom",
+        items: [
+          { value: "compact", title: "Compact (0.875×)" },
+          { value: "medium", title: "Medium (1×)" },
+          { value: "large", title: "Large (1.125×)" },
         ],
         dynamicTitle: true,
       },

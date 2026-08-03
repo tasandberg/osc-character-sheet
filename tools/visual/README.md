@@ -3,11 +3,29 @@
 Drives the sheet in a **real Foundry world** and compares two builds. It exists
 because the CSS conversion shipped several defects that every automated gate
 passed: the unit tests assert behaviour, the e2e specs click controls and read
-chat, `verify-classes` only asserts a class exists *somewhere* in the compiled
-CSS, and Storybook has no story for most tabs. None of them looks at geometry.
+chat, and none of them looks at geometry.
 
 Not wired into CI — it needs a live Foundry server. Run it before merging a
 change that touches styling.
+
+## Where this sits among the gates
+
+| gate | in CI | catches |
+| --- | --- | --- |
+| `pnpm verify:classes` | yes | a rendered class with no CSS rule, no utility on its element and no declared hook — styling deleted and never replaced |
+| `src/OscSheet/stories/tabs.smoke.test.tsx` | yes | a tab that throws or renders empty |
+| Storybook (`Tabs / *`) | build only | how a whole tab *looks*, by eye, in both themes and all three font scales |
+| this harness | no | geometry, against a real Foundry world |
+
+`verify:classes` answers "is this class styled at all", not "is it styled
+correctly" — it reads the compiled CSS statically and knows nothing about
+whether a rule actually applies. Everything below is what covers that gap.
+
+Storybook renders each tab inside a resizable `.osc-sheet-app`, so container-query
+reflow and both themes are reachable there. The **font scale** toolbar control
+sets `--fs-scale` the way `applyFontScale` does, so `compact` and `large` are
+reachable too — but nothing *asserts* any of it. A story proves a tab renders;
+only a person or this harness notices that it renders wrong.
 
 ## Read this first: three ways this harness lied
 

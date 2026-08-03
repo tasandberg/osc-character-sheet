@@ -14,7 +14,18 @@ lives in `../CLAUDE.md`.
 ## Dev
 
 - pnpm. `pnpm dev` (vite, serves into local Foundry), `pnpm build` (`tsc -b && vite build`),
-  `pnpm lint`, `pnpm test` (vitest). Verify changes with all four before committing.
+  `pnpm lint`, `pnpm test` (vitest), `pnpm verify:classes`. Verify changes with all five
+  before committing.
+- **`pnpm verify:classes`** (after `pnpm build` — it reads `dist/main.css`). Every semantic
+  class the sheet renders must be matched by a rule in the compiled CSS, sit on an element
+  carrying a `tw:`/`u-` utility, or be declared in `tools/class-hooks.json` with a reason.
+  This is the gate for "styling deleted, conversion described but never done" — lint, the
+  unit tests and the build all stay green through that. A declared hook that stops being
+  rendered also fails, so the allowlist can't rot.
+- **Whole-tab stories** live in `src/OscSheet/stories/` over one shared fixture actor
+  (`fixtures.ts`), with Foundry's globals stubbed in `.storybook/foundry-stub.ts`.
+  `tabs.smoke.test.tsx` mounts every one of them — a Storybook *build* never renders a
+  story, so it alone proves nothing. Add the story with the tab, not after it.
 - App entry: `src/OscSheet/index.tsx` → `OscSheetProvider` (Foundry actor sync) →
   `SheetShell` (view-models + layout slots) → tab bodies. State = React Context + Foundry
   actor as source of truth; view-models in `viewModels/` compute derived data.
