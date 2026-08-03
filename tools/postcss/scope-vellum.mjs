@@ -6,7 +6,11 @@ const scope = vellumScope({ root: ROOT });
 // Vite resolves postcss config once, not per file, so the path filter has to live
 // in the plugin. It is not an optimisation: chat.scss styles Foundry's own chat
 // <li> on purpose, outside .osc-sheet, and scoping it would delete the chat card.
-const SCOPED = ["/styles/vellum/", "/@old-school-chronicle/vellum/"];
+const SCOPED = [
+  "/styles/vellum/",
+  "/@old-school-chronicle/vellum/",
+  "/@old-school-chronicle/ui/",
+];
 
 export const scopeVellum = {
   postcssPlugin: "scope-vellum",

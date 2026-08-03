@@ -18,16 +18,5 @@
 // Language "go" (round brass add) + Add-ability/edit "+" are now <IconButton>
 // (variant="round" / variant="accent"); see .icon-btn in components.css.
 
-// --- Languages: ink-stamp chips ---
-// Language chips are now <Tag>; .tag provides the pill. The × stays bespoke —
-// it tucks inside the chip (an .icon-btn box would inflate the chip height) and
-// it is rendered by the shared <Tag>, not by this feature's markup.
-.osc-sheet-app .osc-lang-x {
-  display: grid; place-items: center;
-  background: none; border: none; cursor: pointer; padding: 0;
-  margin-right: -2px;
-  color: var(--text-faint, #6a6354);
-  font-size: var(--fs-2xs, 11px);
-  transition: color 0.12s;
-  &:hover { color: var(--crimson, #c75044); }
-}
+// Language chips and their bespoke × are now @old-school-chronicle/ui's <Tag>
+// (`.tag` / `.tag-remove`), styled by that package's stylesheet.

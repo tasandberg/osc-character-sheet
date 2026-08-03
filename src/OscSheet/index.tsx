@@ -1,6 +1,9 @@
 import type { OscSheetAppProps } from "@domain/types";
 import "./styles/vellum/fonts.css";
 import "@old-school-chronicle/vellum/tokens.css";
+// The package's own @fontsource faces are deliberately NOT imported: fonts.css
+// above self-hosts the same four families.
+import "@old-school-chronicle/ui/styles.css";
 import "./styles/vellum/sheet-base.scss";
 import "./styles/vellum/utilities.scss";
 import "./styles/vellum/components.css";
