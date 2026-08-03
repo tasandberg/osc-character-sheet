@@ -53,7 +53,7 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
     persist(current.filter((l) => l !== lang));
 
   return (
-    <section className="osc-section osc-lang-sec">
+    <section className="osc-section">
       <SectionHeader
         title="Languages"
         controls={

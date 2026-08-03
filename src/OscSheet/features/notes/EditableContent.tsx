@@ -45,7 +45,7 @@ export default function EditableContent({
   }, [value, actor]);
 
   return (
-    <section className="osc-section osc-notes-sec">
+    <section className="osc-section">
       <SectionTitle>{title}</SectionTitle>
       {editing ? (
         // Edit on demand: an always-on ProseMirror that fills the same space.

@@ -47,7 +47,7 @@ export default function Spells() {
     : undefined;
 
   return (
-    <section className="osc-section osc-spells">
+    <section className="osc-section">
       <SectionTitle className="osc-spells-title tw:flex-nowrap">
         Spells
         <span className="hint">{freeCasting ? "known · slot pool" : "memorised slots"}</span>

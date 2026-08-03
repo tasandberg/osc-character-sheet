@@ -1,0 +1,11 @@
+{
+  "_": "Classes that carry no styling on purpose. Every entry needs a reason, and an entry that stops being rendered fails `pnpm verify:classes` — the list is not allowed to rot. Adding a class here to silence the gate is a decision a reviewer can see in the diff.",
+  "hooks": {
+    "osc-abilities-tab": "e2e tab selector — tools/e2e/specs/readonly.spec.ts",
+    "osc-atk": "e2e tab selector — tools/e2e/specs/readonly.spec.ts",
+    "osc-slotedit": "unit-test selector — features/spells/SpellLevel.test.tsx",
+    "osc-slotinfo": "unit-test selector — features/spells/SpellLevel.test.tsx",
+    "ft-fav": "forwarded to IconButton, which carries its own styling",
+    "sp-fav": "forwarded to IconButton, which carries its own styling"
+  }
+}
