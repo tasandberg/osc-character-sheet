@@ -13,7 +13,7 @@ change that touches styling.
 | gate | in CI | catches |
 | --- | --- | --- |
 | `pnpm verify:classes` | yes | a rendered class with no CSS rule, no utility on its element and no declared hook — styling deleted and never replaced |
-| `src/OscSheet/stories/tabs.smoke.test.tsx` | yes | a tab that throws or renders empty |
+| `src/OscSheet/stories/stories.smoke.test.tsx` | yes | any story — tab or primitive — that throws or renders nothing |
 | Storybook (`Tabs / *`) | build only | how a whole tab *looks*, by eye, in both themes and all three font scales |
 | this harness | no | geometry, against a real Foundry world |
 

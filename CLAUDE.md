@@ -24,8 +24,8 @@ lives in `../CLAUDE.md`.
   rendered also fails, so the allowlist can't rot.
 - **Whole-tab stories** live in `src/OscSheet/stories/` over one shared fixture actor
   (`fixtures.ts`), with Foundry's globals stubbed in `.storybook/foundry-stub.ts`.
-  `tabs.smoke.test.tsx` mounts every one of them — a Storybook *build* never renders a
-  story, so it alone proves nothing. Add the story with the tab, not after it.
+  `stories.smoke.test.tsx` mounts every story in the repo — a Storybook *build* never renders
+  a story, so it alone proves nothing. Add the story with the tab, not after it.
 - App entry: `src/OscSheet/index.tsx` → `OscSheetProvider` (Foundry actor sync) →
   `SheetShell` (view-models + layout slots) → tab bodies. State = React Context + Foundry
   actor as source of truth; view-models in `viewModels/` compute derived data.
