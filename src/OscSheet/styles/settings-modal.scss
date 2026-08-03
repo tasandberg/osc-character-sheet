@@ -2,7 +2,6 @@
 // App-local Settings modal sizing + containment. Content lives in the
 // SettingsModal component; DS primitive styles in vellum/components.css.
 // Scrim containment is shared — the modal opts in with `.modal-inset` (shell.scss).
-// @use'd from styles.scss so it also loads in Storybook, not just the app entry.
 
 // None of this converts to `tw:` utilities: every selector reaches INTO Modal's
 // own markup (`.modal`, `.modal-head`, `.modal-body`, `.modal-foot`) — the

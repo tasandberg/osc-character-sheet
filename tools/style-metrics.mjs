@@ -91,12 +91,11 @@ for (const f of scssFiles.sort()) {
   scssPx += px;
 }
 
-// ── TSX: inline styles (app vs. stories), hardcoded values ────────────────
+// ── TSX: inline styles, hardcoded values ──────────────────────────────────
 const tsxFiles = walk(SRC, (f) => f.endsWith(".tsx"));
 const app = { files: 0, styleProps: 0, cssProps: 0, hex: 0, px: 0 };
-const stories = { files: 0, styleProps: 0, cssProps: 0, hex: 0, px: 0 };
 for (const f of tsxFiles) {
-  const bucket = f.endsWith(".stories.tsx") ? stories : app;
+  const bucket = app;
   const blocks = extractInlineStyles(readFileSync(f, "utf8"));
   if (blocks.length === 0) continue;
   bucket.files++;
@@ -115,7 +114,6 @@ const num = (s, n) => String(s).padStart(n);
 console.log("\nInline styles (style={{ }})");
 console.log(`  ${pad("bucket", 10)} ${num("files", 6)} ${num("props", 6)} ${num("cssDecls", 9)} ${num("hex", 5)} ${num("px", 5)}`);
 console.log(`  ${pad("app", 10)} ${num(app.files, 6)} ${num(app.styleProps, 6)} ${num(app.cssProps, 9)} ${num(app.hex, 5)} ${num(app.px, 5)}`);
-console.log(`  ${pad("stories", 10)} ${num(stories.files, 6)} ${num(stories.styleProps, 6)} ${num(stories.cssProps, 9)} ${num(stories.hex, 5)} ${num(stories.px, 5)}`);
 
 console.log("\nAd-hoc SCSS (src/OscSheet/styles/*.scss, outside vellum/)");
 console.log(`  ${pad("file", 22)} ${num("rules", 6)} ${num("hex", 5)} ${num("px", 5)}`);
@@ -126,7 +124,6 @@ console.log(`  ${pad("TOTAL", 22)} ${num(scssRuleLines, 6)} ${num(scssHex, 5)} $
 
 const json = {
   inlineApp: { files: app.files, styleProps: app.styleProps, cssProps: app.cssProps, hex: app.hex, px: app.px },
-  inlineStories: { files: stories.files, styleProps: stories.styleProps, cssProps: stories.cssProps, hex: stories.hex, px: stories.px },
   scss: { files: scssFiles.length, ruleLines: scssRuleLines, hex: scssHex, px: scssPx },
 };
 console.log("\n" + JSON.stringify(json));

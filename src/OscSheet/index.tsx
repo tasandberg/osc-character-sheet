@@ -59,7 +59,7 @@ function OscSheetApp({
   isEditable,
 }: OscSheetAppProps) {
   // Seeds the provider's gate; it re-derives from every published context after.
-  // Falls back to ownership when mounted outside a Foundry sheet (Storybook/tests).
+  // Falls back to ownership when mounted outside a Foundry sheet (tests).
   const canEdit = isEditable ?? actor?.isOwner ?? false;
   return (
     <SheetErrorBoundary actor={actor}>

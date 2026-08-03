@@ -207,7 +207,7 @@ class OscSheet extends ReactActorSheetV2 {
       source: context.source,
       contextConnector: this.contextConnector,
       // Foundry's authoritative edit gate (ownership + lock/compendium state).
-      // React falls back to actor.isOwner when this is absent (Storybook/tests).
+      // React falls back to actor.isOwner when this is absent (tests).
       isEditable: this.isEditable,
     };
     return context;

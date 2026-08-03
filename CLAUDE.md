@@ -15,10 +15,10 @@ lives in `../CLAUDE.md`.
 
 - pnpm. `pnpm dev` (vite, serves into local Foundry), `pnpm build` (`tsc -b && vite build`),
   `pnpm lint`, `pnpm test` (vitest). Verify changes with all four before committing.
-- **Whole-tab stories** live in `src/OscSheet/stories/` over one shared fixture actor
-  (`fixtures.ts`), with Foundry's globals stubbed in `.storybook/foundry-stub.ts`.
-  `stories.smoke.test.tsx` mounts every story in the repo — a Storybook *build* never renders
-  a story, so it alone proves nothing. Add the story with the tab, not after it.
+- **Visual verification is the e2e suite** (`tools/e2e/specs/`), which drives a real Foundry
+  world — the only place this sheet's CSS meets Foundry's. There is no component workbench
+  here; the shared design system and its Storybook live in the `old-school-chronicle`
+  monorepo's `packages/ui`.
 - App entry: `src/OscSheet/index.tsx` → `OscSheetProvider` (Foundry actor sync) →
   `SheetShell` (view-models + layout slots) → tab bodies. State = React Context + Foundry
   actor as source of truth; view-models in `viewModels/` compute derived data.

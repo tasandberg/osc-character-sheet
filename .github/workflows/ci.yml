@@ -29,7 +29,3 @@ jobs:
       - run: pnpm build
 
       - run: pnpm test
-
-      # A story that fails to compile is a tab nobody can look at. Rendering is
-      # covered by src/OscSheet/stories/stories.smoke.test.tsx, above.
-      - run: pnpm storybook:build

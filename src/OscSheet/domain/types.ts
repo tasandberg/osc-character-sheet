@@ -18,7 +18,7 @@ export type AttackType = AttackKind | "attack";
 export type OscContext = {
   document: OSEActor;
   /** Foundry's `sheet.isEditable`, republished on every render (ownership can change
-   *  while the sheet is open). Absent outside a Foundry sheet (Storybook / tests). */
+   *  while the sheet is open). Absent outside a Foundry sheet (tests). */
   isEditable?: boolean;
 };
 
@@ -27,7 +27,7 @@ export type OscSheetAppProps = {
   source?: OSEActor;
   contextConnector: ContextConnector<OscContext>;
   /** Foundry's `sheet.isEditable`. When omitted, edit gating falls back to
-   *  `actor.isOwner` (e.g. Storybook / tests that mount the app directly). */
+   *  `actor.isOwner` (e.g. tests that mount the app directly). */
   isEditable?: boolean;
 };
 

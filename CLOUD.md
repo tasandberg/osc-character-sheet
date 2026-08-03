@@ -1,12 +1,12 @@
 # Cloud / Headless Development
 
-How autonomous / cloud agents build, verify, and preview this module **without a local Foundry server**. In-game checks aren't possible in the cloud — rely on the headless gates below plus the published Storybook preview.
+How autonomous / cloud agents build and verify this module **without a local Foundry server**. In-game checks aren't possible in the cloud — the headless gates below are all a cloud agent gets.
 
 ## Stack & setup
 
 - Package manager: **pnpm**. Node 22.x (repo built/tested on v22).
 - Install: `pnpm install`.
-- Key deps: Vite 8, React 19, TypeScript ~5.8, `foundry-vtt-react` (React-in-Foundry framework), Storybook (component workbench), vitest.
+- Key deps: Vite 8, React 19, TypeScript ~5.8, `foundry-vtt-react` (React-in-Foundry framework), vitest.
 
 ## What works headless (no Foundry needed)
 
@@ -15,14 +15,13 @@ These are the real gates a cloud agent can run:
 - `pnpm exec tsc -b` — typecheck (project references via `tsconfig.json`).
 - `pnpm build` — `tsc -b && vite build`; writes `dist/` (`main.js`, `main.css`, fonts).
 - `pnpm lint` — `eslint .`.
-- `pnpm test` — `vitest run` (currently ~11 tests). `pnpm test:watch` for watch mode.
-- `pnpm storybook:build` / `pnpm storybook` — Storybook static build / dev server.
+- `pnpm test` — `vitest run`. `pnpm test:watch` for watch mode.
 
 ## What needs local Foundry (NOT available in cloud)
 
 - `pnpm dev` (`vite`) renders the sheet **inside a running Foundry** via the dev proxy — no Foundry, nothing to see.
 - In-game / visual verification uses the local **dockerized Foundry** (`local-foundry-docker` workflow).
-- A cloud agent **cannot** do in-game checks. Substitute: the headless gates above + the published **Storybook preview**.
+- A cloud agent **cannot** do in-game checks, and there is no substitute — visual verification needs a real Foundry world (`tools/e2e`, `tools/visual`).
 
 ## CSS pipeline gotcha
 
@@ -42,16 +41,6 @@ These are the real gates a cloud agent can run:
 - A plan a cloud agent must execute has to be **committed explicitly** — e.g. a committed plan under `docs/superpowers/plans/`.
 - This `CLOUD.md` is committed precisely because cloud agents need it at the repo root.
 
-## Preview / deploy
-
-- Storybook static build is published to **GitHub Pages** under `/osc-character-sheet/storybook/` — a `storybook/` subdir of the `gh-pages` branch, so it doesn't occupy the Pages root:
-  ```bash
-  pnpm storybook:build
-  npx gh-pages -d storybook-static --dest storybook --add -b gh-pages
-  ```
-  `--add` updates only those files; the Pages root stays free. Requires Pages enabled on the repo once. Preview: `https://tasandberg.github.io/osc-character-sheet/storybook/`.
-- **Alternative:** Netlify draft deploy with `NETLIFY_AUTH_TOKEN` — `pnpm dlx netlify-cli deploy --dir=storybook-static`.
-
 ## dist note
 
 - `dist/` is **currently committed** (build output). A follow-up ([issue #7](https://github.com/tasandberg/osc-character-sheet/issues/7)) will stop committing it.
@@ -65,6 +54,5 @@ These are the real gates a cloud agent can run:
 3. `pnpm lint` — clean
 4. `pnpm test` — green
 5. `pnpm build` — green
-6. `pnpm storybook:build` — success; publish the preview for visual review
-7. If build output changed, commit `dist/` (until issue #7 lands)
-8. Branch off / PR into `osc-sheet` — never push `main`
+6. If build output changed, commit `dist/` (until issue #7 lands)
+7. Branch off / PR into `osc-sheet` — never push `main`

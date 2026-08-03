@@ -7,7 +7,7 @@ import { globalIgnores } from "eslint/config";
 
 export default tseslint.config([
   // tools/e2e is a standalone Playwright package with its own toolchain/deps.
-  globalIgnores(["dist", "foundry", "tools", ".claude", "storybook-static"]),
+  globalIgnores(["dist", "foundry", "tools", ".claude"]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [
@@ -35,10 +35,5 @@ export default tseslint.config([
         },
       ],
     },
-  },
-  {
-    // Stories are dev-only mockups; inline literal styles are fine there.
-    files: ["**/*.stories.tsx"],
-    rules: { "no-restricted-syntax": "off" },
   },
 ]);

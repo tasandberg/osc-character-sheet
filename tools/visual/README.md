@@ -12,15 +12,13 @@ change that touches styling.
 
 | gate | in CI | catches |
 | --- | --- | --- |
-| `src/OscSheet/stories/stories.smoke.test.tsx` | yes | any story — tab or primitive — that throws or renders nothing |
-| Storybook (`Tabs / *`) | build only | how a whole tab *looks*, by eye, in both themes and all three font scales |
+| `tools/e2e/specs/surfaces.spec.ts` | no | a tab whose feature surface is missing or unstyled, in a real world |
+| `tools/e2e/specs/tabs.spec.ts` | no | tab layout at each container tier |
 | this harness | no | geometry, against a real Foundry world |
 
-Storybook renders each tab inside a resizable `.osc-sheet-app`, so container-query
-reflow and both themes are reachable there. The **font scale** toolbar control
-sets `--fs-scale` the way `applyFontScale` does, so `compact` and `large` are
-reachable too — but nothing *asserts* any of it. A story proves a tab renders;
-only a person or this harness notices that it renders wrong.
+The e2e specs assert that each tab's surface is present and laid out; they do not
+compare pixels. Only a person or this harness notices that a present, correctly
+laid-out tab renders *wrong*.
 
 ## Read this first: three ways this harness lied
 

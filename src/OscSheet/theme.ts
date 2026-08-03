@@ -38,7 +38,7 @@ export function getThemeSetting(): Theme {
 }
 
 /** Set the theme via the client setting; onChange re-renders sheets and
- *  `_onRender` applies it. No-ops outside Foundry (Storybook/tests). */
+ *  `_onRender` applies it. No-ops outside Foundry (tests). */
 export function setTheme(theme: Theme): void {
   void getGame()?.settings?.set(SETTING_NS, SETTING_KEY, theme);
 }

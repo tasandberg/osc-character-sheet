@@ -106,7 +106,7 @@ describe("buildCrashReport", () => {
     expect(report.oseVersion).toBe("2.0.0");
   });
 
-  it("survives a missing game global (storybook/tests)", async () => {
+  it("survives a missing game global (tests)", async () => {
     const { buildCrashReport } = await loadReporter(DSN);
     const report = buildCrashReport(new Error("boom"));
     expect(report.errorMessage).toBe("boom");
