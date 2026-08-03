@@ -46,7 +46,7 @@ export function getFontScaleSetting(): FontScale {
 }
 
 /** Set the font scale via the client setting; onChange re-renders sheets and
- *  `_onRender` applies it. No-ops outside Foundry (Storybook/tests). */
+ *  `_onRender` applies it. No-ops outside Foundry (tests). */
 export function setFontScale(scale: FontScale): void {
   void getGame()?.settings?.set(SETTING_NS, SETTING_KEY, scale);
 }

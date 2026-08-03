@@ -17,7 +17,7 @@ export default function Abilities() {
 
   return (
     <div className="osc-abilities-tab">
-      <section className="osc-section osc-feat-sec">
+      <section className="osc-section">
         <SectionHeader
           title="Abilities"
           controls={

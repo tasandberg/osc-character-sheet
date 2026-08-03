@@ -3,11 +3,22 @@
 Drives the sheet in a **real Foundry world** and compares two builds. It exists
 because the CSS conversion shipped several defects that every automated gate
 passed: the unit tests assert behaviour, the e2e specs click controls and read
-chat, `verify-classes` only asserts a class exists *somewhere* in the compiled
-CSS, and Storybook has no story for most tabs. None of them looks at geometry.
+chat, and none of them looks at geometry.
 
 Not wired into CI — it needs a live Foundry server. Run it before merging a
 change that touches styling.
+
+## Where this sits among the gates
+
+| gate | in CI | catches |
+| --- | --- | --- |
+| `tools/e2e/specs/surfaces.spec.ts` | no | a tab whose feature surface is missing or unstyled, in a real world |
+| `tools/e2e/specs/tabs.spec.ts` | no | tab layout at each container tier |
+| this harness | no | geometry, against a real Foundry world |
+
+The e2e specs assert that each tab's surface is present and laid out; they do not
+compare pixels. Only a person or this harness notices that a present, correctly
+laid-out tab renders *wrong*.
 
 ## Read this first: three ways this harness lied
 

@@ -4,7 +4,7 @@ import type { KeyboardEvent, MouseEvent } from "react";
 export type ActivateEvent = MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>;
 
 /** Props that turn any element into a keyboard-accessible click target.
- *  Returns nothing when there's no handler (read-only, e.g. Storybook stories). */
+ *  Returns nothing when there's no handler (read-only). */
 export function rollable(onActivate?: (event: ActivateEvent) => void) {
   if (!onActivate) return {};
   return {

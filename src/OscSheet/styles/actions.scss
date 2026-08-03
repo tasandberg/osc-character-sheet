@@ -399,7 +399,7 @@
 // Ability-plaque rollable styling moved to vellum (.plaque-ability.rollable).
 // Stays SCSS: the hover tint is on the row's <td> children, which needs a
 // group-hover the <Tr>/<Td> primitives don't take a className for, and no
-// feature currently renders a rollable <Tr> (Table is Storybook-only today).
+// feature currently renders a rollable <Tr>.
 .table tr.rollable {
   cursor: pointer;
 }

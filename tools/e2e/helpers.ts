@@ -75,6 +75,47 @@ export async function openCharacterSheet(page: Page, actorName: string): Promise
   return sheet;
 }
 
+export type Box = { x: number; y: number; width: number; height: number };
+
+/**
+ * Client rects for every element the locator matches, read in ONE page
+ * evaluation so the set is a consistent snapshot rather than N independently
+ * timed `boundingBox()` calls. Zero-area (collapsed / hidden) elements are kept
+ * — a caller asserting layout wants to see them.
+ */
+export async function boxesOf(locator: Locator): Promise<Box[]> {
+  return locator.evaluateAll((els) =>
+    els.map((el) => {
+      const r = el.getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height };
+    }),
+  );
+}
+
+/**
+ * How many visual rows a set of boxes occupies. Two boxes share a row when their
+ * vertical spans overlap by at least half the shorter one, which tolerates the
+ * few px of height variation real grid cells have without merging genuine rows.
+ *
+ * This is the shape of assertion that catches a layout collapse: six ability
+ * plaques rendering one-per-row are all still perfectly visible, but they go
+ * from 1 row to 6.
+ */
+export function rowsOf(boxes: Box[]): number {
+  const sorted = [...boxes].sort((a, b) => a.y - b.y);
+  let rows = 0;
+  let anchor: Box | null = null;
+  for (const b of sorted) {
+    if (anchor) {
+      const overlap = Math.min(anchor.y + anchor.height, b.y + b.height) - Math.max(anchor.y, b.y);
+      if (overlap >= 0.5 * Math.min(anchor.height, b.height)) continue;
+    }
+    rows++;
+    anchor = b;
+  }
+  return rows;
+}
+
 /** Close any roll dialogs a spec left behind, leaving Foundry's core UI alone. */
 export async function closeDialogs(page: Page): Promise<void> {
   await page.evaluate(() => {

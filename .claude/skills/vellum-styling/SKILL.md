@@ -92,10 +92,10 @@ PortraitField · Die · Empty · Skeleton · Toast/ToastHost · ProseMirrorEdito
 `size="sm"`. The `outline` variant takes a color `tone`: `accent` (teal), `brass`
 (brass-gold), `danger` (crimson), `success` (forest), `warn` (mustard) — generated
 from the palette-synced `$btn-outline-tones` map in `vellum/tokens.scss`, so tone
-names track the color vocabulary and can't drift. See its Storybook story.
+names track the color vocabulary and can't drift.
 
-Browse them in Storybook (`pnpm storybook`); `components/ui/Utilities.stories.tsx`
-demos the utility classes live.
+Read them in `src/OscSheet/components/ui/`; there is no component workbench in this
+repo — see them for real via `pnpm dev` in a local Foundry world.
 
 ## Guardrails (run by `pnpm lint`)
 

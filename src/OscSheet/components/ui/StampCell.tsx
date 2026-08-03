@@ -33,7 +33,7 @@ export function StampCell({
   onResetRequest?: () => void;
 }) {
   return (
-    <div className={cx("ed-cell", overridden && "ovr", warn && "warn")} title={warn ? warnTitle : undefined}>
+    <div className={cx("ed-cell", warn && "warn")} title={warn ? warnTitle : undefined}>
       <span className="ck" title={fullName} aria-label={fullName}>{stampKey}</span>
       <NumberInput className="num" value={value} min={min} max={max} onCommit={onChange} />
       {onResetRequest != null ? (
