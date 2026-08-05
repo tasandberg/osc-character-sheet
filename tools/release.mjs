@@ -2,7 +2,7 @@ import moduleManifest from "../module.json" with { type: "json" };
 import { execSync } from 'child_process';
 
 const args = process.argv.slice(2);
-const { version: currentVersion, url: githubRepository } = moduleManifest;
+const { version: currentVersion } = moduleManifest;
 
 function getArguments() {
   const releaseType = args.find(arg => arg.startsWith('--type='))?.split('=')[1];
@@ -72,7 +72,7 @@ function commitRelease(newVersion) {
 function ensureGithubCLI() {
   try {
     execSync('gh --version', { stdio: 'ignore' });
-  } catch (error) {
+  } catch {
     console.error('Error: GitHub CLI (gh) is not installed or not available in PATH');
     console.error('Please install GitHub CLI: https://cli.github.com/');
     process.exit(1);

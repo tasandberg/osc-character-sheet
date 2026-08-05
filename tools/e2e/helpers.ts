@@ -7,10 +7,6 @@ export const observerUserName = (slot: number) => `E2E Observer ${slot}`;
 
 const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/, "");
 
-declare const game: any;
-declare const foundry: any;
-declare const Actor: any;
-
 /** Join the running world as a named passwordless user and wait for game.ready. */
 export async function joinAsUser(page: Page, label: string): Promise<void> {
   await page.goto(`${URL}/join`, { waitUntil: "domcontentloaded" });
