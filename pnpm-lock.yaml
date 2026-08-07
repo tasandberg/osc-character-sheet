@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@old-school-chronicle/vellum':
-        specifier: ^0.1.0
+        specifier: 0.1.0
         version: 0.1.0
       '@sentry/browser':
         specifier: ^10.63.0
