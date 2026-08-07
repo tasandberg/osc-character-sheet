@@ -6,7 +6,7 @@ A fresh, responsive character sheet for **[Old-School Essentials](https://necrot
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13%E2%80%93v14-informational) ![System: OSE](https://img.shields.io/badge/system-OSE-orange)
 
-Part of the **Old-School Chronicle** toolset, more to come on that soon!
+Part of the **Old-School Chronicle** toolset, more to come on that soon! https://old-school-chronicle.com
 
 ---
 
