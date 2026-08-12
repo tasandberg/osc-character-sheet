@@ -33,10 +33,11 @@ import {
 import type { SendTargetVM } from "@features/inventory/sendTargets";
 import { showTokenVariantsPortraitPicker } from "@domain/tokenVariants";
 import { selectAc } from "@domain/vitals";
+import { selectIdentity } from "@domain/identity";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import { useToast } from "@ui/toastContext";
 import type { OseItem } from "@domain/types";
-import type { IdentityVM, VitalsVM } from "@domain/vm-types";
+import type { VitalsVM } from "@domain/vm-types";
 
 /**
  * Foundry-aware container: computes view-models, fills the Shell layout slots,
@@ -56,15 +57,8 @@ export default function SheetShell() {
   const [editOpen, setEditOpen] = useState(false);
 
   // Layout-slot props built inline from the actor (HeaderBand + Minibar share the shape).
-  const { details, hp, aac, ac, scores, movement, initiative } = actor.system;
-  const identity: IdentityVM = {
-    name: actor.name,
-    img: actor.img,
-    classLabel: details.class,
-    level: details.level,
-    alignment: details.alignment,
-    title: details.title,
-  };
+  const { hp, aac, ac, scores, movement, initiative } = actor.system;
+  const identity = selectIdentity(actor);
   const isAscending = usesAscendingAC();
   const equippedArmor = invItems.filter(
     (i) => i.type === "armor" && i.system.equipped,
@@ -324,11 +318,13 @@ export default function SheetShell() {
     <>
       <EditModal open={editOpen && canEdit} onClose={() => setEditOpen(false)} />
       <Frame
-        tabs={items}
-        active={activeTab.id}
-        onSelect={(id) => {
-          const next = visible.find((t) => t.id === id);
-          if (next) setCurrentTab(next.id);
+        nav={{
+          tabs: items,
+          active: activeTab.id,
+          onSelect: (id) => {
+            const next = visible.find((t) => t.id === id);
+            if (next) setCurrentTab(next.id);
+          },
         }}
         topbar={
           <Topbar

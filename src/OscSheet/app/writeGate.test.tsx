@@ -45,6 +45,7 @@ function render(actor: OSEActor, canEdit: boolean, optimistic = false) {
         source={actor}
         contextConnector={connector}
         canEdit={canEdit}
+        canViewFullSheet
       >
         {optimistic ? <OptimisticProvider>{inner}</OptimisticProvider> : inner}
       </OscSheetProvider>,
@@ -124,6 +125,7 @@ describe("write layer — canEdit re-derives from the published context", () => 
           source={actor}
           contextConnector={liveConnector}
           canEdit={canEdit}
+          canViewFullSheet
         >
           <Capture />
         </OscSheetProvider>,

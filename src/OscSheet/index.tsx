@@ -15,6 +15,7 @@ import { useOscSheetContext } from "@app/context";
 import { OptimisticProvider } from "@app/OptimisticProvider";
 import { SheetErrorBoundary, CrashTestProbe } from "@app/ErrorBoundary";
 import SheetShell from "@app/SheetShell";
+import LimitedSheet from "@app/LimitedSheet";
 import { ToastProvider } from "@ui/ToastHost";
 import { useEffect, useRef, type ReactNode } from "react";
 
@@ -27,7 +28,7 @@ import { useEffect, useRef, type ReactNode } from "react";
  *  `.is-readonly` while the provider's gate re-derived — leaving the sheet
  *  functionally editable but still styled read-only after a mid-session grant. */
 function ThemedRoot({ children }: { children: ReactNode }) {
-  const { canEdit } = useOscSheetContext();
+  const { canEdit, canViewFullSheet } = useOscSheetContext();
   const appRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,7 +45,7 @@ function ThemedRoot({ children }: { children: ReactNode }) {
   // role-less div; the individual controls carry their own a11y state.)
   return (
     <div
-      className={`osc-sheet-app${canEdit ? "" : " is-readonly"}`}
+      className={`osc-sheet-app${canEdit ? "" : " is-readonly"}${canViewFullSheet ? "" : " is-limited"}`}
       ref={appRef}
     >
       {children}
@@ -52,15 +53,22 @@ function ThemedRoot({ children }: { children: ReactNode }) {
   );
 }
 
+function SheetBody() {
+  const { canViewFullSheet } = useOscSheetContext();
+  return canViewFullSheet ? <SheetShell /> : <LimitedSheet />;
+}
+
 function OscSheetApp({
   actor,
   source,
   contextConnector,
   isEditable,
+  canViewFullSheet,
 }: OscSheetAppProps) {
   // Seeds the provider's gate; it re-derives from every published context after.
   // Falls back to ownership when mounted outside a Foundry sheet (tests).
   const canEdit = isEditable ?? actor?.isOwner ?? false;
+  const canViewFull = canViewFullSheet ?? !actor?.limited;
   return (
     <SheetErrorBoundary actor={actor}>
       <OscSheetProvider
@@ -68,11 +76,12 @@ function OscSheetApp({
         source={source!}
         contextConnector={contextConnector}
         canEdit={canEdit}
+        canViewFullSheet={canViewFull}
       >
         <ThemedRoot>
           <ToastProvider>
             <OptimisticProvider>
-              <SheetShell />
+              <SheetBody />
               <CrashTestProbe />
             </OptimisticProvider>
           </ToastProvider>

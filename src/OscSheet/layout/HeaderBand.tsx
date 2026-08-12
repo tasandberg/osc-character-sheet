@@ -1,31 +1,10 @@
-import { useLayoutEffect, useRef } from "react";
 import type { EncumbranceVM, IdentityVM, VitalsVM } from "@domain/vm-types";
 import { armorTierLabel, formatMod } from "@domain/format";
+import { Identity } from "@layout/Identity";
+import { Portrait } from "@layout/Portrait";
 import { Stamp } from "@ui/Stamp";
 import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
-
-/** Shrink a single-line element's font to fit its box (down to `min`x) instead of
- *  truncating. Sets `--fit-scale`; CSS multiplies the base font-size by it. */
-function useFitText(text: string, min = 0.6) {
-  const ref = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const fit = () => {
-      el.style.setProperty("--fit-scale", "1");
-      const avail = el.clientWidth;
-      const needed = el.scrollWidth;
-      const scale = needed > avail && needed > 0 ? Math.max(min, avail / needed) : 1;
-      el.style.setProperty("--fit-scale", String(scale));
-    };
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [text, min]);
-  return ref;
-}
 
 // Tiers are container queries: `app` for the XS compact header, `sheet` for the
 // narrow left rail in the two-pane view. The two can never both match — `sheet`
@@ -106,63 +85,15 @@ type Props = {
  *  · HP/AC in medium, and stack them in the rail. */
 export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitContextMenu, canEditPortrait }: Props) {
   const m = vitals.moveBands;
-  const nameRef = useFitText(identity.name);
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   return (
     <div className="osc-head">
-      {/* `.profile` / `.profile-img` mirror the OSE sheet so modules keyed on
-          those selectors match. The `.modifiers-btn` overlay that portrait-
-          decorating modules (e.g. OSR Character Builder) inject into is created
-          imperatively in osc-sheet.js — outside React's tree — so React
-          never clobbers an injected child. */}
-      {/* `align-self` spans both header rows in medium (= full header height);
-          the rail and XS centre it instead. */}
-      <div className="osc-portrait-wrap profile tw:relative tw:w-[110px] tw:self-stretch tw:@max-md/app:h-[54px] tw:@max-md/app:w-[54px] tw:@max-md/app:self-center tw:@twopane/sheet:h-[120px] tw:@twopane/sheet:w-[120px] tw:@twopane/sheet:self-center">
-        {/* `data-action="editImage"` (core AppV2 vocabulary) rides the frame's
-            delegated click listener — no React onClick needed — and doubles as
-            a compat surface for modules keyed on the core attribute. Rendered
-            only when editable so non-owners get no action and no affordance.
-
-            `absolute` so the IMG's intrinsic size can't inflate the row height.
-            The hover tint is written for both tiers: container-query utilities
-            emit after `hover:` ones, so an unqualified `hover:border-gold` would
-            lose to the XS border colour at XS. */}
-        <img
-          className={
-            "osc-portrait profile-img tw:absolute tw:inset-0 tw:h-full tw:w-full tw:rounded-md" +
-            " tw:border-2 tw:border-gold-dim tw:bg-[radial-gradient(circle_at_50%_35%,#2c281f,#15130e)]" +
-            " tw:object-cover tw:shadow-[0_1px_4px_rgba(0,0,0,0.4)]" +
-            " tw:@max-md/app:border tw:@max-md/app:border-border tw:@max-md/app:shadow-none" +
-            (canEditPortrait
-              ? " tw:cursor-pointer tw:hover:border-gold tw:@max-md/app:hover:border-gold"
-              : "")
-          }
-          src={identity.img || undefined}
-          alt={identity.name}
-          data-action={canEditPortrait ? "editImage" : undefined}
-          data-edit="img"
-          title={identity.name}
-          onContextMenu={onPortraitContextMenu}
-        />
-      </div>
-      {/* `overflow-hidden` so a long name ellipsizes instead of pushing HP/AC
-          off-screen. In the rail the column fills its track (don't size to
-          content) so useFitText has a real width to shrink the name against. */}
-      <div className="osc-ident tw:flex tw:min-w-0 tw:flex-col tw:gap-[2px] tw:overflow-hidden tw:@twopane/sheet:w-full tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
-        {/* The name's font-size is the one thing left in actions.scss — see the
-            note there on why three tiers across two containers can't be
-            utilities. */}
-        <div
-          className="osc-name tw:overflow-hidden tw:font-display tw:leading-[0.95] tw:tracking-[0.01em] tw:whitespace-nowrap tw:text-text tw:@max-md/app:text-ellipsis tw:@twopane/sheet:self-stretch tw:@twopane/sheet:text-center"
-          ref={nameRef}
-        >
-          {identity.name}
-        </div>
-        <div className="osc-class tw:font-display tw:text-[length:var(--fs-md)] tw:text-gold tw:@twopane/sheet:text-center">
-          {identity.classLabel} {identity.level}
-          {identity.title ? ` · ${identity.title}` : ""} · {identity.alignment}
-        </div>
-      </div>
+      <Portrait
+        identity={identity}
+        canEdit={canEditPortrait}
+        onContextMenu={onPortraitContextMenu}
+      />
+      <Identity identity={identity} />
       <div className="osc-substats tw:flex tw:gap-2 tw:self-start tw:@max-md/app:grid tw:@max-md/app:grid-cols-3 tw:@twopane/sheet:grid tw:@twopane/sheet:w-full tw:@twopane/sheet:grid-cols-3">
         <div className={TILE}>
           <Stamp className={TILE_STAMP}>INIT</Stamp>

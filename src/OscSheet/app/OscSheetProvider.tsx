@@ -10,17 +10,22 @@ function OscSheetProvider({
   source,
   contextConnector,
   canEdit: initialCanEdit,
+  canViewFullSheet: initialCanViewFullSheet,
 }: {
   initialActor: OSEActor;
   source: OSEActor;
   children: ReactNode;
   contextConnector?: ContextConnector<OscContext>;
   canEdit: boolean;
+  canViewFullSheet: boolean;
 }) {
   const [actor, setActor] = useState<OSEActor>(initialActor);
   // Props reach React only at mount, so the edit gate lives in state and re-derives
   // from every published context — a GM granting ownership mid-session unlocks the sheet.
   const [canEdit, setCanEdit] = useState(initialCanEdit);
+  const [canViewFullSheet, setCanViewFullSheet] = useState(
+    initialCanViewFullSheet
+  );
   const [actorData, setActorData] = useState(initialActor.system);
   const [items, setItems] = useState<OseItem[]>(
     initialActor.items.contents as OseItem[]
@@ -54,10 +59,11 @@ function OscSheetProvider({
 
   useEffect(() => {
     const handleUpdate = foundry.utils.debounce(
-      ({ document, isEditable }: OscContext) => {
+      ({ document, isEditable, canViewFullSheet }: OscContext) => {
         _setTimestampedActor(document);
         setItems([...(document.items.contents as OseItem[])]);
         setCanEdit(isEditable ?? document.isOwner ?? false);
+        setCanViewFullSheet(canViewFullSheet ?? !document.limited);
       },
       200
     );
@@ -77,6 +83,7 @@ function OscSheetProvider({
     setCurrentTab,
     updateActor,
     canEdit,
+    canViewFullSheet,
   };
 
   return (

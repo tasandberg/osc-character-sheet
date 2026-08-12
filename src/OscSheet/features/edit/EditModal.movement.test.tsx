@@ -120,6 +120,7 @@ function render(actor: OSEActor) {
         source={actor}
         contextConnector={connector}
         canEdit
+        canViewFullSheet
       >
         <EditModal open onClose={() => {}} />
       </OscSheetProvider>,
