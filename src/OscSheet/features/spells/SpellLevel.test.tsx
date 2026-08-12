@@ -386,16 +386,16 @@ describe("a level with no spells", () => {
 });
 
 describe("spellbook entry", () => {
-  it("acts through a labelled Memorize button, not the row", () => {
+  it("acts through a labelled Memorise button, not the row", () => {
     render();
     openBook();
     const entry = q(".osc-book .osc-bookspell")!;
     expect(entry.tagName).toBe("DIV");
     const memorize = q<HTMLButtonElement>(".osc-bookspell-memorise")!;
-    expect(memorize.textContent).toBe("Memorize");
+    expect(memorize.textContent).toBe("Memorise");
   });
 
-  it("disables Memorize at capacity but leaves the delete usable", () => {
+  it("disables Memorise at capacity but leaves the delete usable", () => {
     render(overridden);
     // 5 stored slots, none occupied — memorising is open.
     openBook();

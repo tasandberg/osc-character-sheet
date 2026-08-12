@@ -21,7 +21,7 @@ const HEAD_LV =
 const HEAD_SC = "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
 
 /** Spellbook entry — a full-width dashed card. Inert itself: the actions are the
- *  Memorize button and, when the sheet is editable, a delete. */
+ *  Memorise button and, when the sheet is editable, a delete. */
 const BOOKSPELL =
   "osc-bookspell tw:flex tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim";
 /** Empty state, framed like a row — `.osc-spell` carries no box of its own, so
@@ -203,9 +203,9 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                   className="osc-bookspell-memorise tw:font-sans tw:text-[length:var(--fs-2xs)] tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
-                  title={atCapacity ? "No slots left at this level" : `Memorize ${spell.name}`}
+                  title={atCapacity ? "No slots left at this level" : `Memorise ${spell.name}`}
                 >
-                  Memorize
+                  Memorise
                 </InlineButton>
                 <IconButton
                   variant="danger"
