@@ -200,7 +200,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
               <div key={spell._id as string} className={BOOKSPELL}>
                 <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">{spell.name}</span>
                 <InlineButton
-                  className="osc-bookspell-memorise tw:font-sans tw:text-[length:var(--fs-2xs)] tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
+                  className="osc-bookspell-memorise tw:font-sans tw:text-[length:var(--fs-2xs)] tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
                   title={atCapacity ? "No slots left at this level" : `Memorize ${spell.name}`}
