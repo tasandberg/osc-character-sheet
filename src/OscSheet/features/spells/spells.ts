@@ -3,6 +3,7 @@ import type { SpellLevelVM } from "@domain/vm-types";
 import { MODULE_ID, FLAGS, readFlag, setFlag, unsetFlag } from "@domain/flags";
 import { selectSpellSlotDefaults } from "@domain/classRules";
 import { isFavorite } from "@domain/favorites";
+import { createOwnedItem } from "@domain/createOwnedItem";
 
 export { isFavorite, toggleFavorite } from "@domain/favorites";
 
@@ -55,6 +56,11 @@ export async function castFree(actor: OSEActor, spell: OseSpell, max: number): P
   const spent = spellPointsSpent(actor);
   await setFlag(actor, FLAGS.spellPoints, { ...spent, [level]: (spent[level] ?? 0) + 1 });
   await (spell.system.roll ? spell.rollFormula() : spell.show());
+}
+
+/** Create a blank spell on the actor and open it. OSE's template defaults it to level 1. */
+export function createSpell(actor: OSEActor): Promise<void> {
+  return createOwnedItem(actor, "spell");
 }
 
 /** Rest in free-casting mode: clear all spent points. */

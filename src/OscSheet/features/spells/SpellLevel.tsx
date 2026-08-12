@@ -5,6 +5,8 @@ import type { SpellLevelVM } from "@domain/vm-types";
 import { spellMeta, castFree, isFavorite, toggleFavorite } from "@features/spells/spells";
 import { SpellRow } from "@features/spells/SpellRow";
 import { SlotMaxDialog } from "@features/spells/SlotMaxDialog";
+import { showDeleteDialog } from "@domain/foundryDialogs";
+import { IconButton } from "@ui/IconButton";
 import { cx } from "@ui/cx";
 import { Pips } from "@ui/Pips";
 
@@ -17,10 +19,12 @@ const HEAD_LV =
   "lv tw:rounded-sm tw:bg-ink tw:px-2 tw:pt-[3px] tw:pb-[2px] tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.06em] tw:text-stamp-text";
 const HEAD_SC = "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
 
-/** Spellbook entry — a dashed card, clickable (button) when the sheet is
- *  editable and static (span) when it isn't. */
+/** Spellbook entry — a dashed card holding the memorise action and, when the
+ *  sheet is editable, a delete. Static (a bare span) when it isn't. */
 const BOOKSPELL =
-  "osc-bookspell tw:flex tw:cursor-pointer tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:not-disabled:border-solid tw:hover:not-disabled:border-gold-dim tw:disabled:cursor-not-allowed tw:disabled:opacity-40";
+  "osc-bookspell tw:flex tw:items-center tw:gap-1 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:border-solid tw:hover:border-gold-dim";
+const BOOKMEMORISE =
+  "osc-bookspell-memorise tw:flex tw:min-w-0 tw:flex-1 tw:cursor-pointer tw:items-center tw:gap-2 tw:text-left tw:disabled:cursor-not-allowed tw:disabled:opacity-40";
 
 /**
  * One spell level: ink-stamp "Level N" badge + "used / max" + slot pips,
@@ -34,6 +38,8 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   const [bookOpen, setBookOpen] = useState(false);
 
   const editSlots = <SlotMaxDialog level={level} max={slots.max} defaultMax={defaultMax} />;
+
+  const remove = (spell: OseSpell) => showDeleteDialog(spell);
 
   const meta = (spell: OseSpell) =>
     spellMeta(spell).map((p) => (
@@ -81,6 +87,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
               onToggleFavorite={canEdit ? () => void toggleFavorite(spell) : undefined}
               canCast={canEdit}
               onCast={() => castFree(actor, spell, points.max)}
+              onDelete={canEdit ? () => remove(spell) : undefined}
               onOpenName={() => spell.sheet.render(true)}
             />
           ))
@@ -196,23 +203,34 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
               // slots — always a "+", never a checkmark, and no "prepared"
               // highlight (adding one is reflected in the prepared rows above).
               return (
-                <button
-                  type="button"
-                  key={spell._id as string}
-                  className={BOOKSPELL}
-                  disabled={atCapacity}
-                  onClick={() => prepare(spell)}
-                  title={atCapacity ? "No slots left at this level" : `Memorise ${spell.name}`}
-                >
-                  <span className="bn tw:min-w-0 tw:truncate">{spell.name}</span>
-                  {/* own line box so the FA plus centers instead of riding the serif baseline */}
-                  <span
-                    className="pa tw:ml-auto tw:inline-flex tw:items-center tw:text-[0.85em] tw:leading-flush tw:text-text-faint"
-                    aria-hidden="true"
+                <div key={spell._id as string} className={BOOKSPELL}>
+                  <button
+                    type="button"
+                    className={BOOKMEMORISE}
+                    disabled={atCapacity}
+                    onClick={() => prepare(spell)}
+                    title={atCapacity ? "No slots left at this level" : `Memorise ${spell.name}`}
                   >
-                    <i className="fa-solid fa-plus" />
-                  </span>
-                </button>
+                    <span className="bn tw:min-w-0 tw:truncate">{spell.name}</span>
+                    {/* own line box so the FA plus centers instead of riding the serif baseline */}
+                    <span
+                      className="pa tw:ml-auto tw:inline-flex tw:items-center tw:text-[0.85em] tw:leading-flush tw:text-text-faint"
+                      aria-hidden="true"
+                    >
+                      <i className="fa-solid fa-plus" />
+                    </span>
+                  </button>
+                  <IconButton
+                    variant="danger"
+                    size="sm"
+                    className="sp-delete"
+                    onClick={() => remove(spell)}
+                    title={`Delete ${spell.name}`}
+                    aria-label={`Delete ${spell.name}`}
+                  >
+                    <i className="fa-solid fa-trash-can" aria-hidden="true" />
+                  </IconButton>
+                </div>
               );
             })
           )}
