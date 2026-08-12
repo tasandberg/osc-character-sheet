@@ -350,3 +350,37 @@ describe("removing a spell", () => {
     expect(q(".sp-delete")).toBeNull();
   });
 });
+
+describe("a level with no spells", () => {
+  /** Caster with slots from the class table but an empty spell list. */
+  const bare = {
+    system: {
+      details: { class: "Cleric", level: 3 },
+      spells: { spellList: {}, slots: { 1: { used: 0, max: 0 } }, enabled: true },
+    },
+    _source: { system: { spells: {} } },
+  } as unknown as OSEActor;
+
+  it("shows one framed message, not a memorise line plus an empty book", () => {
+    render(bare);
+    const empties = host.querySelectorAll(".osc-spell-empty");
+    expect(empties).toHaveLength(1);
+    expect(empties[0].textContent).toBe("No spells at this level.");
+  });
+
+  it("hides the spellbook toggle — there is nothing to open", () => {
+    render(bare);
+    expect(q(".osc-bookbtn")).toBeNull();
+  });
+
+  it("still offers the spellbook once a spell is known", () => {
+    render();
+    expect(q(".osc-bookbtn")).not.toBeNull();
+    expect(text(".osc-spell-empty")).toBe("None memorised — open the spellbook.");
+  });
+
+  it("frames the free-casting empty state too", () => {
+    render(bare, true, true);
+    expect(text(".osc-spell-empty")).toBe("No spells at this level.");
+  });
+});
