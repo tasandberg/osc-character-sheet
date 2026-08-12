@@ -20,6 +20,7 @@ export type OscContext = {
   /** Foundry's `sheet.isEditable`, republished on every render (ownership can change
    *  while the sheet is open). Absent outside a Foundry sheet (tests). */
   isEditable?: boolean;
+  canViewFullSheet?: boolean;
 };
 
 export type OscSheetAppProps = {
@@ -29,6 +30,7 @@ export type OscSheetAppProps = {
   /** Foundry's `sheet.isEditable`. When omitted, edit gating falls back to
    *  `actor.isOwner` (e.g. tests that mount the app directly). */
   isEditable?: boolean;
+  canViewFullSheet?: boolean;
 };
 
 // Define the shape of your context value here
@@ -42,6 +44,7 @@ export interface OscSheetContextValue {
   /** Global edit gate: true for owners, false for observers/limited (read-only
    *  sheet). Components hide/disable write affordances when false. */
   canEdit: boolean;
+  canViewFullSheet: boolean;
   updateActor: (updateData: Record<string, unknown>) => Promise<OSEActor | void>;
   /** Apply an optimistic patch (flat dot-paths) to a doc immediately, run the real
    *  Foundry write, and reconcile/rollback async. `key` = item `_id` or "actor".

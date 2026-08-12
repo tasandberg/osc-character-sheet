@@ -138,24 +138,6 @@
 // ----- horizontal tab bar (shown when wide) -----
 // The bar box and its lg reveal are utilities in TabBar.tsx.
 
-// ----- placeholder layout region -----
-.osc-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacer-1);
-  text-align: center;
-  min-height: 64px;
-  padding: var(--spacer-4);
-  border: 1px dashed var(--border, #3a342c);
-  border-radius: var(--r-md, 6px);
-  color: var(--text-mute, #8a8270);
-  background: color-mix(in srgb, var(--surface, #23201a) 40%, transparent);
-}
-.osc-placeholder + .osc-placeholder { margin-top: var(--spacer-3); }
-// .osc-ph-label / .osc-ph-hint type is utilities in Placeholder.tsx.
-
 // Saves & Skills relocates: hidden in the left column when collapsed (it renders
 // inside the Actions tab content there), shown in the left rail when expanded.
 // Both states are utilities in Frame.tsx.

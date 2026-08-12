@@ -6,6 +6,7 @@ import {
   alignedMenuLeft,
   findTweaksSheetEntry,
 } from "@src/applications/header-controls";
+import { canUserViewFullSheet } from "@src/OscSheet/domain/ownership";
 
 import { ReactActorSheetV2 } from "foundry-vtt-react";
 
@@ -202,6 +203,7 @@ class OscSheet extends ReactActorSheetV2 {
     // Published on every render (initialProps only reach React at mount), so the
     // sheet re-derives its edit gate when ownership changes while it's open.
     context.isEditable = this.isEditable;
+    context.canViewFullSheet = canUserViewFullSheet(this.document, game.user);
     context.initialProps = {
       actor: context.document,
       source: context.source,
@@ -209,6 +211,7 @@ class OscSheet extends ReactActorSheetV2 {
       // Foundry's authoritative edit gate (ownership + lock/compendium state).
       // React falls back to actor.isOwner when this is absent (tests).
       isEditable: this.isEditable,
+      canViewFullSheet: context.canViewFullSheet,
     };
     return context;
   }

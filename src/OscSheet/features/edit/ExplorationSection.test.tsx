@@ -48,6 +48,7 @@ function render(actor: OSEActor, canEdit = true) {
         source={actor}
         contextConnector={connector}
         canEdit={canEdit}
+        canViewFullSheet
       >
         <ExplorationSection />
       </OscSheetProvider>,

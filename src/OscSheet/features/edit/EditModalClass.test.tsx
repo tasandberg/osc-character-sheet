@@ -126,6 +126,7 @@ const renderModal = (actor: OSEActor) =>
         source={actor}
         contextConnector={connector}
         canEdit
+        canViewFullSheet
       >
         <EditModal open onClose={() => {}} />
       </OscSheetProvider>,
@@ -142,6 +143,7 @@ describe("EditModal class combobox", () => {
           source={actor}
           contextConnector={connector}
           canEdit
+          canViewFullSheet
         >
           <EditModal open onClose={() => {}} />
         </OscSheetProvider>,
@@ -191,6 +193,7 @@ describe("EditModal alignment combobox", () => {
           source={actor}
           contextConnector={connector}
           canEdit
+          canViewFullSheet
         >
           <EditModal open onClose={() => {}} />
         </OscSheetProvider>,
