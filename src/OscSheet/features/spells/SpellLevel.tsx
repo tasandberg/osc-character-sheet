@@ -2,7 +2,12 @@ import { useState } from "react";
 import { useOscSheetContext } from "@app/context";
 import type { OseSpell } from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
-import { spellMeta, castFree, isFavorite, toggleFavorite } from "@features/spells/spells";
+import {
+  spellMeta,
+  castFree,
+  isFavorite,
+  toggleFavorite,
+} from "@features/spells/spells";
 import { SpellRow } from "@features/spells/SpellRow";
 import { SlotMaxDialog } from "@features/spells/SlotMaxDialog";
 import { showDeleteDialog } from "@domain/foundryDialogs";
@@ -18,10 +23,11 @@ const HEAD =
  *  on the ink chip in BOTH themes and is lighter than the gold accent. */
 const HEAD_LV =
   "lv tw:rounded-sm tw:bg-ink tw:px-2 tw:pt-[3px] tw:pb-[2px] tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.06em] tw:text-stamp-text";
-const HEAD_SC = "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
+const HEAD_SC =
+  "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
 
 /** Spellbook entry — a full-width dashed card. Inert itself: the actions are the
- *  Memorise button and, when the sheet is editable, a delete. */
+ *  memorize button and, when the sheet is editable, a delete. */
 const BOOKSPELL =
   "osc-bookspell tw:flex tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim";
 /** Empty state, framed like a row — `.osc-spell` carries no box of its own, so
@@ -37,10 +43,21 @@ const EMPTY_ROW =
  */
 export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   const { actor, canEdit } = useOscSheetContext();
-  const { level, slots, defaultMax, occupied, prepared, spellbook, freeCasting, points } = vm;
+  const {
+    level,
+    slots,
+    defaultMax,
+    occupied,
+    prepared,
+    spellbook,
+    freeCasting,
+    points,
+  } = vm;
   const [bookOpen, setBookOpen] = useState(false);
 
-  const editSlots = <SlotMaxDialog level={level} max={slots.max} defaultMax={defaultMax} />;
+  const editSlots = (
+    <SlotMaxDialog level={level} max={slots.max} defaultMax={defaultMax} />
+  );
 
   const remove = (spell: OseSpell) => showDeleteDialog(spell);
 
@@ -84,7 +101,9 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
               spent={exhausted}
               spentTitle="No spell points left at this level (Study to recover)"
               favorite={isFavorite(spell)}
-              onToggleFavorite={canEdit ? () => void toggleFavorite(spell) : undefined}
+              onToggleFavorite={
+                canEdit ? () => void toggleFavorite(spell) : undefined
+              }
               canCast={canEdit}
               onCast={() => castFree(actor, spell, points.max)}
               onDelete={canEdit ? () => remove(spell) : undefined}
@@ -97,11 +116,11 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   }
 
   // Capacity is measured in OCCUPIED slots (sum of memorized), which persists across
-  // casts — so you can't over-memorise even after spells are spent.
+  // casts — so you can't over-memorize even after spells are spent.
   const atCapacity = occupied >= slots.max;
   const empty = spellbook.length === 0;
 
-  // Memorise into a slot: bump both memorized (the selection) and cast (a ready cast).
+  // memorize into a slot: bump both memorized (the selection) and cast (a ready cast).
   const prepare = (spell: OseSpell) => {
     if (atCapacity) return;
     void spell.update({
@@ -139,7 +158,9 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
 
       {prepared.length === 0 ? (
         <div className={cx(EMPTY_ROW, empty && "tw:rounded-b-[7px]")}>
-          {empty ? "No spells at this level." : "None memorised — open the spellbook."}
+          {empty
+            ? "No spells at this level."
+            : "None memorized — open the spellbook."}
         </div>
       ) : (
         prepared.map((spell) => {
@@ -185,11 +206,16 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
       {bookOpen && !empty && (
         <div className="osc-book tw:flex tw:flex-col tw:gap-1 tw:rounded-b-[7px] tw:border tw:border-t-0 tw:border-border-soft tw:bg-bg-2 tw:p-2">
           {spellbook.map((spell) => {
-            // Read-only: list known spells as static rows (no memorise action).
+            // Read-only: list known spells as static rows (no memorize action).
             if (!canEdit) {
               return (
-                <span key={spell._id as string} className={`${BOOKSPELL} is-static`}>
-                  <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">{spell.name}</span>
+                <span
+                  key={spell._id as string}
+                  className={`${BOOKSPELL} is-static`}
+                >
+                  <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">
+                    {spell.name}
+                  </span>
                 </span>
               );
             }
@@ -198,14 +224,20 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
             // prepared rows above).
             return (
               <div key={spell._id as string} className={BOOKSPELL}>
-                <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">{spell.name}</span>
+                <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">
+                  {spell.name}
+                </span>
                 <InlineButton
                   className="osc-bookspell-memorise tw:font-sans tw:text-[length:var(--fs-2xs)] tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
-                  title={atCapacity ? "No slots left at this level" : `Memorise ${spell.name}`}
+                  title={
+                    atCapacity
+                      ? "No slots left at this level"
+                      : `Memorize ${spell.name}`
+                  }
                 >
-                  Memorise
+                  Memorize
                 </InlineButton>
                 <IconButton
                   variant="danger"
