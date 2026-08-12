@@ -11,28 +11,18 @@ type Nav = {
 };
 
 type Props = {
-  /** Active tab body — rendered in the right pane. */
   children: ReactNode;
-  /** Omitted on sheets with a single fixed body: rail, tab bar and bottom bar all drop out. */
+  /** Absent → no rail, tab bar or bottom bar. */
   nav?: Nav;
-  /** Optional layout slots; each region is omitted when its slot is absent. */
   topbar?: ReactNode;
   header?: ReactNode;
   railExtra?: ReactNode;
-  /** Pinned bar inside the sheet scroller (medium layout, collapsed header). */
   minibar?: ReactNode;
 };
 
-/**
- * Presentational app frame. Layout regions are slots; the right pane mounts the
- * active tab body. Responsive reflow lives in shell.scss.
- */
 export function Frame({ nav, children, topbar, header, railExtra, minibar }: Props) {
   return (
     <>
-      {/* Always dark: --ink and the stamp-* text tokens are constant across
-          themes, so the bar reads identically in dark and cream. Padding is a
-          touch deeper below the bar than above it. */}
       {topbar && (
         <div className="osc-topbar tw:border-b tw:border-border tw:bg-ink tw:px-2 tw:pt-1 tw:pb-2">
           {topbar}
@@ -45,7 +35,6 @@ export function Frame({ nav, children, topbar, header, railExtra, minibar }: Pro
             <div className="osc-twopane">
               <div className="osc-left">
                 {header}
-                {/* hidden in the collapsed left column; relocates into the expanded rail */}
                 {railExtra && (
                   <div className="osc-rail-extra tw:hidden tw:@twopane/sheet:mt-3 tw:@twopane/sheet:block">
                     {railExtra}
