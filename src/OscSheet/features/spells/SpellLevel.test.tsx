@@ -384,3 +384,22 @@ describe("a level with no spells", () => {
     expect(text(".osc-spell-empty")).toBe("No spells at this level.");
   });
 });
+
+describe("spellbook entry", () => {
+  it("acts through a labelled Memorize button, not the row", () => {
+    render();
+    openBook();
+    const entry = q(".osc-book .osc-bookspell")!;
+    expect(entry.tagName).toBe("DIV");
+    const memorize = q<HTMLButtonElement>(".osc-bookspell-memorise")!;
+    expect(memorize.textContent).toBe("Memorize");
+  });
+
+  it("disables Memorize at capacity but leaves the delete usable", () => {
+    render(overridden);
+    // 5 stored slots, none occupied — memorising is open.
+    openBook();
+    expect(q<HTMLButtonElement>(".osc-bookspell-memorise")!.disabled).toBe(false);
+    expect(q<HTMLButtonElement>(".osc-book .sp-delete")!.disabled).toBe(false);
+  });
+});

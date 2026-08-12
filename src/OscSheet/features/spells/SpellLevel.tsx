@@ -9,6 +9,7 @@ import { showDeleteDialog } from "@domain/foundryDialogs";
 import { IconButton } from "@ui/IconButton";
 import { cx } from "@ui/cx";
 import { Pips } from "@ui/Pips";
+import { InlineButton } from "@ui/InlineButton";
 
 // --- level head: badge · ready count · slot pips ---
 const HEAD =
@@ -19,17 +20,14 @@ const HEAD_LV =
   "lv tw:rounded-sm tw:bg-ink tw:px-2 tw:pt-[3px] tw:pb-[2px] tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.06em] tw:text-stamp-text";
 const HEAD_SC = "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
 
-/** Spellbook entry — a dashed card holding the memorise action and, when the
- *  sheet is editable, a delete. Static (a bare span) when it isn't. */
+/** Spellbook entry — a full-width dashed card. Inert itself: the actions are the
+ *  Memorize button and, when the sheet is editable, a delete. */
 const BOOKSPELL =
-  "osc-bookspell tw:flex tw:items-center tw:gap-1 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:border-solid tw:hover:border-gold-dim";
+  "osc-bookspell tw:flex tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim";
 /** Empty state, framed like a row — `.osc-spell` carries no box of its own, so
  *  the bare markup this replaced fell outside the panel. */
 const EMPTY_ROW =
   "osc-spell-empty tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2 tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint";
-
-const BOOKMEMORISE =
-  "osc-bookspell-memorise tw:flex tw:min-w-0 tw:flex-1 tw:cursor-pointer tw:items-center tw:gap-2 tw:text-left tw:disabled:cursor-not-allowed tw:disabled:opacity-40";
 
 /**
  * One spell level: ink-stamp "Level N" badge + "used / max" + slot pips,
@@ -185,38 +183,30 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         </button>
       )}
       {bookOpen && !empty && (
-        // 2-col once the sheet body has room, 1-col when narrow.
-        <div className="osc-book tw:grid tw:grid-cols-1 tw:gap-1 tw:rounded-b-[7px] tw:border tw:border-t-0 tw:border-border-soft tw:bg-bg-2 tw:p-2 tw:@min-[470px]/sheet:grid-cols-2">
+        <div className="osc-book tw:flex tw:flex-col tw:gap-1 tw:rounded-b-[7px] tw:border tw:border-t-0 tw:border-border-soft tw:bg-bg-2 tw:p-2">
           {spellbook.map((spell) => {
             // Read-only: list known spells as static rows (no memorise action).
             if (!canEdit) {
               return (
                 <span key={spell._id as string} className={`${BOOKSPELL} is-static`}>
-                  <span className="bn tw:min-w-0 tw:truncate">{spell.name}</span>
+                  <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">{spell.name}</span>
                 </span>
               );
             }
-            // Spellbook always MEMORISES (adds a copy) up to the level's free
-            // slots — always a "+", never a checkmark, and no "prepared"
-            // highlight (adding one is reflected in the prepared rows above).
+            // Memorising ADDS a copy up to the level's free slots — never a
+            // toggle, and no "prepared" highlight (an added copy shows up in the
+            // prepared rows above).
             return (
               <div key={spell._id as string} className={BOOKSPELL}>
-                <button
-                  type="button"
-                  className={BOOKMEMORISE}
+                <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">{spell.name}</span>
+                <InlineButton
+                  className="osc-bookspell-memorise tw:font-sans tw:text-[length:var(--fs-2xs)] tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
-                  title={atCapacity ? "No slots left at this level" : `Memorise ${spell.name}`}
+                  title={atCapacity ? "No slots left at this level" : `Memorize ${spell.name}`}
                 >
-                  <span className="bn tw:min-w-0 tw:truncate">{spell.name}</span>
-                  {/* own line box so the FA plus centers instead of riding the serif baseline */}
-                  <span
-                    className="pa tw:ml-auto tw:inline-flex tw:items-center tw:text-[0.85em] tw:leading-flush tw:text-text-faint"
-                    aria-hidden="true"
-                  >
-                    <i className="fa-solid fa-plus" />
-                  </span>
-                </button>
+                  Memorize
+                </InlineButton>
                 <IconButton
                   variant="danger"
                   size="sm"
