@@ -3,6 +3,7 @@ import type { InventoryItemVM } from "@domain/vm-types";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
 import { UsesRow } from "@features/inventory/rows/UsesRow";
+import { ItemControls } from "@features/inventory/ItemControls";
 import { Button } from "@ui/Button";
 import { countedLoad, loadText, EQUIPPED } from "@features/inventory/groups";
 import {
@@ -88,6 +89,7 @@ function RowInner({
   item,
   canEdit,
   variant,
+  showControls,
   onEquip,
   onOpen,
   onSetQty,
@@ -95,6 +97,7 @@ function RowInner({
   item: InventoryItemVM;
   canEdit: boolean;
   variant?: string;
+  showControls?: boolean;
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onSetQty: (id: string, value: number) => void;
@@ -120,6 +123,7 @@ function RowInner({
       <span className={INV_ROWCAT}>{item.category}</span>
       <span className={INV_WT}>{loadText(countedLoad(item, variant))}</span>
       <RowEquip item={item} onEquip={onEquip} />
+      {showControls && <ItemControls itemId={item.id} />}
     </>
   );
 }
@@ -134,6 +138,7 @@ export function SortableRow({
   itemDragData,
   canEdit,
   variant,
+  showControls,
   onEquip,
   onOpen,
   onContext,
@@ -150,6 +155,8 @@ export function SortableRow({
   canEdit: boolean;
   /** Active encumbrance variant — picks the load unit (slots vs cn). */
   variant?: string;
+  /** Render the module extension slot (only when a module listens for it). */
+  showControls?: boolean;
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onContext: OnContext;
@@ -186,6 +193,7 @@ export function SortableRow({
           item={item}
           canEdit={canEdit}
           variant={variant}
+          showControls={showControls}
           onEquip={onEquip}
           onOpen={onOpen}
           onSetQty={onSetQty}

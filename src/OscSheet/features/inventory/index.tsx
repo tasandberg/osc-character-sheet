@@ -39,6 +39,7 @@ import { AddItemMenu } from "@features/inventory/AddItemMenu";
 import { SortableRow } from "@features/inventory/rows/SortableRow";
 import { ContainerRow } from "@features/inventory/rows/ContainerRow";
 import { SortHeaderRow } from "@features/inventory/rows/SortHeaderRow";
+import { hasInventoryItemControls } from "@domain/extensions";
 import {
   buildGroups,
   indexById,
@@ -103,6 +104,7 @@ export function InventoryView({
   // Foundry items by id — source for the hotbar drag payload. Dragging a row onto
   // the macro bar creates an item macro (OSE's hotbarDrop hook), like the stock sheet.
   const { actor, items, canEdit } = useOscSheetContext();
+  const showControls = hasInventoryItemControls();
   const itemsById = new Map<string, OseItem>(items.map((it) => [it._id, it]));
   const itemDragData: ItemDragData = (id) => {
     const it = itemsById.get(id);
@@ -345,6 +347,7 @@ export function InventoryView({
         <div
           className={cx(
             "osc-inv-list",
+            showControls && "has-item-controls",
             equippedDragActive && listOver && "is-unequip-target",
           )}
           // Drag a tray tile down into the list → unequip it (the row already exists
@@ -400,6 +403,7 @@ export function InventoryView({
                 itemDragData={itemDragData}
                 canEdit={canEdit}
                 variant={variant}
+                showControls={showControls}
                 onToggle={toggleCollapse}
                 onEquip={onEquip}
                 onOpen={onOpen}
@@ -417,6 +421,7 @@ export function InventoryView({
                 itemDragData={itemDragData}
                 canEdit={canEdit}
                 variant={variant}
+                showControls={showControls}
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}

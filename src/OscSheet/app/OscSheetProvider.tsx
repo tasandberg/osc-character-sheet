@@ -11,6 +11,7 @@ function OscSheetProvider({
   contextConnector,
   canEdit: initialCanEdit,
   canViewFullSheet: initialCanViewFullSheet,
+  app,
 }: {
   initialActor: OSEActor;
   source: OSEActor;
@@ -18,6 +19,7 @@ function OscSheetProvider({
   contextConnector?: ContextConnector<OscContext>;
   canEdit: boolean;
   canViewFullSheet: boolean;
+  app?: unknown;
 }) {
   const [actor, setActor] = useState<OSEActor>(initialActor);
   // Props reach React only at mount, so the edit gate lives in state and re-derives
@@ -76,6 +78,7 @@ function OscSheetProvider({
 
   const context = {
     actor,
+    app,
     actorData,
     source,
     items,

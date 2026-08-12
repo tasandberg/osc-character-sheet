@@ -31,11 +31,15 @@ export type OscSheetAppProps = {
    *  `actor.isOwner` (e.g. tests that mount the app directly). */
   isEditable?: boolean;
   canViewFullSheet?: boolean;
+  /** The OscSheet ApplicationV2 instance, for the module extension points. */
+  app?: unknown;
 };
 
 // Define the shape of your context value here
 export interface OscSheetContextValue {
   actor: OSEActor;
+  /** The OscSheet ApplicationV2 instance. Absent outside Foundry (tests). */
+  app?: unknown;
   source: OSEActor;
   items: OseItem[];
   actorData: OSEActor["_source"]["system"];

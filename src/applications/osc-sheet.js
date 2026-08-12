@@ -212,6 +212,7 @@ class OscSheet extends ReactActorSheetV2 {
       // React falls back to actor.isOwner when this is absent (tests).
       isEditable: this.isEditable,
       canViewFullSheet: context.canViewFullSheet,
+      app: this,
     };
     return context;
   }

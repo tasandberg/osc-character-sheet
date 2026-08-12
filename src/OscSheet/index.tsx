@@ -64,6 +64,7 @@ function OscSheetApp({
   contextConnector,
   isEditable,
   canViewFullSheet,
+  app,
 }: OscSheetAppProps) {
   // Seeds the provider's gate; it re-derives from every published context after.
   // Falls back to ownership when mounted outside a Foundry sheet (tests).
@@ -77,6 +78,7 @@ function OscSheetApp({
         contextConnector={contextConnector}
         canEdit={canEdit}
         canViewFullSheet={canViewFull}
+        app={app}
       >
         <ThemedRoot>
           <ToastProvider>
