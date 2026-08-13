@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useOscSheetContext } from "@app/context";
 import { SectionTitle } from "@ui/SectionTitle";
 import { PillSelect } from "@ui/PillSelect";
-import { selectSpellLevels, resetSpellPoints } from "@features/spells/spells";
+import { IconButton } from "@ui/IconButton";
+import { selectSpellLevels, resetSpellPoints, createSpell } from "@features/spells/spells";
 import { cx } from "@ui/cx";
 import SpellLevel from "@features/spells/SpellLevel";
 
@@ -50,7 +51,17 @@ export default function Spells() {
     <section className="osc-section">
       <SectionTitle className="osc-spells-title tw:flex-nowrap">
         Spells
-        <span className="hint">{freeCasting ? "known · slot pool" : "memorised slots"}</span>
+        {canEdit && (
+          <IconButton
+            variant="accent"
+            size="sm"
+            title="Add spell"
+            aria-label="Add spell"
+            onClick={() => void createSpell(actor)}
+          >
+            <i className="fas fa-plus" aria-hidden="true" />
+          </IconButton>
+        )}
         {canEdit && (
           <button
             type="button"
@@ -58,7 +69,7 @@ export default function Spells() {
             onClick={refresh}
             disabled={busy}
             aria-busy={busy}
-            title={freeCasting ? "Refresh all spell-point pools" : "Re-memorise all spells"}
+            title={freeCasting ? "Refresh all spell-point pools" : "Re-memorize all spells"}
           >
             <i
               className={cx(

@@ -26,6 +26,8 @@ type Props = {
   onToggleFavorite?: () => void;
   /** Trailing unprepare trash (Spells-tab prepared rows). */
   onUnprepare?: () => void;
+  /** Deletes the spell item outright — sits after Cast (Spells-tab free rows). */
+  onDelete?: () => void;
   /** Brass "L{n}" badge, shown after the spell name. */
   levelTag?: number;
   /** "{left}/{max} · slots" pool readout (Actions free rows). */
@@ -52,6 +54,7 @@ export function SpellRow({
   favorite = false,
   onToggleFavorite,
   onUnprepare,
+  onDelete,
   levelTag,
   pool,
   pips,
@@ -148,26 +151,40 @@ export function SpellRow({
           {meta}
         </span>
       </div>
-      {canCast && (
+      {(canCast || onDelete) && (
         <span className="sp-actions tw:inline-flex tw:items-center tw:gap-2">
-          <Button
-            variant="outline"
-            tone="brass"
-            size="sm"
-            className="sp-cast tw:font-sans"
-            disabled={spent || casting}
-            aria-busy={casting}
-            onClick={handleCast}
-            title={spent ? (spentTitle ?? `${spell.name} — spent`) : `Cast ${spell.name}`}
-          >
-            {casting ? (
-              <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" />
-            ) : spent ? (
-              "spent"
-            ) : (
-              "cast"
-            )}
-          </Button>
+          {canCast && (
+            <Button
+              variant="outline"
+              tone="brass"
+              size="sm"
+              className="sp-cast tw:font-sans"
+              disabled={spent || casting}
+              aria-busy={casting}
+              onClick={handleCast}
+              title={spent ? (spentTitle ?? `${spell.name} — spent`) : `Cast ${spell.name}`}
+            >
+              {casting ? (
+                <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" />
+              ) : spent ? (
+                "spent"
+              ) : (
+                "cast"
+              )}
+            </Button>
+          )}
+          {onDelete && (
+            <IconButton
+              variant="danger"
+              size="sm"
+              className="sp-delete"
+              onClick={onDelete}
+              title={`Delete ${spell.name}`}
+              aria-label={`Delete ${spell.name}`}
+            >
+              <i className="fa-solid fa-trash-can" aria-hidden="true" />
+            </IconButton>
+          )}
         </span>
       )}
     </div>

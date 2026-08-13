@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   spellMeta,
   selectSpellLevels,
@@ -7,6 +7,7 @@ import {
   pointsLeftAt,
   isFavorite,
   selectFavoriteSpells,
+  createSpell,
 } from "@features/spells/spells";
 import type { OSEActor, OseSpell } from "@domain/types";
 
@@ -194,5 +195,31 @@ describe("favorites", () => {
       {},
     );
     expect(selectFavoriteSpells(actor).map((s) => s.name)).toEqual(["Shield", "Web"]);
+  });
+});
+
+describe("createSpell", () => {
+  const defaultName = vi.fn(({ type }: { type: string }) => `New ${type}`);
+
+  beforeEach(() => {
+    (globalThis as { Item?: unknown }).Item = { implementation: { defaultName } };
+  });
+  afterEach(() => {
+    delete (globalThis as { Item?: unknown }).Item;
+    vi.restoreAllMocks();
+  });
+
+  it("creates a spell item and opens its sheet", async () => {
+    const render = vi.fn();
+    const actor = {
+      createEmbeddedDocuments: vi.fn().mockResolvedValue([{ sheet: { render } }]),
+    } as unknown as OSEActor & { createEmbeddedDocuments: ReturnType<typeof vi.fn> };
+
+    await createSpell(actor);
+
+    expect(actor.createEmbeddedDocuments).toHaveBeenCalledWith("Item", [
+      { type: "spell", name: "New spell" },
+    ]);
+    expect(render).toHaveBeenCalledWith(true);
   });
 });

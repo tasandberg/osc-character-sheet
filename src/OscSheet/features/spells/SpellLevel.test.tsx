@@ -46,6 +46,7 @@ const cure = {
     roll: "",
   },
   update: vi.fn(),
+  delete: vi.fn(),
   sheet: { render: vi.fn() },
 } as unknown as OseSpell;
 
@@ -82,11 +83,14 @@ const offTable = {
   system: { ...cleric.system, details: { class: "Cleric", level: 9 } },
 } as OSEActor;
 
+/** The confirm dialog's "yes" callback, captured by the DialogV2 stub. */
+let confirmed: () => void;
+
 let host: HTMLDivElement;
 let root: Root;
 const updateActor = vi.fn();
 
-function render(actor: OSEActor = cleric, canEdit = true) {
+function render(actor: OSEActor = cleric, canEdit = true, freeCasting = false) {
   const value = {
     actor,
     canEdit,
@@ -95,13 +99,28 @@ function render(actor: OSEActor = cleric, canEdit = true) {
   act(() => {
     root.render(
       <OscSheetContext.Provider value={value}>
-        <SpellLevel vm={selectSpellLevels(actor, false)[0]} />
+        <SpellLevel vm={selectSpellLevels(actor, freeCasting)[0]} />
       </OscSheetContext.Provider>,
     );
   });
 }
 
 beforeEach(() => {
+  confirmed = vi.fn();
+  (globalThis as unknown as { game?: unknown }).game = {
+    i18n: { localize: (k: string) => k, format: (k: string) => k },
+  };
+  (globalThis as unknown as { foundry?: unknown }).foundry = {
+    applications: {
+      api: {
+        DialogV2: {
+          confirm: (opts: { yes: { callback: () => void } }) => {
+            confirmed = opts.yes.callback;
+          },
+        },
+      },
+    },
+  };
   (globalThis as unknown as { CONFIG: unknown }).CONFIG = {
     OSE: { classes: { classic: { Cleric: CLERIC } } },
   };
@@ -115,14 +134,17 @@ afterEach(() => {
   host.remove();
   updateActor.mockReset();
   vi.mocked(cure.update).mockReset();
+  vi.mocked(cure.delete).mockReset();
   delete (globalThis as unknown as { CONFIG?: unknown }).CONFIG;
+  delete (globalThis as unknown as { game?: unknown }).game;
+  delete (globalThis as unknown as { foundry?: unknown }).foundry;
 });
 
 const q = <T extends Element>(sel: string) => host.querySelector<T>(sel);
 const text = (sel: string) => q(sel)?.textContent ?? "";
 const openBook = () => {
   act(() => q<HTMLButtonElement>(".osc-bookbtn")!.click());
-  return q<HTMLButtonElement>(".osc-book .osc-bookspell")!;
+  return q<HTMLButtonElement>(".osc-book .osc-bookspell-memorize")!;
 };
 const openDialog = () => {
   act(() => q<HTMLButtonElement>(".osc-slotedit")!.click());
@@ -294,5 +316,90 @@ describe("slot maximum dialog", () => {
     expect(openDialog().value).toBe("0");
     expect(q(".osc-slotdefaults")).toBeNull();
     expect(q(".modal-body .field-hint")).toBeNull();
+  });
+});
+
+describe("removing a spell", () => {
+  const del = (sel: string) => q<HTMLButtonElement>(sel)!;
+
+  it("puts a labelled delete on each spellbook entry when memorising", () => {
+    render();
+    openBook();
+    const trash = del(".osc-book .osc-bookspell .sp-delete");
+    expect(trash.getAttribute("aria-label")).toBe("Delete Cure Light Wounds");
+    act(() => trash.click());
+    act(() => confirmed());
+    expect(cure.delete).toHaveBeenCalled();
+  });
+
+  it("puts a labelled delete after Cast when memorisation is disabled", () => {
+    render(cleric, true, true);
+    const actions = q(".osc-spell .sp-actions")!;
+    const buttons = Array.from(actions.querySelectorAll("button"));
+    expect(buttons.at(-1)!.getAttribute("aria-label")).toBe("Delete Cure Light Wounds");
+    act(() => buttons.at(-1)!.click());
+    act(() => confirmed());
+    expect(cure.delete).toHaveBeenCalled();
+  });
+
+  it("offers no delete on a read-only sheet in either mode", () => {
+    render(cleric, false);
+    openBook();
+    expect(q(".sp-delete")).toBeNull();
+    render(cleric, false, true);
+    expect(q(".sp-delete")).toBeNull();
+  });
+});
+
+describe("a level with no spells", () => {
+  /** Caster with slots from the class table but an empty spell list. */
+  const bare = {
+    system: {
+      details: { class: "Cleric", level: 3 },
+      spells: { spellList: {}, slots: { 1: { used: 0, max: 0 } }, enabled: true },
+    },
+    _source: { system: { spells: {} } },
+  } as unknown as OSEActor;
+
+  it("shows one framed message, not a memorise line plus an empty book", () => {
+    render(bare);
+    const empties = host.querySelectorAll(".osc-spell-empty");
+    expect(empties).toHaveLength(1);
+    expect(empties[0].textContent).toBe("No spells at this level.");
+  });
+
+  it("hides the spellbook toggle — there is nothing to open", () => {
+    render(bare);
+    expect(q(".osc-bookbtn")).toBeNull();
+  });
+
+  it("still offers the spellbook once a spell is known", () => {
+    render();
+    expect(q(".osc-bookbtn")).not.toBeNull();
+    expect(text(".osc-spell-empty")).toBe("None memorized — open the spellbook.");
+  });
+
+  it("frames the free-casting empty state too", () => {
+    render(bare, true, true);
+    expect(text(".osc-spell-empty")).toBe("No spells at this level.");
+  });
+});
+
+describe("spellbook entry", () => {
+  it("acts through a labelled Memorise button, not the row", () => {
+    render();
+    openBook();
+    const entry = q(".osc-book .osc-bookspell")!;
+    expect(entry.tagName).toBe("DIV");
+    const memorize = q<HTMLButtonElement>(".osc-bookspell-memorize")!;
+    expect(memorize.textContent).toBe("Memorize");
+  });
+
+  it("disables Memorise at capacity but leaves the delete usable", () => {
+    render(overridden);
+    // 5 stored slots, none occupied — memorising is open.
+    openBook();
+    expect(q<HTMLButtonElement>(".osc-bookspell-memorize")!.disabled).toBe(false);
+    expect(q<HTMLButtonElement>(".osc-book .sp-delete")!.disabled).toBe(false);
   });
 });
