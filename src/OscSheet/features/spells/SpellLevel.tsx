@@ -228,7 +228,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                   {spell.name}
                 </span>
                 <InlineButton
-                  className="osc-bookspell-memorise tw:font-sans tw:text-[length:var(--fs-2xs)] tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
+                  className="osc-bookspell-memorize tw:font-sans tw:text-[length:var(--fs-2xs)] tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
                   title={

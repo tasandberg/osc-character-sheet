@@ -144,7 +144,7 @@ const q = <T extends Element>(sel: string) => host.querySelector<T>(sel);
 const text = (sel: string) => q(sel)?.textContent ?? "";
 const openBook = () => {
   act(() => q<HTMLButtonElement>(".osc-bookbtn")!.click());
-  return q<HTMLButtonElement>(".osc-book .osc-bookspell-memorise")!;
+  return q<HTMLButtonElement>(".osc-book .osc-bookspell-memorize")!;
 };
 const openDialog = () => {
   act(() => q<HTMLButtonElement>(".osc-slotedit")!.click());
@@ -391,7 +391,7 @@ describe("spellbook entry", () => {
     openBook();
     const entry = q(".osc-book .osc-bookspell")!;
     expect(entry.tagName).toBe("DIV");
-    const memorize = q<HTMLButtonElement>(".osc-bookspell-memorise")!;
+    const memorize = q<HTMLButtonElement>(".osc-bookspell-memorize")!;
     expect(memorize.textContent).toBe("Memorize");
   });
 
@@ -399,7 +399,7 @@ describe("spellbook entry", () => {
     render(overridden);
     // 5 stored slots, none occupied — memorising is open.
     openBook();
-    expect(q<HTMLButtonElement>(".osc-bookspell-memorise")!.disabled).toBe(false);
+    expect(q<HTMLButtonElement>(".osc-bookspell-memorize")!.disabled).toBe(false);
     expect(q<HTMLButtonElement>(".osc-book .sp-delete")!.disabled).toBe(false);
   });
 });
