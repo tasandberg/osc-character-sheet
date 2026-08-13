@@ -69,7 +69,7 @@ export default function Spells() {
             onClick={refresh}
             disabled={busy}
             aria-busy={busy}
-            title={freeCasting ? "Refresh all spell-point pools" : "Re-memorise all spells"}
+            title={freeCasting ? "Refresh all spell-point pools" : "Re-memorize all spells"}
           >
             <i
               className={cx(
