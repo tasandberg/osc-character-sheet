@@ -20,8 +20,12 @@
 .osc-sheet {
   overflow: visible;
   height: 100%;
-  min-width: 360px; // XS compact header fits ~360px; wider layouts still work
-  min-height: 360px;
+
+  // Unlayered, so it would outrank core's layered `.application.minimized { min-*: unset }`.
+  &:not(.minimizing, .minimized, .maximizing) {
+    min-width: 360px; // XS compact header fits ~360px; wider layouts still work
+    min-height: 360px;
+  }
 
   // --- titlebar: near-black to match the top-bar, design-system font ---
   .window-header {
