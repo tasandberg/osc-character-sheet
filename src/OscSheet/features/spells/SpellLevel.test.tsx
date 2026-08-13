@@ -376,7 +376,7 @@ describe("a level with no spells", () => {
   it("still offers the spellbook once a spell is known", () => {
     render();
     expect(q(".osc-bookbtn")).not.toBeNull();
-    expect(text(".osc-spell-empty")).toBe("None memorised — open the spellbook.");
+    expect(text(".osc-spell-empty")).toBe("None memorized — open the spellbook.");
   });
 
   it("frames the free-casting empty state too", () => {
@@ -392,7 +392,7 @@ describe("spellbook entry", () => {
     const entry = q(".osc-book .osc-bookspell")!;
     expect(entry.tagName).toBe("DIV");
     const memorize = q<HTMLButtonElement>(".osc-bookspell-memorise")!;
-    expect(memorize.textContent).toBe("Memorise");
+    expect(memorize.textContent).toBe("Memorize");
   });
 
   it("disables Memorise at capacity but leaves the delete usable", () => {
