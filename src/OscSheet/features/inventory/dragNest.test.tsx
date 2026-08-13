@@ -188,4 +188,11 @@ describe("drag to nest", () => {
     expect(onNest).not.toHaveBeenCalled();
     expect(onReorder).not.toHaveBeenCalled();
   });
+
+  // Modules anchor to this, so a container and its children both need one.
+  it("puts the item id on the container row and on its nested rows", () => {
+    render(false);
+    expect((rowFor("sack") as HTMLElement).dataset.itemId).toBe("sack");
+    expect((rowFor("arrows") as HTMLElement).dataset.itemId).toBe("arrows");
+  });
 });

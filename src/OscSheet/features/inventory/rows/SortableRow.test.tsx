@@ -132,4 +132,12 @@ describe("SortableRow inline Use pill", () => {
     render(mkItem({ weight: 15, slots: 0 }), true, "itembased");
     expect(loadCell()).toBe("0");
   });
+
+  // Modules anchor to this to find the row for a given item.
+  it("carries its item id on the row element", () => {
+    render(mkItem({ id: "torches" }));
+    expect(
+      container.querySelector<HTMLElement>(".osc-inv-row")?.dataset.itemId,
+    ).toBe("torches");
+  });
 });

@@ -96,6 +96,7 @@ export function ContainerRow({
           "is-sortable",
           dnd.rowClass(ROOT, index),
         )}
+        data-item-id={item.id}
         onContextMenu={(e) => onContext(e, item)}
         {...rp}
       >

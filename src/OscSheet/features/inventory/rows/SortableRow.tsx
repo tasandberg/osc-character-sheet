@@ -178,6 +178,7 @@ export function SortableRow({
     <>
       <div
         className={cx(INV_ROW, "is-sortable", dnd.rowClass(group, index))}
+        data-item-id={item.id}
         style={
           depth > 0
             ? ({ "--osc-inv-depth": depth } as React.CSSProperties)
