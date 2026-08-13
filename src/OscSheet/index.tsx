@@ -15,6 +15,7 @@ import { useOscSheetContext } from "@app/context";
 import { OptimisticProvider } from "@app/OptimisticProvider";
 import { SheetErrorBoundary, CrashTestProbe } from "@app/ErrorBoundary";
 import SheetShell from "@app/SheetShell";
+import { useExtensionRender } from "@app/useExtensionRender";
 import LimitedSheet from "@app/LimitedSheet";
 import { ToastProvider } from "@ui/ToastHost";
 import { useEffect, useRef, type ReactNode } from "react";
@@ -30,6 +31,8 @@ import { useEffect, useRef, type ReactNode } from "react";
 function ThemedRoot({ children }: { children: ReactNode }) {
   const { canEdit, canViewFullSheet } = useOscSheetContext();
   const appRef = useRef<HTMLDivElement>(null);
+
+  useExtensionRender(appRef);
 
   useEffect(() => {
     const el = appRef.current;

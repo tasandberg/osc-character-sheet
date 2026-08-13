@@ -3,7 +3,6 @@ import type { InventoryItemVM } from "@domain/vm-types";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
 import { NameCell, SortableRow } from "@features/inventory/rows/SortableRow";
-import { ItemControls } from "@features/inventory/ItemControls";
 import {
   countedLoad,
   loadText,
@@ -26,7 +25,6 @@ export function ContainerRow({
   itemDragData,
   canEdit,
   variant,
-  showControls,
   onToggle,
   onEquip,
   onOpen,
@@ -43,8 +41,6 @@ export function ContainerRow({
   canEdit: boolean;
   /** Active encumbrance variant — picks the load unit (slots vs cn). */
   variant?: string;
-  /** Render the module extension slot (only when a module listens for it). */
-  showControls?: boolean;
   onToggle: (id: string) => void;
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
@@ -113,7 +109,6 @@ export function ContainerRow({
         <span className={INV_ROWCAT}>{item.category}</span>
         <span className={INV_WT}>{loadText(countedLoad(item, variant))}</span>
         <RowEquip item={item} onEquip={onEquip} />
-        {showControls && <ItemControls itemId={item.id} />}
       </div>
 
       <div
@@ -138,7 +133,6 @@ export function ContainerRow({
                 itemDragData={itemDragData}
                 canEdit={canEdit}
                 variant={variant}
-                showControls={showControls}
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={onContext}

@@ -479,25 +479,3 @@
   outline-offset: 2px;
   background: color-mix(in oklab, var(--teal) 5%, transparent);
 }
-
-// OSC-185 module extension slot. The track only exists when a module listens,
-// so the default sheet keeps its six columns and pays no extra gap.
-.osc-inv-list.has-item-controls .osc-inv-row {
-  grid-template-columns:
-    18px 30px 1fr
-    calc(var(--fs-base, 16px) * 3.25)
-    calc(var(--fs-base, 16px) * 2.75)
-    calc(var(--fs-base, 16px) * 2.75)
-    auto;
-}
-.osc-inv-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacer-1);
-}
-
-@container app (max-width: 479px) {
-  .osc-inv-list.has-item-controls .osc-inv-row {
-    grid-template-columns: 18px 30px 1fr 44px 44px auto;
-  }
-}

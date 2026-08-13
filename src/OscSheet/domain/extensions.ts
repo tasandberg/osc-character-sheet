@@ -1,17 +1,14 @@
-import type { OSEActor, OseItem } from "@domain/types";
+import type { OSEActor } from "@domain/types";
 
-/** Fired once per inventory row, after its controls host is in the DOM. */
-export const INVENTORY_ITEM_CONTROLS =
-  "osc-character-sheet.renderInventoryItemControls";
+/** Fired after every commit that paints the sheet, once listeners exist. */
+export const SHEET_RENDER = "osc-character-sheet.renderSheet";
 
-export interface InventoryItemControlsContext {
+export interface SheetRenderContext {
   /** The OscSheet ApplicationV2 instance. */
   sheet: unknown;
   actor: OSEActor;
-  item: OseItem;
-  rowElement: HTMLElement | null;
-  /** Empty element the listener owns. Cleared by the sheet before every re-fire. */
-  controlsElement: HTMLElement;
+  /** `.osc-sheet-app` — query the documented anchors under it. */
+  element: HTMLElement;
 }
 
 type HookRegistry = {
@@ -22,14 +19,11 @@ type HookRegistry = {
 const hooks = (): HookRegistry | undefined =>
   (globalThis as { Hooks?: HookRegistry }).Hooks;
 
-/** Whether any module listens for row controls — the sheet renders no host slot
- *  (and no extra grid track) until one does. */
-export function hasInventoryItemControls(): boolean {
-  return (hooks()?.events?.[INVENTORY_ITEM_CONTROLS]?.length ?? 0) > 0;
+/** Whether any module listens. Nothing fires until one does. */
+export function hasSheetRenderListeners(): boolean {
+  return (hooks()?.events?.[SHEET_RENDER]?.length ?? 0) > 0;
 }
 
-export function fireInventoryItemControls(
-  context: InventoryItemControlsContext,
-): void {
-  hooks()?.callAll?.(INVENTORY_ITEM_CONTROLS, context);
+export function fireSheetRender(context: SheetRenderContext): void {
+  hooks()?.callAll?.(SHEET_RENDER, context);
 }
