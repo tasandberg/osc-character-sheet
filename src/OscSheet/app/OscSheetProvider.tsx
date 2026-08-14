@@ -63,7 +63,7 @@ function OscSheetProvider({
         _setTimestampedActor(document);
         setItems([...(document.items.contents as OseItem[])]);
         setCanEdit(isEditable ?? document.isOwner ?? false);
-        setCanViewFullSheet(canViewFullSheet ?? !document.limited);
+        setCanViewFullSheet(canViewFullSheet ?? false);
       },
       200
     );

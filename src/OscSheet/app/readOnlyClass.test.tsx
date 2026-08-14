@@ -59,6 +59,7 @@ function mount(actor: OSEActor, isEditable: boolean) {
         source={actor}
         contextConnector={connector}
         isEditable={isEditable}
+        canViewFullSheet
       />,
     ),
   );
@@ -86,7 +87,13 @@ describe("read-only presentation — ownership granted while the sheet is open",
     mount(makeActor(), false);
     expect(appRoot().classList.contains("is-readonly")).toBe(true);
 
-    act(() => publish({ document: makeActor(), isEditable: true }));
+    act(() =>
+      publish({
+        document: makeActor(),
+        isEditable: true,
+        canViewFullSheet: true,
+      }),
+    );
 
     expect(appRoot().classList.contains("is-readonly")).toBe(false);
   });
@@ -95,7 +102,13 @@ describe("read-only presentation — ownership granted while the sheet is open",
     mount(makeActor(), false);
     expect(editButton()).toBeUndefined();
 
-    act(() => publish({ document: makeActor(), isEditable: true }));
+    act(() =>
+      publish({
+        document: makeActor(),
+        isEditable: true,
+        canViewFullSheet: true,
+      }),
+    );
 
     expect(editButton()).toBeDefined();
   });
@@ -104,7 +117,13 @@ describe("read-only presentation — ownership granted while the sheet is open",
     mount(makeActor(), true);
     expect(appRoot().classList.contains("is-readonly")).toBe(false);
 
-    act(() => publish({ document: makeActor(), isEditable: false }));
+    act(() =>
+      publish({
+        document: makeActor(),
+        isEditable: false,
+        canViewFullSheet: true,
+      }),
+    );
 
     expect(appRoot().classList.contains("is-readonly")).toBe(true);
   });

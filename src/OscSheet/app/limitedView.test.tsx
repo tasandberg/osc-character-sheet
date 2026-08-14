@@ -115,16 +115,26 @@ describe("LIMITED ownership", () => {
     expect(hasFullSheet()).toBe(true);
   });
 
-  it("falls back to document.limited=true when the flag is absent", () => {
+  it("hides the sheet when the flag is absent and document.limited is true", () => {
     mount({ actorOver: { limited: true } });
     expect(hasLimitedSheet()).toBe(true);
     expect(hasFullSheet()).toBe(false);
   });
 
-  it("falls back to document.limited=false when the flag is absent", () => {
+  it("hides the sheet when the flag is absent and document.limited is false", () => {
     mount({ actorOver: { limited: false } });
-    expect(hasLimitedSheet()).toBe(false);
+    expect(hasLimitedSheet()).toBe(true);
+    expect(hasFullSheet()).toBe(false);
+  });
+
+  it("hides the sheet when a republished context omits the flag", () => {
+    mount({ canViewFullSheet: true });
     expect(hasFullSheet()).toBe(true);
+
+    act(() => publish({ document: makeActor(), isEditable: false }));
+
+    expect(hasLimitedSheet()).toBe(true);
+    expect(hasFullSheet()).toBe(false);
   });
 
   it("swaps to the limited view when ownership is downgraded mid-session", () => {
