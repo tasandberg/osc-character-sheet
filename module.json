@@ -13,12 +13,8 @@
     "minimum": "13",
     "verified": "14"
   },
-  "styles": [
-    "dist/main.css"
-  ],
-  "esmodules": [
-    "dist/main.js"
-  ],
+  "styles": ["dist/main.css"],
+  "esmodules": ["dist/main.js"],
   "socket": true,
   "packs": [],
   "languages": [
@@ -30,16 +26,7 @@
   ],
   "flags": {
     "hotReload": {
-      "extensions": [
-        "css",
-        "html",
-        "hbs",
-        "json",
-        "mjs",
-        "js",
-        "ts",
-        "tsx"
-      ]
+      "extensions": ["css", "html", "hbs", "json", "mjs", "js", "ts", "tsx"]
     }
   },
   "relationships": {
@@ -47,7 +34,10 @@
       {
         "id": "ose",
         "type": "system",
-        "compatibility": {}
+        "compatibility": {
+          "minimum": "2.2.2",
+          "reason": "Requires codified character class definitions added in this version."
+        }
       }
     ]
   },
