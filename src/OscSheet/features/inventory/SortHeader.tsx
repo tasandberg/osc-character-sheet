@@ -11,24 +11,29 @@ export function SortHeader({
   active,
   dir,
   onClick,
+  style,
 }: {
   label: ReactNode;
   className?: string;
   active: boolean;
   dir: SortDir;
   onClick: () => void;
+  style?: React.CSSProperties;
 }) {
   // A click bakes this order into the manual baseline; clicking the active header
   // again flips direction. Drags then override.
-  const title = active ? "Sorted — click to reverse" : "Click to sort — then drag to fine-tune";
+  const title = active
+    ? "Sorted — click to reverse"
+    : "Click to sort — then drag to fine-tune";
   return (
     <button
       type="button"
+      style={style}
       className={cx(
         "osc-inv-th",
         "tw:inline-flex tw:items-center tw:gap-1 tw:min-w-0 tw:bg-transparent tw:cursor-pointer",
         MICRO_LABEL,
-        "tw:transition-[color] tw:duration-[120ms]",
+        "tw:transition-[color] tw:duration-120ms",
         // active wins over hover, as the old `&.active` after `&:hover` did —
         // as utilities the hover variant would sort last and take an active
         // header back to the dim colour on hover, so the two are exclusive.

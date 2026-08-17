@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 import type { OnContext } from "../types";
 import type {
   InventoryItemVM,
@@ -6,13 +6,7 @@ import type {
 } from "@src/OscSheet/domain/vm-types";
 import { ItemImage } from "../ItemImage";
 import { countedLoad, loadText, loadHeading } from "../groups";
-import {
-  DragHandle,
-  InlineUse,
-  NameCell,
-  RowEquip,
-  RowMore,
-} from "./cells";
+import { DragHandle, InlineUse, NameCell, RowEquip, RowMore } from "./cells";
 import { UsesRow } from "./UsesRow";
 import { INV_ROWCAT, INV_WT } from "./classes";
 
@@ -107,6 +101,7 @@ export const INV_COLUMNS: InvColumn[] = [
   {
     key: "more",
     width: "calc(var(--fs-base, 16px) * 1.5)",
+    header: () => "Snacks",
     cell: (c) => <RowMore item={c.item} onMore={c.onMore} />,
   },
 ];

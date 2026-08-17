@@ -1,20 +1,12 @@
 // Container: sortable in root + droppable body (accepts nested items).
 import type { InventoryItemVM } from "@domain/vm-types";
-import { ItemImage } from "@features/inventory/ItemImage";
-
 import { SortableRow } from "@features/inventory/rows/SortableRow";
-import {
-  countedLoad,
-  loadText,
-  gkey,
-  ROOT,
-  EQUIPPED,
-} from "@features/inventory/groups";
-import { INV_ROW, INV_ROWCAT, INV_WT } from "@features/inventory/rows/classes";
+import { gkey, ROOT, EQUIPPED } from "@features/inventory/groups";
+import { INV_ROW } from "@features/inventory/rows/classes";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
-import { NameCell, RowEquip } from "./cells";
+import { RowCells } from "./RowCells";
 
 export function ContainerRow({
   item,
@@ -96,19 +88,21 @@ export function ContainerRow({
         onContextMenu={(e) => onContext(e, item)}
         {...rp}
       >
-        <span className="osc-inv-drag" aria-hidden="true">
-          <i className="fa-solid fa-grip-lines" />
-        </span>
-        <ItemImage img={item.img} monogram={item.monogram} />
-        <NameCell
-          item={item}
-          onOpen={onOpen}
-          badge={<Tag intent="count">{count}</Tag>}
-          trailing={caret}
+        <RowCells
+          ctx={{
+            item,
+            canEdit,
+            variant,
+            onEquip,
+            onOpen,
+            onSetQty,
+            onMore: onContext,
+            nameSlots: {
+              badge: <Tag intent="count">{count}</Tag>,
+              trailing: caret,
+            },
+          }}
         />
-        <span className={INV_ROWCAT}>{item.category}</span>
-        <span className={INV_WT}>{loadText(countedLoad(item, variant))}</span>
-        <RowEquip item={item} onEquip={onEquip} />
       </div>
 
       <div
