@@ -4,6 +4,14 @@ import { Button, cx, IconButton } from "@src/OscSheet/components/ui";
 import { useOscSheetContext } from "@src/OscSheet/app/context";
 import type { OnContext } from "../types";
 
+export function DragHandle() {
+  return (
+    <span className="osc-inv-drag" aria-hidden="true">
+      <i className="fa-solid fa-grip-lines" />
+    </span>
+  );
+}
+
 /** Name + optional (count/qty) on top, tags beneath. `action` sits right after the
  * name (e.g. the xs inline Use pill); `trailing` sits beside it (e.g. a caret).
  * `below` is a second line inside the cell (the Uses pip row) so the grid row grows
