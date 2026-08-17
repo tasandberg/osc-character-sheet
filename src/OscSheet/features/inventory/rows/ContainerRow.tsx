@@ -1,8 +1,8 @@
 // Container: sortable in root + droppable body (accepts nested items).
 import type { InventoryItemVM } from "@domain/vm-types";
 import { ItemImage } from "@features/inventory/ItemImage";
-import { RowEquip } from "@features/inventory/EquippedTray";
-import { NameCell, SortableRow } from "@features/inventory/rows/SortableRow";
+
+import { SortableRow } from "@features/inventory/rows/SortableRow";
 import {
   countedLoad,
   loadText,
@@ -14,6 +14,7 @@ import { INV_ROW, INV_ROWCAT, INV_WT } from "@features/inventory/rows/classes";
 import type { Dnd, ItemDragData, OnContext } from "@features/inventory/types";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
+import { NameCell, RowEquip } from "./cells";
 
 export function ContainerRow({
   item,
@@ -70,10 +71,10 @@ export function ContainerRow({
         "osc-inv-collapse",
         // the chevron rotates (a stacking context); pin it low so tooltips clear
         // it. The rotation itself stays in _rows.scss.
-        "tw:relative tw:z-[var(--z-raised)] tw:inline-flex tw:items-center tw:justify-center",
+        "tw:relative tw:z-(--z-raised) tw:inline-flex tw:items-center tw:justify-center",
         "tw:px-1 tw:py-0 tw:bg-transparent tw:border-none tw:cursor-pointer",
-        "tw:text-[length:var(--fs-sm)] tw:leading-flush tw:text-text-mute tw:hover:text-text",
-        "tw:transition-[color] tw:duration-[120ms]",
+        "tw:text-[length:--fs-sm)] tw:leading-flush tw:text-text-mute tw:hover:text-text",
+        "tw:transition-[color] tw:duration-120ms",
         collapsed && "collapsed",
       )}
       aria-label={collapsed ? "Expand" : "Collapse"}
