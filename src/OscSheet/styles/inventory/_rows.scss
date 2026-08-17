@@ -78,11 +78,7 @@
 
 .osc-inv-row {
   display: grid;
-  grid-template-columns:
-    18px 30px 1fr
-    calc(var(--fs-base, 16px) * 3.25)
-    calc(var(--fs-base, 16px) * 2.75)
-    calc(var(--fs-base, 16px) * 2.75);
+  grid-template-columns: var(--osc-inv-cols);
 
   // Fade the row's content, not the row element itself — the drop insertion line
   // is a box-shadow on the row, and a dragged row can also be the drop target
@@ -196,7 +192,6 @@
 // Stays here: WealthSection passes this class into the shared SortHeader too, so
 // the styling can't move into markup only this tab renders.
 .osc-inv-th-item {
-  grid-column: 2 / 4;
   justify-content: flex-start;
 }
 
@@ -356,7 +351,7 @@
 // in this tier is a `tw:@max-md/app:` variant on the component.
 @container app (max-width: 479px) {
   .osc-inv-row {
-    grid-template-columns: 18px 30px 1fr 44px 44px;
+    grid-template-columns: var(--osc-inv-cols-xs);
   }
   .osc-inv-useinline {
     display: inline-flex;

@@ -48,6 +48,11 @@
     calc(var(--fs-base, 16px) * 5.5);
 }
 
+.osc-coin-th-item {
+  grid-column: 2 / 4;
+  justify-content: flex-start;
+}
+
 // drop-line affordance (matches the items rows)
 .osc-coin-row.drop-before,
 .osc-coin-row.drop-after {

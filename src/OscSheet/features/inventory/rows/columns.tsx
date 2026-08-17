@@ -101,7 +101,6 @@ export const INV_COLUMNS: InvColumn[] = [
   {
     key: "more",
     width: "calc(var(--fs-base, 16px) * 1.5)",
-    header: () => "Snacks",
     cell: (c) => <RowMore item={c.item} onMore={c.onMore} />,
   },
 ];

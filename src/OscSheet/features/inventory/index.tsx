@@ -61,6 +61,7 @@ import { useOscSheetContext } from "@app/context";
 import { SectionTitle } from "@ui/SectionTitle";
 import { cx } from "@ui/cx";
 import type { OseItem } from "@domain/types";
+import { INV_COLUMNS, trackTemplate, XS_COLUMNS } from "./rows/columns";
 
 export function InventoryView({
   inventory,
@@ -264,7 +265,15 @@ export function InventoryView({
   const equippedDragActive = dnd.drag?.group === EQUIPPED; // a tray tile is mid-drag
 
   return (
-    <section className="osc-inv tw:flex tw:flex-col">
+    <section
+      className="osc-inv tw:flex tw:flex-col"
+      style={
+        {
+          "--osc-inv-cols": trackTemplate(INV_COLUMNS),
+          "--osc-inv-cols-xs": trackTemplate(XS_COLUMNS),
+        } as React.CSSProperties
+      }
+    >
       <div
         className={cx(
           "osc-inv-head",
@@ -307,7 +316,9 @@ export function InventoryView({
               title="Equipped items"
               items={inventory.equipped}
               variant={variant}
-              cap={variant === "itembased" ? encumbrance.equippedMax : undefined}
+              cap={
+                variant === "itembased" ? encumbrance.equippedMax : undefined
+              }
             />
             <EquippedTray
               items={trayItems}
