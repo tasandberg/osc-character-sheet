@@ -161,13 +161,18 @@ export function RowMore({
       if (!host.current?.contains(e.target as Node)) onToggle(null);
     };
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onToggle(null);
+    // Capture: scroll doesn't bubble, and the menu is pinned to coordinates
+    // sampled at click time, so any scrolling ancestor would strand it.
+    const onScroll = () => onToggle(null);
     window.addEventListener("pointerdown", close);
     window.addEventListener("keydown", onKey);
     window.addEventListener("blur", close);
+    window.addEventListener("scroll", onScroll, true);
     return () => {
       window.removeEventListener("pointerdown", close);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("blur", close);
+      window.removeEventListener("scroll", onScroll, true);
     };
   }, [open, onToggle]);
 

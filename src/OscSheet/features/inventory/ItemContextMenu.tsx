@@ -17,10 +17,14 @@ export function ItemContextMenu({
     window.addEventListener("pointerdown", onClose);
     window.addEventListener("keydown", onKey);
     window.addEventListener("blur", onClose);
+    // Capture: scroll doesn't bubble, and the menu is pinned to the cursor
+    // coordinates it opened at.
+    window.addEventListener("scroll", onClose, true);
     return () => {
       window.removeEventListener("pointerdown", onClose);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("blur", onClose);
+      window.removeEventListener("scroll", onClose, true);
     };
   }, [onClose]);
 
