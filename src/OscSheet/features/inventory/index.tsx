@@ -26,11 +26,6 @@ import {
 import { useDragReorder } from "@features/inventory/useDragReorder";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { WealthSection } from "@features/inventory/WealthSection";
-import { SendItemModal } from "@features/inventory/SendItemModal";
-import {
-  selectSendTargets,
-  isGmConnected,
-} from "@features/inventory/sendTargets";
 import { EquippedTray } from "@features/inventory/EquippedTray";
 import { ItemContextMenu } from "@features/inventory/ItemContextMenu";
 import { EncumbranceReadout } from "@features/inventory/EncumbranceReadout";
@@ -43,7 +38,6 @@ import {
   buildGroups,
   indexById,
   originContainers,
-  flattenItems,
   ROOT,
   EQUIPPED,
   gkey,
@@ -61,6 +55,7 @@ import { useOscSheetContext } from "@app/context";
 import { SectionTitle } from "@ui/SectionTitle";
 import { cx } from "@ui/cx";
 import type { OseItem } from "@domain/types";
+import { INV_COLUMNS, trackTemplate, XS_COLUMNS } from "./rows/columns";
 
 export function InventoryView({
   inventory,
@@ -70,13 +65,10 @@ export function InventoryView({
   onCreate,
   onEquip,
   onOpen,
-  onDelete,
-  onConsume,
   onSetQty,
   onReorder,
   onReorderEquipped,
   onNest,
-  onSend,
 }: Props) {
   // Active encumbrance scheme — under "itembased" every load figure on the tab is in
   // item slots rather than coins, so it travels down to the rows, headers and totals.
@@ -97,8 +89,9 @@ export function InventoryView({
   );
   const [listOver, setListOver] = useState(false); // tray tile hovering the list → unequip
   const [menu, setMenu] = useState<MenuState | null>(null);
-  // The item whose Send dialog is open (a full inventory VM node), null = closed.
-  const [sending, setSending] = useState<InventoryItemVM | null>(null);
+  // The row whose kebab popover is open (anchored); null = none. Separate from
+  // `menu`, which is the cursor-anchored wiring used by tray tiles + treasure rows.
+  const [menuItemId, setMenuItemId] = useState<string | null>(null);
 
   // Foundry items by id — source for the hotbar drag payload. Dragging a row onto
   // the macro bar creates an item macro (OSE's hotbarDrop hook), like the stock sheet.
@@ -111,15 +104,15 @@ export function InventoryView({
 
   const openMenu: OnContext = (e, item) => {
     e.preventDefault();
-    setMenu({ item, x: e.clientX, y: e.clientY });
+    setMenu({
+      item,
+      vm: byId.get(item.id) ?? null,
+      x: e.clientX,
+      y: e.clientY,
+    });
   };
 
   const byId = indexById(inventory.items);
-  // Open the Send dialog for a list item (coins aren't in the VM → not sendable).
-  const openSend = (id: string) => {
-    const it = byId.get(id);
-    if (it) setSending(it);
-  };
   const groupsRef = useRef(groups);
   groupsRef.current = groups;
   // Holds the *rendered* tray ids (stale ids dropped), kept index-aligned with the
@@ -264,7 +257,15 @@ export function InventoryView({
   const equippedDragActive = dnd.drag?.group === EQUIPPED; // a tray tile is mid-drag
 
   return (
-    <section className="osc-inv tw:flex tw:flex-col">
+    <section
+      className="osc-inv tw:flex tw:flex-col"
+      style={
+        {
+          "--osc-inv-cols": trackTemplate(INV_COLUMNS),
+          "--osc-inv-cols-xs": trackTemplate(XS_COLUMNS),
+        } as React.CSSProperties
+      }
+    >
       <div
         className={cx(
           "osc-inv-head",
@@ -307,7 +308,9 @@ export function InventoryView({
               title="Equipped items"
               items={inventory.equipped}
               variant={variant}
-              cap={variant === "itembased" ? encumbrance.equippedMax : undefined}
+              cap={
+                variant === "itembased" ? encumbrance.equippedMax : undefined
+              }
             />
             <EquippedTray
               items={trayItems}
@@ -404,6 +407,8 @@ export function InventoryView({
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
+                menuOpenId={menuItemId}
+                onMenuToggle={setMenuItemId}
                 onSetQty={onSetQty}
               />
             ) : (
@@ -420,6 +425,8 @@ export function InventoryView({
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
+                menuOpenId={menuItemId}
+                onMenuToggle={setMenuItemId}
                 onSetQty={onSetQty}
               />
             );
@@ -427,42 +434,7 @@ export function InventoryView({
         </div>
       </section>
 
-      {menu && (
-        <ItemContextMenu
-          menu={menu}
-          canEdit={canEdit}
-          onClose={() => setMenu(null)}
-          onOpen={onOpen}
-          onEquip={onEquip}
-          onConsume={onConsume}
-          onDelete={onDelete}
-          onSend={
-            canEdit && byId.has(menu.item.id) && isGmConnected()
-              ? openSend
-              : undefined
-          }
-        />
-      )}
-
-      {sending &&
-        (() => {
-          const { targets, gmOnline } = selectSendTargets(actor);
-          const contentCount = flattenItems(sending.children).length;
-          return (
-            <SendItemModal
-              open
-              item={sending}
-              contentCount={contentCount}
-              targets={targets}
-              gmOnline={gmOnline}
-              onClose={() => setSending(null)}
-              onSend={(target, qty) => {
-                onSend(sending.id, target, qty);
-                setSending(null);
-              }}
-            />
-          );
-        })()}
+      {menu && <ItemContextMenu menu={menu} onClose={() => setMenu(null)} />}
     </section>
   );
 }

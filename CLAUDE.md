@@ -22,6 +22,11 @@ lives in `../CLAUDE.md`.
 - App entry: `src/OscSheet/index.tsx` → `OscSheetProvider` (Foundry actor sync) →
   `SheetShell` (view-models + layout slots) → tab bodies. State = React Context + Foundry
   actor as source of truth; view-models in `viewModels/` compute derived data.
+- **Inventory row columns are data.** The items table's tracks, cells and headers all come
+  from `INV_COLUMNS` in `features/inventory/rows/columns.tsx`; `_rows.scss` reads the
+  template as `var(--osc-inv-cols)` / `var(--osc-inv-cols-xs)` and knows nothing about how
+  many columns exist. Add or reorder a column there — never by editing a
+  `grid-template-columns` or adding a cell to a row component.
 - **Styling — utilities first.** Prefer Vellum `u-*` utility classes (in JSX) and
   `components/ui/` primitives over hand-written `.osc-*` classes + SCSS. Reach for a utility
   or primitive before authoring any bespoke rule; reserve SCSS for genuinely bespoke bits
@@ -45,13 +50,9 @@ lives in `../CLAUDE.md`.
 **Keep this list current as we build.** When a file grows unwieldy or a responsibility
 wants its own module, add it here (don't silently let files balloon). Prune entries when done.
 
-- **`src/OscSheet/features/inventory/InventoryViewDnd.tsx` (~1000 lines)** — too big. Holds
-  the root component AND a dozen sub-components (EquippedTray, ItemContextMenu, ContainerRow,
-  SortableRow, SortHeader(Row), CoinRow, EncumbranceBar, NameCell, RowEquip…). Split sub-
-  components into their own files (e.g. `inventory/EquippedTray.tsx`, `ItemContextMenu.tsx`,
-  `rows/`), and lift the groups↔VM helpers (`buildGroups`, `persist`, etc.) into a module.
-- **`src/OscSheet/app/SheetShell.tsx`** — accumulating item-mutation handlers (equip/nest/
-  consume/reorder/equippedOrder + toasts). Extract into a `useInventoryActions(actor, items)`
-  hook.
-- **`src/OscSheet/styles/inventory.scss` (~570 lines)** — split alongside the component
-  breakup (equipped tray, rows, container, sticky head as separate partials).
+- **`src/OscSheet/features/inventory/ItemContextMenu.tsx`** — still bespoke `.osc-ctx`
+  markup, and positioned `fixed` off cursor coords clamped to the *viewport*, so it escapes
+  the sheet window. Rebuild on the `@ui/Menu` primitives, anchored to the row's kebab.
+- **`src/OscSheet/features/inventory/index.tsx` (~450 lines)** — still holds `persist` /
+  `persistEquipped` and the drag-commit handlers alongside the root render; they want a
+  module or hook of their own.

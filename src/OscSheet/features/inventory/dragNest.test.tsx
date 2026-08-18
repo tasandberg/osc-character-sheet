@@ -68,6 +68,8 @@ function Harness({ collapsed }: { collapsed: boolean }) {
         onEquip={noop}
         onOpen={noop}
         onContext={noop}
+        menuOpenId={null}
+        onMenuToggle={() => {}}
         onSetQty={noop}
       />
       <ContainerRow
@@ -83,6 +85,8 @@ function Harness({ collapsed }: { collapsed: boolean }) {
         onEquip={noop}
         onOpen={noop}
         onContext={noop}
+        menuOpenId={null}
+        onMenuToggle={() => {}}
         onSetQty={noop}
       />
     </div>

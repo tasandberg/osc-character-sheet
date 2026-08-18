@@ -94,6 +94,7 @@ function ItemHarness() {
           key={item.id} item={item} index={i} group={ROOT} depth={0}
           dnd={dnd} itemDragData={() => undefined} canEdit
           onEquip={noop} onOpen={noop} onContext={noop} onSetQty={noop}
+          menuOpenId={null} onMenuToggle={noop}
         />
       ))}
     </div>

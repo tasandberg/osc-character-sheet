@@ -68,6 +68,10 @@ The crash screen offers a **Send bug report** button. Nothing is ever sent autom
 
 For maintainers: reports use the Sentry protocol. The endpoint is baked in at build time via the `VITE_SENTRY_DSN` env var (e.g. in `.env.local`); a build without a DSN replaces the send button with "Copy error details" for pasting into a GitHub issue.
 
+## For module authors
+
+The sheet exposes hooks so a module can add its own controls without patching anything — see **[extensions.md](extensions.md)**.
+
 ---
 
 ## Built with foundry-vtt-react

@@ -4,7 +4,12 @@
 // sortable column headers, the name opens the item sheet, and a right-click gives
 // the item context menu.
 import { useEffect, useState } from "react";
-import type { CoinWealthRow, SortDir, WealthSortKey, WealthRow as WealthRowVM } from "@domain/vm-types";
+import type {
+  CoinWealthRow,
+  SortDir,
+  WealthSortKey,
+  WealthRow as WealthRowVM,
+} from "@domain/vm-types";
 import { sortWealth } from "@features/inventory/inventory";
 import { useDragReorder } from "@features/inventory/useDragReorder";
 import { WealthRow } from "@features/inventory/WealthRow";
@@ -18,7 +23,8 @@ import { cx } from "@ui/cx";
 /** One coin dot in the header stack. The negative margin overlaps the previous
  *  dot; _wealth.scss adds the bg-coloured ring that makes the overlap read as a
  *  pile, and the per-denomination fill. */
-const DOT = "tw:inline-block tw:size-[11px] tw:flex-none tw:rounded-full tw:-ml-[4px] tw:first:ml-0";
+const DOT =
+  "tw:inline-block tw:size-[11px] tw:flex-none tw:rounded-full tw:-ml-[4px] tw:first:ml-0";
 
 /** Treasure section: a header bar (overlapping coin dots + gem · total gp · carried
  *  weight) that toggles ONE table of wealth rows — coins and non-coin valuables in
@@ -53,7 +59,10 @@ export function WealthSection({
   const [open, setOpen] = useState(false);
   // Manual order as row ids (survives qty edits); [] = selectWealth's own order.
   const [manualOrder, setManualOrder] = useState<string[]>([]);
-  const [sort, setSort] = useState<{ key: WealthSortKey; dir: SortDir }>({ key: "manual", dir: "asc" });
+  const [sort, setSort] = useState<{ key: WealthSortKey; dir: SortDir }>({
+    key: "manual",
+    dir: "asc",
+  });
   // In-progress coin qty edits (live totals) committed to the actor on blur/Enter.
   const [draft, setDraft] = useState<Record<string, string>>({});
 
@@ -110,11 +119,17 @@ export function WealthSection({
   }, [wealth]);
 
   const onSort = (key: WealthSortKey) =>
-    setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
+    setSort((s) =>
+      s.key === key
+        ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: "asc" },
+    );
 
   // Live (draft-aware) figures for the section total, order-independent.
-  const liveWeight = (r: WealthRowVM) => (r.kind === "coin" ? draftQty(r) : r.weight);
-  const liveValue = (r: WealthRowVM) => (r.kind === "coin" ? draftQty(r) * r.gpEach : r.value);
+  const liveWeight = (r: WealthRowVM) =>
+    r.kind === "coin" ? draftQty(r) : r.weight;
+  const liveValue = (r: WealthRowVM) =>
+    r.kind === "coin" ? draftQty(r) * r.gpEach : r.value;
   const totalGp = wealth.reduce((s, r) => s + liveValue(r), 0);
   const weight = wealth.reduce((s, r) => s + liveWeight(r), 0);
   const itemBased = variant === "itembased";
@@ -129,7 +144,10 @@ export function WealthSection({
       : r.kind === "coin"
         ? Math.ceil(liveQty(r) * r.itemslots)
         : r.slots;
-  const bucketed = wealth.reduce((s, r) => s + (r.coinsOrGems ? liveQty(r) : 0), 0);
+  const bucketed = wealth.reduce(
+    (s, r) => s + (r.coinsOrGems ? liveQty(r) : 0),
+    0,
+  );
   const slots =
     Math.ceil(bucketed / 100) + wealth.reduce((s, r) => s + rowSlots(r), 0);
   const load = itemBased ? `${slots} slots` : `${fmtCoin(weight)} cn`;
@@ -167,7 +185,9 @@ export function WealthSection({
           {dots.map((d) => (
             <span key={d} className={cx("ci", d.toLowerCase(), DOT)} />
           ))}
-          {!dots.length && !hasValuables && <span className={cx("ci gp", DOT)} />}
+          {!dots.length && !hasValuables && (
+            <span className={cx("ci gp", DOT)} />
+          )}
           {hasValuables && (
             // gem marker in the coin stack — signals non-coin treasure is present.
             // Wider gap when it follows a dot (was a `.ci + .osc-wgem` sibling rule).
@@ -185,9 +205,16 @@ export function WealthSection({
         </span>
         <span className="v tw:font-display tw:text-[length:var(--fs-lg)] tw:leading-flush tw:text-accent-alt">
           {fmtCoin(totalGp)}
-          <small className="tw:ml-[2px] tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-accent-alt tw:opacity-75">gp</small>
+          <small className="tw:ml-[2px] tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-accent-alt tw:opacity-75">
+            gp
+          </small>
         </span>
-        {hasContent && <i className="osc-wcaret fa-solid fa-caret-right" aria-hidden="true" />}
+        {hasContent && (
+          <i
+            className="osc-wcaret fa-solid fa-caret-right"
+            aria-hidden="true"
+          />
+        )}
         <span className="wt tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-faint">
           {load}
         </span>
@@ -195,7 +222,8 @@ export function WealthSection({
 
       {!hasContent && (
         <p className="osc-wsec-empty tw:mt-0 tw:mb-2 tw:ml-[2px] tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint">
-          Drop coins, gems, or other valuables here to track your treasure.</p>
+          Drop coins, gems, or other valuables here to track your treasure.
+        </p>
       )}
 
       {open && hasContent && (
@@ -210,7 +238,7 @@ export function WealthSection({
             <span aria-hidden="true" /> {/* drag */}
             <SortHeader
               label="Item"
-              className="osc-inv-th-item"
+              className="osc-coin-th-item"
               active={sort.key === "item"}
               dir={sort.dir}
               onClick={() => onSort("item")}
@@ -248,7 +276,12 @@ export function WealthSection({
             row.kind === "coin" ? (
               <WealthRow
                 key={row.id}
-                row={{ ...row, qty: draftQty(row), weight: draftQty(row), value: draftQty(row) * row.gpEach }}
+                row={{
+                  ...row,
+                  qty: draftQty(row),
+                  weight: draftQty(row),
+                  value: draftQty(row) * row.gpEach,
+                }}
                 index={i}
                 canEdit={canEdit}
                 dnd={dnd}
@@ -259,7 +292,10 @@ export function WealthSection({
                 onContext={onContext}
                 onQtyChange={(v) => setDraft((d) => ({ ...d, [row.denom]: v }))}
                 onQtyCommit={() => commit(row)}
-                onQtyCommitClose={() => { commit(row); setOpen(false); }}
+                onQtyCommitClose={() => {
+                  commit(row);
+                  setOpen(false);
+                }}
               />
             ) : (
               <WealthRow
