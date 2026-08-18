@@ -53,7 +53,6 @@ wants its own module, add it here (don't silently let files balloon). Prune entr
 - **`src/OscSheet/features/inventory/ItemContextMenu.tsx`** — still bespoke `.osc-ctx`
   markup, and positioned `fixed` off cursor coords clamped to the *viewport*, so it escapes
   the sheet window. Rebuild on the `@ui/Menu` primitives, anchored to the row's kebab.
-- **`src/OscSheet/features/inventory/index.tsx` (~480 lines)** — still owns the Send dialog
-  state (`sending` + `SendItemModal` + `contentCount`), which keeps a self-sufficient
-  `ItemMenu` from opening it; move into `useInventoryActions`. Also holds `persist` /
-  `persistEquipped` and the drag-commit handlers alongside the root render.
+- **`src/OscSheet/features/inventory/index.tsx` (~450 lines)** — still holds `persist` /
+  `persistEquipped` and the drag-commit handlers alongside the root render; they want a
+  module or hook of their own.

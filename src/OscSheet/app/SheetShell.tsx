@@ -6,6 +6,7 @@ import { tabs, TabIds } from "@app/tabs";
 import getLabel from "@src/util/getLabel";
 import { ActionsView, SavesExploration } from "@features/actions";
 import { InventoryView } from "@features/inventory";
+import { SendItemHost } from "@features/inventory/SendItemHost";
 import { useInventoryActions } from "@features/inventory/useInventoryActions";
 import { selectTopbar } from "@domain/topbar";
 import { selectSaves } from "@features/actions/saves";
@@ -66,14 +67,16 @@ export default function SheetShell() {
   // rates line must never disagree about the tier.
   const encumbrance = selectEncumbrance(actor, invItems as OseItem[]);
   // Read-only sheets get no HP stepper/input (undefined onSetHp → static value).
-  const onSetHp = !canEdit ? undefined : (value: number) => {
-    const next = Math.max(0, Math.min(vitals.hp.max, value));
-    if (next === vitals.hp.value) return;
-    const update = { "system.hp.value": next };
-    if (optimisticUpdate)
-      optimisticUpdate("actor", update, () => updateActor(update));
-    else void updateActor(update);
-  };
+  const onSetHp = !canEdit
+    ? undefined
+    : (value: number) => {
+        const next = Math.max(0, Math.min(vitals.hp.max, value));
+        if (next === vitals.hp.value) return;
+        const update = { "system.hp.value": next };
+        if (optimisticUpdate)
+          optimisticUpdate("actor", update, () => updateActor(update));
+        else void updateActor(update);
+      };
 
   const inventoryActions = useInventoryActions();
 
@@ -89,74 +92,81 @@ export default function SheetShell() {
 
   return (
     <>
-      <EditModal open={editOpen && canEdit} onClose={() => setEditOpen(false)} />
-      <Frame
-        nav={{
-          tabs: items,
-          active: activeTab.id,
-          onSelect: (id) => {
-            const next = visible.find((t) => t.id === id);
-            if (next) setCurrentTab(next.id);
-          },
-        }}
-        topbar={
-          <Topbar
-            vm={selectTopbar(actor)}
-            canEdit={canEdit}
-            onEdit={() => setEditOpen(true)}
-            onLevelUp={() =>
-              toast({
-                intent: "warning",
-                title: "Level Up",
-                message: "Coming soon ;)",
-              })
-            }
-          />
-        }
-        header={
-          <HeaderBand
-            identity={identity}
-            vitals={vitals}
-            encumbrance={encumbrance}
-            onSetHp={onSetHp}
-            // Intentionally gated on canEdit (= Foundry `sheet.isEditable`), not
-            // raw actor.isOwner: a locked/compendium sheet legitimately shouldn't
-            // expose write affordances even to an owner. Same rationale for the
-            // inventory context-menu / Send gates.
-            onPortraitContextMenu={
-              canEdit
-                ? () => showTokenVariantsPortraitPicker(actor)
-                : undefined
-            }
-            canEditPortrait={canEdit}
-          />
-        }
-        minibar={
-          <Minibar identity={identity} vitals={vitals} onSetHp={onSetHp} />
-        }
-        railExtra={
-          <SavesExploration
-            saves={selectSaves(actor)}
-            exploration={selectExploration(actor)}
-            onRollSave={(key, event) => actor.rollSave(key, { event })}
-            onRollExploration={(key, event) => rollExploration(actor, key, event)}
-            tabbed
-          />
-        }
-      >
-        {activeTab.id === TabIds.ACTIONS ? (
-          <ActionsView actor={actor} />
-        ) : activeTab.id === TabIds.INVENTORY ? (
-          <InventoryView
-            inventory={selectInventory(invItems as OseItem[])}
-            encumbrance={encumbrance}
-            wealth={selectWealth(invItems as OseItem[])}
-            {...inventoryActions}
-          />
-        ) : (
-          activeTab.Content && <activeTab.Content />
-        )}
-      </Frame>
+      <EditModal
+        open={editOpen && canEdit}
+        onClose={() => setEditOpen(false)}
+      />
+      <SendItemHost>
+        <Frame
+          nav={{
+            tabs: items,
+            active: activeTab.id,
+            onSelect: (id) => {
+              const next = visible.find((t) => t.id === id);
+              if (next) setCurrentTab(next.id);
+            },
+          }}
+          topbar={
+            <Topbar
+              vm={selectTopbar(actor)}
+              canEdit={canEdit}
+              onEdit={() => setEditOpen(true)}
+              onLevelUp={() =>
+                toast({
+                  intent: "warning",
+                  title: "Level Up",
+                  message: "Coming soon ;)",
+                })
+              }
+            />
+          }
+          header={
+            <HeaderBand
+              identity={identity}
+              vitals={vitals}
+              encumbrance={encumbrance}
+              onSetHp={onSetHp}
+              // Intentionally gated on canEdit (= Foundry `sheet.isEditable`), not
+              // raw actor.isOwner: a locked/compendium sheet legitimately shouldn't
+              // expose write affordances even to an owner. Same rationale for the
+              // inventory context-menu / Send gates.
+              onPortraitContextMenu={
+                canEdit
+                  ? () => showTokenVariantsPortraitPicker(actor)
+                  : undefined
+              }
+              canEditPortrait={canEdit}
+            />
+          }
+          minibar={
+            <Minibar identity={identity} vitals={vitals} onSetHp={onSetHp} />
+          }
+          railExtra={
+            <SavesExploration
+              saves={selectSaves(actor)}
+              exploration={selectExploration(actor)}
+              onRollSave={(key, event) => actor.rollSave(key, { event })}
+              onRollExploration={(key, event) =>
+                rollExploration(actor, key, event)
+              }
+              tabbed
+            />
+          }
+        >
+          {activeTab.id === TabIds.ACTIONS ? (
+            <ActionsView actor={actor} />
+          ) : activeTab.id === TabIds.INVENTORY ? (
+            <InventoryView
+              inventory={selectInventory(invItems as OseItem[])}
+              encumbrance={encumbrance}
+              wealth={selectWealth(invItems as OseItem[])}
+              {...inventoryActions}
+            />
+          ) : (
+            activeTab.Content && <activeTab.Content />
+          )}
+        </Frame>
+      </SendItemHost>
     </>
   );
 }

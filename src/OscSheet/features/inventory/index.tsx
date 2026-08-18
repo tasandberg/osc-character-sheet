@@ -26,13 +26,9 @@ import {
 import { useDragReorder } from "@features/inventory/useDragReorder";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { WealthSection } from "@features/inventory/WealthSection";
-import { SendItemModal } from "@features/inventory/SendItemModal";
-import {
-  selectSendTargets,
-  isGmConnected,
-} from "@features/inventory/sendTargets";
 import { EquippedTray } from "@features/inventory/EquippedTray";
 import { ItemContextMenu } from "@features/inventory/ItemContextMenu";
+import { useSendItem } from "@features/inventory/sendItemContext";
 import { EncumbranceReadout } from "@features/inventory/EncumbranceReadout";
 import { SectionCount } from "@features/inventory/SectionCount";
 import { AddItemMenu } from "@features/inventory/AddItemMenu";
@@ -43,7 +39,6 @@ import {
   buildGroups,
   indexById,
   originContainers,
-  flattenItems,
   ROOT,
   EQUIPPED,
   gkey,
@@ -77,7 +72,6 @@ export function InventoryView({
   onReorder,
   onReorderEquipped,
   onNest,
-  onSend,
 }: Props) {
   // Active encumbrance scheme — under "itembased" every load figure on the tab is in
   // item slots rather than coins, so it travels down to the rows, headers and totals.
@@ -98,8 +92,6 @@ export function InventoryView({
   );
   const [listOver, setListOver] = useState(false); // tray tile hovering the list → unequip
   const [menu, setMenu] = useState<MenuState | null>(null);
-  // The item whose Send dialog is open (a full inventory VM node), null = closed.
-  const [sending, setSending] = useState<InventoryItemVM | null>(null);
 
   // Foundry items by id — source for the hotbar drag payload. Dragging a row onto
   // the macro bar creates an item macro (OSE's hotbarDrop hook), like the stock sheet.
@@ -116,10 +108,11 @@ export function InventoryView({
   };
 
   const byId = indexById(inventory.items);
+  const sendItem = useSendItem();
   // Open the Send dialog for a list item (coins aren't in the VM → not sendable).
   const openSend = (id: string) => {
     const it = byId.get(id);
-    if (it) setSending(it);
+    if (it) sendItem?.(it);
   };
   const groupsRef = useRef(groups);
   groupsRef.current = groups;
@@ -447,33 +440,9 @@ export function InventoryView({
           onEquip={onEquip}
           onConsume={onConsume}
           onDelete={onDelete}
-          onSend={
-            canEdit && byId.has(menu.item.id) && isGmConnected()
-              ? openSend
-              : undefined
-          }
+          onSend={sendItem && byId.has(menu.item.id) ? openSend : undefined}
         />
       )}
-
-      {sending &&
-        (() => {
-          const { targets, gmOnline } = selectSendTargets(actor);
-          const contentCount = flattenItems(sending.children).length;
-          return (
-            <SendItemModal
-              open
-              item={sending}
-              contentCount={contentCount}
-              targets={targets}
-              gmOnline={gmOnline}
-              onClose={() => setSending(null)}
-              onSend={(target, qty) => {
-                onSend(sending.id, target, qty);
-                setSending(null);
-              }}
-            />
-          );
-        })()}
     </section>
   );
 }

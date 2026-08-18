@@ -50,7 +50,9 @@ export type Props = {
   /** Unified Treasure-table rows: coins + non-coin valuables in one list. */
   wealth: WealthRow[];
   onSetCoin: (id: string, value: number) => void;
-} & Ops;
+  // onSend is absent by design: the Send dialog is owned by SendItemHost, which
+  // reaches it through useInventoryActions rather than prop-drilling.
+} & Omit<Ops, "onSend">;
 
 export type SortState = { key: InventorySortKey; dir: SortDir };
 export type Groups = Record<string, string[]>;
