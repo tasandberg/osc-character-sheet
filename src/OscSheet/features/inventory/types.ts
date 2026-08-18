@@ -41,7 +41,13 @@ export type CtxItem = Pick<
   InventoryItemVM,
   "id" | "name" | "equipped" | "quantity"
 >;
-export type MenuState = { item: CtxItem; x: number; y: number };
+export type MenuState = {
+  item: CtxItem;
+  /** Full VM node when the item has one (coins don't) — gates Send. */
+  vm?: InventoryItemVM | null;
+  x: number;
+  y: number;
+};
 export type OnContext = (e: React.MouseEvent, item: CtxItem) => void;
 
 export type Props = {

@@ -1,8 +1,10 @@
 import type { InventoryItemVM } from "@src/OscSheet/domain/vm-types";
+import { useEffect, useRef, useState } from "react";
+import { Menu } from "@ui/Menu";
+import { ItemMenuBody } from "@features/inventory/ItemMenuBody";
 import { INV_QTYTAG } from "./classes";
 import { Button, cx, IconButton } from "@src/OscSheet/components/ui";
 import { useOscSheetContext } from "@src/OscSheet/app/context";
-import type { OnContext } from "../types";
 
 export function DragHandle() {
   return (
@@ -122,25 +124,79 @@ export function RowEquip({
   );
 }
 
+const OVERHANG = 10;
+
 export function RowMore({
   item,
-  onMore,
+  open,
+  onToggle,
 }: {
   item: InventoryItemVM;
-  onMore: OnContext;
+  open: boolean;
+  onToggle: (id: string | null) => void;
 }) {
+  const host = useRef<HTMLSpanElement>(null);
+  const [pos, setPos] = useState<React.CSSProperties | null>(null);
+
+  // Pinned to the viewport, not anchored in flow: the sheet body scrolls and
+  // clips, so an absolutely-positioned popover loses its lower half on the last
+  // rows. Overhanging the window edge is fine — the menu is fixed.
+  const place = (trigger: HTMLElement) => {
+    const r = trigger.getBoundingClientRect();
+    // The menu hangs OVERHANG past the trigger's right edge so the caret clears
+    // the rounded corner; the caret inset then re-centres it on the button.
+    const arrow = {
+      "--osc-menu-arrow-right": `${r.width / 2 + OVERHANG - 6}px`,
+    } as React.CSSProperties;
+    setPos({
+      ...arrow,
+      right: window.innerWidth - r.right - OVERHANG,
+      top: r.bottom + 6,
+    });
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: Event) => {
+      if (!host.current?.contains(e.target as Node)) onToggle(null);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onToggle(null);
+    window.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("blur", close);
+    return () => {
+      window.removeEventListener("pointerdown", close);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("blur", close);
+    };
+  }, [open, onToggle]);
+
   return (
-    <IconButton
-      className="osc-inv-more"
-      aria-haspopup="menu"
-      aria-label={`More actions for ${item.name}`}
-      onPointerDown={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onMore(e, item);
-      }}
-    >
-      <i className="fa-solid fa-ellipsis-vertical" aria-hidden="true" />
-    </IconButton>
+    <span className="menu-host" ref={host}>
+      <IconButton
+        className="osc-inv-more"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`More actions for ${item.name}`}
+        onPointerDown={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!open) place(e.currentTarget);
+          onToggle(open ? null : item.id);
+        }}
+      >
+        <i className="fa-solid fa-ellipsis-vertical" aria-hidden="true" />
+      </IconButton>
+      {open && (
+        <Menu
+          className="osc-menu-pinned has-arrow"
+          style={pos ?? { top: 0, right: 0, visibility: "hidden" }}
+          role="menu"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <ItemMenuBody item={item} vm={item} onClose={() => onToggle(null)} />
+        </Menu>
+      )}
+    </span>
   );
 }

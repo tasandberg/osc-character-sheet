@@ -48,6 +48,8 @@ function Harness({
       onEquip={noop}
       onOpen={noop}
       onContext={noop}
+      menuOpenId={null}
+      onMenuToggle={() => {}}
       onSetQty={onSetQty}
     />
   );

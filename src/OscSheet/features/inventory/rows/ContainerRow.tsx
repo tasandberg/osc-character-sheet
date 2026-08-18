@@ -22,6 +22,8 @@ export function ContainerRow({
   onEquip,
   onOpen,
   onContext,
+  menuOpenId,
+  onMenuToggle,
   onSetQty,
 }: {
   item: InventoryItemVM;
@@ -38,6 +40,8 @@ export function ContainerRow({
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onContext: OnContext;
+  menuOpenId: string | null;
+  onMenuToggle: (id: string | null) => void;
   onSetQty: (id: string, value: number) => void;
 }) {
   const group = gkey(item.id);
@@ -96,7 +100,8 @@ export function ContainerRow({
             onEquip,
             onOpen,
             onSetQty,
-            onMore: onContext,
+            menuOpenId,
+            onMenuToggle,
             nameSlots: {
               badge: <Tag intent="count">{count}</Tag>,
               trailing: caret,
@@ -130,6 +135,8 @@ export function ContainerRow({
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={onContext}
+                menuOpenId={menuOpenId}
+                onMenuToggle={onMenuToggle}
                 onSetQty={onSetQty}
               />
             ) : null;

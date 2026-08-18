@@ -19,6 +19,8 @@ export function SortableRow({
   onEquip,
   onOpen,
   onContext,
+  menuOpenId,
+  onMenuToggle,
   onSetQty,
 }: {
   item: InventoryItemVM;
@@ -35,6 +37,8 @@ export function SortableRow({
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onContext: OnContext;
+  menuOpenId: string | null;
+  onMenuToggle: (id: string | null) => void;
   onSetQty: (id: string, value: number) => void;
 }) {
   // The whole row is draggable (and stays a drop target). Clicks on the inner
@@ -68,7 +72,8 @@ export function SortableRow({
           onEquip,
           onOpen,
           onSetQty,
-          onMore: onContext,
+          menuOpenId,
+            onMenuToggle,
         }}
       />
     </div>

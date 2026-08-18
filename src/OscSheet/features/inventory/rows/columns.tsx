@@ -1,5 +1,4 @@
 import { type ReactNode } from "react";
-import type { OnContext } from "../types";
 import type {
   InventoryItemVM,
   InventorySortKey,
@@ -17,7 +16,8 @@ export type RowCtx = {
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onSetQty: (id: string, value: number) => void;
-  onMore: OnContext;
+  menuOpenId: string | null;
+  onMenuToggle: (id: string | null) => void;
   nameSlots?: { badge?: ReactNode; trailing?: ReactNode };
 };
 
@@ -101,7 +101,13 @@ export const INV_COLUMNS: InvColumn[] = [
   {
     key: "more",
     width: "calc(var(--fs-base, 16px) * 1.5)",
-    cell: (c) => <RowMore item={c.item} onMore={c.onMore} />,
+    cell: (c) => (
+      <RowMore
+        item={c.item}
+        open={c.menuOpenId === c.item.id}
+        onToggle={c.onMenuToggle}
+      />
+    ),
   },
 ];
 

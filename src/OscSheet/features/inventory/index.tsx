@@ -28,7 +28,6 @@ import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { WealthSection } from "@features/inventory/WealthSection";
 import { EquippedTray } from "@features/inventory/EquippedTray";
 import { ItemContextMenu } from "@features/inventory/ItemContextMenu";
-import { useSendItem } from "@features/inventory/sendItemContext";
 import { EncumbranceReadout } from "@features/inventory/EncumbranceReadout";
 import { SectionCount } from "@features/inventory/SectionCount";
 import { AddItemMenu } from "@features/inventory/AddItemMenu";
@@ -66,8 +65,6 @@ export function InventoryView({
   onCreate,
   onEquip,
   onOpen,
-  onDelete,
-  onConsume,
   onSetQty,
   onReorder,
   onReorderEquipped,
@@ -92,6 +89,9 @@ export function InventoryView({
   );
   const [listOver, setListOver] = useState(false); // tray tile hovering the list → unequip
   const [menu, setMenu] = useState<MenuState | null>(null);
+  // The row whose kebab popover is open (anchored); null = none. Separate from
+  // `menu`, which is the cursor-anchored wiring used by tray tiles + treasure rows.
+  const [menuItemId, setMenuItemId] = useState<string | null>(null);
 
   // Foundry items by id — source for the hotbar drag payload. Dragging a row onto
   // the macro bar creates an item macro (OSE's hotbarDrop hook), like the stock sheet.
@@ -104,16 +104,15 @@ export function InventoryView({
 
   const openMenu: OnContext = (e, item) => {
     e.preventDefault();
-    setMenu({ item, x: e.clientX, y: e.clientY });
+    setMenu({
+      item,
+      vm: byId.get(item.id) ?? null,
+      x: e.clientX,
+      y: e.clientY,
+    });
   };
 
   const byId = indexById(inventory.items);
-  const sendItem = useSendItem();
-  // Open the Send dialog for a list item (coins aren't in the VM → not sendable).
-  const openSend = (id: string) => {
-    const it = byId.get(id);
-    if (it) sendItem?.(it);
-  };
   const groupsRef = useRef(groups);
   groupsRef.current = groups;
   // Holds the *rendered* tray ids (stale ids dropped), kept index-aligned with the
@@ -408,6 +407,8 @@ export function InventoryView({
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
+                menuOpenId={menuItemId}
+                onMenuToggle={setMenuItemId}
                 onSetQty={onSetQty}
               />
             ) : (
@@ -424,6 +425,8 @@ export function InventoryView({
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
+                menuOpenId={menuItemId}
+                onMenuToggle={setMenuItemId}
                 onSetQty={onSetQty}
               />
             );
@@ -431,18 +434,7 @@ export function InventoryView({
         </div>
       </section>
 
-      {menu && (
-        <ItemContextMenu
-          menu={menu}
-          canEdit={canEdit}
-          onClose={() => setMenu(null)}
-          onOpen={onOpen}
-          onEquip={onEquip}
-          onConsume={onConsume}
-          onDelete={onDelete}
-          onSend={sendItem && byId.has(menu.item.id) ? openSend : undefined}
-        />
-      )}
+      {menu && <ItemContextMenu menu={menu} onClose={() => setMenu(null)} />}
     </section>
   );
 }
