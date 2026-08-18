@@ -1,4 +1,6 @@
 import { useOscSheetContext } from "@app/context";
+import { HOOKS } from "@domain/extensions";
+import { ThirdPartyExtensionMount } from "@app/ThirdPartyExtensionMount";
 import { MenuItem, MenuLabel } from "@ui/Menu";
 import {
   ITEM_ACTIONS,
@@ -18,7 +20,7 @@ export function ItemMenuBody({
   vm?: InventoryItemVM | null;
   onClose: () => void;
 }) {
-  const { canEdit } = useOscSheetContext();
+  const { actor, items, canEdit } = useOscSheetContext();
   const ops = useInventoryActions();
   const sendItem = useSendItem();
   const ctx: ItemActionCtx = { item, vm, canEdit, ops, sendItem };
@@ -39,7 +41,15 @@ export function ItemMenuBody({
           {a.label}
         </MenuItem>
       ))}
-      <div className="osc-item-menu-addtions"></div>
+      <ThirdPartyExtensionMount
+        hook={HOOKS.itemMenu}
+        className="osc-item-menu-additions"
+        payload={{
+          actor,
+          item: items.find((i) => i._id === item.id),
+          close: onClose,
+        }}
+      />
     </>
   );
 }

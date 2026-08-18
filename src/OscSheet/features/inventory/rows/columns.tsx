@@ -5,7 +5,7 @@ import type {
 } from "@src/OscSheet/domain/vm-types";
 import { ItemImage } from "../ItemImage";
 import { countedLoad, loadText, loadHeading } from "../groups";
-import { DragHandle, InlineUse, NameCell, RowEquip, RowMore } from "./cells";
+import { DragHandle, InlineUse, NameCell, EquipCell, RowMore } from "./cells";
 import { UsesRow } from "./UsesRow";
 import { INV_ROWCAT, INV_WT } from "./classes";
 
@@ -96,7 +96,7 @@ export const INV_COLUMNS: InvColumn[] = [
     key: "equip",
     width: "calc(var(--fs-base, 16px) * 2.75)",
     header: () => "Equip",
-    cell: (c) => <RowEquip item={c.item} onEquip={c.onEquip} />,
+    cell: (c) => <EquipCell item={c.item} onEquip={c.onEquip} />,
   },
   {
     key: "more",

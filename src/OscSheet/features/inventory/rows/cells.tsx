@@ -85,7 +85,7 @@ export function InlineUse({
 // Equip toggle: outlined hand = unequipped, filled hand = equipped. Read-only
 // sheets (non-owners) get a static, non-interactive equipped indicator instead
 // of a toggle button — equipped items stay readable, but can't be toggled.
-export function RowEquip({
+export function EquipCell({
   item,
   onEquip,
 }: {
@@ -157,8 +157,11 @@ export function RowMore({
 
   useEffect(() => {
     if (!open) return;
+    // `blur` targets window, not a Node — guard before asking contains().
     const close = (e: Event) => {
-      if (!host.current?.contains(e.target as Node)) onToggle(null);
+      const target = e.target;
+      if (target instanceof Node && host.current?.contains(target)) return;
+      onToggle(null);
     };
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onToggle(null);
     // Capture: scroll doesn't bubble, and the menu is pinned to coordinates
