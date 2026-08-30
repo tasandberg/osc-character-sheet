@@ -7,7 +7,8 @@ type Props = { tabs: TabItem[]; active: string; onSelect: (id: string) => void }
 export function BottomBar({ tabs, active, onSelect }: Props) {
   return (
     <nav
-      className="osc-bottombar tw:hidden tw:@max-md/app:flex tw:@max-md/app:flex-none tw:@max-md/app:border-t tw:@max-md/app:border-border tw:@max-md/app:bg-bg-2"
+      data-testid="bottom-bar"
+      className="tw:hidden tw:@max-md/app:flex tw:@max-md/app:flex-none tw:@max-md/app:border-t tw:@max-md/app:border-border tw:@max-md/app:bg-bg-2"
       aria-label="Sheet sections"
     >
       {tabs.map((t) => (

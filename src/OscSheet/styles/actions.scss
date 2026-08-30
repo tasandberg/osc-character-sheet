@@ -200,13 +200,8 @@
 
 // --- attacks: woodcut weapon cards (ported from prototype .fvtt-weapon) ---
 // Card grid: Item (icon + name/tags) | Hit | Damage | tall brass Atk button.
-// AttacksTable is NOT converted — `.osc-wtable` and the card's box, info column,
-// monogram, name, tags and hit/dmg cells are in actions-features.scss.
-//
-// NOTE: `.osc-whdr` has no markup — AttacksTable renders no column-header row —
-// so the rule below is live for `.osc-weapon` only. Left as found rather than
-// pruned; deleting dead selectors is a separate call.
-.osc-whdr,
+// AttacksTable is NOT converted — the card's box, info column, monogram, name,
+// tags and hit/dmg cells are in actions-features.scss.
 .osc-weapon {
   display: grid;
   // fixed Hit/Damage/Atk columns so buttons are a consistent width per type and
@@ -220,19 +215,6 @@
   gap: var(--spacer-3);
   align-items: center;
 }
-.osc-whdr {
-  padding: 0 var(--spacer-1) var(--spacer-1);
-  font-family: var(--sans);
-  font-size: var(--fs-3xs, 10px);
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-faint, #6a6354);
-}
-.osc-whdr > span:nth-child(n + 2) {
-  text-align: center;
-}
-
 // What's left of the weapon card below is the segmented kind switch's corner
 // maths, the segment colour states, and the `& + &` divider — none of which a
 // utility can say. The card's own box is in actions-features.scss.
@@ -344,56 +326,6 @@
 // branch, so they styled nothing. The button keeps its place in the XS weapon
 // grid by auto-placement into the free `atk` cell, exactly as it already did.
 
-// --- wealth + movement ---
-// NOTE: nothing renders `.osc-wm`, `.osc-coins`, `.osc-moves`, `.osc-coin` or
-// `.osc-move` — the Actions tab dropped this readout and the inventory's own
-// wealth table uses the unrelated `.osc-coin-row`/`.osc-coin-qty` family. The
-// whole block below is dead, so there is no element to move it onto. Left as
-// found; deleting it is a separate call. (`.osc-section + .osc-section` at the
-// end of the block IS live and stays — an adjacent-sibling rule has no utility
-// form.)
-.osc-wm {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacer-6);
-  margin-top: 6px;
-}
-.osc-wm .grp {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacer-1);
-}
-.osc-coins,
-.osc-moves {
-  display: flex;
-  gap: var(--spacer-3);
-  flex-wrap: wrap;
-  font-size: var(--fs-sm, 13px);
-}
-.osc-coin {
-  display: flex;
-  align-items: center;
-  gap: var(--spacer-1);
-}
-.osc-coin img {
-  width: 14px;
-  height: 14px;
-}
-.osc-coin .v {
-  font-family: var(--mono);
-}
-.osc-move .k {
-  color: var(--text-mute, #8a8270);
-  margin-right: var(--spacer-1);
-}
-.osc-move .v {
-  font-family: var(--mono);
-}
-
-// section spacing in the Actions body
-.osc-section + .osc-section {
-  margin-top: var(--spacer-5);
-}
 
 // --- rollable affordance (table rows wired to system rolls) ---
 // Ability-plaque rollable styling moved to vellum (.plaque-ability.rollable).

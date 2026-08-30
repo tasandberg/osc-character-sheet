@@ -7,7 +7,8 @@ type Props = { tabs: TabItem[]; active: string; onSelect: (id: string) => void }
 export function TabBar({ tabs, active, onSelect }: Props) {
   return (
     <div
-      className="osc-htabs tw:hidden tw:@lg/app:mb-4 tw:@lg/app:flex tw:@lg/app:gap-1 tw:@lg/app:border-b-2 tw:@lg/app:border-border"
+      data-testid="tab-bar"
+      className="tw:hidden tw:@lg/app:mb-4 tw:@lg/app:flex tw:@lg/app:gap-1 tw:@lg/app:border-b-2 tw:@lg/app:border-border"
       role="tablist"
     >
       {tabs.map((t) => (

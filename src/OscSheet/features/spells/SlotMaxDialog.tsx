@@ -40,7 +40,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
       <IconButton
         variant="accent"
         size="sm"
-        className="osc-slotedit"
+        data-testid="slot-edit"
         title={label}
         aria-label={label}
         onClick={() => {
@@ -71,18 +71,18 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
           label={`Level ${level} spell slots:`}
           hint={
             defaultMax == null ? undefined : (
-              <span className="osc-slotdefaults tw:inline-flex tw:items-center tw:gap-1">
+              <span data-testid="slot-defaults" className="tw:inline-flex tw:items-center tw:gap-1">
                 <OverrideValue
                   overridden={overridden}
                   className="osc-slotdefault tw:self-center"
                   defaultText={`default ${defaultMax}`}
                   onResetRequest={() => setDraft(defaultMax)}
                 />
-                <IconButton size="sm" className="osc-slotinfo" aria-label={tip}>
+                <IconButton size="sm" data-testid="slot-info" aria-label={tip}>
                   <i className="fa-solid fa-circle-info" aria-hidden="true" />
                   <HoverPop
                     align="center"
-                    className="osc-slot-tip tw:max-w-[220px] tw:font-sans tw:text-[length:var(--fs-xs)] tw:leading-snug tw:text-text-dim"
+                    data-testid="slot-tip" className="tw:max-w-[220px] tw:font-sans tw:text-[length:var(--fs-xs)] tw:leading-snug tw:text-text-dim"
                   >
                     {tip}
                   </HoverPop>
@@ -92,7 +92,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
           }
         >
           <NumberInput
-            className="input mono osc-slotmax tw:w-[8ch]"
+            className="input mono tw:w-[8ch]" data-testid="slot-max"
             value={draft}
             min={0}
             onCommit={setDraft}

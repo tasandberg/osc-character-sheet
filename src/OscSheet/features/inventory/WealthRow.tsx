@@ -106,15 +106,15 @@ export function WealthRow({
         // <input>, and must be indistinguishable from it apart from the missing
         // field chrome — hence the identical box metrics (font-size, padding,
         // transparent 1px border) and text colour.
-        <span className="osc-coin-qty-ro tw:border tw:border-transparent tw:px-2 tw:py-[5px] tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-sm)] tw:text-text">
+        <span className="tw:border tw:border-transparent tw:px-2 tw:py-[5px] tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-sm)] tw:text-text">
           {fmtCoin(row.qty)}
         </span>
       )}
       {/* nowrap on both: never split "1,300 cn" off its unit */}
-      <span className="osc-coin-wt tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-dim tw:@max-md/app:hidden">
+      <span data-testid="coin-load" className="tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-dim tw:@max-md/app:hidden">
         {load}
       </span>
-      <span className="osc-coin-val tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text tw:@max-md/app:hidden">
+      <span className="tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text tw:@max-md/app:hidden">
         {fmtCoin(row.value)}
       </span>
     </div>

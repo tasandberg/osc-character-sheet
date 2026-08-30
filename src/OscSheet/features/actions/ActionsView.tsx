@@ -66,36 +66,38 @@ export function ActionsView({ actor }: Props) {
   const abilities = selectAbilities(actor);
   return (
     <>
-      <AbilityPlaques abilities={abilities} onRoll={onAbility} />
-      <AttacksTable
-        attacks={attacks}
-        onRoll={onRoll}
-        onAttack={canEdit ? onAttack : undefined}
-        onOpen={onOpenWeapon}
-        dragData={dragData}
-        canAttack={canEdit}
-      />
-      <FavoriteAbilities
-        features={selectFavoriteAbilities(actor)}
-        dragData={dragData}
-      />
-      <MemorizedSpells actor={actor} />
-      {/* .actions-only: hidden at lg (Saves/Exploration live in the rail there). */}
-      <section className="osc-section actions-only">
-        <SectionTitle>
-          <span className="tw:whitespace-nowrap">Saving Throws</span>
-          <span className="hint">Roll d20 ≥ score</span>
-          <SavesModTag wisdomAbility={abilities[2]} />
-        </SectionTitle>
-        <SavesGrid saves={selectSaves(actor)} onRoll={onSave} />
-      </section>
-      <section className="osc-section actions-only">
-        <SectionTitle hint="1-in-6">Exploration</SectionTitle>
-        <ExplorationGrid
-          exploration={selectExploration(actor)}
-          onRoll={onExploration}
+      <div className="tw:space-y-8">
+        <AbilityPlaques abilities={abilities} onRoll={onAbility} />
+        <AttacksTable
+          attacks={attacks}
+          onRoll={onRoll}
+          onAttack={canEdit ? onAttack : undefined}
+          onOpen={onOpenWeapon}
+          dragData={dragData}
+          canAttack={canEdit}
         />
-      </section>
+        <FavoriteAbilities
+          features={selectFavoriteAbilities(actor)}
+          dragData={dragData}
+        />
+        <MemorizedSpells actor={actor} />
+        {/* Saves/Exploration live in the rail at lg, so these copies hide there. */}
+        <section className="u-foundry-lg-display-none">
+          <SectionTitle>
+            <span className="tw:whitespace-nowrap">Saving Throws</span>
+            <span className="hint">Roll d20 ≥ score</span>
+            <SavesModTag wisdomAbility={abilities[2]} />
+          </SectionTitle>
+          <SavesGrid saves={selectSaves(actor)} onRoll={onSave} />
+        </section>
+        <section className="u-foundry-lg-display-none">
+          <SectionTitle hint="1-in-6">Exploration</SectionTitle>
+          <ExplorationGrid
+            exploration={selectExploration(actor)}
+            onRoll={onExploration}
+          />
+        </section>
+      </div>
     </>
   );
 }

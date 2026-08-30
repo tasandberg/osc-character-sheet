@@ -50,7 +50,7 @@ export const TB_BTN_ICON =
  *  the ONE variant whose display is a base+variant pair rather than a flat
  *  `inline-flex`, which is why display is not in TB_BTN_BASE. */
 export const TB_BTN_OVERFLOW =
-  `${TB_BTN_BASE} ${TB_BTN_IDLE} ${TB_BTN_PAD} osc-tb-overflow tw:hidden tw:@max-md/app:inline-flex`;
+  `${TB_BTN_BASE} ${TB_BTN_IDLE} ${TB_BTN_PAD} tw:hidden tw:@max-md/app:inline-flex`;
 
 /** Leading glyph inside a topbar button. `leading-flush` stops the taller glyph
  *  line box from growing the button past its siblings. */

@@ -232,9 +232,9 @@ export function AttacksTable({
   canAttack = true,
 }: Props) {
   return (
-    <section className="osc-section osc-atk">
+    <section className="osc-section" data-testid="attacks">
       <SectionTitle hint="click to roll">Attacks</SectionTitle>
-      <div className="osc-wtable">
+      <div className="tw:flex tw:flex-col tw:gap-1">
         {attacks.map((a) => (
           <WeaponRow
             key={a.id}

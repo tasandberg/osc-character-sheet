@@ -19,9 +19,9 @@ const NON_INVENTORY_TABS = ["actions", "abilities", "notes"] as const;
 // Await the tab body's stable anchor before running negative (toHaveCount(0))
 // assertions, so they can't pass vacuously by racing the async tab-body render.
 const TAB_ANCHOR: Record<(typeof NON_INVENTORY_TABS)[number], string> = {
-  actions: ".osc-atk",
-  abilities: ".osc-abilities-tab",
-  notes: ".osc-notes-tab",
+  actions: '[data-testid="attacks"]',
+  abilities: '[data-testid="abilities-tab"]',
+  notes: '[data-testid="notes-tab"]',
 };
 
 test.describe("read-only sheet (non-owner)", () => {
@@ -67,7 +67,7 @@ test.describe("read-only sheet (non-owner)", () => {
     await expect(sheet.locator('img[data-action="editImage"]')).toHaveCount(0);
     // Topbar character actions (Rest / Level Up / Edit + overflow) are gone;
     // the theme toggle (.osc-tb-btn.icon) stays for everyone.
-    await expect(sheet.locator(".osc-tb-actions .osc-tb-btn")).toHaveCount(0);
+    await expect(sheet.locator('[data-testid="topbar-actions"] .osc-tb-btn')).toHaveCount(0);
     await expect(sheet.locator(".osc-tb-menu-wrap")).toHaveCount(0);
 
     // Sheet is still readable: HP value + AC render.
@@ -94,7 +94,9 @@ test.describe("read-only sheet (non-owner)", () => {
         await expect(sheet.locator('[aria-label="Edit languages"]')).toHaveCount(0);
       }
       if (id === "notes") {
-        await expect(sheet.locator(".osc-rt-edit")).toHaveCount(0);
+        await expect(
+          sheet.locator('[data-testid="editable-section"] [aria-label^="Edit "]'),
+        ).toHaveCount(0);
       }
     }
 
@@ -104,7 +106,7 @@ test.describe("read-only sheet (non-owner)", () => {
     await expect(inventoryTab).toHaveAttribute("aria-selected", "true");
 
     // Wait for a REAL item row (not the sticky sort-header) before negatives.
-    const itemRow = sheet.locator(".osc-inv-row:not(.osc-inv-headrow)").first();
+    const itemRow = sheet.locator('.osc-inv-row:not([data-testid="inv-headrow"])').first();
     await expect(itemRow).toBeVisible();
     await expect(sheet.locator('[data-testid="wealth-toggle"]')).toBeVisible();
 
@@ -142,7 +144,7 @@ test.describe("read-only sheet (non-owner)", () => {
 
     // Owner keeps HP steppers + the Edit action.
     await expect(sheet.locator(".vv-step").first()).toBeVisible();
-    await expect(sheet.locator(".osc-tb-actions .osc-tb-btn")).not.toHaveCount(0);
+    await expect(sheet.locator('[data-testid="topbar-actions"] .osc-tb-btn')).not.toHaveCount(0);
 
     // Actions tab: the writing Attack button is present for the owner.
     await sheet.locator('[data-testid="tab-actions"]').click();
@@ -150,7 +152,7 @@ test.describe("read-only sheet (non-owner)", () => {
 
     // Inventory tab: equip toggle buttons + draggable rows are present for the owner.
     await sheet.locator('[data-testid="tab-inventory"]').click();
-    await expect(sheet.locator('.osc-inv-row:not(.osc-inv-headrow)').first()).toBeVisible();
+    await expect(sheet.locator('.osc-inv-row:not([data-testid="inv-headrow"])').first()).toBeVisible();
     await expect(sheet.locator('[data-testid^="equip-"]').first()).toBeVisible();
     await expect(sheet.locator('.osc-inv-row[draggable="true"]')).not.toHaveCount(0);
   });

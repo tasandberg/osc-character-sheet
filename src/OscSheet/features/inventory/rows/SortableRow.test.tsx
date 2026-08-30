@@ -63,7 +63,7 @@ const render = (item: InventoryItemVM, canEdit = true, variant?: string) =>
     ),
   );
 
-const loadCell = () => container.querySelector(".osc-inv-wt")?.textContent;
+const loadCell = () => container.querySelector('[data-testid="inv-load"]')?.textContent;
 
 const inlineUse = () =>
   container.querySelector<HTMLButtonElement>(".osc-inv-useinline");

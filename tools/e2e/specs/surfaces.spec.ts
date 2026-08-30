@@ -19,7 +19,7 @@ import { openCharacterSheet, boxesOf, rowsOf, type Box } from "../helpers";
  *
  * `openCharacterSheet` forces 920×820, which puts the sheet in the two-pane
  * large layout: horizontal tab bar, Saves/Exploration in the left rail (the
- * Actions-tab copies carry `.actions-only` and are hidden there).
+ * Actions-tab copies are hidden there via `u-foundry-lg-display-none`).
  */
 
 /** Widest box as a fraction of the container's width. */
@@ -41,9 +41,9 @@ test.describe("tab feature surfaces", () => {
     const sheet = await openCharacterSheet(gamePage, fighter.name);
 
     // --- the tab bar itself ---------------------------------------------------
-    // `.osc-htabs` is `tw:hidden` until the lg container query turns it into a
+    // The tab bar is `tw:hidden` until the lg container query turns it into a
     // flex row, so losing that styling makes it invisible outright.
-    const tabBar = sheet.locator(".osc-htabs");
+    const tabBar = sheet.locator('[data-testid="tab-bar"]');
     await expect(tabBar).toBeVisible();
     const tabButtons = tabBar.locator('[role="tab"]');
     // Fighter (non-caster): actions, inventory, abilities, notes.
@@ -116,7 +116,7 @@ test.describe("tab feature surfaces", () => {
     await expect(inventoryTab).toHaveAttribute("aria-selected", "true");
     await expect(sheet.locator('[data-testid="wealth-toggle"]')).toBeVisible();
 
-    const itemRow = sheet.locator(".osc-inv-row:not(.osc-inv-headrow)").first();
+    const itemRow = sheet.locator('.osc-inv-row:not([data-testid="inv-headrow"])').first();
     await expect(itemRow).toBeVisible();
     await expect(sheet.locator('[data-testid^="equip-"]').first()).toBeVisible();
     // A row is a six-track grid: name, category, load, qty and controls sit on
@@ -127,20 +127,21 @@ test.describe("tab feature surfaces", () => {
     const abilitiesTab = sheet.locator('[data-testid="tab-abilities"]');
     await abilitiesTab.click();
     await expect(abilitiesTab).toHaveAttribute("aria-selected", "true");
-    await expect(sheet.locator(".osc-abilities-tab")).toBeVisible();
+    await expect(sheet.locator('[data-testid="abilities-tab"]')).toBeVisible();
     await expect(sheet.locator('[aria-label="Add ability"]')).toBeVisible();
     await expect(sheet.locator('[aria-label="Edit languages"]')).toBeVisible();
-    await expect(sheet.locator(".osc-langs")).toBeVisible();
+    await expect(sheet.locator('[data-testid="languages"]')).toBeVisible();
 
     // --- Notes tab ------------------------------------------------------------
     const notesTab = sheet.locator('[data-testid="tab-notes"]');
     await notesTab.click();
     await expect(notesTab).toHaveAttribute("aria-selected", "true");
-    const notes = sheet.locator(".osc-notes-tab");
+    const notes = sheet.locator('[data-testid="notes-tab"]');
     await expect(notes).toBeVisible();
     // Notes + Biography.
-    await expect(notes.locator(".osc-section")).toHaveCount(2);
-    await expect(notes.locator(".osc-section").nth(1)).toBeVisible();
+    const noteSections = notes.locator('[data-testid="editable-section"]');
+    await expect(noteSections).toHaveCount(2);
+    await expect(noteSections.nth(1)).toBeVisible();
   });
 
   test("spells tab renders for a caster", async ({ gamePage, fighter }) => {
@@ -159,6 +160,6 @@ test.describe("tab feature surfaces", () => {
     await expect(spellsTab).toBeVisible();
     await spellsTab.click();
     await expect(spellsTab).toHaveAttribute("aria-selected", "true");
-    await expect(sheet.locator(".osc-spells-title")).toBeVisible();
+    await expect(sheet.locator('[data-testid="spells-title"]')).toBeVisible();
   });
 });

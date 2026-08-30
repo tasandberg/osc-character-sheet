@@ -106,7 +106,7 @@ export function ContainerRow({
           trailing={caret}
         />
         <span className={INV_ROWCAT}>{item.category}</span>
-        <span className={INV_WT}>{loadText(countedLoad(item, variant))}</span>
+        <span className={INV_WT} data-testid="inv-load">{loadText(countedLoad(item, variant))}</span>
         <RowEquip item={item} onEquip={onEquip} />
       </div>
 

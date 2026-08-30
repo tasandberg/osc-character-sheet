@@ -45,7 +45,7 @@ export function UsesRow({
       className="osc-inv-uses tw:flex tw:items-center tw:gap-2 tw:min-w-0 tw:@max-md/app:hidden"
       data-overflow={overflow || undefined}
     >
-      <span className="osc-inv-uses-strip tw:relative tw:flex tw:flex-1 tw:min-w-0 tw:min-h-[10px] tw:items-center">
+      <span className="tw:relative tw:flex tw:flex-1 tw:min-w-0 tw:min-h-[10px] tw:items-center">
         {canEdit ? (
           <button
             type="button"

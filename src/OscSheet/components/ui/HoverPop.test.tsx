@@ -178,7 +178,7 @@ describe("both hover cards share HoverPop", () => {
         </span>,
       ),
     );
-    const movePop = container.querySelector<HTMLElement>(".osc-move-pop")!;
+    const movePop = container.querySelector<HTMLElement>('[data-testid="move-pop"]')!;
     const trigger = movePop.parentElement!;
     stubRect(trigger, { left: 300, width: 50, bottom: 240 });
     hover(trigger, "pointerenter");

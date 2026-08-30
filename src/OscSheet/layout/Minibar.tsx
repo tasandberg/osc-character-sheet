@@ -52,15 +52,15 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
         src={identity.img || undefined}
         alt=""
       />
-      <div className="osc-mb-ident tw:min-w-0 tw:flex-auto">
-        <div className="osc-mb-name tw:truncate tw:font-display tw:text-[length:var(--fs-md)] tw:leading-tight tw:text-text">
+      <div className="tw:min-w-0 tw:flex-auto">
+        <div className="tw:truncate tw:font-display tw:text-[length:var(--fs-md)] tw:leading-tight tw:text-text">
           {identity.name}
         </div>
-        <div className="osc-mb-class tw:truncate tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute">
+        <div className="tw:truncate tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute">
           {identity.classLabel} {identity.level}
         </div>
       </div>
-      <div className="osc-mb-vitals tw:flex tw:flex-none tw:items-center tw:gap-2">
+      <div className="tw:flex tw:flex-none tw:items-center tw:gap-2">
         <div className="osc-mb-hp">
           {/* hover swaps label/max → −/+ steppers; grid-stacked so width never shifts */}
           <span className="osc-mb-hp-slot">

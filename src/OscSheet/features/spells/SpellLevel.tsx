@@ -33,7 +33,7 @@ const HEAD_SC =
 /** Spellbook entry — a full-width dashed card. Inert itself: the actions are the
  *  memorize button and, when the sheet is editable, a delete. */
 const BOOKSPELL =
-  "osc-bookspell tw:flex tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim";
+  "tw:flex tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim";
 /** Empty state, framed like a row — `.osc-spell` carries no box of its own, so
  *  the bare markup this replaced fell outside the panel. */
 const EMPTY_ROW =
@@ -248,7 +248,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         </button>
       )}
       {bookOpen && !empty && (
-        <div className="osc-book tw:flex tw:flex-col tw:gap-1 tw:rounded-b-[7px] tw:border tw:border-t-0 tw:border-border-soft tw:bg-bg-2 tw:p-2">
+        <div data-testid="spellbook" className="tw:flex tw:flex-col tw:gap-1 tw:rounded-b-[7px] tw:border tw:border-t-0 tw:border-border-soft tw:bg-bg-2 tw:p-2">
           {spellbook.map((spell) => {
             // Read-only: list known spells as static rows (no memorize action).
             if (!canEdit) {
@@ -256,6 +256,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                 <span
                   key={spell._id as string}
                   className={`${BOOKSPELL} is-static`}
+                  data-testid="book-spell"
                 >
                   <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">
                     {spell.name}
@@ -267,12 +268,17 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
             // toggle, and no "prepared" highlight (an added copy shows up in the
             // prepared rows above).
             return (
-              <div key={spell._id as string} className={BOOKSPELL}>
+              <div
+                key={spell._id as string}
+                className={BOOKSPELL}
+                data-testid="book-spell"
+              >
                 <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">
                   {spell.name}
                 </span>
                 <InlineButton
-                  className="osc-bookspell-memorize tw:font-sans tw:text-(length:--fs-2xs) tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
+                  data-testid="memorize"
+                  className="tw:font-sans tw:text-(length:--fs-2xs) tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
                   title={

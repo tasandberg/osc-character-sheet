@@ -24,7 +24,9 @@
   --osc-minibar-h: 49px;
 }
 
-.osc-pad { padding: var(--spacer-4); }
+.osc-pad {
+  padding: var(--spacer-4);
+}
 
 // Modal containment, opted into with `.modal-inset` on a Modal's root: the DS
 // `.modal-scrim` is fixed over the viewport, and `.osc-sheet-app` is the
@@ -75,7 +77,9 @@
   font-weight: 500;
   letter-spacing: 0.04em;
   padding: var(--spacer-2) 0;
-  transition: color 0.12s, background 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s;
 }
 .osc-tab .osc-tab-ic {
   writing-mode: horizontal-tb;
@@ -93,13 +97,18 @@
   border-radius: 99px;
   padding: 1px 5px;
 }
-.osc-tab:hover { color: var(--text-dim, #b5ad97); background: rgba(255, 255, 255, 0.03); }
+.osc-tab:hover {
+  color: var(--text-dim, #b5ad97);
+  background: rgba(255, 255, 255, 0.03);
+}
 .osc-tab.active {
   color: var(--text, #e5dec8);
   background: var(--bg, #181612);
   border-left-color: var(--gold);
 }
-.osc-tab.active .osc-tab-ic { color: var(--gold); }
+.osc-tab.active .osc-tab-ic {
+  color: var(--gold);
+}
 
 // ----- bottom nav bar (XS only; hidden by default) -----
 // The bar box and its XS reveal are utilities in BottomBar.tsx.
@@ -127,26 +136,26 @@
   color: var(--gold-dim, var(--gold));
   line-height: 1;
 }
-.osc-botbtn-lbl { line-height: 1; }
-.osc-botbtn:hover { color: var(--text-dim, #b5ad97); }
+.osc-botbtn-lbl {
+  line-height: 1;
+}
+.osc-botbtn:hover {
+  color: var(--text-dim, #b5ad97);
+}
 .osc-botbtn.active {
   color: var(--gold);
   border-top-color: var(--gold);
 }
-.osc-botbtn.active .osc-botbtn-ic { color: var(--gold); }
-
-// ----- horizontal tab bar (shown when wide) -----
-// The bar box and its lg reveal are utilities in TabBar.tsx.
-
-// Saves & Skills relocates: hidden in the left column when collapsed (it renders
-// inside the Actions tab content there), shown in the left rail when expanded.
-// Both states are utilities in Frame.tsx.
-// Saves & Exploration show inside the Actions body when collapsed; the matching
-// @container rule below hides them once they relocate into the expanded rail.
-.actions-only { display: block; }
+.osc-botbtn.active .osc-botbtn-ic {
+  color: var(--gold);
+}
 
 // === container reflow ===
-@container sheet (min-width: 600px) { .osc-pad { padding: 18px var(--spacer-5); } }
+@container sheet (min-width: 600px) {
+  .osc-pad {
+    padding: 18px var(--spacer-5);
+  }
+}
 
 @container sheet (min-width: 700px) {
   // Large view = locked app shell: only the active tab's content (#osc-tabpanel)
@@ -185,9 +194,13 @@
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden; // never a horizontal scrollbar — over-wide content clips, not scrolls
-    padding-right: var(--spacer-6); // gutter sits left of the scrollbar, not right of it
+    padding-right: var(
+      --spacer-6
+    ); // gutter sits left of the scrollbar, not right of it
   }
-  .actions-only { display: none; }
+  .actions-only {
+    display: none;
+  }
 
   // header band reflow in the narrow left rail — stack: portrait, name, HP/AC, Init/HD/Move.
   // Only the grid itself is left here. Every per-element rail override moved onto
@@ -211,7 +224,10 @@
   // — 8px and even 4px still clip at `large`.
   //
   // This one CAN stay: at (0,3,0) it out-ranks the tile stamp's base utilities.
-  .osc-twopane .osc-tile .stamp { font-size: var(--fs-2xs, 11px); padding: 5px 2px 3px; }
+  .osc-twopane .osc-tile .stamp {
+    font-size: var(--fs-2xs, 11px);
+    padding: 5px 2px 3px;
+  }
 }
 
 // Center tabs replace the right rail exactly when the two-pane engages.
@@ -232,9 +248,14 @@
     font-size: var(--fs-sm, 13px);
     letter-spacing: 0.02em;
     cursor: pointer;
-    transition: color 0.12s, border-color 0.12s;
+    transition:
+      color 0.12s,
+      border-color 0.12s;
   }
-  .osc-htab .osc-htab-ic { color: var(--gold-dim, var(--gold)); font-size: var(--fs-sm, 13px); }
+  .osc-htab .osc-htab-ic {
+    color: var(--gold-dim, var(--gold));
+    font-size: var(--fs-sm, 13px);
+  }
   .osc-htab .osc-htab-ct {
     font-family: var(--mono);
     font-size: var(--fs-3xs, 10px);
@@ -243,9 +264,16 @@
     border-radius: 99px;
     padding: 1px 6px;
   }
-  .osc-htab:hover { color: var(--text-dim, #b5ad97); }
-  .osc-htab.active { color: var(--text, #e5dec8); border-bottom-color: var(--gold); }
-  .osc-htab.active .osc-htab-ic { color: var(--gold); }
+  .osc-htab:hover {
+    color: var(--text-dim, #b5ad97);
+  }
+  .osc-htab.active {
+    color: var(--text, #e5dec8);
+    border-bottom-color: var(--gold);
+  }
+  .osc-htab.active .osc-htab-ic {
+    color: var(--gold);
+  }
 }
 
 // === XS tier (≤ 479c on app) ===
@@ -254,6 +282,10 @@
 // the base rules) so they win the cascade; shell.scss loads first and would lose.
 @container app (max-width: 479px) {
   // content clears the bottom bar
-  .osc-sheet-body { padding-bottom: var(--spacer-1); }
-  .osc-pad { padding-bottom: 68px; } // 68px = bottom-bar height clearance; no clean token
+  .osc-sheet-body {
+    padding-bottom: var(--spacer-1);
+  }
+  .osc-pad {
+    padding-bottom: 68px;
+  } // 68px = bottom-bar height clearance; no clean token
 }
