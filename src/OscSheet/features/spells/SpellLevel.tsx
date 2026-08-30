@@ -7,6 +7,8 @@ import {
   castFree,
   isFavorite,
   toggleFavorite,
+  setCasts,
+  setPointsLeftAt,
 } from "@features/spells/spells";
 import { SpellRow } from "@features/spells/SpellRow";
 import { SlotMaxDialog } from "@features/spells/SlotMaxDialog";
@@ -83,8 +85,15 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
             filled={points.max - points.used}
             hollow
             className="slots tw:ml-auto"
-            aria-hidden="true"
             glyph={<i className="fa-solid fa-diamond" />}
+            {...(canEdit
+              ? {
+                  role: "group",
+                  "aria-label": `${points.max - points.used} of ${points.max} points remaining`,
+                  onSetFilled: (n: number) =>
+                    void setPointsLeftAt(actor, level, n, points.max),
+                }
+              : { "aria-hidden": true })}
           />
         </div>
         {spellbook.length === 0 ? (
@@ -171,7 +180,11 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
               key={spell._id as string}
               spell={spell}
               meta={meta(spell)}
-              pips={{ total, filled: left }}
+              pips={{
+                total,
+                filled: left,
+                onSet: canEdit ? (n) => void setCasts(spell, n) : undefined,
+              }}
               spent={left <= 0}
               spentTitle={`${spell.name} — spent (Rest to recover)`}
               canCast={canEdit}

@@ -9,6 +9,7 @@ import {
   castFree,
   pointsLeftAt,
   slotMaxAt,
+  setCasts,
 } from "@features/spells/spells";
 import { cx } from "@ui/cx";
 
@@ -82,7 +83,11 @@ export function MemorizedSpells({ actor }: Props) {
               spell={spell}
               meta={meta(spell)}
               levelTag={spell.system.lvl}
-              pips={{ total, filled: left }}
+              pips={{
+                total,
+                filled: left,
+                onSet: canEdit ? (n) => void setCasts(spell, n) : undefined,
+              }}
               spent={left <= 0}
               spentTitle={`${spell.name} — spent (Rest to recover)`}
               canCast={canEdit}

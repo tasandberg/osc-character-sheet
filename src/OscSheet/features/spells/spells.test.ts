@@ -8,17 +8,23 @@ import {
   isFavorite,
   selectFavoriteSpells,
   createSpell,
+  setCasts,
+  setPointsLeftAt,
 } from "@features/spells/spells";
 import type { OSEActor, OseSpell } from "@domain/types";
 
 // spellMeta only reads spell.system — build the minimal shape inline.
-const spell = (system: Partial<OseSpell["system"]>) =>
-  ({ system }) as OseSpell;
+const spell = (system: Partial<OseSpell["system"]>) => ({ system }) as OseSpell;
 
 describe("spellMeta", () => {
   it("orders range · duration · save · roll and prefixes R/D", () => {
     const parts = spellMeta(
-      spell({ range: "150'", duration: "1 turn", save: "vs spells", roll: "1d6+1" })
+      spell({
+        range: "150'",
+        duration: "1 turn",
+        save: "vs spells",
+        roll: "1d6+1",
+      }),
     );
     expect(parts).toEqual([
       { kind: "range", text: "R 150'" },
@@ -60,9 +66,27 @@ const CLERIC = {
   name: "Cleric",
   requirements: {},
   levels: [
-    { xp: 0, hd: "1d6", thac0: 19, saves: [11, 12, 14, 16, 15], spells: [0, 0] },
-    { xp: 1500, hd: "2d6", thac0: 19, saves: [11, 12, 14, 16, 15], spells: [1, 0] },
-    { xp: 3000, hd: "3d6", thac0: 19, saves: [11, 12, 14, 16, 15], spells: [2, 1] },
+    {
+      xp: 0,
+      hd: "1d6",
+      thac0: 19,
+      saves: [11, 12, 14, 16, 15],
+      spells: [0, 0],
+    },
+    {
+      xp: 1500,
+      hd: "2d6",
+      thac0: 19,
+      saves: [11, 12, 14, 16, 15],
+      spells: [1, 0],
+    },
+    {
+      xp: 3000,
+      hd: "3d6",
+      thac0: 19,
+      saves: [11, 12, 14, 16, 15],
+      spells: [2, 1],
+    },
   ],
 };
 
@@ -110,12 +134,19 @@ describe("selectSpellLevels — slot capacity", () => {
 
   it("shows a caster's rulebook levels before any spell is known", () => {
     withClasses();
-    expect(selectSpellLevels(caster("Cleric", 3, {}), false).map((l) => l.level)).toEqual([1, 2]);
+    expect(
+      selectSpellLevels(caster("Cleric", 3, {}), false).map((l) => l.level),
+    ).toEqual([1, 2]);
   });
 
   it("prefers a stored maximum over the class default", () => {
     withClasses();
-    const actor = caster("Cleric", 3, { 1: [known("a", 1, "Cure")] }, { 1: { max: 5 } });
+    const actor = caster(
+      "Cleric",
+      3,
+      { 1: [known("a", 1, "Cure")] },
+      { 1: { max: 5 } },
+    );
     const [lvl1] = selectSpellLevels(actor, false);
     expect(lvl1.slots.max).toBe(5);
     expect(lvl1.defaultMax).toBe(2);
@@ -123,13 +154,23 @@ describe("selectSpellLevels — slot capacity", () => {
 
   it("honours a stored zero — a house rule can take slots away", () => {
     withClasses();
-    const actor = caster("Cleric", 3, { 1: [known("a", 1, "Cure")] }, { 1: { max: 0 } });
+    const actor = caster(
+      "Cleric",
+      3,
+      { 1: [known("a", 1, "Cure")] },
+      { 1: { max: 0 } },
+    );
     expect(selectSpellLevels(actor, false)[0].slots.max).toBe(0);
   });
 
   it("has no default for a custom class, so a stored maximum is the only source", () => {
     withClasses();
-    const actor = caster("Warlock", 3, { 1: [known("a", 1, "Cure")] }, { 1: { max: 3 } });
+    const actor = caster(
+      "Warlock",
+      3,
+      { 1: [known("a", 1, "Cure")] },
+      { 1: { max: 3 } },
+    );
     const [lvl1] = selectSpellLevels(actor, false);
     expect(lvl1.defaultMax).toBeNull();
     expect(lvl1.slots.max).toBe(3);
@@ -156,12 +197,22 @@ describe("selectSpellLevels — free-casting mode", () => {
   });
 
   it("clamps spent points to the level's max", () => {
-    const actor = actorWith({ 1: [known("a", 1, "Cure")] }, { 1: { used: 0, max: 1 } }, { 1: 5 });
-    expect(selectSpellLevels(actor, true)[0].points).toEqual({ used: 1, max: 1 });
+    const actor = actorWith(
+      { 1: [known("a", 1, "Cure")] },
+      { 1: { used: 0, max: 1 } },
+      { 1: 5 },
+    );
+    expect(selectSpellLevels(actor, true)[0].points).toEqual({
+      used: 1,
+      max: 1,
+    });
   });
 
   it("defaults freeCasting false with no setting (memorization is the default)", () => {
-    const actor = actorWith({ 1: [known("a", 1, "Cure")] }, { 1: { used: 0, max: 2 } });
+    const actor = actorWith(
+      { 1: [known("a", 1, "Cure")] },
+      { 1: { used: 0, max: 2 } },
+    );
     expect(selectSpellLevels(actor, false)[0].freeCasting).toBe(false);
   });
 });
@@ -180,6 +231,65 @@ describe("spell points", () => {
   });
 });
 
+describe("setCasts", () => {
+  const spellWith = (memorized: number, cast: number) =>
+    ({
+      system: { memorized, cast },
+      update: vi.fn(),
+    }) as unknown as OseSpell & {
+      update: ReturnType<typeof vi.fn>;
+    };
+
+  it("writes the cast count", () => {
+    const s = spellWith(3, 1);
+    void setCasts(s, 2);
+    expect(s.update).toHaveBeenCalledWith({ "system.cast": 2 });
+  });
+
+  it("clamps to 0..memorized", () => {
+    const s = spellWith(2, 0);
+    void setCasts(s, 5);
+    expect(s.update).toHaveBeenCalledWith({ "system.cast": 2 });
+    void setCasts(s, -1);
+    expect(s.update).toHaveBeenCalledWith({ "system.cast": 0 });
+  });
+
+  it("keeps an over-memorized cast count reachable", () => {
+    const s = spellWith(1, 3);
+    void setCasts(s, 3);
+    expect(s.update).toHaveBeenCalledWith({ "system.cast": 3 });
+  });
+});
+
+describe("setPointsLeftAt", () => {
+  const flagActor = (spellPoints?: Record<number, number>) =>
+    ({
+      ...(spellPoints ? { flags: { [MODULE_ID]: { spellPoints } } } : {}),
+      setFlag: vi.fn(),
+    }) as unknown as OSEActor & { setFlag: ReturnType<typeof vi.fn> };
+
+  it("stores used = max - left, preserving other levels", () => {
+    const actor = flagActor({ 2: 1 });
+    void setPointsLeftAt(actor, 1, 1, 3);
+    expect(actor.setFlag).toHaveBeenCalledWith(MODULE_ID, "spellPoints", {
+      2: 1,
+      1: 2,
+    });
+  });
+
+  it("clamps the remaining count into 0..max", () => {
+    const actor = flagActor();
+    void setPointsLeftAt(actor, 1, 9, 3);
+    expect(actor.setFlag).toHaveBeenCalledWith(MODULE_ID, "spellPoints", {
+      1: 0,
+    });
+    void setPointsLeftAt(actor, 1, -2, 3);
+    expect(actor.setFlag).toHaveBeenCalledWith(MODULE_ID, "spellPoints", {
+      1: 3,
+    });
+  });
+});
+
 describe("favorites", () => {
   it("reads the favorite flag off a spell", () => {
     expect(isFavorite(known("a", 1, "Cure", true))).toBe(true);
@@ -194,7 +304,10 @@ describe("favorites", () => {
       },
       {},
     );
-    expect(selectFavoriteSpells(actor).map((s) => s.name)).toEqual(["Shield", "Web"]);
+    expect(selectFavoriteSpells(actor).map((s) => s.name)).toEqual([
+      "Shield",
+      "Web",
+    ]);
   });
 });
 
@@ -202,7 +315,9 @@ describe("createSpell", () => {
   const defaultName = vi.fn(({ type }: { type: string }) => `New ${type}`);
 
   beforeEach(() => {
-    (globalThis as { Item?: unknown }).Item = { implementation: { defaultName } };
+    (globalThis as { Item?: unknown }).Item = {
+      implementation: { defaultName },
+    };
   });
   afterEach(() => {
     delete (globalThis as { Item?: unknown }).Item;
@@ -212,8 +327,12 @@ describe("createSpell", () => {
   it("creates a spell item and opens its sheet", async () => {
     const render = vi.fn();
     const actor = {
-      createEmbeddedDocuments: vi.fn().mockResolvedValue([{ sheet: { render } }]),
-    } as unknown as OSEActor & { createEmbeddedDocuments: ReturnType<typeof vi.fn> };
+      createEmbeddedDocuments: vi
+        .fn()
+        .mockResolvedValue([{ sheet: { render } }]),
+    } as unknown as OSEActor & {
+      createEmbeddedDocuments: ReturnType<typeof vi.fn>;
+    };
 
     await createSpell(actor);
 

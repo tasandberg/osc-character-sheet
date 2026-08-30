@@ -884,6 +884,18 @@
   background: var(--gold);
   border-color: var(--gold);
 }
+/* interactive dots (buttons) — spend/restore on click */
+button.pip {
+  padding: 0;
+  cursor: pointer;
+  transition:
+    border-color 0.12s,
+    transform 0.12s;
+}
+button.pip:hover {
+  border-color: var(--gold-bright);
+  transform: scale(1.15);
+}
 /* sm — cast dots */
 .pips.sm .pip {
   width: 9px;
