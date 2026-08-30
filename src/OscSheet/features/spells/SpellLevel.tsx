@@ -7,7 +7,11 @@ import {
   castFree,
   isFavorite,
   toggleFavorite,
+  setCasts,
+  setPointsLeftAt,
+  pipMessage,
 } from "@features/spells/spells";
+import { useToast } from "@ui/toastContext";
 import { SpellRow } from "@features/spells/SpellRow";
 import { SlotMaxDialog } from "@features/spells/SlotMaxDialog";
 import { showDeleteDialog } from "@domain/foundryDialogs";
@@ -42,7 +46,11 @@ const EMPTY_ROW =
  * while the level's point budget lasts, with a favorite star.
  */
 export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
-  const { actor, canEdit } = useOscSheetContext();
+  const { actor, canEdit, optimisticUpdate } = useOscSheetContext();
+  const toast = useToast();
+  const pipToast = (msg: string | null, restored: boolean) => {
+    if (msg) toast({ intent: restored ? "success" : undefined, title: msg });
+  };
   const {
     level,
     slots,
@@ -83,8 +91,32 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
             filled={points.max - points.used}
             hollow
             className="slots tw:ml-auto"
-            aria-hidden="true"
             glyph={<i className="fa-solid fa-diamond" />}
+            {...(canEdit
+              ? {
+                  role: "group",
+                  "aria-label": `${points.max - points.used} of ${points.max} points remaining`,
+                  onSetFilled: (n: number) => {
+                    const left = points.max - points.used;
+                    void setPointsLeftAt(
+                      actor,
+                      level,
+                      n,
+                      points.max,
+                      optimisticUpdate,
+                    );
+                    pipToast(
+                      pipMessage(
+                        `Level ${level} spell slots`,
+                        left,
+                        n,
+                        points.max,
+                      ),
+                      n > left,
+                    );
+                  },
+                }
+              : { "aria-hidden": true })}
           />
         </div>
         {spellbook.length === 0 ? (
@@ -171,7 +203,19 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
               key={spell._id as string}
               spell={spell}
               meta={meta(spell)}
-              pips={{ total, filled: left }}
+              pips={{
+                total,
+                filled: left,
+                onSet: canEdit
+                  ? (n) => {
+                      void setCasts(spell, n, optimisticUpdate);
+                      pipToast(
+                        pipMessage(`${spell.name} uses`, left, n, total),
+                        n > left,
+                      );
+                    }
+                  : undefined,
+              }}
               spent={left <= 0}
               spentTitle={`${spell.name} — spent (Rest to recover)`}
               canCast={canEdit}
@@ -187,7 +231,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         <button
           type="button"
           className={cx(
-            "osc-bookbtn tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-dashed tw:border-border tw:bg-transparent tw:px-3 tw:py-2 tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.04em] tw:text-text-mute tw:hover:text-text",
+            "osc-bookbtn tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-dashed tw:border-border tw:bg-transparent tw:px-3 tw:py-2 tw:font-display tw:text-(length:--fs-xs) tw:tracking-[0.04em] tw:text-text-mute tw:hover:text-text",
             bookOpen ? "tw:rounded-none" : "tw:rounded-b-[7px]",
           )}
           onClick={() => setBookOpen((o) => !o)}
@@ -228,7 +272,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                   {spell.name}
                 </span>
                 <InlineButton
-                  className="osc-bookspell-memorize tw:font-sans tw:text-[length:var(--fs-2xs)] tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
+                  className="osc-bookspell-memorize tw:font-sans tw:text-(length:--fs-2xs) tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
                   title={

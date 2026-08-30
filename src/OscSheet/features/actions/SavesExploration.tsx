@@ -1,12 +1,14 @@
 import { useState } from "react";
-import type { SaveVM, ExplorationVM } from "@domain/vm-types";
+import type { SaveVM, ExplorationVM, AbilityVM } from "@domain/vm-types";
 import type { OSESave } from "@domain/types";
 import { SectionTitle } from "@ui/SectionTitle";
 import { StatPlaque } from "@ui/StatPlaque";
 import { cx } from "@ui/cx";
 import { rollable, type ActivateEvent } from "@ui/rollable";
+import SavesModTag from "@src/OscSheet/components/ui/SavesModTag";
 
 type Props = {
+  abilities?: AbilityVM[];
   saves: SaveVM[];
   exploration: ExplorationVM[];
   tabbed?: boolean;
@@ -77,8 +79,16 @@ export function ExplorationGrid({
  * are supplied. `tabbed` shows them in a two-tab nav (used in the left rail so
  * the column stays above the fold); otherwise they stack with section titles.
  */
-export function SavesExploration({ saves, exploration, tabbed = false, onRollSave, onRollExploration }: Props) {
+export function SavesExploration({
+  saves,
+  exploration,
+  tabbed = false,
+  onRollSave,
+  onRollExploration,
+  abilities,
+}: Props) {
   const [tab, setTab] = useState<"saves" | "exploration">("saves");
+  const wisdomAbility = (abilities || [])[2];
 
   if (!tabbed) {
     return (
@@ -93,7 +103,11 @@ export function SavesExploration({ saves, exploration, tabbed = false, onRollSav
 
   return (
     <section className="osc-section">
-      <div className="osc-se-nav" role="tablist" aria-label="Saves & Exploration">
+      <div
+        className="osc-se-nav"
+        role="tablist"
+        aria-label="Saves & Exploration"
+      >
         <button
           type="button"
           role="tab"
@@ -116,7 +130,10 @@ export function SavesExploration({ saves, exploration, tabbed = false, onRollSav
         </button>
       </div>
       {tab === "saves" ? (
-        <SavesGrid saves={saves} onRoll={onRollSave} />
+        <div className="tw:space-y-1">
+          <SavesGrid saves={saves} onRoll={onRollSave} />
+          <SavesModTag wisdomAbility={wisdomAbility} />
+        </div>
       ) : (
         <ExplorationGrid exploration={exploration} onRoll={onRollExploration} />
       )}

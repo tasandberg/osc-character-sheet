@@ -10,14 +10,20 @@ const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/,
 /** Join the running world as a named passwordless user and wait for game.ready. */
 export async function joinAsUser(page: Page, label: string): Promise<void> {
   await page.goto(`${URL}/join`, { waitUntil: "domcontentloaded" });
+  // Foundry 14.366 replaced the user <select name="userid"> with <input name="username">.
+  const userInput = page.locator('input[name="username"]');
   const userSelect = page.locator('select[name="userid"]');
-  await userSelect.waitFor({ timeout: 30_000 });
-  // Options for already-connected users are disabled client-side only; re-enable first.
-  await page.evaluate(() => {
-    for (const o of document.querySelectorAll('select[name="userid"] option'))
-      (o as HTMLOptionElement).disabled = false;
-  });
-  await userSelect.selectOption({ label });
+  await userInput.or(userSelect).first().waitFor({ timeout: 30_000 });
+  if (await userInput.count()) {
+    await userInput.fill(label);
+  } else {
+    // Options for already-connected users are disabled client-side only; re-enable first.
+    await page.evaluate(() => {
+      for (const o of document.querySelectorAll('select[name="userid"] option'))
+        (o as HTMLOptionElement).disabled = false;
+    });
+    await userSelect.selectOption({ label });
+  }
   await page.click('button[name="join"]');
   await page.waitForFunction(() => (globalThis as any).game?.ready === true, null, {
     timeout: 120_000,

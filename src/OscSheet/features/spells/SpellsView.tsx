@@ -3,7 +3,11 @@ import { useOscSheetContext } from "@app/context";
 import { SectionTitle } from "@ui/SectionTitle";
 import { PillSelect } from "@ui/PillSelect";
 import { IconButton } from "@ui/IconButton";
-import { selectSpellLevels, resetSpellPoints, createSpell } from "@features/spells/spells";
+import {
+  selectSpellLevels,
+  resetSpellPoints,
+  createSpell,
+} from "@features/spells/spells";
 import { cx } from "@ui/cx";
 import SpellLevel from "@features/spells/SpellLevel";
 
@@ -15,8 +19,8 @@ import SpellLevel from "@features/spells/SpellLevel";
  * against a shared point pool; Study refills every level's pool.
  */
 export default function Spells() {
-  const { actor, canEdit } = useOscSheetContext();
-  const levels = selectSpellLevels(actor);
+  const { actor, canEdit, items } = useOscSheetContext();
+  const levels = selectSpellLevels(actor, undefined, items);
   const freeCasting = levels.some((l) => l.freeCasting);
   const [busy, setBusy] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
@@ -32,7 +36,9 @@ export default function Spells() {
         for (const { spellbook } of levels) {
           for (const spell of spellbook) {
             if (spell.system.cast !== spell.system.memorized) {
-              updates.push(spell.update({ "system.cast": spell.system.memorized }));
+              updates.push(
+                spell.update({ "system.cast": spell.system.memorized }),
+              );
             }
           }
         }
@@ -44,7 +50,7 @@ export default function Spells() {
   };
 
   const active = freeCasting
-    ? levels.find((l) => l.level === selectedLevel) ?? levels[0]
+    ? (levels.find((l) => l.level === selectedLevel) ?? levels[0])
     : undefined;
 
   return (
@@ -65,20 +71,24 @@ export default function Spells() {
         {canEdit && (
           <button
             type="button"
-            className="osc-rest tw:ml-auto tw:inline-flex tw:items-center tw:gap-1 tw:self-center tw:cursor-pointer tw:rounded-md tw:border tw:border-border tw:bg-surface-2 tw:px-[11px] tw:py-1 tw:font-sans tw:text-[length:var(--fs-xs)] tw:font-medium tw:tracking-[0.02em] tw:whitespace-nowrap tw:text-text tw:transition-[background,border-color] tw:duration-[120ms] tw:hover:border-gold"
+            className="osc-rest tw:ml-auto tw:inline-flex tw:items-center tw:gap-1 tw:self-center tw:cursor-pointer tw:rounded-md tw:border tw:border-border tw:bg-surface-2 tw:px-[11px] tw:py-1 tw:font-sans tw:text-(length:--fs-xs) tw:font-medium tw:tracking-[0.02em] tw:whitespace-nowrap tw:text-text tw:transition-[background,border-color] tw:duration-120 tw:hover:border-gold"
             onClick={refresh}
             disabled={busy}
             aria-busy={busy}
-            title={freeCasting ? "Refresh all spell-point pools" : "Re-memorize all spells"}
+            title={
+              freeCasting
+                ? "Refresh all spell-point pools"
+                : "Re-memorize all spells"
+            }
           >
             <i
               className={cx(
                 "fa-solid tw:text-[0.85em] tw:text-gold",
-                busy ? "fa-spinner fa-spin" : freeCasting ? "fa-arrow-rotate-left" : "fa-campground",
+                busy ? "fa-spinner fa-spin" : "fa-arrow-rotate-left",
               )}
               aria-hidden="true"
-            />{" "}
-            {freeCasting ? "Study" : "Rest"}
+            />
+            Reset
           </button>
         )}
       </SectionTitle>
@@ -90,7 +100,11 @@ export default function Spells() {
             className="osc-spelltabs tw:mx-0 tw:mt-2 tw:mb-3"
             value={active?.level ?? 0}
             onValueChange={setSelectedLevel}
-            options={levels.map((l) => ({ value: l.level, label: `Lv ${l.level}`, count: l.points.max }))}
+            options={levels.map((l) => ({
+              value: l.level,
+              label: `Lv ${l.level}`,
+              count: l.points.max,
+            }))}
           />
           {active && <SpellLevel key={active.level} vm={active} />}
         </>

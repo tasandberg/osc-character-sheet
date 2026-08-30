@@ -1,6 +1,18 @@
-import type { OSEActor, OseSpell } from "@domain/types";
+import type {
+  OSEActor,
+  OscSheetContextValue,
+  OseItem,
+  OseSpell,
+} from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
-import { MODULE_ID, FLAGS, readFlag, setFlag, unsetFlag } from "@domain/flags";
+import {
+  MODULE_ID,
+  FLAGS,
+  flagPath,
+  readFlag,
+  setFlag,
+  unsetFlag,
+} from "@domain/flags";
 import { selectSpellSlotDefaults } from "@domain/classRules";
 import { isFavorite } from "@domain/favorites";
 import { createOwnedItem } from "@domain/createOwnedItem";
@@ -31,8 +43,11 @@ export function spellMeta(spell: OseSpell): SpellMetaPart[] {
 /** World setting: memorization disabled → free-casting mode. Safe in non-Foundry tests. */
 export function memorizationDisabled(): boolean {
   try {
-    const settings = (globalThis as { game?: { settings?: { get(ns: string, key: string): unknown } } }).game
-      ?.settings;
+    const settings = (
+      globalThis as {
+        game?: { settings?: { get(ns: string, key: string): unknown } };
+      }
+    ).game?.settings;
     return !!settings?.get(MODULE_ID, "disableMemorization");
   } catch {
     return false;
@@ -45,17 +60,76 @@ export function spellPointsSpent(actor: OSEActor): Record<number, number> {
 }
 
 /** Casts still available at a level in free-casting mode (slot max − points spent). */
-export function pointsLeftAt(actor: OSEActor, level: number, max: number): number {
+export function pointsLeftAt(
+  actor: OSEActor,
+  level: number,
+  max: number,
+): number {
   return Math.max(0, max - (spellPointsSpent(actor)[level] ?? 0));
 }
 
 /** Cast a known spell in free-casting mode: spend one level point, then post its card. */
-export async function castFree(actor: OSEActor, spell: OseSpell, max: number): Promise<void> {
+export async function castFree(
+  actor: OSEActor,
+  spell: OseSpell,
+  max: number,
+): Promise<void> {
   const level = spell.system.lvl;
   if (pointsLeftAt(actor, level, max) <= 0) return;
   const spent = spellPointsSpent(actor);
-  await setFlag(actor, FLAGS.spellPoints, { ...spent, [level]: (spent[level] ?? 0) + 1 });
+  await setFlag(actor, FLAGS.spellPoints, {
+    ...spent,
+    [level]: (spent[level] ?? 0) + 1,
+  });
   await (spell.system.roll ? spell.rollFormula() : spell.show());
+}
+
+type Optimistic = NonNullable<OscSheetContextValue["optimisticUpdate"]>;
+
+/** Set a prepared spell's remaining casts directly (pip click), clamped to its
+ *  slots. With `optimistic`, the value overlays instantly and the write defers. */
+export function setCasts(
+  spell: OseSpell,
+  casts: number,
+  optimistic?: Optimistic,
+): Promise<unknown> | void {
+  const max = Math.max(spell.system.memorized ?? 0, spell.system.cast ?? 0);
+  const patch = { "system.cast": Math.min(Math.max(casts, 0), max) };
+  const commit = () => spell.update(patch);
+  if (!optimistic) return commit();
+  optimistic(spell._id as string, patch, commit);
+}
+
+/** Set a level's remaining free-casting points directly (pip click). The
+ *  optimistic patch targets the per-level leaf so reconciliation can compare
+ *  primitives; the commit still writes the merged map via setFlag. */
+export function setPointsLeftAt(
+  actor: OSEActor,
+  level: number,
+  left: number,
+  max: number,
+  optimistic?: Optimistic,
+): Promise<unknown> | void {
+  const used = Math.min(Math.max(max - left, 0), max);
+  const commit = () =>
+    setFlag(actor, FLAGS.spellPoints, {
+      ...spellPointsSpent(actor),
+      [level]: used,
+    });
+  if (!optimistic) return commit();
+  optimistic("actor", { [`${flagPath(FLAGS.spellPoints)}.${level}`]: used }, commit);
+}
+
+/** Pip-click toast copy: "N <noun> remaining", null on no-op. */
+export function pipMessage(
+  noun: string,
+  prevLeft: number,
+  nextLeft: number,
+  max: number,
+): string | null {
+  const next = Math.min(Math.max(nextLeft, 0), max);
+  if (next === prevLeft) return null;
+  return `${next} ${noun} remaining`;
 }
 
 /** Create a blank spell on the actor and open it. OSE's template defaults it to level 1. */
@@ -72,7 +146,9 @@ export function resetSpellPoints(actor: OSEActor): Promise<unknown> {
 export function selectFavoriteSpells(actor: OSEActor): OseSpell[] {
   // spellList is already name-sorted per level (OSE data model), so a stable
   // level sort keeps favorites grouped by level, alphabetical within each.
-  const all: OseSpell[] = Object.values(actor.system.spells?.spellList ?? {}).flat();
+  const all: OseSpell[] = Object.values(
+    actor.system.spells?.spellList ?? {},
+  ).flat();
   return all.filter(isFavorite).sort((a, b) => a.system.lvl - b.system.lvl);
 }
 
@@ -99,7 +175,9 @@ function storedSlotMax(actor: OSEActor, level: number): number | undefined {
 
 /** A level's effective slot maximum: the stored override, else the class default. */
 export function slotMaxAt(actor: OSEActor, level: number): number {
-  return storedSlotMax(actor, level) ?? selectSpellSlotDefaults(actor)?.[level] ?? 0;
+  return (
+    storedSlotMax(actor, level) ?? selectSpellSlotDefaults(actor)?.[level] ?? 0
+  );
 }
 
 /**
@@ -111,15 +189,23 @@ export function slotMaxAt(actor: OSEActor, level: number): number {
  * A level shows when it has capacity OR any known spell. Sorted ascending.
  * Capacity falls back to the class+level default: nothing ever writes one.
  */
-export function selectSpellLevels(actor: OSEActor, freeCasting = memorizationDisabled()): SpellLevelVM[] {
+export function selectSpellLevels(
+  actor: OSEActor,
+  freeCasting = memorizationDisabled(),
+  items?: OseItem[],
+): SpellLevelVM[] {
   const { slots, spellList } = actor.system.spells;
+  const byId = new Map(items?.map((it) => [it._id as string, it]) ?? []);
+  const resolve = (s: OseSpell) =>
+    (byId.get(s._id as string) as OseSpell | undefined) ?? s;
   const spent = spellPointsSpent(actor);
   const defaults = selectSpellSlotDefaults(actor) ?? {};
   const levels = new Set<number>();
   for (const lvl of Object.keys(slots)) levels.add(Number(lvl));
   for (const lvl of Object.keys(spellList)) levels.add(Number(lvl));
   // A caster's levels show before any spell is known.
-  for (const [lvl, max] of Object.entries(defaults)) if (max > 0) levels.add(Number(lvl));
+  for (const [lvl, max] of Object.entries(defaults))
+    if (max > 0) levels.add(Number(lvl));
 
   return [...levels]
     .sort((a, b) => a - b)
@@ -127,12 +213,15 @@ export function selectSpellLevels(actor: OSEActor, freeCasting = memorizationDis
       const stored = storedSlotMax(actor, level);
       const defaultMax = defaults[level] ?? null;
       const max = stored ?? defaultMax ?? 0;
-      const spellbook = spellList[level] ?? [];
+      const spellbook = (spellList[level] ?? []).map(resolve);
       // `ready` (= sum of cast) drives the "X / max ready" count + pips and drops
       // as spells are cast; `occupied` (= sum of memorized) is the filled-slot
       // count that drives capacity and persists across casts/rest.
       const ready = spellbook.reduce((n, s) => n + (s.system.cast ?? 0), 0);
-      const occupied = spellbook.reduce((n, s) => n + (s.system.memorized ?? 0), 0);
+      const occupied = spellbook.reduce(
+        (n, s) => n + (s.system.memorized ?? 0),
+        0,
+      );
       const prepared = spellbook.filter((s) => (s.system.memorized ?? 0) > 0);
       const points = { used: Math.min(spent[level] ?? 0, max), max };
       return {

@@ -6,7 +6,10 @@ import type { RollSpec } from "@domain/vm-types";
 import { selectAbilities } from "@features/actions/abilities";
 import { selectAttacks } from "@features/actions/attacks";
 import { selectSaves } from "@features/actions/saves";
-import { selectExploration, rollExploration } from "@features/actions/exploration";
+import {
+  selectExploration,
+  rollExploration,
+} from "@features/actions/exploration";
 import { postRollCard } from "@domain/chat/attackCard";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { AbilityPlaques } from "@features/actions/AbilityPlaques";
@@ -18,6 +21,7 @@ import { SavesGrid, ExplorationGrid } from "@features/actions/SavesExploration";
 import { SectionTitle } from "@ui/SectionTitle";
 import type { ActivateEvent } from "@ui/rollable";
 import { useOscSheetContext } from "@app/context";
+import SavesModTag from "@src/OscSheet/components/ui/SavesModTag";
 
 type Props = { actor: OSEActor };
 
@@ -29,7 +33,8 @@ export function ActionsView({ actor }: Props) {
   // stay available even read-only; the composite Attack can write (missile ammo
   // decrement), so it's gated on the global edit permission.
   const { canEdit } = useOscSheetContext();
-  const onAbility = (key: string, event: ActivateEvent) => actor.rollCheck(key, { event });
+  const onAbility = (key: string, event: ActivateEvent) =>
+    actor.rollCheck(key, { event });
   // Hit/Damage are custom formula rolls (OSE has no separate hit/damage roll). The
   // Vellum card is target-aware: a hit roll shows HIT/MISS vs the current target's AC,
   // a damage roll offers GMs an apply-damage button. No target → plain card.
@@ -39,11 +44,17 @@ export function ActionsView({ actor }: Props) {
     const weapon = actor.system.weapons.find((w) => w._id === itemId);
     if (!weapon) return;
     const { rollData, type } = buildWeaponAttack(actor, weapon, kind);
-    actor.targetAttack(rollData, type, { type, skipDialog: skipRollDialog(event) });
+    actor.targetAttack(rollData, type, {
+      type,
+      skipDialog: skipRollDialog(event),
+    });
   };
-  const onOpenWeapon = (itemId: string) => actor.items.get(itemId)?.sheet?.render(true);
-  const onSave = (key: OSESave, event: ActivateEvent) => actor.rollSave(key, { event });
-  const onExploration = (key: string, event: ActivateEvent) => rollExploration(actor, key, event);
+  const onOpenWeapon = (itemId: string) =>
+    actor.items.get(itemId)?.sheet?.render(true);
+  const onSave = (key: OSESave, event: ActivateEvent) =>
+    actor.rollSave(key, { event });
+  const onExploration = (key: string, event: ActivateEvent) =>
+    rollExploration(actor, key, event);
   // Drag a weapon card onto the macro hotbar → OSE's hotbarDrop creates an attack
   // macro, same as dragging the item's inventory row.
   const dragData = (itemId: string) => {
@@ -52,21 +63,38 @@ export function ActionsView({ actor }: Props) {
   };
 
   const attacks = selectAttacks(actor);
-
+  const abilities = selectAbilities(actor);
   return (
     <>
-      <AbilityPlaques abilities={selectAbilities(actor)} onRoll={onAbility} />
-      <AttacksTable attacks={attacks} onRoll={onRoll} onAttack={canEdit ? onAttack : undefined} onOpen={onOpenWeapon} dragData={dragData} canAttack={canEdit} />
-      <FavoriteAbilities features={selectFavoriteAbilities(actor)} dragData={dragData} />
+      <AbilityPlaques abilities={abilities} onRoll={onAbility} />
+      <AttacksTable
+        attacks={attacks}
+        onRoll={onRoll}
+        onAttack={canEdit ? onAttack : undefined}
+        onOpen={onOpenWeapon}
+        dragData={dragData}
+        canAttack={canEdit}
+      />
+      <FavoriteAbilities
+        features={selectFavoriteAbilities(actor)}
+        dragData={dragData}
+      />
       <MemorizedSpells actor={actor} />
       {/* .actions-only: hidden at lg (Saves/Exploration live in the rail there). */}
       <section className="osc-section actions-only">
-        <SectionTitle hint="roll-above d20">Saving Throws</SectionTitle>
+        <SectionTitle>
+          <span className="tw:whitespace-nowrap">Saving Throws</span>
+          <span className="hint">Roll d20 ≥ score</span>
+          <SavesModTag wisdomAbility={abilities[2]} />
+        </SectionTitle>
         <SavesGrid saves={selectSaves(actor)} onRoll={onSave} />
       </section>
       <section className="osc-section actions-only">
         <SectionTitle hint="1-in-6">Exploration</SectionTitle>
-        <ExplorationGrid exploration={selectExploration(actor)} onRoll={onExploration} />
+        <ExplorationGrid
+          exploration={selectExploration(actor)}
+          onRoll={onExploration}
+        />
       </section>
     </>
   );

@@ -32,8 +32,9 @@ type Props = {
   levelTag?: number;
   /** "{left}/{max} · slots" pool readout (Actions free rows). */
   pool?: { used: number; max: number };
-  /** Cast-dot pips — one per slot; filled = a cast still ready (prepared rows). */
-  pips?: { total: number; filled: number };
+  /** Cast-dot pips — one per slot; filled = a cast still ready (prepared rows).
+   *  `onSet` makes them clickable to spend/restore casts directly. */
+  pips?: { total: number; filled: number; onSet?: (n: number) => void };
 };
 
 /**
@@ -75,7 +76,9 @@ export function SpellRow({
   // hover with it (the old `.osc-spell.spent .spn` won over `.spn:hover`).
   const spn = cx(
     "spn tw:cursor-pointer tw:font-display tw:text-[length:var(--fs-lg)]",
-    spent ? "tw:text-text-mute tw:line-through" : "tw:text-text tw:hover:text-gold",
+    spent
+      ? "tw:text-text-mute tw:line-through"
+      : "tw:text-text tw:hover:text-gold",
   );
   const name = onOpenName ? (
     <a className={spn} onClick={onOpenName}>
@@ -93,7 +96,9 @@ export function SpellRow({
         // its first row's top edge back.
         "osc-spell tw:grid tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2",
         // A leading favorite-star column turns the 2-col grid into 3.
-        onToggleFavorite ? "has-star tw:grid-cols-[auto_1fr_auto]" : "tw:grid-cols-[1fr_auto]",
+        onToggleFavorite
+          ? "has-star tw:grid-cols-[auto_1fr_auto]"
+          : "tw:grid-cols-[1fr_auto]",
         free && "osc-spell-free",
         spent && "spent",
       )}
@@ -104,10 +109,17 @@ export function SpellRow({
           className="sp-fav"
           aria-pressed={favorite}
           onClick={onToggleFavorite}
-          title={favorite ? `Unfavorite ${spell.name}` : `Favorite ${spell.name}`}
-          aria-label={favorite ? `Unfavorite ${spell.name}` : `Favorite ${spell.name}`}
+          title={
+            favorite ? `Unfavorite ${spell.name}` : `Favorite ${spell.name}`
+          }
+          aria-label={
+            favorite ? `Unfavorite ${spell.name}` : `Favorite ${spell.name}`
+          }
         >
-          <i className={cx(favorite ? "fa-solid" : "fa-regular", "fa-star")} aria-hidden="true" />
+          <i
+            className={cx(favorite ? "fa-solid" : "fa-regular", "fa-star")}
+            aria-hidden="true"
+          />
         </IconButton>
       )}
       <div className="spinfo tw:min-w-0">
@@ -120,14 +132,15 @@ export function SpellRow({
               total={pips.total}
               filled={pips.filled}
               size="sm"
-              role="img"
+              role={pips.onSet ? "group" : "img"}
               aria-label={`${pips.filled} of ${pips.total} casts remaining`}
+              onSetFilled={pips.onSet}
             />
           )}
           {pool && (
             <span
               className={cx(
-                "pool tw:font-mono tw:text-[length:var(--fs-3xs)] tw:whitespace-nowrap",
+                "pool tw:font-mono tw:text-(length:--fs-3xs) tw:whitespace-nowrap",
                 spent ? "tw:text-text-faint" : "tw:text-text-mute",
               )}
             >
@@ -147,7 +160,7 @@ export function SpellRow({
           )}
         </span>
         {/* the " · " separators and the .dmg tint stay in spells.scss */}
-        <span className="spm tw:mt-[1px] tw:block tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-text-mute">
+        <span className="spm tw:mt-px tw:block tw:font-mono tw:text-(length:--fs-3xs) tw:text-text-mute">
           {meta}
         </span>
       </div>
@@ -162,7 +175,11 @@ export function SpellRow({
               disabled={spent || casting}
               aria-busy={casting}
               onClick={handleCast}
-              title={spent ? (spentTitle ?? `${spell.name} — spent`) : `Cast ${spell.name}`}
+              title={
+                spent
+                  ? (spentTitle ?? `${spell.name} — spent`)
+                  : `Cast ${spell.name}`
+              }
             >
               {casting ? (
                 <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" />
