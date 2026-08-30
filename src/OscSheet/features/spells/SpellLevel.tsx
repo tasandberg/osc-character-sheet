@@ -9,7 +9,9 @@ import {
   toggleFavorite,
   setCasts,
   setPointsLeftAt,
+  pipMessage,
 } from "@features/spells/spells";
+import { useToast } from "@ui/toastContext";
 import { SpellRow } from "@features/spells/SpellRow";
 import { SlotMaxDialog } from "@features/spells/SlotMaxDialog";
 import { showDeleteDialog } from "@domain/foundryDialogs";
@@ -44,7 +46,11 @@ const EMPTY_ROW =
  * while the level's point budget lasts, with a favorite star.
  */
 export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
-  const { actor, canEdit } = useOscSheetContext();
+  const { actor, canEdit, optimisticUpdate } = useOscSheetContext();
+  const toast = useToast();
+  const pipToast = (msg: string | null, restored: boolean) => {
+    if (msg) toast({ intent: restored ? "success" : undefined, title: msg });
+  };
   const {
     level,
     slots,
@@ -90,8 +96,20 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
               ? {
                   role: "group",
                   "aria-label": `${points.max - points.used} of ${points.max} points remaining`,
-                  onSetFilled: (n: number) =>
-                    void setPointsLeftAt(actor, level, n, points.max),
+                  onSetFilled: (n: number) => {
+                    const left = points.max - points.used;
+                    void setPointsLeftAt(
+                      actor,
+                      level,
+                      n,
+                      points.max,
+                      optimisticUpdate,
+                    );
+                    pipToast(
+                      pipMessage(`Level ${level} spell slots`, left, n, points.max),
+                      n > left,
+                    );
+                  },
                 }
               : { "aria-hidden": true })}
           />
@@ -183,7 +201,15 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
               pips={{
                 total,
                 filled: left,
-                onSet: canEdit ? (n) => void setCasts(spell, n) : undefined,
+                onSet: canEdit
+                  ? (n) => {
+                      void setCasts(spell, n, optimisticUpdate);
+                      pipToast(
+                        pipMessage(`${spell.name} uses`, left, n, total),
+                        n > left,
+                      );
+                    }
+                  : undefined,
               }}
               spent={left <= 0}
               spentTitle={`${spell.name} — spent (Rest to recover)`}

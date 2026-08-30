@@ -10,8 +10,9 @@ import {
   createSpell,
   setCasts,
   setPointsLeftAt,
+  pipMessage,
 } from "@features/spells/spells";
-import type { OSEActor, OseSpell } from "@domain/types";
+import type { OSEActor, OseItem, OseSpell } from "@domain/types";
 
 // spellMeta only reads spell.system — build the minimal shape inline.
 const spell = (system: Partial<OseSpell["system"]>) => ({ system }) as OseSpell;
@@ -231,9 +232,61 @@ describe("spell points", () => {
   });
 });
 
+describe("selectSpellLevels — overlaid items", () => {
+  it("resolves spellbook entries through the items overlay by _id", () => {
+    const real = {
+      _id: "a",
+      name: "Cure",
+      system: { lvl: 1, memorized: 1, cast: 1 },
+    } as unknown as OseSpell;
+    const actor = actorWith({ 1: [real] }, { 1: { used: 0, max: 2 } });
+    const twin = {
+      ...real,
+      system: { ...real.system, cast: 0 },
+    } as unknown as OseItem;
+    const [lvl1] = selectSpellLevels(actor, false, [twin]);
+    expect(lvl1.prepared[0]).toBe(twin as unknown as OseSpell);
+    expect(lvl1.slots.used).toBe(0);
+    expect(lvl1.occupied).toBe(1);
+  });
+
+  it("keeps the original spell when the overlay has no twin", () => {
+    const real = known("a", 1, "Cure");
+    const actor = actorWith({ 1: [real] }, { 1: { used: 0, max: 2 } });
+    const [lvl1] = selectSpellLevels(actor, false, [
+      { _id: "other" } as unknown as OseItem,
+    ]);
+    expect(lvl1.spellbook[0]).toBe(real);
+  });
+});
+
+describe("pipMessage", () => {
+  it("reports the remaining count after a restore", () => {
+    expect(pipMessage("Levitate uses", 0, 1, 2)).toBe("1 Levitate uses remaining");
+  });
+
+  it("reports the remaining count after a reduction", () => {
+    expect(pipMessage("Level 1 spell slots", 3, 1, 3)).toBe(
+      "1 Level 1 spell slots remaining",
+    );
+  });
+
+  it("clamps to the max before comparing", () => {
+    expect(pipMessage("Cure Light Wounds uses", 1, 5, 2)).toBe(
+      "2 Cure Light Wounds uses remaining",
+    );
+  });
+
+  it("returns null on a no-op", () => {
+    expect(pipMessage("Levitate uses", 2, 2, 2)).toBeNull();
+    expect(pipMessage("Levitate uses", 2, 3, 2)).toBeNull();
+  });
+});
+
 describe("setCasts", () => {
   const spellWith = (memorized: number, cast: number) =>
     ({
+      _id: "sp1",
       system: { memorized, cast },
       update: vi.fn(),
     }) as unknown as OseSpell & {
@@ -257,6 +310,20 @@ describe("setCasts", () => {
   it("keeps an over-memorized cast count reachable", () => {
     const s = spellWith(1, 3);
     void setCasts(s, 3);
+    expect(s.update).toHaveBeenCalledWith({ "system.cast": 3 });
+  });
+
+  it("routes through optimisticUpdate when provided, deferring the write", () => {
+    const s = spellWith(3, 1);
+    const optimistic = vi.fn();
+    setCasts(s, 5, optimistic);
+    expect(s.update).not.toHaveBeenCalled();
+    expect(optimistic).toHaveBeenCalledWith(
+      "sp1",
+      { "system.cast": 3 },
+      expect.any(Function),
+    );
+    void (optimistic.mock.calls[0][2] as () => unknown)();
     expect(s.update).toHaveBeenCalledWith({ "system.cast": 3 });
   });
 });
@@ -286,6 +353,23 @@ describe("setPointsLeftAt", () => {
     void setPointsLeftAt(actor, 1, -2, 3);
     expect(actor.setFlag).toHaveBeenCalledWith(MODULE_ID, "spellPoints", {
       1: 3,
+    });
+  });
+
+  it("patches the per-level flag leaf through optimisticUpdate, deferring the write", () => {
+    const actor = flagActor({ 2: 1 });
+    const optimistic = vi.fn();
+    setPointsLeftAt(actor, 1, 1, 3, optimistic);
+    expect(actor.setFlag).not.toHaveBeenCalled();
+    expect(optimistic).toHaveBeenCalledWith(
+      "actor",
+      { [`flags.${MODULE_ID}.spellPoints.1`]: 2 },
+      expect.any(Function),
+    );
+    void (optimistic.mock.calls[0][2] as () => unknown)();
+    expect(actor.setFlag).toHaveBeenCalledWith(MODULE_ID, "spellPoints", {
+      2: 1,
+      1: 2,
     });
   });
 });

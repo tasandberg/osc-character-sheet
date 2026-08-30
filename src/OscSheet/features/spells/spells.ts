@@ -1,6 +1,18 @@
-import type { OSEActor, OseSpell } from "@domain/types";
+import type {
+  OSEActor,
+  OscSheetContextValue,
+  OseItem,
+  OseSpell,
+} from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
-import { MODULE_ID, FLAGS, readFlag, setFlag, unsetFlag } from "@domain/flags";
+import {
+  MODULE_ID,
+  FLAGS,
+  flagPath,
+  readFlag,
+  setFlag,
+  unsetFlag,
+} from "@domain/flags";
 import { selectSpellSlotDefaults } from "@domain/classRules";
 import { isFavorite } from "@domain/favorites";
 import { createOwnedItem } from "@domain/createOwnedItem";
@@ -72,22 +84,52 @@ export async function castFree(
   await (spell.system.roll ? spell.rollFormula() : spell.show());
 }
 
-/** Set a prepared spell's remaining casts directly (pip click), clamped to its slots. */
-export function setCasts(spell: OseSpell, casts: number): Promise<unknown> {
+type Optimistic = NonNullable<OscSheetContextValue["optimisticUpdate"]>;
+
+/** Set a prepared spell's remaining casts directly (pip click), clamped to its
+ *  slots. With `optimistic`, the value overlays instantly and the write defers. */
+export function setCasts(
+  spell: OseSpell,
+  casts: number,
+  optimistic?: Optimistic,
+): Promise<unknown> | void {
   const max = Math.max(spell.system.memorized ?? 0, spell.system.cast ?? 0);
-  return spell.update({ "system.cast": Math.min(Math.max(casts, 0), max) });
+  const patch = { "system.cast": Math.min(Math.max(casts, 0), max) };
+  const commit = () => spell.update(patch);
+  if (!optimistic) return commit();
+  optimistic(spell._id as string, patch, commit);
 }
 
-/** Set a level's remaining free-casting points directly (pip click). */
+/** Set a level's remaining free-casting points directly (pip click). The
+ *  optimistic patch targets the per-level leaf so reconciliation can compare
+ *  primitives; the commit still writes the merged map via setFlag. */
 export function setPointsLeftAt(
   actor: OSEActor,
   level: number,
   left: number,
   max: number,
-): Promise<unknown> {
+  optimistic?: Optimistic,
+): Promise<unknown> | void {
   const used = Math.min(Math.max(max - left, 0), max);
-  const spent = spellPointsSpent(actor);
-  return setFlag(actor, FLAGS.spellPoints, { ...spent, [level]: used });
+  const commit = () =>
+    setFlag(actor, FLAGS.spellPoints, {
+      ...spellPointsSpent(actor),
+      [level]: used,
+    });
+  if (!optimistic) return commit();
+  optimistic("actor", { [`${flagPath(FLAGS.spellPoints)}.${level}`]: used }, commit);
+}
+
+/** Pip-click toast copy: "N <noun> remaining", null on no-op. */
+export function pipMessage(
+  noun: string,
+  prevLeft: number,
+  nextLeft: number,
+  max: number,
+): string | null {
+  const next = Math.min(Math.max(nextLeft, 0), max);
+  if (next === prevLeft) return null;
+  return `${next} ${noun} remaining`;
 }
 
 /** Create a blank spell on the actor and open it. OSE's template defaults it to level 1. */
@@ -150,8 +192,12 @@ export function slotMaxAt(actor: OSEActor, level: number): number {
 export function selectSpellLevels(
   actor: OSEActor,
   freeCasting = memorizationDisabled(),
+  items?: OseItem[],
 ): SpellLevelVM[] {
   const { slots, spellList } = actor.system.spells;
+  const byId = new Map(items?.map((it) => [it._id as string, it]) ?? []);
+  const resolve = (s: OseSpell) =>
+    (byId.get(s._id as string) as OseSpell | undefined) ?? s;
   const spent = spellPointsSpent(actor);
   const defaults = selectSpellSlotDefaults(actor) ?? {};
   const levels = new Set<number>();
@@ -167,7 +213,7 @@ export function selectSpellLevels(
       const stored = storedSlotMax(actor, level);
       const defaultMax = defaults[level] ?? null;
       const max = stored ?? defaultMax ?? 0;
-      const spellbook = spellList[level] ?? [];
+      const spellbook = (spellList[level] ?? []).map(resolve);
       // `ready` (= sum of cast) drives the "X / max ready" count + pips and drops
       // as spells are cast; `occupied` (= sum of memorized) is the filled-slot
       // count that drives capacity and persists across casts/rest.

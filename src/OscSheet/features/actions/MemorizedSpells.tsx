@@ -10,7 +10,9 @@ import {
   pointsLeftAt,
   slotMaxAt,
   setCasts,
+  pipMessage,
 } from "@features/spells/spells";
+import { useToast } from "@ui/toastContext";
 import { cx } from "@ui/cx";
 
 type Props = { actor: OSEActor };
@@ -22,7 +24,8 @@ type Props = { actor: OSEActor };
  * each level's shared spell-point budget.
  */
 export function MemorizedSpells({ actor }: Props) {
-  const { canEdit } = useOscSheetContext();
+  const { canEdit, items, optimisticUpdate } = useOscSheetContext();
+  const toast = useToast();
   const meta = (spell: OseSpell) =>
     spellMeta(spell).map((p) => (
       <span key={p.kind} className={cx(p.kind === "roll" && "dmg")}>
@@ -62,9 +65,12 @@ export function MemorizedSpells({ actor }: Props) {
     );
   }
 
-  // Same flatten + path as the Spells tab: spellList is Record<level, OseSpell[]>.
+  // Same flatten + path as the Spells tab: spellList is Record<level, OseSpell[]>,
+  // resolved through the context items so optimistic overlays show.
+  const byId = new Map(items.map((it) => [it._id as string, it]));
   const spells: OseSpell[] = Object.values(actor.system.spells?.spellList ?? {})
     .flat()
+    .map((s) => (byId.get(s._id as string) as OseSpell | undefined) ?? s)
     .filter((s) => (s.system.cast ?? 0) > 0 || (s.system.memorized ?? 0) > 0)
     .sort((a, b) => a.system.lvl - b.system.lvl);
 
@@ -86,7 +92,17 @@ export function MemorizedSpells({ actor }: Props) {
               pips={{
                 total,
                 filled: left,
-                onSet: canEdit ? (n) => void setCasts(spell, n) : undefined,
+                onSet: canEdit
+                  ? (n) => {
+                      void setCasts(spell, n, optimisticUpdate);
+                      const msg = pipMessage(`${spell.name} uses`, left, n, total);
+                      if (msg)
+                        toast({
+                          intent: n > left ? "success" : undefined,
+                          title: msg,
+                        });
+                    }
+                  : undefined,
               }}
               spent={left <= 0}
               spentTitle={`${spell.name} — spent (Rest to recover)`}

@@ -403,3 +403,61 @@ describe("spellbook entry", () => {
     expect(q<HTMLButtonElement>(".osc-book .sp-delete")!.disabled).toBe(false);
   });
 });
+
+describe("optimistic pips", () => {
+  const optimisticUpdate = vi.fn();
+  afterEach(() => optimisticUpdate.mockReset());
+
+  const renderOptimistic = (actor: OSEActor, freeCasting = false) => {
+    const value = {
+      actor,
+      canEdit: true,
+      updateActor,
+      optimisticUpdate,
+    } as unknown as OscSheetContextValue;
+    act(() => {
+      root.render(
+        <OscSheetContext.Provider value={value}>
+          <SpellLevel vm={selectSpellLevels(actor, freeCasting)[0]} />
+        </OscSheetContext.Provider>,
+      );
+    });
+  };
+
+  it("routes a cast-pip click through optimisticUpdate instead of a direct write", () => {
+    const memorizedCure = {
+      ...cure,
+      system: { ...cure.system, memorized: 2, cast: 1 },
+    } as unknown as OseSpell;
+    const actor = {
+      system: {
+        details: { class: "Cleric", level: 3 },
+        spells: {
+          spellList: { 1: [memorizedCure] },
+          slots: { 1: { used: 1, max: 2 } },
+          enabled: true,
+        },
+      },
+      _source: { system: { spells: {} } },
+    } as unknown as OSEActor;
+    renderOptimistic(actor);
+    act(() => q<HTMLButtonElement>(".osc-spell .pips button.pip")!.click());
+    expect(cure.update).not.toHaveBeenCalled();
+    expect(optimisticUpdate).toHaveBeenCalledWith(
+      "cure",
+      { "system.cast": 0 },
+      expect.any(Function),
+    );
+  });
+
+  it("routes a free-casting head-pip click to the per-level flag leaf", () => {
+    const actor = { ...cleric, setFlag: vi.fn() } as unknown as OSEActor;
+    renderOptimistic(actor, true);
+    act(() => q<HTMLButtonElement>(".osc-spellhead .pips button.pip")!.click());
+    expect(optimisticUpdate).toHaveBeenCalledWith(
+      "actor",
+      { "flags.osc-character-sheet.spellPoints.1": 2 },
+      expect.any(Function),
+    );
+  });
+});

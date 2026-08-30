@@ -41,7 +41,7 @@
   color: var(--text);
   font-family: var(--sans);
   font-size: var(--fs-sm);
-  padding: 8px 10px;
+  padding: var(--spacer-2) 10px;
   border-radius: var(--r-sm);
   outline: none;
   transition:
@@ -205,8 +205,8 @@
   pointer-events: none;
 }
 .check .box {
-  width: 16px;
-  height: 16px;
+  width: var(--spacer-4);
+  height: var(--spacer-4);
   border: 1.5px solid var(--border);
   background: var(--bg-2);
   border-radius: 3px;
@@ -226,8 +226,8 @@
   line-height: 1;
 }
 .radio .dot {
-  width: 16px;
-  height: 16px;
+  width: var(--spacer-4);
+  height: var(--spacer-4);
   border: 1.5px solid var(--border);
   background: var(--bg-2);
   border-radius: 50%;
@@ -240,8 +240,8 @@
 }
 .radio input:checked + .dot::after {
   content: "";
-  width: 8px;
-  height: 8px;
+  width: var(--spacer-2);
+  height: var(--spacer-2);
   background: var(--teal);
   border-radius: 50%;
 }
@@ -264,7 +264,7 @@
   font-size: var(--fs-2xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 6px 12px;
+  padding: 6px var(--spacer-3);
   border-radius: 2px;
   cursor: pointer;
   transition: all 0.12s;
@@ -296,7 +296,7 @@
   font-weight: 500;
   font-size: var(--fs-xs);
   letter-spacing: 0.03em;
-  padding: 4px 11px;
+  padding: var(--spacer-1) 11px;
   border-radius: 999px;
   cursor: pointer;
   transition:
@@ -344,8 +344,8 @@
   flex: none;
   display: inline-grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: var(--spacer-6);
+  height: var(--spacer-6);
   padding: 0;
   background: none;
   border: none;
@@ -410,13 +410,13 @@
     0 8px 24px oklch(0 0 0 / 0.35),
     0 2px 4px oklch(0 0 0 / 0.2);
   min-width: 200px;
-  padding: 4px 0;
+  padding: var(--spacer-1) 0;
 }
 .menu-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
+  padding: var(--spacer-2) var(--spacer-3);
   font-family: var(--sans);
   font-size: var(--fs-sm);
   color: var(--text);
@@ -446,10 +446,10 @@
 .menu-sep {
   height: 1px;
   background: var(--border-soft);
-  margin: 4px 0;
+  margin: var(--spacer-1) 0;
 }
 .menu-label {
-  padding: 6px 12px 3px;
+  padding: 6px var(--spacer-3) 3px;
   font-family: var(--sans);
   font-weight: 600;
   font-size: var(--fs-3xs);
@@ -476,8 +476,8 @@
   position: absolute;
   top: -7px;
   right: 14px;
-  width: 12px;
-  height: 12px;
+  width: var(--spacer-3);
+  height: var(--spacer-3);
   background: var(--surface);
   border-left: 1px solid var(--border);
   border-top: 1px solid var(--border);
@@ -754,7 +754,7 @@
   font-size: var(--fs-2xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 4px 10px 2px;
+  padding: var(--spacer-1) 10px 2px;
 }
 /* count — brass-solid numeric pill (container item counts, etc.) */
 .tag.count {
@@ -763,7 +763,7 @@
   color: var(--on-accent);
   font-size: var(--fs-2xs);
   padding: 1px 7px;
-  min-width: 16px;
+  min-width: var(--spacer-4);
   justify-content: center;
 }
 
@@ -874,8 +874,8 @@
   gap: var(--spacer-1);
 }
 .pip {
-  width: 16px;
-  height: 16px;
+  width: var(--spacer-4);
+  height: var(--spacer-4);
   border-radius: 50%;
   background: var(--gold-soft);
   border: 1px solid var(--gold-soft);
@@ -1104,7 +1104,7 @@ button.pip:hover {
   background: oklch(0 0 0 / 0.55);
   display: grid;
   place-items: center;
-  padding: 40px;
+  padding: var(--spacer-10);
   z-index: 100;
 }
 [data-theme="cream"] .modal-scrim {
@@ -1142,8 +1142,8 @@ button.pip:hover {
   font-size: var(--fs-xl);
   cursor: pointer;
   padding: 0;
-  width: 24px;
-  height: 24px;
+  width: var(--spacer-6);
+  height: var(--spacer-6);
   display: grid;
   place-items: center;
 }
@@ -1170,7 +1170,7 @@ button.pip:hover {
   background: var(--bg-2);
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--spacer-2);
 }
 
 /* ─── Toast / notification ──────────────────────────────────────────── */
@@ -1269,7 +1269,7 @@ button.pip:hover {
 /* ─── Empty / loading state ─────────────────────────────────────────── */
 
 .empty {
-  padding: 32px 24px;
+  padding: var(--spacer-8) var(--spacer-6);
   text-align: center;
   border: 1px dashed var(--border-soft);
   border-radius: var(--r-md);
@@ -1285,7 +1285,7 @@ button.pip:hover {
   font-family: var(--display);
   font-size: var(--fs-lg);
   color: var(--text-dim);
-  margin-bottom: 4px;
+  margin-bottom: var(--spacer-1);
 }
 .empty .msg {
   font-family: var(--serif);
@@ -1293,7 +1293,7 @@ button.pip:hover {
   font-size: var(--fs-sm);
   color: var(--text-mute);
   max-width: 36ch;
-  margin: 0 auto 12px;
+  margin: 0 auto var(--spacer-3);
   line-height: 1.5;
 }
 
@@ -1336,12 +1336,12 @@ button.pip:hover {
   font-size: var(--fs-2xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 9px 12px;
+  padding: 9px var(--spacer-3);
   text-align: left;
   font-weight: 400;
 }
 .table tbody td {
-  padding: 9px 12px;
+  padding: 9px var(--spacer-3);
   font-family: var(--serif);
   font-size: var(--fs-sm);
   color: var(--text);
@@ -1417,7 +1417,7 @@ button.pip:hover {
   letter-spacing: 0.02em;
   color: var(--stamp-text);
   background: var(--ink);
-  padding: 10px 16px;
+  padding: 10px var(--spacer-4);
   border-bottom: 1px solid var(--border);
 }
 .ed-confirm-body {
@@ -1425,13 +1425,13 @@ button.pip:hover {
   font-size: var(--fs-md);
   color: var(--text);
   line-height: 1.5;
-  padding: 16px;
+  padding: var(--spacer-4);
 }
 .ed-confirm-foot {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  padding: 10px 16px 14px;
+  gap: var(--spacer-2);
+  padding: 10px var(--spacer-4) 14px;
 }
 
 /* OverrideValue — mono default / teal dotted reset link */
@@ -1479,7 +1479,7 @@ button.pip:hover {
 }
 .ed-cell .ck {
   text-align: center;
-  padding: 4px 0 3px;
+  padding: var(--spacer-1) 0 3px;
   background: var(--ink);
   color: var(--stamp-text);
   border-radius: var(--r-sm);
@@ -1494,7 +1494,7 @@ button.pip:hover {
   font-family: var(--mono);
   font-size: var(--fs-lg);
   text-align: center;
-  padding: 8px 2px;
+  padding: var(--spacer-2) 2px;
   border-radius: var(--r-sm);
   width: 100%;
   min-width: 0;
