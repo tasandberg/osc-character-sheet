@@ -74,7 +74,7 @@ describe("coins, gems and other valuables under itembased", () => {
     render(<WealthSection wealth={wealth} variant="itembased" onSetCoin={noop} itemDragData={() => undefined} onOpen={noop} onContext={noop} />);
     expect(container.querySelector(".osc-whead .wt")?.textContent).toBe("3 slots");
     openTable();
-    const cells = [...container.querySelectorAll(".osc-coin-wt")].map((n) => n.textContent?.trim());
+    const cells = [...container.querySelectorAll('[data-testid="coin-load"]')].map((n) => n.textContent?.trim());
     expect(cells).toEqual(["—", "—"]);
     expect(container.querySelector(".osc-coin-total .tw")?.textContent).toBe("3");
   });
@@ -83,7 +83,7 @@ describe("coins, gems and other valuables under itembased", () => {
     render(<WealthSection wealth={wealth} variant="basic" onSetCoin={noop} itemDragData={() => undefined} onOpen={noop} onContext={noop} />);
     expect(container.querySelector(".osc-whead .wt")?.textContent).toBe("250 cn");
     openTable();
-    const cells = [...container.querySelectorAll(".osc-coin-wt")].map((n) => n.textContent?.trim());
+    const cells = [...container.querySelectorAll('[data-testid="coin-load"]')].map((n) => n.textContent?.trim());
     expect(cells).toEqual(["150", "100"]);
     expect(container.querySelector(".osc-coin-total .tw")?.textContent).toBe("250");
   });
@@ -100,7 +100,7 @@ describe("coins, gems and other valuables under itembased", () => {
     render(<WealthSection wealth={wealth} variant="itembased" onSetCoin={noop} itemDragData={() => undefined} onOpen={noop} onContext={noop} />);
     expect(container.querySelector(".osc-whead .wt")?.textContent).toBe("5 slots");
     openTable();
-    const cells = [...container.querySelectorAll(".osc-coin-wt")].map((n) => n.textContent?.trim());
+    const cells = [...container.querySelectorAll('[data-testid="coin-load"]')].map((n) => n.textContent?.trim());
     expect(cells).toEqual(["—", "—", "3"]);
     expect(container.querySelector(".osc-coin-total .tw")?.textContent).toBe("5");
   });

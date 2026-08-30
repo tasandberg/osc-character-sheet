@@ -39,7 +39,7 @@ export function Identity({
         {identity.name}
       </div>
       {showClassLine && (
-        <div className="osc-class tw:font-display tw:text-[length:var(--fs-md)] tw:text-gold tw:@twopane/sheet:text-center">
+        <div className="tw:font-display tw:text-[length:var(--fs-md)] tw:text-gold tw:@twopane/sheet:text-center">
           {identity.classLabel} {identity.level}
           {identity.title ? ` · ${identity.title}` : ""} · {identity.alignment}
         </div>

@@ -13,7 +13,7 @@ import { HoverPop } from "@ui/HoverPop";
 
 /** A rate line: label + a right-aligned value (number + unit). The value shares the
     single right-aligned column with the status rows, so every value ends flush at the
-    table's right edge (see .osc-move-pop grid). */
+    table's right edge (see the move-pop grid). */
 // The row dissolves so its two cells land directly in the popover's grid — that
 // is what puts every value, rate and status alike, in one right-aligned column.
 const ROW = "r tw:contents";
@@ -71,7 +71,8 @@ export function MoveTooltip({
     // `--enc-c: initial` so the pop doesn't inherit the anchor's tier tint —
     // only a `.vv` on an `.enc-t*` row opts back in. The 2-col grid's label
     // column grows to eat the slack, so every value ends flush at the right.
-    <HoverPop className="osc-move-pop tw:grid tw:min-w-[150px] tw:grid-cols-[minmax(max-content,1fr)_max-content] tw:gap-x-3 tw:gap-y-[3px] tw:[--enc-c:initial]">
+    <HoverPop data-testid="move-pop"
+      className="tw:grid tw:min-w-[150px] tw:grid-cols-[minmax(max-content,1fr)_max-content] tw:gap-x-3 tw:gap-y-[3px] tw:[--enc-c:initial]">
       <span className="hd tw:col-span-full tw:mb-[2px] tw:border-b tw:border-border-soft tw:pb-[3px] tw:font-sans tw:text-[length:var(--fs-3xs)] tw:font-semibold tw:tracking-[0.08em] tw:text-text-mute tw:uppercase">
         Movement
       </span>

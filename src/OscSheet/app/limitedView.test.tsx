@@ -71,7 +71,7 @@ const hasFullSheet = () => !!container.querySelector(".osc-frame, .osc-topbar");
 const hasLimitedSheet = () =>
   !!container.querySelector(".osc-sheet-app.is-limited");
 const hasTabs = () =>
-  !!container.querySelector(".osc-tabrail, .osc-htabs, .osc-bottombar");
+  !!container.querySelector('[data-testid="tab-rail"], [data-testid="tab-bar"], [data-testid="bottom-bar"]');
 
 beforeEach(() => {
   container = document.createElement("div");

@@ -39,7 +39,7 @@ export function MemorizedSpells({ actor }: Props) {
     return (
       <section className="osc-section">
         <SectionTitle hint="favorites — click to cast">Spells</SectionTitle>
-        <div className="fvtt-castlist">
+        <div className="fvtt-castlist tw:mt-[2px] tw:flex tw:flex-col">
           {favorites.map((spell) => {
             const lvl = spell.system.lvl;
             const max = slotMaxAt(actor, lvl);
@@ -79,7 +79,7 @@ export function MemorizedSpells({ actor }: Props) {
   return (
     <section className="osc-section">
       <SectionTitle hint="click to cast">Memorized Spells</SectionTitle>
-      <div className="fvtt-castlist">
+      <div className="fvtt-castlist tw:mt-[2px] tw:flex tw:flex-col">
         {spells.map((spell) => {
           const left = spell.system.cast ?? 0;
           const total = Math.max(spell.system.memorized ?? 0, left);

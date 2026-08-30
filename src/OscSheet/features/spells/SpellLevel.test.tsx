@@ -144,11 +144,11 @@ const q = <T extends Element>(sel: string) => host.querySelector<T>(sel);
 const text = (sel: string) => q(sel)?.textContent ?? "";
 const openBook = () => {
   act(() => q<HTMLButtonElement>(".osc-bookbtn")!.click());
-  return q<HTMLButtonElement>(".osc-book .osc-bookspell-memorize")!;
+  return q<HTMLButtonElement>('[data-testid="spellbook"] [data-testid="memorize"]')!;
 };
 const openDialog = () => {
-  act(() => q<HTMLButtonElement>(".osc-slotedit")!.click());
-  return q<HTMLInputElement>(".modal .osc-slotmax")!;
+  act(() => q<HTMLButtonElement>('[data-testid="slot-edit"]')!.click());
+  return q<HTMLInputElement>('.modal [data-testid="slot-max"]')!;
 };
 const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
 /** Type and blur — the order a click on Save produces. */
@@ -186,12 +186,12 @@ describe("SpellLevel head", () => {
     render();
     expect(text(".osc-spellhead")).toContain("0 / 2");
     expect(q(".osc-spellhead input")).toBeNull();
-    expect(q(".osc-slotedit")?.getAttribute("aria-label")).toBe("Edit Level 1 slots");
+    expect(q('[data-testid="slot-edit"]')?.getAttribute("aria-label")).toBe("Edit Level 1 slots");
   });
 
   it("has no pencil on a read-only sheet", () => {
     render(cleric, false);
-    expect(q(".osc-slotedit")).toBeNull();
+    expect(q('[data-testid="slot-edit"]')).toBeNull();
     expect(text(".osc-spellhead")).toContain("0 / 2");
   });
 });
@@ -215,12 +215,12 @@ describe("slot maximum dialog", () => {
     expect(resettable()).toBe(false);
     type(field, "5");
     expect(resettable()).toBe(true);
-    const group = q<HTMLElement>(".osc-slotdefaults")!;
+    const group = q<HTMLElement>('[data-testid="slot-defaults"]')!;
     expect(Array.from(group.children).map((c) => c.className.split(" ")[0])).toEqual([
       "ed-resetlink",
       "icon-btn",
     ]);
-    expect(q(".osc-slotinfo .fa-circle-info")).not.toBeNull();
+    expect(q('[data-testid="slot-info"] .fa-circle-info')).not.toBeNull();
     type(field, "2");
     expect(resettable()).toBe(false);
   });
@@ -259,14 +259,14 @@ describe("slot maximum dialog", () => {
   it("spells the detail out in the info tooltip, class named canonically", () => {
     render(lowercase);
     openDialog();
-    expect(text(".osc-slot-tip")).toBe("Level 3 Cleric — 2 Level 1 spell slots by default.");
+    expect(text('[data-testid="slot-tip"]')).toBe("Level 3 Cleric — 2 Level 1 spell slots by default.");
   });
 
   it("reaches the tooltip without a mouse: focusing the icon opens it", () => {
     render();
     openDialog();
-    const info = q<HTMLButtonElement>(".osc-slotinfo")!;
-    const pop = q<HTMLElement>(".osc-slot-tip")!;
+    const info = q<HTMLButtonElement>('[data-testid="slot-info"]')!;
+    const pop = q<HTMLElement>('[data-testid="slot-tip"]')!;
     expect(info.getAttribute("aria-label")).toBe(pop.textContent);
     expect(info.tabIndex).toBe(0);
     expect(pop.hasAttribute("data-open")).toBe(false);
@@ -298,23 +298,23 @@ describe("slot maximum dialog", () => {
   it("keeps the inert default line out of the tab order, but not the info icon", () => {
     render();
     openDialog();
-    expect(q(".osc-slotdefaults [inert]")).toBeNull();
+    expect(q('[data-testid="slot-defaults"] [inert]')).toBeNull();
     expect(q(".osc-slotdefault")!.tagName).toBe("SPAN");
-    expect(q<HTMLElement>(".osc-slotinfo")!.tabIndex).toBe(0);
+    expect(q<HTMLElement>('[data-testid="slot-info"]')!.tabIndex).toBe(0);
   });
 
   it("leaves the hint area empty for an unrecognized class", () => {
     render(homebrew);
     expect(openDialog().value).toBe("0");
-    expect(q(".osc-slotdefaults")).toBeNull();
-    expect(q(".osc-slotinfo")).toBeNull();
+    expect(q('[data-testid="slot-defaults"]')).toBeNull();
+    expect(q('[data-testid="slot-info"]')).toBeNull();
     expect(q(".modal-body .field-hint")).toBeNull();
   });
 
   it("leaves the hint area empty for a level past the class table", () => {
     render(offTable);
     expect(openDialog().value).toBe("0");
-    expect(q(".osc-slotdefaults")).toBeNull();
+    expect(q('[data-testid="slot-defaults"]')).toBeNull();
     expect(q(".modal-body .field-hint")).toBeNull();
   });
 });
@@ -325,7 +325,7 @@ describe("removing a spell", () => {
   it("puts a labelled delete on each spellbook entry when memorising", () => {
     render();
     openBook();
-    const trash = del(".osc-book .osc-bookspell .sp-delete");
+    const trash = del('[data-testid="spellbook"] [data-testid="book-spell"] .sp-delete');
     expect(trash.getAttribute("aria-label")).toBe("Delete Cure Light Wounds");
     act(() => trash.click());
     act(() => confirmed());
@@ -389,9 +389,9 @@ describe("spellbook entry", () => {
   it("acts through a labelled Memorise button, not the row", () => {
     render();
     openBook();
-    const entry = q(".osc-book .osc-bookspell")!;
+    const entry = q('[data-testid="spellbook"] [data-testid="book-spell"]')!;
     expect(entry.tagName).toBe("DIV");
-    const memorize = q<HTMLButtonElement>(".osc-bookspell-memorize")!;
+    const memorize = q<HTMLButtonElement>('[data-testid="memorize"]')!;
     expect(memorize.textContent).toBe("Memorize");
   });
 
@@ -399,8 +399,8 @@ describe("spellbook entry", () => {
     render(overridden);
     // 5 stored slots, none occupied — memorising is open.
     openBook();
-    expect(q<HTMLButtonElement>(".osc-bookspell-memorize")!.disabled).toBe(false);
-    expect(q<HTMLButtonElement>(".osc-book .sp-delete")!.disabled).toBe(false);
+    expect(q<HTMLButtonElement>('[data-testid="memorize"]')!.disabled).toBe(false);
+    expect(q<HTMLButtonElement>('[data-testid="spellbook"] .sp-delete')!.disabled).toBe(false);
   });
 });
 

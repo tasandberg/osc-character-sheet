@@ -13,7 +13,7 @@ import {
 // Level chip: the level in display type over its XP total in mono. `shrink-0` +
 // `nowrap` keep it intact while the XP bar between the two chips absorbs the
 // slack instead.
-const LV = "osc-tb-lv tw:flex tw:shrink-0 tw:flex-col tw:items-center tw:leading-[1.05] tw:whitespace-nowrap";
+const LV = "tw:flex tw:shrink-0 tw:flex-col tw:items-center tw:leading-[1.05] tw:whitespace-nowrap";
 const LV_N = "tw:font-display tw:text-[length:var(--fs-sm)] tw:tracking-[0.05em]";
 const LV_XP = "cur tw:mt-[1px] tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-stamp-text-faint";
 
@@ -91,16 +91,16 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
   ) : null;
 
   return (
-    <div className="osc-topbar-inner tw:flex tw:flex-wrap tw:items-center tw:gap-2">
+    <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-2">
       <div className={LV}>
         <b className={`${LV_N} tw:text-gold`}>Lv {vm.level}</b>
         <span className={LV_XP}>{vm.xp.value.toLocaleString()}</span>
       </div>
       <div
-        className="osc-tb-xp tw:max-w-[50%] tw:min-w-[44px] tw:flex-1"
+        className="tw:max-w-[50%] tw:min-w-[44px] tw:flex-1"
         title={`${vm.xp.value.toLocaleString()} XP`}
       >
-        <div className="osc-tb-bar tw:relative tw:flex tw:h-[16px] tw:items-center tw:justify-center tw:overflow-hidden tw:rounded-[999px] tw:border tw:border-[rgba(229,222,200,0.22)] tw:bg-[rgba(0,0,0,0.35)]">
+        <div className="tw:relative tw:flex tw:h-[16px] tw:items-center tw:justify-center tw:overflow-hidden tw:rounded-[999px] tw:border tw:border-[rgba(229,222,200,0.22)] tw:bg-[rgba(0,0,0,0.35)]">
           <i
             className="tw:absolute tw:top-0 tw:bottom-0 tw:left-0 tw:rounded-[999px] tw:bg-[linear-gradient(90deg,var(--gold-dim),var(--gold))]"
             style={{ width: `${pct}%` }}
@@ -124,7 +124,7 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
       <div className="tw:ml-auto tw:flex tw:items-center tw:gap-1">
         {/* `contents` so the action buttons flatten into the cluster's flex row
             and share its gap; at XS they collapse into the ⋮ menu instead. */}
-        <div className="osc-tb-actions tw:contents tw:@max-md/app:hidden">{actionButtons}</div>
+        <div data-testid="topbar-actions" className="tw:contents tw:@max-md/app:hidden">{actionButtons}</div>
         {/* XS overflow ⋮. Only shown when there are owner actions to collapse. */}
         {actionButtons && (
           <div className="osc-tb-menu-wrap tw:relative" ref={menuRef}>

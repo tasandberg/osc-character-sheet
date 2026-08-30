@@ -103,7 +103,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           <Stamp className={TILE_STAMP}>HD</Stamp>
           <div className={TILE_V}>{vitals.hd}</div>
         </div>
-        <div className={`${TILE} osc-tile-move tw:cursor-default`}>
+        <div className={`${TILE} tw:cursor-default`}>
           <Stamp className={TILE_STAMP}>MOVE</Stamp>
           {/* dotted underline hints at the hover breakdown (all three rates + enc) */}
           <div className={`${TILE_V} tw:underline tw:decoration-text-faint tw:decoration-dotted tw:underline-offset-[2px]`}>

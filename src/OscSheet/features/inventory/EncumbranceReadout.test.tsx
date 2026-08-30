@@ -53,7 +53,7 @@ afterEach(() => {
 /** The popover rows as "label|value" pairs — the tooltip's whole visible content.
     Rate rows split the value into number + unit cells; the status row keeps a `.vv`. */
 function tooltipRows(scope: HTMLElement): string[] {
-  return [...scope.querySelectorAll(".osc-move-pop .r")].map((r) => {
+  return [...scope.querySelectorAll('[data-testid="move-pop"] .r')].map((r) => {
     const k = r.querySelector(".k")?.textContent;
     const vv = r.querySelector(".vv")?.textContent;
     const v =

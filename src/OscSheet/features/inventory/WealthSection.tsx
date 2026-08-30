@@ -148,7 +148,7 @@ export function WealthSection({
   const hasContent = wealth.length > 0;
 
   return (
-    <section className="osc-wsec tw:mb-5">
+    <section className="tw:mb-5">
       {/* header bar — full-width button: overlapping coin dots · "Treasure" ·
           gp total · caret · carried weight (far right). */}
       <button
@@ -194,12 +194,12 @@ export function WealthSection({
       </button>
 
       {!hasContent && (
-        <p className="osc-wsec-empty tw:mt-0 tw:mb-2 tw:ml-[2px] tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint">
+        <p className="tw:mt-0 tw:mb-2 tw:ml-[2px] tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint">
           Drop coins, gems, or other valuables here to track your treasure.</p>
       )}
 
       {open && hasContent && (
-        <div className="osc-cointab tw:mt-[2px] tw:rounded-md tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:pt-[3px] tw:pb-[9px]">
+        <div className="tw:mt-[2px] tw:rounded-md tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:pt-[3px] tw:pb-[9px]">
           {/* One unified, fully-sortable table: units live in the headers so rows
               render bare numbers; a header click sorts every row together. The top
               pad separates this row from the "TREASURE …gp" header above. */}
@@ -217,7 +217,7 @@ export function WealthSection({
             />
             <SortHeader
               label="Qty"
-              className="osc-coin-th-num tw:justify-end tw:whitespace-nowrap"
+              className="tw:justify-end tw:whitespace-nowrap"
               active={sort.key === "qty"}
               dir={sort.dir}
               onClick={() => onSort("qty")}
@@ -230,14 +230,14 @@ export function WealthSection({
                 headers. */}
             <SortHeader
               label={itemBased ? "Slots" : "Weight (cn)"}
-              className="osc-coin-th-num tw:justify-end tw:whitespace-nowrap tw:@max-md/app:hidden"
+              className="tw:justify-end tw:whitespace-nowrap tw:@max-md/app:hidden"
               active={sort.key === "weight"}
               dir={sort.dir}
               onClick={() => onSort("weight")}
             />
             <SortHeader
               label="Value (gp)"
-              className="osc-coin-th-num tw:justify-end tw:whitespace-nowrap tw:@max-md/app:hidden"
+              className="tw:justify-end tw:whitespace-nowrap tw:@max-md/app:hidden"
               active={sort.key === "value"}
               dir={sort.dir}
               onClick={() => onSort("value")}
@@ -290,7 +290,7 @@ export function WealthSection({
             </span>
           </div>
           {/* explicit close affordance under the table */}
-          <div className="osc-coin-done tw:mt-3 tw:flex tw:justify-end">
+          <div className="tw:mt-3 tw:flex tw:justify-end">
             <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
               Done
             </Button>

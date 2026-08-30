@@ -30,7 +30,7 @@ export function SortHeaderRow({
     />
   );
   return (
-    <div className={INV_HEADROW} role="row">
+    <div className={INV_HEADROW} data-testid="inv-headrow" role="row">
       <span aria-hidden="true" /> {/* drag */}
       {/* "Item" spans the image + name columns so it left-aligns to the image */}
       {th("name", "Item", "osc-inv-th-item")}

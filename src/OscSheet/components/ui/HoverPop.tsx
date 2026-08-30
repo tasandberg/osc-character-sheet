@@ -15,6 +15,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type HTMLAttributes,
   type ReactNode,
 } from "react";
 import { cx } from "./cx";
@@ -38,13 +39,14 @@ export function HoverPop({
   align = "start",
   role = "tooltip",
   children,
+  ...rest
 }: {
   className?: string;
   /** `start` = card's left edge on the trigger's; `center` = centred under it. */
   align?: HoverPopAlign;
   role?: string;
   children: ReactNode;
-}) {
+} & HTMLAttributes<HTMLSpanElement>) {
   const ref = useRef<HTMLSpanElement>(null);
   const [style, setStyle] = useState<CSSProperties>(HIDDEN);
 
@@ -99,6 +101,7 @@ export function HoverPop({
 
   return (
     <span
+      {...rest}
       className={cx("osc-hoverpop", className)}
       role={role}
       ref={ref}

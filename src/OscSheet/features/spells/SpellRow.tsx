@@ -171,7 +171,7 @@ export function SpellRow({
               variant="outline"
               tone="brass"
               size="sm"
-              className="sp-cast tw:font-sans"
+              className="tw:inline-flex tw:min-w-[5em] tw:items-center tw:justify-center tw:font-sans"
               disabled={spent || casting}
               aria-busy={casting}
               onClick={handleCast}

@@ -16,7 +16,7 @@ export default function Abilities() {
   const onAdd = () => createAbility(actor, actor.system.details.class || "");
 
   return (
-    <div className="osc-abilities-tab">
+    <div data-testid="abilities-tab">
       <section className="osc-section">
         <SectionHeader
           title="Abilities"
@@ -36,7 +36,7 @@ export default function Abilities() {
         {features.length === 0 ? (
           <p className={FLAVOUR}>No abilities yet.</p>
         ) : (
-          <div className="fvtt-feats tw:flex tw:flex-col tw:gap-2">
+          <div className="tw:flex tw:flex-col tw:gap-2">
             {features.map((f) => (
               <FeatureCard key={f.id} feature={f} />
             ))}

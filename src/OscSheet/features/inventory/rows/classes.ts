@@ -20,7 +20,7 @@ export const INV_ROW = `${ROW_BASE} tw:border-b tw:border-border-soft`;
 
 /** Column-header row: heavier rule, no top pad, and no hover tint — it isn't a
  *  drop target. */
-export const INV_HEADROW = `${ROW_BASE} osc-inv-headrow tw:pt-0 tw:pb-1 tw:border-b-2 tw:border-border tw:hover:bg-transparent`;
+export const INV_HEADROW = `${ROW_BASE} tw:pt-0 tw:pb-1 tw:border-b-2 tw:border-border tw:hover:bg-transparent`;
 
 /** Small-caps micro label — the sort headers, the static "Equip" head and the
  *  per-row category badge are typographically the same thing. Colour is NOT
@@ -31,11 +31,11 @@ export const MICRO_LABEL =
   "tw:font-sans tw:text-[length:var(--fs-3xs)] tw:font-semibold tw:tracking-[0.08em] tw:uppercase";
 
 /** Per-row category badge (col 4). Dropped at xs to buy the name column width. */
-export const INV_ROWCAT = `osc-inv-rowcat ${MICRO_LABEL} tw:text-text-faint tw:whitespace-nowrap tw:text-left tw:@max-md/app:hidden`;
+export const INV_ROWCAT = `${MICRO_LABEL} tw:text-text-faint tw:whitespace-nowrap tw:text-left tw:@max-md/app:hidden`;
 
 /** Load cell (col 5) — "N cn" / "N slots" / "—". */
 export const INV_WT =
-  "osc-inv-wt tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute tw:text-center tw:whitespace-nowrap";
+  "tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute tw:text-center tw:whitespace-nowrap";
 
 /** Inline meta suffix after the item name — weapon damage, stack quantity. */
 export const INV_QTYTAG =

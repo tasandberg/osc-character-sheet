@@ -302,7 +302,7 @@ export function InventoryView({
           two never separate into a see-through gap (no JS height measuring). */}
       <div className="osc-inv-stickyhead">
         {inventory.equipped.length > 0 && (
-          <div className="osc-inv-sec osc-inv-sec--equipped tw:mb-3">
+          <div className="tw:mb-3">
             <SectionCount
               title="Equipped items"
               items={inventory.equipped}
@@ -341,7 +341,7 @@ export function InventoryView({
 
       {/* my-3 top edge is breathing room below the sticky "All Items" header, so the
           table (and its outline-offset drop outline) clears the band, not clipped by it. */}
-      <section className="osc-inv-sec osc-inv-sec--carried tw:my-3">
+      <section className="tw:my-3">
         <div
           className={cx(
             "osc-inv-list",
