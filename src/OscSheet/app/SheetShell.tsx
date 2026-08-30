@@ -38,6 +38,7 @@ import { usesAscendingAC } from "@domain/chat/targeting";
 import { useToast } from "@ui/toastContext";
 import type { OseItem } from "@domain/types";
 import type { VitalsVM } from "@domain/vm-types";
+import { selectAbilities } from "../features/actions/abilities";
 
 /**
  * Foundry-aware container: computes view-models, fills the Shell layout slots,
@@ -79,14 +80,16 @@ export default function SheetShell() {
   // rates line must never disagree about the tier.
   const encumbrance = selectEncumbrance(actor, invItems as OseItem[]);
   // Read-only sheets get no HP stepper/input (undefined onSetHp → static value).
-  const onSetHp = !canEdit ? undefined : (value: number) => {
-    const next = Math.max(0, Math.min(vitals.hp.max, value));
-    if (next === vitals.hp.value) return;
-    const update = { "system.hp.value": next };
-    if (optimisticUpdate)
-      optimisticUpdate("actor", update, () => updateActor(update));
-    else void updateActor(update);
-  };
+  const onSetHp = !canEdit
+    ? undefined
+    : (value: number) => {
+        const next = Math.max(0, Math.min(vitals.hp.max, value));
+        if (next === vitals.hp.value) return;
+        const update = { "system.hp.value": next };
+        if (optimisticUpdate)
+          optimisticUpdate("actor", update, () => updateActor(update));
+        else void updateActor(update);
+      };
 
   const resolveItem = (id: string) =>
     (invItems as OseItem[]).find((i) => i._id === id);
@@ -225,7 +228,9 @@ export default function SheetShell() {
         (c) => (c.system as { containerId?: string }).containerId === id,
       );
       if (kids.length)
-        embedUpdate(kids.map((k) => ({ _id: k._id, "system.containerId": "" })));
+        embedUpdate(
+          kids.map((k) => ({ _id: k._id, "system.containerId": "" })),
+        );
       deleteItem(it);
     });
   };
@@ -316,7 +321,10 @@ export default function SheetShell() {
 
   return (
     <>
-      <EditModal open={editOpen && canEdit} onClose={() => setEditOpen(false)} />
+      <EditModal
+        open={editOpen && canEdit}
+        onClose={() => setEditOpen(false)}
+      />
       <Frame
         nav={{
           tabs: items,
@@ -351,9 +359,7 @@ export default function SheetShell() {
             // expose write affordances even to an owner. Same rationale for the
             // inventory context-menu / Send gates.
             onPortraitContextMenu={
-              canEdit
-                ? () => showTokenVariantsPortraitPicker(actor)
-                : undefined
+              canEdit ? () => showTokenVariantsPortraitPicker(actor) : undefined
             }
             canEditPortrait={canEdit}
           />
@@ -364,9 +370,12 @@ export default function SheetShell() {
         railExtra={
           <SavesExploration
             saves={selectSaves(actor)}
+            abilities={selectAbilities(actor)}
             exploration={selectExploration(actor)}
             onRollSave={(key, event) => actor.rollSave(key, { event })}
-            onRollExploration={(key, event) => rollExploration(actor, key, event)}
+            onRollExploration={(key, event) =>
+              rollExploration(actor, key, event)
+            }
             tabbed
           />
         }
