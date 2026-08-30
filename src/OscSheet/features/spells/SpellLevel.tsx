@@ -106,7 +106,12 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                       optimisticUpdate,
                     );
                     pipToast(
-                      pipMessage(`Level ${level} spell slots`, left, n, points.max),
+                      pipMessage(
+                        `Level ${level} spell slots`,
+                        left,
+                        n,
+                        points.max,
+                      ),
                       n > left,
                     );
                   },
@@ -226,7 +231,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         <button
           type="button"
           className={cx(
-            "osc-bookbtn tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-dashed tw:border-border tw:bg-transparent tw:px-3 tw:py-2 tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.04em] tw:text-text-mute tw:hover:text-text",
+            "osc-bookbtn tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-dashed tw:border-border tw:bg-transparent tw:px-3 tw:py-2 tw:font-display tw:text-(length:--fs-xs) tw:tracking-[0.04em] tw:text-text-mute tw:hover:text-text",
             bookOpen ? "tw:rounded-none" : "tw:rounded-b-[7px]",
           )}
           onClick={() => setBookOpen((o) => !o)}
@@ -267,7 +272,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                   {spell.name}
                 </span>
                 <InlineButton
-                  className="osc-bookspell-memorize tw:font-sans tw:text-[length:var(--fs-2xs)] tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
+                  className="osc-bookspell-memorize tw:font-sans tw:text-(length:--fs-2xs) tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
                   title={

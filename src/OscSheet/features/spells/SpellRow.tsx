@@ -140,7 +140,7 @@ export function SpellRow({
           {pool && (
             <span
               className={cx(
-                "pool tw:font-mono tw:text-[length:var(--fs-3xs)] tw:whitespace-nowrap",
+                "pool tw:font-mono tw:text-(length:--fs-3xs) tw:whitespace-nowrap",
                 spent ? "tw:text-text-faint" : "tw:text-text-mute",
               )}
             >
@@ -160,7 +160,7 @@ export function SpellRow({
           )}
         </span>
         {/* the " · " separators and the .dmg tint stay in spells.scss */}
-        <span className="spm tw:mt-[1px] tw:block tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-text-mute">
+        <span className="spm tw:mt-px tw:block tw:font-mono tw:text-(length:--fs-3xs) tw:text-text-mute">
           {meta}
         </span>
       </div>

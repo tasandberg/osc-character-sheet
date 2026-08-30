@@ -41,7 +41,7 @@
   color: var(--text);
   font-family: var(--sans);
   font-size: var(--fs-sm);
-  padding: var(--spacer-2) 10px;
+  padding: var(--spacer-2) var(--spacer-2-5);
   border-radius: var(--r-sm);
   outline: none;
   transition:
@@ -144,7 +144,7 @@
 .toggle {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacer-2-5);
   cursor: pointer;
   user-select: none;
   font-family: var(--sans);
@@ -415,7 +415,7 @@
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacer-2-5);
   padding: var(--spacer-2) var(--spacer-3);
   font-family: var(--sans);
   font-size: var(--fs-sm);
@@ -754,7 +754,7 @@
   font-size: var(--fs-2xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: var(--spacer-1) 10px 2px;
+  padding: var(--spacer-1) var(--spacer-2-5) 2px;
 }
 /* count — brass-solid numeric pill (container item counts, etc.) */
 .tag.count {
@@ -912,7 +912,7 @@ button.pip:hover {
   display: grid;
   place-items: center;
   color: var(--gold);
-  font-size: 8px;
+  font-size: var(--fs-4xs);
 }
 .pips.hollow .pip.filled {
   background: var(--gold);
@@ -1090,7 +1090,7 @@ button.pip:hover {
 .plaque-save .pc {
   display: block;
   font-family: var(--sans);
-  font-size: 8px; /* micro-label; no sub-10px --fs token (vellum px-exempt) */
+  font-size: var(--fs-4xs);
   letter-spacing: 0.04em;
   color: var(--text-faint);
   margin-top: 2px;
@@ -1129,7 +1129,7 @@ button.pip:hover {
   border-bottom: 1px solid var(--border-soft);
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: var(--spacer-2-5);
 }
 /* title is a <SectionTitle variant="bare">; just stretch it in the head row */
 .modal-head .ttl {
@@ -1159,7 +1159,7 @@ button.pip:hover {
   line-height: 1.55;
 }
 .modal-body p {
-  margin: 0 0 10px;
+  margin: 0 0 var(--spacer-2-5);
 }
 .modal-body p:last-child {
   margin-bottom: 0;
@@ -1206,7 +1206,7 @@ button.pip:hover {
   min-width: 240px;
   max-width: 380px;
   display: flex;
-  gap: 10px;
+  gap: var(--spacer-2-5);
   align-items: flex-start;
 }
 .toast .ic {
@@ -1278,7 +1278,7 @@ button.pip:hover {
 .empty .icn {
   width: 38px;
   height: 38px;
-  margin: 0 auto 10px;
+  margin: 0 auto var(--spacer-2-5);
   color: var(--text-faint);
 }
 .empty .ttl {
@@ -1417,7 +1417,7 @@ button.pip:hover {
   letter-spacing: 0.02em;
   color: var(--stamp-text);
   background: var(--ink);
-  padding: 10px var(--spacer-4);
+  padding: var(--spacer-2-5) var(--spacer-4);
   border-bottom: 1px solid var(--border);
 }
 .ed-confirm-body {
@@ -1431,7 +1431,7 @@ button.pip:hover {
   display: flex;
   justify-content: flex-end;
   gap: var(--spacer-2);
-  padding: 10px var(--spacer-4) 14px;
+  padding: var(--spacer-2-5) var(--spacer-4) 14px;
 }
 
 /* OverrideValue — mono default / teal dotted reset link */
