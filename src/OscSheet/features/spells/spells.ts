@@ -117,7 +117,11 @@ export function setPointsLeftAt(
       [level]: used,
     });
   if (!optimistic) return commit();
-  optimistic("actor", { [`${flagPath(FLAGS.spellPoints)}.${level}`]: used }, commit);
+  optimistic(
+    "actor",
+    { [`${flagPath(FLAGS.spellPoints)}.${level}`]: used },
+    commit,
+  );
 }
 
 /** Pip-click toast copy: "N <noun> remaining", null on no-op. */
@@ -140,6 +144,38 @@ export function createSpell(actor: OSEActor): Promise<void> {
 /** Rest in free-casting mode: clear all spent points. */
 export function resetSpellPoints(actor: OSEActor): Promise<unknown> {
   return unsetFlag(actor, FLAGS.spellPoints);
+}
+
+/** Rest/Study: free-casting refills every level's point pool; memorization mode
+ *  re-memorises every spell (cast back to memorized). `spellsRestored` counts
+ *  the casts (or points) given back. */
+export async function restoreAllSpells(
+  actor: OSEActor,
+  items?: OseItem[],
+): Promise<{ spellsRestored: number }> {
+  const levels = selectSpellLevels(actor, undefined, items);
+  if (levels.some((l) => l.freeCasting)) {
+    const spellsRestored = levels.reduce(
+      (n, l) => n + Math.min(l.points.used, l.points.max),
+      0,
+    );
+    await resetSpellPoints(actor);
+    return { spellsRestored };
+  }
+  let spellsRestored = 0;
+  const updates: Promise<unknown>[] = [];
+  for (const { spellbook } of levels) {
+    for (const spell of spellbook) {
+      const memorized = spell.system.memorized ?? 0;
+      const cast = spell.system.cast ?? 0;
+      if (cast !== memorized) {
+        spellsRestored += Math.max(0, memorized - cast);
+        updates.push(spell.update({ "system.cast": memorized }));
+      }
+    }
+  }
+  await Promise.all(updates);
+  return { spellsRestored };
 }
 
 /** Favorited spells across all levels, sorted by level then name (Actions tab, free-casting). */

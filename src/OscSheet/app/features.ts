@@ -5,8 +5,6 @@
 export const FEATURES = {
   /** Topbar "Level Up" — no advancement flow yet (GH #22). */
   levelUp: false,
-  /** Topbar "Rest" — no character-level HP/HD recovery yet. */
-  rest: false,
   /** Inventory "Send Item" to another actor (GH #16). */
   sendItem: true,
 } as const;

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { TopbarVM } from "@domain/vm-types";
 import { SettingsModal } from "@features/settings/SettingsModal";
+import { CampModal } from "@features/camp/CampModal";
 import { FEATURES } from "@app/features";
 import {
   TB_BTN,
@@ -13,9 +14,12 @@ import {
 // Level chip: the level in display type over its XP total in mono. `shrink-0` +
 // `nowrap` keep it intact while the XP bar between the two chips absorbs the
 // slack instead.
-const LV = "tw:flex tw:shrink-0 tw:flex-col tw:items-center tw:leading-[1.05] tw:whitespace-nowrap";
-const LV_N = "tw:font-display tw:text-[length:var(--fs-sm)] tw:tracking-[0.05em]";
-const LV_XP = "cur tw:mt-[1px] tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-stamp-text-faint";
+const LV =
+  "tw:flex tw:shrink-0 tw:flex-col tw:items-center tw:leading-[1.05] tw:whitespace-nowrap";
+const LV_N =
+  "tw:font-display tw:text-[length:var(--fs-sm)] tw:tracking-[0.05em]";
+const LV_XP =
+  "cur tw:mt-[1px] tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-stamp-text-faint";
 
 type Props = {
   vm: TopbarVM;
@@ -26,13 +30,15 @@ type Props = {
 };
 
 /** Persistent topbar: level, XP, and sheet controls. The bar stays dark in both
- *  themes (--ink). Rest and Level Up are gated behind FEATURES until implemented;
- *  Edit opens the Edit Character modal; the cog opens per-user sheet settings
+ *  themes (--ink). Level Up is gated behind FEATURES until implemented; Camp
+ *  opens the Camp modal; Edit opens the Edit Character modal; the cog opens
+ *  per-user sheet settings
  *  (theme + font size). At XS the action buttons collapse into a ⋮ overflow menu. */
 export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
   const pct = vm.pct;
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [campOpen, setCampOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click.
@@ -47,18 +53,21 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
     return () => document.removeEventListener("mousedown", onDown);
   }, [menuOpen]);
 
-  // Character-editing actions (Rest/Level Up/Edit) are owner-only; the theme
+  // Character-editing actions (Camp/Level Up/Edit) are owner-only; the theme
   // toggle below stays available to everyone (client-side setting).
   const actionButtons = canEdit ? (
     <>
-      {FEATURES.rest && (
-        <button type="button" className={TB_BTN} disabled>
-          <span className={TB_BTN_GLYPH} aria-hidden="true">
-            ☾
-          </span>
-          <span className="lbl">Rest</span>
-        </button>
-      )}
+      <button
+        type="button"
+        className={TB_BTN}
+        onClick={() => {
+          setMenuOpen(false);
+          setCampOpen(true);
+        }}
+      >
+        <i className="fa fa-tent" />
+        <span className="lbl">Camp</span>
+      </button>
       {FEATURES.levelUp && (
         <button
           type="button"
@@ -124,7 +133,12 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
       <div className="tw:ml-auto tw:flex tw:items-center tw:gap-1">
         {/* `contents` so the action buttons flatten into the cluster's flex row
             and share its gap; at XS they collapse into the ⋮ menu instead. */}
-        <div data-testid="topbar-actions" className="tw:contents tw:@max-md/app:hidden">{actionButtons}</div>
+        <div
+          data-testid="topbar-actions"
+          className="tw:contents tw:@max-md/app:hidden"
+        >
+          {actionButtons}
+        </div>
         {/* XS overflow ⋮. Only shown when there are owner actions to collapse. */}
         {actionButtons && (
           <div className="osc-tb-menu-wrap tw:relative" ref={menuRef}>
@@ -148,10 +162,19 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
           title="Settings"
           aria-label="Settings"
         >
-          <i className={`${TB_BTN_GLYPH} fa-solid fa-gear`} aria-hidden="true" />
+          <i
+            className={`${TB_BTN_GLYPH} fa-solid fa-gear`}
+            aria-hidden="true"
+          />
         </button>
       </div>
-      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
+      {canEdit && campOpen && (
+        <CampModal open onClose={() => setCampOpen(false)} />
+      )}
     </div>
   );
 }

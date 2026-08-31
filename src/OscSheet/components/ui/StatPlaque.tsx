@@ -31,7 +31,12 @@ export function StatPlaque({
 }) {
   return (
     <div
-      className={cx("plaque", `plaque-${variant}`, onActivate && "rollable", className)}
+      className={cx(
+        "plaque",
+        `plaque-${variant}`,
+        onActivate && "rollable",
+        className,
+      )}
       title={title}
       data-testid={dataTestid}
       {...rollable(onActivate)}
