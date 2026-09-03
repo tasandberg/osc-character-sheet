@@ -136,6 +136,19 @@ body {
   line-height: var(--lh-normal);
 }
 
+/* plain — body-size serif label with no rule, for heads whose detail sits on a
+   line below (the Camp modal). */
+.section-title.plain {
+  font-family: var(--serif);
+  font-size: var(--fs-base);
+  letter-spacing: 0;
+  color: var(--text);
+  border-bottom: none;
+  margin: 0;
+  padding-bottom: 0;
+  line-height: var(--lh-normal);
+}
+
 /* Rule callout — italic serif explanatory line, like the print sheet */
 .rule {
   font-family: var(--serif);

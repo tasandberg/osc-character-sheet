@@ -7,19 +7,32 @@ import {
   worldTimeNow,
 } from "@features/camp/rations";
 import { FLAGS, readFlag, setFlag } from "@domain/flags";
-import { restoreAllSpells, selectSpellLevels } from "@features/spells/spells";
+import {
+  countRestorableSpells,
+  restoreAllSpells,
+  selectSpellLevels,
+} from "@features/spells/spells";
 import { consumeToast } from "@features/inventory/consumeToast";
 import { ItemImage } from "@features/inventory/ItemImage";
 import { monogram } from "@features/inventory/monogram";
-import { InlineButton } from "@ui/InlineButton";
+import { Button } from "@ui/Button";
 import { Empty } from "@ui/Empty";
 import { Modal } from "@ui/Modal";
-import { SectionHeader } from "@ui/SectionHeader";
+import { SectionTitle } from "@ui/SectionTitle";
 import { useToast } from "@ui/toastContext";
 import { clsx } from "clsx";
 
-const RAIL =
-  "tw:grid-flow-col tw:gap-2 tw:ml-auto tw:font-sans u-fs-xs tw:disabled:opacity-40 tw:disabled:cursor-not-allowed";
+const ACTION_BUTTON = "u-inline-flex u-items-center u-gap-2";
+
+/** Green check standing in for a section's action when there is nothing to do. */
+function ReadyStatus({ label }: { label: string }) {
+  return (
+    <span className="tw:font-sans u-fs-xs u-text-success u-inline-flex u-items-center u-gap-2">
+      <i className="fa-solid fa-check" aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
 
 type Props = { open: boolean; onClose: () => void };
 
@@ -40,20 +53,14 @@ export function CampModal({ open, onClose }: Props) {
     lastAteAt !== undefined && now !== undefined && now >= lastAteAt
       ? now - lastAteAt
       : undefined;
-  const sinceLastRation =
-    sinceAte !== undefined ? (
-      <span className={clsx(sinceAte > 86400 && "u-text-danger")}>
-        {timeSinceInWords(sinceAte)} since last ration
-      </span>
-    ) : undefined;
   const { value: hp, max: hpMax } = actor.system.hp;
+  const spellLevels = selectSpellLevels(actor, undefined, items);
   // OSE fills `spells.slots` with zeroed levels for everyone, so `enabled` alone
   // isn't a caster test — require actual capacity or a known spell.
   const isCaster =
     actor.system.spells.enabled &&
-    selectSpellLevels(actor, undefined, items).some(
-      (l) => l.slots.max > 0 || l.spellbook.length > 0,
-    );
+    spellLevels.some((l) => l.slots.max > 0 || l.spellbook.length > 0);
+  const spellsToRestore = countRestorableSpells(spellLevels);
 
   const onEat = (id: string) => {
     const it = rations.find((r) => r._id === id);
@@ -135,89 +142,99 @@ export function CampModal({ open, onClose }: Props) {
       onClose={onClose}
       className="modal-inset"
     >
-      <div className="u-stack u-gap-6">
+      <div className="u-stack u-gap-8">
         <section className="u-stack u-gap-2">
-          <SectionHeader
-            title="Provisions"
-            hint={sinceLastRation}
-            controls={
-              <InlineButton
-                disabled={daysLeft === 0}
-                className={RAIL}
-                onClick={() => setPickerOpen(true)}
-              >
-                <i
-                  className={clsx(
-                    "fa-solid",
-                    !ateRation && "fa-drumstick-bite",
-                    { "fa-check": ateRation },
-                  )}
-                  aria-hidden="true"
-                />
-                Eat Ration
-              </InlineButton>
-            }
-          />
           <div className="u-row u-gap-3">
-            <span className="mono u-fs-3xl tw:leading-none">{daysLeft}</span>
-            <span className="tw:font-sans u-fs-xs u-text-mute u-flex-1">
-              {daysLeft === 1 ? "day" : "days"} of rations left
-            </span>
+            <SectionTitle variant="plain" className="u-flex-1">
+              Provisions
+            </SectionTitle>
+            <Button
+              disabled={daysLeft === 0}
+              className={ACTION_BUTTON}
+              onClick={() => setPickerOpen(true)}
+            >
+              <i
+                className={clsx(
+                  "fa-solid",
+                  ateRation ? "fa-check" : "fa-drumstick-bite",
+                )}
+                aria-hidden="true"
+              />
+              Eat Ration
+            </Button>
           </div>
+          <span className="tw:font-sans u-fs-sm u-text-dim">
+            <span className="mono u-fs-xs u-text">{daysLeft}</span>{" "}
+            {daysLeft === 1 ? "day" : "days"} of rations left
+            {sinceAte !== undefined && (
+              <span
+                className={sinceAte > 86400 ? "u-text-danger" : "u-text-muted"}
+              >
+                {" · "}
+                {timeSinceInWords(sinceAte)} since last ration
+              </span>
+            )}
+          </span>
         </section>
         <section className="u-stack u-gap-2">
-          <SectionHeader
-            title="Rest"
-            hint={
-              <>
-                Current HP:{" "}
-                <span className="mono">
-                  {hp}/{hpMax}
-                </span>
-              </>
-            }
-            controls={
-              hp >= hpMax ? (
-                <span
-                  className={`tw:font-sans u-fs-sm u-text-success u-inline-flex u-items-center u-justify-center u-gap-2 ${RAIL}`}
-                >
-                  <i className="fa-solid fa-check" aria-hidden="true" />
-                  Full health
-                </span>
-              ) : (
-                <InlineButton
-                  disabled={busy}
-                  className={RAIL}
-                  onClick={() => void onRest()}
-                >
-                  <i className="fa-solid fa-dice-d6" aria-hidden="true" />
-                  Roll 1d3
-                </InlineButton>
-              )
-            }
-          />
           <div className="u-row u-gap-3">
-            <span className="tw:font-sans u-fs-sm u-text-dim">
-              Recover 1d3 for a full day's rest
-            </span>
+            <SectionTitle variant="plain" className="u-flex-1">
+              Rest
+            </SectionTitle>
+            {hp >= hpMax ? (
+              <ReadyStatus label="Full health" />
+            ) : (
+              <Button
+                disabled={busy}
+                className={ACTION_BUTTON}
+                onClick={() => void onRest()}
+              >
+                <i className="fa-solid fa-dice-d6" aria-hidden="true" />
+                Roll 1d3
+              </Button>
+            )}
           </div>
+          <span className="tw:font-sans u-fs-sm u-text-dim">
+            Recover <span className="mono u-fs-xs u-text">1d3</span> for a full
+            day's rest
+            <span className="u-text-muted">
+              {" · HP "}
+              <span className="mono u-fs-xs">
+                {hp}/{hpMax}
+              </span>
+            </span>
+          </span>
         </section>
         {isCaster && (
           <section className="u-stack u-gap-2">
-            <SectionHeader title="Study" />
             <div className="u-row u-gap-3">
-              <span className="tw:font-sans u-fs-sm u-text-dim">
-                Re-memorize spells from the book
-              </span>
-              <InlineButton
-                disabled={busy}
-                className={RAIL}
-                onClick={() => void onStudy()}
-              >
-                <i className="fa-solid fa-book-open" aria-hidden="true" />
+              <SectionTitle variant="plain" className="u-flex-1">
                 Study
-              </InlineButton>
+              </SectionTitle>
+              {spellsToRestore === 0 ? (
+                <ReadyStatus label="Fully prepared" />
+              ) : (
+                <Button
+                  disabled={busy}
+                  className={ACTION_BUTTON}
+                  onClick={() => void onStudy()}
+                >
+                  <i className="fa-solid fa-book-open" aria-hidden="true" />
+                  Study
+                </Button>
+              )}
             </div>
+            <span className="tw:font-sans u-fs-sm u-text-dim">
+              {spellsToRestore === 0 ? (
+                "Re-memorize spells from the book"
+              ) : (
+                <>
+                  Re-memorize{" "}
+                  <span className="mono u-fs-xs u-text">{spellsToRestore}</span>{" "}
+                  {spellsToRestore === 1 ? "spell" : "spells"}
+                </>
+              )}
+            </span>
           </section>
         )}
       </div>
@@ -245,7 +262,7 @@ export function CampModal({ open, onClose }: Props) {
                 <span className="u-flex-1 tw:text-left tw:normal-case tw:tracking-normal u-fs-sm">
                   {it.name}
                 </span>
-                <span className="mono u-fs-xs u-text-mute">
+                <span className="mono u-fs-xs u-text-muted">
                   ×{it.system.quantity?.value ?? 0}
                 </span>
               </button>

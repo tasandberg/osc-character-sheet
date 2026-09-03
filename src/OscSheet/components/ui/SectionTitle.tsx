@@ -6,9 +6,10 @@ type Props = HTMLAttributes<HTMLHeadingElement> & {
   /**
    * `sub` — small uppercase sans label for sub-section heads (e.g. inventory
    * "Equipped" / "All Items"). `bare` — keeps the display type but drops the
-   * rule + margins, for embedded heads like a modal title.
+   * rule + margins, for embedded heads like a modal title. `plain` — body-size
+   * serif with no rule, for heads whose detail sits on a line below.
    */
-  variant?: "sub" | "bare";
+  variant?: "sub" | "bare" | "plain";
 };
 
 /** @category Layout */

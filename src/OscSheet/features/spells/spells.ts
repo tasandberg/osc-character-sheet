@@ -146,6 +146,26 @@ export function resetSpellPoints(actor: OSEActor): Promise<unknown> {
   return unsetFlag(actor, FLAGS.spellPoints);
 }
 
+/** The casts (or free-casting points) a Rest/Study would give back. Pure — the
+ *  count `restoreAllSpells` reports, without writing anything. */
+export function countRestorableSpells(levels: SpellLevelVM[]): number {
+  if (levels.some((l) => l.freeCasting))
+    return levels.reduce(
+      (n, l) => n + Math.min(l.points.used, l.points.max),
+      0,
+    );
+  return levels.reduce(
+    (n, l) =>
+      n +
+      l.spellbook.reduce(
+        (m, s) =>
+          m + Math.max(0, (s.system.memorized ?? 0) - (s.system.cast ?? 0)),
+        0,
+      ),
+    0,
+  );
+}
+
 /** Rest/Study: free-casting refills every level's point pool; memorization mode
  *  re-memorises every spell (cast back to memorized). `spellsRestored` counts
  *  the casts (or points) given back. */
@@ -154,24 +174,17 @@ export async function restoreAllSpells(
   items?: OseItem[],
 ): Promise<{ spellsRestored: number }> {
   const levels = selectSpellLevels(actor, undefined, items);
+  const spellsRestored = countRestorableSpells(levels);
   if (levels.some((l) => l.freeCasting)) {
-    const spellsRestored = levels.reduce(
-      (n, l) => n + Math.min(l.points.used, l.points.max),
-      0,
-    );
     await resetSpellPoints(actor);
     return { spellsRestored };
   }
-  let spellsRestored = 0;
   const updates: Promise<unknown>[] = [];
   for (const { spellbook } of levels) {
     for (const spell of spellbook) {
       const memorized = spell.system.memorized ?? 0;
-      const cast = spell.system.cast ?? 0;
-      if (cast !== memorized) {
-        spellsRestored += Math.max(0, memorized - cast);
+      if ((spell.system.cast ?? 0) !== memorized)
         updates.push(spell.update({ "system.cast": memorized }));
-      }
     }
   }
   await Promise.all(updates);
