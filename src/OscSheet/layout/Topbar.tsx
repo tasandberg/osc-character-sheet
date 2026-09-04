@@ -101,31 +101,33 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
 
   return (
     <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-2">
-      <div className={LV}>
-        <b className={`${LV_N} tw:text-gold`}>Lv {vm.level}</b>
-        <span className={LV_XP}>{vm.xp.value.toLocaleString()}</span>
-      </div>
-      <div
-        className="tw:max-w-[50%] tw:min-w-[44px] tw:flex-1"
-        title={`${vm.xp.value.toLocaleString()} XP`}
-      >
-        <div className="tw:relative tw:flex tw:h-[16px] tw:items-center tw:justify-center tw:overflow-hidden tw:rounded-[999px] tw:border tw:border-[rgba(229,222,200,0.22)] tw:bg-[rgba(0,0,0,0.35)]">
-          <i
-            className="tw:absolute tw:top-0 tw:bottom-0 tw:left-0 tw:rounded-[999px] tw:bg-[linear-gradient(90deg,var(--gold-dim),var(--gold))]"
-            style={{ width: `${pct}%` }}
-          />
-          <span className="v tw:relative tw:z-[1] tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-stamp-text tw:[text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">
+      <div className="tw:flex tw:max-w-[20rem] tw:flex-1 tw:flex-wrap tw:items-center tw:gap-2">
+        <div className={LV}>
+          <b className={`${LV_N} tw:text-gold`}>Lv {vm.level}</b>
+          <span className={LV_XP}>{vm.xp.floor.toLocaleString()}</span>
+        </div>
+        <div
+          className="tw:min-w-[44px] tw:flex-1"
+          title={`${vm.xp.value.toLocaleString()} XP`}
+        >
+          <span className="v tw:block tw:text-center tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-stamp-text">
             {vm.xp.value.toLocaleString()} XP
           </span>
+          <div className="tw:relative tw:mt-[2px] tw:h-[6px] tw:overflow-hidden tw:rounded-[999px] tw:border tw:border-[rgba(229,222,200,0.22)] tw:bg-[rgba(0,0,0,0.35)]">
+            <i
+              className="tw:absolute tw:top-0 tw:bottom-0 tw:left-0 tw:rounded-[999px] tw:bg-gold"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
         </div>
-      </div>
-      {/* The next-level chip differs from the current one only in the chip
-          colour, written as its own string: a shared base plus a `.next`
-          override would be two class-level utilities, and Tailwind — not the
-          order they are written — decides which wins. */}
-      <div className={`${LV} next`}>
-        <b className={`${LV_N} tw:text-stamp-text-dim`}>Lv {vm.nextLevel}</b>
-        <span className={LV_XP}>{vm.xp.next.toLocaleString()}</span>
+        {/* The next-level chip differs from the current one only in the chip
+            colour, written as its own string: a shared base plus a `.next`
+            override would be two class-level utilities, and Tailwind — not the
+            order they are written — decides which wins. */}
+        <div className={`${LV} next`}>
+          <b className={`${LV_N} tw:text-stamp-text-dim`}>Lv {vm.nextLevel}</b>
+          <span className={LV_XP}>{vm.xp.next.toLocaleString()}</span>
+        </div>
       </div>
       {/* Right cluster floats to the edge as a group, leaving the level chips +
           XP bar on the left. `ml-auto` lives here rather than on the actions so
