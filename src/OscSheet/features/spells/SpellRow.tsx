@@ -4,6 +4,7 @@ import { cx } from "@ui/cx";
 import { Button } from "@ui/Button";
 import { IconButton } from "@ui/IconButton";
 import { Pips } from "@ui/Pips";
+import { Monogram } from "@ui/Monogram";
 import { SpellLevelBadge } from "@features/spells/SpellLevelBadge";
 
 type Props = {
@@ -95,10 +96,10 @@ export function SpellRow({
         // border utilities here on purpose — that list is headerless and needs
         // its first row's top edge back.
         "osc-spell tw:grid tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2",
-        // A leading favorite-star column turns the 2-col grid into 3.
+        // A leading favorite-star column turns the 3-col grid into 4.
         onToggleFavorite
-          ? "has-star tw:grid-cols-[auto_1fr_auto]"
-          : "tw:grid-cols-[1fr_auto]",
+          ? "has-star tw:grid-cols-[auto_auto_1fr_auto]"
+          : "tw:grid-cols-[auto_1fr_auto]",
         free && "osc-spell-free",
         spent && "spent",
       )}
@@ -122,8 +123,16 @@ export function SpellRow({
           />
         </IconButton>
       )}
+      <Monogram
+        img={spell.img}
+        monogram={String(spell.name).charAt(0).toUpperCase()}
+        className={cx(
+          "tw:grid tw:size-8 tw:flex-none tw:self-start tw:place-items-center tw:overflow-hidden tw:rounded-sm tw:bg-ink tw:font-display tw:text-[length:var(--fs-md)] tw:text-stamp-text",
+          spent && "tw:opacity-50",
+        )}
+        imgClassName="tw:object-cover"
+      />
       <div className="spinfo tw:min-w-0">
-        {/* name + cast dots on one line (dots to the right of the name) */}
         <span className="spn-row tw:inline-flex tw:min-w-0 tw:items-baseline tw:gap-2">
           {name}
           {badge}
