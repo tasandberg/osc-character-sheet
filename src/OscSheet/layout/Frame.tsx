@@ -20,7 +20,14 @@ type Props = {
   minibar?: ReactNode;
 };
 
-export function Frame({ nav, children, topbar, header, railExtra, minibar }: Props) {
+export function Frame({
+  nav,
+  children,
+  topbar,
+  header,
+  railExtra,
+  minibar,
+}: Props) {
   return (
     <>
       {topbar && (
@@ -45,7 +52,7 @@ export function Frame({ nav, children, topbar, header, railExtra, minibar }: Pro
                 {nav ? (
                   <>
                     <TabBar {...nav} />
-                    <div id="osc-tabpanel" role="tabpanel">
+                    <div id="osc-tabpanel" role="tabpanel" className="tw:pt-2">
                       {children}
                     </div>
                   </>

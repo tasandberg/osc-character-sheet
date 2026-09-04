@@ -271,7 +271,7 @@ export function InventoryView({
           // title + readout share one line and the readout never wraps below —
           // except at xs, where there's no room for both.
           "tw:flex tw:items-baseline tw:justify-between tw:flex-nowrap",
-          "tw:gap-x-3 tw:gap-y-1 tw:pb-2 tw:mt-6 tw:mb-5",
+          "tw:gap-x-3 tw:gap-y-1 tw:pb-2 tw:mb-5",
           "tw:@max-md/app:flex-wrap tw:@max-md/app:justify-start",
           encumbrance.enabled && "enc-rule",
         )}
@@ -307,7 +307,9 @@ export function InventoryView({
               title="Equipped items"
               items={inventory.equipped}
               variant={variant}
-              cap={variant === "itembased" ? encumbrance.equippedMax : undefined}
+              cap={
+                variant === "itembased" ? encumbrance.equippedMax : undefined
+              }
             />
             <EquippedTray
               items={trayItems}
