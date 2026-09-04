@@ -127,7 +127,7 @@ export function SpellRow({
         img={spell.img}
         monogram={String(spell.name).charAt(0).toUpperCase()}
         className={cx(
-          "tw:grid tw:size-8 tw:flex-none tw:@max-md/app:self-start tw:place-items-center tw:overflow-hidden tw:rounded-sm tw:bg-ink tw:font-display tw:text-[length:var(--fs-md)] tw:text-stamp-text",
+          "tw:grid tw:size-8 tw:flex-none tw:@max-md/app:self-start tw:place-items-center tw:overflow-hidden tw:rounded-sm tw:bg-ink tw:font-display tw:text-(length:--fs-md) tw:text-stamp-text",
           spent && "tw:opacity-50",
         )}
         imgClassName="tw:object-cover"
