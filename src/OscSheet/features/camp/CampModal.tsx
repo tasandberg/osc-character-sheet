@@ -20,14 +20,13 @@ import { Empty } from "@ui/Empty";
 import { Modal } from "@ui/Modal";
 import { SectionTitle } from "@ui/SectionTitle";
 import { useToast } from "@ui/toastContext";
-import { clsx } from "clsx";
 
 const ACTION_BUTTON = "u-inline-flex u-items-center u-gap-2";
 
 /** Green check standing in for a section's action when there is nothing to do. */
 function ReadyStatus({ label }: { label: string }) {
   return (
-    <span className="tw:font-sans u-fs-xs u-text-success u-inline-flex u-items-center u-gap-2">
+    <span className={`btn status ${ACTION_BUTTON} u-text-success`}>
       <i className="fa-solid fa-check" aria-hidden="true" />
       {label}
     </span>
@@ -44,6 +43,7 @@ export function CampModal({ open, onClose }: Props) {
   const [busy, setBusy] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [ateRation, setAteRation] = useState(false);
+  const [restedFor, setRestedFor] = useState<number | null>(null);
 
   const rations = selectRations(items);
   const daysLeft = rationDaysLeft(rations);
@@ -102,6 +102,7 @@ export function CampModal({ open, onClose }: Props) {
       );
       const healed = Math.min(hpMax - hp, roll.total ?? 0);
       if (healed > 0) await updateActor({ "system.hp.value": hp + healed });
+      setRestedFor(healed);
       toast({
         intent: "success",
         title: `Recovered ${healed} HP`,
@@ -131,37 +132,43 @@ export function CampModal({ open, onClose }: Props) {
     }
   };
 
+  const footer = (
+    <Button variant="primary" onClick={onClose}>
+      Close
+    </Button>
+  );
+
   return (
     <Modal
       open={open}
       title={
         <>
-          Camp <span className="hint">food and rest</span>
+          <i className="fa fa-campground" />
+          Rest <span className="hint">food, rest, and study</span>
         </>
       }
       onClose={onClose}
+      footer={footer}
       className="modal-inset"
     >
       <div className="u-stack u-gap-8">
         <section className="u-stack u-gap-2">
           <div className="u-row u-gap-3">
-            <SectionTitle variant="plain" className="u-flex-1">
+            <SectionTitle variant="bare" className="field-label u-flex-1">
               Provisions
             </SectionTitle>
-            <Button
-              disabled={daysLeft === 0}
-              className={ACTION_BUTTON}
-              onClick={() => setPickerOpen(true)}
-            >
-              <i
-                className={clsx(
-                  "fa-solid",
-                  ateRation ? "fa-check" : "fa-drumstick-bite",
-                )}
-                aria-hidden="true"
-              />
-              Eat Ration
-            </Button>
+            {ateRation ? (
+              <ReadyStatus label="Ration eaten" />
+            ) : (
+              <Button
+                disabled={daysLeft === 0}
+                className={ACTION_BUTTON}
+                onClick={() => setPickerOpen(true)}
+              >
+                <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />
+                Eat Ration
+              </Button>
+            )}
           </div>
           <span className="tw:font-sans u-fs-sm u-text-dim">
             <span className="mono u-fs-xs u-text">{daysLeft}</span>{" "}
@@ -178,10 +185,12 @@ export function CampModal({ open, onClose }: Props) {
         </section>
         <section className="u-stack u-gap-2">
           <div className="u-row u-gap-3">
-            <SectionTitle variant="plain" className="u-flex-1">
+            <SectionTitle variant="bare" className="field-label u-flex-1">
               Rest
             </SectionTitle>
-            {hp >= hpMax ? (
+            {restedFor !== null ? (
+              <ReadyStatus label={`Recovered ${restedFor} HP`} />
+            ) : hp >= hpMax ? (
               <ReadyStatus label="Full health" />
             ) : (
               <Button
@@ -208,7 +217,7 @@ export function CampModal({ open, onClose }: Props) {
         {isCaster && (
           <section className="u-stack u-gap-2">
             <div className="u-row u-gap-3">
-              <SectionTitle variant="plain" className="u-flex-1">
+              <SectionTitle variant="bare" className="field-label u-flex-1">
                 Study
               </SectionTitle>
               {spellsToRestore === 0 ? (

@@ -65,8 +65,8 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
           setCampOpen(true);
         }}
       >
-        <i className="fa fa-tent" />
-        <span className="lbl">Camp</span>
+        <i className="fa fa-campground" />
+        <span className="lbl">Rest</span>
       </button>
       {FEATURES.levelUp && (
         <button
@@ -110,7 +110,7 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
           className="tw:min-w-[44px] tw:flex-1"
           title={`${vm.xp.value.toLocaleString()} XP`}
         >
-          <span className="v tw:block tw:text-center tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-stamp-text">
+          <span className="v tw:block tw:text-center tw:font-mono tw:text-(length:--fs-3xs) tw:text-stamp-text">
             {vm.xp.value.toLocaleString()} XP
           </span>
           <div className="tw:relative tw:mt-[2px] tw:h-[6px] tw:overflow-hidden tw:rounded-[999px] tw:border tw:border-[rgba(229,222,200,0.22)] tw:bg-[rgba(0,0,0,0.35)]">
@@ -120,28 +120,21 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
             />
           </div>
         </div>
-        {/* The next-level chip differs from the current one only in the chip
-            colour, written as its own string: a shared base plus a `.next`
-            override would be two class-level utilities, and Tailwind — not the
-            order they are written — decides which wins. */}
+
         <div className={`${LV} next`}>
           <b className={`${LV_N} tw:text-stamp-text-dim`}>Lv {vm.nextLevel}</b>
           <span className={LV_XP}>{vm.xp.next.toLocaleString()}</span>
         </div>
       </div>
-      {/* Right cluster floats to the edge as a group, leaving the level chips +
-          XP bar on the left. `ml-auto` lives here rather than on the actions so
-          the cog stays pinned on a read-only sheet, where no actions render. */}
+
       <div className="tw:ml-auto tw:flex tw:items-center tw:gap-1">
-        {/* `contents` so the action buttons flatten into the cluster's flex row
-            and share its gap; at XS they collapse into the ⋮ menu instead. */}
         <div
           data-testid="topbar-actions"
           className="tw:contents tw:@max-md/app:hidden"
         >
           {actionButtons}
         </div>
-        {/* XS overflow ⋮. Only shown when there are owner actions to collapse. */}
+
         {actionButtons && (
           <div className="osc-tb-menu-wrap tw:relative" ref={menuRef}>
             <button
