@@ -10,32 +10,40 @@ Fires when an inventory item's right-click menu opens. Push entries onto
 pushed.
 
 ```js
-Hooks.on("osc-character-sheet.getItemContextMenuEntries", ({ actor, item, canEdit, entries }) => {
-  if (!canEdit) return;
-  entries.push({
-    label: item.getFlag("quartermaster", "wares") ? "Unmark as Wares" : "Mark as Wares",
-    icon: "fa-solid fa-tags",
-    onClick: (item, actor) => toggleWares(actor, item),
-  });
-});
+Hooks.on(
+  "osc-character-sheet.getItemContextMenuEntries",
+  ({ actor, item, canEdit, entries }) => {
+    if (!canEdit) return;
+    entries.push({
+      label: item.getFlag("quartermaster", "wares")
+        ? "Unmark as Wares"
+        : "Mark as Wares",
+      icon: "fa-solid fa-tags",
+      onClick: (item, actor) => toggleWares(actor, item),
+    });
+  },
+);
 ```
 
-| Payload | |
-| --- | --- |
-| `actor` | the OSE actor document |
-| `item` | the Foundry item document for the clicked row |
+| Payload   |                                                      |
+| --------- | ---------------------------------------------------- |
+| `actor`   | the OSE actor document                               |
+| `item`    | the Foundry item document for the clicked row        |
 | `canEdit` | false on read-only sheets — gate write actions on it |
-| `entries` | the array to push onto |
+| `entries` | the array to push onto                               |
 
-| Entry | |
-| --- | --- |
-| `label` | required, plain text |
-| `icon` | Font Awesome classes, e.g. `"fa-solid fa-tags"`; defaults to a puzzle piece |
-| `disabled` | renders greyed and unclickable |
-| `danger` | renders in the destructive (Delete Item) style |
-| `onClick` | required, called with `(item, actor)`; the menu closes right after |
+| Entry      |                                                                             |
+| ---------- | --------------------------------------------------------------------------- |
+| `label`    | required, plain text                                                        |
+| `icon`     | Font Awesome classes, e.g. `"fa-solid fa-tags"`; defaults to a puzzle piece |
+| `disabled` | renders greyed and unclickable                                              |
+| `danger`   | renders in the destructive (Delete Item) style                              |
+| `onClick`  | required, called with `(item, actor)`; the menu closes right after          |
 
 Register at `init` or `ready`. Entries missing a `label` or `onClick` are dropped.
+In TypeScript, `fvtt-types` types `Hooks.on` to known hook names, so a custom one
+needs a cast. Cast the `Hooks` class, not the method — `Hooks.on` reads private
+statics off `this`, so a detached `const on = Hooks.on` throws when called.
 
 ## Contract
 
