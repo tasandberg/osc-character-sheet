@@ -19,6 +19,7 @@ import { IconButton } from "@ui/IconButton";
 import { cx } from "@ui/cx";
 import { Pips } from "@ui/Pips";
 import { InlineButton } from "@ui/InlineButton";
+import { Monogram } from "@ui/Monogram";
 
 // --- level head: badge · ready count · slot pips ---
 const HEAD =
@@ -34,6 +35,8 @@ const HEAD_SC =
  *  memorize button and, when the sheet is editable, a delete. */
 const BOOKSPELL =
   "tw:flex tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim";
+const BOOKSPELL_ICON =
+  "tw:grid tw:size-5 tw:flex-none tw:place-items-center tw:overflow-hidden tw:rounded-sm tw:bg-ink tw:font-display tw:text-[length:var(--fs-3xs)] tw:text-stamp-text";
 /** Empty state, framed like a row — `.osc-spell` carries no box of its own, so
  *  the bare markup this replaced fell outside the panel. */
 const EMPTY_ROW =
@@ -248,7 +251,10 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
         </button>
       )}
       {bookOpen && !empty && (
-        <div data-testid="spellbook" className="tw:flex tw:flex-col tw:gap-1 tw:rounded-b-[7px] tw:border tw:border-t-0 tw:border-border-soft tw:bg-bg-2 tw:p-2">
+        <div
+          data-testid="spellbook"
+          className="tw:flex tw:flex-col tw:gap-1 tw:rounded-b-[7px] tw:border tw:border-t-0 tw:border-border-soft tw:bg-bg-2 tw:p-2"
+        >
           {spellbook.map((spell) => {
             // Read-only: list known spells as static rows (no memorize action).
             if (!canEdit) {
@@ -258,6 +264,12 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                   className={`${BOOKSPELL} is-static`}
                   data-testid="book-spell"
                 >
+                  <Monogram
+                    img={spell.img}
+                    monogram={String(spell.name).charAt(0).toUpperCase()}
+                    className={BOOKSPELL_ICON}
+                    imgClassName="tw:object-cover"
+                  />
                   <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">
                     {spell.name}
                   </span>
@@ -273,6 +285,12 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                 className={BOOKSPELL}
                 data-testid="book-spell"
               >
+                <Monogram
+                  img={spell.img}
+                  monogram={String(spell.name).charAt(0).toUpperCase()}
+                  className={BOOKSPELL_ICON}
+                  imgClassName="tw:object-cover"
+                />
                 <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">
                   {spell.name}
                 </span>
