@@ -5,7 +5,15 @@ import { Button } from "@ui/Button";
 import { IconButton } from "@ui/IconButton";
 import { Pips } from "@ui/Pips";
 import { Monogram } from "@ui/Monogram";
+import { useSetting } from "@src/OscSheet/settings";
 import { SpellLevelBadge } from "@features/spells/SpellLevelBadge";
+
+// The star and the image are each an optional leading `auto` column.
+const GRID_COLS = [
+  "tw:grid-cols-[1fr_auto]",
+  "tw:grid-cols-[auto_1fr_auto]",
+  "tw:grid-cols-[auto_auto_1fr_auto]",
+];
 
 type Props = {
   spell: OseSpell;
@@ -62,6 +70,7 @@ export function SpellRow({
   pips,
 }: Props) {
   const [casting, setCasting] = useState(false);
+  const showImage = useSetting("showSpellImages");
   const handleCast = async () => {
     if (casting) return;
     setCasting(true);
@@ -96,10 +105,8 @@ export function SpellRow({
         // border utilities here on purpose — that list is headerless and needs
         // its first row's top edge back.
         "osc-spell tw:grid tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2",
-        // A leading favorite-star column turns the 3-col grid into 4.
-        onToggleFavorite
-          ? "has-star tw:grid-cols-[auto_auto_1fr_auto]"
-          : "tw:grid-cols-[auto_1fr_auto]",
+        onToggleFavorite && "has-star",
+        GRID_COLS[Number(!!onToggleFavorite) + Number(showImage)],
         free && "osc-spell-free",
         spent && "spent",
       )}
@@ -123,15 +130,17 @@ export function SpellRow({
           />
         </IconButton>
       )}
-      <Monogram
-        img={spell.img}
-        monogram={String(spell.name).charAt(0).toUpperCase()}
-        className={cx(
-          "tw:grid tw:size-8 tw:flex-none tw:@max-md/app:self-start tw:place-items-center tw:overflow-hidden tw:rounded-sm tw:bg-ink tw:font-display tw:text-(length:--fs-md) tw:text-stamp-text",
-          spent && "tw:opacity-50",
-        )}
-        imgClassName="tw:object-cover"
-      />
+      {showImage && (
+        <Monogram
+          img={spell.img}
+          monogram={String(spell.name).charAt(0).toUpperCase()}
+          className={cx(
+            "tw:grid tw:size-8 tw:flex-none tw:@max-md/app:self-start tw:place-items-center tw:overflow-hidden tw:rounded-sm tw:bg-ink tw:font-display tw:text-(length:--fs-md) tw:text-stamp-text",
+            spent && "tw:opacity-50",
+          )}
+          imgClassName="tw:object-cover"
+        />
+      )}
       <div className="spinfo tw:min-w-0">
         <span className="spn-row tw:inline-flex tw:min-w-0 tw:items-baseline tw:gap-2">
           {name}

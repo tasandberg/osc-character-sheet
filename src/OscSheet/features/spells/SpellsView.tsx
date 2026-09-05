@@ -10,6 +10,7 @@ import {
 } from "@features/spells/spells";
 import { cx } from "@ui/cx";
 import SpellLevel from "@features/spells/SpellLevel";
+import { useSetting } from "@src/OscSheet/settings";
 
 /**
  * Spells tab. Default (memorization enabled): a per-level panel stack with slot
@@ -20,8 +21,8 @@ import SpellLevel from "@features/spells/SpellLevel";
  */
 export default function Spells() {
   const { actor, canEdit, items } = useOscSheetContext();
-  const levels = selectSpellLevels(actor, undefined, items);
-  const freeCasting = levels.some((l) => l.freeCasting);
+  const freeCasting = useSetting("disableMemorization");
+  const levels = selectSpellLevels(actor, freeCasting, items);
   const [busy, setBusy] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
 

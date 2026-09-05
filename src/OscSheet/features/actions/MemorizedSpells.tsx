@@ -4,7 +4,6 @@ import { SectionTitle } from "@ui/SectionTitle";
 import { SpellRow } from "@features/spells/SpellRow";
 import {
   spellMeta,
-  memorizationDisabled,
   selectFavoriteSpells,
   castFree,
   pointsLeftAt,
@@ -14,6 +13,7 @@ import {
 } from "@features/spells/spells";
 import { useToast } from "@ui/toastContext";
 import { cx } from "@ui/cx";
+import { useSetting } from "@src/OscSheet/settings";
 
 type Props = { actor: OSEActor };
 
@@ -26,6 +26,7 @@ type Props = { actor: OSEActor };
 export function MemorizedSpells({ actor }: Props) {
   const { canEdit, items, optimisticUpdate } = useOscSheetContext();
   const toast = useToast();
+  const freeCasting = useSetting("disableMemorization");
   const meta = (spell: OseSpell) =>
     spellMeta(spell).map((p) => (
       <span key={p.kind} className={cx(p.kind === "roll" && "dmg")}>
@@ -33,7 +34,7 @@ export function MemorizedSpells({ actor }: Props) {
       </span>
     ));
 
-  if (memorizationDisabled()) {
+  if (freeCasting) {
     const favorites = selectFavoriteSpells(actor);
     if (favorites.length === 0) return null;
     return (
