@@ -85,4 +85,14 @@ describe("Topbar settings", () => {
     act(() => byText('[aria-label="Font size"] button', "Large")!.click());
     expect(set).toHaveBeenCalledWith("osc-character-sheet", "fontScale", "large");
   });
+
+  it("defaults spell images on and writes the toggle", () => {
+    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
+    act(() => q('[aria-label="Settings"]')!.click());
+
+    const toggle = container.querySelector<HTMLInputElement>(".toggle input")!;
+    expect(toggle.checked).toBe(true);
+    act(() => toggle.click());
+    expect(set).toHaveBeenCalledWith("osc-character-sheet", "showSpellImages", false);
+  });
 });

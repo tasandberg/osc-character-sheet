@@ -6,7 +6,6 @@ import type {
 } from "@domain/types";
 import type { SpellLevelVM } from "@domain/vm-types";
 import {
-  MODULE_ID,
   FLAGS,
   flagPath,
   readFlag,
@@ -16,6 +15,7 @@ import {
 import { selectSpellSlotDefaults } from "@domain/classRules";
 import { isFavorite } from "@domain/favorites";
 import { createOwnedItem } from "@domain/createOwnedItem";
+import { getSetting } from "@src/OscSheet/settings";
 
 export { isFavorite, toggleFavorite } from "@domain/favorites";
 
@@ -42,16 +42,7 @@ export function spellMeta(spell: OseSpell): SpellMetaPart[] {
 
 /** World setting: memorization disabled → free-casting mode. Safe in non-Foundry tests. */
 export function memorizationDisabled(): boolean {
-  try {
-    const settings = (
-      globalThis as {
-        game?: { settings?: { get(ns: string, key: string): unknown } };
-      }
-    ).game?.settings;
-    return !!settings?.get(MODULE_ID, "disableMemorization");
-  } catch {
-    return false;
-  }
+  return getSetting("disableMemorization");
 }
 
 /** Per-level points spent this "day" (free-casting). Reads the actor's `spellPoints` flag. */

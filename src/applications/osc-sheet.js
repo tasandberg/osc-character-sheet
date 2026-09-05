@@ -1,7 +1,8 @@
 import OscSheetApp from "@src/OscSheet";
-import { resolveTheme, applyTheme } from "@src/OscSheet/theme";
+import { applyTheme } from "@src/OscSheet/theme";
 import { MODULE_ID } from "@src/OscSheet/domain/flags";
-import { resolveFontScale, applyFontScale } from "@src/OscSheet/fontScale";
+import { applyFontScale } from "@src/OscSheet/fontScale";
+import { getSetting, settingRegistrations } from "@src/OscSheet/settings";
 import {
   alignedMenuLeft,
   findTweaksSheetEntry,
@@ -43,49 +44,14 @@ class OscSheet extends ReactActorSheetV2 {
   };
 
   static registerSettings() {
-    game.settings.register(MODULE_ID, "theme", {
-      name: "Sheet theme",
-      hint: "Color theme for the OSC Character Sheet.",
-      scope: "user",
-      config: true,
-      type: String,
-      choices: { dark: "Dark", cream: "Cream" },
-      default: "dark",
-      onChange: () => {
-        for (const app of foundry.applications.instances.values()) {
-          if (app instanceof OscSheet) app.render();
-        }
-      },
-    });
-
-    game.settings.register(MODULE_ID, "disableMemorization", {
-      name: "Disable spell memorization",
-      hint: "Casters may cast any known spell while spell slots remain for its level, and favorite spells for the Actions tab (fits spell-point / free-casting tables).",
-      scope: "world",
-      config: true,
-      type: Boolean,
-      default: false,
-      onChange: () => {
-        for (const app of foundry.applications.instances.values()) {
-          if (app instanceof OscSheet) app.render();
-        }
-      },
-    });
-
-    game.settings.register(MODULE_ID, "fontScale", {
-      name: "Sheet font size",
-      hint: "Scales all sheet text up for readability.",
-      scope: "user",
-      config: true,
-      type: String,
-      choices: { compact: "Compact", medium: "Medium", large: "Large" },
-      default: "medium",
-      onChange: () => {
-        for (const app of foundry.applications.instances.values()) {
-          if (app instanceof OscSheet) app.render();
-        }
-      },
-    });
+    const rerender = () => {
+      for (const app of foundry.applications.instances.values()) {
+        if (app instanceof OscSheet) app.render();
+      }
+    };
+    for (const { key, data } of settingRegistrations(rerender)) {
+      game.settings.register(MODULE_ID, key, data);
+    }
   }
 
   // Local builds append the branch they were built FROM, so a stale dist is
@@ -96,12 +62,8 @@ class OscSheet extends ReactActorSheetV2 {
 
   async _onRender(context, options) {
     await super._onRender(context, options);
-    const theme = resolveTheme(game.settings.get(MODULE_ID, "theme"));
-    applyTheme(this.element, theme);
-    const fontScale = resolveFontScale(
-      game.settings.get(MODULE_ID, "fontScale"),
-    );
-    applyFontScale(this.element, fontScale);
+    applyTheme(this.element, getSetting("theme"));
+    applyFontScale(this.element, getSetting("fontScale"));
     // Accent by kind: retainers/hirelings (system.retainer.enabled) go teal;
     // everyone else keeps the brass --gold. See styles.scss [data-kind].
     this.element.dataset.kind = this.document?.system?.retainer?.enabled

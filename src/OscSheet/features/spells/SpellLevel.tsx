@@ -20,6 +20,7 @@ import { cx } from "@ui/cx";
 import { Pips } from "@ui/Pips";
 import { InlineButton } from "@ui/InlineButton";
 import { Monogram } from "@ui/Monogram";
+import { useSetting } from "@src/OscSheet/settings";
 
 // --- level head: badge · ready count · slot pips ---
 const HEAD =
@@ -65,6 +66,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
     points,
   } = vm;
   const [bookOpen, setBookOpen] = useState(false);
+  const showImages = useSetting("showSpellImages");
 
   const editSlots = (
     <SlotMaxDialog level={level} max={slots.max} defaultMax={defaultMax} />
@@ -264,12 +266,14 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                   className={`${BOOKSPELL} is-static`}
                   data-testid="book-spell"
                 >
-                  <Monogram
-                    img={spell.img}
-                    monogram={String(spell.name).charAt(0).toUpperCase()}
-                    className={BOOKSPELL_ICON}
-                    imgClassName="tw:object-cover"
-                  />
+                  {showImages && (
+                    <Monogram
+                      img={spell.img}
+                      monogram={String(spell.name).charAt(0).toUpperCase()}
+                      className={BOOKSPELL_ICON}
+                      imgClassName="tw:object-cover"
+                    />
+                  )}
                   <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">
                     {spell.name}
                   </span>
@@ -285,12 +289,14 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                 className={BOOKSPELL}
                 data-testid="book-spell"
               >
-                <Monogram
-                  img={spell.img}
-                  monogram={String(spell.name).charAt(0).toUpperCase()}
-                  className={BOOKSPELL_ICON}
-                  imgClassName="tw:object-cover"
-                />
+                {showImages && (
+                  <Monogram
+                    img={spell.img}
+                    monogram={String(spell.name).charAt(0).toUpperCase()}
+                    className={BOOKSPELL_ICON}
+                    imgClassName="tw:object-cover"
+                  />
+                )}
                 <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">
                   {spell.name}
                 </span>

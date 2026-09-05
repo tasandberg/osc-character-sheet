@@ -4,7 +4,7 @@ import { SectionTitle } from "@ui/SectionTitle";
 import { IconButton } from "@ui/IconButton";
 import { ProseMirrorEditor } from "@ui/ProseMirrorEditor";
 import { RichText } from "@ui/RichText";
-import { getThemeSetting } from "@src/OscSheet/theme";
+import { useSetting } from "@src/OscSheet/settings";
 
 export default function EditableContent({
   title,
@@ -23,7 +23,8 @@ export default function EditableContent({
   // (`.themed.theme-{light,dark}`), independent of our sheet theme — so a cream
   // sheet would otherwise get dark-on-dark links. Mirror our theme onto the
   // container so they match.
-  const fdTheme = getThemeSetting() === "cream" ? "theme-light" : "theme-dark";
+  const fdTheme =
+    useSetting("theme") === "cream" ? "theme-light" : "theme-dark";
 
   useEffect(() => {
     let live = true;
