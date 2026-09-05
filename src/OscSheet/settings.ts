@@ -59,7 +59,7 @@ export const SETTINGS = {
   },
   showSpellImages: {
     name: "Show spell images",
-    hint: "Show each spell's item image in the spell list.",
+    hint: "Show spell icons in the spell list.",
     scope: "user",
     config: true,
     type: Boolean,

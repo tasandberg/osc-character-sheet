@@ -1,5 +1,5 @@
 import { Modal, Field, Segmented, Toggle, Button } from "@ui";
-import { setSetting, useOscSettings } from "@src/OscSheet/settings";
+import { setSetting, SETTINGS, useOscSettings } from "@src/OscSheet/settings";
 import { type Theme } from "@src/OscSheet/theme";
 import {
   FONT_SCALES,
@@ -29,12 +29,28 @@ const FONT_SCALE_OPTIONS = FONT_SCALES.map((value) => ({
   ),
 }));
 
-export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function SettingsModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const { theme, fontScale, showSpellImages } = useOscSettings();
   if (!open) return null;
-  const footer = <Button variant="primary" onClick={onClose}>Close</Button>;
+  const footer = (
+    <Button variant="primary" onClick={onClose}>
+      Close
+    </Button>
+  );
   return (
-    <Modal open={open} title="Preferences" onClose={onClose} footer={footer} className="modal-inset osc-settings-modal">
+    <Modal
+      open={open}
+      title="Preferences"
+      onClose={onClose}
+      footer={footer}
+      className="modal-inset osc-settings-modal"
+    >
       <div className="u-stack u-gap-5">
         <Field label="Theme" hint="Applies to your sheets only.">
           <div role="group" aria-label="Theme">
@@ -59,7 +75,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
             checked={showSpellImages}
             onChange={(e) => setSetting("showSpellImages", e.target.checked)}
           >
-            Show each spell's item image
+            {SETTINGS.showSpellImages.hint}
           </Toggle>
         </Field>
       </div>
