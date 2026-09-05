@@ -432,6 +432,8 @@ export function InventoryView({
       {menu && (
         <ItemContextMenu
           menu={menu}
+          actor={actor}
+          doc={itemsById.get(menu.item.id)}
           canEdit={canEdit}
           onClose={() => setMenu(null)}
           onOpen={onOpen}
