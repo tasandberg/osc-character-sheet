@@ -841,6 +841,10 @@ body {
 .btn.danger { color: var(--oxblood-2); border-color: oklch(0.56 0.15 25 / 0.5); }
 .btn.danger:hover:not(:disabled) { background: oklch(0.56 0.15 25 / 0.15); }
 .btn.ghost { background: transparent; border-color: var(--border-soft); color: var(--text-dim); }
+/* status — a completed/inert action, keeping the button's box so swapping one for the other doesn't resize the row. */
+.btn.status { background: transparent; border-color: transparent; cursor: default; text-transform: none; letter-spacing: normal; }
+/* `.btn:hover` is (0,4,0) via `:not(:disabled)`, which a span can never match — so restate the border at the same weight. */
+.btn.status:hover { border-color: transparent; }
 .btn.sm { font-size: var(--fs-3xs); padding: 5px 9px 4px; }
 .btn.xs {
   font-size: var(--fs-3xs);

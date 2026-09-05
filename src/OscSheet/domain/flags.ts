@@ -23,6 +23,8 @@ export const FLAGS = {
   /** Per-level spell points spent (actor flag) in free-casting mode: Record<level, number>. */
   spellPoints: "spellPoints",
   explorationSkills: "explorationSkills",
+  /** `game.time.worldTime` (seconds) when the actor last ate a ration. */
+  lastAteAt: "lastAteAt",
 } as const;
 export type FlagKey = (typeof FLAGS)[keyof typeof FLAGS];
 

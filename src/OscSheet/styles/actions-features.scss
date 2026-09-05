@@ -27,7 +27,6 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacer-2);
-  margin-top: var(--spacer-4);
 }
 @container sheet (min-width: 470px) {
   .osc-abilities {

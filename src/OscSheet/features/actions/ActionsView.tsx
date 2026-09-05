@@ -66,7 +66,7 @@ export function ActionsView({ actor }: Props) {
   const abilities = selectAbilities(actor);
   return (
     <>
-      <div className="tw:space-y-8">
+      <div className="tw:space-y-8 tw:mb-8">
         <AbilityPlaques abilities={abilities} onRoll={onAbility} />
         <AttacksTable
           attacks={attacks}

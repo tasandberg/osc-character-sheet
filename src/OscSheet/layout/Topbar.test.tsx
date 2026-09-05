@@ -10,7 +10,7 @@ import type { TopbarVM } from "@domain/vm-types";
 const vm: TopbarVM = {
   level: 3,
   nextLevel: 4,
-  xp: { value: 6420, next: 10000 },
+  xp: { value: 6420, floor: 5000, next: 10000 },
   pct: 28.4,
 };
 
@@ -43,6 +43,13 @@ afterEach(() => {
 const q = (sel: string) => container.querySelector<HTMLElement>(sel);
 const byText = (sel: string, text: string) =>
   [...container.querySelectorAll<HTMLElement>(sel)].find((el) => el.textContent === text);
+
+describe("Topbar XP band", () => {
+  it("shows the current level's XP floor beside the level", () => {
+    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
+    expect(byText("span", "5,000")).toBeTruthy();
+  });
+});
 
 describe("Topbar settings", () => {
   it("renders a cog trigger and no theme/font controls until opened", () => {

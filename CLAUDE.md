@@ -30,6 +30,10 @@ lives in `../CLAUDE.md`.
   those are utilities. **Full guide → the `vellum-styling` skill** (`.claude/skills/vellum-styling/`).
 - Tokens/spacing: use the `--space-*`/`--spacer-*` (4px) scale and design tokens, never
   hardcoded px or invented colors. Brass = `--accent-alt`; equipped = `--teal`.
+- A token in a Tailwind class uses v4's CSS-variable shorthand — `tw:text-(length:--fs-xs)`,
+  never `tw:text-[length:var(--fs-xs)]`. Both compile the same; the long form trips an
+  editor warning on every edit. A `var()` with a fallback has no shorthand and stays
+  bracketed (`tw:text-[var(--enc-c,var(--text))]`).
 - UI vocabulary: reach for the `components/ui/` primitives (`Button`, `IconButton`, `Tag`,
   `SectionTitle`, `Stamp`, `Field`, `Modal`, …) before hand-rolling a new `.osc-*`
   button/heading/tag class. Their styles live in `styles/vellum/` and are auto-scoped under

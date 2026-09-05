@@ -117,7 +117,11 @@ export function setPointsLeftAt(
       [level]: used,
     });
   if (!optimistic) return commit();
-  optimistic("actor", { [`${flagPath(FLAGS.spellPoints)}.${level}`]: used }, commit);
+  optimistic(
+    "actor",
+    { [`${flagPath(FLAGS.spellPoints)}.${level}`]: used },
+    commit,
+  );
 }
 
 /** Pip-click toast copy: "N <noun> remaining", null on no-op. */
@@ -140,6 +144,51 @@ export function createSpell(actor: OSEActor): Promise<void> {
 /** Rest in free-casting mode: clear all spent points. */
 export function resetSpellPoints(actor: OSEActor): Promise<unknown> {
   return unsetFlag(actor, FLAGS.spellPoints);
+}
+
+/** The casts (or free-casting points) a Rest/Study would give back. Pure — the
+ *  count `restoreAllSpells` reports, without writing anything. */
+export function countRestorableSpells(levels: SpellLevelVM[]): number {
+  if (levels.some((l) => l.freeCasting))
+    return levels.reduce(
+      (n, l) => n + Math.min(l.points.used, l.points.max),
+      0,
+    );
+  return levels.reduce(
+    (n, l) =>
+      n +
+      l.spellbook.reduce(
+        (m, s) =>
+          m + Math.max(0, (s.system.memorized ?? 0) - (s.system.cast ?? 0)),
+        0,
+      ),
+    0,
+  );
+}
+
+/** Rest/Study: free-casting refills every level's point pool; memorization mode
+ *  re-memorises every spell (cast back to memorized). `spellsRestored` counts
+ *  the casts (or points) given back. */
+export async function restoreAllSpells(
+  actor: OSEActor,
+  items?: OseItem[],
+): Promise<{ spellsRestored: number }> {
+  const levels = selectSpellLevels(actor, undefined, items);
+  const spellsRestored = countRestorableSpells(levels);
+  if (levels.some((l) => l.freeCasting)) {
+    await resetSpellPoints(actor);
+    return { spellsRestored };
+  }
+  const updates: Promise<unknown>[] = [];
+  for (const { spellbook } of levels) {
+    for (const spell of spellbook) {
+      const memorized = spell.system.memorized ?? 0;
+      if ((spell.system.cast ?? 0) !== memorized)
+        updates.push(spell.update({ "system.cast": memorized }));
+    }
+  }
+  await Promise.all(updates);
+  return { spellsRestored };
 }
 
 /** Favorited spells across all levels, sorted by level then name (Actions tab, free-casting). */

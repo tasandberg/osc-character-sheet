@@ -5,7 +5,7 @@ import { PillSelect } from "@ui/PillSelect";
 import { IconButton } from "@ui/IconButton";
 import {
   selectSpellLevels,
-  resetSpellPoints,
+  restoreAllSpells,
   createSpell,
 } from "@features/spells/spells";
 import { cx } from "@ui/cx";
@@ -29,21 +29,7 @@ export default function Spells() {
     if (busy) return;
     setBusy(true);
     try {
-      if (freeCasting) {
-        await resetSpellPoints(actor);
-      } else {
-        const updates: Promise<unknown>[] = [];
-        for (const { spellbook } of levels) {
-          for (const spell of spellbook) {
-            if (spell.system.cast !== spell.system.memorized) {
-              updates.push(
-                spell.update({ "system.cast": spell.system.memorized }),
-              );
-            }
-          }
-        }
-        await Promise.all(updates);
-      }
+      await restoreAllSpells(actor, items);
     } finally {
       setBusy(false);
     }

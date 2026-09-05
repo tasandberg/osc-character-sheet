@@ -135,7 +135,7 @@ export function EditModal({
   return (
     <Modal
       open={open}
-      title="Edit Character"
+      title={<span>✎ Edit Character</span>}
       onClose={onClose}
       footer={footer}
       className="modal-inset fe-modal"
