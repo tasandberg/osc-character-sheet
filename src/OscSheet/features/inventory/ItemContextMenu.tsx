@@ -1,11 +1,15 @@
 // Right-click context menu for an inventory item (View / Send / Unequip /
 // Consume / Delete), anchored at the cursor and kept on-screen.
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { FEATURES } from "@app/features";
+import { collectItemMenuEntries } from "@domain/extensions";
+import type { OSEActor, OseItem } from "@domain/types";
 import type { MenuState } from "@features/inventory/types";
 
 export function ItemContextMenu({
   menu,
+  actor,
+  doc,
   canEdit,
   onClose,
   onOpen,
@@ -15,6 +19,9 @@ export function ItemContextMenu({
   onSend,
 }: {
   menu: MenuState;
+  actor: OSEActor;
+  /** The Foundry item behind this row. Absent → module entries are skipped. */
+  doc?: OseItem;
   /** Global edit gate (see useOscSheetContext().canEdit). Non-owners get a
    *  view-only menu — only "View Item" remains. */
   canEdit: boolean;
@@ -37,6 +44,11 @@ export function ItemContextMenu({
       window.removeEventListener("blur", onClose);
     };
   }, [onClose]);
+
+  const moduleEntries = useMemo(
+    () => collectItemMenuEntries(actor, doc, canEdit),
+    [actor, doc, canEdit],
+  );
 
   // Keep the menu on-screen.
   const style: React.CSSProperties = {
@@ -97,6 +109,28 @@ export function ItemContextMenu({
           <i className="fa-solid fa-circle-minus" aria-hidden="true" /> Consume
           one
         </button>
+      )}
+      {moduleEntries.length > 0 && doc && (
+        <div className="osc-ctx-ext u-mt-1 u-pt-1">
+          {moduleEntries.map((entry, i) => (
+            <button
+              key={`${entry.label}-${i}`}
+              type="button"
+              className={`osc-ctx-item${entry.danger ? " is-danger" : ""}`}
+              disabled={entry.disabled === true}
+              onClick={() => {
+                entry.onClick(doc, actor);
+                onClose();
+              }}
+            >
+              <i
+                className={entry.icon ?? "fa-solid fa-puzzle-piece"}
+                aria-hidden="true"
+              />{" "}
+              {entry.label}
+            </button>
+          ))}
+        </div>
       )}
       {canEdit && (
         <button
