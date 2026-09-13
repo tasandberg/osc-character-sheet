@@ -18,6 +18,7 @@ type SettingDefinition<T> = {
   readonly config: boolean;
   readonly type: typeof String | typeof Boolean;
   readonly choices?: Readonly<Record<string, string>>;
+  readonly filePicker?: "folder";
   readonly default: T;
   readonly resolve: (value: unknown) => T;
 };
@@ -26,6 +27,11 @@ const resolveBoolean =
   (fallback: boolean) =>
   (value: unknown): boolean =>
     typeof value === "boolean" ? value : fallback;
+
+const resolveString =
+  (fallback: string) =>
+  (value: unknown): string =>
+    typeof value === "string" ? value : fallback;
 
 export const SETTINGS = {
   theme: {
@@ -66,7 +72,38 @@ export const SETTINGS = {
     default: true,
     resolve: resolveBoolean(true),
   },
+  portraitUploads: {
+    name: "Portrait image uploads",
+    hint: "Let players drop image files onto a sheet portrait to upload them as portrait or token art.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    resolve: resolveBoolean(false),
+  },
+  portraitUploadPath: {
+    name: "Portrait upload folder",
+    hint: "Folder that dropped portrait images upload to.",
+    scope: "world",
+    config: true,
+    type: String,
+    filePicker: "folder",
+    default: "",
+    resolve: resolveString(""),
+  },
 } as const satisfies Record<string, SettingDefinition<unknown>>;
+
+const worldPortraitUploadPath = (): string => {
+  const worldId = (
+    globalThis as unknown as { game?: { world?: { id?: string } } }
+  ).game?.world?.id;
+  return worldId ? `worlds/${worldId}/osc-portraits` : "";
+};
+
+const registrationDefault = (key: SettingKey): unknown =>
+  key === "portraitUploadPath"
+    ? worldPortraitUploadPath()
+    : SETTINGS[key].default;
 
 export type SettingKey = keyof typeof SETTINGS;
 export type SettingValue<K extends SettingKey> = ReturnType<
@@ -180,7 +217,7 @@ export function settingRegistrations(
 ): { key: SettingKey; data: SettingRegistration }[] {
   const defs: Record<SettingKey, SettingDefinition<unknown>> = SETTINGS;
   return (Object.keys(defs) as SettingKey[]).map((key) => {
-    const { name, hint, scope, config, type, choices } = defs[key];
+    const { name, hint, scope, config, type, choices, filePicker } = defs[key];
     return {
       key,
       data: {
@@ -189,12 +226,13 @@ export function settingRegistrations(
         scope,
         config,
         type,
-        default: defs[key].default,
+        default: registrationDefault(key),
         onChange: () => {
           notifySettingChanged(key);
           onChange();
         },
         ...(choices ? { choices } : {}),
+        ...(filePicker ? { filePicker } : {}),
       },
     };
   });

@@ -3,6 +3,7 @@ import { applyTheme } from "@src/OscSheet/theme";
 import { MODULE_ID } from "@src/OscSheet/domain/flags";
 import { applyFontScale } from "@src/OscSheet/fontScale";
 import { getSetting, settingRegistrations } from "@src/OscSheet/settings";
+import { watchPortraitUploadFolder } from "@src/OscSheet/features/portraitDrop/uploadFolder";
 import {
   alignedMenuLeft,
   findTweaksSheetEntry,
@@ -52,6 +53,7 @@ class OscSheet extends ReactActorSheetV2 {
     for (const { key, data } of settingRegistrations(rerender)) {
       game.settings.register(MODULE_ID, key, data);
     }
+    watchPortraitUploadFolder();
   }
 
   // Local builds append the branch they were built FROM, so a stale dist is

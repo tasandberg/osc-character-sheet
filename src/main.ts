@@ -2,6 +2,7 @@ import OscSheet from "@src/applications/osc-sheet";
 import { installAdvancedClasses } from "@src/util/adaptAdvancedClasses";
 import { onRenderChatMessage } from "@domain/chat/applyDamage";
 import { registerSendItemSocket } from "@features/inventory/sendItemSocket";
+import { installS3FolderPicker } from "@features/portraitDrop/s3FolderPicker";
 import { MODULE_ID } from "@domain/flags";
 import {
   migrateLocalStorage,
@@ -16,6 +17,10 @@ export function initialize() {
     logger("Initializing module");
     OscSheet.registerSettings();
     registerMigrationSetting();
+  });
+
+  foundry.helpers.Hooks.once("setup", () => {
+    installS3FolderPicker();
   });
 
   // Wire the GM apply-damage button on our Vellum damage cards. v13/v14 hook —

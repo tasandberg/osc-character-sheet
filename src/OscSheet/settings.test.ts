@@ -139,11 +139,47 @@ describe("settingRegistrations", () => {
       default: true,
       name: "Show spell images",
     });
+    expect(byKey.portraitUploads).toMatchObject({
+      scope: "world",
+      type: Boolean,
+      config: true,
+      default: false,
+    });
+    expect(byKey.portraitUploadPath).toMatchObject({
+      scope: "world",
+      type: String,
+      config: true,
+    });
+  });
+
+  it("defaults the portrait upload path into the current world", () => {
+    (globalThis as { game?: unknown }).game = { world: { id: "lost-mine" } };
+    const registered = Object.fromEntries(
+      settingRegistrations(onChange).map((r) => [r.key, r.data]),
+    );
+    expect(registered.portraitUploadPath.default).toBe(
+      "worlds/lost-mine/osc-portraits",
+    );
+  });
+
+  it("leaves the portrait upload path blank with no world", () => {
+    expect(byKey.portraitUploadPath.default).toBe("");
   });
 
   it("omits choices for the boolean settings", () => {
     expect(byKey.disableMemorization).not.toHaveProperty("choices");
     expect(byKey.showSpellImages).not.toHaveProperty("choices");
+  });
+
+  it("gives the portrait upload path a folder picker", () => {
+    expect(byKey.portraitUploadPath).toMatchObject({ filePicker: "folder" });
+  });
+
+  it("omits filePicker for settings that don't declare one", () => {
+    for (const key of Object.keys(SETTINGS) as SettingKey[]) {
+      if (key === "portraitUploadPath") continue;
+      expect(byKey[key]).not.toHaveProperty("filePicker");
+    }
   });
 
   it("gives every setting an onChange, a name and a hint", () => {
@@ -194,6 +230,8 @@ describe("settings snapshot", () => {
       disableMemorization: false,
       fontScale: "medium",
       showSpellImages: true,
+      portraitUploads: false,
+      portraitUploadPath: "",
     });
   });
 });
