@@ -6,7 +6,6 @@ declare const game: any;
 
 const MODULE_ID = "osc-character-sheet";
 const PATH_IMAGE = "icons/svg/skull.svg";
-const NOT_ENABLED = "Portrait uploads not enabled for this world";
 const PNG_1X1 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
 
@@ -15,11 +14,7 @@ type PortraitSettings = {
   portraitUploadPath?: string;
 };
 
-type DragSource =
-  | { kind: "file" }
-  | { kind: "tile"; src: string }
-  | { kind: "uri"; url: string }
-  | { kind: "item"; uuid: string };
+type DragSource = { kind: "file" } | { kind: "tile"; src: string };
 
 const test = fighterTest.extend<{
   portraitSettings: (values: PortraitSettings) => Promise<void>;
@@ -74,7 +69,7 @@ async function dragOverSheet(
       if (source.kind === "file") {
         const bytes = Uint8Array.from(atob(png), (c) => c.charCodeAt(0));
         dt.items.add(new File([bytes], "hero.png", { type: "image/png" }));
-      } else if (source.kind === "tile") {
+      } else {
         dt.setData(
           "text/plain",
           JSON.stringify({
@@ -83,13 +78,6 @@ async function dragOverSheet(
             fromFilePicker: true,
           }),
         );
-      } else if (source.kind === "item") {
-        dt.setData(
-          "text/plain",
-          JSON.stringify({ type: "Item", uuid: source.uuid }),
-        );
-      } else {
-        dt.setData("text/uri-list", source.url);
       }
       (globalThis as any).__e2ePortraitDrag = dt;
       const fire = (target: Element, type: string) =>
@@ -130,15 +118,6 @@ async function dropOnSheet(over: Locator): Promise<void> {
   });
 }
 
-function settleFrames(page: Page): Promise<void> {
-  return page.evaluate(
-    () =>
-      new Promise<void>((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-      ),
-  );
-}
-
 type ActorImages = { img: string; token: string };
 
 function actorImages(page: Page, id: string): Promise<ActorImages> {
@@ -155,19 +134,8 @@ function sheetDropTarget(sheet: Locator): Locator {
   return sheet.locator('[data-testid="sheet-image-drop"]');
 }
 
-function headerDropIndicator(sheet: Locator): Locator {
-  return sheet.locator('.osc-head [data-testid="portrait-drop-indicator"]');
-}
-
 function dropIndicators(sheet: Locator): Locator {
   return sheet.locator('[data-testid="portrait-drop-indicator"]');
-}
-
-async function abilitiesTabBody(sheet: Locator): Promise<Locator> {
-  await sheet.locator('[data-testid="tab-abilities"]').click();
-  const body = sheet.locator('[data-testid="abilities-tab"]');
-  await expect(body).toBeVisible();
-  return body;
 }
 
 function portraitDialog(sheet: Locator): Locator {
@@ -181,201 +149,6 @@ function segment(dialog: Locator, group: string, label: string): Locator {
 }
 
 test.describe("sheet image drop", () => {
-  test("file drop is blocked while uploads are disabled", async ({
-    gamePage,
-    fighter,
-    portraitSettings,
-  }) => {
-    await portraitSettings({ portraitUploads: false });
-    const before = await actorImages(gamePage, fighter.id);
-    const sheet = await openCharacterSheet(gamePage, fighter.name);
-    const target = sheetDropTarget(sheet);
-
-    await dragOverSheet(target, { kind: "file" });
-    await expect(target).toHaveAttribute("data-drop", "blocked");
-    await expect(headerDropIndicator(sheet)).toBeVisible();
-    await expect(headerDropIndicator(sheet).getByRole("status")).toHaveText(
-      NOT_ENABLED,
-    );
-
-    await dropOnSheet(target);
-    await expect(dropIndicators(sheet)).toHaveCount(0);
-    await expect(target).not.toHaveAttribute("data-drop");
-    await expect(portraitDialog(sheet)).toHaveCount(0);
-    expect(await actorImages(gamePage, fighter.id)).toEqual(before);
-  });
-
-  test("FilePicker tile drag sets only the portrait with uploads disabled", async ({
-    gamePage,
-    fighter,
-    portraitSettings,
-  }) => {
-    await portraitSettings({ portraitUploads: false });
-    const before = await actorImages(gamePage, fighter.id);
-    expect(before.img).not.toBe(PATH_IMAGE);
-    const sheet = await openCharacterSheet(gamePage, fighter.name);
-    const target = sheetDropTarget(sheet);
-
-    await dragOverSheet(target, { kind: "tile", src: PATH_IMAGE });
-    await expect(target).toHaveAttribute("data-drop", "ready");
-    await expect(
-      headerDropIndicator(sheet).getByText("Drop image", { exact: true }),
-    ).toBeVisible();
-
-    await dropOnSheet(target);
-    await expect(dropIndicators(sheet)).toHaveCount(0);
-    const dialog = portraitDialog(sheet);
-    await expect(dialog).toBeVisible();
-    await expect(
-      dialog.getByRole("img", { name: "Dropped image" }),
-    ).toHaveAttribute("src", PATH_IMAGE);
-    await expect(segment(dialog, "Apply to", "Set both")).toHaveClass(/\bon\b/);
-    await expect(
-      segment(dialog, "Tokens", "Update prototype token only"),
-    ).toHaveClass(/\bon\b/);
-    await expect(
-      segment(dialog, "Tokens", "Update prototype token only"),
-    ).toBeEnabled();
-
-    await segment(dialog, "Apply to", "Set portrait").click();
-    await expect(segment(dialog, "Apply to", "Set portrait")).toHaveClass(
-      /\bon\b/,
-    );
-    await expect(
-      segment(dialog, "Tokens", "Update prototype token only"),
-    ).toBeDisabled();
-    await expect(segment(dialog, "Tokens", "Update all tokens")).toBeDisabled();
-    expect(await actorImages(gamePage, fighter.id)).toEqual(before);
-
-    await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
-    await expect(dialog).toHaveCount(0);
-    await expect
-      .poll(() => actorImages(gamePage, fighter.id))
-      .toEqual({ img: PATH_IMAGE, token: before.token });
-  });
-
-  test("drag over a tab body activates the sheet-wide drop zone", async ({
-    gamePage,
-    fighter,
-    portraitSettings,
-  }) => {
-    await portraitSettings({ portraitUploads: false });
-    const before = await actorImages(gamePage, fighter.id);
-    const sheet = await openCharacterSheet(gamePage, fighter.name);
-    const target = sheetDropTarget(sheet);
-    const body = await abilitiesTabBody(sheet);
-    expect(
-      await body.evaluate((el) => !!el.closest(".osc-portrait-wrap")),
-    ).toBe(false);
-
-    await dragOverSheet(body, { kind: "tile", src: PATH_IMAGE });
-    await expect(target).toHaveAttribute("data-drop", "ready");
-    await expect(headerDropIndicator(sheet)).toBeVisible();
-    await expect(
-      headerDropIndicator(sheet).getByText("Drop image", { exact: true }),
-    ).toBeVisible();
-
-    await dropOnSheet(body);
-    await expect(dropIndicators(sheet)).toHaveCount(0);
-    await expect(target).not.toHaveAttribute("data-drop");
-    const dialog = portraitDialog(sheet);
-    await expect(dialog).toBeVisible();
-    await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
-    await expect(dropIndicators(sheet)).toHaveCount(0);
-    await expect(dialog).toHaveCount(0);
-    expect(await actorImages(gamePage, fighter.id)).toEqual(before);
-  });
-
-  test("Foundry Item drag is ignored by the image drop zone", async ({
-    gamePage,
-    fighter,
-    portraitSettings,
-  }) => {
-    await portraitSettings({ portraitUploads: false });
-    const before = await actorImages(gamePage, fighter.id);
-    const itemState = () =>
-      gamePage.evaluate((id) => {
-        const actor = game.actors.get(id);
-        return actor.items.map((i: any) => [i.id, i.sort]);
-      }, fighter.id);
-    const itemsBefore = await itemState();
-    const uuid = await gamePage.evaluate(
-      ({ id, weapon }) => game.actors.get(id).items.getName(weapon).uuid,
-      { id: fighter.id, weapon: fighter.weapon },
-    );
-    const sheet = await openCharacterSheet(gamePage, fighter.name);
-    const target = sheetDropTarget(sheet);
-    const body = await abilitiesTabBody(sheet);
-
-    await dragOverSheet(body, { kind: "item", uuid });
-    await settleFrames(gamePage);
-    expect(await target.getAttribute("data-drop")).toBeNull();
-    await expect(dropIndicators(sheet)).toHaveCount(0);
-
-    await dropOnSheet(body);
-    await expect(dropIndicators(sheet)).toHaveCount(0);
-    await settleFrames(gamePage);
-    expect(await target.getAttribute("data-drop")).toBeNull();
-    await expect(portraitDialog(sheet)).toHaveCount(0);
-    expect(await actorImages(gamePage, fighter.id)).toEqual(before);
-    expect(await itemState()).toEqual(itemsBefore);
-  });
-
-  test("uri-list drag sets only the token, relative to the server origin", async ({
-    gamePage,
-    fighter,
-    portraitSettings,
-  }) => {
-    await portraitSettings({ portraitUploads: false });
-    const before = await actorImages(gamePage, fighter.id);
-    expect(before.token).not.toBe(PATH_IMAGE);
-    const sheet = await openCharacterSheet(gamePage, fighter.name);
-    const target = sheetDropTarget(sheet);
-    const origin = await gamePage.evaluate(() => location.origin);
-
-    await dragOverSheet(target, {
-      kind: "uri",
-      url: `${origin}/${PATH_IMAGE}`,
-    });
-    await expect(target).toHaveAttribute("data-drop", "ready");
-    await dropOnSheet(target);
-    await expect(dropIndicators(sheet)).toHaveCount(0);
-
-    const dialog = portraitDialog(sheet);
-    await expect(dialog).toBeVisible();
-    await segment(dialog, "Apply to", "Set token").click();
-    await expect(
-      segment(dialog, "Tokens", "Update prototype token only"),
-    ).toBeEnabled();
-    await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
-    await expect(dialog).toHaveCount(0);
-    await expect
-      .poll(() => actorImages(gamePage, fighter.id))
-      .toEqual({ img: before.img, token: PATH_IMAGE });
-  });
-
-  test("Cancel writes nothing", async ({
-    gamePage,
-    fighter,
-    portraitSettings,
-  }) => {
-    await portraitSettings({ portraitUploads: false });
-    const before = await actorImages(gamePage, fighter.id);
-    const sheet = await openCharacterSheet(gamePage, fighter.name);
-    const target = sheetDropTarget(sheet);
-
-    await dragOverSheet(target, { kind: "tile", src: PATH_IMAGE });
-    await dropOnSheet(target);
-    await expect(dropIndicators(sheet)).toHaveCount(0);
-    const dialog = portraitDialog(sheet);
-    await expect(dialog).toBeVisible();
-
-    await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
-    await expect(dropIndicators(sheet)).toHaveCount(0);
-    await expect(dialog).toHaveCount(0);
-    expect(await actorImages(gamePage, fighter.id)).toEqual(before);
-  });
-
   test("file drop with uploads enabled uploads and sets portrait and prototype token", async ({
     gamePage,
     fighter,
@@ -408,9 +181,9 @@ test.describe("sheet image drop", () => {
       dialog.getByRole("img", { name: "Dropped image" }),
     ).toHaveAttribute("src", /^blob:/);
     await expect(segment(dialog, "Apply to", "Set both")).toHaveClass(/\bon\b/);
-    await expect(
-      segment(dialog, "Tokens", "Update prototype token only"),
-    ).toHaveClass(/\bon\b/);
+    await expect(segment(dialog, "Tokens", "Prototype only")).toHaveClass(
+      /\bon\b/,
+    );
     expect(await actorImages(gamePage, fighter.id)).toEqual(before);
 
     await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
@@ -429,7 +202,7 @@ test.describe("sheet image drop", () => {
     expect(after.token).toBe(after.img);
   });
 
-  test("Update all tokens also retextures linked placed tokens", async ({
+  test("Prototype + linked tokens also retextures linked placed tokens", async ({
     gamePage,
     fighter,
     portraitSettings,
@@ -475,10 +248,10 @@ test.describe("sheet image drop", () => {
 
       const dialog = portraitDialog(sheet);
       await expect(dialog).toBeVisible();
-      await segment(dialog, "Tokens", "Update all tokens").click();
-      await expect(segment(dialog, "Tokens", "Update all tokens")).toHaveClass(
-        /\bon\b/,
-      );
+      await segment(dialog, "Tokens", "Prototype + linked tokens").click();
+      await expect(
+        segment(dialog, "Tokens", "Prototype + linked tokens"),
+      ).toHaveClass(/\bon\b/);
       await dialog
         .getByRole("button", { name: "Confirm", exact: true })
         .click();

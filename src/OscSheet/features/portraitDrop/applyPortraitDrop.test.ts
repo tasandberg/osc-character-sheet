@@ -156,6 +156,19 @@ describe("applyPortraitDrop", () => {
 
   const drop = { kind: "path", src: "a.png" } as const;
 
+  it.each([
+    ["portrait", { img: "a.png" }],
+    ["token", { "prototypeToken.texture.src": "a.png" }],
+  ] as const)(
+    "writes a path drop straight to the actor's %s",
+    async (target, update) => {
+      const actor = actorWith([]);
+      await applyPortraitDrop(actor, drop, { target, tokens: "prototype" });
+      expect(actor.update).toHaveBeenCalledTimes(1);
+      expect(actor.update).toHaveBeenCalledWith(update);
+    },
+  );
+
   it("counts the placed tokens it updated", async () => {
     const keep = scene("Keep");
     const road = scene("Road");
