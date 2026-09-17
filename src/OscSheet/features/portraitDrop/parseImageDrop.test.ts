@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   dragKind,
+  hasNonImageFile,
   imagePathFromPayload,
   isImagePath,
   parseImageDrop,
@@ -127,6 +128,43 @@ describe("dragKind", () => {
   it("ignores drags with no usable types", () => {
     expect(dragKind([], null, true)).toBeNull();
     expect(dragKind(["text/html"], "a.png", true)).toBeNull();
+  });
+});
+
+describe("hasNonImageFile", () => {
+  it("is false for image files", () => {
+    expect(
+      hasNonImageFile([
+        { kind: "file", type: "image/png" },
+        { kind: "file", type: "image/webp" },
+      ]),
+    ).toBe(false);
+  });
+
+  it("is true when any file has a non-image MIME type", () => {
+    expect(
+      hasNonImageFile([
+        { kind: "file", type: "image/png" },
+        { kind: "file", type: "text/plain" },
+      ]),
+    ).toBe(true);
+  });
+
+  it("treats an empty MIME type as unknown", () => {
+    expect(hasNonImageFile([{ kind: "file", type: "" }])).toBe(false);
+  });
+
+  it("ignores non-file items", () => {
+    expect(
+      hasNonImageFile([
+        { kind: "string", type: "text/uri-list" },
+        { kind: "string", type: "text/plain" },
+      ]),
+    ).toBe(false);
+  });
+
+  it("is false with no items", () => {
+    expect(hasNonImageFile([])).toBe(false);
   });
 });
 

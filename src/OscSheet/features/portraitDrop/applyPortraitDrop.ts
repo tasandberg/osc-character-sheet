@@ -124,27 +124,49 @@ async function uploadDroppedFile(
   return uploadedPath(response, file.name, folder);
 }
 
-async function updateLinkedTokens(actor: PortraitDropActor, src: string) {
+async function updateLinkedTokens(
+  actor: PortraitDropActor,
+  src: string,
+): Promise<number> {
   const tokens = actor.getDependentTokens({ linked: true, concreteOnly: true });
+  let updated = 0;
   for (const [scene, updates] of tokenUpdatesByScene(tokens, src)) {
     try {
       await scene.updateEmbeddedDocuments("Token", updates);
+      updated += updates.length;
     } catch (error) {
       console.error(`Couldn't update tokens in scene ${scene.name}`, error);
     }
   }
+  return updated;
+}
+
+const TOAST_TITLES: Record<ApplyTarget, string> = {
+  portrait: "Portrait updated",
+  token: "Token updated",
+  both: "Portrait and token updated",
+};
+
+export function portraitDropToast(
+  target: ApplyTarget,
+  placedTokens: number,
+): { title: string; message?: string } {
+  const title = TOAST_TITLES[target];
+  if (placedTokens <= 0) return { title };
+  const noun = placedTokens === 1 ? "token" : "tokens";
+  return { title, message: `Also updated ${placedTokens} placed ${noun}` };
 }
 
 export async function applyPortraitDrop(
   actor: PortraitDropActor,
   drop: ImageDrop,
   choice: PortraitDropChoice,
-): Promise<void> {
+): Promise<number> {
   const src =
     drop.kind === "path"
       ? drop.src
       : await uploadDroppedFile(actor.name, drop.file);
   await actor.update(actorImageUpdate(src, choice.target));
-  if (choice.target !== "portrait" && choice.tokens === "all")
-    await updateLinkedTokens(actor, src);
+  if (choice.target === "portrait" || choice.tokens !== "all") return 0;
+  return updateLinkedTokens(actor, src);
 }

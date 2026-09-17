@@ -72,6 +72,21 @@ export function dragKind(
   return hasPath ? "path" : null;
 }
 
+export type DragItem = {
+  readonly kind: string;
+  readonly type: string;
+};
+
+export const NON_IMAGE_FILE_MESSAGE =
+  "Only image files can be used for portraits";
+
+export function hasNonImageFile(items: Iterable<DragItem>): boolean {
+  for (const item of items)
+    if (item.kind === "file" && item.type && !item.type.startsWith("image/"))
+      return true;
+  return false;
+}
+
 export type ParseImageDropOptions = {
   readonly preferFile: boolean;
   readonly origin?: string;

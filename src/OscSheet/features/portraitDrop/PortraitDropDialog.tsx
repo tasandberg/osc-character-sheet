@@ -18,8 +18,8 @@ const TARGET_OPTIONS: { value: ApplyTarget; label: string }[] = [
 ];
 
 const TOKEN_OPTIONS: { value: TokenScope; label: string }[] = [
-  { value: "prototype", label: "Update prototype token only" },
-  { value: "all", label: "Update all tokens" },
+  { value: "prototype", label: "Prototype only" },
+  { value: "all", label: "Prototype + linked tokens" },
 ];
 
 type Notifications = {
@@ -109,7 +109,10 @@ export function PortraitDropDialog({ drop, onClose, onConfirm }: Props) {
               />
             </div>
           </Field>
-          <Field label="Tokens">
+          <Field
+            label="Tokens"
+            hint="Unlinked tokens already on scenes keep their image."
+          >
             <div role="group" aria-label="Tokens">
               <Segmented<TokenScope>
                 className="u-wrap"

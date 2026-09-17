@@ -8,7 +8,13 @@ import {
 import { useSetting } from "@src/OscSheet/settings";
 import { resolvePortraitDropState } from "./dropState";
 import { cachedDragPayload, retainDragPayloadCache } from "./dragPayloadCache";
-import { dragKind, parseImageDrop, type ImageDrop } from "./parseImageDrop";
+import {
+  NON_IMAGE_FILE_MESSAGE,
+  dragKind,
+  hasNonImageFile,
+  parseImageDrop,
+  type ImageDrop,
+} from "./parseImageDrop";
 import type { PortraitDropIndicatorState } from "./PortraitDropIndicator";
 
 export type PortraitDropStatus = "idle" | "ready" | "blocked";
@@ -38,6 +44,13 @@ type FoundryGlobals = {
 
 const globals = () => globalThis as unknown as FoundryGlobals;
 
+type DragState = {
+  readonly status: PortraitDropStatus;
+  readonly message: string | null;
+};
+
+const IDLE: DragState = { status: "idle", message: null };
+
 type Options = {
   readonly enabled: boolean;
   readonly onImage: (drop: ImageDrop) => void;
@@ -49,7 +62,7 @@ export function usePortraitDrop({
 }: Options): PortraitDropZone | undefined {
   const uploadsEnabled = useSetting("portraitUploads");
   const uploadPath = useSetting("portraitUploadPath");
-  const [status, setStatus] = useState<PortraitDropStatus>("idle");
+  const [drag, setDrag] = useState<DragState>(IDLE);
   const depth = useRef(0);
 
   useEffect(() => (enabled ? retainDragPayloadCache() : undefined), [enabled]);
@@ -64,47 +77,58 @@ export function usePortraitDrop({
     uploadPath,
   });
 
-  const classify = (event: DragEvent<HTMLElement>): PortraitDropStatus => {
+  const gateMessage = "message" in gate ? gate.message : null;
+
+  const classify = (event: DragEvent<HTMLElement>): DragState => {
     const kind = dragKind(
       Array.from(event.dataTransfer.types),
       cachedDragPayload(),
       gate.ready,
     );
-    if (!kind) return "idle";
-    return kind === "file" && !gate.ready ? "blocked" : "ready";
+    if (!kind) return IDLE;
+    if (kind === "path") return { status: "ready", message: null };
+    if (!gate.ready) return { status: "blocked", message: null };
+    return hasNonImageFile(Array.from(event.dataTransfer.items))
+      ? { status: "blocked", message: NON_IMAGE_FILE_MESSAGE }
+      : { status: "ready", message: null };
+  };
+
+  const show = (next: DragState) => {
+    if (next.status !== drag.status || next.message !== drag.message)
+      setDrag(next);
   };
 
   return {
-    status,
-    message: "message" in gate ? gate.message : null,
+    status: drag.status,
+    message: drag.message ?? gateMessage,
     onDragEnter: (event) => {
       const next = classify(event);
-      if (next === "idle") return;
+      if (next.status === "idle") return;
       event.preventDefault();
       depth.current += 1;
-      setStatus(next);
+      setDrag(next);
     },
     onDragOver: (event) => {
       const next = classify(event);
-      if (next === "idle") return;
+      if (next.status === "idle") return;
       event.preventDefault();
       event.stopPropagation();
-      event.dataTransfer.dropEffect = next === "ready" ? "copy" : "none";
-      if (next !== status) setStatus(next);
+      event.dataTransfer.dropEffect = next.status === "ready" ? "copy" : "none";
+      show(next);
     },
     onDragLeave: () => {
       if (depth.current === 0) return;
       depth.current -= 1;
-      if (depth.current === 0) setStatus("idle");
+      if (depth.current === 0) setDrag(IDLE);
     },
     onDrop: (event) => {
       const next = classify(event);
       depth.current = 0;
-      setStatus("idle");
-      if (next === "idle") return;
+      setDrag(IDLE);
+      if (next.status === "idle") return;
       event.preventDefault();
       event.stopPropagation();
-      if (next === "blocked") return;
+      if (next.status === "blocked") return;
       const parsed = parseImageDrop(
         {
           preferFile: gate.ready,

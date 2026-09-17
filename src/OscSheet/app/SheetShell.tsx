@@ -8,7 +8,10 @@ import {
   portraitDropIndicator,
   usePortraitDrop,
 } from "@features/portraitDrop/usePortraitDrop";
-import { applyPortraitDrop } from "@features/portraitDrop/applyPortraitDrop";
+import {
+  applyPortraitDrop,
+  portraitDropToast,
+} from "@features/portraitDrop/applyPortraitDrop";
 import type { ImageDrop } from "@features/portraitDrop/parseImageDrop";
 import { tabs, TabIds } from "@app/tabs";
 import getLabel from "@src/util/getLabel";
@@ -343,7 +346,17 @@ export default function SheetShell() {
         <PortraitDropDialog
           drop={portraitDrop}
           onClose={() => setPortraitDrop(null)}
-          onConfirm={(choice) => applyPortraitDrop(actor, portraitDrop, choice)}
+          onConfirm={async (choice) => {
+            const placedTokens = await applyPortraitDrop(
+              actor,
+              portraitDrop,
+              choice,
+            );
+            toast({
+              intent: "success",
+              ...portraitDropToast(choice.target, placedTokens),
+            });
+          }}
         />
       )}
       <SheetImageDrop zone={portraitDropZone}>

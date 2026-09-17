@@ -83,6 +83,10 @@ function fire(
   const dataTransfer = {
     files,
     types: [...(files.length ? ["Files"] : []), ...Object.keys(data)],
+    items: [
+      ...files.map((f) => ({ kind: "file", type: f.type })),
+      ...Object.keys(data).map((type) => ({ kind: "string", type })),
+    ],
     getData: (t: string) => data[t] ?? "",
     setData: () => {},
     dropEffect: "",
@@ -336,11 +340,63 @@ describe("sheet image drop zone", () => {
     expect(overlay()).toBeNull();
   });
 
-  it("warns and does nothing for a non-image file", () => {
+  it("shows a non-image file as blocked while it is dragged", () => {
     setWorld(READY);
     render();
     const file = new File(["x"], "notes.txt", { type: "text/plain" });
+    fire(row(), "dragenter", { files: [file] });
+    expect(sheet().getAttribute("data-drop")).toBe("blocked");
+    expect(overlay()?.querySelector('[role="status"]')?.textContent).toBe(
+      "Only image files can be used for portraits",
+    );
+    const { event, dataTransfer } = fire(sheet(), "dragover", {
+      files: [file],
+    });
+    expect(event.defaultPrevented).toBe(true);
+    expect(dataTransfer.dropEffect).toBe("none");
+    fire(sheet(), "drop", { files: [file] });
+    expect(onImage).not.toHaveBeenCalled();
+    expect(sheet().hasAttribute("data-drop")).toBe(false);
+  });
+
+  it("blocks a mixed drag when any file is not an image", () => {
+    setWorld(READY);
+    render();
+    const text = new File(["x"], "notes.txt", { type: "text/plain" });
+    fire(sheet(), "dragenter", { files: [png(), text] });
+    expect(sheet().getAttribute("data-drop")).toBe("blocked");
+  });
+
+  it("keeps the upload gate message for a non-image file when uploads are off", () => {
+    setWorld({
+      portraitUploads: false,
+      portraitUploadPath: "worlds/w/osc-portraits",
+    });
+    render();
+    const file = new File(["x"], "notes.txt", { type: "text/plain" });
     fire(sheet(), "dragenter", { files: [file] });
+    expect(overlay()?.querySelector('[role="status"]')?.textContent).toBe(
+      "Portrait uploads not enabled for this world",
+    );
+  });
+
+  it("returns to ready once an image replaces a non-image drag", () => {
+    setWorld(READY);
+    render();
+    const text = new File(["x"], "notes.txt", { type: "text/plain" });
+    fire(sheet(), "dragenter", { files: [text] });
+    fire(sheet(), "dragleave", { files: [text] });
+    fire(sheet(), "dragenter", { files: [png()] });
+    expect(sheet().getAttribute("data-drop")).toBe("ready");
+    expect(overlay()?.textContent).toBe("Drop image");
+  });
+
+  it("warns and does nothing for a file of unknown type that is not an image", () => {
+    setWorld(READY);
+    render();
+    const file = new File(["x"], "notes.txt");
+    fire(sheet(), "dragenter", { files: [file] });
+    expect(sheet().getAttribute("data-drop")).toBe("ready");
     fire(sheet(), "drop", { files: [file] });
     expect(warn).toHaveBeenCalledWith("notes.txt is not an image");
     expect(onImage).not.toHaveBeenCalled();

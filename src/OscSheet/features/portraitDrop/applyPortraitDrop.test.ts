@@ -1,7 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   PortraitUploadReportedError,
   actorImageUpdate,
+  applyPortraitDrop,
+  portraitDropToast,
+  type PortraitDropActor,
   portraitUploadFilename,
   tokenUpdatesByScene,
   uploadedPath,
@@ -130,6 +133,87 @@ describe("uploadedPath", () => {
     expect(error).not.toBeInstanceOf(PortraitUploadReportedError);
     expect((error as Error).message).toBe(
       "Couldn't upload hero.png to worlds/w/osc",
+    );
+  });
+});
+
+describe("applyPortraitDrop", () => {
+  const scene = (name: string, fails = false) => ({
+    name,
+    updateEmbeddedDocuments: vi.fn(() =>
+      fails ? Promise.reject(new Error("nope")) : Promise.resolve([]),
+    ),
+  });
+
+  const actorWith = (tokens: { id: string; parent: unknown }[]) => {
+    const actor = {
+      name: "Ana",
+      update: vi.fn(() => Promise.resolve()),
+      getDependentTokens: vi.fn(() => tokens),
+    };
+    return actor as typeof actor & PortraitDropActor;
+  };
+
+  const drop = { kind: "path", src: "a.png" } as const;
+
+  it("counts the placed tokens it updated", async () => {
+    const keep = scene("Keep");
+    const road = scene("Road");
+    const actor = actorWith([
+      { id: "t1", parent: keep },
+      { id: "t2", parent: road },
+      { id: "t3", parent: keep },
+    ]);
+    await expect(
+      applyPortraitDrop(actor, drop, { target: "both", tokens: "all" }),
+    ).resolves.toBe(3);
+    expect(actor.getDependentTokens).toHaveBeenCalledWith({
+      linked: true,
+      concreteOnly: true,
+    });
+  });
+
+  it("leaves out tokens in scenes whose update failed", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const actor = actorWith([
+      { id: "t1", parent: scene("Keep") },
+      { id: "t2", parent: scene("Road", true) },
+    ]);
+    await expect(
+      applyPortraitDrop(actor, drop, { target: "token", tokens: "all" }),
+    ).resolves.toBe(1);
+    error.mockRestore();
+  });
+
+  it.each([
+    ["the prototype only", { target: "both", tokens: "prototype" }],
+    ["the portrait only", { target: "portrait", tokens: "all" }],
+  ] as const)("updates no placed tokens for %s", async (_, choice) => {
+    const actor = actorWith([{ id: "t1", parent: scene("Keep") }]);
+    await expect(applyPortraitDrop(actor, drop, choice)).resolves.toBe(0);
+    expect(actor.getDependentTokens).not.toHaveBeenCalled();
+  });
+});
+
+describe("portraitDropToast", () => {
+  it.each([
+    ["portrait", "Portrait updated"],
+    ["token", "Token updated"],
+    ["both", "Portrait and token updated"],
+  ] as const)("titles a %s update", (target, title) => {
+    expect(portraitDropToast(target, 0)).toEqual({ title });
+  });
+
+  it("mentions a single placed token", () => {
+    expect(portraitDropToast("token", 1)).toEqual({
+      title: "Token updated",
+      message: "Also updated 1 placed token",
+    });
+  });
+
+  it("mentions several placed tokens", () => {
+    expect(portraitDropToast("both", 2).message).toBe(
+      "Also updated 2 placed tokens",
     );
   });
 });

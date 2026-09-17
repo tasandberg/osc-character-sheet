@@ -94,24 +94,29 @@ describe("PortraitDropDialog", () => {
   it("defaults to setting both, prototype token only", () => {
     render();
     expect(option("Apply to", "Set both").className).toContain("on");
-    expect(option("Tokens", "Update prototype token only").className).toContain(
-      "on",
+    expect(option("Tokens", "Prototype only").className).toContain("on");
+    expect(option("Tokens", "Prototype + linked tokens").disabled).toBe(false);
+  });
+
+  it("explains that unlinked placed tokens are left alone", () => {
+    render();
+    expect(container.textContent).toContain(
+      "Unlinked tokens already on scenes keep their image.",
     );
-    expect(option("Tokens", "Update all tokens").disabled).toBe(false);
   });
 
   it("disables the token choice, without hiding it, for Set portrait", async () => {
     render();
     await click(option("Apply to", "Set portrait"));
-    expect(option("Tokens", "Update prototype token only").disabled).toBe(true);
-    expect(option("Tokens", "Update all tokens").disabled).toBe(true);
+    expect(option("Tokens", "Prototype only").disabled).toBe(true);
+    expect(option("Tokens", "Prototype + linked tokens").disabled).toBe(true);
     await click(option("Apply to", "Set token"));
-    expect(option("Tokens", "Update all tokens").disabled).toBe(false);
+    expect(option("Tokens", "Prototype + linked tokens").disabled).toBe(false);
   });
 
   it("writes nothing on Cancel", async () => {
     render();
-    await click(option("Tokens", "Update all tokens"));
+    await click(option("Tokens", "Prototype + linked tokens"));
     await click(button("Cancel"));
     expect(onConfirm).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -128,7 +133,7 @@ describe("PortraitDropDialog", () => {
     onConfirm.mockResolvedValue();
     render();
     await click(option("Apply to", "Set token"));
-    await click(option("Tokens", "Update all tokens"));
+    await click(option("Tokens", "Prototype + linked tokens"));
     await click(button("Confirm"));
     expect(onConfirm).toHaveBeenCalledWith({ target: "token", tokens: "all" });
     expect(onClose).toHaveBeenCalledTimes(1);
