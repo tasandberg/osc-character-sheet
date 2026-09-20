@@ -92,6 +92,7 @@ export function EditModal({
   // --- Identity / progression ---
   // GMs can re-class a character; players see the class as static header text.
   const isGM = game.user?.isGM ?? false;
+  const isRetainer = sys.retainer?.enabled === true;
   const classNames = availableClassNames();
   const level = sys.details.level;
   const dexInit = sys.scores.dex.init;
@@ -193,15 +194,34 @@ export function EditModal({
                 onCommit={(n) => set("system.details.level", n)}
               />
             </label>
-            <label className={`${ED_FIELD} ${SPAN_3}`}>
-              <span className={LAB_ID}>Title</span>
+            <div className={`${ED_FIELD} ${SPAN_3}`}>
+              <span className={LAB_ID}>{isRetainer ? "Wage" : "Title"}</span>
               <ValidatedInput
+                key={isRetainer ? "wage" : "title"}
                 className="input"
-                value={sys.details.title}
+                value={
+                  isRetainer ? (sys.retainer?.wage ?? "") : sys.details.title
+                }
                 validate={() => null}
-                onCommit={(v) => set("system.details.title", v)}
+                onCommit={(v) =>
+                  set(
+                    isRetainer
+                      ? "system.retainer.wage"
+                      : "system.details.title",
+                    v,
+                  )
+                }
               />
-            </label>
+              <Check
+                className="ed-retainer"
+                checked={isRetainer}
+                onChange={(e) =>
+                  set("system.retainer.enabled", e.target.checked)
+                }
+              >
+                Retainer
+              </Check>
+            </div>
             <label className={`${ED_FIELD} ${SPAN_COMBO}`}>
               <span className={LAB_ID}>Alignment</span>
               <Combobox
@@ -346,7 +366,13 @@ export function EditModal({
         {/* Ability Scores */}
         <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
           <SectionTitle hint="raw scores">Ability Scores</SectionTitle>
-          <div className="ed-cells ed-abil tw:grid tw:gap-2 tw:grid-cols-6 tw:@max-[520px]/fwin:grid-cols-3">
+          <div
+            className={`ed-cells ed-abil tw:grid tw:gap-2 ${
+              isRetainer
+                ? "tw:grid-cols-7 tw:@max-[520px]/fwin:grid-cols-4"
+                : "tw:grid-cols-6 tw:@max-[520px]/fwin:grid-cols-3"
+            }`}
+          >
             {ABIL_ORDER.map((k) => {
               const req = defaults.requirements[k];
               const below = req != null && sys.scores[k].value < req;
@@ -372,6 +398,19 @@ export function EditModal({
                 />
               );
             })}
+            {isRetainer && (
+              <StampCell
+                stampKey="LR"
+                fullName="Loyalty Rating"
+                value={sys.retainer?.loyalty ?? 0}
+                onChange={(n) =>
+                  set("system.retainer.loyalty", clamp(n, 0, 12))
+                }
+                min={0}
+                max={12}
+                caption="roll 2d6 ≤"
+              />
+            )}
           </div>
         </div>
 

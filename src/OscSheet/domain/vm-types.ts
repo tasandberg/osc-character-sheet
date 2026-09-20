@@ -7,6 +7,8 @@ export interface IdentityVM {
   level: number;
   alignment: string;
   title: string;
+  isRetainer: boolean;
+  wage: string;
 }
 
 /** The three OSE movement rates: ft/round · ft/turn · miles/day. */
@@ -33,6 +35,12 @@ export interface AbilityVM {
   value: number;
   mod: number;
   modLabel: string;
+}
+
+export interface LoyaltyVM {
+  label: string;
+  fullLabel: string;
+  value: number | null;
 }
 
 /** A clickable roll: what to show on the pill, the dice formula, and chat flavour. */

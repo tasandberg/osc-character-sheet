@@ -100,4 +100,6 @@ const IDENTITY = {
   level: 3,
   alignment: "Neutral",
   title: "Conjurer",
+  isRetainer: false,
+  wage: "",
 };

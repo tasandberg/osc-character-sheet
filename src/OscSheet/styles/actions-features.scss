@@ -32,6 +32,9 @@
   .osc-abilities {
     grid-template-columns: repeat(6, 1fr);
   }
+  .osc-abilities.has-loyalty {
+    grid-template-columns: repeat(7, 1fr);
+  }
 }
 
 // --- saves/exploration tab nav (rail, large view) ---

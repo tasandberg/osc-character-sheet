@@ -53,8 +53,9 @@
     line-height: 1.4;
   }
 
-  // Overrides `.check`'s own font-size + colour for the movement checkbox.
-  .ed-field .ed-movecalc {
+  // Overrides `.check`'s own font-size + colour for the in-field checkboxes.
+  .ed-field .ed-movecalc,
+  .ed-field .ed-retainer {
     margin-top: 2px;
     font-size: var(--fs-2xs);
     color: var(--text-dim);
