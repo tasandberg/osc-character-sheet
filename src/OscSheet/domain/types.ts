@@ -148,6 +148,7 @@ export type OSEActor = Actor & {
     options: { event?: RollEvent; fastForward?: boolean; chatMessage?: string }
   ) => void;
   rollLoyalty: (options: { event?: RollEvent }) => void;
+  rollHitDice: (options: { event?: RollEvent }) => void;
   update: (updateData: Record<string, unknown>) => Promise<OSEActor>;
 };
 

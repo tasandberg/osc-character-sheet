@@ -3,6 +3,8 @@ import { armorTierLabel, formatMod } from "@domain/format";
 import { Identity } from "@layout/Identity";
 import { Portrait } from "@layout/Portrait";
 import { Stamp } from "@ui/Stamp";
+import { cx } from "@ui/cx";
+import { rollable, type ActivateEvent } from "@ui/rollable";
 import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
 
@@ -79,13 +81,16 @@ type Props = {
   /** Right-click on the portrait (e.g. Token Variant Art's picker). */
   onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
   canEditPortrait?: boolean;
+  onRollHd?: (event: ActivateEvent) => void;
 };
 
 /** Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
  *  · HP/AC in medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait }: Props) {
+export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, onRollHd }: Props) {
   const m = vitals.moveBands;
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
+  const rollHd = vitals.hd ? onRollHd : undefined;
+  const hdLabel = rollHd ? game.i18n.localize("OSE.roll.hd") : undefined;
   return (
     <div className="osc-head">
       <Portrait
@@ -101,7 +106,14 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           <div className={TILE_V}>{formatMod(vitals.initMod)}</div>
         </div>
         <div className={TILE}>
-          <Stamp className={TILE_STAMP}>HD</Stamp>
+          <Stamp
+            className={cx(TILE_STAMP, rollHd && "rollable")}
+            title={hdLabel}
+            aria-label={hdLabel}
+            {...rollable(rollHd)}
+          >
+            HD
+          </Stamp>
           <div className={TILE_V}>{vitals.hd}</div>
         </div>
         <div className={`${TILE} tw:cursor-default`}>
