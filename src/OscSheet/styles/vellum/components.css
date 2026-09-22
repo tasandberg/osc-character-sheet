@@ -273,12 +273,8 @@
   background: var(--surface-3);
   color: var(--text);
 }
-.segmented button:hover:not(.on):not(:disabled) {
+.segmented button:hover:not(.on) {
   color: var(--text-dim);
-}
-.segmented button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
 }
 
 /* ─── Pill select — wrapping discrete single-select pills with counts ─────

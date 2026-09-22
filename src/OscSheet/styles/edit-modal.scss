@@ -27,8 +27,7 @@
 
     // The portrait fills its grid cell instead of the primitive's fixed 84px
     // square (vellum/components.css). Placement within the grid is a utility on
-    // the caller; only the size override has to out-rank the primitive, and it
-    // stays inside .fe-modal so no other PortraitField in the sheet sees it.
+    // the caller; only the size override has to out-rank the primitive.
     .ed-portrait {
       width: 100%;
       height: auto;

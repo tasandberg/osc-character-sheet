@@ -4,7 +4,6 @@ import {
   initialPortraitImageState,
   linkPortraitImage,
   setPortraitImageSlot,
-  stagePortraitImage,
   type ActorImages,
   type ImageSlot,
   type PortraitImageDrop,
@@ -63,27 +62,6 @@ describe("initialPortraitImageState", () => {
     expect(state.linked).toBe(true);
     expect(state.portrait).toEqual(image);
     expect(state.token).toBe(state.portrait);
-  });
-});
-
-describe("stagePortraitImage", () => {
-  it("replaces one slot while unlinked", () => {
-    const state = stagePortraitImage(
-      initialPortraitImageState(differ),
-      drop("token"),
-    );
-    expect(state.linked).toBe(false);
-    expect(state.token).toEqual(image);
-    expect(state.portrait).toEqual({ kind: "path", src: "a.png" });
-  });
-
-  it("links both slots for a both drop", () => {
-    const state = stagePortraitImage(
-      initialPortraitImageState(differ),
-      drop("both"),
-    );
-    expect(state.linked).toBe(true);
-    expect(state.portrait).toBe(state.token);
   });
 });
 

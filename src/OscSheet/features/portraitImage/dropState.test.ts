@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { resolvePortraitDropState } from "@features/portraitImage/dropState";
+import {
+  resolvePortraitDropState,
+  type PortraitDropGateInputs,
+  type PortraitDropState,
+} from "@features/portraitImage/dropState";
 
 const NOT_ENABLED = "Portrait uploads not enabled for this world";
 const GM_SET_PATH = "Please set an upload target for OSC Sheet portraits";
@@ -13,70 +17,55 @@ const base = {
 };
 
 describe("resolvePortraitDropState", () => {
-  it("is ready when enabled, configured and permitted", () => {
-    expect(resolvePortraitDropState(base)).toEqual({ ready: true });
-  });
-
-  it("is ready for a GM when enabled and configured", () => {
-    expect(resolvePortraitDropState({ ...base, isGM: true })).toEqual({
-      ready: true,
-    });
-  });
-
-  it("blocks when uploads are disabled, for GM and player alike", () => {
-    expect(
-      resolvePortraitDropState({ ...base, uploadsEnabled: false }),
-    ).toEqual({ ready: false, message: NOT_ENABLED });
-    expect(
-      resolvePortraitDropState({ ...base, isGM: true, uploadsEnabled: false }),
-    ).toEqual({ ready: false, message: NOT_ENABLED });
-  });
-
-  it("reports disabled before any other problem", () => {
-    expect(
-      resolvePortraitDropState({
-        isGM: false,
-        canUpload: false,
-        uploadsEnabled: false,
-        uploadPath: "",
-      }),
-    ).toEqual({ ready: false, message: NOT_ENABLED });
-  });
-
-  it("asks a GM to set the path when it is blank", () => {
-    expect(
-      resolvePortraitDropState({ ...base, isGM: true, uploadPath: "" }),
-    ).toEqual({ ready: false, message: GM_SET_PATH });
-  });
-
-  it("tells a player to ask their GM when the path is blank", () => {
-    expect(resolvePortraitDropState({ ...base, uploadPath: "" })).toEqual({
-      ready: false,
-      message: ASK_GM,
-    });
-  });
-
-  it("treats a whitespace-only path as blank", () => {
-    expect(
-      resolvePortraitDropState({ ...base, isGM: true, uploadPath: "   " }),
-    ).toEqual({ ready: false, message: GM_SET_PATH });
-  });
-
-  it("blocks a user without upload permission", () => {
-    expect(resolvePortraitDropState({ ...base, canUpload: false })).toEqual({
-      ready: false,
-      message: ASK_GM,
-    });
-  });
-
-  it("prefers the blank-path message for a GM lacking permission", () => {
-    expect(
-      resolvePortraitDropState({
-        ...base,
-        isGM: true,
-        canUpload: false,
-        uploadPath: "",
-      }),
-    ).toEqual({ ready: false, message: GM_SET_PATH });
-  });
+  it.each([
+    ["ready when enabled, configured and permitted", {}, { ready: true }],
+    ["ready for a GM", { isGM: true }, { ready: true }],
+    [
+      "blocked for a player while uploads are off",
+      { uploadsEnabled: false },
+      { ready: false, message: NOT_ENABLED },
+    ],
+    [
+      "blocked for a GM while uploads are off",
+      { isGM: true, uploadsEnabled: false },
+      { ready: false, message: NOT_ENABLED },
+    ],
+    [
+      "disabled before any other problem",
+      { canUpload: false, uploadsEnabled: false, uploadPath: "" },
+      { ready: false, message: NOT_ENABLED },
+    ],
+    [
+      "a request that the GM set the blank path",
+      { isGM: true, uploadPath: "" },
+      { ready: false, message: GM_SET_PATH },
+    ],
+    [
+      "a nudge for a player to ask their GM about the blank path",
+      { uploadPath: "" },
+      { ready: false, message: ASK_GM },
+    ],
+    [
+      "blank for a whitespace-only path",
+      { isGM: true, uploadPath: "   " },
+      { ready: false, message: GM_SET_PATH },
+    ],
+    [
+      "blocked without upload permission",
+      { canUpload: false },
+      { ready: false, message: ASK_GM },
+    ],
+    [
+      "the blank-path message for a GM lacking permission",
+      { isGM: true, canUpload: false, uploadPath: "" },
+      { ready: false, message: GM_SET_PATH },
+    ],
+  ] as [string, Partial<PortraitDropGateInputs>, PortraitDropState][])(
+    "is %s",
+    (_, overrides, expected) => {
+      expect(resolvePortraitDropState({ ...base, ...overrides })).toEqual(
+        expected,
+      );
+    },
+  );
 });

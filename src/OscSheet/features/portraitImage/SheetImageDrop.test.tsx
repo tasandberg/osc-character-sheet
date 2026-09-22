@@ -103,6 +103,7 @@ beforeEach(() => {
   root = createRoot(container);
   onImage.mockClear();
   warn.mockClear();
+  setWorld(READY);
 });
 
 afterEach(() => {
@@ -117,14 +118,12 @@ const render = (enabled = true) =>
 
 describe("sheet image drop zones", () => {
   it("shows no overlay and no drop state until something is dragged over", () => {
-    setWorld(READY);
     render();
     expect(overlay()).toBeNull();
     expect(sheet().hasAttribute("data-drop")).toBe(false);
   });
 
   it("offers a zone per target while a file is dragged over the sheet", () => {
-    setWorld(READY);
     render();
     const file = png();
     fire(sheet(), "dragenter", { files: [file] });
@@ -138,7 +137,6 @@ describe("sheet image drop zones", () => {
   });
 
   it("offers the zones for a drag over other sheet content", () => {
-    setWorld(READY);
     render();
     fire(row(), "dragenter", { files: [png()] });
     expect(sheet().getAttribute("data-drop")).toBe("ready");
@@ -160,7 +158,6 @@ describe("sheet image drop zones", () => {
   );
 
   it("brightens only the zone the drag is over", () => {
-    setWorld(READY);
     render();
     fire(sheet(), "dragenter", { files: [png()] });
     fire(zone("token"), "dragenter", { files: [png()] });
@@ -171,7 +168,6 @@ describe("sheet image drop zones", () => {
   });
 
   it("stages nothing for a drop that misses every zone", () => {
-    setWorld(READY);
     render();
     const file = png();
     fire(row(), "dragenter", { files: [file] });
@@ -210,7 +206,6 @@ describe("sheet image drop zones", () => {
   });
 
   it("clears the overlay when the drag leaves", () => {
-    setWorld(READY);
     render();
     fire(sheet(), "dragenter", { files: [png()] });
     fire(sheet(), "dragleave", { files: [png()] });
@@ -219,7 +214,6 @@ describe("sheet image drop zones", () => {
   });
 
   it("keeps the overlay while the drag moves between children", () => {
-    setWorld(READY);
     render();
     fire(sheet(), "dragenter", { files: [png()] });
     fire(row(), "dragenter", { files: [png()] });
@@ -262,7 +256,6 @@ describe("sheet image drop zones", () => {
       JSON.stringify({ type: "Item", uuid: "Actor.a.Item.b" }),
     ],
   ])("stays out of the way of %s drag", (_, payload) => {
-    setWorld(READY);
     render();
     const ancestor = { dragover: vi.fn(), drop: vi.fn() };
     document.body.addEventListener("dragover", ancestor.dragover);
@@ -318,7 +311,6 @@ describe("sheet image drop zones", () => {
   );
 
   it("forgets the cached payload once the drag ends", () => {
-    setWorld(READY);
     render();
     fire(document.body, "dragstart", {
       data: { "text/plain": tile("a/b.png") },
@@ -329,7 +321,6 @@ describe("sheet image drop zones", () => {
   });
 
   it("shows a non-image file as blocked while it is dragged", () => {
-    setWorld(READY);
     render();
     const file = new File(["x"], "notes.txt", { type: "text/plain" });
     fire(row(), "dragenter", { files: [file] });
@@ -347,7 +338,6 @@ describe("sheet image drop zones", () => {
   });
 
   it("blocks a mixed drag when any file is not an image", () => {
-    setWorld(READY);
     render();
     const text = new File(["x"], "notes.txt", { type: "text/plain" });
     fire(sheet(), "dragenter", { files: [png(), text] });
@@ -368,7 +358,6 @@ describe("sheet image drop zones", () => {
   });
 
   it("returns to ready once an image replaces a non-image drag", () => {
-    setWorld(READY);
     render();
     const text = new File(["x"], "notes.txt", { type: "text/plain" });
     fire(sheet(), "dragenter", { files: [text] });
@@ -379,7 +368,6 @@ describe("sheet image drop zones", () => {
   });
 
   it("warns and does nothing for a file of unknown type that is not an image", () => {
-    setWorld(READY);
     render();
     const file = new File(["x"], "notes.txt");
     fire(sheet(), "dragenter", { files: [file] });
@@ -390,7 +378,6 @@ describe("sheet image drop zones", () => {
   });
 
   it("is inert when the sheet is not editable", () => {
-    setWorld(READY);
     render(false);
     const { event } = fire(sheet(), "dragover", { files: [png()] });
     expect(overlay()).toBeNull();
