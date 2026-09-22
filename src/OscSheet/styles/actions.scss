@@ -476,9 +476,6 @@
     grid-template-columns: repeat(6, 1fr);
     gap: var(--spacer-1);
   }
-  .osc-abilities.has-loyalty {
-    grid-template-columns: repeat(7, 1fr);
-  }
   .osc-sheet-app .plaque-ability {
     min-height: 0;
     padding: 5px 3px 6px;

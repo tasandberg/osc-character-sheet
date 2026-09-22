@@ -47,19 +47,28 @@ afterEach(() => {
   container.remove();
 });
 
-const plaque = () =>
+const loyaltyValue = () =>
   container.querySelector<HTMLElement>('[data-testid="loyalty"]');
+const loyaltyRow = () => container.querySelector<HTMLElement>(".osc-loyalty");
+const abilityGrid = () =>
+  container.querySelector<HTMLElement>(".osc-abilities")!;
 
 describe("AbilityPlaques loyalty", () => {
-  it("renders no loyalty plaque for a non-retainer", () => {
-    act(() => root.render(<AbilityPlaques abilities={abilities} />));
-    expect(plaque()).toBeNull();
-    expect(container.querySelector(".osc-abilities")!.className).not.toContain(
-      "has-loyalty",
+  it("keeps the ability grid six-up, with no loyalty plaque inside it", () => {
+    act(() =>
+      root.render(<AbilityPlaques abilities={abilities} loyalty={loyalty} />),
     );
+    expect(abilityGrid().children.length).toBe(abilities.length);
+    expect(abilityGrid().className).toBe("osc-abilities");
   });
 
-  it("appends a rollable loyalty plaque for a retainer", () => {
+  it("renders no loyalty row for a non-retainer", () => {
+    act(() => root.render(<AbilityPlaques abilities={abilities} />));
+    expect(loyaltyRow()).toBeNull();
+    expect(loyaltyValue()).toBeNull();
+  });
+
+  it("renders a rollable loyalty row below the grid for a retainer", () => {
     const onRollLoyalty = vi.fn();
     act(() =>
       root.render(
@@ -71,13 +80,17 @@ describe("AbilityPlaques loyalty", () => {
       ),
     );
 
-    const el = plaque()!;
-    expect(el.textContent).toContain("LR");
-    expect(el.textContent).toContain("8");
+    const row = loyaltyRow()!;
+    const el = loyaltyValue()!;
+    expect(row.textContent).toBe("Loyalty Rating:8");
+    expect(el.textContent).toBe("8");
     expect(el.getAttribute("role")).toBe("button");
-    expect(container.querySelector(".osc-abilities")!.className).toContain(
-      "has-loyalty",
-    );
+    expect(el.getAttribute("aria-label")).toBe("Roll Loyalty Rating check");
+    expect(
+      abilityGrid().compareDocumentPosition(row) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(abilityGrid().contains(row)).toBe(false);
 
     act(() => {
       el.dispatchEvent(
@@ -103,7 +116,7 @@ describe("AbilityPlaques loyalty", () => {
         />,
       ),
     );
-    const el = plaque()!;
+    const el = loyaltyValue()!;
     expect(el.tabIndex).toBe(0);
     act(() => {
       el.dispatchEvent(
@@ -128,9 +141,11 @@ describe("AbilityPlaques loyalty", () => {
         />,
       ),
     );
-    const el = plaque()!;
-    expect(el.textContent).toContain("—");
+    const el = loyaltyValue()!;
+    expect(el.textContent).toBe("—");
     expect(el.getAttribute("role")).toBeNull();
+    expect(el.className).not.toContain("rollable");
+    expect(el.getAttribute("title")).toBe("Loyalty Rating — not set");
 
     act(() => {
       el.dispatchEvent(
@@ -144,7 +159,8 @@ describe("AbilityPlaques loyalty", () => {
     act(() =>
       root.render(<AbilityPlaques abilities={abilities} loyalty={loyalty} />),
     );
-    expect(plaque()!.getAttribute("role")).toBeNull();
+    expect(loyaltyValue()!.getAttribute("role")).toBeNull();
+    expect(loyaltyValue()!.className).not.toContain("rollable");
   });
 });
 

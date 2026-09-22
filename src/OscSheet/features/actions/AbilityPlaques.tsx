@@ -1,6 +1,7 @@
 import type { AbilityVM, LoyaltyVM } from "@domain/vm-types";
+import { cx } from "@ui/cx";
 import { StatPlaque } from "@ui/StatPlaque";
-import type { ActivateEvent } from "@ui/rollable";
+import { rollable, type ActivateEvent } from "@ui/rollable";
 
 type Props = {
   abilities: AbilityVM[];
@@ -16,9 +17,11 @@ export function AbilityPlaques({
   loyalty,
   onRollLoyalty,
 }: Props) {
+  const rollLoyalty =
+    loyalty?.value != null && onRollLoyalty ? onRollLoyalty : undefined;
   return (
     <section className="osc-section">
-      <div className={`osc-abilities${loyalty ? " has-loyalty" : ""}`}>
+      <div className="osc-abilities">
         {abilities.map((a) => (
           <StatPlaque
             key={a.key}
@@ -31,26 +34,27 @@ export function AbilityPlaques({
             data-testid={`ability-${a.key}`}
           />
         ))}
-        {loyalty && (
-          <StatPlaque
-            variant="ability"
-            stampKey={loyalty.label}
-            value={loyalty.value ?? "—"}
-            caption="2d6 ≤"
-            onActivate={
-              loyalty.value != null && onRollLoyalty
-                ? (e) => onRollLoyalty(e)
-                : undefined
-            }
+      </div>
+      {loyalty && (
+        <div className="osc-loyalty">
+          <span className="lylab">{loyalty.fullLabel}:</span>
+          <span
+            className={cx("lyval", rollLoyalty && "rollable")}
             title={
               loyalty.value == null
                 ? `${loyalty.fullLabel} — not set`
                 : `Roll ${loyalty.fullLabel} check`
             }
+            aria-label={
+              rollLoyalty ? `Roll ${loyalty.fullLabel} check` : undefined
+            }
             data-testid="loyalty"
-          />
-        )}
-      </div>
+            {...rollable(rollLoyalty)}
+          >
+            {loyalty.value ?? "—"}
+          </span>
+        </div>
+      )}
     </section>
   );
 }

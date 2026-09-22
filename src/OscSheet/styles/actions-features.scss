@@ -32,9 +32,46 @@
   .osc-abilities {
     grid-template-columns: repeat(6, 1fr);
   }
-  .osc-abilities.has-loyalty {
-    grid-template-columns: repeat(7, 1fr);
-  }
+}
+
+.osc-loyalty {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacer-2);
+  margin-top: var(--spacer-2);
+}
+.osc-loyalty .lylab {
+  font-family: var(--sans);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text-dim, #b5ad97);
+}
+.osc-loyalty .lyval {
+  font-family: var(--display);
+  font-size: var(--fs-xl, 18px);
+  line-height: 1;
+  color: var(--gold-dim);
+  min-width: 2.5ch;
+  padding: 0 var(--spacer-1) var(--spacer-1);
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  transition:
+    color 0.12s,
+    border-color 0.12s;
+}
+.osc-loyalty .lyval:not(.rollable) {
+  color: var(--text-mute, #8a8270);
+  border-bottom-style: dashed;
+}
+.osc-loyalty .lyval.rollable {
+  cursor: pointer;
+}
+.osc-loyalty .lyval.rollable:hover {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+.osc-loyalty .lyval.rollable:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 // --- saves/exploration tab nav (rail, large view) ---
