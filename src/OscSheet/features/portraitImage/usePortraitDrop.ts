@@ -16,20 +16,22 @@ import {
   type ImageDrop,
 } from "./parseImageDrop";
 
-export type PortraitDropStatus = "idle" | "ready" | "blocked";
-
-export type ImageDropHandlers = {
+type ImageDropHandlers = {
   readonly onDragEnter: DragEventHandler<HTMLElement>;
   readonly onDragOver: DragEventHandler<HTMLElement>;
   readonly onDragLeave: DragEventHandler<HTMLElement>;
   readonly onDrop: DragEventHandler<HTMLElement>;
 };
 
-export type PortraitDropZone = ImageDropHandlers & {
-  readonly status: PortraitDropStatus;
+type DragState = {
+  readonly status: "idle" | "ready" | "blocked";
   readonly message: string | null;
-  readonly target: (onImage: (image: ImageDrop) => void) => ImageDropHandlers;
 };
+
+export type PortraitDropZone = ImageDropHandlers &
+  DragState & {
+    readonly target: (onImage: (image: ImageDrop) => void) => ImageDropHandlers;
+  };
 
 type FoundryGlobals = {
   game?: { user?: { isGM?: boolean; can?(permission: string): boolean } };
@@ -40,16 +42,7 @@ type FoundryGlobals = {
 
 const globals = () => globalThis as unknown as FoundryGlobals;
 
-type DragState = {
-  readonly status: PortraitDropStatus;
-  readonly message: string | null;
-};
-
 const IDLE: DragState = { status: "idle", message: null };
-
-type Options = {
-  readonly enabled: boolean;
-};
 
 export function usePortraitUploadGate(): PortraitDropState {
   const uploadsEnabled = useSetting("portraitUploads");
@@ -65,7 +58,9 @@ export function usePortraitUploadGate(): PortraitDropState {
 
 export function usePortraitDrop({
   enabled,
-}: Options): PortraitDropZone | undefined {
+}: {
+  enabled: boolean;
+}): PortraitDropZone | undefined {
   const gate = usePortraitUploadGate();
   const [drag, setDrag] = useState<DragState>(IDLE);
   const depth = useRef(0);
@@ -73,8 +68,6 @@ export function usePortraitDrop({
   useEffect(() => (enabled ? retainDragPayloadCache() : undefined), [enabled]);
 
   if (!enabled) return undefined;
-
-  const gateMessage = "message" in gate ? gate.message : null;
 
   const classify = (event: DragEvent<HTMLElement>): DragState => {
     const kind = dragKind(
@@ -88,11 +81,6 @@ export function usePortraitDrop({
     return hasNonImageFile(Array.from(event.dataTransfer.items))
       ? { status: "blocked", message: NON_IMAGE_FILE_MESSAGE }
       : { status: "ready", message: null };
-  };
-
-  const show = (next: DragState) => {
-    if (next.status !== drag.status || next.message !== drag.message)
-      setDrag(next);
   };
 
   const onDragEnter: DragEventHandler<HTMLElement> = (event) => {
@@ -109,7 +97,8 @@ export function usePortraitDrop({
     event.preventDefault();
     event.stopPropagation();
     event.dataTransfer.dropEffect = next.status === "ready" ? "copy" : "none";
-    show(next);
+    if (next.status !== drag.status || next.message !== drag.message)
+      setDrag(next);
   };
 
   const onDragLeave: DragEventHandler<HTMLElement> = () => {
@@ -144,7 +133,7 @@ export function usePortraitDrop({
 
   return {
     status: drag.status,
-    message: drag.message ?? gateMessage,
+    message: drag.message ?? ("message" in gate ? gate.message : null),
     onDragEnter,
     onDragOver,
     onDragLeave,

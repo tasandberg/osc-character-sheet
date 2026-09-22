@@ -19,9 +19,7 @@ export function initialize() {
     registerMigrationSetting();
   });
 
-  foundry.helpers.Hooks.once("setup", () => {
-    installS3FolderPicker();
-  });
+  foundry.helpers.Hooks.once("setup", installS3FolderPicker);
 
   // Wire the GM apply-damage button on our Vellum damage cards. v13/v14 hook —
   // passes a native HTMLElement (not jQuery), matching the OSE system.

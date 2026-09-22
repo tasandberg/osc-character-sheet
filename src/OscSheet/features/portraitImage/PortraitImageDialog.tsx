@@ -10,7 +10,7 @@ import { PortraitField } from "@ui/PortraitField";
 import { PortraitUploadReportedError } from "./applyPortraitImage";
 import { ImageDropZone } from "./ImageDropZone";
 import type { ImageDrop } from "./parseImageDrop";
-import { usePortraitDrop } from "./usePortraitDrop";
+import { usePortraitDrop, usePortraitUploadGate } from "./usePortraitDrop";
 import {
   dirtyPortraitImageKeys,
   initialPortraitImageState,
@@ -18,7 +18,6 @@ import {
   setPortraitImageSlot,
   stagePortraitImage,
   type ActorImages,
-  type ImageSlot,
   type PortraitImageDrop,
   type PortraitImageSlotKey,
   type PortraitImageState,
@@ -29,7 +28,7 @@ type Notifications = {
   ui?: { notifications?: { error(message: string): void } };
 };
 
-function useStagedPreview(): (slot: ImageSlot) => string | undefined {
+function useStagedPreview(): (slot: ImageDrop) => string | undefined {
   const urls = useRef(new Map<File, string>());
   useEffect(() => {
     const cache = urls.current;
@@ -50,25 +49,19 @@ function useStagedPreview(): (slot: ImageSlot) => string | undefined {
 
 type Props = {
   current: ActorImages;
-  drop?: PortraitImageDrop | null;
-  canDropImages?: boolean;
+  drop?: PortraitImageDrop;
   onClose: () => void;
   onSave: (state: PortraitImageState) => Promise<void>;
 };
 
-export function PortraitImageDialog({
-  current,
-  drop,
-  canDropImages,
-  onClose,
-  onSave,
-}: Props) {
+export function PortraitImageDialog({ current, drop, onClose, onSave }: Props) {
   const [state, setState] = useState<PortraitImageState>(() =>
     initialPortraitImageState(current, drop),
   );
   const [busy, setBusy] = useState(false);
   const previewOf = useStagedPreview();
   const dirty = dirtyPortraitImageKeys(state, current);
+  const canDropImages = usePortraitUploadGate().ready;
   const dropZone = usePortraitDrop({ enabled: !busy });
   const zones = dropZone?.status === "ready" ? dropZone : null;
   const blocked = dropZone?.status === "blocked" ? dropZone.message : null;
@@ -107,14 +100,19 @@ export function PortraitImageDialog({
       );
     return (
       <Field label={label}>
-        <div className="osc-portrait-image-slot u-flex u-justify-center">
+        <div className="u-flex u-justify-center tw:relative">
           <PortraitField
             label={`Change ${noun}`}
             src={preview}
             onPick={onPick}
           />
           {zones && (
-            <ImageDropZone zone={zones} target={target} onImage={stage} />
+            <ImageDropZone
+              zone={zones}
+              target={target}
+              onImage={stage}
+              className="tw:absolute tw:inset-0"
+            />
           )}
         </div>
         <InlineButton

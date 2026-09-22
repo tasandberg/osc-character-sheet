@@ -342,15 +342,21 @@ describe("portraitImageToast", () => {
     ["a token", { portrait: false, token: true }, "Token updated"],
     ["both", { portrait: true, token: true }, "Portrait and token updated"],
   ])("titles %s update", (_, changed, title) => {
-    expect(portraitImageToast(changed, 0)).toEqual({ title });
+    expect(portraitImageToast({ ...changed, placedTokens: 0 })).toEqual({
+      title,
+    });
   });
 
   it("has nothing to report when nothing changed", () => {
-    expect(portraitImageToast({ portrait: false, token: false }, 0)).toBeNull();
+    expect(
+      portraitImageToast({ portrait: false, token: false, placedTokens: 0 }),
+    ).toBeNull();
   });
 
   it("mentions a single placed token", () => {
-    expect(portraitImageToast({ portrait: false, token: true }, 1)).toEqual({
+    expect(
+      portraitImageToast({ portrait: false, token: true, placedTokens: 1 }),
+    ).toEqual({
       title: "Token updated",
       message: "Also updated 1 placed token",
     });
@@ -358,7 +364,8 @@ describe("portraitImageToast", () => {
 
   it("mentions several placed tokens", () => {
     expect(
-      portraitImageToast({ portrait: true, token: true }, 2)?.message,
+      portraitImageToast({ portrait: true, token: true, placedTokens: 2 })
+        ?.message,
     ).toBe("Also updated 2 placed tokens");
   });
 });

@@ -1,4 +1,4 @@
-export type S3Endpoint = {
+type S3Endpoint = {
   readonly protocol: string;
   readonly host: string;
 };

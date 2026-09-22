@@ -1,4 +1,3 @@
-/** Opens Foundry's image FilePicker; the chosen path comes back via onPick. */
 export function openImagePicker({
   current,
   onPick,

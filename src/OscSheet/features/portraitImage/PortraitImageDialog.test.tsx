@@ -7,9 +7,9 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { PortraitImageDialog } from "@features/portraitImage/PortraitImageDialog";
 import { PortraitUploadReportedError } from "@features/portraitImage/applyPortraitImage";
+import type { ImageDrop } from "@features/portraitImage/parseImageDrop";
 import type {
   ActorImages,
-  ImageSlot,
   PortraitImageDrop,
   PortraitImageState,
   PortraitImageTarget,
@@ -29,7 +29,7 @@ const error = vi.fn();
 const warn = vi.fn();
 
 const file = new File(["x"], "hero.png", { type: "image/png" });
-const image: ImageSlot = { kind: "file", file };
+const image: ImageDrop = { kind: "file", file };
 const drop = (target: PortraitImageTarget): PortraitImageDrop => ({
   image,
   target,
@@ -89,21 +89,15 @@ afterEach(() => {
 
 type RenderOptions = {
   current?: ActorImages;
-  drop?: PortraitImageDrop | null;
-  canDropImages?: boolean;
+  drop?: PortraitImageDrop;
 };
 
-const render = ({
-  current = SAME,
-  drop: dropped = null,
-  canDropImages = true,
-}: RenderOptions = {}) =>
+const render = ({ current = SAME, drop: dropped }: RenderOptions = {}) =>
   act(() => {
     root.render(
       <PortraitImageDialog
         current={current}
         drop={dropped}
-        canDropImages={canDropImages}
         onClose={onClose}
         onSave={onSave}
       />,
@@ -305,7 +299,8 @@ describe("PortraitImageDialog", () => {
   });
 
   it("drops the file-drop option from the caption when uploads are off", () => {
-    render({ canDropImages: false });
+    setWorld({ ...READY, portraitUploads: false });
+    render();
     expect(slotHint()).toBe("Browse, or drag from the file browser.");
   });
 
@@ -374,9 +369,6 @@ describe("PortraitImageDialog", () => {
       for (const el of zones()) expect(slotRow().contains(el)).toBe(true);
       expect(positionOf(".osc-sheet-app .osc-portrait-image-slots")).toBe(
         "relative",
-      );
-      expect(positionOf(".osc-portrait-image-slot .osc-image-drop-zone")).toBe(
-        "absolute",
       );
       expect(positionOf(".osc-image-drop-bar")).toBe("absolute");
       expect(positionOf(".osc-image-drop-alert")).toBe("absolute");

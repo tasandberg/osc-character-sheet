@@ -2,12 +2,10 @@ export type ImageDrop =
   | { readonly kind: "file"; readonly file: File }
   | { readonly kind: "path"; readonly src: string };
 
-export type ParsedImageDrop =
+type ParsedImageDrop =
   ImageDrop | { readonly kind: "rejected"; readonly reason: string } | null;
 
-export type DragKind = "file" | "path";
-
-export type ImageTransfer = {
+type ImageTransfer = {
   readonly files: ArrayLike<File>;
   readonly types: readonly string[];
   getData(type: string): string;
@@ -63,7 +61,7 @@ export function dragKind(
   types: readonly string[],
   cachedPayload: string | null,
   uploadReady: boolean,
-): DragKind | null {
+): "file" | "path" | null {
   const hasPath =
     types.includes("text/uri-list") ||
     (types.includes("text/plain") &&
@@ -72,26 +70,17 @@ export function dragKind(
   return hasPath ? "path" : null;
 }
 
-export type DragItem = {
-  readonly kind: string;
-  readonly type: string;
-};
-
 export const NON_IMAGE_FILE_MESSAGE =
   "Only image files can be used for portraits";
 
-export function hasNonImageFile(items: Iterable<DragItem>): boolean {
+export function hasNonImageFile(
+  items: Iterable<{ readonly kind: string; readonly type: string }>,
+): boolean {
   for (const item of items)
     if (item.kind === "file" && item.type && !item.type.startsWith("image/"))
       return true;
   return false;
 }
-
-export type ParseImageDropOptions = {
-  readonly preferFile: boolean;
-  readonly origin?: string;
-  readonly routePrefix?: string;
-};
 
 function firstUri(uriList: string): string | null {
   const line = uriList
@@ -132,7 +121,11 @@ function fileDrop(file: File): ParsedImageDrop {
 }
 
 export function parseImageDrop(
-  { preferFile, origin, routePrefix }: ParseImageDropOptions,
+  {
+    preferFile,
+    origin,
+    routePrefix,
+  }: { preferFile: boolean; origin?: string; routePrefix?: string },
   transfer: ImageTransfer,
 ): ParsedImageDrop {
   const file = transfer.files[0];

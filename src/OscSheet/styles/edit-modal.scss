@@ -24,20 +24,20 @@
     max-width: 760px;
     max-height: 100%;
     margin: 0;
-
-    // The portrait fills its grid cell instead of the primitive's fixed 84px
-    // square (vellum/components.css). Placement within the grid is a utility on
-    // the caller; only the size override has to out-rank the primitive.
-    .ed-portrait {
-      width: 100%;
-      height: auto;
-    }
   }
 
   // Overrides the unlayered `.section-title` base on margin + size.
   .ed-sec > .section-title {
     margin: 0;
     font-size: var(--fs-2xl);
+  }
+
+  // The portrait fills its grid cell instead of the primitive's fixed 84px
+  // square (vellum/components.css). Placement within the grid is a utility on
+  // the caller; only the size override has to out-rank the primitive.
+  .ed-portrait {
+    width: 100%;
+    height: auto;
   }
 
   // RESTORED. This rule was deleted in favour of the `ED_HINT` string in

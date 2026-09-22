@@ -39,4 +39,3 @@ export { Menu, MenuLabel, MenuSep, MenuItem } from "./Menu";
 export { Empty } from "./Empty";
 export { Skeleton } from "./Skeleton";
 export { PortraitField } from "./PortraitField";
-export { openImagePicker } from "./imagePicker";

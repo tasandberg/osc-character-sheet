@@ -1,9 +1,8 @@
 import { getSetting } from "@src/OscSheet/settings";
-import { imageExtension } from "./parseImageDrop";
+import { imageExtension, type ImageDrop } from "./parseImageDrop";
 import {
   dirtyPortraitImageKeys,
   type ActorImages,
-  type ImageSlot,
   type PortraitImageDirty,
   type PortraitImageState,
 } from "./portraitImageState";
@@ -40,7 +39,7 @@ export type PortraitImageActor = {
   }): Iterable<DependentToken>;
 };
 
-export type PortraitImageResult = PortraitImageDirty & {
+type PortraitImageResult = PortraitImageDirty & {
   readonly placedTokens: number;
 };
 
@@ -146,15 +145,16 @@ async function updateLinkedTokens(
   return updated;
 }
 
-export function portraitImageToast(
-  changed: PortraitImageDirty,
-  placedTokens: number,
-): { title: string; message?: string } | null {
-  if (!changed.portrait && !changed.token) return null;
+export function portraitImageToast({
+  portrait,
+  token,
+  placedTokens,
+}: PortraitImageResult): { title: string; message?: string } | null {
+  if (!portrait && !token) return null;
   const title =
-    changed.portrait && changed.token
+    portrait && token
       ? "Portrait and token updated"
-      : changed.portrait
+      : portrait
         ? "Portrait updated"
         : "Token updated";
   if (placedTokens <= 0) return { title };
@@ -170,16 +170,13 @@ export async function applyPortraitImage(
   if (!changed.portrait && !changed.token)
     return { ...changed, placedTokens: 0 };
 
-  const sources = new Map<string | File, string>();
-  const resolve = async (slot: ImageSlot): Promise<string> => {
-    const key = slot.kind === "path" ? `path:${slot.src}` : slot.file;
-    const done = sources.get(key);
-    if (done !== undefined) return done;
+  const uploaded = new Map<File, string>();
+  const resolve = async (slot: ImageDrop): Promise<string> => {
+    if (slot.kind === "path") return slot.src;
     const src =
-      slot.kind === "path"
-        ? slot.src
-        : await uploadStagedFile(actor.name, slot.file);
-    sources.set(key, src);
+      uploaded.get(slot.file) ??
+      (await uploadStagedFile(actor.name, slot.file));
+    uploaded.set(slot.file, src);
     return src;
   };
 

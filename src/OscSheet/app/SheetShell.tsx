@@ -4,10 +4,7 @@ import { useOscSheetContext } from "@app/context";
 import { EditModal } from "@features/edit/EditModal";
 import { PortraitImageDialog } from "@features/portraitImage/PortraitImageDialog";
 import { SheetImageDrop } from "@features/portraitImage/SheetImageDrop";
-import {
-  usePortraitDrop,
-  usePortraitUploadGate,
-} from "@features/portraitImage/usePortraitDrop";
+import { usePortraitDrop } from "@features/portraitImage/usePortraitDrop";
 import {
   actorPortraitImages,
   applyPortraitImage,
@@ -69,10 +66,9 @@ export default function SheetShell() {
   const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
   const [portraitImage, setPortraitImage] = useState<{
-    drop: PortraitImageDrop | null;
+    drop?: PortraitImageDrop;
   } | null>(null);
   const portraitDropZone = usePortraitDrop({ enabled: canEdit });
-  const uploadGate = usePortraitUploadGate();
 
   // Layout-slot props built inline from the actor (HeaderBand + Minibar share the shape).
   const { hp, aac, ac, scores, movement, initiative } = actor.system;
@@ -346,11 +342,10 @@ export default function SheetShell() {
         <PortraitImageDialog
           current={actorPortraitImages(actor)}
           drop={portraitImage.drop}
-          canDropImages={uploadGate.ready}
           onClose={() => setPortraitImage(null)}
           onSave={async (state) => {
             const result = await applyPortraitImage(actor, state);
-            const notice = portraitImageToast(result, result.placedTokens);
+            const notice = portraitImageToast(result);
             if (notice) toast({ intent: "success", ...notice });
           }}
         />
@@ -395,7 +390,7 @@ export default function SheetShell() {
               // expose write affordances even to an owner. Same rationale for the
               // inventory context-menu / Send gates.
               onPortraitClick={
-                canEdit ? () => setPortraitImage({ drop: null }) : undefined
+                canEdit ? () => setPortraitImage({}) : undefined
               }
               onPortraitContextMenu={
                 canEdit

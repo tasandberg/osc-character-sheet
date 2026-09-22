@@ -1,17 +1,17 @@
 import { describe, it, expect } from "vitest";
+import type { ImageDrop } from "@features/portraitImage/parseImageDrop";
 import {
   dirtyPortraitImageKeys,
   initialPortraitImageState,
   linkPortraitImage,
   setPortraitImageSlot,
   type ActorImages,
-  type ImageSlot,
   type PortraitImageDrop,
   type PortraitImageTarget,
 } from "@features/portraitImage/portraitImageState";
 
 const file = new File(["x"], "hero.png", { type: "image/png" });
-const image: ImageSlot = { kind: "file", file };
+const image: ImageDrop = { kind: "file", file };
 const drop = (target: PortraitImageTarget): PortraitImageDrop => ({
   image,
   target,

@@ -1,6 +1,4 @@
-export type ImageSlot =
-  | { readonly kind: "path"; readonly src: string }
-  | { readonly kind: "file"; readonly file: File };
+import type { ImageDrop } from "./parseImageDrop";
 
 export type ActorImages = {
   readonly portrait: string;
@@ -12,13 +10,13 @@ export type PortraitImageSlotKey = "portrait" | "token";
 export type PortraitImageTarget = PortraitImageSlotKey | "both";
 
 export type PortraitImageDrop = {
-  readonly image: ImageSlot;
+  readonly image: ImageDrop;
   readonly target: PortraitImageTarget;
 };
 
 export type PortraitImageState = {
-  readonly portrait: ImageSlot;
-  readonly token: ImageSlot;
+  readonly portrait: ImageDrop;
+  readonly token: ImageDrop;
   readonly linked: boolean;
   readonly updatePlaced: boolean;
 };
@@ -30,7 +28,7 @@ export type PortraitImageDirty = {
 
 export function initialPortraitImageState(
   current: ActorImages,
-  drop?: PortraitImageDrop | null,
+  drop?: PortraitImageDrop,
 ): PortraitImageState {
   const state: PortraitImageState = {
     portrait: { kind: "path", src: current.portrait },
@@ -53,7 +51,7 @@ export function linkPortraitImage(
 export function setPortraitImageSlot(
   state: PortraitImageState,
   key: PortraitImageSlotKey,
-  slot: ImageSlot,
+  slot: ImageDrop,
 ): PortraitImageState {
   if (state.linked) return { ...state, portrait: slot, token: slot };
   return { ...state, [key]: slot };
@@ -68,7 +66,7 @@ export function stagePortraitImage(
   return setPortraitImageSlot(state, target, image);
 }
 
-const isDirty = (slot: ImageSlot, src: string): boolean =>
+const isDirty = (slot: ImageDrop, src: string): boolean =>
   slot.kind === "file" || slot.src !== src;
 
 export function dirtyPortraitImageKeys(

@@ -1,18 +1,18 @@
 import { getSetting, subscribeToSetting } from "@src/OscSheet/settings";
 
-export type UploadOptions = { readonly bucket?: string };
+type UploadOptions = { readonly bucket?: string };
 
-export type UploadTarget = {
+type UploadTarget = {
   readonly source: string;
   readonly path: string;
   readonly options: UploadOptions;
 };
 
-export type S3Match = {
+type S3Match = {
   readonly groups?: { readonly bucket?: string; readonly key?: string };
 } | null;
 
-export type CreateDirectory = (
+type CreateDirectory = (
   source: string,
   target: string,
   options: UploadOptions,
