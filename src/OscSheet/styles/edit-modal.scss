@@ -32,12 +32,19 @@
     font-size: var(--fs-2xl);
   }
 
-  // The portrait fills its grid cell instead of the primitive's fixed 84px
-  // square (vellum/components.css). Placement within the grid is a utility on
-  // the caller; only the size override has to out-rank the primitive.
-  .ed-portrait {
-    width: 100%;
-    height: auto;
+  // Decorative avatar at the head of "Identity & Vitals". Sized in `em` so it
+  // tracks the heading's own type, and centred against a baseline-aligned flex
+  // row that would otherwise sit it on its bottom edge.
+  .ed-sec .ed-id-chip {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    object-fit: cover;
+    display: block;
   }
 
   // RESTORED. This rule was deleted in favour of the `ED_HINT` string in
@@ -53,9 +60,8 @@
     line-height: 1.4;
   }
 
-  // Overrides `.check`'s own font-size + colour for the in-field checkboxes.
-  .ed-field .ed-movecalc,
-  .ed-field .ed-retainer {
+  // Overrides `.check`'s own font-size + colour for the in-field checkbox.
+  .ed-field .ed-movecalc {
     margin-top: 2px;
     font-size: var(--fs-2xs);
     color: var(--text-dim);
