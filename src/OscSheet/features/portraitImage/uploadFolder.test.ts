@@ -5,7 +5,7 @@ import {
   syncPortraitUploadFolder,
   uploadTarget,
   watchPortraitUploadFolder,
-} from "@features/portraitDrop/uploadFolder";
+} from "@features/portraitImage/uploadFolder";
 
 describe("uploadTarget", () => {
   it("uses the data source for a user data path", () => {

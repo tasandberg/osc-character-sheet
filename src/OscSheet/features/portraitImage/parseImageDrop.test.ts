@@ -5,7 +5,7 @@ import {
   imagePathFromPayload,
   isImagePath,
   parseImageDrop,
-} from "@features/portraitDrop/parseImageDrop";
+} from "@features/portraitImage/parseImageDrop";
 
 const tilePayload = (src: string) =>
   JSON.stringify({ type: "Tile", texture: { src }, fromFilePicker: true });

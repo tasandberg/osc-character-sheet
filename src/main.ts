@@ -2,7 +2,7 @@ import OscSheet from "@src/applications/osc-sheet";
 import { installAdvancedClasses } from "@src/util/adaptAdvancedClasses";
 import { onRenderChatMessage } from "@domain/chat/applyDamage";
 import { registerSendItemSocket } from "@features/inventory/sendItemSocket";
-import { installS3FolderPicker } from "@features/portraitDrop/s3FolderPicker";
+import { installS3FolderPicker } from "@features/portraitImage/s3FolderPicker";
 import { MODULE_ID } from "@domain/flags";
 import {
   migrateLocalStorage,

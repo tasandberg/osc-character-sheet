@@ -2,17 +2,18 @@ import { useState } from "react";
 import { Frame, Topbar, HeaderBand, Minibar, type TabItem } from "@layout";
 import { useOscSheetContext } from "@app/context";
 import { EditModal } from "@features/edit/EditModal";
-import { PortraitDropDialog } from "@features/portraitDrop/PortraitDropDialog";
-import { SheetImageDrop } from "@features/portraitDrop/SheetImageDrop";
+import { PortraitImageDialog } from "@features/portraitImage/PortraitImageDialog";
+import { SheetImageDrop } from "@features/portraitImage/SheetImageDrop";
 import {
-  portraitDropIndicator,
   usePortraitDrop,
-} from "@features/portraitDrop/usePortraitDrop";
+  usePortraitUploadGate,
+} from "@features/portraitImage/usePortraitDrop";
 import {
-  applyPortraitDrop,
-  portraitDropToast,
-} from "@features/portraitDrop/applyPortraitDrop";
-import type { ImageDrop } from "@features/portraitDrop/parseImageDrop";
+  actorPortraitImages,
+  applyPortraitImage,
+  portraitImageToast,
+} from "@features/portraitImage/applyPortraitImage";
+import type { PortraitImageDrop } from "@features/portraitImage/portraitImageState";
 import { tabs, TabIds } from "@app/tabs";
 import getLabel from "@src/util/getLabel";
 import { ActionsView, SavesExploration } from "@features/actions";
@@ -67,12 +68,11 @@ export default function SheetShell() {
   } = useOscSheetContext();
   const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
-  const [portraitDrop, setPortraitDrop] = useState<ImageDrop | null>(null);
-  const portraitDropZone = usePortraitDrop({
-    enabled: canEdit,
-    onImage: setPortraitDrop,
-  });
-  const dropIndicator = portraitDropIndicator(portraitDropZone);
+  const [portraitImage, setPortraitImage] = useState<{
+    drop: PortraitImageDrop | null;
+  } | null>(null);
+  const portraitDropZone = usePortraitDrop({ enabled: canEdit });
+  const uploadGate = usePortraitUploadGate();
 
   // Layout-slot props built inline from the actor (HeaderBand + Minibar share the shape).
   const { hp, aac, ac, scores, movement, initiative } = actor.system;
@@ -342,24 +342,25 @@ export default function SheetShell() {
         open={editOpen && canEdit}
         onClose={() => setEditOpen(false)}
       />
-      {portraitDrop && canEdit && (
-        <PortraitDropDialog
-          drop={portraitDrop}
-          onClose={() => setPortraitDrop(null)}
-          onConfirm={async (choice) => {
-            const placedTokens = await applyPortraitDrop(
-              actor,
-              portraitDrop,
-              choice,
-            );
-            toast({
-              intent: "success",
-              ...portraitDropToast(choice.target, placedTokens),
-            });
+      {portraitImage && canEdit && (
+        <PortraitImageDialog
+          current={actorPortraitImages(actor)}
+          drop={portraitImage.drop}
+          canDropImages={uploadGate.ready}
+          onClose={() => setPortraitImage(null)}
+          onSave={async (state) => {
+            const result = await applyPortraitImage(actor, state);
+            const notice = portraitImageToast(result, result.placedTokens);
+            if (notice) toast({ intent: "success", ...notice });
           }}
         />
       )}
-      <SheetImageDrop zone={portraitDropZone}>
+      <SheetImageDrop
+        zone={portraitDropZone}
+        onImage={(image, target) =>
+          setPortraitImage({ drop: { image, target } })
+        }
+      >
         <Frame
           nav={{
             tabs: items,
@@ -393,22 +394,19 @@ export default function SheetShell() {
               // raw actor.isOwner: a locked/compendium sheet legitimately shouldn't
               // expose write affordances even to an owner. Same rationale for the
               // inventory context-menu / Send gates.
+              onPortraitClick={
+                canEdit ? () => setPortraitImage({ drop: null }) : undefined
+              }
               onPortraitContextMenu={
                 canEdit
                   ? () => showTokenVariantsPortraitPicker(actor)
                   : undefined
               }
               canEditPortrait={canEdit}
-              portraitDropIndicator={dropIndicator}
             />
           }
           minibar={
-            <Minibar
-              identity={identity}
-              vitals={vitals}
-              onSetHp={onSetHp}
-              dropIndicator={dropIndicator}
-            />
+            <Minibar identity={identity} vitals={vitals} onSetHp={onSetHp} />
           }
           railExtra={
             <SavesExploration

@@ -1,18 +1,18 @@
 import { getSetting } from "@src/OscSheet/settings";
-import { imageExtension, type ImageDrop } from "./parseImageDrop";
+import { imageExtension } from "./parseImageDrop";
+import {
+  dirtyPortraitImageKeys,
+  type ActorImages,
+  type ImageSlot,
+  type PortraitImageDirty,
+  type PortraitImageState,
+} from "./portraitImageState";
 import {
   ensureUploadFolder,
   filePicker,
   uploadTarget,
   type UploadResponse,
 } from "./uploadFolder";
-
-export type ApplyTarget = "portrait" | "token" | "both";
-export type TokenScope = "prototype" | "all";
-export type PortraitDropChoice = {
-  readonly target: ApplyTarget;
-  readonly tokens: TokenScope;
-};
 
 type SceneLike = {
   readonly name: string;
@@ -27,8 +27,12 @@ type DependentToken = {
   readonly parent: SceneLike | null;
 };
 
-export type PortraitDropActor = {
+export type PortraitImageActor = {
   readonly name: string;
+  readonly img: string | null;
+  readonly prototypeToken: {
+    readonly texture: { readonly src: string | null };
+  };
   update(data: Record<string, unknown>): Promise<unknown>;
   getDependentTokens(options: {
     linked: boolean;
@@ -36,11 +40,22 @@ export type PortraitDropActor = {
   }): Iterable<DependentToken>;
 };
 
+export type PortraitImageResult = PortraitImageDirty & {
+  readonly placedTokens: number;
+};
+
 export class PortraitUploadReportedError extends Error {
   constructor() {
     super("Portrait upload failed");
     this.name = "PortraitUploadReportedError";
   }
+}
+
+export function actorPortraitImages(actor: PortraitImageActor): ActorImages {
+  return {
+    portrait: actor.img ?? "",
+    token: actor.prototypeToken.texture.src ?? "",
+  };
 }
 
 export function uploadedPath(
@@ -74,16 +89,6 @@ export function portraitUploadFilename(
   return `${slug}-${id}.${imageExtension(fileName) ?? "png"}`;
 }
 
-export function actorImageUpdate(
-  src: string,
-  target: ApplyTarget,
-): Record<string, string> {
-  return {
-    ...(target !== "token" ? { img: src } : {}),
-    ...(target !== "portrait" ? { "prototypeToken.texture.src": src } : {}),
-  };
-}
-
 export function tokenUpdatesByScene<S>(
   tokens: Iterable<{ readonly id: string | null; readonly parent: S | null }>,
   src: string,
@@ -98,7 +103,7 @@ export function tokenUpdatesByScene<S>(
   return grouped;
 }
 
-async function uploadDroppedFile(
+async function uploadStagedFile(
   actorName: string,
   file: File,
 ): Promise<string> {
@@ -125,7 +130,7 @@ async function uploadDroppedFile(
 }
 
 async function updateLinkedTokens(
-  actor: PortraitDropActor,
+  actor: PortraitImageActor,
   src: string,
 ): Promise<number> {
   const tokens = actor.getDependentTokens({ linked: true, concreteOnly: true });
@@ -141,32 +146,52 @@ async function updateLinkedTokens(
   return updated;
 }
 
-const TOAST_TITLES: Record<ApplyTarget, string> = {
-  portrait: "Portrait updated",
-  token: "Token updated",
-  both: "Portrait and token updated",
-};
-
-export function portraitDropToast(
-  target: ApplyTarget,
+export function portraitImageToast(
+  changed: PortraitImageDirty,
   placedTokens: number,
-): { title: string; message?: string } {
-  const title = TOAST_TITLES[target];
+): { title: string; message?: string } | null {
+  if (!changed.portrait && !changed.token) return null;
+  const title =
+    changed.portrait && changed.token
+      ? "Portrait and token updated"
+      : changed.portrait
+        ? "Portrait updated"
+        : "Token updated";
   if (placedTokens <= 0) return { title };
   const noun = placedTokens === 1 ? "token" : "tokens";
   return { title, message: `Also updated ${placedTokens} placed ${noun}` };
 }
 
-export async function applyPortraitDrop(
-  actor: PortraitDropActor,
-  drop: ImageDrop,
-  choice: PortraitDropChoice,
-): Promise<number> {
-  const src =
-    drop.kind === "path"
-      ? drop.src
-      : await uploadDroppedFile(actor.name, drop.file);
-  await actor.update(actorImageUpdate(src, choice.target));
-  if (choice.target === "portrait" || choice.tokens !== "all") return 0;
-  return updateLinkedTokens(actor, src);
+export async function applyPortraitImage(
+  actor: PortraitImageActor,
+  state: PortraitImageState,
+): Promise<PortraitImageResult> {
+  const changed = dirtyPortraitImageKeys(state, actorPortraitImages(actor));
+  if (!changed.portrait && !changed.token)
+    return { ...changed, placedTokens: 0 };
+
+  const sources = new Map<string | File, string>();
+  const resolve = async (slot: ImageSlot): Promise<string> => {
+    const key = slot.kind === "path" ? `path:${slot.src}` : slot.file;
+    const done = sources.get(key);
+    if (done !== undefined) return done;
+    const src =
+      slot.kind === "path"
+        ? slot.src
+        : await uploadStagedFile(actor.name, slot.file);
+    sources.set(key, src);
+    return src;
+  };
+
+  const update: Record<string, string> = {};
+  if (changed.portrait) update.img = await resolve(state.portrait);
+  const tokenSrc = changed.token ? await resolve(state.token) : null;
+  if (tokenSrc !== null) update["prototypeToken.texture.src"] = tokenSrc;
+  await actor.update(update);
+
+  const placedTokens =
+    tokenSrc !== null && state.updatePlaced
+      ? await updateLinkedTokens(actor, tokenSrc)
+      : 0;
+  return { ...changed, placedTokens };
 }

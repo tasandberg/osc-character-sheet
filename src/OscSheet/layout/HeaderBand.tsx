@@ -2,7 +2,6 @@ import type { EncumbranceVM, IdentityVM, VitalsVM } from "@domain/vm-types";
 import { armorTierLabel, formatMod } from "@domain/format";
 import { Identity } from "@layout/Identity";
 import { Portrait } from "@layout/Portrait";
-import type { PortraitDropIndicatorState } from "@features/portraitDrop/PortraitDropIndicator";
 import { Stamp } from "@ui/Stamp";
 import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
@@ -76,16 +75,15 @@ type Props = {
   encumbrance?: EncumbranceVM;
   /** Commit a new current-HP value; when provided, HP renders an editable input. */
   onSetHp?: (value: number) => void;
+  onPortraitClick?: React.MouseEventHandler<HTMLImageElement>;
   /** Right-click on the portrait (e.g. Token Variant Art's picker). */
   onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
-  /** When true, left-click opens the image FilePicker (core `editImage` action). */
   canEditPortrait?: boolean;
-  portraitDropIndicator?: PortraitDropIndicatorState;
 };
 
 /** Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
  *  · HP/AC in medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitContextMenu, canEditPortrait, portraitDropIndicator }: Props) {
+export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait }: Props) {
   const m = vitals.moveBands;
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   return (
@@ -93,8 +91,8 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
       <Portrait
         identity={identity}
         canEdit={canEditPortrait}
+        onClick={onPortraitClick}
         onContextMenu={onPortraitContextMenu}
-        dropIndicator={portraitDropIndicator}
       />
       <Identity identity={identity} />
       <div className="osc-substats tw:flex tw:gap-2 tw:self-start tw:@max-md/app:grid tw:@max-md/app:grid-cols-3 tw:@twopane/sheet:grid tw:@twopane/sheet:w-full tw:@twopane/sheet:grid-cols-3">

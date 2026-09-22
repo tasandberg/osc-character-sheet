@@ -49,6 +49,18 @@ const drag = (from: Element, to: Element, common: Element) => {
   fire(common, "click");
 };
 
+const escape = (target: EventTarget) => {
+  const event = new KeyboardEvent("keydown", {
+    key: "Escape",
+    bubbles: true,
+    cancelable: true,
+  });
+  act(() => {
+    target.dispatchEvent(event);
+  });
+  return event;
+};
+
 describe("Modal backdrop dismissal", () => {
   it("closes when the press and the release are both on the scrim", () => {
     drag(scrim(), scrim(), scrim());
@@ -80,5 +92,95 @@ describe("Modal backdrop dismissal", () => {
   it("closes from the close button without a preceding press", () => {
     act(() => host.querySelector<HTMLButtonElement>(".x")!.click());
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Modal Escape handling", () => {
+  it("closes on Escape from inside and cancels the event", () => {
+    const event = escape(field());
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("keeps Escape from reaching a keydown handler around the sheet", () => {
+    const seen = vi.fn();
+    host.addEventListener("keydown", seen);
+    escape(field());
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(seen).not.toHaveBeenCalled();
+    host.removeEventListener("keydown", seen);
+  });
+
+  it("focuses the modal on open so Escape works before any click inside", () => {
+    expect(document.activeElement).toBe(modal());
+    escape(document.body);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves focus alone when a control inside already took it", () => {
+    const other = document.createElement("div");
+    document.body.append(other);
+    const otherRoot = createRoot(other);
+    act(() => {
+      otherRoot.render(
+        <Modal open title="Autofocus" onClose={vi.fn()}>
+          <input className="autofocused" autoFocus />
+        </Modal>,
+      );
+    });
+    expect(document.activeElement).toBe(
+      other.querySelector(".autofocused"),
+    );
+    act(() => otherRoot.unmount());
+    other.remove();
+  });
+
+  it("closes only the topmost of two stacked modals", () => {
+    const under = vi.fn();
+    const over = vi.fn();
+    const stack = document.createElement("div");
+    document.body.append(stack);
+    const stackRoot = createRoot(stack);
+    act(() => {
+      stackRoot.render(
+        <>
+          <Modal open title="Under" onClose={under}>
+            <input />
+          </Modal>
+          <Modal open title="Over" onClose={over}>
+            <input />
+          </Modal>
+        </>,
+      );
+    });
+
+    escape(document.body);
+    expect(over).toHaveBeenCalledTimes(1);
+    expect(under).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+
+    act(() => stackRoot.unmount());
+    stack.remove();
+
+    escape(document.body);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores Escape aimed at an app layered above, such as the FilePicker", () => {
+    const picker = document.createElement("input");
+    document.body.append(picker);
+    const event = escape(picker);
+    expect(onClose).not.toHaveBeenCalled();
+    expect(event.defaultPrevented).toBe(false);
+    picker.remove();
+  });
+
+  it("ignores other keys", () => {
+    act(() => {
+      field().dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      );
+    });
+    expect(onClose).not.toHaveBeenCalled();
   });
 });

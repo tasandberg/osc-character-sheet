@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { s3FolderUrl } from "@features/portraitDrop/s3FolderPicker";
-import { uploadTarget } from "@features/portraitDrop/uploadFolder";
+import { s3FolderUrl } from "@features/portraitImage/s3FolderPicker";
+import { uploadTarget } from "@features/portraitImage/uploadFolder";
 
 const endpoint = { protocol: "https:", host: "s3.us-east-1.amazonaws.com" };
 const virtualHost = new RegExp(

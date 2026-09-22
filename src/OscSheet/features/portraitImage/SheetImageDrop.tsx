@@ -1,12 +1,16 @@
 import type { ReactNode } from "react";
+import { ImageDropOverlay } from "./ImageDropOverlay";
+import type { ImageDrop } from "./parseImageDrop";
+import type { PortraitImageTarget } from "./portraitImageState";
 import type { PortraitDropZone } from "./usePortraitDrop";
 
 type Props = {
   zone: PortraitDropZone | undefined;
+  onImage: (image: ImageDrop, target: PortraitImageTarget) => void;
   children: ReactNode;
 };
 
-export function SheetImageDrop({ zone, children }: Props) {
+export function SheetImageDrop({ zone, onImage, children }: Props) {
   const status = zone?.status ?? "idle";
   return (
     <div
@@ -19,6 +23,7 @@ export function SheetImageDrop({ zone, children }: Props) {
       onDrop={zone?.onDrop}
     >
       {children}
+      {zone && <ImageDropOverlay zone={zone} onImage={onImage} />}
     </div>
   );
 }

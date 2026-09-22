@@ -6,7 +6,7 @@ import {
   type DragEventHandler,
 } from "react";
 import { useSetting } from "@src/OscSheet/settings";
-import { resolvePortraitDropState } from "./dropState";
+import { resolvePortraitDropState, type PortraitDropState } from "./dropState";
 import { cachedDragPayload, retainDragPayloadCache } from "./dragPayloadCache";
 import {
   NON_IMAGE_FILE_MESSAGE,
@@ -15,25 +15,21 @@ import {
   parseImageDrop,
   type ImageDrop,
 } from "./parseImageDrop";
-import type { PortraitDropIndicatorState } from "./PortraitDropIndicator";
 
 export type PortraitDropStatus = "idle" | "ready" | "blocked";
 
-export type PortraitDropZone = {
-  readonly status: PortraitDropStatus;
-  readonly message: string | null;
+export type ImageDropHandlers = {
   readonly onDragEnter: DragEventHandler<HTMLElement>;
   readonly onDragOver: DragEventHandler<HTMLElement>;
   readonly onDragLeave: DragEventHandler<HTMLElement>;
   readonly onDrop: DragEventHandler<HTMLElement>;
 };
 
-export function portraitDropIndicator(
-  zone: PortraitDropZone | undefined,
-): PortraitDropIndicatorState | undefined {
-  if (!zone || zone.status === "idle") return undefined;
-  return { status: zone.status, message: zone.message };
-}
+export type PortraitDropZone = ImageDropHandlers & {
+  readonly status: PortraitDropStatus;
+  readonly message: string | null;
+  readonly target: (onImage: (image: ImageDrop) => void) => ImageDropHandlers;
+};
 
 type FoundryGlobals = {
   game?: { user?: { isGM?: boolean; can?(permission: string): boolean } };
@@ -53,29 +49,30 @@ const IDLE: DragState = { status: "idle", message: null };
 
 type Options = {
   readonly enabled: boolean;
-  readonly onImage: (drop: ImageDrop) => void;
 };
+
+export function usePortraitUploadGate(): PortraitDropState {
+  const uploadsEnabled = useSetting("portraitUploads");
+  const uploadPath = useSetting("portraitUploadPath");
+  const user = globals().game?.user;
+  return resolvePortraitDropState({
+    isGM: !!user?.isGM,
+    canUpload: !!user?.can?.("FILES_UPLOAD"),
+    uploadsEnabled,
+    uploadPath,
+  });
+}
 
 export function usePortraitDrop({
   enabled,
-  onImage,
 }: Options): PortraitDropZone | undefined {
-  const uploadsEnabled = useSetting("portraitUploads");
-  const uploadPath = useSetting("portraitUploadPath");
+  const gate = usePortraitUploadGate();
   const [drag, setDrag] = useState<DragState>(IDLE);
   const depth = useRef(0);
 
   useEffect(() => (enabled ? retainDragPayloadCache() : undefined), [enabled]);
 
   if (!enabled) return undefined;
-
-  const user = globals().game?.user;
-  const gate = resolvePortraitDropState({
-    isGM: !!user?.isGM,
-    canUpload: !!user?.can?.("FILES_UPLOAD"),
-    uploadsEnabled,
-    uploadPath,
-  });
 
   const gateMessage = "message" in gate ? gate.message : null;
 
@@ -98,37 +95,39 @@ export function usePortraitDrop({
       setDrag(next);
   };
 
-  return {
-    status: drag.status,
-    message: drag.message ?? gateMessage,
-    onDragEnter: (event) => {
-      const next = classify(event);
-      if (next.status === "idle") return;
-      event.preventDefault();
-      depth.current += 1;
-      setDrag(next);
-    },
-    onDragOver: (event) => {
-      const next = classify(event);
-      if (next.status === "idle") return;
-      event.preventDefault();
-      event.stopPropagation();
-      event.dataTransfer.dropEffect = next.status === "ready" ? "copy" : "none";
-      show(next);
-    },
-    onDragLeave: () => {
-      if (depth.current === 0) return;
-      depth.current -= 1;
-      if (depth.current === 0) setDrag(IDLE);
-    },
-    onDrop: (event) => {
+  const onDragEnter: DragEventHandler<HTMLElement> = (event) => {
+    const next = classify(event);
+    if (next.status === "idle") return;
+    event.preventDefault();
+    depth.current += 1;
+    setDrag(next);
+  };
+
+  const onDragOver: DragEventHandler<HTMLElement> = (event) => {
+    const next = classify(event);
+    if (next.status === "idle") return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = next.status === "ready" ? "copy" : "none";
+    show(next);
+  };
+
+  const onDragLeave: DragEventHandler<HTMLElement> = () => {
+    if (depth.current === 0) return;
+    depth.current -= 1;
+    if (depth.current === 0) setDrag(IDLE);
+  };
+
+  const dropTo =
+    (onImage?: (image: ImageDrop) => void): DragEventHandler<HTMLElement> =>
+    (event) => {
       const next = classify(event);
       depth.current = 0;
       setDrag(IDLE);
       if (next.status === "idle") return;
       event.preventDefault();
       event.stopPropagation();
-      if (next.status === "blocked") return;
+      if (next.status === "blocked" || !onImage) return;
       const parsed = parseImageDrop(
         {
           preferFile: gate.ready,
@@ -141,6 +140,20 @@ export function usePortraitDrop({
       if (parsed.kind === "rejected")
         globals().ui?.notifications?.warn(parsed.reason);
       else onImage(parsed);
-    },
+    };
+
+  return {
+    status: drag.status,
+    message: drag.message ?? gateMessage,
+    onDragEnter,
+    onDragOver,
+    onDragLeave,
+    onDrop: dropTo(),
+    target: (onImage) => ({
+      onDragEnter,
+      onDragOver,
+      onDragLeave,
+      onDrop: dropTo(onImage),
+    }),
   };
 }

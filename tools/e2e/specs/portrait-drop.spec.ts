@@ -134,22 +134,46 @@ function sheetDropTarget(sheet: Locator): Locator {
   return sheet.locator('[data-testid="sheet-image-drop"]');
 }
 
-function dropIndicators(sheet: Locator): Locator {
-  return sheet.locator('[data-testid="portrait-drop-indicator"]');
+function dropZones(sheet: Locator): Locator {
+  return sheet.locator('[data-testid="image-drop-zone"]');
+}
+
+function dropZone(sheet: Locator, target: string): Locator {
+  return sheet.locator(
+    `[data-testid="image-drop-zone"][data-target="${target}"]`,
+  );
+}
+
+async function dragOverZone(zone: Locator): Promise<void> {
+  await zone.evaluate((el) => {
+    const dt = (globalThis as any).__e2ePortraitDrag as DataTransfer;
+    for (const type of ["dragenter", "dragover"])
+      el.dispatchEvent(
+        new DragEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: dt,
+        }),
+      );
+  });
 }
 
 function portraitDialog(sheet: Locator): Locator {
-  return sheet.locator(".modal").filter({ hasText: "Portrait image" });
+  return sheet.locator(".modal").filter({ hasText: "Portrait & token image" });
 }
 
-function segment(dialog: Locator, group: string, label: string): Locator {
-  return dialog
-    .getByRole("group", { name: group })
-    .getByRole("button", { name: label, exact: true });
+function checkbox(dialog: Locator, text: string): Locator {
+  return dialog.locator("label.check").filter({ hasText: text });
+}
+
+async function ensureChecked(box: Locator): Promise<void> {
+  const input = box.locator('input[type="checkbox"]');
+  if (!(await input.isChecked())) await box.click();
+  await expect(input).toBeChecked();
 }
 
 test.describe("sheet image drop", () => {
-  test("file drop with uploads enabled uploads and sets portrait and prototype token", async ({
+  test("a file dropped on the Set both zone is uploaded to portrait and prototype token on Save", async ({
     gamePage,
     fighter,
     portraitSettings,
@@ -172,21 +196,28 @@ test.describe("sheet image drop", () => {
 
     await dragOverSheet(target, { kind: "file" });
     await expect(target).toHaveAttribute("data-drop", "ready");
-    await dropOnSheet(target);
-    await expect(dropIndicators(sheet)).toHaveCount(0);
+    const both = dropZone(sheet, "both");
+    await expect(both).toHaveText("Set both");
+    await dragOverZone(both);
+    await expect(both).toHaveClass(/is-over/);
+    await dropOnSheet(both);
+    await expect(dropZones(sheet)).toHaveCount(0);
 
     const dialog = portraitDialog(sheet);
     await expect(dialog).toBeVisible();
     await expect(
-      dialog.getByRole("img", { name: "Dropped image" }),
+      checkbox(dialog, "Use same image for portrait and token").locator(
+        'input[type="checkbox"]',
+      ),
+    ).toBeChecked();
+    await expect(
+      dialog
+        .getByRole("button", { name: "Change portrait and token image" })
+        .locator("img"),
     ).toHaveAttribute("src", /^blob:/);
-    await expect(segment(dialog, "Apply to", "Set both")).toHaveClass(/\bon\b/);
-    await expect(segment(dialog, "Tokens", "Prototype only")).toHaveClass(
-      /\bon\b/,
-    );
     expect(await actorImages(gamePage, fighter.id)).toEqual(before);
 
-    await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
+    await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).toHaveCount(0, { timeout: 30_000 });
     await expect
       .poll(async () => (await actorImages(gamePage, fighter.id)).img)
@@ -202,7 +233,7 @@ test.describe("sheet image drop", () => {
     expect(after.token).toBe(after.img);
   });
 
-  test("Prototype + linked tokens also retextures linked placed tokens", async ({
+  test("an image dropped on the Set token zone retextures linked tokens already on scenes", async ({
     gamePage,
     fighter,
     portraitSettings,
@@ -240,26 +271,30 @@ test.describe("sheet image drop", () => {
         );
       expect(await placedSrc()).not.toBe(PATH_IMAGE);
 
+      const before = await actorImages(gamePage, fighter.id);
       const sheet = await openCharacterSheet(gamePage, fighter.name);
       const target = sheetDropTarget(sheet);
       await dragOverSheet(target, { kind: "tile", src: PATH_IMAGE });
-      await dropOnSheet(target);
-      await expect(dropIndicators(sheet)).toHaveCount(0);
+      const tokenZone = dropZone(sheet, "token");
+      await expect(tokenZone).toHaveText("Set token");
+      await dragOverZone(tokenZone);
+      await dropOnSheet(tokenZone);
+      await expect(dropZones(sheet)).toHaveCount(0);
 
       const dialog = portraitDialog(sheet);
       await expect(dialog).toBeVisible();
-      await segment(dialog, "Tokens", "Prototype + linked tokens").click();
       await expect(
-        segment(dialog, "Tokens", "Prototype + linked tokens"),
-      ).toHaveClass(/\bon\b/);
-      await dialog
-        .getByRole("button", { name: "Confirm", exact: true })
-        .click();
+        checkbox(dialog, "Use same image for portrait and token").locator(
+          'input[type="checkbox"]',
+        ),
+      ).not.toBeChecked();
+      await ensureChecked(checkbox(dialog, "Update tokens already on scenes"));
+      await dialog.getByRole("button", { name: "Save", exact: true }).click();
       await expect(dialog).toHaveCount(0);
 
       await expect
         .poll(() => actorImages(gamePage, fighter.id))
-        .toEqual({ img: PATH_IMAGE, token: PATH_IMAGE });
+        .toEqual({ img: before.img, token: PATH_IMAGE });
       await expect.poll(placedSrc).toBe(PATH_IMAGE);
     } finally {
       await gamePage

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolvePortraitDropState } from "@features/portraitDrop/dropState";
+import { resolvePortraitDropState } from "@features/portraitImage/dropState";
 
 const NOT_ENABLED = "Portrait uploads not enabled for this world";
 const GM_SET_PATH = "Please set an upload target for OSC Sheet portraits";

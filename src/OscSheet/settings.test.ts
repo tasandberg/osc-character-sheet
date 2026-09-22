@@ -158,7 +158,7 @@ describe("settingRegistrations", () => {
       settingRegistrations(onChange).map((r) => [r.key, r.data]),
     );
     expect(registered.portraitUploadPath.default).toBe(
-      "worlds/lost-mine/osc-portraits",
+      "worlds/lost-mine/osc-character-sheet/portraits",
     );
   });
 

@@ -3,7 +3,7 @@ import { applyTheme } from "@src/OscSheet/theme";
 import { MODULE_ID } from "@src/OscSheet/domain/flags";
 import { applyFontScale } from "@src/OscSheet/fontScale";
 import { getSetting, settingRegistrations } from "@src/OscSheet/settings";
-import { watchPortraitUploadFolder } from "@src/OscSheet/features/portraitDrop/uploadFolder";
+import { watchPortraitUploadFolder } from "@src/OscSheet/features/portraitImage/uploadFolder";
 import {
   alignedMenuLeft,
   findTweaksSheetEntry,

@@ -2,15 +2,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { SheetImageDrop } from "@features/portraitDrop/SheetImageDrop";
-import {
-  portraitDropIndicator,
-  usePortraitDrop,
-} from "@features/portraitDrop/usePortraitDrop";
-import type { ImageDrop } from "@features/portraitDrop/parseImageDrop";
-import { Portrait } from "@layout/Portrait";
-import { Minibar } from "@layout/Minibar";
-import type { IdentityVM, VitalsVM } from "@domain/vm-types";
+import { SheetImageDrop } from "@features/portraitImage/SheetImageDrop";
+import { usePortraitDrop } from "@features/portraitImage/usePortraitDrop";
+import type { ImageDrop } from "@features/portraitImage/parseImageDrop";
+import type { PortraitImageTarget } from "@features/portraitImage/portraitImageState";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -21,27 +16,14 @@ const tile = (src: string) =>
 
 let container: HTMLDivElement;
 let root: Root;
-const onImage = vi.fn<(drop: ImageDrop) => void>();
+const onImage =
+  vi.fn<(image: ImageDrop, target: PortraitImageTarget) => void>();
 const warn = vi.fn();
 
-const identity = {
-  name: "Ana",
-  img: "ana.png",
-  classLabel: "Fighter",
-  level: 1,
-} as unknown as IdentityVM;
-const vitals = {
-  hp: { value: 5, max: 8 },
-  ac: { value: 7, ascending: false },
-} as unknown as VitalsVM;
-
 function Harness({ enabled = true }: { enabled?: boolean }) {
-  const zone = usePortraitDrop({ enabled, onImage });
-  const indicator = portraitDropIndicator(zone);
+  const zone = usePortraitDrop({ enabled });
   return (
-    <SheetImageDrop zone={zone}>
-      <Minibar identity={identity} vitals={vitals} dropIndicator={indicator} />
-      <Portrait identity={identity} dropIndicator={indicator} />
+    <SheetImageDrop zone={zone} onImage={onImage}>
       <div className="osc-inv-row" draggable />
     </SheetImageDrop>
   );
@@ -102,15 +84,17 @@ const sheet = () =>
   container.querySelector<HTMLElement>('[data-testid="sheet-image-drop"]')!;
 const row = () => container.querySelector<HTMLElement>(".osc-inv-row")!;
 const overlay = () =>
-  container.querySelector(
-    '.osc-portrait-wrap [data-testid="portrait-drop-indicator"]',
-  );
-const minibarIndicator = () =>
-  container.querySelector(
-    '.osc-mb-portrait-wrap [data-testid="minibar-portrait-drop-indicator"]',
-  );
-const anyIndicator = () =>
-  container.querySelector('[data-testid$="portrait-drop-indicator"]');
+  container.querySelector<HTMLElement>('[data-testid="image-drop-overlay"]');
+const zones = () => [
+  ...container.querySelectorAll<HTMLElement>('[data-testid="image-drop-zone"]'),
+];
+const zoneLabels = () => zones().map((el) => el.textContent);
+const zone = (target: PortraitImageTarget) =>
+  container.querySelector<HTMLElement>(
+    `[data-testid="image-drop-zone"][data-target="${target}"]`,
+  )!;
+const blockedMessage = () =>
+  overlay()?.querySelector('[role="status"]')?.textContent;
 const png = () => new File(["x"], "hero.png", { type: "image/png" });
 
 beforeEach(() => {
@@ -131,7 +115,7 @@ afterEach(() => {
 const render = (enabled = true) =>
   act(() => root.render(<Harness enabled={enabled} />));
 
-describe("sheet image drop zone", () => {
+describe("sheet image drop zones", () => {
   it("shows no overlay and no drop state until something is dragged over", () => {
     setWorld(READY);
     render();
@@ -139,57 +123,90 @@ describe("sheet image drop zone", () => {
     expect(sheet().hasAttribute("data-drop")).toBe(false);
   });
 
-  it("invites a file drop and hands the file over when uploads are ready", () => {
+  it("offers a zone per target while a file is dragged over the sheet", () => {
     setWorld(READY);
     render();
     const file = png();
     fire(sheet(), "dragenter", { files: [file] });
-    expect(overlay()?.textContent).toBe("Drop image");
     expect(sheet().getAttribute("data-drop")).toBe("ready");
+    expect(zoneLabels()).toEqual(["Set portrait", "Set token", "Set both"]);
     const { event, dataTransfer } = fire(sheet(), "dragover", {
       files: [file],
     });
     expect(event.defaultPrevented).toBe(true);
     expect(dataTransfer.dropEffect).toBe("copy");
-    fire(sheet(), "drop", { files: [file] });
-    expect(onImage).toHaveBeenCalledWith({ kind: "file", file });
-    expect(overlay()).toBeNull();
-    expect(sheet().hasAttribute("data-drop")).toBe(false);
   });
 
-  it("marks the sheet and shows Drop image on both portraits for a drag over other content", () => {
+  it("offers the zones for a drag over other sheet content", () => {
     setWorld(READY);
     render();
     fire(row(), "dragenter", { files: [png()] });
     expect(sheet().getAttribute("data-drop")).toBe("ready");
-    expect(overlay()?.textContent).toBe("Drop image");
-    expect(minibarIndicator()).not.toBeNull();
+    expect(zones()).toHaveLength(3);
   });
 
-  it("marks the sheet blocked and shows the gate message on the portrait", () => {
+  it.each([["portrait"], ["token"], ["both"]] as [PortraitImageTarget][])(
+    "hands the file to the %s zone",
+    (target) => {
+      setWorld(READY);
+      render();
+      const file = png();
+      fire(row(), "dragenter", { files: [file] });
+      fire(zone(target), "drop", { files: [file] });
+      expect(onImage).toHaveBeenCalledWith({ kind: "file", file }, target);
+      expect(overlay()).toBeNull();
+      expect(sheet().hasAttribute("data-drop")).toBe(false);
+    },
+  );
+
+  it("brightens only the zone the drag is over", () => {
+    setWorld(READY);
+    render();
+    fire(sheet(), "dragenter", { files: [png()] });
+    fire(zone("token"), "dragenter", { files: [png()] });
+    expect(zone("token").classList.contains("is-over")).toBe(true);
+    expect(zone("portrait").classList.contains("is-over")).toBe(false);
+    fire(zone("token"), "dragleave", { files: [png()] });
+    expect(zone("token").classList.contains("is-over")).toBe(false);
+  });
+
+  it("stages nothing for a drop that misses every zone", () => {
+    setWorld(READY);
+    render();
+    const file = png();
+    fire(row(), "dragenter", { files: [file] });
+    const { event } = fire(row(), "drop", { files: [file] });
+    expect(event.defaultPrevented).toBe(true);
+    expect(onImage).not.toHaveBeenCalled();
+    expect(overlay()).toBeNull();
+  });
+
+  it("offers no zones and shows the gate message when uploads are off", () => {
     setWorld({
       portraitUploads: false,
       portraitUploadPath: "worlds/w/osc-portraits",
     });
     render();
-    fire(row(), "dragenter", { files: [png()] });
-    expect(sheet().getAttribute("data-drop")).toBe("blocked");
-    expect(overlay()?.querySelector('[role="status"]')?.textContent).toBe(
-      "Portrait uploads not enabled for this world",
-    );
-    expect(
-      minibarIndicator()?.querySelector('[role="status"]')?.textContent,
-    ).toBe("Portrait uploads not enabled for this world");
-  });
-
-  it("accepts a drop anywhere inside the sheet", () => {
-    setWorld(READY);
-    render();
     const file = png();
     fire(row(), "dragenter", { files: [file] });
-    expect(sheet().getAttribute("data-drop")).toBe("ready");
-    fire(row(), "drop", { files: [file] });
-    expect(onImage).toHaveBeenCalledWith({ kind: "file", file });
+    expect(sheet().getAttribute("data-drop")).toBe("blocked");
+    expect(zones()).toHaveLength(0);
+    expect(blockedMessage()).toBe(
+      "Portrait uploads not enabled for this world",
+    );
+    const { dataTransfer } = fire(sheet(), "dragover", { files: [file] });
+    expect(dataTransfer.dropEffect).toBe("none");
+    fire(sheet(), "drop", { files: [file] });
+    expect(onImage).not.toHaveBeenCalled();
+  });
+
+  it("tells a player without upload permission to ask their GM", () => {
+    setWorld(READY, { isGM: false, upload: false });
+    render();
+    fire(sheet(), "dragenter", { files: [png()] });
+    expect(blockedMessage()).toBe(
+      "Ask your GM to set an upload target for OSC Sheet portraits",
+    );
   });
 
   it("clears the overlay when the drag leaves", () => {
@@ -210,47 +227,18 @@ describe("sheet image drop zone", () => {
     expect(sheet().getAttribute("data-drop")).toBe("ready");
   });
 
-  it("shows the gate message and refuses a file drop when uploads are off", () => {
-    setWorld({
-      portraitUploads: false,
-      portraitUploadPath: "worlds/w/osc-portraits",
-    });
-    render();
-    const file = png();
-    fire(sheet(), "dragenter", { files: [file] });
-    expect(
-      container.querySelector(
-        '.osc-portrait-wrap [data-testid="portrait-drop-indicator"] [role="status"]',
-      )?.textContent,
-    ).toBe("Portrait uploads not enabled for this world");
-    expect(sheet().getAttribute("data-drop")).toBe("blocked");
-    const { dataTransfer } = fire(sheet(), "dragover", { files: [file] });
-    expect(dataTransfer.dropEffect).toBe("none");
-    fire(sheet(), "drop", { files: [file] });
-    expect(onImage).not.toHaveBeenCalled();
-  });
-
-  it("tells a player without upload permission to ask their GM", () => {
-    setWorld(READY, { isGM: false, upload: false });
-    render();
-    fire(sheet(), "dragenter", { files: [png()] });
-    expect(overlay()?.textContent).toBe(
-      "Ask your GM to set an upload target for OSC Sheet portraits",
-    );
-  });
-
   it("accepts a path drag even when uploads are off", () => {
     setWorld({ portraitUploads: false, portraitUploadPath: "" });
     render();
     const data = { "text/uri-list": "https://example.com/hero.webp" };
     fire(sheet(), "dragenter", { data });
-    expect(overlay()?.textContent).toBe("Drop image");
+    expect(zones()).toHaveLength(3);
     fire(sheet(), "dragover", { data });
-    fire(sheet(), "drop", { data });
-    expect(onImage).toHaveBeenCalledWith({
-      kind: "path",
-      src: "https://example.com/hero.webp",
-    });
+    fire(zone("both"), "drop", { data });
+    expect(onImage).toHaveBeenCalledWith(
+      { kind: "path", src: "https://example.com/hero.webp" },
+      "both",
+    );
   });
 
   it("accepts a FilePicker tile drag via the cached dragstart payload", () => {
@@ -259,12 +247,12 @@ describe("sheet image drop zone", () => {
     const data = { "text/plain": tile("worlds/w/art/hero.png") };
     fire(document.body, "dragstart", { data });
     fire(sheet(), "dragenter", { data: { "text/plain": "" } });
-    expect(overlay()?.textContent).toBe("Drop image");
-    fire(sheet(), "drop", { data });
-    expect(onImage).toHaveBeenCalledWith({
-      kind: "path",
-      src: "worlds/w/art/hero.png",
-    });
+    expect(zones()).toHaveLength(3);
+    fire(zone("portrait"), "drop", { data });
+    expect(onImage).toHaveBeenCalledWith(
+      { kind: "path", src: "worlds/w/art/hero.png" },
+      "portrait",
+    );
   });
 
   it.each([
@@ -286,7 +274,7 @@ describe("sheet image drop zone", () => {
     );
     document.body.removeEventListener("dragover", ancestor.dragover);
     document.body.removeEventListener("drop", ancestor.drop);
-    expect(anyIndicator()).toBeNull();
+    expect(overlay()).toBeNull();
     expect(sheet().hasAttribute("data-drop")).toBe(false);
     for (const event of events) expect(event.defaultPrevented).toBe(false);
     expect(ancestor.dragover).toHaveBeenCalledTimes(1);
@@ -319,7 +307,7 @@ describe("sheet image drop zone", () => {
       document.addEventListener("drop", outside.drop);
       fire(row(), "dragenter", transfer);
       const dragover = fire(row(), "dragover", transfer).event;
-      fire(row(), "drop", transfer);
+      fire(zones().length ? zone("both") : row(), "drop", transfer);
       document.removeEventListener("dragover", outside.dragover);
       document.removeEventListener("drop", outside.drop);
       expect(dragover.defaultPrevented).toBe(true);
@@ -346,9 +334,8 @@ describe("sheet image drop zone", () => {
     const file = new File(["x"], "notes.txt", { type: "text/plain" });
     fire(row(), "dragenter", { files: [file] });
     expect(sheet().getAttribute("data-drop")).toBe("blocked");
-    expect(overlay()?.querySelector('[role="status"]')?.textContent).toBe(
-      "Only image files can be used for portraits",
-    );
+    expect(zones()).toHaveLength(0);
+    expect(blockedMessage()).toBe("Only image files can be used for portraits");
     const { event, dataTransfer } = fire(sheet(), "dragover", {
       files: [file],
     });
@@ -375,7 +362,7 @@ describe("sheet image drop zone", () => {
     render();
     const file = new File(["x"], "notes.txt", { type: "text/plain" });
     fire(sheet(), "dragenter", { files: [file] });
-    expect(overlay()?.querySelector('[role="status"]')?.textContent).toBe(
+    expect(blockedMessage()).toBe(
       "Portrait uploads not enabled for this world",
     );
   });
@@ -388,7 +375,7 @@ describe("sheet image drop zone", () => {
     fire(sheet(), "dragleave", { files: [text] });
     fire(sheet(), "dragenter", { files: [png()] });
     expect(sheet().getAttribute("data-drop")).toBe("ready");
-    expect(overlay()?.textContent).toBe("Drop image");
+    expect(zones()).toHaveLength(3);
   });
 
   it("warns and does nothing for a file of unknown type that is not an image", () => {
@@ -397,7 +384,7 @@ describe("sheet image drop zone", () => {
     const file = new File(["x"], "notes.txt");
     fire(sheet(), "dragenter", { files: [file] });
     expect(sheet().getAttribute("data-drop")).toBe("ready");
-    fire(sheet(), "drop", { files: [file] });
+    fire(zone("both"), "drop", { files: [file] });
     expect(warn).toHaveBeenCalledWith("notes.txt is not an image");
     expect(onImage).not.toHaveBeenCalled();
   });

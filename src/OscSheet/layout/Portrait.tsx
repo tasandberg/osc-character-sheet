@@ -1,23 +1,14 @@
 import type { MouseEventHandler } from "react";
 import type { IdentityVM } from "@domain/vm-types";
-import {
-  PortraitDropIndicator,
-  type PortraitDropIndicatorState,
-} from "@features/portraitDrop/PortraitDropIndicator";
 
 type Props = {
   identity: IdentityVM;
+  onClick?: MouseEventHandler<HTMLImageElement>;
   onContextMenu?: MouseEventHandler<HTMLImageElement>;
   canEdit?: boolean;
-  dropIndicator?: PortraitDropIndicatorState;
 };
 
-export function Portrait({
-  identity,
-  onContextMenu,
-  canEdit,
-  dropIndicator,
-}: Props) {
+export function Portrait({ identity, onClick, onContextMenu, canEdit }: Props) {
   return (
     <div className="osc-portrait-wrap profile tw:relative tw:aspect-square tw:w-[110px] tw:@max-md/app:h-[54px] tw:@max-md/app:w-[54px] tw:@max-md/app:self-center tw:@twopane/sheet:h-[120px] tw:@twopane/sheet:w-[120px] tw:@twopane/sheet:self-center">
       <img
@@ -30,12 +21,11 @@ export function Portrait({
         }
         src={identity.img || undefined}
         alt={identity.name}
-        data-action={canEdit ? "editImage" : undefined}
         data-edit="img"
         title={identity.name}
+        onClick={onClick}
         onContextMenu={onContextMenu}
       />
-      {dropIndicator && <PortraitDropIndicator {...dropIndicator} />}
     </div>
   );
 }

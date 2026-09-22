@@ -2,17 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import type { IdentityVM, VitalsVM } from "@domain/vm-types";
 import { Stamp } from "@ui/Stamp";
 import { useHpInput } from "@ui/useHpInput";
-import {
-  PortraitDropIndicator,
-  type PortraitDropIndicatorState,
-} from "@features/portraitDrop/PortraitDropIndicator";
 
 type Props = {
   identity: IdentityVM;
   vitals: VitalsVM;
   /** Commit a new current-HP value (already clamped by the caller). */
   onSetHp?: (value: number) => void;
-  dropIndicator?: PortraitDropIndicatorState;
 };
 
 /**
@@ -21,7 +16,7 @@ type Props = {
  * collapse logic: it watches its own `.osc-sheet-body` scroller (never a global query —
  * multiple sheets can be open) and toggles `is-collapsed` once the name scrolls out.
  */
-export function Minibar({ identity, vitals, onSetHp, dropIndicator }: Props) {
+export function Minibar({ identity, vitals, onSetHp }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
@@ -52,19 +47,11 @@ export function Minibar({ identity, vitals, onSetHp, dropIndicator }: Props) {
 
   return (
     <div ref={ref} className={`osc-minibar${collapsed ? " is-collapsed" : ""}`} aria-hidden={!collapsed}>
-      <span className="osc-mb-portrait-wrap tw:relative tw:flex tw:flex-none">
-        <img
-          className="osc-mb-portrait tw:h-8 tw:w-8 tw:flex-none tw:rounded-sm tw:border tw:border-border-soft tw:object-cover"
-          src={identity.img || undefined}
-          alt=""
-        />
-        {dropIndicator && (
-          <PortraitDropIndicator
-            {...dropIndicator}
-            testId="minibar-portrait-drop-indicator"
-          />
-        )}
-      </span>
+      <img
+        className="osc-mb-portrait tw:h-8 tw:w-8 tw:flex-none tw:rounded-sm tw:border tw:border-border-soft tw:object-cover"
+        src={identity.img || undefined}
+        alt=""
+      />
       <div className="tw:min-w-0 tw:flex-auto">
         <div className="tw:truncate tw:font-display tw:text-[length:var(--fs-md)] tw:leading-tight tw:text-text">
           {identity.name}

@@ -97,7 +97,7 @@ const worldPortraitUploadPath = (): string => {
   const worldId = (
     globalThis as unknown as { game?: { world?: { id?: string } } }
   ).game?.world?.id;
-  return worldId ? `worlds/${worldId}/osc-portraits` : "";
+  return worldId ? `worlds/${worldId}/${MODULE_ID}/portraits` : "";
 };
 
 const registrationDefault = (key: SettingKey): unknown =>
