@@ -56,3 +56,8 @@ ds-bundle/
 
 # visual-regression harness output (tools/visual)
 tools/visual/out/
+
+# Superset workspace runtime state (scripts themselves are committed)
+.superset/config.local.json
+.superset/ports.json
+.superset/.dev-port
