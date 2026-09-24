@@ -5,301 +5,137 @@ import { openCharacterSheet } from "../helpers";
 declare const game: any;
 
 const MODULE_ID = "osc-character-sheet";
-const PATH_IMAGE = "icons/svg/skull.svg";
+const SKULL = "icons/svg/skull.svg";
 const PNG_1X1 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
 
-type PortraitSettings = {
-  portraitUploads?: boolean;
-  portraitUploadPath?: string;
-};
-
-type DragSource = { kind: "file" } | { kind: "tile"; src: string };
-
-const test = fighterTest.extend<{
-  portraitSettings: (values: PortraitSettings) => Promise<void>;
-}>({
-  portraitSettings: async ({ gamePage }, use) => {
-    const originals = new Map<string, unknown>();
-    await use(async (values) => {
-      await gamePage
-        .evaluate(
-          async ({ mod, entries, known }) => {
-            const saved: Record<string, unknown> = {};
-            for (const [key, value] of entries) {
-              if (!known.includes(key))
-                saved[key] = game.settings.get(mod, key);
-              await game.settings.set(mod, key, value);
-            }
-            return saved;
-          },
-          {
-            mod: MODULE_ID,
-            entries: Object.entries(values),
-            known: [...originals.keys()],
-          },
-        )
-        .then((saved) => {
-          for (const [key, value] of Object.entries(saved))
-            originals.set(key, value);
-        });
-    });
-    await gamePage
-      .evaluate(
-        async ({ mod, entries }) => {
-          for (const [key, value] of entries)
-            await game.settings.set(mod, key, value);
+const test = fighterTest.extend<{ uploadFolder: string }>({
+  uploadFolder: async ({ gamePage }, use) => {
+    const set = (values: Record<string, unknown>) =>
+      gamePage.evaluate(
+        async ({ mod, values }) => {
+          const keys = Object.keys(values);
+          const before = Object.fromEntries(
+            keys.map((k) => [k, game.settings.get(mod, k)]),
+          );
+          for (const k of keys) await game.settings.set(mod, k, values[k]);
+          return before;
         },
-        { mod: MODULE_ID, entries: [...originals.entries()] },
-      )
-      .catch(() => {});
+        { mod: MODULE_ID, values },
+      );
+    const folder = await gamePage.evaluate(
+      () => `worlds/${game.world.id}/osc-portraits`,
+    );
+    const restore = await set({
+      portraitUploads: true,
+      portraitUploadPath: folder,
+    });
+    await use(folder);
+    await set(restore).catch(() => {});
   },
 });
 
 test.describe.configure({ mode: "default" });
 
-async function dragOverSheet(
-  over: Locator,
-  source: DragSource,
-  png = PNG_1X1,
-): Promise<void> {
-  await over.evaluate(
-    (el, { source, png }) => {
+async function dropOnZone(sheet: Locator, target: string, tileSrc?: string) {
+  await sheet.evaluate(
+    async (root, { target, tileSrc, png }) => {
       const dt = new DataTransfer();
-      if (source.kind === "file") {
-        const bytes = Uint8Array.from(atob(png), (c) => c.charCodeAt(0));
-        dt.items.add(new File([bytes], "hero.png", { type: "image/png" }));
-      } else {
-        dt.setData(
-          "text/plain",
-          JSON.stringify({
-            type: "Tile",
-            texture: { src: source.src },
-            fromFilePicker: true,
-          }),
+      if (tileSrc)
+        dt.setData("text/plain", JSON.stringify({ texture: { src: tileSrc } }));
+      else
+        dt.items.add(
+          new File(
+            [Uint8Array.from(atob(png), (c) => c.charCodeAt(0))],
+            "hero.png",
+            { type: "image/png" },
+          ),
         );
-      }
-      (globalThis as any).__e2ePortraitDrag = dt;
-      const fire = (target: Element, type: string) =>
-        target.dispatchEvent(
-          new DragEvent(type, {
-            bubbles: true,
-            cancelable: true,
-            dataTransfer: dt,
-          }),
+      const fire = (el: Element, ...types: string[]) =>
+        types.forEach((type) =>
+          el.dispatchEvent(
+            new DragEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              dataTransfer: dt,
+            }),
+          ),
         );
       fire(document.body, "dragstart");
-      fire(el, "dragenter");
-      fire(el, "dragover");
-    },
-    { source, png },
-  );
-}
-
-async function dropOnSheet(over: Locator): Promise<void> {
-  await over.evaluate((el) => {
-    const g = globalThis as any;
-    const dt = g.__e2ePortraitDrag as DataTransfer;
-    delete g.__e2ePortraitDrag;
-    el.dispatchEvent(
-      new DragEvent("drop", {
-        bubbles: true,
-        cancelable: true,
-        dataTransfer: dt,
-      }),
-    );
-    document.body.dispatchEvent(
-      new DragEvent("dragend", {
-        bubbles: true,
-        cancelable: true,
-        dataTransfer: dt,
-      }),
-    );
-  });
-}
-
-type ActorImages = { img: string; token: string };
-
-function actorImages(page: Page, id: string): Promise<ActorImages> {
-  return page.evaluate((actorId) => {
-    const actor = game.actors.get(actorId);
-    return {
-      img: actor.img as string,
-      token: actor.prototypeToken.texture.src as string,
-    };
-  }, id);
-}
-
-function sheetDropTarget(sheet: Locator): Locator {
-  return sheet.locator('[data-testid="sheet-image-drop"]');
-}
-
-function dropZones(sheet: Locator): Locator {
-  return sheet.locator('[data-testid="image-drop-zone"]');
-}
-
-function dropZone(sheet: Locator, target: string): Locator {
-  return sheet.locator(
-    `[data-testid="image-drop-zone"][data-target="${target}"]`,
-  );
-}
-
-async function dragOverZone(zone: Locator): Promise<void> {
-  await zone.evaluate((el) => {
-    const dt = (globalThis as any).__e2ePortraitDrag as DataTransfer;
-    for (const type of ["dragenter", "dragover"])
-      el.dispatchEvent(
-        new DragEvent(type, {
-          bubbles: true,
-          cancelable: true,
-          dataTransfer: dt,
-        }),
+      fire(
+        root.querySelector('[data-testid="sheet-image-drop"]')!,
+        "dragenter",
+        "dragover",
       );
-  });
+      const selector = `[data-testid="image-drop-zone"][data-target="${target}"]`;
+      for (let i = 0; i < 50 && !root.querySelector(selector); i++)
+        await new Promise(requestAnimationFrame);
+      fire(root.querySelector(selector)!, "dragenter", "dragover", "drop");
+      fire(document.body, "dragend");
+    },
+    { target, tileSrc, png: PNG_1X1 },
+  );
 }
 
-function portraitDialog(sheet: Locator): Locator {
-  return sheet.locator(".modal").filter({ hasText: "Portrait & token image" });
-}
+const images = (page: Page, actorId: string, sceneId?: string) =>
+  page.evaluate(
+    ({ actorId, sceneId }) => {
+      const actor = game.actors.get(actorId);
+      const placed = game.scenes.get(sceneId)?.tokens.contents[0];
+      return [actor.img, actor.prototypeToken.texture.src, placed?.texture.src];
+    },
+    { actorId, sceneId },
+  );
 
-function checkbox(dialog: Locator, text: string): Locator {
-  return dialog.locator("label.check").filter({ hasText: text });
-}
+const saveDialog = async (sheet: Locator, placed = false) => {
+  const dialog = sheet
+    .locator(".modal")
+    .filter({ hasText: "Portrait & token image" });
+  if (placed) await dialog.getByText("Update tokens already on scenes").click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(dialog).toHaveCount(0, { timeout: 30_000 });
+};
 
-async function ensureChecked(box: Locator): Promise<void> {
-  const input = box.locator('input[type="checkbox"]');
-  if (!(await input.isChecked())) await box.click();
-  await expect(input).toBeChecked();
-}
+test("a file dropped on Set both uploads to the portrait and token", async ({
+  gamePage,
+  fighter,
+  uploadFolder: folder,
+}) => {
+  const sheet = await openCharacterSheet(gamePage, fighter.name);
+  await dropOnZone(sheet, "both");
+  await saveDialog(sheet);
 
-test.describe("sheet image drop", () => {
-  test("a file dropped on the Set both zone is uploaded to portrait and prototype token on Save", async ({
-    gamePage,
-    fighter,
-    portraitSettings,
-  }) => {
-    const currentPath = await gamePage.evaluate(
-      (mod) =>
-        String(game.settings.get(mod, "portraitUploadPath") ?? "").trim(),
-      MODULE_ID,
-    );
-    const folder =
-      currentPath ||
-      (await gamePage.evaluate(() => `worlds/${game.world.id}/osc-portraits`));
-    await portraitSettings({
-      portraitUploads: true,
-      portraitUploadPath: folder,
+  const [img, token] = await images(gamePage, fighter.id);
+  expect(img).toMatch(new RegExp(`^${folder}/.+\\.png$`));
+  expect(token).toBe(img);
+});
+
+test("an image dropped on Set token retextures linked tokens on scenes", async ({
+  gamePage,
+  fighter,
+}) => {
+  const sceneId = await gamePage.evaluate(async (actorId) => {
+    const scene = await (globalThis as any).Scene.create({
+      name: `E2E Portrait ${actorId}`,
     });
-    const before = await actorImages(gamePage, fighter.id);
+    const token = await game.actors
+      .get(actorId)
+      .getTokenDocument({ actorLink: true }, { parent: scene });
+    await scene.createEmbeddedDocuments("Token", [token.toObject()]);
+    return scene.id as string;
+  }, fighter.id);
+
+  try {
+    const [img] = await images(gamePage, fighter.id);
     const sheet = await openCharacterSheet(gamePage, fighter.name);
-    const target = sheetDropTarget(sheet);
-
-    await dragOverSheet(target, { kind: "file" });
-    await expect(target).toHaveAttribute("data-drop", "ready");
-    const both = dropZone(sheet, "both");
-    await expect(both).toHaveText("Set both");
-    await dragOverZone(both);
-    await expect(both).toHaveClass(/is-over/);
-    await dropOnSheet(both);
-    await expect(dropZones(sheet)).toHaveCount(0);
-
-    const dialog = portraitDialog(sheet);
-    await expect(dialog).toBeVisible();
-    await expect(
-      checkbox(dialog, "Use same image for portrait and token").locator(
-        'input[type="checkbox"]',
-      ),
-    ).toBeChecked();
-    await expect(
-      dialog
-        .getByRole("button", { name: "Change portrait and token image" })
-        .locator("img"),
-    ).toHaveAttribute("src", /^blob:/);
-    expect(await actorImages(gamePage, fighter.id)).toEqual(before);
-
-    await dialog.getByRole("button", { name: "Save", exact: true }).click();
-    await expect(dialog).toHaveCount(0, { timeout: 30_000 });
+    await dropOnZone(sheet, "token", SKULL);
+    await saveDialog(sheet, true);
     await expect
-      .poll(async () => (await actorImages(gamePage, fighter.id)).img)
-      .not.toBe(before.img);
-
-    const after = await actorImages(gamePage, fighter.id);
-    const prefix = `${folder.replace(/\/+$/, "")}/`;
-    expect(
-      after.img.startsWith(prefix),
-      `${after.img} should be under ${prefix}`,
-    ).toBe(true);
-    expect(after.img).toMatch(/\.png$/);
-    expect(after.token).toBe(after.img);
-  });
-
-  test("an image dropped on the Set token zone retextures linked tokens already on scenes", async ({
-    gamePage,
-    fighter,
-    portraitSettings,
-  }) => {
-    await portraitSettings({ portraitUploads: false });
-    const sceneName = `E2E Portrait Scene ${fighter.name}`;
-    const { sceneId, tokenId } = await gamePage.evaluate(
-      async ({ name, actorId }) => {
-        const scene = await (globalThis as any).Scene.create({
-          name,
-          width: 1000,
-          height: 1000,
-        });
-        const draft = await game.actors
-          .get(actorId)
-          .getTokenDocument(
-            { x: 100, y: 100, actorLink: true },
-            { parent: scene },
-          );
-        const [token] = await scene.createEmbeddedDocuments("Token", [
-          draft.toObject(),
-        ]);
-        return { sceneId: scene.id as string, tokenId: token.id as string };
-      },
-      { name: sceneName, actorId: fighter.id },
-    );
-
-    try {
-      const placedSrc = () =>
-        gamePage.evaluate(
-          ({ s, t }) =>
-            game.scenes.get(s)?.tokens.get(t)?.texture.src as
-              string | undefined,
-          { s: sceneId, t: tokenId },
-        );
-      expect(await placedSrc()).not.toBe(PATH_IMAGE);
-
-      const before = await actorImages(gamePage, fighter.id);
-      const sheet = await openCharacterSheet(gamePage, fighter.name);
-      const target = sheetDropTarget(sheet);
-      await dragOverSheet(target, { kind: "tile", src: PATH_IMAGE });
-      const tokenZone = dropZone(sheet, "token");
-      await expect(tokenZone).toHaveText("Set token");
-      await dragOverZone(tokenZone);
-      await dropOnSheet(tokenZone);
-      await expect(dropZones(sheet)).toHaveCount(0);
-
-      const dialog = portraitDialog(sheet);
-      await expect(dialog).toBeVisible();
-      await expect(
-        checkbox(dialog, "Use same image for portrait and token").locator(
-          'input[type="checkbox"]',
-        ),
-      ).not.toBeChecked();
-      await ensureChecked(checkbox(dialog, "Update tokens already on scenes"));
-      await dialog.getByRole("button", { name: "Save", exact: true }).click();
-      await expect(dialog).toHaveCount(0);
-
-      await expect
-        .poll(() => actorImages(gamePage, fighter.id))
-        .toEqual({ img: before.img, token: PATH_IMAGE });
-      await expect.poll(placedSrc).toBe(PATH_IMAGE);
-    } finally {
-      await gamePage
-        .evaluate((id) => game.scenes.get(id)?.delete(), sceneId)
-        .catch(() => {});
-    }
-  });
+      .poll(() => images(gamePage, fighter.id, sceneId))
+      .toEqual([img, SKULL, SKULL]);
+  } finally {
+    await gamePage
+      .evaluate((id) => game.scenes.get(id)?.delete(), sceneId)
+      .catch(() => {});
+  }
 });

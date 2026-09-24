@@ -33,7 +33,7 @@ export function imageExtension(src: string): string | null {
   return IMAGE_EXTENSIONS.has(ext) ? ext : null;
 }
 
-export function isImagePath(src: string): boolean {
+function isImagePath(src: string): boolean {
   return imageExtension(src) !== null;
 }
 
@@ -48,7 +48,7 @@ function tileTextureSrc(text: string): string | null {
   }
 }
 
-export function imagePathFromPayload(
+function imagePathFromPayload(
   payload: string | null | undefined,
 ): string | null {
   const text = payload?.trim();

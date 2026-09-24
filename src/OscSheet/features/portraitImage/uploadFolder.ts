@@ -48,7 +48,7 @@ export const filePicker = (): FilePickerApi =>
 
 const ALREADY_EXISTS = /EEXIST|already exists/;
 
-export function directoryChain(path: string): string[] {
+function directoryChain(path: string): string[] {
   const parts = path.split("/").filter(Boolean);
   return parts.map((_, i) => parts.slice(0, i + 1).join("/"));
 }

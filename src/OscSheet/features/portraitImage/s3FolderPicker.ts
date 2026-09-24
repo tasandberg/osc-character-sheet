@@ -26,7 +26,7 @@ type FoundryGlobals = {
 
 const globals = () => globalThis as unknown as FoundryGlobals;
 
-export function s3FolderUrl(
+function s3FolderUrl(
   endpoint: S3Endpoint | null | undefined,
   bucket: string | null | undefined,
   key: string,

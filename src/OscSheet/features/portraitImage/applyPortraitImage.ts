@@ -57,7 +57,7 @@ export function actorPortraitImages(actor: PortraitImageActor): ActorImages {
   };
 }
 
-export function uploadedPath(
+function uploadedPath(
   response: UploadResponse,
   fileName: string,
   folder: string,
@@ -73,7 +73,7 @@ const randomID = () =>
     globalThis as unknown as { foundry: { utils: { randomID(): string } } }
   ).foundry.utils.randomID();
 
-export function portraitUploadFilename(
+function portraitUploadFilename(
   actorName: string,
   fileName: string,
   id: string,
@@ -88,7 +88,7 @@ export function portraitUploadFilename(
   return `${slug}-${id}.${imageExtension(fileName) ?? "png"}`;
 }
 
-export function tokenUpdatesByScene<S>(
+function tokenUpdatesByScene<S>(
   tokens: Iterable<{ readonly id: string | null; readonly parent: S | null }>,
   src: string,
 ): Map<S, Record<string, unknown>[]> {

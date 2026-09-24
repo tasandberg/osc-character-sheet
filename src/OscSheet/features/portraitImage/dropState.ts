@@ -2,7 +2,7 @@ export type PortraitDropState =
   | { readonly ready: true }
   | { readonly ready: false; readonly message: string };
 
-export type PortraitDropGateInputs = {
+type PortraitDropGateInputs = {
   readonly isGM: boolean;
   readonly canUpload: boolean;
   readonly uploadsEnabled: boolean;
