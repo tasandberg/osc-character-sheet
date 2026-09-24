@@ -5,6 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import OscSheetProvider from "@app/OscSheetProvider";
 import { EditModal } from "./EditModal";
 import type { OSEActor } from "@domain/types";
+import { FLAGS, flagDeletePath, flagPath } from "@domain/flags";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -49,6 +50,7 @@ type ActorOpts = {
   rawBase?: number;
   scaledBase?: number;
   retainer?: Partial<Retainer>;
+  flags?: Record<string, unknown>;
 };
 
 function makeActor({
@@ -56,6 +58,7 @@ function makeActor({
   rawBase = RAW_BASE,
   scaledBase = DERIVED_BASE,
   retainer,
+  flags,
 }: ActorOpts = {}): OSEActor {
   const movement = { encounter: 30, overland: 18 };
   // Mirror OSE's getter: scaled by encumbrance when auto, raw #moveBase when manual.
@@ -67,7 +70,9 @@ function makeActor({
   });
 
   const actor: Record<string, unknown> = {
+    id: "self",
     name: "Test",
+    flags,
     img: "portrait.png",
     system: {
       config: { movementAuto },
@@ -398,6 +403,100 @@ describe("EditModal retainer fields", () => {
     expect(updateOf(actor)).toHaveBeenCalledWith({
       "system.retainer.loyalty": 12,
     });
+  });
+});
+
+describe("EditModal employer", () => {
+  const employer = (
+    id: string,
+    name: string,
+    cha: number,
+    loyalty: number,
+  ) => ({
+    id,
+    name,
+    type: "character",
+    hasPlayerOwner: true,
+    system: { scores: { cha: { value: cha, loyalty } } },
+  });
+  const employedBy = (id: string) => {
+    const [, scope, key] = flagPath(FLAGS.employer).split(".");
+    return { [scope]: { [key]: id } };
+  };
+  const employerSelect = () =>
+    fieldByLabel("Employer")!.querySelector("select") as HTMLSelectElement;
+  const pickEmployer = (id: string) =>
+    act(async () => {
+      const sel = employerSelect();
+      sel.value = id;
+      sel.dispatchEvent(new Event("change", { bubbles: true }));
+      await Promise.resolve();
+    });
+
+  beforeEach(() => {
+    (g.game as Record<string, unknown>).actors = [
+      employer("a", "Aldric", 16, 9),
+      employer("b", "Brother Odo", 8, 6),
+      { id: "self", name: "Test", type: "character", hasPlayerOwner: true },
+      {
+        id: "npc",
+        name: "Innkeeper",
+        type: "character",
+        hasPlayerOwner: false,
+      },
+    ];
+  });
+  afterEach(() => {
+    delete (g.game as Record<string, unknown>).actors;
+  });
+
+  it("lists None plus the other player-owned characters", async () => {
+    await renderModal(makeActor({ retainer: { enabled: true } }));
+
+    const labels = Array.from(employerSelect().options).map((o) => o.text);
+    expect(labels).toEqual(["— None —", "Aldric", "Brother Odo"]);
+  });
+
+  it("sets and clears the employer flag", async () => {
+    const actor = makeActor({ retainer: { enabled: true } });
+    await renderModal(actor);
+
+    await pickEmployer("a");
+    expect(updateOf(actor)).toHaveBeenCalledWith({
+      [flagPath(FLAGS.employer)]: "a",
+    });
+    await pickEmployer("");
+    expect(updateOf(actor)).toHaveBeenCalledWith({
+      [flagDeletePath(FLAGS.employer)]: null,
+    });
+  });
+
+  it("offers the employer's CHA loyalty as a confirmable reset", async () => {
+    const actor = makeActor({
+      retainer: { enabled: true, loyalty: 7 },
+      flags: employedBy("a"),
+    });
+    await renderModal(actor);
+
+    const reset = resetLink("Loyalty Rating") as HTMLButtonElement;
+    expect(reset.textContent).toBe("Value based on employer’s CHA: 9");
+    await click(reset);
+    expect(updateOf(actor)).not.toHaveBeenCalled();
+    const confirm = Array.from(document.querySelectorAll("button")).find(
+      (b) => b.textContent === "Reset",
+    )!;
+    await click(confirm);
+
+    expect(updateOf(actor)).toHaveBeenCalledWith({
+      "system.retainer.loyalty": 9,
+    });
+  });
+
+  it("shows no hint without an employer", async () => {
+    await renderModal(makeActor({ retainer: { enabled: true, loyalty: 7 } }));
+
+    const loyalty = fieldByLabel("Loyalty Rating")!;
+    expect(loyalty.querySelector(".hint, .ed-resetlink")).toBeNull();
   });
 });
 
