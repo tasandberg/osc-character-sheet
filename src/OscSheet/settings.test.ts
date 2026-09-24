@@ -139,6 +139,25 @@ describe("settingRegistrations", () => {
       default: true,
       name: "Show spell images",
     });
+    expect(byKey.portraitUploads).toMatchObject({
+      scope: "world",
+      default: false,
+    });
+    expect(byKey.portraitUploadPath).toMatchObject({
+      scope: "world",
+      filePicker: "folder",
+      default: "",
+    });
+  });
+
+  it("defaults the portrait upload path into the current world", () => {
+    (globalThis as { game?: unknown }).game = { world: { id: "lost-mine" } };
+    const [path] = settingRegistrations(onChange).filter(
+      (r) => r.key === "portraitUploadPath",
+    );
+    expect(path.data.default).toBe(
+      "worlds/lost-mine/osc-character-sheet/portraits",
+    );
   });
 
   it("omits choices for the boolean settings", () => {
@@ -194,6 +213,8 @@ describe("settings snapshot", () => {
       disableMemorization: false,
       fontScale: "medium",
       showSpellImages: true,
+      portraitUploads: false,
+      portraitUploadPath: "",
     });
   });
 });

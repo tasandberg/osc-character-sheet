@@ -75,15 +75,15 @@ type Props = {
   encumbrance?: EncumbranceVM;
   /** Commit a new current-HP value; when provided, HP renders an editable input. */
   onSetHp?: (value: number) => void;
+  onPortraitClick?: React.MouseEventHandler<HTMLImageElement>;
   /** Right-click on the portrait (e.g. Token Variant Art's picker). */
   onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
-  /** When true, left-click opens the image FilePicker (core `editImage` action). */
   canEditPortrait?: boolean;
 };
 
 /** Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
  *  · HP/AC in medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitContextMenu, canEditPortrait }: Props) {
+export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait }: Props) {
   const m = vitals.moveBands;
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   return (
@@ -91,6 +91,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
       <Portrait
         identity={identity}
         canEdit={canEditPortrait}
+        onClick={onPortraitClick}
         onContextMenu={onPortraitContextMenu}
       />
       <Identity identity={identity} />

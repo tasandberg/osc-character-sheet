@@ -3,11 +3,12 @@ import type { IdentityVM } from "@domain/vm-types";
 
 type Props = {
   identity: IdentityVM;
+  onClick?: MouseEventHandler<HTMLImageElement>;
   onContextMenu?: MouseEventHandler<HTMLImageElement>;
   canEdit?: boolean;
 };
 
-export function Portrait({ identity, onContextMenu, canEdit }: Props) {
+export function Portrait({ identity, onClick, onContextMenu, canEdit }: Props) {
   return (
     <div className="osc-portrait-wrap profile tw:relative tw:aspect-square tw:w-[110px] tw:@max-md/app:h-[54px] tw:@max-md/app:w-[54px] tw:@max-md/app:self-center tw:@twopane/sheet:h-[120px] tw:@twopane/sheet:w-[120px] tw:@twopane/sheet:self-center">
       <img
@@ -20,9 +21,9 @@ export function Portrait({ identity, onContextMenu, canEdit }: Props) {
         }
         src={identity.img || undefined}
         alt={identity.name}
-        data-action={canEdit ? "editImage" : undefined}
         data-edit="img"
         title={identity.name}
+        onClick={onClick}
         onContextMenu={onContextMenu}
       />
     </div>

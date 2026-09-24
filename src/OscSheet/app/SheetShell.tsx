@@ -2,6 +2,15 @@ import { useState } from "react";
 import { Frame, Topbar, HeaderBand, Minibar, type TabItem } from "@layout";
 import { useOscSheetContext } from "@app/context";
 import { EditModal } from "@features/edit/EditModal";
+import { PortraitImageDialog } from "@features/portraitImage/PortraitImageDialog";
+import { SheetImageDrop } from "@features/portraitImage/SheetImageDrop";
+import { usePortraitDrop } from "@features/portraitImage/usePortraitDrop";
+import {
+  actorPortraitImages,
+  applyPortraitImage,
+  portraitImageToast,
+} from "@features/portraitImage/applyPortraitImage";
+import type { PortraitImageDrop } from "@features/portraitImage/portraitImageState";
 import { tabs, TabIds } from "@app/tabs";
 import getLabel from "@src/util/getLabel";
 import { ActionsView, SavesExploration } from "@features/actions";
@@ -56,6 +65,10 @@ export default function SheetShell() {
   } = useOscSheetContext();
   const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
+  const [portraitImage, setPortraitImage] = useState<{
+    drop?: PortraitImageDrop;
+  } | null>(null);
+  const portraitDropZone = usePortraitDrop({ enabled: canEdit });
 
   // Layout-slot props built inline from the actor (HeaderBand + Minibar share the shape).
   const { hp, aac, ac, scores, movement, initiative } = actor.system;
@@ -325,84 +338,108 @@ export default function SheetShell() {
         open={editOpen && canEdit}
         onClose={() => setEditOpen(false)}
       />
-      <Frame
-        nav={{
-          tabs: items,
-          active: activeTab.id,
-          onSelect: (id) => {
-            const next = visible.find((t) => t.id === id);
-            if (next) setCurrentTab(next.id);
-          },
-        }}
-        topbar={
-          <Topbar
-            vm={selectTopbar(actor)}
-            canEdit={canEdit}
-            onEdit={() => setEditOpen(true)}
-            onLevelUp={() =>
-              toast({
-                intent: "warning",
-                title: "Level Up",
-                message: "Coming soon ;)",
-              })
-            }
-          />
-        }
-        header={
-          <HeaderBand
-            identity={identity}
-            vitals={vitals}
-            encumbrance={encumbrance}
-            onSetHp={onSetHp}
-            // Intentionally gated on canEdit (= Foundry `sheet.isEditable`), not
-            // raw actor.isOwner: a locked/compendium sheet legitimately shouldn't
-            // expose write affordances even to an owner. Same rationale for the
-            // inventory context-menu / Send gates.
-            onPortraitContextMenu={
-              canEdit ? () => showTokenVariantsPortraitPicker(actor) : undefined
-            }
-            canEditPortrait={canEdit}
-          />
-        }
-        minibar={
-          <Minibar identity={identity} vitals={vitals} onSetHp={onSetHp} />
-        }
-        railExtra={
-          <SavesExploration
-            saves={selectSaves(actor)}
-            abilities={selectAbilities(actor)}
-            exploration={selectExploration(actor)}
-            onRollSave={(key, event) => actor.rollSave(key, { event })}
-            onRollExploration={(key, event) =>
-              rollExploration(actor, key, event)
-            }
-            tabbed
-          />
+      {portraitImage && canEdit && (
+        <PortraitImageDialog
+          current={actorPortraitImages(actor)}
+          drop={portraitImage.drop}
+          onClose={() => setPortraitImage(null)}
+          onSave={async (state) => {
+            const result = await applyPortraitImage(actor, state);
+            const notice = portraitImageToast(result);
+            if (notice) toast({ intent: "success", ...notice });
+          }}
+        />
+      )}
+      <SheetImageDrop
+        zone={portraitDropZone}
+        onImage={(image, target) =>
+          setPortraitImage({ drop: { image, target } })
         }
       >
-        {activeTab.id === TabIds.ACTIONS ? (
-          <ActionsView actor={actor} />
-        ) : activeTab.id === TabIds.INVENTORY ? (
-          <InventoryView
-            inventory={selectInventory(invItems as OseItem[])}
-            encumbrance={encumbrance}
-            wealth={selectWealth(invItems as OseItem[])}
-            onSetCoin={onSetCoin}
-            onCreate={onCreateItem}
-            onEquip={onEquipItem}
-            onOpen={onOpenItem}
-            onDelete={onDeleteItem}
-            onConsume={onConsume}
-            onSetQty={onSetQty}
-            onReorder={onReorder}
-            onReorderEquipped={onReorderEquipped}
-            onNest={onNest}
-            onSend={onSend}
-          />
-        ) : (
-          activeTab.Content && <activeTab.Content />
-        )}
-      </Frame>
+        <Frame
+          nav={{
+            tabs: items,
+            active: activeTab.id,
+            onSelect: (id) => {
+              const next = visible.find((t) => t.id === id);
+              if (next) setCurrentTab(next.id);
+            },
+          }}
+          topbar={
+            <Topbar
+              vm={selectTopbar(actor)}
+              canEdit={canEdit}
+              onEdit={() => setEditOpen(true)}
+              onLevelUp={() =>
+                toast({
+                  intent: "warning",
+                  title: "Level Up",
+                  message: "Coming soon ;)",
+                })
+              }
+            />
+          }
+          header={
+            <HeaderBand
+              identity={identity}
+              vitals={vitals}
+              encumbrance={encumbrance}
+              onSetHp={onSetHp}
+              // Intentionally gated on canEdit (= Foundry `sheet.isEditable`), not
+              // raw actor.isOwner: a locked/compendium sheet legitimately shouldn't
+              // expose write affordances even to an owner. Same rationale for the
+              // inventory context-menu / Send gates.
+              onPortraitClick={
+                canEdit ? () => setPortraitImage({}) : undefined
+              }
+              onPortraitContextMenu={
+                canEdit
+                  ? () => showTokenVariantsPortraitPicker(actor)
+                  : undefined
+              }
+              canEditPortrait={canEdit}
+            />
+          }
+          minibar={
+            <Minibar identity={identity} vitals={vitals} onSetHp={onSetHp} />
+          }
+          railExtra={
+            <SavesExploration
+              saves={selectSaves(actor)}
+              abilities={selectAbilities(actor)}
+              exploration={selectExploration(actor)}
+              onRollSave={(key, event) => actor.rollSave(key, { event })}
+              onRollExploration={(key, event) =>
+                rollExploration(actor, key, event)
+              }
+              tabbed
+            />
+          }
+        >
+          {activeTab.id === TabIds.ACTIONS ? (
+            <ActionsView actor={actor} />
+          ) : activeTab.id === TabIds.INVENTORY ? (
+            <InventoryView
+              inventory={selectInventory(invItems as OseItem[])}
+              encumbrance={encumbrance}
+              wealth={selectWealth(invItems as OseItem[])}
+              onSetCoin={onSetCoin}
+              onCreate={onCreateItem}
+              onEquip={onEquipItem}
+              onOpen={onOpenItem}
+              onDelete={onDeleteItem}
+              onConsume={onConsume}
+              onSetQty={onSetQty}
+              onReorder={onReorder}
+              onReorderEquipped={onReorderEquipped}
+              onNest={onNest}
+              onSend={onSend}
+            />
+          ) : (
+            activeTab.Content && <activeTab.Content />
+          )}
+        </Frame>
+      </SheetImageDrop>
     </>
   );
 }
