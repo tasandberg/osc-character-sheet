@@ -60,16 +60,23 @@ Specificity: utilities are scoped `.osc-sheet .u-*` (0,2,0) — they beat the
 (`.osc-topbar .osc-tb-btn`, 0,2,0 + tag) can still win; if a utility loses,
 either keep that prop in SCSS or don't half-convert it.
 
-## Tokens  (`vellum/_scales.scss` → emits `--*` in `vellum/tokens.scss`)
+## Tokens  (ship from `@old-school-chronicle/vellum`)
 
-Single-source Sass maps in `_scales.scss` emit BOTH the `--fs-*`/`--r-*`/
-`--spacer-*` custom properties AND the matching `u-*` classes via `@each`. Never
-hardcode a parallel list — that's the drift the system exists to prevent.
+The `--fs-*`/`--r-*`/`--spacer-*` custom properties come from the npm package —
+`node_modules/@old-school-chronicle/vellum/tokens.css`, with the matching Tailwind
+scale in its `theme.css`, both generated from the same maps so they can't drift.
+They are NOT in this repo; `_scales.scss` and `tokens.scss` no longer exist here.
+
+Verify a value before you size against it — `grep -o -- "--fs-[a-z0-9]*:[^;]*" dist/main.css`.
+The list below has been wrong before, and a size derived from a wrong token is
+wrong everywhere it lands.
 
 - **Spacer** `--spacer-N` = N×4px, curated (no 7/9/11): `1 2 3 4 5 6 8 10 12`.
   Also `--space-*` aliases. Use these / `u-*` — never bare px.
-- **Font size** `--fs-*`: `3xs`10 `2xs`11 `xs`12 `sm`13 `md`14 `base`15 `lg`16
-  `xl`18 `2xl`21 `3xl`24 `4xl`28 `5xl`33 `6xl`38 `7xl`44 `8xl`56 (px @16 root).
+- **Font size** `--fs-*`: `4xs`8 `3xs`11 `2xs`12 `xs`13 `sm`14 `md`15 `base`16
+  `lg`17 `xl`19 `2xl`22 `3xl`26 `4xl`30 `5xl`35 `6xl`41 `7xl`47 `8xl`60 (px @16
+  root). Every step also scales with `--fs-scale` (the sheet's font-size setting).
+  `--fs-4xs` is a token only — there is no `u-fs-4xs`.
 - **Radius** `--r-*`: `sm`4 `md`6 `lg`10 `xl`14.
 - **Palette** (theme-aware, dark + cream): `--ink`, `--bg`/`--bg-2`,
   `--surface`/`-2`/`-3`, `--text`/`-dim`/`-mute`/`-faint`, `--border`/`-soft`,
@@ -91,7 +98,7 @@ PortraitField · Die · Empty · Skeleton · Toast/ToastHost · ProseMirrorEdito
 `Button` — variants `primary` (brass fill) · `outline` · `danger` · `ghost`, plus
 `size="sm"`. The `outline` variant takes a color `tone`: `accent` (teal), `brass`
 (brass-gold), `danger` (crimson), `success` (forest), `warn` (mustard) — generated
-from the palette-synced `$btn-outline-tones` map in `vellum/tokens.scss`, so tone
+from the palette-synced `$btn-outline-tones` map in `vellum/sheet-base.scss`, so tone
 names track the color vocabulary and can't drift.
 
 Read them in `src/OscSheet/components/ui/`; there is no component workbench in this
@@ -107,8 +114,11 @@ repo — see them for real via `pnpm dev` in a local Foundry world.
 
 ## File map
 
-- `styles/vellum/_scales.scss` — the ONLY place type/radius/spacer steps live
-- `styles/vellum/tokens.scss` — emits `--*` custom properties (+ light/dark themes)
+- `@old-school-chronicle/vellum` (npm) — `tokens.css` defines every `--*` custom
+  property and theme; `theme.css` is the matching Tailwind `@theme` block. Read
+  them in `node_modules/`; they are not editable from this repo.
 - `styles/vellum/utilities.scss` — emits `u-*` classes
+- `styles/vellum/sheet-base.scss` — component classes (`.stamp`, `.plaque-*`, …)
+  and the `$btn-outline-tones` map
 - `styles/*.scss` (actions, inventory, shell, …) — per-feature bespoke SCSS
 - `components/ui/*` — the primitive components
