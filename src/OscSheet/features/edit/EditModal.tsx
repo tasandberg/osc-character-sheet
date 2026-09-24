@@ -7,7 +7,6 @@ import {
   ConfirmDialog,
   OverrideValue,
   StampCell,
-  PortraitField,
   NumberInput,
   ValidatedInput,
   Combobox,
@@ -31,7 +30,9 @@ import {
   SPAN_2,
   SPAN_3,
   SPAN_4,
+  SPAN_6,
   SPAN_COMBO,
+  SPAN_FULL,
 } from "./classes";
 
 const SOURCE_TAG = {
@@ -70,6 +71,21 @@ const SAVE_DEFS: { k: OSESave; n: string }[] = [
 ];
 type ConfirmState = { title: string; body: string; fn: () => void } | null;
 
+function HeaderPortrait({ src }: { src?: string }) {
+  const [broken, setBroken] = useState(false);
+  if (!src || broken) return null;
+  return (
+    <img
+      className="ed-id-chip"
+      src={src}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+      onError={() => setBroken(true)}
+    />
+  );
+}
+
 export function EditModal({
   open,
   onClose,
@@ -92,6 +108,7 @@ export function EditModal({
   // --- Identity / progression ---
   // GMs can re-class a character; players see the class as static header text.
   const isGM = game.user?.isGM ?? false;
+  const isRetainer = sys.retainer?.enabled === true;
   const classNames = availableClassNames();
   const level = sys.details.level;
   const dexInit = sys.scores.dex.init;
@@ -144,6 +161,7 @@ export function EditModal({
         {/* Identity */}
         <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
           <SectionTitle>
+            <HeaderPortrait key={actor.img} src={actor.img} />
             Identity &amp; Vitals:{" "}
             {/* real serif italic — the display face is small-caps with no true
                 italic — slightly dimmed as an annotation */}
@@ -152,11 +170,6 @@ export function EditModal({
             </em>
           </SectionTitle>
           <div className="ed-id-grid tw:flex-auto tw:min-w-0 tw:grid tw:grid-cols-12 tw:gap-[14px] tw:content-start">
-            <PortraitField
-              className="tw:col-start-1 tw:col-span-3 tw:row-start-1 tw:row-span-2 tw:@max-[560px]/fwin:row-span-1"
-              src={actor.img}
-              onPick={(path) => set("img", path)}
-            />
             <label className={`${ED_FIELD} ${SPAN_3}`}>
               <span className={LAB_ID}>Name</span>
               <ValidatedInput
@@ -213,22 +226,7 @@ export function EditModal({
               />
             </label>
 
-            <HitDiceField
-              className={SPAN_2}
-              actor={actor}
-              hdVal={hdVal}
-              hdDefault={hdDefault}
-              hdOverridden={hdOverridden}
-              onCommit={(v) => set("system.hp.hd", v)}
-              onResetRequest={() =>
-                requestConfirm(
-                  "Reset Hit Dice?",
-                  `Revert to the class default of ${hdDefault}.`,
-                  () => set("system.hp.hd", hdDefault!),
-                )
-              }
-            />
-            <label className={`${ED_FIELD} ${SPAN_3}`}>
+            <label className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>Current XP</span>
               <NumberInput
                 className="input mono"
@@ -237,7 +235,7 @@ export function EditModal({
                 onCommit={(n) => set("system.details.xp.value", n)}
               />
             </label>
-            <label className={`${ED_FIELD} ${SPAN_3}`}>
+            <label className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>Next Level</span>
               <NumberInput
                 className="input mono"
@@ -259,7 +257,22 @@ export function EditModal({
                 />
               )}
             </label>
-            <label className={`${ED_FIELD} ${SPAN_3}`}>
+            <HitDiceField
+              className={SPAN_4}
+              actor={actor}
+              hdVal={hdVal}
+              hdDefault={hdDefault}
+              hdOverridden={hdOverridden}
+              onCommit={(v) => set("system.hp.hd", v)}
+              onResetRequest={() =>
+                requestConfirm(
+                  "Reset Hit Dice?",
+                  `Revert to the class default of ${hdDefault}.`,
+                  () => set("system.hp.hd", hdDefault!),
+                )
+              }
+            />
+            <label className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>Current HP</span>
               <NumberInput
                 className="input mono"
@@ -269,7 +282,7 @@ export function EditModal({
                 onCommit={(n) => set("system.hp.value", n)}
               />
             </label>
-            <label className={`${ED_FIELD} ${SPAN_2}`}>
+            <label className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>Max HP</span>
               <NumberInput
                 className="input mono"
@@ -279,7 +292,7 @@ export function EditModal({
               />
             </label>
 
-            <div className={`${ED_FIELD} ${SPAN_3}`}>
+            <div className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>Initiative Mod</span>
               <NumberInput
                 className="input mono"
@@ -299,7 +312,7 @@ export function EditModal({
               />
             </div>
 
-            <div className={`${ED_FIELD} ${SPAN_3}`}>
+            <div className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>{atkLabel}</span>
               <NumberInput
                 className="input mono"
@@ -340,6 +353,39 @@ export function EditModal({
                 Auto-calculate movement
               </Check>
             </div>
+
+            <Check
+              className={`ed-retainer ${SPAN_FULL} tw:border-t tw:border-t-border-soft tw:pt-3`}
+              checked={isRetainer}
+              onChange={(e) => set("system.retainer.enabled", e.target.checked)}
+            >
+              Retainer
+            </Check>
+            {isRetainer && (
+              <>
+                <label className={`${ED_FIELD} ${SPAN_6} fade-in`}>
+                  <span className={LAB_ID}>Wage</span>
+                  <ValidatedInput
+                    className="input"
+                    value={sys.retainer?.wage ?? ""}
+                    validate={() => null}
+                    onCommit={(v) => set("system.retainer.wage", v)}
+                  />
+                </label>
+                <label className={`${ED_FIELD} ${SPAN_6} fade-in`}>
+                  <span className={LAB_ID}>Loyalty Rating</span>
+                  <NumberInput
+                    className="input mono"
+                    value={sys.retainer?.loyalty ?? 0}
+                    min={0}
+                    max={12}
+                    onCommit={(n) =>
+                      set("system.retainer.loyalty", clamp(n, 0, 12))
+                    }
+                  />
+                </label>
+              </>
+            )}
           </div>
         </div>
 

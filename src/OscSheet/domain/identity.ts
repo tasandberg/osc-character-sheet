@@ -2,7 +2,7 @@ import type { OSEActor } from "@domain/types";
 import type { IdentityVM } from "@domain/vm-types";
 
 export function selectIdentity(actor: OSEActor): IdentityVM {
-  const { details } = actor.system;
+  const { details, retainer } = actor.system;
   return {
     name: actor.name,
     img: actor.img,
@@ -10,5 +10,7 @@ export function selectIdentity(actor: OSEActor): IdentityVM {
     level: details.level,
     alignment: details.alignment,
     title: details.title,
+    isRetainer: retainer?.enabled === true,
+    wage: retainer?.wage ?? "",
   };
 }

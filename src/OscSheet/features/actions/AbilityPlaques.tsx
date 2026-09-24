@@ -1,6 +1,6 @@
 import type { AbilityVM } from "@domain/vm-types";
 import { StatPlaque } from "@ui/StatPlaque";
-import type { ActivateEvent } from "@ui/rollable";
+import { type ActivateEvent } from "@ui/rollable";
 
 type Props = {
   abilities: AbilityVM[];

@@ -94,6 +94,11 @@ export type OSEActor = Actor & {
       sd: number;
     };
     languages: { value: string[] };
+    retainer?: {
+      enabled: boolean;
+      loyalty: number | null;
+      wage: string;
+    };
     movement: {
       base: number;
       encounter: number;
@@ -142,6 +147,7 @@ export type OSEActor = Actor & {
     save: OSESave,
     options: { event?: RollEvent; fastForward?: boolean; chatMessage?: string }
   ) => void;
+  rollLoyalty: (options: { event?: RollEvent }) => void;
   update: (updateData: Record<string, unknown>) => Promise<OSEActor>;
 };
 
