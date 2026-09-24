@@ -1,7 +1,7 @@
 // Tailwind class strings for Edit-modal markup rendered from more than one file.
 // The semantic name leads each string and stays on the element: `.ed-field` is a
-// test hook (EditModal.movement.test.tsx / EditModalClass.test.tsx) and what is
-// left in styles/edit-modal.scss keys off it too.
+// test hook (EditModal.test.tsx) and what is left in styles/edit-modal.scss keys
+// off it too.
 //
 // Every utility carries the `tw:` prefix — Foundry ships its own `.flex`,
 // `.hidden` and `.active`, and an unprefixed utility both collides and fails to

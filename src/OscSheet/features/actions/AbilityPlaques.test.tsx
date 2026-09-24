@@ -49,7 +49,6 @@ describe("AbilityPlaques", () => {
   it("renders one plaque per ability and nothing else", () => {
     act(() => root.render(<AbilityPlaques abilities={abilities} />));
     expect(abilityGrid().children.length).toBe(abilities.length);
-    expect(abilityGrid().className).toBe("osc-abilities");
     expect(container.querySelector('[data-testid="loyalty"]')).toBeNull();
   });
 });

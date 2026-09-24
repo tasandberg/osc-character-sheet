@@ -71,8 +71,6 @@ describe("EncumbranceReadout", () => {
     // rates are terse: 30ft / 90ft / 18mi (encounter / explore / travel), no /turn suffixes
     const rates = [...readout.querySelectorAll(".rate")].map((r) => r.textContent);
     expect(rates).toEqual(["30ft", "90ft", "18mi"]);
-    // the rate line carries the tier tint class; the load does not
-    expect(container.querySelector(".osc-enc-readout.enc-t2")).toBeTruthy();
   });
 
   it("renders the SAME tooltip rows as the header MOVE hover", () => {

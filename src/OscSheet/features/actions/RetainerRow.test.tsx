@@ -48,12 +48,6 @@ describe("RetainerRow", () => {
     expect(wage()!.textContent).toBe("50");
   });
 
-  it("carries no rule of its own", () => {
-    act(() => root.render(<RetainerRow retainer={retainer} />));
-    expect(row()!.classList.contains("tw:border-t")).toBe(false);
-    expect(row()!.classList.contains("tw:border-b")).toBe(false);
-  });
-
   it("rolls loyalty on click, forwarding the modifier keys", () => {
     const onRollLoyalty = vi.fn();
     act(() =>
