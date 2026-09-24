@@ -1,24 +1,14 @@
-import type { AbilityVM, LoyaltyVM } from "@domain/vm-types";
-import { cx } from "@ui/cx";
+import type { AbilityVM } from "@domain/vm-types";
 import { StatPlaque } from "@ui/StatPlaque";
-import { rollable, type ActivateEvent } from "@ui/rollable";
+import { type ActivateEvent } from "@ui/rollable";
 
 type Props = {
   abilities: AbilityVM[];
   onRoll?: (key: string, event: ActivateEvent) => void;
-  loyalty?: LoyaltyVM | null;
-  onRollLoyalty?: (event: ActivateEvent) => void;
 };
 
 /** Six ability plaques (label · value · mod). Click rolls a roll-under check. */
-export function AbilityPlaques({
-  abilities,
-  onRoll,
-  loyalty,
-  onRollLoyalty,
-}: Props) {
-  const rollLoyalty =
-    loyalty?.value != null && onRollLoyalty ? onRollLoyalty : undefined;
+export function AbilityPlaques({ abilities, onRoll }: Props) {
   return (
     <section className="osc-section">
       <div className="osc-abilities">
@@ -35,26 +25,6 @@ export function AbilityPlaques({
           />
         ))}
       </div>
-      {loyalty && (
-        <div className="osc-loyalty">
-          <span className="lylab">{loyalty.fullLabel}:</span>
-          <span
-            className={cx("lyval", rollLoyalty && "rollable")}
-            title={
-              loyalty.value == null
-                ? `${loyalty.fullLabel} — not set`
-                : `Roll ${loyalty.fullLabel} check`
-            }
-            aria-label={
-              rollLoyalty ? `Roll ${loyalty.fullLabel} check` : undefined
-            }
-            data-testid="loyalty"
-            {...rollable(rollLoyalty)}
-          >
-            {loyalty.value ?? "—"}
-          </span>
-        </div>
-      )}
     </section>
   );
 }

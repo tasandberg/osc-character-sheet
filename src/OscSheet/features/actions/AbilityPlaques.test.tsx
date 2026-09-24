@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { AbilityPlaques } from "@features/actions/AbilityPlaques";
 import { Identity } from "@layout/Identity";
-import type { AbilityVM, IdentityVM, LoyaltyVM } from "@domain/vm-types";
+import type { AbilityVM, IdentityVM } from "@domain/vm-types";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -18,11 +18,6 @@ import type { AbilityVM, IdentityVM, LoyaltyVM } from "@domain/vm-types";
 const abilities: AbilityVM[] = [
   { key: "str", label: "STR", value: 9, mod: 0, modLabel: "+0" },
 ];
-const loyalty: LoyaltyVM = {
-  label: "LR",
-  fullLabel: "Loyalty Rating",
-  value: 8,
-};
 const identity: IdentityVM = {
   name: "Kip",
   img: "",
@@ -47,120 +42,15 @@ afterEach(() => {
   container.remove();
 });
 
-const loyaltyValue = () =>
-  container.querySelector<HTMLElement>('[data-testid="loyalty"]');
-const loyaltyRow = () => container.querySelector<HTMLElement>(".osc-loyalty");
 const abilityGrid = () =>
   container.querySelector<HTMLElement>(".osc-abilities")!;
 
-describe("AbilityPlaques loyalty", () => {
-  it("keeps the ability grid six-up, with no loyalty plaque inside it", () => {
-    act(() =>
-      root.render(<AbilityPlaques abilities={abilities} loyalty={loyalty} />),
-    );
+describe("AbilityPlaques", () => {
+  it("renders one plaque per ability and nothing else", () => {
+    act(() => root.render(<AbilityPlaques abilities={abilities} />));
     expect(abilityGrid().children.length).toBe(abilities.length);
     expect(abilityGrid().className).toBe("osc-abilities");
-  });
-
-  it("renders no loyalty row for a non-retainer", () => {
-    act(() => root.render(<AbilityPlaques abilities={abilities} />));
-    expect(loyaltyRow()).toBeNull();
-    expect(loyaltyValue()).toBeNull();
-  });
-
-  it("renders a rollable loyalty row below the grid for a retainer", () => {
-    const onRollLoyalty = vi.fn();
-    act(() =>
-      root.render(
-        <AbilityPlaques
-          abilities={abilities}
-          loyalty={loyalty}
-          onRollLoyalty={onRollLoyalty}
-        />,
-      ),
-    );
-
-    const row = loyaltyRow()!;
-    const el = loyaltyValue()!;
-    expect(row.textContent).toBe("Loyalty Rating:8");
-    expect(el.textContent).toBe("8");
-    expect(el.getAttribute("role")).toBe("button");
-    expect(el.getAttribute("aria-label")).toBe("Roll Loyalty Rating check");
-    expect(
-      abilityGrid().compareDocumentPosition(row) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    expect(abilityGrid().contains(row)).toBe(false);
-
-    act(() => {
-      el.dispatchEvent(
-        new MouseEvent("click", {
-          bubbles: true,
-          cancelable: true,
-          ctrlKey: true,
-        }),
-      );
-    });
-    expect(onRollLoyalty).toHaveBeenCalledTimes(1);
-    expect(onRollLoyalty.mock.calls[0][0].ctrlKey).toBe(true);
-  });
-
-  it("rolls on keyboard activation", () => {
-    const onRollLoyalty = vi.fn();
-    act(() =>
-      root.render(
-        <AbilityPlaques
-          abilities={abilities}
-          loyalty={loyalty}
-          onRollLoyalty={onRollLoyalty}
-        />,
-      ),
-    );
-    const el = loyaltyValue()!;
-    expect(el.tabIndex).toBe(0);
-    act(() => {
-      el.dispatchEvent(
-        new KeyboardEvent("keydown", {
-          key: "Enter",
-          bubbles: true,
-          cancelable: true,
-        }),
-      );
-    });
-    expect(onRollLoyalty).toHaveBeenCalledTimes(1);
-  });
-
-  it("shows a placeholder and stays inert when the rating is unset", () => {
-    const onRollLoyalty = vi.fn();
-    act(() =>
-      root.render(
-        <AbilityPlaques
-          abilities={abilities}
-          loyalty={{ ...loyalty, value: null }}
-          onRollLoyalty={onRollLoyalty}
-        />,
-      ),
-    );
-    const el = loyaltyValue()!;
-    expect(el.textContent).toBe("—");
-    expect(el.getAttribute("role")).toBeNull();
-    expect(el.className).not.toContain("rollable");
-    expect(el.getAttribute("title")).toBe("Loyalty Rating — not set");
-
-    act(() => {
-      el.dispatchEvent(
-        new MouseEvent("click", { bubbles: true, cancelable: true }),
-      );
-    });
-    expect(onRollLoyalty).not.toHaveBeenCalled();
-  });
-
-  it("stays inert for a read-only viewer with no roll handler", () => {
-    act(() =>
-      root.render(<AbilityPlaques abilities={abilities} loyalty={loyalty} />),
-    );
-    expect(loyaltyValue()!.getAttribute("role")).toBeNull();
-    expect(loyaltyValue()!.className).not.toContain("rollable");
+    expect(container.querySelector('[data-testid="loyalty"]')).toBeNull();
   });
 });
 
@@ -170,7 +60,7 @@ describe("Identity standing line", () => {
     expect(container.textContent).toContain("Fighter 1 · Veteran · Lawful");
   });
 
-  it("swaps the title for the wage on a retainer", () => {
+  it("keeps the title, not the wage, for a retainer", () => {
     act(() =>
       root.render(
         <Identity
@@ -178,19 +68,12 @@ describe("Identity standing line", () => {
         />,
       ),
     );
-    expect(container.textContent).toContain(
-      "Fighter 1 · Wage 5gp/month · Lawful",
-    );
-    expect(container.textContent).not.toContain("Veteran");
+    expect(container.textContent).toContain("Fighter 1 · Veteran · Lawful");
+    expect(container.textContent).not.toContain("Wage");
   });
 
-  it("drops the slot entirely for a retainer with no wage set", () => {
-    act(() =>
-      root.render(
-        <Identity identity={{ ...identity, isRetainer: true, wage: "" }} />,
-      ),
-    );
+  it("drops the slot entirely when there is no title", () => {
+    act(() => root.render(<Identity identity={{ ...identity, title: "" }} />));
     expect(container.textContent).toContain("Fighter 1 · Lawful");
-    expect(container.textContent).not.toContain("Veteran");
   });
 });

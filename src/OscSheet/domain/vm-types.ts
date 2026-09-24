@@ -41,6 +41,7 @@ export interface LoyaltyVM {
   label: string;
   fullLabel: string;
   value: number | null;
+  wage: string;
 }
 
 /** A clickable roll: what to show on the pill, the dice formula, and chat flavour. */

@@ -14,6 +14,7 @@ import {
 import { postRollCard } from "@domain/chat/attackCard";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { AbilityPlaques } from "@features/actions/AbilityPlaques";
+import { RetainerRow } from "@features/actions/RetainerRow";
 import { AttacksTable } from "@features/actions/AttacksTable";
 import { FavoriteAbilities } from "@features/actions/FavoriteAbilities";
 import { selectFavoriteAbilities } from "@features/abilities/features";
@@ -69,12 +70,13 @@ export function ActionsView({ actor }: Props) {
   return (
     <>
       <div className="tw:space-y-8 tw:mb-8">
-        <AbilityPlaques
-          abilities={abilities}
-          onRoll={onAbility}
-          loyalty={selectLoyalty(actor)}
-          onRollLoyalty={onLoyalty}
-        />
+        <div className="tw:space-y-2">
+          <RetainerRow
+            retainer={selectLoyalty(actor)}
+            onRollLoyalty={onLoyalty}
+          />
+          <AbilityPlaques abilities={abilities} onRoll={onAbility} />
+        </div>
         <AttacksTable
           attacks={attacks}
           onRoll={onRoll}

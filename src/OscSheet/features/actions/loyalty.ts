@@ -9,6 +9,7 @@ export function selectLoyalty(actor: OSEActor): LoyaltyVM | null {
     label: "LR",
     fullLabel: "Loyalty Rating",
     value: typeof loyalty === "number" ? loyalty : null,
+    wage: retainer.wage ?? "",
   };
 }
 

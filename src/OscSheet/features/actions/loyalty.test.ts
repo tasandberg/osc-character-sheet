@@ -24,7 +24,12 @@ describe("selectLoyalty", () => {
   it("reads the rating for a retainer", () => {
     expect(
       selectLoyalty(withRetainer({ enabled: true, loyalty: 8, wage: "5gp" })),
-    ).toEqual({ label: "LR", fullLabel: "Loyalty Rating", value: 8 });
+    ).toEqual({
+      label: "LR",
+      fullLabel: "Loyalty Rating",
+      value: 8,
+      wage: "5gp",
+    });
   });
 
   it("reports an unset rating as null rather than 0", () => {
@@ -32,6 +37,22 @@ describe("selectLoyalty", () => {
       selectLoyalty(withRetainer({ enabled: true, loyalty: null, wage: "" }))
         ?.value,
     ).toBeNull();
+  });
+});
+
+describe("selectLoyalty wage", () => {
+  it("carries the wage alongside the rating", () => {
+    expect(
+      selectLoyalty(
+        withRetainer({ enabled: true, loyalty: 8, wage: "5gp/month" }),
+      )?.wage,
+    ).toBe("5gp/month");
+  });
+
+  it("reports a missing wage as an empty string", () => {
+    expect(
+      selectLoyalty(withRetainer({ enabled: true, loyalty: 8 }))?.wage,
+    ).toBe("");
   });
 });
 
