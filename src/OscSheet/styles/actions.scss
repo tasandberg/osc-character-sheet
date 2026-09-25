@@ -265,7 +265,7 @@
     color: var(--gold);
   }
   &.missile i {
-    color: var(--teal);
+    color: var(--teal-accent);
   }
   &.melee.selected {
     background: var(--gold);
@@ -283,38 +283,6 @@
 // hover popover (`.tag-pop`) + its reveal rules now live in vellum
 // (components.css) as a shared tooltip primitive — used by weapon tags,
 // kind-seg switches, and the hit/dmg (.wstat) buttons.
-
-// reusable link-style button: accent colour denotes a clickable roll/link.
-// (qualified with .osc-sheet-app to beat the `button { all: unset }` reset.)
-// NOTE: no markup carries `.osc-link` — nothing renders it. Left as found; not
-// converted, because there is no element to hang utilities on.
-.osc-sheet-app .osc-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacer-1);
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--gold);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: inherit;
-  transition:
-    color 0.12s,
-    filter 0.12s;
-  i {
-    font-size: 0.85em;
-  }
-  &:hover:not(:disabled) {
-    text-decoration: underline;
-    filter: brightness(1.12);
-  }
-  &:disabled {
-    color: var(--text-mute, #8a8270);
-    cursor: default;
-    text-decoration: none;
-  }
-}
 
 // Hit / Damage — plain clickable cells: a small HIT/DMG label over the value
 // (hit = mode icon + modifier; dmg = full formula). In actions-features.scss.

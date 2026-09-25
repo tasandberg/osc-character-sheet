@@ -80,7 +80,7 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
         data-testid="languages"
       >
         {current.length === 0 && !editing && (
-          <span className="tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint">
+          <span className="tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-dim">
             None
           </span>
         )}

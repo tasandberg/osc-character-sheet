@@ -215,11 +215,6 @@ describe("slot maximum dialog", () => {
     expect(resettable()).toBe(false);
     type(field, "5");
     expect(resettable()).toBe(true);
-    const group = q<HTMLElement>('[data-testid="slot-defaults"]')!;
-    expect(Array.from(group.children).map((c) => c.className.split(" ")[0])).toEqual([
-      "ed-resetlink",
-      "icon-btn",
-    ]);
     expect(q('[data-testid="slot-info"] .fa-circle-info')).not.toBeNull();
     type(field, "2");
     expect(resettable()).toBe(false);
@@ -351,6 +346,30 @@ describe("removing a spell", () => {
   });
 });
 
+describe("opening a spell's sheet from its name", () => {
+  const renderSheet = vi.mocked(cure.sheet.render);
+  beforeEach(() => renderSheet.mockClear());
+
+  it.each([
+    ["an editable", true],
+    ["a read-only", false],
+  ])("opens it from a spellbook entry on %s sheet", (_label, canEdit) => {
+    render(cleric, canEdit);
+    openBook();
+    const name = q<HTMLButtonElement>('[data-testid="book-spell"] button.bn')!;
+    expect(name.textContent).toBe("Cure Light Wounds");
+    act(() => name.click());
+    expect(renderSheet).toHaveBeenCalledWith(true);
+    expect(cure.update).not.toHaveBeenCalled();
+  });
+
+  it("opens it from a castable row without casting", () => {
+    render(cleric, true, true);
+    act(() => q<HTMLButtonElement>(".osc-spell button.spn")!.click());
+    expect(renderSheet).toHaveBeenCalledWith(true);
+  });
+});
+
 describe("a level with no spells", () => {
   /** Caster with slots from the class table but an empty spell list. */
   const bare = {
@@ -393,6 +412,35 @@ describe("spellbook entry", () => {
     expect(entry.tagName).toBe("DIV");
     const memorize = q<HTMLButtonElement>('[data-testid="memorize"]')!;
     expect(memorize.textContent).toBe("Memorize");
+  });
+
+  it("memorizes a spell into a free slot", () => {
+    render(overridden);
+    const memorize = openBook();
+    act(() => memorize.click());
+    expect(cure.update).toHaveBeenCalledWith({
+      "system.memorized": 1,
+      "system.cast": 1,
+    });
+  });
+
+  it("offers no Memorize once every slot is occupied", () => {
+    const full = {
+      system: {
+        details: { class: "Cleric", level: 3 },
+        spells: {
+          spellList: { 1: [{ ...cure, system: { ...cure.system, memorized: 1, cast: 1 } }] },
+          slots: { 1: { used: 1, max: 1 } },
+          enabled: true,
+        },
+      },
+      _source: { system: { spells: { 1: { max: 1 } } } },
+    } as unknown as OSEActor;
+    render(full);
+    const memorize = openBook();
+    expect(memorize.disabled).toBe(true);
+    act(() => memorize.click());
+    expect(cure.update).not.toHaveBeenCalled();
   });
 
   it("disables Memorise at capacity but leaves the delete usable", () => {

@@ -1,8 +1,9 @@
 import { cx } from "./cx";
+import { InlineButton } from "./InlineButton";
 import type { ReactNode } from "react";
 
 /** @category Controls — the "rule default" affordance. Prints the default in
- *  mono; when overridden it becomes a teal dotted reset link. The caller wires
+ *  mono; when overridden it becomes a dotted accent reset link. The caller wires
  *  onResetRequest to a ConfirmDialog (no native confirm). */
 export function OverrideValue({
   overridden,
@@ -21,13 +22,14 @@ export function OverrideValue({
     return <span className={cx("hint", align === "center" && "ed-meta-center", className)}>{defaultText}</span>;
   }
   return (
-    <button
-      type="button"
+    <InlineButton
+      variant="link"
+      size="3xs"
       className={cx("ed-resetlink", align === "center" && "ed-meta-center", className)}
       title="Reset to rule default"
       onClick={onResetRequest}
     >
       {defaultText}
-    </button>
+    </InlineButton>
   );
 }

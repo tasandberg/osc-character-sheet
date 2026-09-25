@@ -20,7 +20,7 @@ const LV =
 const LV_N =
   "tw:font-display tw:text-[length:var(--fs-sm)] tw:tracking-[0.05em]";
 const LV_XP =
-  "cur tw:mt-[1px] tw:font-mono tw:text-[length:var(--fs-3xs)] tw:text-stamp-text-faint";
+  "cur tw:mt-[1px] tw:font-mono tw:text-(length:--fs-2xs) tw:text-stamp-text-dim";
 
 type Props = {
   vm: TopbarVM;

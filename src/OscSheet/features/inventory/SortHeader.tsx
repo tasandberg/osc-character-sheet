@@ -31,10 +31,10 @@ export function SortHeader({
         "tw:transition-[color] tw:duration-[120ms]",
         // active wins over hover, as the old `&.active` after `&:hover` did —
         // as utilities the hover variant would sort last and take an active
-        // header back to the dim colour on hover, so the two are exclusive.
+        // header back to the hover colour, so the two are exclusive.
         active
           ? "active tw:text-text"
-          : "tw:text-text-faint tw:hover:text-text-dim",
+          : "tw:text-text-mute tw:hover:text-text",
         className,
       )}
       aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"}
@@ -46,7 +46,7 @@ export function SortHeader({
       <i
         className={cx(
           "osc-inv-th-caret",
-          // 0.8em tracks the --fs-3xs header so it scales with the font setting
+          // 0.8em tracks the --fs-2xs header so it scales with the font setting
           "tw:text-[0.8em] tw:w-[6px]",
           "fa-solid",
           active && (dir === "asc" ? "fa-caret-up" : "fa-caret-down"),

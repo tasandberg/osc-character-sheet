@@ -185,7 +185,7 @@ export function EquippedTray({
                   className="tw:flex tw:items-baseline tw:justify-between tw:gap-3"
                   key={st.label}
                 >
-                  <span className="k tw:font-sans tw:text-[length:var(--fs-3xs)] tw:tracking-[0.04em] tw:uppercase tw:text-text-faint">
+                  <span className="k tw:font-sans tw:text-(length:--fs-2xs) tw:tracking-[0.04em] tw:uppercase tw:text-text-dim">
                     {st.label}
                   </span>
                   <span className="v tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-dim">

@@ -51,7 +51,7 @@ export function EncumbranceReadout({ e }: { e: EncumbranceVM }) {
       </span>
       {/* -mx-1 halves the flex gap flanking the middot so it pulls in */}
       <i className="fa fa-dot u-text-faint tw:-mx-1" />
-      {e.label && <span className="load u-text-faint">{e.label}</span>}
+      {e.label && <span className="load u-text-dim">{e.label}</span>}
     </span>
   );
 }

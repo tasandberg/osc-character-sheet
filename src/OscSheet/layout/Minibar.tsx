@@ -106,7 +106,7 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
         </div>
         <div className="osc-mb-ac">
           <Stamp className="osc-mb-stamp">AC</Stamp>
-          <span className="osc-mb-ac-v tw:font-display tw:text-[length:var(--fs-2xl)] tw:leading-flush tw:text-teal">
+          <span className="osc-mb-ac-v tw:font-display tw:text-[length:var(--fs-2xl)] tw:leading-flush tw:text-teal-accent">
             {vitals.ac.value}
           </span>
         </div>

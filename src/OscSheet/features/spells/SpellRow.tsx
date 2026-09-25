@@ -88,12 +88,19 @@ export function SpellRow({
     "spn tw:cursor-pointer tw:font-display tw:text-[length:var(--fs-lg)]",
     spent
       ? "tw:text-text-mute tw:line-through"
-      : "tw:text-text tw:hover:text-gold",
+      : "tw:text-text tw:hover:text-gold tw:hover:[text-shadow:0_0_8px_var(--gold-soft)]",
   );
   const name = onOpenName ? (
-    <a className={spn} onClick={onOpenName}>
+    <button
+      type="button"
+      className={cx(
+        spn,
+        "tw:text-left tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold",
+      )}
+      onClick={onOpenName}
+    >
       {spell.name}
-    </a>
+    </button>
   ) : (
     <span className={spn}>{spell.name}</span>
   );
@@ -158,8 +165,8 @@ export function SpellRow({
           {pool && (
             <span
               className={cx(
-                "pool tw:font-mono tw:text-(length:--fs-3xs) tw:whitespace-nowrap",
-                spent ? "tw:text-text-faint" : "tw:text-text-mute",
+                "pool tw:font-mono tw:text-(length:--fs-2xs) tw:whitespace-nowrap",
+                spent ? "tw:text-text-dim" : "tw:text-text",
               )}
             >
               {pool.max - pool.used}/{pool.max} · slots

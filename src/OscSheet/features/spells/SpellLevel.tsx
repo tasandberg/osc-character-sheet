@@ -32,8 +32,8 @@ const HEAD_LV =
 const HEAD_SC =
   "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
 
-/** Spellbook entry — a full-width dashed card. Inert itself: the actions are the
- *  memorize button and, when the sheet is editable, a delete. */
+/** Spellbook entry — a full-width dashed card. The name opens the sheet; the
+ *  memorize button and, when the sheet is editable, a delete follow it. */
 const BOOKSPELL =
   "tw:flex tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim";
 const BOOKSPELL_ICON =
@@ -41,7 +41,7 @@ const BOOKSPELL_ICON =
 /** Empty state, framed like a row — `.osc-spell` carries no box of its own, so
  *  the bare markup this replaced fell outside the panel. */
 const EMPTY_ROW =
-  "osc-spell-empty tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2 tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint";
+  "osc-spell-empty tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2 tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-dim";
 
 /**
  * One spell level: ink-stamp "Level N" badge + "used / max" + slot pips,
@@ -73,6 +73,16 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   );
 
   const remove = (spell: OseSpell) => showDeleteDialog(spell);
+
+  const bookName = (spell: OseSpell) => (
+    <button
+      type="button"
+      className="bn tw:min-w-0 tw:flex-1 tw:cursor-pointer tw:truncate tw:text-left tw:font-serif tw:text-(length:--fs-sm) tw:text-text-dim tw:hover:text-gold tw:hover:[text-shadow:0_0_8px_var(--gold-soft)] tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
+      onClick={() => spell.sheet.render(true)}
+    >
+      {spell.name}
+    </button>
+  );
 
   const meta = (spell: OseSpell) =>
     spellMeta(spell).map((p) => (
@@ -274,9 +284,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                       imgClassName="tw:object-cover"
                     />
                   )}
-                  <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">
-                    {spell.name}
-                  </span>
+                  {bookName(spell)}
                 </span>
               );
             }
@@ -297,12 +305,12 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                     imgClassName="tw:object-cover"
                   />
                 )}
-                <span className="bn tw:min-w-0 tw:flex-1 tw:truncate">
-                  {spell.name}
-                </span>
+                {bookName(spell)}
                 <InlineButton
                   data-testid="memorize"
-                  className="tw:font-sans tw:text-(length:--fs-2xs) tw:text-gold tw:hover:text-gold-bright tw:disabled:cursor-not-allowed tw:disabled:opacity-40"
+                  variant="link"
+                  size="2xs"
+                  className="tw:font-sans"
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
                   title={

@@ -265,10 +265,10 @@
     background: var(--surface-2, #2c2823);
   }
   &.is-on {
-    color: var(--teal);
+    color: var(--teal-accent);
   }
   &.is-on:hover {
-    color: var(--teal-dim);
+    color: var(--teal-accent-dim);
   }
 }
 

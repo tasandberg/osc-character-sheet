@@ -12,6 +12,7 @@ import {
 } from "@features/portraitImage/applyPortraitImage";
 import type { PortraitImageDrop } from "@features/portraitImage/portraitImageState";
 import { tabs, TabIds } from "@app/tabs";
+import { selectTabCounts } from "@app/tabCounts";
 import getLabel from "@src/util/getLabel";
 import { ActionsView, SavesExploration } from "@features/actions";
 import { InventoryView } from "@features/inventory";
@@ -323,10 +324,12 @@ export default function SheetShell() {
   };
 
   const visible = tabs(actor).filter((t) => !t.disabled);
+  const counts = selectTabCounts(actor, invItems as OseItem[]);
   const items: TabItem[] = visible.map((t) => ({
     id: t.id,
     label: getLabel(t.label),
     icon: <span aria-hidden="true">{t.icon}</span>,
+    count: counts[t.id] || undefined,
   }));
 
   const activeTab = visible.find((t) => t.id === currentTab) ?? visible[0];

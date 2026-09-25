@@ -50,7 +50,7 @@ export function SortHeaderRow({
         className={cx(
           "osc-inv-thlabel",
           MICRO_LABEL,
-          "tw:text-text-faint tw:text-center",
+          "tw:text-text-mute tw:text-center",
         )}
       >
         Equip

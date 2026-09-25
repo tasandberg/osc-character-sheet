@@ -165,7 +165,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         <div className={`${VITAL} ac tw:border-[color-mix(in_srgb,var(--teal)_50%,transparent)]`}>
           <Stamp className={VITAL_L}>AC</Stamp>
           <div className={VV_ROW}>
-            <div className={`${VITAL_BIG} tw:text-teal`} data-testid="ac-value">{vitals.ac.value}</div>
+            <div className={`${VITAL_BIG} tw:text-teal-accent`} data-testid="ac-value">{vitals.ac.value}</div>
           </div>
           <div className={VITAL_SUB}>
             <span className={SUB_FULL}>{vitals.ac.ascending ? "Ascending" : "Descending"}</span>

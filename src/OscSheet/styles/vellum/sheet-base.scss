@@ -32,6 +32,23 @@
   --text-faint: #686054;
 }
 
+:root {
+  --mustard-hover: #e6c87e;
+  --teal-accent: var(--teal);
+  --teal-accent-hover: var(--teal-bright);
+  --teal-accent-dim: var(--teal-dim);
+  --teal-bright: #57c3c3;
+  --gold-hover: var(--mustard-hover);
+  --gold-disabled: color-mix(in srgb, var(--gold) 50%, var(--text-dim));
+}
+
+[data-theme="cream"] {
+  --mustard-hover: var(--accent-alt-dim);
+  --teal-accent: #1b6a6a;
+  --teal-accent-hover: var(--teal-dim);
+  --teal-accent-dim: var(--teal-dim);
+}
+
 html {
   font-size: 100%;
 }

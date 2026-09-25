@@ -350,7 +350,7 @@
   background: none;
   border: none;
   border-radius: var(--r-sm);
-  color: var(--text-faint);
+  color: var(--text-dim);
   font-size: var(--fs-2xs);
   line-height: 1;
   cursor: pointer;
@@ -360,7 +360,7 @@
     border-color 0.12s;
 }
 .icon-btn:hover:not(:disabled) {
-  color: var(--text-dim);
+  color: var(--text);
 }
 .icon-btn:focus-visible {
   outline: 2px solid var(--gold);
@@ -439,8 +439,8 @@
 .menu-item .shortcut {
   margin-left: auto;
   font-family: var(--mono);
-  font-size: var(--fs-3xs);
-  color: var(--text-faint);
+  font-size: var(--fs-2xs);
+  color: var(--text-dim);
   letter-spacing: 0.04em;
 }
 .menu-sep {
@@ -452,10 +452,10 @@
   padding: 6px var(--spacer-3) 3px;
   font-family: var(--sans);
   font-weight: 600;
-  font-size: var(--fs-3xs);
+  font-size: var(--fs-2xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 /* Floating popover variant — anchored to a parent, with arrow indicator.
@@ -617,7 +617,7 @@
 }
 .combobox-create-plus {
   font-family: var(--mono);
-  color: var(--teal);
+  color: var(--teal-accent);
 }
 .combobox-empty {
   padding: var(--spacer-2) var(--spacer-3);
@@ -722,7 +722,7 @@
   line-height: 1.2;
 }
 .tag.teal {
-  color: var(--teal);
+  color: var(--teal-accent);
   border-color: var(--teal);
   background: color-mix(in oklab, var(--teal) 10%, transparent);
 }
@@ -800,7 +800,7 @@
   color: var(--gold);
 }
 .tag.chip.missile i {
-  color: var(--teal);
+  color: var(--teal-accent);
 }
 
 /* ─── Tooltip popover — `.tag-pop` ───────────────────────────────────────
@@ -1215,7 +1215,7 @@ button.pip:hover {
   height: 18px;
   display: grid;
   place-items: center;
-  color: var(--teal);
+  color: var(--teal-accent);
 }
 .toast .body {
   flex: 1 1 auto;
@@ -1374,13 +1374,16 @@ button.pip:hover {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--teal);
+  color: var(--teal-accent);
 }
-.inline-btn:hover {
+.inline-btn:hover:not(:disabled) {
   color: var(--accent-alt);
 }
-.inline-btn:active {
+.inline-btn:active:not(:disabled) {
   transform: translateY(0.5px);
+}
+.inline-btn:disabled {
+  cursor: not-allowed;
 }
 .inline-btn:focus {
   outline: none;
@@ -1389,6 +1392,33 @@ button.pip:hover {
   outline: 2px solid var(--teal);
   outline-offset: 2px;
   border-radius: var(--r-sm);
+}
+.inline-btn.link {
+  color: var(--gold);
+}
+.inline-btn.link:hover:not(:disabled) {
+  color: var(--gold-hover);
+}
+.inline-btn.link:disabled {
+  color: var(--gold-disabled);
+}
+.inline-btn.link:focus-visible {
+  outline: 0.125em solid var(--gold);
+  outline-offset: 0.2em;
+}
+.inline-btn-label {
+  transition: color 0.12s;
+}
+.inline-btn.link .inline-btn-label {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
+}
+.inline-btn.link:disabled .inline-btn-label {
+  text-decoration: none;
+}
+.inline-btn.link .inline-btn-label * {
+  color: inherit;
 }
 
 /* ConfirmDialog — in-window confirm in the Vellum language */
@@ -1434,38 +1464,17 @@ button.pip:hover {
   padding: var(--spacer-2-5) var(--spacer-4) 14px;
 }
 
-/* OverrideValue — mono default / teal dotted reset link */
+/* OverrideValue — mono default / dotted reset link */
 .ed-resetlink {
   font-family: var(--mono);
-  font-size: var(--fs-3xs);
-  color: var(--teal);
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
   line-height: 1.4;
   align-self: flex-start;
   text-align: left;
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-underline-offset: 2px;
 }
 .ed-resetlink.ed-meta-center,
 .hint.ed-meta-center {
   text-align: center;
   align-self: center;
-}
-.ed-resetlink:hover {
-  color: var(--teal);
-  text-decoration-style: solid;
-}
-.ed-resetlink:focus {
-  outline: none;
-}
-.ed-resetlink:focus-visible {
-  outline: 2px solid var(--teal);
-  outline-offset: 2px;
-  border-radius: var(--r-sm);
 }
 
 /* StampCell — ink-stamp numeric cell */
