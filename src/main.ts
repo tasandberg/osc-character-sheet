@@ -11,10 +11,12 @@ import {
   runWorldMigration,
 } from "@domain/migrations";
 import logger from "@src/util/logger";
+import { preloadSheetFonts } from "@src/OscSheet/styles/vellum/preloadFonts";
 
 export function initialize() {
   foundry.helpers.Hooks.once("init", () => {
     logger("Initializing module");
+    preloadSheetFonts();
     OscSheet.registerSettings();
     registerMigrationSetting();
   });

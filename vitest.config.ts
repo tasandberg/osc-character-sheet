@@ -18,6 +18,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    css: { include: [/fonts\.css/] },
     include: ["src/**/*.test.{ts,tsx}", "tools/**/*.test.ts"],
   },
 });
