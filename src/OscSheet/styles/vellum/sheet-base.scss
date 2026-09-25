@@ -72,6 +72,56 @@ body {
 .stamp.md  { font-size: var(--fs-md); padding: 7px 11px 5px; }
 .stamp.sm  { font-size: var(--fs-2xs); padding: 5px 8px 3px; letter-spacing: 0.1em; }
 
+.stamp.rollable {
+  cursor: pointer;
+  transition:
+    background 0.12s ease-out,
+    box-shadow 0.12s ease-out,
+    transform 0.12s ease-out;
+}
+.stamp.rollable:hover,
+.stamp.rollable:focus-visible {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--ink) 86%, var(--stamp-text)) 0%,
+    var(--ink) 62%
+  );
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.22),
+    inset 0 -2px 0 oklch(0 0 0 / 0.6),
+    0 2px 0 oklch(0 0 0 / 0.55),
+    0 4px 5px -2px oklch(0 0 0 / 0.45);
+  transform: translateY(-1px);
+}
+.stamp.rollable:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+.stamp.rollable:active {
+  background: linear-gradient(
+    to bottom,
+    var(--ink) 38%,
+    color-mix(in srgb, var(--ink) 92%, var(--stamp-text)) 100%
+  );
+  box-shadow:
+    inset 0 2px 3px oklch(0 0 0 / 0.7),
+    inset 0 -1px 0 oklch(1 0 0 / 0.06),
+    0 1px 1px -1px oklch(0 0 0 / 0.4);
+  transform: translateY(1px);
+  transition-duration: 0.04s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp.rollable {
+    transition: none;
+  }
+  .stamp.rollable:hover,
+  .stamp.rollable:focus-visible,
+  .stamp.rollable:active {
+    transform: none;
+  }
+}
+
 /* Section title — Title Case in IM Fell SC with a rule underneath (the
    "Vellum" treatment). IM Fell SC renders small caps naturally so we do NOT
    uppercase.

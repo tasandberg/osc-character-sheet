@@ -398,6 +398,9 @@ export default function SheetShell() {
                   : undefined
               }
               canEditPortrait={canEdit}
+              onRollHd={
+                canEdit ? (event) => actor.rollHitDice({ event }) : undefined
+              }
             />
           }
           minibar={
