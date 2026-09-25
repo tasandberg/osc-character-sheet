@@ -22,14 +22,14 @@ describe("selectEmployerOptions", () => {
         actor({ id: "b", name: "Brother Odo" }),
         actor({ id: "npc", name: "Innkeeper", hasPlayerOwner: false }),
         actor({ id: "mon", name: "Goblin", type: "monster" }),
-        actor({ id: "a", name: "Aldric" }),
+        actor({ id: "a", name: "Aldric", img: "aldric.webp" }),
       ],
       "self",
     );
 
     expect(options).toEqual([
-      { id: "a", name: "Aldric" },
-      { id: "b", name: "Brother Odo" },
+      { id: "a", name: "Aldric", img: "aldric.webp" },
+      { id: "b", name: "Brother Odo", img: null },
     ]);
   });
 

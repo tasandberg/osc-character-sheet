@@ -423,19 +423,13 @@ describe("EditModal employer", () => {
     const [, scope, key] = flagPath(FLAGS.employer).split(".");
     return { [scope]: { [key]: id } };
   };
-  const employerSelect = () =>
-    fieldByLabel("Employer")!.querySelector("select") as HTMLSelectElement;
-  const pickEmployer = (id: string) =>
-    act(async () => {
-      const sel = employerSelect();
-      sel.value = id;
-      sel.dispatchEvent(new Event("change", { bubbles: true }));
-      await Promise.resolve();
-    });
+  const openEmployer = () => act(() => inputByLabel("Employer").focus());
+  const employerRows = () =>
+    Array.from(document.querySelectorAll<HTMLElement>('[role="option"]'));
 
   beforeEach(() => {
     (g.game as Record<string, unknown>).actors = [
-      employer("a", "Aldric", 16, 9),
+      { ...employer("a", "Aldric", 16, 9), img: "aldric.webp" },
       employer("b", "Brother Odo", 8, 6),
       { id: "self", name: "Test", type: "character", hasPlayerOwner: true },
       {
@@ -453,19 +447,46 @@ describe("EditModal employer", () => {
   it("lists None plus the other player-owned characters", async () => {
     await renderModal(makeActor({ retainer: { enabled: true } }));
 
-    const labels = Array.from(employerSelect().options).map((o) => o.text);
-    expect(labels).toEqual(["— None —", "Aldric", "Brother Odo"]);
+    openEmployer();
+    expect(employerRows().map((o) => o.textContent)).toEqual([
+      "None",
+      "Aldric",
+      "BBrother Odo",
+    ]);
+  });
+
+  it("renders each employer's portrait, or an initial without one", async () => {
+    await renderModal(makeActor({ retainer: { enabled: true } }));
+
+    openEmployer();
+    const [, aldric, odo] = employerRows();
+    expect(aldric.querySelector("img")!.getAttribute("src")).toBe(
+      "aldric.webp",
+    );
+    expect(odo.querySelector("img")).toBeNull();
+  });
+
+  it("shows the committed employer as a portrait chip", async () => {
+    await renderModal(
+      makeActor({ retainer: { enabled: true }, flags: employedBy("a") }),
+    );
+
+    const chip = fieldByLabel("Employer")!.querySelector(".combobox-chip")!;
+    expect(chip.querySelector("img")!.getAttribute("src")).toBe("aldric.webp");
+    expect(chip.textContent).toBe("Aldric");
   });
 
   it("sets and clears the employer flag", async () => {
     const actor = makeActor({ retainer: { enabled: true } });
     await renderModal(actor);
 
-    await pickEmployer("a");
+    openEmployer();
+    await pickOption((t) => t === "Aldric");
     expect(updateOf(actor)).toHaveBeenCalledWith({
       [flagPath(FLAGS.employer)]: "a",
     });
-    await pickEmployer("");
+    openEmployer();
+    await pickOption((t) => t === "None");
     expect(updateOf(actor)).toHaveBeenCalledWith({
       [flagDeletePath(FLAGS.employer)]: null,
     });

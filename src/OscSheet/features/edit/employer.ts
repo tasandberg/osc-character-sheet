@@ -1,6 +1,7 @@
 export interface EmployerCandidate {
   id: string | null;
   name: string | null;
+  img?: string | null;
   type: string;
   hasPlayerOwner: boolean;
   system?: { scores?: { cha?: { value?: number; loyalty?: number } } };
@@ -9,6 +10,7 @@ export interface EmployerCandidate {
 export interface EmployerOption {
   id: string;
   name: string;
+  img: string | null;
 }
 
 export interface LoyaltyDefault {
@@ -25,7 +27,7 @@ export function selectEmployerOptions(
   for (const a of actors) {
     if (!a.id || a.id === selfId) continue;
     if (a.type !== "character" || !a.hasPlayerOwner) continue;
-    options.push({ id: a.id, name: a.name ?? "" });
+    options.push({ id: a.id, name: a.name ?? "", img: a.img ?? null });
   }
   return options.sort((x, y) => x.name.localeCompare(y.name));
 }

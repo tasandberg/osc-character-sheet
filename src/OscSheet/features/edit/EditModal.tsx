@@ -12,7 +12,7 @@ import {
   Combobox,
   Tag,
   Check,
-  Select,
+  Monogram,
 } from "@src/OscSheet/components/ui";
 import { useOscSheetContext } from "@app/context";
 import {
@@ -26,6 +26,7 @@ import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
 import { HitDiceField } from "./HitDiceField";
 import { ExplorationSection } from "./ExplorationSection";
 import {
+  type EmployerOption,
   employerLoyaltyDefault,
   selectEmployerOptions,
   worldActors,
@@ -57,6 +58,19 @@ function classFace(name: string): ReactNode {
       <Tag intent={intent} size="xs" title={title}>
         {text}
       </Tag>
+    </>
+  );
+}
+
+function employerFace({ name, img }: EmployerOption): ReactNode {
+  return (
+    <>
+      <Monogram
+        img={img}
+        monogram={name.charAt(0).toUpperCase()}
+        className="tw:size-5 tw:flex-none tw:grid tw:place-items-center tw:overflow-hidden tw:rounded-full tw:object-cover u-bg-2 u-text-dim u-fs-3xs"
+      />
+      <span className="combobox-optlabel">{name}</span>
     </>
   );
 }
@@ -427,18 +441,26 @@ export function EditModal({
                 <label
                   className={`${ED_FIELD} ${SPAN_6} tw:@max-[560px]/fwin:col-span-12 fade-in`}
                 >
-                  <span className={LAB_ID}>Employer</span>
-                  <Select
+                  <span className={LAB_ID}>
+                    Employer <span className={ED_HINT}>optional</span>
+                  </span>
+                  <Combobox
                     value={employerId}
-                    onChange={(e) => setEmployer(e.target.value)}
-                  >
-                    <option value="">— None —</option>
-                    {employerOptions.map((o) => (
-                      <option key={o.id} value={o.id}>
-                        {o.name}
-                      </option>
-                    ))}
-                  </Select>
+                    options={[
+                      { value: "", label: "None" },
+                      ...employerOptions.map((o) => ({
+                        value: o.id,
+                        label: o.name,
+                        node: employerFace(o),
+                      })),
+                    ]}
+                    onCommit={setEmployer}
+                    renderValue={(id) => {
+                      const o = employerOptions.find((e) => e.id === id);
+                      return o ? employerFace(o) : null;
+                    }}
+                    allowCreate={false}
+                  />
                 </label>
               </>
             )}
