@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import type { TopbarVM } from "@domain/vm-types";
 import { SettingsModal } from "@features/settings/SettingsModal";
 import { CampModal } from "@features/camp/CampModal";
+import { useDismiss } from "@ui/useDismiss";
 import { FEATURES } from "@app/features";
 import {
   TB_BTN,
@@ -41,17 +42,8 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
   const [campOpen, setCampOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close on outside click.
-  useEffect(() => {
-    if (!menuOpen) return;
-    function onDown(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [menuOpen]);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  useDismiss(menuRef, closeMenu, { active: menuOpen });
 
   // Character-editing actions (Camp/Level Up/Edit) are owner-only; the theme
   // toggle below stays available to everyone (client-side setting).
