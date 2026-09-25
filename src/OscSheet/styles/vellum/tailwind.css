@@ -47,6 +47,14 @@
   --container-twopane: 700px; /* sheet: single column ⇄ rail + pane */
 }
 
+@theme inline {
+  --color-gold-hover: var(--gold-hover);
+  --color-gold-disabled: var(--gold-disabled);
+  --color-teal-accent: var(--teal-accent);
+  --color-teal-accent-hover: var(--teal-accent-hover);
+  --color-teal-accent-dim: var(--teal-accent-dim);
+}
+
 /* Utilities are deliberately UNLAYERED, unlike the theme and the reset.
  *
  * Foundry is a shared document and other modules ship global, unscoped rules:

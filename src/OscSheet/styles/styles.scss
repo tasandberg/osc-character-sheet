@@ -143,10 +143,11 @@
 // set on the window in osc-sheet.js _onRender; the token overrides cascade to
 // the whole sheet (plaque brackets, mod pills, XP bar, Level-Up, active tab, …).
 .osc-sheet[data-kind="hireling"] {
-  --gold: var(--teal);
-  --gold-dim: var(--teal-dim);
-  --gold-soft: color-mix(in srgb, var(--teal) 30%, transparent);
-  --gold-bright: #57c3c3; // bright teal variant for retainers
+  --gold: var(--teal-accent);
+  --gold-dim: var(--teal-accent-dim);
+  --gold-soft: color-mix(in srgb, var(--teal-accent) 30%, transparent);
+  --gold-bright: var(--teal-bright);
+  --gold-hover: var(--teal-accent-hover);
 }
 
 .osc-sheet-app {
