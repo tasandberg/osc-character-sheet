@@ -33,6 +33,7 @@ export async function joinAsUser(page: Page, label: string, { canvas = false } =
     (globalThis as any).game.settings.get("core", "noCanvas"),
   );
   if (noCanvas === canvas) throw new Error(`core.noCanvas not applied for ${label}`);
+  if (canvas) await page.evaluate(() => (globalThis as any).canvas.app?.ticker?.stop());
 }
 
 /** Join as the world fixture's built-in Gamemaster (global-setup only; specs use their slot's GM). */

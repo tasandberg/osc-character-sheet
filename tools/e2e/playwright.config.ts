@@ -12,9 +12,8 @@ export default defineConfig({
   testDir: "./specs",
   globalSetup: "./global-setup.ts",
   fullyParallel: true,
-  // 1 on purpose: the CI box is already saturated running serially — 2 workers ran no
-  // faster and 3 ran slower, both timing out. A resource ceiling, not a correctness one,
-  // so raise it if the runner grows.
+  // A resource ceiling, not a correctness one: measured with the canvas on, when 2 workers
+  // ran no faster. Unmeasured since the canvas was disabled.
   workers: 1,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],
