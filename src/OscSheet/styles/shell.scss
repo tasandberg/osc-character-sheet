@@ -45,12 +45,12 @@
 .osc-twopane > .osc-right,
 .osc-sheet-app .modal-body {
   scrollbar-width: thin;
-  scrollbar-color: var(--surface-3, #3a3429) transparent;
+  scrollbar-color: var(--surface-3) transparent;
 }
 
 .osc-twopane > .osc-left {
   padding-bottom: 15px; // intentional: 15px optical offset, leave raw
-  border-bottom: 1px solid var(--border-soft, #2c2823);
+  border-bottom: 1px solid var(--border-soft);
   margin-bottom: 3px;
 }
 // .osc-right's min-width: 0 is a utility in Frame.tsx.
@@ -68,12 +68,12 @@
   background: transparent;
   border: none;
   border-left: 2px solid transparent;
-  color: var(--text-mute, #8a8270);
+  color: var(--text-mute);
   cursor: pointer;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   font-family: var(--sans);
-  font-size: var(--fs-sm, 13px);
+  font-size: var(--fs-sm);
   font-weight: 500;
   letter-spacing: 0.04em;
   padding: var(--spacer-2) 0;
@@ -83,7 +83,7 @@
 }
 .osc-tab .osc-tab-ic {
   writing-mode: horizontal-tb;
-  font-size: var(--fs-md, 14px);
+  font-size: var(--fs-md);
   color: var(--gold-dim, var(--gold));
   transform: rotate(180deg);
 }
@@ -91,19 +91,19 @@
   writing-mode: horizontal-tb;
   transform: rotate(180deg);
   font-family: var(--mono);
-  font-size: var(--fs-2xs, 11px);
-  color: var(--text-dim, #b5ad97);
-  background: var(--surface-2, #2e2a23);
+  font-size: var(--fs-2xs);
+  color: var(--text-dim);
+  background: var(--surface-2);
   border-radius: 99px;
   padding: 1px 5px;
 }
 .osc-tab:hover {
-  color: var(--text-dim, #b5ad97);
+  color: var(--text-dim);
   background: rgba(255, 255, 255, 0.03);
 }
 .osc-tab.active {
-  color: var(--text, #e5dec8);
-  background: var(--bg, #181612);
+  color: var(--text);
+  background: var(--bg);
   border-left-color: var(--gold);
 }
 .osc-tab.active .osc-tab-ic {
@@ -123,16 +123,16 @@
   background: transparent;
   border: none;
   border-top: 2px solid transparent;
-  color: var(--text-mute, #8a8270);
+  color: var(--text-mute);
   cursor: pointer;
   font-family: var(--sans);
-  font-size: var(--fs-3xs, 10px);
+  font-size: var(--fs-3xs);
   font-weight: 500;
   letter-spacing: 0.03em;
   transition: color 0.12s;
 }
 .osc-botbtn-ic {
-  font-size: var(--fs-lg, 16px);
+  font-size: var(--fs-lg);
   color: var(--gold-dim, var(--gold));
   line-height: 1;
 }
@@ -140,7 +140,7 @@
   line-height: 1;
 }
 .osc-botbtn:hover {
-  color: var(--text-dim, #b5ad97);
+  color: var(--text-dim);
 }
 .osc-botbtn.active {
   color: var(--gold);
@@ -225,7 +225,7 @@
   //
   // This one CAN stay: at (0,3,0) it out-ranks the tile stamp's base utilities.
   .osc-twopane .osc-tile .stamp {
-    font-size: var(--fs-2xs, 11px);
+    font-size: var(--fs-2xs);
     padding: 5px 2px 3px;
   }
 }
@@ -242,10 +242,10 @@
     border-bottom: 2px solid transparent;
     margin-bottom: -2px;
     padding: 7px 13px 9px; // optical vertical padding: leave raw
-    color: var(--text-mute, #8a8270);
+    color: var(--text-mute);
     font-family: var(--sans);
     font-weight: 500;
-    font-size: var(--fs-sm, 13px);
+    font-size: var(--fs-sm);
     letter-spacing: 0.02em;
     cursor: pointer;
     transition:
@@ -254,21 +254,21 @@
   }
   .osc-htab .osc-htab-ic {
     color: var(--gold-dim, var(--gold));
-    font-size: var(--fs-sm, 13px);
+    font-size: var(--fs-sm);
   }
   .osc-htab .osc-htab-ct {
     font-family: var(--mono);
-    font-size: var(--fs-2xs, 11px);
-    color: var(--text-dim, #b5ad97);
-    background: var(--surface-2, #2e2a23);
+    font-size: var(--fs-2xs);
+    color: var(--text-dim);
+    background: var(--surface-2);
     border-radius: 99px;
     padding: 1px 6px;
   }
   .osc-htab:hover {
-    color: var(--text-dim, #b5ad97);
+    color: var(--text-dim);
   }
   .osc-htab.active {
-    color: var(--text, #e5dec8);
+    color: var(--text);
     border-bottom-color: var(--gold);
   }
   .osc-htab.active .osc-htab-ic {
