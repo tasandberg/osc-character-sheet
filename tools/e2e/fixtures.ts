@@ -27,17 +27,19 @@ export type Fighter = {
  */
 export const test = base.extend<
   { fighter: Fighter },
-  { gamePage: Page; observerPage: Page; slot: number }
+  { gamePage: Page; observerPage: Page; slot: number; canvas: boolean }
 >({
+  canvas: [false, { scope: "worker", option: true }],
+
   slot: [async ({}, use, workerInfo) => use(workerInfo.parallelIndex), { scope: "worker" }],
 
   gamePage: [
-    async ({ browser, slot }, use) => {
+    async ({ browser, slot, canvas }, use) => {
       const context = await browser.newContext({
         viewport: { width: 1920, height: 1080 },
       });
       const page = await context.newPage();
-      await joinAsUser(page, gmUserName(slot));
+      await joinAsUser(page, gmUserName(slot), { canvas });
       await use(page);
       await context.close();
     },
@@ -47,12 +49,12 @@ export const test = base.extend<
   // The second user: view-only permission on this test's fighter, driving the
   // read-only-sheet spec. Worker-scoped for the same boot-cost reason as `gamePage`.
   observerPage: [
-    async ({ browser, slot }, use) => {
+    async ({ browser, slot, canvas }, use) => {
       const context = await browser.newContext({
         viewport: { width: 1920, height: 1080 },
       });
       const page = await context.newPage();
-      await joinAsUser(page, observerUserName(slot));
+      await joinAsUser(page, observerUserName(slot), { canvas });
       await use(page);
       await context.close();
     },

@@ -63,6 +63,8 @@ async function dragSourceToHotbar(
   );
 }
 
+test.use({ canvas: true });
+
 test.describe("drag weapon to macro hotbar", () => {
   // rollItemMacro resolves the item off the speaker's actor; with no token selected,
   // give this slot's GM an assigned character so the macro finds the weapon. The

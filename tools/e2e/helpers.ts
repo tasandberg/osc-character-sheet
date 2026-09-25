@@ -8,8 +8,8 @@ export const observerUserName = (slot: number) => `E2E Observer ${slot}`;
 const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/, "");
 
 /** Join the running world as a named passwordless user and wait for game.ready. */
-export async function joinAsUser(page: Page, label: string): Promise<void> {
-  await page.addInitScript(() => localStorage.setItem("core.noCanvas", "true"));
+export async function joinAsUser(page: Page, label: string, { canvas = false } = {}): Promise<void> {
+  if (!canvas) await page.addInitScript(() => localStorage.setItem("core.noCanvas", "true"));
   await page.goto(`${URL}/join`, { waitUntil: "domcontentloaded" });
   // Foundry 14.366 replaced the user <select name="userid"> with <input name="username">.
   const userInput = page.locator('input[name="username"]');
@@ -32,7 +32,7 @@ export async function joinAsUser(page: Page, label: string): Promise<void> {
   const noCanvas = await page.evaluate(() =>
     (globalThis as any).game.settings.get("core", "noCanvas"),
   );
-  if (noCanvas !== true) throw new Error(`core.noCanvas not applied for ${label}`);
+  if (noCanvas === canvas) throw new Error(`core.noCanvas not applied for ${label}`);
 }
 
 /** Join as the world fixture's built-in Gamemaster (global-setup only; specs use their slot's GM). */
