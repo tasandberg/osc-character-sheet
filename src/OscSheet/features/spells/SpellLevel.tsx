@@ -308,7 +308,9 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                 {bookName(spell)}
                 <InlineButton
                   data-testid="memorize"
-                  className="tw:font-sans tw:text-(length:--fs-2xs) tw:text-gold tw:enabled:hover:text-gold-hover tw:disabled:cursor-not-allowed tw:disabled:text-gold-disabled"
+                  variant="link"
+                  size="2xs"
+                  className="tw:font-sans"
                   disabled={atCapacity}
                   onClick={() => prepare(spell)}
                   title={

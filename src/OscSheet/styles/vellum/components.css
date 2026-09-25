@@ -1376,11 +1376,14 @@ button.pip:hover {
   cursor: pointer;
   color: var(--teal-accent);
 }
-.inline-btn:hover {
+.inline-btn:hover:not(:disabled) {
   color: var(--accent-alt);
 }
-.inline-btn:active {
+.inline-btn:active:not(:disabled) {
   transform: translateY(0.5px);
+}
+.inline-btn:disabled {
+  cursor: not-allowed;
 }
 .inline-btn:focus {
   outline: none;
@@ -1389,6 +1392,33 @@ button.pip:hover {
   outline: 2px solid var(--teal);
   outline-offset: 2px;
   border-radius: var(--r-sm);
+}
+.inline-btn.link {
+  color: var(--gold);
+}
+.inline-btn.link:hover:not(:disabled) {
+  color: var(--gold-hover);
+}
+.inline-btn.link:disabled {
+  color: var(--gold-disabled);
+}
+.inline-btn.link:focus-visible {
+  outline: 0.125em solid var(--gold);
+  outline-offset: 0.2em;
+}
+.inline-btn-label {
+  transition: color 0.12s;
+}
+.inline-btn.link .inline-btn-label {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
+}
+.inline-btn.link:disabled .inline-btn-label {
+  text-decoration: none;
+}
+.inline-btn.link .inline-btn-label * {
+  color: inherit;
 }
 
 /* ConfirmDialog — in-window confirm in the Vellum language */
@@ -1434,38 +1464,17 @@ button.pip:hover {
   padding: var(--spacer-2-5) var(--spacer-4) 14px;
 }
 
-/* OverrideValue — mono default / teal dotted reset link */
+/* OverrideValue — mono default / dotted reset link */
 .ed-resetlink {
   font-family: var(--mono);
-  font-size: var(--fs-3xs);
-  color: color-mix(in srgb, var(--teal) 60%, var(--text));
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
   line-height: 1.4;
   align-self: flex-start;
   text-align: left;
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-underline-offset: 2px;
 }
 .ed-resetlink.ed-meta-center,
 .hint.ed-meta-center {
   text-align: center;
   align-self: center;
-}
-.ed-resetlink:hover {
-  color: color-mix(in srgb, var(--teal) 60%, var(--text));
-  text-decoration-style: solid;
-}
-.ed-resetlink:focus {
-  outline: none;
-}
-.ed-resetlink:focus-visible {
-  outline: 2px solid var(--teal);
-  outline-offset: 2px;
-  border-radius: var(--r-sm);
 }
 
 /* StampCell — ink-stamp numeric cell */
