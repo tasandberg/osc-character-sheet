@@ -1,7 +1,8 @@
 // "+" control in the All-Items header: pick an OSE type, create it, land in its sheet.
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { IconButton } from "@ui/IconButton";
 import { Menu, MenuItem, MenuLabel } from "@ui/Menu";
+import { useDismiss } from "@ui/useDismiss";
 import type { InventoryItemType } from "@features/inventory/createItem";
 
 const TYPES: { type: InventoryItemType; label: string; icon: string }[] = [
@@ -19,19 +20,8 @@ export function AddItemMenu({
   const [open, setOpen] = useState(false);
   const host = useRef<HTMLSpanElement>(null);
 
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: Event) => {
-      if (!host.current?.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("pointerdown", close);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("pointerdown", close);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  const close = useCallback(() => setOpen(false), []);
+  useDismiss(host, close, { active: open });
 
   return (
     <span className="menu-host" ref={host}>

@@ -1,10 +1,12 @@
 // Right-click context menu for an inventory item (View / Send / Unequip /
 // Consume / Delete), anchored at the cursor and kept on-screen.
-import { useEffect, useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
+import { computePosition, flip, shift } from "@floating-ui/dom";
 import { FEATURES } from "@app/features";
 import { collectItemMenuEntries } from "@domain/extensions";
 import type { OSEActor, OseItem } from "@domain/types";
 import type { MenuState } from "@features/inventory/types";
+import { useDismiss } from "@ui/useDismiss";
 
 export function ItemContextMenu({
   menu,
@@ -33,33 +35,31 @@ export function ItemContextMenu({
   /** Open the Send dialog for this item. Absent → item can't be sent (e.g. coins). */
   onSend?: (id: string) => void;
 }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("pointerdown", onClose);
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("blur", onClose);
-    return () => {
-      window.removeEventListener("pointerdown", onClose);
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("blur", onClose);
-    };
-  }, [onClose]);
+  const ref = useRef<HTMLDivElement>(null);
+  useDismiss(ref, onClose, { closeOnBlur: true });
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const cursor = { getBoundingClientRect: () => new DOMRect(menu.x, menu.y) };
+    void computePosition(cursor, el, {
+      strategy: "fixed",
+      placement: "bottom-start",
+      middleware: [flip(), shift({ padding: 8 })],
+    }).then(({ x, y }) =>
+      Object.assign(el.style, { left: `${x}px`, top: `${y}px` }),
+    );
+  }, [menu.x, menu.y]);
 
   const moduleEntries = useMemo(
     () => collectItemMenuEntries(actor, doc, canEdit),
     [actor, doc, canEdit],
   );
 
-  // Keep the menu on-screen.
-  const style: React.CSSProperties = {
-    left: Math.min(menu.x, window.innerWidth - 200),
-    top: Math.min(menu.y, window.innerHeight - 170),
-  };
-
   return (
     <div
+      ref={ref}
       className="osc-ctx"
-      style={style}
       onPointerDown={(e) => e.stopPropagation()}
     >
       <div className="osc-ctx-title">{menu.item.name}</div>
