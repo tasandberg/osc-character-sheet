@@ -442,7 +442,12 @@ export function EditModal({
                   className={`${ED_FIELD} ${SPAN_6} tw:@max-[560px]/fwin:col-span-12 fade-in`}
                 >
                   <span className={LAB_ID}>
-                    Employer <span className={ED_HINT}>optional</span>
+                    Employer{" "}
+                    <span
+                      className={`${ED_HINT} tw:normal-case tw:tracking-normal`}
+                    >
+                      optional
+                    </span>
                   </span>
                   <Combobox
                     value={employerId}
