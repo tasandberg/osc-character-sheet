@@ -77,6 +77,7 @@ export function ContainerRow({
         collapsed && "collapsed",
       )}
       aria-label={collapsed ? "Expand" : "Collapse"}
+      aria-expanded={!collapsed}
       onClick={() => onToggle(item.id)}
     >
       <i className="fa-solid fa-chevron-down" aria-hidden="true" />
