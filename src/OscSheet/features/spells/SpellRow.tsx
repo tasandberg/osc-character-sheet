@@ -91,9 +91,16 @@ export function SpellRow({
       : "tw:text-text tw:hover:text-gold",
   );
   const name = onOpenName ? (
-    <a className={spn} onClick={onOpenName}>
+    <button
+      type="button"
+      className={cx(
+        spn,
+        "tw:text-left tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold",
+      )}
+      onClick={onOpenName}
+    >
       {spell.name}
-    </a>
+    </button>
   ) : (
     <span className={spn}>{spell.name}</span>
   );

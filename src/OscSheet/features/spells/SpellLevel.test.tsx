@@ -351,6 +351,30 @@ describe("removing a spell", () => {
   });
 });
 
+describe("opening a spell's sheet from its name", () => {
+  const renderSheet = vi.mocked(cure.sheet.render);
+  beforeEach(() => renderSheet.mockClear());
+
+  it.each([
+    ["an editable", true],
+    ["a read-only", false],
+  ])("opens it from a spellbook entry on %s sheet", (_label, canEdit) => {
+    render(cleric, canEdit);
+    openBook();
+    const name = q<HTMLButtonElement>('[data-testid="book-spell"] button.bn')!;
+    expect(name.textContent).toBe("Cure Light Wounds");
+    act(() => name.click());
+    expect(renderSheet).toHaveBeenCalledWith(true);
+    expect(cure.update).not.toHaveBeenCalled();
+  });
+
+  it("opens it from a castable row without casting", () => {
+    render(cleric, true, true);
+    act(() => q<HTMLButtonElement>(".osc-spell button.spn")!.click());
+    expect(renderSheet).toHaveBeenCalledWith(true);
+  });
+});
+
 describe("a level with no spells", () => {
   /** Caster with slots from the class table but an empty spell list. */
   const bare = {
