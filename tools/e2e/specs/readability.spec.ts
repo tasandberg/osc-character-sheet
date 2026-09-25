@@ -76,8 +76,12 @@ test.describe("text readability", () => {
 
       await setSetting(gamePage, "theme", "cream");
       await expect(sheet).toHaveAttribute("data-theme", "cream");
-      const cream = await labelStyle(label);
-      expect(contrast(cream.fg, cream.bg)).toBeGreaterThanOrEqual(4.5);
+      await expect
+        .poll(async () => {
+          const cream = await labelStyle(label);
+          return contrast(cream.fg, cream.bg);
+        })
+        .toBeGreaterThanOrEqual(4.5);
     } finally {
       await setSetting(gamePage, "fontScale", "medium");
       await setSetting(gamePage, "theme", "dark");
