@@ -6,14 +6,20 @@ const MODULE_ID = "osc-character-sheet";
 
 type Rgb = [number, number, number];
 
-async function setSetting(page: Page, key: string, value: string): Promise<void> {
+async function setSetting(
+  page: Page,
+  key: string,
+  value: string,
+): Promise<void> {
   await page.evaluate(
     ([mod, k, v]) => (globalThis as any).game.settings.set(mod, k, v),
     [MODULE_ID, key, value],
   );
 }
 
-async function labelStyle(label: Locator): Promise<{ fontSize: number; fg: Rgb; bg: Rgb }> {
+async function labelStyle(
+  label: Locator,
+): Promise<{ fontSize: number; fg: Rgb; bg: Rgb }> {
   return label.evaluate((el) => {
     const rgb = (c: string) => (c.match(/[\d.]+/g) ?? []).map(Number);
     let bgEl: Element | null = el;
@@ -50,7 +56,9 @@ test.describe("text readability", () => {
   }) => {
     try {
       const sheet = await openCharacterSheet(gamePage, fighter.name);
-      const label = sheet.locator('[data-testid="save-death"]:visible .pc').first();
+      const label = sheet
+        .locator('[data-testid="save-death"]:visible .pc')
+        .first();
       await expect(label).toBeVisible();
 
       const medium = await labelStyle(label);
@@ -61,7 +69,10 @@ test.describe("text readability", () => {
       await expect
         .poll(async () => (await labelStyle(label)).fontSize)
         .toBeGreaterThan(medium.fontSize);
-      expect((await labelStyle(label)).fontSize).toBeCloseTo(medium.fontSize * 1.125, 1);
+      expect((await labelStyle(label)).fontSize).toBeCloseTo(
+        medium.fontSize * 1.125,
+        1,
+      );
 
       await setSetting(gamePage, "theme", "cream");
       await expect(sheet).toHaveAttribute("data-theme", "cream");
