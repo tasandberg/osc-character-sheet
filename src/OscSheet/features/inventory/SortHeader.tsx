@@ -34,7 +34,7 @@ export function SortHeader({
         // header back to the hover colour, so the two are exclusive.
         active
           ? "active tw:text-text"
-          : "tw:text-text-dim tw:hover:text-text",
+          : "tw:text-text-mute tw:hover:text-text",
         className,
       )}
       aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"}
