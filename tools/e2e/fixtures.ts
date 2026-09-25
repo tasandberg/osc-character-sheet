@@ -15,9 +15,8 @@ export type Fighter = {
 };
 
 /**
- * Foundry's `game.ready` boot (~40s on a 2-core CI runner under software WebGL)
- * dominates each spec, so the two sessions stay worker-scoped and every test in the
- * worker reuses them. Isolation comes from the data instead:
+ * Foundry's `game.ready` boot is the costliest step of a session, so the two sessions
+ * stay worker-scoped and every test in the worker reuses them. Isolation comes from the data instead:
  *
  *  - Each parallel slot joins as its OWN seeded GM and observer user. Sessions of one
  *    Foundry user share that user's hotbar, assigned character and flags, so reusing
