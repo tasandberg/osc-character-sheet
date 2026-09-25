@@ -3,7 +3,7 @@ import { InlineButton } from "./InlineButton";
 import type { ReactNode } from "react";
 
 /** @category Controls — the "rule default" affordance. Prints the default in
- *  mono; when overridden it becomes an accent reset link. The caller wires
+ *  mono; when overridden it becomes a dotted accent reset link. The caller wires
  *  onResetRequest to a ConfirmDialog (no native confirm). */
 export function OverrideValue({
   overridden,

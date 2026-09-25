@@ -1456,12 +1456,17 @@ button.pip:hover {
   padding: var(--spacer-2-5) var(--spacer-4) 14px;
 }
 
-/* OverrideValue — mono default / reset link */
+/* OverrideValue — mono default / dotted reset link */
 .ed-resetlink {
   font-family: var(--mono);
   line-height: 1.4;
   align-self: flex-start;
   text-align: left;
+}
+.ed-resetlink .inline-btn-label {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
 }
 .ed-resetlink.ed-meta-center,
 .hint.ed-meta-center {
