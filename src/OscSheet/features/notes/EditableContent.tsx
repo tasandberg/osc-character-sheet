@@ -83,7 +83,7 @@ export default function EditableContent({
           {enriched.trim() ? (
             <RichText html={enriched} />
           ) : (
-            <p className="tw:m-0 tw:italic tw:text-text-faint">
+            <p className="tw:m-0 tw:italic tw:text-text-dim">
               No {title.toLowerCase()} yet.
             </p>
           )}

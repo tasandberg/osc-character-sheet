@@ -240,11 +240,11 @@
 }
 .osc-weapon .wstat .sl {
   font-family: var(--sans);
-  font-size: var(--fs-3xs, 10px);
+  font-size: var(--fs-2xs, 11px);
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-faint, #6a6354);
+  color: var(--text-dim, #b5ad97);
 }
 .osc-weapon .wstat .wv {
   display: inline-flex;

@@ -158,8 +158,8 @@ export function SpellRow({
           {pool && (
             <span
               className={cx(
-                "pool tw:font-mono tw:text-(length:--fs-3xs) tw:whitespace-nowrap",
-                spent ? "tw:text-text-faint" : "tw:text-text-mute",
+                "pool tw:font-mono tw:text-(length:--fs-2xs) tw:whitespace-nowrap",
+                spent ? "tw:text-text-dim" : "tw:text-text",
               )}
             >
               {pool.max - pool.used}/{pool.max} · slots

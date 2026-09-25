@@ -188,13 +188,13 @@ export function WealthSection({
           <small className="tw:ml-[2px] tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-accent-alt tw:opacity-75">gp</small>
         </span>
         {hasContent && <i className="osc-wcaret fa-solid fa-caret-right" aria-hidden="true" />}
-        <span className="wt tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-faint">
+        <span className="wt tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-dim">
           {load}
         </span>
       </button>
 
       {!hasContent && (
-        <p className="tw:mt-0 tw:mb-2 tw:ml-[2px] tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint">
+        <p className="tw:mt-0 tw:mb-2 tw:ml-[2px] tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-dim">
           Drop coins, gems, or other valuables here to track your treasure.</p>
       )}
 

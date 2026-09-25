@@ -350,7 +350,7 @@
   background: none;
   border: none;
   border-radius: var(--r-sm);
-  color: var(--text-faint);
+  color: var(--text-dim);
   font-size: var(--fs-2xs);
   line-height: 1;
   cursor: pointer;
@@ -360,7 +360,7 @@
     border-color 0.12s;
 }
 .icon-btn:hover:not(:disabled) {
-  color: var(--text-dim);
+  color: var(--text);
 }
 .icon-btn:focus-visible {
   outline: 2px solid var(--gold);
@@ -439,8 +439,8 @@
 .menu-item .shortcut {
   margin-left: auto;
   font-family: var(--mono);
-  font-size: var(--fs-3xs);
-  color: var(--text-faint);
+  font-size: var(--fs-2xs);
+  color: var(--text-dim);
   letter-spacing: 0.04em;
 }
 .menu-sep {
@@ -452,10 +452,10 @@
   padding: 6px var(--spacer-3) 3px;
   font-family: var(--sans);
   font-weight: 600;
-  font-size: var(--fs-3xs);
+  font-size: var(--fs-2xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 /* Floating popover variant — anchored to a parent, with arrow indicator.
@@ -1438,7 +1438,7 @@ button.pip:hover {
 .ed-resetlink {
   font-family: var(--mono);
   font-size: var(--fs-3xs);
-  color: var(--teal);
+  color: color-mix(in srgb, var(--teal) 60%, var(--text));
   background: transparent;
   border: none;
   padding: 0;
@@ -1456,7 +1456,7 @@ button.pip:hover {
   align-self: center;
 }
 .ed-resetlink:hover {
-  color: var(--teal);
+  color: color-mix(in srgb, var(--teal) 60%, var(--text));
   text-decoration-style: solid;
 }
 .ed-resetlink:focus {

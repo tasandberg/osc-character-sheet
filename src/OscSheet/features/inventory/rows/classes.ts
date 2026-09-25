@@ -26,12 +26,12 @@ export const INV_HEADROW = `${ROW_BASE} tw:pt-0 tw:pb-1 tw:border-b-2 tw:border-
  *  per-row category badge are typographically the same thing. Colour is NOT
  *  included: the sort header swaps it per state, and utilities in one layer are
  *  ordered by Tailwind, not by the order you write them, so a `tw:text-text`
- *  written "after" a `tw:text-text-faint` here would still lose to it. */
+ *  written "after" a `tw:text-text-dim` here would still lose to it. */
 export const MICRO_LABEL =
-  "tw:font-sans tw:text-[length:var(--fs-3xs)] tw:font-semibold tw:tracking-[0.08em] tw:uppercase";
+  "tw:font-sans tw:text-(length:--fs-2xs) tw:font-semibold tw:tracking-[0.08em] tw:uppercase";
 
 /** Per-row category badge (col 4). Dropped at xs to buy the name column width. */
-export const INV_ROWCAT = `${MICRO_LABEL} tw:text-text-faint tw:whitespace-nowrap tw:text-left tw:@max-md/app:hidden`;
+export const INV_ROWCAT = `${MICRO_LABEL} tw:text-text-dim tw:whitespace-nowrap tw:text-left tw:@max-md/app:hidden`;
 
 /** Load cell (col 5) — "N cn" / "N slots" / "—". */
 export const INV_WT =

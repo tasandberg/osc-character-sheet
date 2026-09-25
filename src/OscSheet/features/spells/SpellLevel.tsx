@@ -41,7 +41,7 @@ const BOOKSPELL_ICON =
 /** Empty state, framed like a row — `.osc-spell` carries no box of its own, so
  *  the bare markup this replaced fell outside the panel. */
 const EMPTY_ROW =
-  "osc-spell-empty tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2 tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-faint";
+  "osc-spell-empty tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2 tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-dim";
 
 /**
  * One spell level: ink-stamp "Level N" badge + "used / max" + slot pips,
