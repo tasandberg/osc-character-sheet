@@ -1409,14 +1409,6 @@ button.pip:hover {
 .inline-btn-label {
   transition: color 0.12s;
 }
-.inline-btn.link .inline-btn-label {
-  text-decoration: underline dotted;
-  text-decoration-thickness: 0.08em;
-  text-underline-offset: 0.2em;
-}
-.inline-btn.link:disabled .inline-btn-label {
-  text-decoration: none;
-}
 .inline-btn.link .inline-btn-label * {
   color: inherit;
 }
@@ -1464,7 +1456,7 @@ button.pip:hover {
   padding: var(--spacer-2-5) var(--spacer-4) 14px;
 }
 
-/* OverrideValue — mono default / dotted reset link */
+/* OverrideValue — mono default / reset link */
 .ed-resetlink {
   font-family: var(--mono);
   line-height: 1.4;
