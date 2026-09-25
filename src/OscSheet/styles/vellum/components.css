@@ -1090,9 +1090,9 @@ button.pip:hover {
 .plaque-save .pc {
   display: block;
   font-family: var(--sans);
-  font-size: var(--fs-4xs);
+  font-size: var(--fs-2xs);
   letter-spacing: 0.04em;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-top: 2px;
 }
 

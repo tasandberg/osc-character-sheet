@@ -21,8 +21,19 @@
   --spacer-2-5: 10px;
 }
 
+/* Muted text tiers lifted to ≥4.5:1 on --surface-2. */
+:root {
+  --text-mute: #a59f90;
+  --text-faint: #9a9280;
+}
+
+[data-theme="cream"] {
+  --text-mute: #605b58;
+  --text-faint: #686054;
+}
+
 html {
-  font-size: 100%; /* 16px anchor — every --fs-* rem token resolves against this. Never override on <html>. */
+  font-size: 100%;
 }
 
 html, body {

@@ -157,7 +157,7 @@
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 16px; // stylelint-disable-line declaration-property-value-disallowed-list -- rem anchor for the --fs-* scale, not a type token
+  font-size: var(--fs-base);
   border-radius: 0 0 8px 8px; // square top (under titlebar), rounded bottom to match the frame
   min-width: 320px;
   container-type: inline-size; // outer frame: drives vertical rail ⇄ horizontal tab bar
