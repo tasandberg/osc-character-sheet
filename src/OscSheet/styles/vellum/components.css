@@ -1409,6 +1409,14 @@ button.pip:hover {
 .inline-btn-label {
   transition: color 0.12s;
 }
+.inline-btn.link .inline-btn-label {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
+}
+.inline-btn.link:disabled .inline-btn-label {
+  text-decoration: none;
+}
 .inline-btn.link .inline-btn-label * {
   color: inherit;
 }
@@ -1462,11 +1470,6 @@ button.pip:hover {
   line-height: 1.4;
   align-self: flex-start;
   text-align: left;
-}
-.ed-resetlink .inline-btn-label {
-  text-decoration: underline dotted;
-  text-decoration-thickness: 0.08em;
-  text-underline-offset: 0.2em;
 }
 .ed-resetlink.ed-meta-center,
 .hint.ed-meta-center {
