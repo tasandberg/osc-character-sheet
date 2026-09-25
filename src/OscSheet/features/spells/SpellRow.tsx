@@ -88,7 +88,7 @@ export function SpellRow({
     "spn tw:cursor-pointer tw:font-display tw:text-[length:var(--fs-lg)]",
     spent
       ? "tw:text-text-mute tw:line-through"
-      : "tw:text-text tw:hover:text-gold",
+      : "tw:text-text tw:hover:text-gold tw:hover:[text-shadow:0_0_8px_var(--gold-soft)]",
   );
   const name = onOpenName ? (
     <button

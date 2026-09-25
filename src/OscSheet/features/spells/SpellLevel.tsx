@@ -77,7 +77,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   const bookName = (spell: OseSpell) => (
     <button
       type="button"
-      className="bn tw:min-w-0 tw:flex-1 tw:cursor-pointer tw:truncate tw:text-left tw:font-serif tw:text-(length:--fs-sm) tw:text-text-dim tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
+      className="bn tw:min-w-0 tw:flex-1 tw:cursor-pointer tw:truncate tw:text-left tw:font-serif tw:text-(length:--fs-sm) tw:text-text-dim tw:hover:text-gold tw:hover:[text-shadow:0_0_8px_var(--gold-soft)] tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
       onClick={() => spell.sheet.render(true)}
     >
       {spell.name}
