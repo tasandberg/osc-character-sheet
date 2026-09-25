@@ -34,9 +34,9 @@
 
 :root {
   --mustard-hover: #e6c87e;
-  --teal-accent: #45a8a8;
-  --teal-accent-hover: #6fcaca;
-  --teal-accent-dim: #2f8f8f;
+  --teal-accent: var(--teal);
+  --teal-accent-hover: var(--teal-bright);
+  --teal-accent-dim: var(--teal-dim);
   --teal-bright: #57c3c3;
   --gold-hover: var(--mustard-hover);
   --gold-disabled: color-mix(in srgb, var(--gold) 50%, var(--text-dim));
