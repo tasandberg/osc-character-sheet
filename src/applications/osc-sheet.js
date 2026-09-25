@@ -9,6 +9,7 @@ import {
   findTweaksSheetEntry,
 } from "@src/applications/header-controls";
 import { canUserViewFullSheet } from "@src/OscSheet/domain/ownership";
+import { droppedItemData, folderEntries } from "@src/applications/dropFolder";
 
 import { ReactActorSheetV2 } from "foundry-vtt-react";
 
@@ -138,6 +139,19 @@ class OscSheet extends ReactActorSheetV2 {
       menu.style.left = `${left}px`;
     };
     requestAnimationFrame(() => attempt(frames));
+  }
+
+  async _onDropFolder(_event, folder) {
+    if (!this.actor.isOwner || folder.type !== "Item") return null;
+    const items = await Promise.all(
+      folderEntries(folder).map((entry) => fromUuid(entry.uuid))
+    );
+    const data = droppedItemData(items.filter(Boolean), (item, options) =>
+      game.items.fromCompendium(item, options)
+    );
+    if (!data.length) return null;
+    await this.actor.createEmbeddedDocuments("Item", data);
+    return folder;
   }
 
   static #tweaksSheetEntry(actor) {
