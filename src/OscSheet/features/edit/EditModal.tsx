@@ -12,6 +12,7 @@ import {
   Combobox,
   Tag,
   Check,
+  Monogram,
 } from "@src/OscSheet/components/ui";
 import { useOscSheetContext } from "@app/context";
 import {
@@ -21,8 +22,15 @@ import {
 } from "@domain/classRules";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import type { OSESave } from "@domain/types";
+import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
 import { HitDiceField } from "./HitDiceField";
 import { ExplorationSection } from "./ExplorationSection";
+import {
+  type EmployerOption,
+  employerLoyaltyDefault,
+  selectEmployerOptions,
+  worldActors,
+} from "./employer";
 import {
   ED_FIELD,
   ED_HINT,
@@ -50,6 +58,19 @@ function classFace(name: string): ReactNode {
       <Tag intent={intent} size="xs" title={title}>
         {text}
       </Tag>
+    </>
+  );
+}
+
+function employerFace({ name, img }: EmployerOption): ReactNode {
+  return (
+    <>
+      <Monogram
+        img={img}
+        monogram={name.charAt(0).toUpperCase()}
+        className="tw:size-5 tw:flex-none tw:grid tw:place-items-center tw:overflow-hidden tw:rounded-full tw:object-cover u-bg-2 u-text-dim u-fs-3xs"
+      />
+      <span className="combobox-optlabel">{name}</span>
     </>
   );
 }
@@ -109,6 +130,22 @@ export function EditModal({
   // GMs can re-class a character; players see the class as static header text.
   const isGM = game.user?.isGM ?? false;
   const isRetainer = sys.retainer?.enabled === true;
+  const loyalty = sys.retainer?.loyalty ?? 0;
+  const allActors = isRetainer ? worldActors() : [];
+  const employerOptions = selectEmployerOptions(allActors, actor.id);
+  const storedEmployerId = readFlag<string>(actor, FLAGS.employer) ?? "";
+  const employerId = employerOptions.some((o) => o.id === storedEmployerId)
+    ? storedEmployerId
+    : "";
+  const loyaltyDefault = employerLoyaltyDefault(
+    allActors.find((a) => a.id === employerId),
+  );
+  const setEmployer = (id: string) =>
+    void updateActor(
+      id
+        ? { [flagPath(FLAGS.employer)]: id }
+        : { [flagDeletePath(FLAGS.employer)]: null },
+    );
   const classNames = availableClassNames();
   const level = sys.details.level;
   const dexInit = sys.scores.dex.init;
@@ -376,12 +413,58 @@ export function EditModal({
                   <span className={LAB_ID}>Loyalty Rating</span>
                   <NumberInput
                     className="input mono"
-                    value={sys.retainer?.loyalty ?? 0}
+                    value={loyalty}
                     min={0}
                     max={12}
                     onCommit={(n) =>
                       set("system.retainer.loyalty", clamp(n, 0, 12))
                     }
+                  />
+                  {loyaltyDefault && (
+                    <OverrideValue
+                      overridden={loyalty !== loyaltyDefault.loyalty}
+                      defaultText={`Value based on employer’s CHA: ${loyaltyDefault.loyalty}`}
+                      onResetRequest={() =>
+                        requestConfirm(
+                          "Reset Loyalty Rating?",
+                          `Revert to the default of ${loyaltyDefault.loyalty} from ${loyaltyDefault.employerName}’s CHA ${loyaltyDefault.cha}.`,
+                          () =>
+                            set(
+                              "system.retainer.loyalty",
+                              loyaltyDefault.loyalty,
+                            ),
+                        )
+                      }
+                    />
+                  )}
+                </label>
+                <label
+                  className={`${ED_FIELD} ${SPAN_6} tw:@max-[560px]/fwin:col-span-12 fade-in`}
+                >
+                  <span className={LAB_ID}>
+                    Employer{" "}
+                    <span
+                      className={`${ED_HINT} tw:normal-case tw:tracking-normal`}
+                    >
+                      optional
+                    </span>
+                  </span>
+                  <Combobox
+                    value={employerId}
+                    options={[
+                      { value: "", label: "None" },
+                      ...employerOptions.map((o) => ({
+                        value: o.id,
+                        label: o.name,
+                        node: employerFace(o),
+                      })),
+                    ]}
+                    onCommit={setEmployer}
+                    renderValue={(id) => {
+                      const o = employerOptions.find((e) => e.id === id);
+                      return o ? employerFace(o) : null;
+                    }}
+                    allowCreate={false}
                   />
                 </label>
               </>

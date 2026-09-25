@@ -25,6 +25,7 @@ export const FLAGS = {
   explorationSkills: "explorationSkills",
   /** `game.time.worldTime` (seconds) when the actor last ate a ration. */
   lastAteAt: "lastAteAt",
+  employer: "employer",
 } as const;
 export type FlagKey = (typeof FLAGS)[keyof typeof FLAGS];
 

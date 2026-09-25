@@ -5,6 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import OscSheetProvider from "@app/OscSheetProvider";
 import { EditModal } from "./EditModal";
 import type { OSEActor } from "@domain/types";
+import { FLAGS, flagDeletePath, flagPath } from "@domain/flags";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -49,6 +50,7 @@ type ActorOpts = {
   rawBase?: number;
   scaledBase?: number;
   retainer?: Partial<Retainer>;
+  flags?: Record<string, unknown>;
 };
 
 function makeActor({
@@ -56,6 +58,7 @@ function makeActor({
   rawBase = RAW_BASE,
   scaledBase = DERIVED_BASE,
   retainer,
+  flags,
 }: ActorOpts = {}): OSEActor {
   const movement = { encounter: 30, overland: 18 };
   // Mirror OSE's getter: scaled by encumbrance when auto, raw #moveBase when manual.
@@ -67,7 +70,9 @@ function makeActor({
   });
 
   const actor: Record<string, unknown> = {
+    id: "self",
     name: "Test",
+    flags,
     img: "portrait.png",
     system: {
       config: { movementAuto },
@@ -398,6 +403,121 @@ describe("EditModal retainer fields", () => {
     expect(updateOf(actor)).toHaveBeenCalledWith({
       "system.retainer.loyalty": 12,
     });
+  });
+});
+
+describe("EditModal employer", () => {
+  const employer = (
+    id: string,
+    name: string,
+    cha: number,
+    loyalty: number,
+  ) => ({
+    id,
+    name,
+    type: "character",
+    hasPlayerOwner: true,
+    system: { scores: { cha: { value: cha, loyalty } } },
+  });
+  const employedBy = (id: string) => {
+    const [, scope, key] = flagPath(FLAGS.employer).split(".");
+    return { [scope]: { [key]: id } };
+  };
+  const openEmployer = () => act(() => inputByLabel("Employer").focus());
+  const employerRows = () =>
+    Array.from(document.querySelectorAll<HTMLElement>('[role="option"]'));
+
+  beforeEach(() => {
+    (g.game as Record<string, unknown>).actors = [
+      { ...employer("a", "Aldric", 16, 9), img: "aldric.webp" },
+      employer("b", "Brother Odo", 8, 6),
+      { id: "self", name: "Test", type: "character", hasPlayerOwner: true },
+      {
+        id: "npc",
+        name: "Innkeeper",
+        type: "character",
+        hasPlayerOwner: false,
+      },
+    ];
+  });
+  afterEach(() => {
+    delete (g.game as Record<string, unknown>).actors;
+  });
+
+  it("lists None plus the other player-owned characters", async () => {
+    await renderModal(makeActor({ retainer: { enabled: true } }));
+
+    openEmployer();
+    expect(employerRows().map((o) => o.textContent)).toEqual([
+      "None",
+      "Aldric",
+      "BBrother Odo",
+    ]);
+  });
+
+  it("renders each employer's portrait, or an initial without one", async () => {
+    await renderModal(makeActor({ retainer: { enabled: true } }));
+
+    openEmployer();
+    const [, aldric, odo] = employerRows();
+    expect(aldric.querySelector("img")!.getAttribute("src")).toBe(
+      "aldric.webp",
+    );
+    expect(odo.querySelector("img")).toBeNull();
+  });
+
+  it("shows the committed employer as a portrait chip", async () => {
+    await renderModal(
+      makeActor({ retainer: { enabled: true }, flags: employedBy("a") }),
+    );
+
+    const chip = fieldByLabel("Employer")!.querySelector(".combobox-chip")!;
+    expect(chip.querySelector("img")!.getAttribute("src")).toBe("aldric.webp");
+    expect(chip.textContent).toBe("Aldric");
+  });
+
+  it("sets and clears the employer flag", async () => {
+    const actor = makeActor({ retainer: { enabled: true } });
+    await renderModal(actor);
+
+    openEmployer();
+    await pickOption((t) => t === "Aldric");
+    expect(updateOf(actor)).toHaveBeenCalledWith({
+      [flagPath(FLAGS.employer)]: "a",
+    });
+    openEmployer();
+    await pickOption((t) => t === "None");
+    expect(updateOf(actor)).toHaveBeenCalledWith({
+      [flagDeletePath(FLAGS.employer)]: null,
+    });
+  });
+
+  it("offers the employer's CHA loyalty as a confirmable reset", async () => {
+    const actor = makeActor({
+      retainer: { enabled: true, loyalty: 7 },
+      flags: employedBy("a"),
+    });
+    await renderModal(actor);
+
+    const reset = resetLink("Loyalty Rating") as HTMLButtonElement;
+    expect(reset.textContent).toBe("Value based on employer’s CHA: 9");
+    await click(reset);
+    expect(updateOf(actor)).not.toHaveBeenCalled();
+    const confirm = Array.from(document.querySelectorAll("button")).find(
+      (b) => b.textContent === "Reset",
+    )!;
+    await click(confirm);
+
+    expect(updateOf(actor)).toHaveBeenCalledWith({
+      "system.retainer.loyalty": 9,
+    });
+  });
+
+  it("shows no hint without an employer", async () => {
+    await renderModal(makeActor({ retainer: { enabled: true, loyalty: 7 } }));
+
+    const loyalty = fieldByLabel("Loyalty Rating")!;
+    expect(loyalty.querySelector(".hint, .ed-resetlink")).toBeNull();
   });
 });
 
