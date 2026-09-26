@@ -15,20 +15,20 @@ jobs:
   attach-artifacts:
     # Publish only — a stable publish also fires `released`, which would double-run this.
     if: github.event.action == 'published'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Use tag_name, not GITHUB_REF (unreliable when the publish creates the tag).
     env:
       TAG: ${{ github.event.release.tag_name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.33.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -110,14 +110,14 @@ jobs:
   # module.json fields (id/url/compatibility).
   publish-registry:
     if: github.event.action == 'released'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       TAG: ${{ github.event.release.tag_name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.release.tag_name }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       # Dry-run then POST; idempotent (already-released → 400 treated as success).
