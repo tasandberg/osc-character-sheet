@@ -42,7 +42,7 @@ async function switchToDefaultSheet(actor: OSEActor): Promise<void> {
     | { Actor?: { sheetClasses?: Record<string, Record<string, unknown>> } }
     | undefined;
   const ids = Object.keys(cfg?.Actor?.sheetClasses?.[type] ?? {}).filter(
-    (id) => !id.endsWith(".OscSheet"),
+    (id) => !/\.Osc(Monster)?Sheet$/.test(id),
   );
   const target = ids.find((id) => id.startsWith("ose.")) ?? ids[0];
   if (!target) return;

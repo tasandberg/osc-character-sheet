@@ -40,7 +40,7 @@ function rollSymbol(rollType?: OseRollType): string {
   return (rollType && map?.[rollType]) || "=";
 }
 
-function composeTag(roll: string, rollType?: OseRollType, rollTarget?: number): string {
+export function composeTag(roll: string, rollType?: OseRollType, rollTarget?: number): string {
   // OSE only shows the target half when rollTarget is set (0/undefined ⇒ formula only).
   if (!rollTarget) return roll;
   return `${roll} ${rollSymbol(rollType)}${rollTarget}`;

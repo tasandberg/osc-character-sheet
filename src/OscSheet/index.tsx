@@ -17,6 +17,7 @@ import { SheetErrorBoundary, CrashTestProbe } from "@app/ErrorBoundary";
 import SheetShell from "@app/SheetShell";
 import LimitedSheet from "@app/LimitedSheet";
 import { ToastProvider } from "@ui/ToastHost";
+import { cx } from "@ui/cx";
 import { useEffect, useRef, type ReactNode } from "react";
 
 /** App root element. Theme is owned by the window (osc-sheet.js `_onRender`
@@ -27,7 +28,13 @@ import { useEffect, useRef, type ReactNode } from "react";
  *  prop: props reach React only at mount, so a mount-time prop would freeze
  *  `.is-readonly` while the provider's gate re-derived — leaving the sheet
  *  functionally editable but still styled read-only after a mid-session grant. */
-function ThemedRoot({ children }: { children: ReactNode }) {
+export function ThemedRoot({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   const { canEdit, canViewFullSheet } = useOscSheetContext();
   const appRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +52,12 @@ function ThemedRoot({ children }: { children: ReactNode }) {
   // role-less div; the individual controls carry their own a11y state.)
   return (
     <div
-      className={`osc-sheet-app${canEdit ? "" : " is-readonly"}${canViewFullSheet ? "" : " is-limited"}`}
+      className={cx(
+        "osc-sheet-app",
+        !canEdit && "is-readonly",
+        !canViewFullSheet && "is-limited",
+        className,
+      )}
       ref={appRef}
     >
       {children}
