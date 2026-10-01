@@ -80,14 +80,12 @@ export function MonsterSheet() {
           />
         )}
       </div>
-      <footer className="osc-monster-footer u-flex u-items-center tw:mx-5">
-        <Tabs<TabId>
-          className="osc-monster-tabs"
-          tabs={TABS}
-          active={tab}
-          onSelect={setTab}
-        />
-      </footer>
+      <Tabs<TabId>
+        className="osc-monster-tabs"
+        tabs={TABS}
+        active={tab}
+        onSelect={setTab}
+      />
     </div>
   );
 }

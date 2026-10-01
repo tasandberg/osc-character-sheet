@@ -1,11 +1,17 @@
-import { Fragment, useState, type MouseEvent } from "react";
+import { useState, type MouseEvent } from "react";
 import { createOwnedItem } from "@domain/createOwnedItem";
 import type { OSEActor } from "@domain/types";
 import { IconButton } from "@ui/IconButton";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
-import { resetAttacks, rollMonsterItem, setPattern, setUses } from "./actions";
+import {
+  cyclePattern,
+  resetAttacks,
+  rollMonsterItem,
+  setPattern,
+  setUses,
+} from "./actions";
 import { itemMenu } from "./parts/itemMenu";
 import {
   PopupMenu,
@@ -36,15 +42,31 @@ function patternEntries(item: MonsterItem): PopupMenuEntry[] {
   );
 }
 
-function GroupDivider({ or }: { or: boolean }) {
+function PatternDot({
+  pattern,
+  onCycle,
+}: {
+  pattern: string;
+  onCycle?: () => void;
+}) {
+  if (!onCycle) {
+    return (
+      <span
+        className="osc-monster-pattern-dot"
+        data-pattern={pattern}
+        title={`${pattern} pattern`}
+      />
+    );
+  }
   return (
-    <div
-      role="separator"
-      aria-label={or ? "or" : undefined}
-      className={cx("osc-monster-attack-divider", or && "is-alternative")}
-    >
-      {or && <span className="osc-monster-label">or</span>}
-    </div>
+    <button
+      type="button"
+      className="osc-monster-pattern-dot"
+      data-pattern={pattern}
+      aria-label={`Attack pattern: ${pattern}. Click to change`}
+      title={`${pattern} pattern`}
+      onClick={onCycle}
+    />
   );
 }
 
@@ -99,6 +121,14 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
               <DieGlyph />
             </IconButton>
           )}
+        </span>
+        <span role="cell">
+          <PatternDot
+            pattern={attack.pattern}
+            onCycle={
+              canEdit && weapon ? () => void cyclePattern(weapon) : undefined
+            }
+          />
         </span>
         <span role="cell" className="osc-monster-attack-name">
           <RollLabel
@@ -184,22 +214,14 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
         >
           <div role="row" className="osc-monster-attack-row osc-monster-label">
             <span role="columnheader" />
+            <span role="columnheader" />
             <span role="columnheader">Attack</span>
             <span role="columnheader">Damage</span>
             <span role="columnheader" className="tw:text-right">
               Uses
             </span>
           </div>
-          {groups.map((group, index) => (
-            <Fragment key={group.pattern}>
-              {index > 0 && (
-                <GroupDivider
-                  or={group.coloured && groups[index - 1].coloured}
-                />
-              )}
-              {group.attacks.map(row)}
-            </Fragment>
-          ))}
+          {attacks.map(row)}
         </div>
       )}
       {menu && <PopupMenu menu={menu} onClose={() => setMenu(null)} />}

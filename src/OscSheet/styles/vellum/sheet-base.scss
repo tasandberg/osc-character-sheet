@@ -33,6 +33,22 @@
 }
 
 :root {
+  --raised-face: var(--surface-2);
+  --raised-face-hi: var(--surface-3);
+  --raised-lit: color-mix(in srgb, var(--surface-3) 85%, var(--text-mute));
+  --raised-shade: color-mix(in srgb, var(--ink) 40%, var(--bg));
+  --raised-wall: var(--ink);
+}
+
+[data-theme="cream"] {
+  --raised-face: var(--surface);
+  --raised-face-hi: color-mix(in srgb, var(--surface) 80%, white);
+  --raised-lit: color-mix(in srgb, var(--surface) 65%, white);
+  --raised-shade: color-mix(in srgb, var(--border) 70%, var(--accent-alt));
+  --raised-wall: color-mix(in srgb, var(--text) 62%, var(--accent-alt));
+}
+
+:root {
   --mustard-hover: #e6c87e;
   --teal-accent: var(--teal);
   --teal-accent-hover: var(--teal-bright);

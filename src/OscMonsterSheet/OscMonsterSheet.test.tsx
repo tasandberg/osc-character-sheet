@@ -202,23 +202,6 @@ describe("OscMonsterSheet", () => {
     expect(text()).not.toContain("Morale");
   });
 
-  it("divides distinct attack groups with 'or', but not a single group", async () => {
-    const orDividers = () =>
-      container.querySelectorAll("[role=separator][aria-label=or]").length;
-    await mount(makeMonster());
-    expect(orDividers()).toBe(1);
-
-    act(() => root.unmount());
-    root = createRoot(container);
-    await mount(
-      makeMonster({}, [
-        makeItem({ name: "Claw", system: { pattern: "red" } }),
-        makeItem({ name: "Bite", system: { pattern: "red" } }),
-      ]),
-    );
-    expect(orDividers()).toBe(0);
-  });
-
   it("opens an ability from its name and rolls it from its roll tag", async () => {
     const sleeping = makeItem({
       name: "Sleeping",

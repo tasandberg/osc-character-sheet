@@ -401,27 +401,34 @@
 }
 
 .icon-btn.raised {
-  border: 1px solid var(--text);
-  background: var(--surface);
+  border: 1px solid var(--raised-wall);
+  border-radius: 0;
+  background: var(--raised-face);
   color: var(--text);
   box-shadow:
-    inset 0 1px 0 oklch(1 0 0 / 0.35),
-    2px 2px 0 var(--text);
-  transition:
-    transform 0.06s ease-out,
-    box-shadow 0.06s ease-out;
+    inset 1px 1px 0 var(--raised-lit),
+    inset -1px -1px 0 var(--raised-shade),
+    1px 1px 0 var(--raised-wall);
 }
 .icon-btn.raised:hover:not(:disabled) {
-  background: var(--bg-2);
+  background: var(--raised-face-hi);
+  color: var(--text);
 }
 .icon-btn.raised:active:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow:
-    inset 0 1px 0 oklch(1 0 0 / 0.2),
-    0 0 0 var(--text);
+  box-shadow: inset 1px 1px 0 var(--raised-shade);
+  transform: translate(1px, 1px);
 }
 .icon-btn.raised:disabled {
-  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.2);
+  color: var(--text-mute);
+  background: transparent;
+  border-color: var(--border);
+  box-shadow: none;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .icon-btn.raised:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 /* ─── Dropdown menu ─────────────────────────────────────────────────── */

@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { makeItem, makeMonster } from "./__fixtures__/dragonTurtle";
-import { selectMonster } from "./viewModel";
+import { nextPattern, selectMonster } from "./viewModel";
 
 const descending = { ascendingAC: false, morale: true };
 const ascending = { ascendingAC: true, morale: true };
@@ -149,5 +149,14 @@ describe("selectMonster", () => {
       system: { spells: { enabled: false, spellList: { 1: [spell] } } },
     });
     expect(selectMonster(disabled, descending).spellLevels).toEqual([]);
+  });
+});
+
+describe("nextPattern", () => {
+  it("cycles through the colours, then transparent, then back", () => {
+    const colours = ["green", "red"];
+    expect(nextPattern("green", colours)).toBe("red");
+    expect(nextPattern("red", colours)).toBe("transparent");
+    expect(nextPattern("transparent", colours)).toBe("green");
   });
 });
