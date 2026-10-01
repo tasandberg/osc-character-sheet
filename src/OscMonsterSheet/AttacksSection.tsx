@@ -107,7 +107,15 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
         )}
         onContextMenu={weapon && ((event) => openMenu(weapon, event))}
       >
-        <span role="cell">
+        <span role="cell" className="u-flex u-items-center">
+          <PatternDot
+            pattern={attack.pattern}
+            onCycle={
+              canEdit && weapon ? () => void cyclePattern(weapon) : undefined
+            }
+          />
+        </span>
+        <span role="cell" className="u-flex u-items-center">
           {canEdit && weapon && (
             <IconButton
               variant="raised"
@@ -121,14 +129,6 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
               <i className="fa-solid fa-dice-d20" aria-hidden="true" />
             </IconButton>
           )}
-        </span>
-        <span role="cell">
-          <PatternDot
-            pattern={attack.pattern}
-            onCycle={
-              canEdit && weapon ? () => void cyclePattern(weapon) : undefined
-            }
-          />
         </span>
         <span role="cell" className="osc-monster-attack-name">
           <RollLabel
