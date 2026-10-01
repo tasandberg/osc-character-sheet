@@ -120,7 +120,6 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
             <IconButton
               variant="raised"
               size="sm"
-              className="osc-monster-attack-button"
               aria-label={`Attack with ${attack.name}`}
               title={`Attack with ${attack.name}`}
               disabled={attack.exhausted}

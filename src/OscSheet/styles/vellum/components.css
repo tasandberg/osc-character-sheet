@@ -401,6 +401,9 @@
 }
 
 .icon-btn.raised {
+  width: var(--spacer-5);
+  height: var(--spacer-5);
+  font-size: var(--fs-3xs);
   border: 1px solid var(--raised-wall);
   border-radius: 0;
   background: var(--raised-face);

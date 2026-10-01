@@ -155,13 +155,16 @@ describe("OscMonsterSheet", () => {
     const actor = makeMonster();
     actor.rollMorale = vi.fn();
     actor.rollSave = vi.fn();
+    actor.rollHP = vi.fn();
     await mount(actor);
 
     click(button("Morale"));
     click(button("Paralysis"));
+    click(button("Roll hit points"));
 
     expect(actor.rollMorale).toHaveBeenCalled();
     expect(actor.rollSave).toHaveBeenCalledWith("paralysis", expect.anything());
+    expect(actor.rollHP).toHaveBeenCalled();
   });
 
   it("attacks from the d20 button, spending a use, and opens the attack from its name", async () => {

@@ -1,7 +1,7 @@
 import { cx } from "@ui/cx";
+import { IconButton } from "@ui/IconButton";
 import { openImagePicker } from "@ui/imagePicker";
 import { InlineEdit } from "./parts/InlineEdit";
-import { RollLabel } from "./parts/RollLabel";
 import type { Commit } from "./commit";
 import type { MonsterView } from "./viewModel";
 
@@ -92,29 +92,38 @@ export function MonsterHeader({
       </div>
       {view && (
         <div className="osc-monster-hit-points u-flex-none">
-          <RollLabel
-            onRoll={view.hp.rollable ? onRollHp : undefined}
-            title="Roll hit points from Hit Dice"
-          >
-            Hit Points
-          </RollLabel>
-          <div className="u-mt-1">
-            <InlineEdit
-              label="Current hit points"
-              className="osc-monster-hit-points-current u-fs-3xl"
-              value={view.hp.value}
-              placeholder="0"
-              onCommit={commit?.number("system.hp.value")}
-            />
-            <span className="osc-monster-value u-fs-xs u-text-dim">
-              {" / "}
+          <span className="osc-monster-label">Hit Points</span>
+          <div className="u-mt-1 u-flex u-items-center u-justify-end u-gap-2">
+            <span>
               <InlineEdit
-                label="Maximum hit points"
-                value={view.hp.max}
+                label="Current hit points"
+                className="osc-monster-hit-points-current u-fs-3xl"
+                value={view.hp.value}
                 placeholder="0"
-                onCommit={commit?.number("system.hp.max")}
+                onCommit={commit?.number("system.hp.value")}
               />
+              <span className="osc-monster-value u-fs-xs u-text-dim">
+                {" / "}
+                <InlineEdit
+                  label="Maximum hit points"
+                  value={view.hp.max}
+                  placeholder="0"
+                  onCommit={commit?.number("system.hp.max")}
+                />
+              </span>
             </span>
+            {onRollHp && (
+              <IconButton
+                variant="raised"
+                size="sm"
+                aria-label="Roll hit points"
+                title="Roll hit points from Hit Dice"
+                disabled={!view.hp.rollable}
+                onClick={onRollHp}
+              >
+                <i className="fa-solid fa-dice-d20" aria-hidden="true" />
+              </IconButton>
+            )}
           </div>
         </div>
       )}
