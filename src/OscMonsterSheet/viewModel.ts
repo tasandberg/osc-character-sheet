@@ -65,6 +65,10 @@ export const EMPTY_VALUE = "—";
 
 const text = (value: unknown) => (value == null ? "" : String(value).trim());
 
+function formatXp(xp: unknown): string {
+  return typeof xp === "number" ? xp.toLocaleString("en-US") : text(xp);
+}
+
 const orDash = (value: string) => value || EMPTY_VALUE;
 
 function signed(value: unknown): string {
@@ -77,10 +81,9 @@ function signed(value: unknown): string {
 export function isRollableFormula(formula: string): boolean {
   const trimmed = formula.trim();
   if (!/\d*d\d+/i.test(trimmed)) return false;
-  const validate = (
-    globalThis as { Roll?: { validate?: (f: string) => boolean } }
-  ).Roll?.validate;
-  return validate ? validate(trimmed) : true;
+  const roll = (globalThis as { Roll?: { validate?: (f: string) => boolean } })
+    .Roll;
+  return roll?.validate ? roll.validate(trimmed) : true;
 }
 
 export function hitDiceLabel(hd: string, specialAbilities: unknown): string {
@@ -231,7 +234,7 @@ export function selectMonster(actor: MonsterActor, settings: MonsterSettings) {
     name: actor.name,
     img: actor.img,
     alignment: text(details.alignment),
-    xp: text(details.xp),
+    xp: { display: formatXp(details.xp), value: text(details.xp) },
     hp: {
       value: text(system.hp.value),
       max: text(system.hp.max),

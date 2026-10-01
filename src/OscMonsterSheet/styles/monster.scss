@@ -248,12 +248,18 @@
     white-space: normal;
   }
 
-  .osc-monster-attack-row {
+  .osc-monster-attack-table {
     display: grid;
     grid-template-columns:
-      var(--spacer-2) minmax(0, 1fr) minmax(calc(var(--spacer-10) * 2), auto)
-      auto;
-    column-gap: var(--spacer-2-5);
+      var(--spacer-2) minmax(0, 1fr)
+      max-content max-content;
+    column-gap: var(--spacer-4);
+  }
+
+  .osc-monster-attack-row {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
     align-items: baseline;
     padding-block: 2px;
 
@@ -425,6 +431,10 @@
   .osc-monster-popup {
     position: fixed;
     z-index: 100;
+  }
+
+  .osc-rich-text-body {
+    font-family: var(--serif);
   }
 
   .osc-rich-text-body table {

@@ -81,7 +81,7 @@ export function MonsterSheet() {
           />
         )}
       </div>
-      <footer className="osc-monster-footer u-flex u-items-center u-justify-between u-mx-5">
+      <footer className="osc-monster-footer u-flex u-items-center u-justify-between tw:mx-5">
         <Tabs<TabId>
           className="osc-monster-tabs"
           tabs={TABS}

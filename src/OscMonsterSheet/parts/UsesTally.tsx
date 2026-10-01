@@ -13,7 +13,7 @@ type Props = {
 export function UsesTally({ name, value, max, onSet }: Props) {
   if (max > MAX_BOXES) {
     return (
-      <span className="u-fs-xs u-nowrap">
+      <span className="osc-monster-value u-fs-xs">
         <InlineEdit
           label={`${name} uses left`}
           value={String(value)}
@@ -38,14 +38,14 @@ export function UsesTally({ name, value, max, onSet }: Props) {
       aria-label={`${name}: ${value} of ${max} uses left`}
     >
       {boxes.map((filled, index) => {
-        const target = index + 1 === value ? index : index + 1;
         return onSet ? (
           <button
             key={index}
             type="button"
             className={cx("osc-monster-tally-box", filled && "is-filled")}
-            aria-label={`Set ${name} uses left to ${target}`}
-            onClick={() => onSet(target)}
+            aria-label={`${name} use ${index + 1}`}
+            aria-pressed={filled}
+            onClick={() => onSet(filled ? index : index + 1)}
           />
         ) : (
           <span

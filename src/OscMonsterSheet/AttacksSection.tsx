@@ -84,7 +84,11 @@ export function AttacksSection({ actor, attacks, canEdit }: Props) {
       {attacks.length === 0 ? (
         <p className="u-m-0 u-fs-sm u-text-dim">No attacks.</p>
       ) : (
-        <div role="table" aria-label="Attacks">
+        <div
+          role="table"
+          aria-label="Attacks"
+          className="osc-monster-attack-table"
+        >
           <div role="row" className="osc-monster-attack-row osc-monster-label">
             <span role="columnheader" />
             <span role="columnheader">Attack</span>

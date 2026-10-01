@@ -73,10 +73,12 @@ export function MonsterHeader({
               <InlineEdit
                 label="XP"
                 className="osc-monster-value u-fs-xs"
-                value={view.xp}
+                value={view.xp.value}
                 placeholder="0"
                 onCommit={commit?.loose("system.details.xp")}
-              />
+              >
+                {view.xp.display || undefined}
+              </InlineEdit>
               <span className="osc-monster-label">XP</span>
             </span>
           </div>

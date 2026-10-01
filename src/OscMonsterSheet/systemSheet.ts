@@ -21,8 +21,8 @@ export function openSaveGenerator(actor: MonsterActor): void {
   ) as unknown as SheetClassEntry[];
   const entry = findSaveGeneratorEntry(entries);
   if (!entry?.cls) return;
-  const SheetClass = entry.cls as unknown as new (options: {
-    document: MonsterActor;
-  }) => SystemMonsterSheet;
-  void new SheetClass({ document: actor }).generateSave();
+  const SheetClass = entry.cls as unknown as new (
+    document: MonsterActor,
+  ) => SystemMonsterSheet;
+  void new SheetClass(actor).generateSave();
 }
