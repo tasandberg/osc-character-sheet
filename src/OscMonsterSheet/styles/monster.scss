@@ -101,14 +101,7 @@
 
   .osc-monster-die {
     flex: none;
-    position: relative;
-    top: -0.05em;
-    width: 0.75em;
-    height: 0.75em;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.6;
-    stroke-linejoin: round;
+    font-size: 0.75em;
   }
 
   .osc-monster-value {
@@ -292,10 +285,8 @@
     }
   }
 
-  .osc-monster-attack-button .osc-monster-die {
-    top: 0;
-    width: var(--fs-xs);
-    height: var(--fs-xs);
+  .osc-monster-attack-button > i {
+    font-size: var(--fs-xs);
   }
 
   .osc-monster-pattern-dot {

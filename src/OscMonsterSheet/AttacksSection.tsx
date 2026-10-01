@@ -18,7 +18,7 @@ import {
   type PopupMenuEntry,
   type PopupMenuState,
 } from "./parts/PopupMenu";
-import { DieGlyph, RollLabel } from "./parts/RollLabel";
+import { RollLabel } from "./parts/RollLabel";
 import { UsesTally } from "./parts/UsesTally";
 import type { MonsterActor, MonsterItem } from "./types";
 import { EMPTY_VALUE, type AttackGroup, type AttackRow } from "./viewModel";
@@ -118,7 +118,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
               disabled={attack.exhausted}
               onClick={(event) => void rollMonsterItem(weapon, event)}
             >
-              <DieGlyph />
+              <i className="fa-solid fa-dice-d20" aria-hidden="true" />
             </IconButton>
           )}
         </span>

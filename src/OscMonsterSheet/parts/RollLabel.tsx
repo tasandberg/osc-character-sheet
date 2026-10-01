@@ -1,15 +1,6 @@
 import type { MouseEvent, ReactNode } from "react";
 import { cx } from "@ui/cx";
 
-export function DieGlyph() {
-  return (
-    <svg className="osc-monster-die" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 2l8.66 5v10L12 22l-8.66-5V7z" />
-      <path d="M12 7l4.5 8h-9z" />
-    </svg>
-  );
-}
-
 type Props = {
   children: ReactNode;
   onRoll?: (event: MouseEvent<HTMLButtonElement>) => void;
@@ -37,7 +28,12 @@ export function RollLabel({
       onClick={onRoll}
     >
       {children}
-      {glyph && <DieGlyph />}
+      {glyph && (
+        <i
+          className="fa-solid fa-dice-d20 osc-monster-die"
+          aria-hidden="true"
+        />
+      )}
     </button>
   );
 }
