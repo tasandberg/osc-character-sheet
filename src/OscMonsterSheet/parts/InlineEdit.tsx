@@ -1,68 +1,91 @@
-import { useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 import { cx } from "@ui/cx";
 
 type Props = {
   label: string;
   value: string;
   onCommit?: (next: string) => void;
-  children?: ReactNode;
   placeholder?: string;
   className?: string;
 };
+
+function selectContents(element: HTMLElement) {
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  const selection = window.getSelection();
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+}
 
 export function InlineEdit({
   label,
   value,
   onCommit,
-  children,
   placeholder,
   className,
 }: Props) {
   const [editing, setEditing] = useState(false);
+  const [revision, setRevision] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
   const cancelled = useRef(false);
-  const display = children ?? (value || placeholder);
+  const display = value || placeholder;
+
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!editing || !element) return;
+    element.focus();
+    selectContents(element);
+  }, [editing]);
 
   if (!onCommit) return <span className={className}>{display}</span>;
 
-  if (editing) {
-    const finish = (next: string) => {
-      setEditing(false);
-      if (!cancelled.current && next.trim() !== value) onCommit(next.trim());
-      cancelled.current = false;
-    };
-    return (
-      <input
-        aria-label={label}
-        className={cx("osc-monster-inline-input", className)}
-        defaultValue={value}
-        autoFocus
-        size={Math.max(value.length, 2)}
-        onFocus={(event) => event.currentTarget.select()}
-        onBlur={(event) => finish(event.currentTarget.value)}
-        onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
-          if (event.key === "Enter") event.currentTarget.blur();
-          if (event.key === "Escape") {
-            cancelled.current = true;
-            event.currentTarget.blur();
-          }
-        }}
-      />
-    );
-  }
+  const finish = () => {
+    const typed = (ref.current?.textContent ?? "").trim();
+    const next = !value && typed === placeholder ? "" : typed;
+    setEditing(false);
+    setRevision((n) => n + 1);
+    if (!cancelled.current && next !== value) onCommit(next);
+    cancelled.current = false;
+  };
+
+  const onKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
+    if (!editing) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        setEditing(true);
+      }
+      return;
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.currentTarget.blur();
+    }
+    if (event.key === "Escape") {
+      event.stopPropagation();
+      cancelled.current = true;
+      event.currentTarget.blur();
+    }
+  };
 
   return (
     <span
-      role="button"
+      key={revision}
+      ref={ref}
+      role={editing ? "textbox" : "button"}
       tabIndex={0}
-      aria-label={`Edit ${label}`}
-      className={cx("osc-monster-editable", !value && "is-empty", className)}
-      onClick={() => setEditing(true)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          setEditing(true);
-        }
-      }}
+      aria-label={editing ? label : `Edit ${label}`}
+      contentEditable={editing ? "plaintext-only" : undefined}
+      suppressContentEditableWarning
+      spellCheck={false}
+      className={cx(
+        "osc-monster-editable",
+        editing && "is-editing",
+        !value && "is-empty",
+        className,
+      )}
+      onClick={editing ? undefined : () => setEditing(true)}
+      onBlur={editing ? finish : undefined}
+      onKeyDown={onKeyDown}
     >
       {display}
     </span>

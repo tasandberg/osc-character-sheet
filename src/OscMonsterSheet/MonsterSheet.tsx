@@ -5,7 +5,6 @@ import { AbilitiesSection } from "./AbilitiesSection";
 import { AttacksSection } from "./AttacksSection";
 import { makeCommit } from "./commit";
 import { MonsterHeader } from "./MonsterHeader";
-import { DieGlyph } from "./parts/RollLabel";
 import { SpellsSection } from "./SpellsSection";
 import { StatFrame } from "./StatFrame";
 import { openSaveGenerator } from "./systemSheet";
@@ -59,7 +58,7 @@ export function MonsterSheet() {
           <>
             <AttacksSection
               actor={actor}
-              attacks={view.attacks}
+              groups={view.attackGroups}
               canEdit={canEdit}
             />
             <AbilitiesSection
@@ -81,17 +80,13 @@ export function MonsterSheet() {
           />
         )}
       </div>
-      <footer className="osc-monster-footer u-flex u-items-center u-justify-between tw:mx-5">
+      <footer className="osc-monster-footer u-flex u-items-center tw:mx-5">
         <Tabs<TabId>
           className="osc-monster-tabs"
           tabs={TABS}
           active={tab}
           onSelect={setTab}
         />
-        <span className="osc-monster-label osc-monster-legend u-row u-gap-1">
-          <DieGlyph />
-          {canEdit ? "roll · click any value to edit" : "roll"}
-        </span>
       </footer>
     </div>
   );

@@ -15,16 +15,15 @@ export function TreasureValue({ treasure, onClear }: Props) {
   if (!treasure) {
     return (
       <span
-        title={
-          onClear ? "Drop a RollTable on the sheet to link treasure" : undefined
-        }
+        className="u-text-dim"
+        title={onClear ? "Drop a roll table on the sheet" : undefined}
       >
         {EMPTY_VALUE}
       </span>
     );
   }
   const label =
-    treasure.label ?? (treasureLabel(resolvedName(treasure.uuid)) || "Table");
+    treasureLabel(treasure.label ?? resolvedName(treasure.uuid)) || "Table";
   return (
     <button
       type="button"
@@ -43,7 +42,8 @@ export function TreasureValue({ treasure, onClear }: Props) {
         })
       }
     >
-      {label}
+      <i className="fa-solid fa-scroll" aria-hidden="true" />
+      <span className="osc-monster-link-text">{label}</span>
     </button>
   );
 }

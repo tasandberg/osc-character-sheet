@@ -1,7 +1,6 @@
 import { skipRollDialog } from "@domain/rolls/skipRollDialog";
 import type { RollEvent } from "@domain/types";
 import type { MonsterActor, MonsterItem } from "./types";
-import { nextPattern } from "./viewModel";
 
 export async function rollMonsterItem(item: MonsterItem, event?: RollEvent) {
   if (item.type === "weapon") {
@@ -29,14 +28,8 @@ export function resetAttacks(actor: MonsterActor) {
   return actor.updateEmbeddedDocuments("Item", updates);
 }
 
-export function cyclePattern(item: MonsterItem) {
-  const colours = Object.keys(CONFIG.OSE?.colors ?? {});
-  return item.update({
-    "system.pattern": nextPattern(
-      item.system.pattern ?? "transparent",
-      colours,
-    ),
-  });
+export function setPattern(item: MonsterItem, pattern: string) {
+  return item.update({ "system.pattern": pattern });
 }
 
 export function setUses(item: MonsterItem, value: number) {

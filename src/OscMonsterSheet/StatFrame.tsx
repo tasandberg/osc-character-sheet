@@ -3,6 +3,7 @@ import { Button } from "@ui/Button";
 import type { RollEvent } from "@domain/types";
 import { InlineEdit } from "./parts/InlineEdit";
 import { LeaderRow } from "./parts/LeaderRow";
+import { MovementPopover } from "./parts/MovementPopover";
 import { PopupMenu, type PopupMenuState } from "./parts/PopupMenu";
 import { RollLabel } from "./parts/RollLabel";
 import { TreasureValue } from "./parts/TreasureValue";
@@ -20,6 +21,7 @@ type Props = {
 
 export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
   const [menu, setMenu] = useState<PopupMenuState | null>(null);
+  const [movementAnchor, setMovementAnchor] = useState<DOMRect | null>(null);
   const canEdit = !!commit;
   const { appearing, movement } = view;
 
@@ -64,10 +66,9 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               <InlineEdit
                 label={view.armourClass.label}
                 value={view.armourClass.value}
+                placeholder="—"
                 onCommit={commit?.number(view.armourClass.path)}
-              >
-                {view.armourClass.display}
-              </InlineEdit>
+              />
             </LeaderRow>
             <LeaderRow
               label={
@@ -85,10 +86,9 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               <InlineEdit
                 label="Hit Dice"
                 value={view.hitDice.value}
+                placeholder="—"
                 onCommit={commit?.text("system.hp.hd")}
-              >
-                {view.hitDice.display}
-              </InlineEdit>
+              />
             </LeaderRow>
             <LeaderRow
               label={
@@ -100,10 +100,9 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               <InlineEdit
                 label={view.attack.label}
                 value={view.attack.value}
+                placeholder="—"
                 onCommit={commit?.number(view.attack.path)}
-              >
-                {view.attack.display}
-              </InlineEdit>
+              />
             </LeaderRow>
             <LeaderRow
               label={<span className="osc-monster-label">Treasure</span>}
@@ -133,14 +132,27 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
             <LeaderRow
               label={<span className="osc-monster-label">Movement</span>}
             >
-              <InlineEdit
-                label="Base movement"
-                value={movement.base}
-                onCommit={commit?.number("system.movement.base")}
-              >
-                {movement.display}
-                {movement.footnote && "*"}
-              </InlineEdit>
+              {commit ? (
+                <button
+                  type="button"
+                  className="osc-monster-editable"
+                  aria-label="Edit movement"
+                  aria-expanded={!!movementAnchor}
+                  onClick={(event) =>
+                    setMovementAnchor(
+                      event.currentTarget.getBoundingClientRect(),
+                    )
+                  }
+                >
+                  {movement.display}
+                  {movement.footnote && "*"}
+                </button>
+              ) : (
+                <span>
+                  {movement.display}
+                  {movement.footnote && "*"}
+                </span>
+              )}
             </LeaderRow>
             {view.morale && (
               <LeaderRow
@@ -205,32 +217,31 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
         </div>
         {movement.footnote && (
           <p className="osc-monster-footnote u-m-0 u-mt-1 u-fs-sm u-text-dim">
-            *{" "}
-            <InlineEdit
-              label="Movement details"
-              value={movement.footnote}
-              onCommit={commit?.text("system.details.movement")}
-            />
+            * {movement.footnote}
           </p>
         )}
-        <div className="osc-monster-saves u-grid u-mt-1 u-pt-1">
+        <div className="osc-monster-saves u-flex u-items-baseline u-mt-2 u-pt-2">
           {view.saves.map((save) => (
-            <RollLabel
+            <div
               key={save.key}
-              onRoll={(event) => actor.rollSave(save.key, { event })}
+              className="osc-monster-save u-flex u-items-baseline u-justify-center"
             >
-              {save.label}
-            </RollLabel>
-          ))}
-          {view.saves.map((save) => (
-            <span key={save.key} className="osc-monster-value u-fs-xs">
+              <RollLabel
+                className="osc-monster-save-label"
+                glyph={false}
+                title={`Roll save versus ${save.label.toLowerCase()}`}
+                onRoll={(event) => actor.rollSave(save.key, { event })}
+              >
+                {save.label}
+              </RollLabel>
               <InlineEdit
                 label={`Save versus ${save.label}`}
+                className="osc-monster-save-value u-fs-xl"
                 value={save.value}
                 placeholder="—"
                 onCommit={commit?.number(`system.saves.${save.key}.value`)}
               />
-            </span>
+            </div>
           ))}
         </div>
         {view.needsSaves && onGenerateSaves && (
@@ -247,6 +258,15 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
         )}
       </div>
       {menu && <PopupMenu menu={menu} onClose={() => setMenu(null)} />}
+      {movementAnchor && commit && (
+        <MovementPopover
+          anchor={movementAnchor}
+          base={movement.base}
+          details={movement.details}
+          onCommit={commit.patch}
+          onClose={() => setMovementAnchor(null)}
+        />
+      )}
     </section>
   );
 }

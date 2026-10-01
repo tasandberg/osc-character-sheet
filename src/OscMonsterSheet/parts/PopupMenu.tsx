@@ -1,4 +1,10 @@
-import { useLayoutEffect, useRef, type PointerEvent } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
 import { computePosition, flip, shift } from "@floating-ui/dom";
 import { Menu, MenuItem, MenuLabel } from "@ui/Menu";
 import { useDismiss } from "@ui/useDismiss";
@@ -7,7 +13,9 @@ export type PopupMenuEntry = {
   label: string;
   icon?: string;
   danger?: boolean;
-  onSelect: () => void;
+  checked?: boolean;
+  onSelect?: () => void;
+  entries?: PopupMenuEntry[];
 };
 
 export type PopupMenuState = {
@@ -16,6 +24,83 @@ export type PopupMenuState = {
   title?: string;
   entries: PopupMenuEntry[];
 };
+
+const iconFor = (entry: PopupMenuEntry) => {
+  const icon = entry.checked ? "fa-check" : entry.icon;
+  if (!icon && entry.checked === undefined) return undefined;
+  return icon ? (
+    <i className={`fa-solid ${icon}`} aria-hidden="true" />
+  ) : (
+    <span aria-hidden="true" />
+  );
+};
+
+function MenuEntries({
+  entries,
+  onSelect,
+}: {
+  entries: PopupMenuEntry[];
+  onSelect: (entry: PopupMenuEntry) => void;
+}) {
+  const [openLabel, setOpenLabel] = useState<string | null>(null);
+
+  const activate = (entry: PopupMenuEntry) => {
+    if (entry.entries) setOpenLabel(entry.label);
+    else onSelect(entry);
+  };
+
+  return entries.map((entry) => {
+    const open = openLabel === entry.label;
+    const item = (
+      <MenuItem
+        key={entry.label}
+        tabIndex={0}
+        danger={entry.danger}
+        role={entry.checked === undefined ? "menuitem" : "menuitemradio"}
+        aria-checked={entry.checked}
+        aria-haspopup={entry.entries ? "menu" : undefined}
+        aria-expanded={entry.entries ? open : undefined}
+        icon={iconFor(entry)}
+        shortcut={entry.entries ? "›" : undefined}
+        onPointerEnter={() => setOpenLabel(entry.entries ? entry.label : null)}
+        onPointerDown={(event: PointerEvent<HTMLDivElement>) => {
+          if (event.button !== 0) return;
+          event.preventDefault();
+          activate(entry);
+        }}
+        onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+          if (
+            event.key === "Enter" ||
+            event.key === " " ||
+            (event.key === "ArrowRight" && entry.entries)
+          ) {
+            event.preventDefault();
+            activate(entry);
+          }
+        }}
+      >
+        {entry.label}
+      </MenuItem>
+    );
+    if (!entry.entries) return item;
+    return (
+      <div key={entry.label} className="osc-monster-submenu-anchor">
+        {item}
+        {open && (
+          <div
+            className="osc-monster-submenu"
+            role="menu"
+            aria-label={entry.label}
+          >
+            <Menu>
+              <MenuEntries entries={entry.entries} onSelect={onSelect} />
+            </Menu>
+          </div>
+        )}
+      </div>
+    );
+  });
+}
 
 export function PopupMenu({
   menu,
@@ -38,12 +123,12 @@ export function PopupMenu({
     }).then(({ x, y }) =>
       Object.assign(element.style, { left: `${x}px`, top: `${y}px` }),
     );
-    element.querySelector<HTMLElement>("[role=menuitem]")?.focus();
+    element.querySelector<HTMLElement>("[role^=menuitem]")?.focus();
   }, [menu.x, menu.y]);
 
   const select = (entry: PopupMenuEntry) => {
     onClose();
-    entry.onSelect();
+    entry.onSelect?.();
   };
 
   return (
@@ -52,34 +137,15 @@ export function PopupMenu({
       className="osc-monster-popup"
       role="menu"
       aria-label={menu.title}
+      onKeyDown={(event) => {
+        if (event.key !== "Escape") return;
+        event.stopPropagation();
+        onClose();
+      }}
     >
       <Menu>
         {menu.title && <MenuLabel>{menu.title}</MenuLabel>}
-        {menu.entries.map((entry) => (
-          <MenuItem
-            key={entry.label}
-            tabIndex={0}
-            danger={entry.danger}
-            icon={
-              entry.icon ? (
-                <i className={`fa-solid ${entry.icon}`} aria-hidden="true" />
-              ) : undefined
-            }
-            onPointerDown={(event: PointerEvent<HTMLDivElement>) => {
-              if (event.button !== 0) return;
-              event.preventDefault();
-              select(entry);
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                select(entry);
-              }
-            }}
-          >
-            {entry.label}
-          </MenuItem>
-        ))}
+        <MenuEntries entries={menu.entries} onSelect={select} />
       </Menu>
     </div>
   );

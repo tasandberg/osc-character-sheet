@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { makeItem, makeMonster } from "./__fixtures__/dragonTurtle";
-import { hitDiceLabel, nextPattern, selectMonster } from "./viewModel";
+import { selectMonster } from "./viewModel";
 
 const descending = { ascendingAC: false, morale: true };
 const ascending = { ascendingAC: true, morale: true };
@@ -12,19 +12,6 @@ beforeAll(() => {
 });
 
 describe("selectMonster", () => {
-  it.each([
-    ["30d8", 2, "30**"],
-    ["11d8+2", 0, "11+2"],
-    ["1d4", 0, "½"],
-    ["1d1", 1, "1hp*"],
-    ["2d6", 0, "2d6"],
-  ])(
-    "labels Hit Dice %s with %s special abilities as %s",
-    (hd, stars, label) => {
-      expect(hitDiceLabel(hd, stars)).toBe(label);
-    },
-  );
-
   it("only offers dice rolls for values that contain dice", () => {
     const view = selectMonster(
       makeMonster({
@@ -45,34 +32,26 @@ describe("selectMonster", () => {
     const view = selectMonster(makeMonster(), ascending);
     expect(view.armourClass).toMatchObject({
       label: "Ascending AC",
-      display: "21",
+      value: "21",
       path: "system.aac.value",
     });
     expect(view.attack).toMatchObject({
       label: "Attack",
-      display: "+14",
+      value: "+14",
       path: "system.thac0.bba",
     });
 
     const classic = selectMonster(makeMonster(), descending);
     expect(classic.armourClass).toMatchObject({
       label: "Armour Class",
-      display: "-2",
+      value: "-2",
       path: "system.ac.value",
     });
     expect(classic.attack).toMatchObject({
       label: "THAC0",
-      display: "5",
+      value: "5",
       path: "system.thac0.value",
     });
-  });
-
-  it("shows a dash for a missing armour class", () => {
-    const view = selectMonster(
-      makeMonster({ system: { ac: null } }),
-      descending,
-    );
-    expect(view.armourClass.display).toBe("—");
   });
 
   it("hides morale when the world morale rule is off", () => {
@@ -86,21 +65,23 @@ describe("selectMonster", () => {
     expect(selectMonster(makeMonster(), descending).movement).toEqual({
       base: "90",
       display: "90′ (30′)",
+      details: "30' (10') on land",
       footnote: "30' (10') on land",
     });
     const repeated = makeMonster({ details: { movement: "90’ (30’)" } });
     expect(selectMonster(repeated, descending).movement.footnote).toBeNull();
   });
 
-  it("lists weapons by pattern, marking later coloured groups as alternatives", () => {
-    const attacks = selectMonster(makeMonster(), descending).attacks;
-    expect(attacks.map((a) => [a.name, a.alternative])).toEqual([
-      ["Claw", false],
-      ["Bite", false],
-      ["Breath", true],
+  it("groups weapons by attack pattern", () => {
+    const groups = selectMonster(makeMonster(), descending).attackGroups;
+    expect(
+      groups.map((g) => [g.pattern, g.attacks.map((a) => a.name)]),
+    ).toEqual([
+      ["red", ["Claw", "Bite"]],
+      ["yellow", ["Breath"]],
     ]);
+    const attacks = groups.flatMap((g) => g.attacks);
     expect(attacks[0]).toMatchObject({
-      count: 2,
       damage: "1d8",
       uses: { value: 2, max: 2 },
       exhausted: false,
@@ -131,15 +112,15 @@ describe("selectMonster", () => {
         name: "Sleeping",
         description: "",
         rollTag: "1d100 ≤5",
-        save: "save vs spells",
+        save: "save vs spell",
       },
     ]);
   });
 
-  it("links the treasure table and drops the 'Type' prefix", () => {
+  it("links the treasure table", () => {
     expect(selectMonster(makeMonster(), descending).treasure).toEqual({
       uuid: "Compendium.ose.treasure.RollTable.h",
-      label: "H",
+      label: "Type H",
     });
     expect(
       selectMonster(
@@ -168,14 +149,5 @@ describe("selectMonster", () => {
       system: { spells: { enabled: false, spellList: { 1: [spell] } } },
     });
     expect(selectMonster(disabled, descending).spellLevels).toEqual([]);
-  });
-});
-
-describe("nextPattern", () => {
-  it("cycles through the colours, then transparent, then back", () => {
-    const colours = ["green", "red"];
-    expect(nextPattern("green", colours)).toBe("red");
-    expect(nextPattern("red", colours)).toBe("transparent");
-    expect(nextPattern("transparent", colours)).toBe("green");
   });
 });

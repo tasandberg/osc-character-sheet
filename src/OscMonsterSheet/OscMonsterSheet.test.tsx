@@ -67,14 +67,23 @@ function click(element: HTMLElement) {
   act(() => element.click());
 }
 
-function type(value: string, key: "Enter" | "Escape") {
-  const input = container.querySelector("input")!;
+function type(
+  value: string,
+  key: "Enter" | "Escape",
+  selector = "[role=textbox]",
+) {
+  const field = container.querySelector<HTMLElement>(selector)!;
   act(() => {
-    Object.getOwnPropertyDescriptor(
-      HTMLInputElement.prototype,
-      "value",
-    )!.set!.call(input, value);
-    input.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+    if (field instanceof HTMLInputElement) {
+      Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        "value",
+      )!.set!.call(field, value);
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+    } else {
+      field.textContent = value;
+    }
+    field.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
   });
 }
 
@@ -98,7 +107,7 @@ describe("OscMonsterSheet", () => {
       "Chaotic",
       "9,000",
       "Armour Class",
-      "30**",
+      "30d8",
       "90′ (30′)*",
       "Claw",
       "Capsize",
@@ -115,7 +124,20 @@ describe("OscMonsterSheet", () => {
     type("3", "Enter");
 
     expect(actor.update).toHaveBeenCalledWith({ "system.ac.value": 3 });
-    expect(container.querySelector("input")).toBeNull();
+    expect(container.querySelector("[role=textbox]")).toBeNull();
+  });
+
+  it("adds movement details from the movement popover", async () => {
+    const actor = makeMonster({ details: { movement: "" } });
+    actor.update = vi.fn().mockResolvedValue(actor);
+    await mount(actor);
+
+    click(button("Edit movement"));
+    type("360′ (120′) flying", "Enter", "input[aria-label=Details]");
+
+    expect(actor.update).toHaveBeenCalledWith({
+      "system.details.movement": "360′ (120′) flying",
+    });
   });
 
   it("discards an edit on Escape", async () => {
@@ -142,19 +164,22 @@ describe("OscMonsterSheet", () => {
     expect(actor.rollSave).toHaveBeenCalledWith("paralysis", expect.anything());
   });
 
-  it("spends a use, never below zero, when rolling an attack", async () => {
+  it("attacks from the d20 button, spending a use, and opens the attack from its name", async () => {
     const gaze = makeItem({
       name: "Gaze",
-      system: { pattern: "red", counter: { value: 0, max: 1 } },
+      system: { pattern: "red", counter: { value: 1, max: 1 } },
     });
     gaze.update = vi.fn().mockResolvedValue(gaze);
     gaze.roll = vi.fn();
+    gaze.sheet = { render: vi.fn() };
     await mount(makeMonster({}, [gaze]));
 
-    await act(async () => button("Gaze").click());
-
+    await act(async () => button("Attack with Gaze").click());
     expect(gaze.update).toHaveBeenCalledWith({ "system.counter.value": 0 });
     expect(gaze.roll).toHaveBeenCalled();
+
+    click(button("Gaze"));
+    expect(gaze.sheet.render).toHaveBeenCalledWith(true);
   });
 
   it("refills every weapon's uses on a new round", async () => {
@@ -175,6 +200,41 @@ describe("OscMonsterSheet", () => {
     settings.morale = false;
     await mount(makeMonster());
     expect(text()).not.toContain("Morale");
+  });
+
+  it("divides distinct attack groups with 'or', but not a single group", async () => {
+    const orDividers = () =>
+      container.querySelectorAll("[role=separator][aria-label=or]").length;
+    await mount(makeMonster());
+    expect(orDividers()).toBe(1);
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    await mount(
+      makeMonster({}, [
+        makeItem({ name: "Claw", system: { pattern: "red" } }),
+        makeItem({ name: "Bite", system: { pattern: "red" } }),
+      ]),
+    );
+    expect(orDividers()).toBe(0);
+  });
+
+  it("opens an ability from its name and rolls it from its roll tag", async () => {
+    const sleeping = makeItem({
+      name: "Sleeping",
+      type: "ability",
+      system: { roll: "1d100", rollTarget: 5, rollType: "below" },
+    });
+    sleeping.sheet = { render: vi.fn() };
+    sleeping.roll = vi.fn();
+    await mount(makeMonster({}, [sleeping]));
+
+    click(button("Sleeping."));
+    expect(sleeping.sheet.render).toHaveBeenCalledWith(true);
+    expect(sleeping.roll).not.toHaveBeenCalled();
+
+    click(button("roll 1d100 =5"));
+    expect(sleeping.roll).toHaveBeenCalled();
   });
 
   it("is read-only for observers", async () => {

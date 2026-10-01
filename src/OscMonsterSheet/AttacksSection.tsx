@@ -1,56 +1,149 @@
-import { useState } from "react";
+import { Fragment, useState, type MouseEvent } from "react";
 import { createOwnedItem } from "@domain/createOwnedItem";
 import type { OSEActor } from "@domain/types";
 import { IconButton } from "@ui/IconButton";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
-import {
-  cyclePattern,
-  resetAttacks,
-  rollMonsterItem,
-  setUses,
-} from "./actions";
+import { resetAttacks, rollMonsterItem, setPattern, setUses } from "./actions";
 import { itemMenu } from "./parts/itemMenu";
-import { PopupMenu, type PopupMenuState } from "./parts/PopupMenu";
-import { RollLabel } from "./parts/RollLabel";
+import {
+  PopupMenu,
+  type PopupMenuEntry,
+  type PopupMenuState,
+} from "./parts/PopupMenu";
+import { DieGlyph, RollLabel } from "./parts/RollLabel";
 import { UsesTally } from "./parts/UsesTally";
-import type { MonsterActor } from "./types";
-import { EMPTY_VALUE, type AttackRow } from "./viewModel";
+import type { MonsterActor, MonsterItem } from "./types";
+import { EMPTY_VALUE, type AttackGroup, type AttackRow } from "./viewModel";
 
-type Props = { actor: MonsterActor; attacks: AttackRow[]; canEdit: boolean };
+type Props = {
+  actor: MonsterActor;
+  groups: AttackGroup[];
+  canEdit: boolean;
+};
 
-function PatternDot({
-  pattern,
-  onCycle,
-}: {
-  pattern: string;
-  onCycle?: () => void;
-}) {
-  if (!onCycle) {
-    return (
-      <span
-        className="osc-monster-pattern-dot"
-        data-pattern={pattern}
-        title={`${pattern} pattern`}
-      />
-    );
-  }
-  return (
-    <button
-      type="button"
-      className="osc-monster-pattern-dot"
-      data-pattern={pattern}
-      aria-label={`Attack pattern: ${pattern}. Click to change`}
-      title={`${pattern} pattern`}
-      onClick={onCycle}
-    />
+function patternEntries(item: MonsterItem): PopupMenuEntry[] {
+  const colours = Object.entries(CONFIG.OSE?.colors ?? {}).map(
+    ([pattern, label]) => ({ pattern, label: game.i18n.localize(label) }),
+  );
+  return [...colours, { pattern: "transparent", label: "None" }].map(
+    ({ pattern, label }) => ({
+      label,
+      checked: (item.system.pattern ?? "transparent") === pattern,
+      onSelect: () => void setPattern(item, pattern),
+    }),
   );
 }
 
-export function AttacksSection({ actor, attacks, canEdit }: Props) {
+function GroupDivider({ or }: { or: boolean }) {
+  return (
+    <div
+      role="separator"
+      aria-label={or ? "or" : undefined}
+      className={cx("osc-monster-attack-divider", or && "is-alternative")}
+    >
+      {or && <span className="osc-monster-label">or</span>}
+    </div>
+  );
+}
+
+export function AttacksSection({ actor, groups, canEdit }: Props) {
   const [menu, setMenu] = useState<PopupMenuState | null>(null);
-  const item = (id: string) => actor.items.get(id);
+  const attacks = groups.flatMap((group) => group.attacks);
+
+  const openMenu = (item: MonsterItem, event: MouseEvent) => {
+    event.preventDefault();
+    const base = itemMenu(item, canEdit, event);
+    setMenu(
+      canEdit
+        ? {
+            ...base,
+            entries: [
+              base.entries[0],
+              {
+                label: "Attack group",
+                icon: "fa-link",
+                entries: patternEntries(item),
+              },
+              ...base.entries.slice(1),
+            ],
+          }
+        : base,
+    );
+  };
+
+  const row = (attack: AttackRow) => {
+    const weapon = actor.items.get(attack.id);
+    return (
+      <div
+        role="row"
+        key={attack.id}
+        className={cx(
+          "osc-monster-attack-row",
+          attack.exhausted && "is-exhausted",
+        )}
+        onContextMenu={weapon && ((event) => openMenu(weapon, event))}
+      >
+        <span role="cell">
+          {canEdit && weapon && (
+            <IconButton
+              variant="raised"
+              size="sm"
+              className="osc-monster-attack-button"
+              aria-label={`Attack with ${attack.name}`}
+              title={`Attack with ${attack.name}`}
+              disabled={attack.exhausted}
+              onClick={(event) => void rollMonsterItem(weapon, event)}
+            >
+              <DieGlyph />
+            </IconButton>
+          )}
+        </span>
+        <span role="cell" className="osc-monster-attack-name">
+          <RollLabel
+            className="osc-monster-item-name"
+            glyph={false}
+            title={canEdit ? "Edit attack" : "View attack"}
+            onRoll={
+              weapon?.sheet ? () => weapon.sheet?.render(true) : undefined
+            }
+          >
+            {attack.name}
+          </RollLabel>
+          {attack.save && (
+            <Tag size="xs" className="u-ml-1">
+              {attack.save}
+            </Tag>
+          )}
+          {attack.slow && (
+            <Tag size="xs" className="u-ml-1">
+              slow
+            </Tag>
+          )}
+        </span>
+        <span role="cell" className="osc-monster-value u-fs-xs">
+          {attack.damage ?? EMPTY_VALUE}
+          {attack.bonus != null &&
+            ` ${attack.bonus > 0 ? "+" : ""}${attack.bonus}`}
+        </span>
+        <span role="cell" className="u-flex u-justify-end">
+          {attack.uses && (
+            <UsesTally
+              name={attack.name}
+              value={attack.uses.value}
+              max={attack.uses.max}
+              onSet={
+                canEdit && weapon
+                  ? (value) => void setUses(weapon, value)
+                  : undefined
+              }
+            />
+          )}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <section aria-label="Attacks">
@@ -97,86 +190,16 @@ export function AttacksSection({ actor, attacks, canEdit }: Props) {
               Uses
             </span>
           </div>
-          {attacks.map((attack) => {
-            const weapon = item(attack.id);
-            return (
-              <div
-                role="row"
-                key={attack.id}
-                className={cx(
-                  "osc-monster-attack-row",
-                  attack.exhausted && "is-exhausted",
-                )}
-                onContextMenu={
-                  weapon &&
-                  ((event) => {
-                    event.preventDefault();
-                    setMenu(itemMenu(weapon, canEdit, event));
-                  })
-                }
-              >
-                <span role="cell">
-                  <PatternDot
-                    pattern={attack.pattern}
-                    onCycle={
-                      canEdit && weapon
-                        ? () => void cyclePattern(weapon)
-                        : undefined
-                    }
-                  />
-                </span>
-                <span role="cell" className="osc-monster-attack-name">
-                  {attack.alternative && (
-                    <span className="osc-monster-serif">or </span>
-                  )}
-                  {attack.count && (
-                    <span className="osc-monster-value u-fs-xs">
-                      {attack.count}×{" "}
-                    </span>
-                  )}
-                  <RollLabel
-                    className="osc-monster-item-name"
-                    onRoll={
-                      canEdit && weapon
-                        ? (event) => void rollMonsterItem(weapon, event)
-                        : undefined
-                    }
-                  >
-                    {attack.name}
-                  </RollLabel>
-                  {attack.save && (
-                    <Tag size="xs" className="u-ml-1">
-                      {attack.save}
-                    </Tag>
-                  )}
-                  {attack.slow && (
-                    <Tag size="xs" className="u-ml-1">
-                      slow
-                    </Tag>
-                  )}
-                </span>
-                <span role="cell" className="osc-monster-value u-fs-xs">
-                  {attack.damage ?? EMPTY_VALUE}
-                  {attack.bonus != null &&
-                    ` ${attack.bonus > 0 ? "+" : ""}${attack.bonus}`}
-                </span>
-                <span role="cell" className="u-flex u-justify-end">
-                  {attack.uses && (
-                    <UsesTally
-                      name={attack.name}
-                      value={attack.uses.value}
-                      max={attack.uses.max}
-                      onSet={
-                        canEdit && weapon
-                          ? (value) => void setUses(weapon, value)
-                          : undefined
-                      }
-                    />
-                  )}
-                </span>
-              </div>
-            );
-          })}
+          {groups.map((group, index) => (
+            <Fragment key={group.pattern}>
+              {index > 0 && (
+                <GroupDivider
+                  or={group.coloured && groups[index - 1].coloured}
+                />
+              )}
+              {group.attacks.map(row)}
+            </Fragment>
+          ))}
         </div>
       )}
       {menu && <PopupMenu menu={menu} onClose={() => setMenu(null)} />}

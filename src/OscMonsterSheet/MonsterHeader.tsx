@@ -1,8 +1,11 @@
+import { cx } from "@ui/cx";
 import { openImagePicker } from "@ui/imagePicker";
 import { InlineEdit } from "./parts/InlineEdit";
 import { RollLabel } from "./parts/RollLabel";
 import type { Commit } from "./commit";
 import type { MonsterView } from "./viewModel";
+
+const LONG_NAME = 22;
 
 type Props = {
   name: string;
@@ -52,7 +55,12 @@ export function MonsterHeader({
     <header className="u-flex u-items-center u-gap-4">
       <MonsterPortrait img={img} onPickImage={onPickImage} />
       <div className="u-flex-1">
-        <h1 className="osc-monster-name u-m-0 u-fs-3xl">
+        <h1
+          className={cx(
+            "osc-monster-name u-m-0",
+            name.length > LONG_NAME ? "u-fs-2xl" : "u-fs-4xl",
+          )}
+        >
           <InlineEdit
             label="Name"
             value={name}
@@ -73,12 +81,10 @@ export function MonsterHeader({
               <InlineEdit
                 label="XP"
                 className="osc-monster-value u-fs-xs"
-                value={view.xp.value}
+                value={view.xp}
                 placeholder="0"
                 onCommit={commit?.loose("system.details.xp")}
-              >
-                {view.xp.display || undefined}
-              </InlineEdit>
+              />
               <span className="osc-monster-label">XP</span>
             </span>
           </div>

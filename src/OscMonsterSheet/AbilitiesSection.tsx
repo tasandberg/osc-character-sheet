@@ -5,6 +5,7 @@ import { IconButton } from "@ui/IconButton";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
+import { rollable } from "@ui/rollable";
 import { useSetting } from "@src/OscSheet/settings";
 import { rollMonsterItem } from "./actions";
 import { itemMenu } from "./parts/itemMenu";
@@ -51,20 +52,27 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
         ref={body}
         className={cx("osc-monster-ability-body", !expanded && "is-clamped")}
       >
-        <span aria-hidden="true">▶ </span>
+        <span aria-hidden="true" className="osc-monster-ability-bullet">
+          ▶
+        </span>
         <RollLabel
           className="osc-monster-ability-name"
-          glyph={!!ability.rollTag}
-          onRoll={
-            item ? (event) => void rollMonsterItem(item, event) : undefined
-          }
-          title={ability.rollTag ? `Roll ${ability.rollTag}` : "Show in chat"}
+          glyph={false}
+          onRoll={item?.sheet ? () => item.sheet?.render(true) : undefined}
+          title={canEdit ? "Edit ability" : "View ability"}
         >
           {ability.name}.
         </RollLabel>{" "}
         {ability.rollTag && (
-          <Tag size="xs" className="osc-monster-ability-tag">
-            {ability.rollTag}
+          <Tag
+            size="xs"
+            className="osc-monster-ability-tag osc-monster-roll-tag"
+            title={`Roll ${ability.rollTag}`}
+            {...rollable(
+              item ? (event) => void rollMonsterItem(item, event) : undefined,
+            )}
+          >
+            roll {ability.rollTag}
           </Tag>
         )}
         {ability.save && (
