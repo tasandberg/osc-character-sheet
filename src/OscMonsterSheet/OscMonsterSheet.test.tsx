@@ -181,6 +181,23 @@ describe("OscMonsterSheet", () => {
     expect(gaze.sheet.render).toHaveBeenCalledWith(true);
   });
 
+  it("opens the attack's actions from its overflow button", async () => {
+    await mount(makeMonster());
+
+    click(button("More actions for Claw"));
+
+    const menu = container.querySelector("[role=menu][aria-label=Claw]");
+    const actions = [...(menu?.querySelectorAll("[role=menuitem]") ?? [])].map(
+      (item) => item.textContent,
+    );
+    expect(actions).toEqual([
+      "Edit",
+      "Attack group›",
+      "Show in chat",
+      "Delete",
+    ]);
+  });
+
   it("refills every weapon's uses on a new round", async () => {
     const actor = makeMonster();
     actor.updateEmbeddedDocuments = vi.fn();

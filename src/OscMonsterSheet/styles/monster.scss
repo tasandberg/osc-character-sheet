@@ -152,6 +152,12 @@
       max-content max-content minmax(0, 1fr)
       max-content max-content;
     column-gap: var(--spacer-4);
+
+    &.has-actions {
+      grid-template-columns:
+        max-content max-content minmax(0, 1fr)
+        max-content max-content max-content;
+    }
   }
 
   .osc-monster-attack-row {

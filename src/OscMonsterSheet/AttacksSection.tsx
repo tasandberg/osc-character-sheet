@@ -8,6 +8,7 @@ import {
 } from "@ui/ContextMenu";
 import { IconButton } from "@ui/IconButton";
 import { PatternPip } from "@ui/PatternPip";
+import type { Anchor } from "@ui/useFixedAnchor";
 import { Pips } from "@ui/Pips";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
@@ -86,11 +87,15 @@ function Uses({
 
 export function AttacksSection({ actor, groups, canEdit }: Props) {
   const [menu, setMenu] = useState<ContextMenuState | null>(null);
+  const [menuFor, setMenuFor] = useState<string | null>(null);
   const attacks = groups.flatMap((group) => group.attacks);
 
-  const openMenu = (item: MonsterItem, event: MouseEvent) => {
-    event.preventDefault();
-    const base = itemMenu(item, canEdit, event);
+  const showMenu = (item: MonsterItem, anchor: Anchor, fromButton = false) => {
+    const base = {
+      ...itemMenu(item, canEdit, anchor),
+      placement: fromButton ? ("bottom-end" as const) : undefined,
+    };
+    setMenuFor(fromButton ? item.id : null);
     setMenu(
       canEdit
         ? {
@@ -107,6 +112,16 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
           }
         : base,
     );
+  };
+
+  const openMenu = (item: MonsterItem, event: MouseEvent) => {
+    event.preventDefault();
+    showMenu(item, { x: event.clientX, y: event.clientY });
+  };
+
+  const closeMenu = () => {
+    setMenu(null);
+    setMenuFor(null);
   };
 
   const row = (attack: AttackRow) => {
@@ -185,6 +200,30 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
             />
           )}
         </span>
+        {canEdit && (
+          <span role="cell" className="u-flex u-items-center">
+            {weapon && (
+              <IconButton
+                size="sm"
+                aria-label={`More actions for ${attack.name}`}
+                aria-haspopup="menu"
+                aria-expanded={menuFor === weapon.id}
+                onClick={(event) =>
+                  showMenu(
+                    weapon,
+                    event.currentTarget.getBoundingClientRect(),
+                    true,
+                  )
+                }
+              >
+                <i
+                  className="fa-solid fa-ellipsis-vertical"
+                  aria-hidden="true"
+                />
+              </IconButton>
+            )}
+          </span>
+        )}
       </div>
     );
   };
@@ -224,7 +263,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
         <div
           role="table"
           aria-label="Attacks"
-          className="osc-monster-attack-table"
+          className={cx("osc-monster-attack-table", canEdit && "has-actions")}
         >
           <div role="row" className="osc-monster-attack-row osc-monster-label">
             <span role="columnheader" />
@@ -234,11 +273,12 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
             <span role="columnheader" className="tw:text-right">
               Uses
             </span>
+            {canEdit && <span role="columnheader" />}
           </div>
           {attacks.map(row)}
         </div>
       )}
-      {menu && <ContextMenu {...menu} onClose={() => setMenu(null)} />}
+      {menu && <ContextMenu {...menu} onClose={closeMenu} />}
     </section>
   );
 }

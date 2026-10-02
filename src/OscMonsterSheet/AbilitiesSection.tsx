@@ -44,7 +44,9 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
         onMenu &&
         ((event) => {
           event.preventDefault();
-          onMenu(itemMenu(item, canEdit, event));
+          onMenu(
+            itemMenu(item, canEdit, { x: event.clientX, y: event.clientY }),
+          );
         })
       }
     >

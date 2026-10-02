@@ -6,6 +6,7 @@ import {
   type PointerEvent,
 } from "react";
 import { Menu, MenuItem, MenuLabel, MenuSep } from "./Menu";
+import type { Placement } from "@floating-ui/dom";
 import { useFixedAnchor, type Anchor } from "./useFixedAnchor";
 
 export type ContextMenuEntry = {
@@ -21,6 +22,7 @@ export type ContextMenuEntry = {
 
 export type ContextMenuState = {
   anchor: Anchor;
+  placement?: Placement;
   title?: string;
   entries: ContextMenuEntry[];
 };
@@ -106,12 +108,17 @@ function Entries({
 
 export function ContextMenu({
   anchor,
+  placement,
   title,
   entries,
   onClose,
 }: ContextMenuState & { onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
-  useFixedAnchor(ref, anchor, { onDismiss: onClose, closeOnBlur: true });
+  useFixedAnchor(ref, anchor, {
+    placement,
+    onDismiss: onClose,
+    closeOnBlur: true,
+  });
 
   useLayoutEffect(() => {
     ref.current?.querySelector<HTMLElement>("[role^=menuitem]")?.focus();

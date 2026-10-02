@@ -1,16 +1,16 @@
-import type { MouseEvent } from "react";
 import { showDeleteDialog } from "@domain/foundryDialogs";
 import type { OseItem } from "@domain/types";
 import type { MonsterItem } from "../types";
 import type { ContextMenuState } from "@ui/ContextMenu";
+import type { Anchor } from "@ui/useFixedAnchor";
 
 export function itemMenu(
   item: MonsterItem,
   canEdit: boolean,
-  event: MouseEvent,
+  anchor: Anchor,
 ): ContextMenuState {
   return {
-    anchor: { x: event.clientX, y: event.clientY },
+    anchor,
     title: item.name,
     entries: [
       {
