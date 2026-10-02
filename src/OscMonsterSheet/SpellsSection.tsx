@@ -1,6 +1,6 @@
 import { SectionTitle } from "@ui/SectionTitle";
 import { rollMonsterItem } from "./actions";
-import { RollLabel } from "./parts/RollLabel";
+import { RollLabel } from "@ui/RollLabel";
 import type { MonsterActor } from "./types";
 import type { MonsterView } from "./viewModel";
 
@@ -28,7 +28,7 @@ export function SpellsSection({ actor, levels, canEdit }: Props) {
                     className="u-inline-flex u-items-baseline u-gap-1"
                   >
                     <RollLabel
-                      className="osc-monster-item-name"
+                      className="osc-monster-label osc-monster-item-name"
                       onRoll={
                         canEdit && item
                           ? () => void rollMonsterItem(item)

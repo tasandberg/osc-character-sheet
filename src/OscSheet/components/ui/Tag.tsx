@@ -1,4 +1,5 @@
 import { cx } from "./cx";
+import { rollable, type ActivateEvent } from "./rollable";
 import type { HTMLAttributes, ReactNode } from "react";
 
 type Props = HTMLAttributes<HTMLSpanElement> & {
@@ -15,6 +16,7 @@ type Props = HTMLAttributes<HTMLSpanElement> & {
   onRemove?: () => void;
   /** aria-label / title for the × button (e.g. `Remove Elvish`). */
   removeLabel?: string;
+  onRoll?: (event: ActivateEvent) => void;
 };
 
 /** @category Display */
@@ -26,12 +28,24 @@ export function Tag({
   tooltip,
   onRemove,
   removeLabel,
+  onRoll,
   className,
   children,
   ...rest
 }: Props) {
   return (
-    <span className={cx("tag", variant, intent, size, className)} {...rest}>
+    <span
+      className={cx(
+        "tag",
+        variant,
+        intent,
+        size,
+        onRoll && "is-rollable",
+        className,
+      )}
+      {...rollable(onRoll)}
+      {...rest}
+    >
       {icon && <i className={cx("fa-solid", icon)} aria-hidden="true" />}
       {children}
       {tooltip != null && (

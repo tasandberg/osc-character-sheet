@@ -2,10 +2,10 @@ import { useState, type MouseEvent } from "react";
 import { Button } from "@ui/Button";
 import { ContextMenu, type ContextMenuState } from "@ui/ContextMenu";
 import type { RollEvent } from "@domain/types";
-import { InlineEdit } from "./parts/InlineEdit";
+import { InlineEditValue } from "@ui/InlineEditValue";
 import { LeaderRow } from "./parts/LeaderRow";
 import { MovementPopover } from "./parts/MovementPopover";
-import { RollLabel } from "./parts/RollLabel";
+import { RollLabel } from "@ui/RollLabel";
 import { TreasureValue } from "./parts/TreasureValue";
 import { clearTreasure, rollBareAttack } from "./actions";
 import type { Commit } from "./commit";
@@ -62,7 +62,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
                 </span>
               }
             >
-              <InlineEdit
+              <InlineEditValue
                 label={view.armourClass.label}
                 value={view.armourClass.value}
                 placeholder="—"
@@ -72,6 +72,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
             <LeaderRow
               label={
                 <RollLabel
+                  className="osc-monster-label"
                   onRoll={
                     view.hitDice.rollable
                       ? (event) => actor.rollHitDice({ event })
@@ -82,7 +83,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
                 </RollLabel>
               }
             >
-              <InlineEdit
+              <InlineEditValue
                 label="Hit Dice"
                 value={view.hitDice.value}
                 placeholder="—"
@@ -91,12 +92,15 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
             </LeaderRow>
             <LeaderRow
               label={
-                <RollLabel onRoll={(event) => rollBareAttack(actor, event)}>
+                <RollLabel
+                  className="osc-monster-label"
+                  onRoll={(event) => rollBareAttack(actor, event)}
+                >
                   {view.attack.label}
                 </RollLabel>
               }
             >
-              <InlineEdit
+              <InlineEditValue
                 label={view.attack.label}
                 value={view.attack.value}
                 placeholder="—"
@@ -114,12 +118,15 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
             {view.loyalty != null && (
               <LeaderRow
                 label={
-                  <RollLabel onRoll={(event) => actor.rollLoyalty({ event })}>
+                  <RollLabel
+                    className="osc-monster-label"
+                    onRoll={(event) => actor.rollLoyalty({ event })}
+                  >
                     Loyalty
                   </RollLabel>
                 }
               >
-                <InlineEdit
+                <InlineEditValue
                   label="Loyalty"
                   value={view.loyalty}
                   onCommit={commit?.number("system.retainer.loyalty")}
@@ -134,7 +141,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               {commit ? (
                 <button
                   type="button"
-                  className="osc-monster-editable"
+                  className="inline-edit"
                   aria-label="Edit movement"
                   aria-expanded={!!movementAnchor}
                   onClick={(event) =>
@@ -157,6 +164,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               <LeaderRow
                 label={
                   <RollLabel
+                    className="osc-monster-label"
                     onRoll={
                       view.morale.rollable
                         ? (event) => actor.rollMorale({ event })
@@ -167,7 +175,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
                   </RollLabel>
                 }
               >
-                <InlineEdit
+                <InlineEditValue
                   label="Morale"
                   value={view.morale.value}
                   placeholder="—"
@@ -178,6 +186,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
             <LeaderRow
               label={
                 <RollLabel
+                  className="osc-monster-label"
                   onRoll={
                     appearing.rollableDungeon || appearing.rollableLair
                       ? rollAppearing
@@ -188,14 +197,14 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
                 </RollLabel>
               }
             >
-              <InlineEdit
+              <InlineEditValue
                 label="Number appearing in a dungeon"
                 value={appearing.dungeon}
                 placeholder="—"
                 onCommit={commit?.loose("system.details.appearing.d")}
               />{" "}
               (
-              <InlineEdit
+              <InlineEditValue
                 label="Number appearing in a lair"
                 value={appearing.lair}
                 placeholder="—"
@@ -205,7 +214,10 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
             </LeaderRow>
             <LeaderRow
               label={
-                <RollLabel onRoll={(event) => actor.rollReaction({ event })}>
+                <RollLabel
+                  className="osc-monster-label"
+                  onRoll={(event) => actor.rollReaction({ event })}
+                >
                   Reaction
                 </RollLabel>
               }
@@ -226,14 +238,14 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               className="osc-monster-save u-flex u-items-baseline u-justify-center"
             >
               <RollLabel
-                className="osc-monster-save-label"
+                className="osc-monster-label osc-monster-save-label"
                 glyph={false}
                 title={`Roll save versus ${save.label.toLowerCase()}`}
                 onRoll={(event) => actor.rollSave(save.key, { event })}
               >
                 {save.label}
               </RollLabel>
-              <InlineEdit
+              <InlineEditValue
                 label={`Save versus ${save.label}`}
                 className="osc-monster-save-value u-fs-xl"
                 value={save.value}

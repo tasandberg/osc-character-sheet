@@ -1,13 +1,18 @@
 import { useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
-import { cx } from "@ui/cx";
+import { cx } from "./cx";
 
-type Props = {
+type Base = {
   label: string;
   value: string;
-  onCommit?: (next: string) => void;
   placeholder?: string;
   className?: string;
 };
+
+type Props = Base &
+  (
+    | { parse?: "text"; onCommit?: (next: string) => void }
+    | { parse: "int"; onCommit?: (next: number) => void }
+  );
 
 function selectContents(element: HTMLElement) {
   const range = document.createRange();
@@ -17,13 +22,8 @@ function selectContents(element: HTMLElement) {
   selection?.addRange(range);
 }
 
-export function InlineEdit({
-  label,
-  value,
-  onCommit,
-  placeholder,
-  className,
-}: Props) {
+export function InlineEditValue(props: Props) {
+  const { label, value, placeholder, className } = props;
   const [editing, setEditing] = useState(false);
   const [revision, setRevision] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
@@ -37,14 +37,20 @@ export function InlineEdit({
     selectContents(element);
   }, [editing]);
 
-  if (!onCommit) return <span className={className}>{display}</span>;
+  if (!props.onCommit) return <span className={className}>{display}</span>;
+
+  const commit = (next: string) => {
+    if (props.parse !== "int") return props.onCommit?.(next);
+    const n = Number.parseInt(next, 10);
+    if (Number.isFinite(n)) props.onCommit?.(n);
+  };
 
   const finish = () => {
     const typed = (ref.current?.textContent ?? "").trim();
     const next = !value && typed === placeholder ? "" : typed;
     setEditing(false);
     setRevision((n) => n + 1);
-    if (!cancelled.current && next !== value) onCommit(next);
+    if (!cancelled.current && next !== value) commit(next);
     cancelled.current = false;
   };
 
@@ -78,7 +84,7 @@ export function InlineEdit({
       suppressContentEditableWarning
       spellCheck={false}
       className={cx(
-        "osc-monster-editable",
+        "inline-edit",
         editing && "is-editing",
         !value && "is-empty",
         className,

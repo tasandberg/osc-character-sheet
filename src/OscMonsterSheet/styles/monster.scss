@@ -22,33 +22,6 @@
     scrollbar-color: var(--surface-3) transparent;
   }
 
-  button.osc-monster-editable {
-    font: inherit;
-    letter-spacing: inherit;
-  }
-
-  .osc-monster-editable {
-    display: inline-block;
-    vertical-align: baseline;
-    cursor: text;
-    border-radius: 1px;
-    outline: 1px dotted transparent;
-    outline-offset: 2px;
-
-    &:hover,
-    &.is-editing {
-      outline-color: var(--text-dim);
-    }
-
-    &.is-editing {
-      background: color-mix(in srgb, var(--surface) 60%, transparent);
-    }
-
-    &.is-empty:not(.is-editing) {
-      color: var(--text-faint);
-    }
-  }
-
   .osc-monster-label {
     font-family: var(--sans);
     font-weight: 600;
@@ -58,25 +31,6 @@
     text-transform: uppercase;
     color: var(--text-dim);
     white-space: nowrap;
-  }
-
-  .osc-monster-roll {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacer-1);
-    cursor: pointer;
-
-    &:hover,
-    &:focus-visible {
-      color: var(--text);
-      text-decoration: underline dotted;
-      text-underline-offset: 3px;
-    }
-  }
-
-  .osc-monster-die {
-    flex: none;
-    font-size: 0.75em;
   }
 
   .osc-monster-value {
@@ -299,17 +253,6 @@
     &:focus-visible {
       outline: 1px solid var(--text-dim);
       outline-offset: 2px;
-    }
-  }
-
-  .osc-monster-roll-tag {
-    cursor: pointer;
-
-    &:hover,
-    &:focus-visible {
-      color: var(--text);
-      text-decoration: underline dotted;
-      text-underline-offset: 3px;
     }
   }
 

@@ -1,7 +1,7 @@
 import { cx } from "@ui/cx";
 import { IconButton } from "@ui/IconButton";
 import { openImagePicker } from "@ui/imagePicker";
-import { InlineEdit } from "./parts/InlineEdit";
+import { InlineEditValue } from "@ui/InlineEditValue";
 import type { Commit } from "./commit";
 import type { MonsterView } from "./viewModel";
 
@@ -61,7 +61,7 @@ export function MonsterHeader({
             name.length > LONG_NAME ? "u-fs-2xl" : "u-fs-4xl",
           )}
         >
-          <InlineEdit
+          <InlineEditValue
             label="Name"
             value={name}
             onCommit={commit?.text("name")}
@@ -69,7 +69,7 @@ export function MonsterHeader({
         </h1>
         {view && (
           <div className="u-row u-items-baseline u-mt-2 u-text-dim u-wrap">
-            <InlineEdit
+            <InlineEditValue
               label="Alignment"
               className="osc-monster-value u-fs-xs"
               value={view.alignment}
@@ -78,7 +78,7 @@ export function MonsterHeader({
             />
             <span aria-hidden="true">·</span>
             <span className="u-row u-gap-1 u-items-baseline">
-              <InlineEdit
+              <InlineEditValue
                 label="XP"
                 className="osc-monster-value u-fs-xs"
                 value={view.xp}
@@ -95,7 +95,7 @@ export function MonsterHeader({
           <span className="osc-monster-label">Hit Points</span>
           <div className="u-mt-1 u-flex u-items-center u-justify-end u-gap-2">
             <span>
-              <InlineEdit
+              <InlineEditValue
                 label="Current hit points"
                 className="osc-monster-hit-points-current u-fs-3xl"
                 value={view.hp.value}
@@ -104,7 +104,7 @@ export function MonsterHeader({
               />
               <span className="osc-monster-value u-fs-xs u-text-dim">
                 {" / "}
-                <InlineEdit
+                <InlineEditValue
                   label="Maximum hit points"
                   value={view.hp.max}
                   placeholder="0"

@@ -19,8 +19,8 @@ import {
   setUses,
 } from "./actions";
 import { itemMenu } from "./parts/itemMenu";
-import { RollLabel } from "./parts/RollLabel";
-import { InlineEdit } from "./parts/InlineEdit";
+import { RollLabel } from "@ui/RollLabel";
+import { InlineEditValue } from "@ui/InlineEditValue";
 import type { MonsterActor, MonsterItem } from "./types";
 import { EMPTY_VALUE, type AttackGroup, type AttackRow } from "./viewModel";
 
@@ -87,16 +87,11 @@ function Uses({
   if (max > MAX_PIPS) {
     return (
       <span className="osc-monster-value u-fs-xs">
-        <InlineEdit
+        <InlineEditValue
           label={`${name} uses left`}
           value={String(value)}
-          onCommit={
-            onSet &&
-            ((next) => {
-              const n = Number.parseInt(next, 10);
-              if (Number.isFinite(n)) onSet(Math.min(n, max));
-            })
-          }
+          parse="int"
+          onCommit={onSet && ((next) => onSet(Math.min(next, max)))}
         />
         /{max}
       </span>
@@ -177,7 +172,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
         </span>
         <span role="cell" className="osc-monster-attack-name">
           <RollLabel
-            className="osc-monster-item-name"
+            className="osc-monster-label osc-monster-item-name"
             glyph={false}
             title={canEdit ? "Edit attack" : "View attack"}
             onRoll={
@@ -227,14 +222,14 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
         {canEdit && (
           <span className="u-row u-gap-2">
             {attacks.some((attack) => attack.uses) && (
-              <button
-                type="button"
-                className="osc-monster-label osc-monster-roll"
-                onClick={() => void resetAttacks(actor)}
+              <RollLabel
+                className="osc-monster-label"
+                glyph={false}
+                onRoll={() => void resetAttacks(actor)}
               >
                 <i className="fa-solid fa-rotate-left" aria-hidden="true" />
                 New round
-              </button>
+              </RollLabel>
             )}
             <IconButton
               size="sm"

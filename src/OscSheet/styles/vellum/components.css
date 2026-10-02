@@ -434,6 +434,46 @@
   }
 }
 
+.inline-edit {
+  display: inline-block;
+  vertical-align: baseline;
+  cursor: text;
+  border-radius: 1px;
+  outline: 1px dotted transparent;
+  outline-offset: 2px;
+}
+.inline-edit:hover,
+.inline-edit.is-editing {
+  outline-color: var(--text-dim);
+}
+.inline-edit.is-editing {
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.inline-edit.is-empty:not(.is-editing) {
+  color: var(--text-faint);
+}
+button.inline-edit {
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.roll-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacer-1);
+  cursor: pointer;
+}
+.roll-label:hover,
+.roll-label:focus-visible {
+  color: var(--text);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.roll-label-die {
+  flex: none;
+  font-size: 0.75em;
+}
+
 /* ─── Dropdown menu ─────────────────────────────────────────────────── */
 
 .menu {
@@ -813,6 +853,15 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: var(--spacer-1) var(--spacer-2-5) 2px;
+}
+.tag.is-rollable {
+  cursor: pointer;
+}
+.tag.is-rollable:hover,
+.tag.is-rollable:focus-visible {
+  color: var(--text);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
 }
 /* count — brass-solid numeric pill (container item counts, etc.) */
 .tag.count {

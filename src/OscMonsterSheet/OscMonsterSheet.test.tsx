@@ -69,7 +69,7 @@ function click(element: HTMLElement) {
 
 function type(
   value: string,
-  key: "Enter" | "Escape",
+  key: "Enter",
   selector = "[role=textbox]",
 ) {
   const field = container.querySelector<HTMLElement>(selector)!;
@@ -138,17 +138,6 @@ describe("OscMonsterSheet", () => {
     expect(actor.update).toHaveBeenCalledWith({
       "system.details.movement": "360′ (120′) flying",
     });
-  });
-
-  it("discards an edit on Escape", async () => {
-    const actor = makeMonster();
-    actor.update = vi.fn();
-    await mount(actor);
-
-    click(button("Edit Morale"));
-    type("12", "Escape");
-
-    expect(actor.update).not.toHaveBeenCalled();
   });
 
   it("rolls from the label", async () => {

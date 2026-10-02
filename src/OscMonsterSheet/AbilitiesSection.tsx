@@ -6,11 +6,10 @@ import { IconButton } from "@ui/IconButton";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
-import { rollable } from "@ui/rollable";
 import { useSetting } from "@src/OscSheet/settings";
 import { rollMonsterItem } from "./actions";
 import { itemMenu } from "./parts/itemMenu";
-import { RollLabel } from "./parts/RollLabel";
+import { RollLabel } from "@ui/RollLabel";
 import { useEnrichedHtml } from "./parts/useEnrichedHtml";
 import type { MonsterActor, MonsterItem } from "./types";
 import type { AbilityEntry } from "./viewModel";
@@ -56,7 +55,7 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
           ▶
         </span>
         <RollLabel
-          className="osc-monster-ability-name"
+          className="osc-monster-label osc-monster-ability-name"
           glyph={false}
           onRoll={item?.sheet ? () => item.sheet?.render(true) : undefined}
           title={canEdit ? "Edit ability" : "View ability"}
@@ -66,11 +65,11 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
         {ability.rollTag && (
           <Tag
             size="xs"
-            className="osc-monster-ability-tag osc-monster-roll-tag"
+            className="osc-monster-ability-tag"
             title={`Roll ${ability.rollTag}`}
-            {...rollable(
-              item ? (event) => void rollMonsterItem(item, event) : undefined,
-            )}
+            onRoll={
+              item ? (event) => void rollMonsterItem(item, event) : undefined
+            }
           >
             roll {ability.rollTag}
           </Tag>
@@ -89,14 +88,14 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
         />
       </div>
       {(overflows || expanded) && (
-        <button
-          type="button"
-          className="osc-monster-label osc-monster-roll osc-monster-ability-toggle"
+        <RollLabel
+          className="osc-monster-label osc-monster-ability-toggle"
+          glyph={false}
           aria-expanded={expanded}
-          onClick={() => setExpanded(!expanded)}
+          onRoll={() => setExpanded(!expanded)}
         >
           {expanded ? "Less" : "More"}
-        </button>
+        </RollLabel>
       )}
     </li>
   );
