@@ -1,5 +1,6 @@
-import { useLayoutEffect, useRef, type KeyboardEvent } from "react";
-import { useFixedAnchor } from "@ui/useFixedAnchor";
+import { useId, useRef, type KeyboardEvent } from "react";
+import { Field, Input } from "@ui/Field";
+import { Popover } from "@ui/Popover";
 
 type Props = {
   anchor: DOMRect;
@@ -16,7 +17,7 @@ export function MovementPopover({
   onCommit,
   onClose,
 }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
+  const id = useId();
   const draft = useRef({ base, details });
 
   const save = () => {
@@ -38,16 +39,6 @@ export function MovementPopover({
     onClose();
   };
 
-  useFixedAnchor(ref, anchor, {
-    placement: "bottom-end",
-    gap: 6,
-    onDismiss: () => close(true),
-  });
-
-  useLayoutEffect(() => {
-    ref.current?.querySelector("input")?.focus();
-  }, [anchor]);
-
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") {
       event.stopPropagation();
@@ -63,33 +54,35 @@ export function MovementPopover({
     key: "base" | "details",
     label: string,
     placeholder?: string,
+    autoFocus?: boolean,
   ) => (
-    <label className="osc-monster-popover-field">
-      <span className="osc-monster-label">{label}</span>
-      <input
+    <Field variant="hairline" label={label} htmlFor={`${id}-${key}`}>
+      <Input
+        id={`${id}-${key}`}
+        variant="hairline"
         aria-label={label}
-        className="osc-monster-popover-input u-fs-xs"
+        autoFocus={autoFocus}
         defaultValue={draft.current[key]}
         placeholder={placeholder}
         onChange={(event) => {
           draft.current[key] = event.currentTarget.value;
         }}
       />
-    </label>
+    </Field>
   );
 
   return (
-    <div
-      ref={ref}
-      className="osc-monster-popover"
-      role="dialog"
-      aria-label="Edit movement"
+    <Popover
+      anchor={anchor}
+      placement="bottom-end"
+      label="Edit movement"
+      inset="u-stack u-gap-2 u-px-3 u-py-2"
+      className="tw:w-[calc(var(--spacer-12)*5)]"
+      onClose={() => close(true)}
       onKeyDown={onKeyDown}
     >
-      <div className="osc-monster-popover-inner u-px-3 u-py-2">
-        {field("base", "Base rate")}
-        {field("details", "Details", "e.g. 360′ (120′) flying")}
-      </div>
-    </div>
+      {field("base", "Base rate", undefined, true)}
+      {field("details", "Details", "e.g. 360′ (120′) flying")}
+    </Popover>
   );
 }

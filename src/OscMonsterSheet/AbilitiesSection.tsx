@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { createOwnedItem } from "@domain/createOwnedItem";
 import type { OSEActor } from "@domain/types";
+import { BulletParagraph } from "@ui/BulletParagraph";
 import { ContextMenu, type ContextMenuState } from "@ui/ContextMenu";
 import { IconButton } from "@ui/IconButton";
 import { SectionTitle } from "@ui/SectionTitle";
@@ -47,25 +48,24 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
         })
       }
     >
-      <div
+      <BulletParagraph
         ref={body}
-        className={cx("osc-monster-ability-body", !expanded && "is-clamped")}
+        clamp={expanded ? undefined : 3}
+        lead={
+          <RollLabel
+            className="osc-monster-label osc-monster-ability-name"
+            glyph={false}
+            onRoll={item?.sheet ? () => item.sheet?.render(true) : undefined}
+            title={canEdit ? "Edit ability" : "View ability"}
+          >
+            {ability.name}.
+          </RollLabel>
+        }
       >
-        <span aria-hidden="true" className="osc-monster-ability-bullet">
-          ▶
-        </span>
-        <RollLabel
-          className="osc-monster-label osc-monster-ability-name"
-          glyph={false}
-          onRoll={item?.sheet ? () => item.sheet?.render(true) : undefined}
-          title={canEdit ? "Edit ability" : "View ability"}
-        >
-          {ability.name}.
-        </RollLabel>{" "}
         {ability.rollTag && (
           <Tag
             size="xs"
-            className="osc-monster-ability-tag"
+            className="u-mr-1"
             title={`Roll ${ability.rollTag}`}
             onRoll={
               item ? (event) => void rollMonsterItem(item, event) : undefined
@@ -75,7 +75,7 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
           </Tag>
         )}
         {ability.save && (
-          <Tag size="xs" className="osc-monster-ability-tag">
+          <Tag size="xs" className="u-mr-1">
             {ability.save}
           </Tag>
         )}
@@ -86,7 +86,7 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
           )}
           dangerouslySetInnerHTML={{ __html: html }}
         />
-      </div>
+      </BulletParagraph>
       {(overflows || expanded) && (
         <RollLabel
           className="osc-monster-label osc-monster-ability-toggle"

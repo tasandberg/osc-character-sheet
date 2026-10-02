@@ -34,6 +34,13 @@
 
 :root {
   --hairline: color-mix(in srgb, var(--text) 55%, transparent);
+  --pattern-red: var(--crimson);
+  --pattern-orange: oklch(from var(--crimson) calc(l + 0.12) c 55);
+  --pattern-yellow: var(--mustard);
+  --pattern-green: var(--forest);
+  --pattern-blue: oklch(from var(--teal) l c 250);
+  --pattern-purple: oklch(from var(--crimson) l c 320);
+  --pattern-white: var(--stamp-text);
 }
 
 :root {

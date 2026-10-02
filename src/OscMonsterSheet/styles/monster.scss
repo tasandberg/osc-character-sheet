@@ -38,10 +38,6 @@
     white-space: nowrap;
   }
 
-  .osc-monster-serif {
-    font-family: var(--serif);
-  }
-
   .osc-monster-link {
     display: inline-flex;
     align-items: baseline;
@@ -118,50 +114,15 @@
     color: var(--crimson);
   }
 
-  .osc-monster-frame {
-    padding: 3px;
-    border: 1px solid var(--text);
-  }
-
-  .osc-monster-frame-inner {
-    border: 1px solid var(--hairline);
-  }
-
   .osc-monster-stat-column {
     display: flex;
     flex-direction: column;
     min-width: 0;
   }
 
-  .osc-monster-leader-row {
-    padding-block: 2px;
-  }
-
-  .osc-monster-leader-fill {
-    flex: 1;
-    min-width: var(--spacer-2);
-    position: relative;
-    top: calc(var(--spacer-1) * -1);
-    border-bottom: 1px dotted var(--hairline);
-  }
-
   .osc-monster-footnote {
     text-align: right;
     font-family: var(--serif);
-  }
-
-  .osc-monster-saves {
-    border-top: 1px solid var(--hairline);
-  }
-
-  .osc-monster-save {
-    flex: 1 1 auto;
-    gap: calc(var(--spacer-1) * 1.5);
-    padding: 1px var(--spacer-1);
-
-    & + .osc-monster-save {
-      border-left: 1px solid var(--hairline);
-    }
   }
 
   .osc-monster-label.osc-monster-save-label {
@@ -206,82 +167,11 @@
     }
   }
 
-  .osc-monster-pattern-dot {
-    --pattern-colour: var(--text-faint);
-
-    display: inline-block;
-    width: var(--spacer-2);
-    height: var(--spacer-2);
-    border-radius: 50%;
-    border: 1px solid transparent;
-    background: var(--pattern-colour);
-
-    &[data-pattern="red"] {
-      --pattern-colour: var(--crimson);
-    }
-    &[data-pattern="orange"] {
-      --pattern-colour: oklch(from var(--crimson) calc(l + 0.12) c 55);
-    }
-    &[data-pattern="yellow"] {
-      --pattern-colour: var(--mustard);
-    }
-    &[data-pattern="green"] {
-      --pattern-colour: var(--forest);
-    }
-    &[data-pattern="blue"] {
-      --pattern-colour: oklch(from var(--teal) l c 250);
-    }
-    &[data-pattern="purple"] {
-      --pattern-colour: oklch(from var(--crimson) l c 320);
-    }
-
-    &[data-pattern="white"] {
-      --pattern-colour: var(--stamp-text);
-      border-color: var(--text-mute);
-    }
-
-    &[data-pattern="transparent"] {
-      --pattern-colour: transparent;
-      border: 1px dashed var(--text-mute);
-    }
-  }
-
-  button.osc-monster-pattern-dot {
-    cursor: pointer;
-
-    &:hover,
-    &:focus-visible {
-      outline: 1px solid var(--text-dim);
-      outline-offset: 2px;
-    }
-  }
-
   .osc-monster-abilities {
     display: flex;
     flex-direction: column;
     gap: var(--spacer-1);
     list-style: none;
-  }
-
-  .osc-monster-ability-body {
-    padding-left: var(--spacer-3);
-    text-indent: calc(var(--spacer-3) * -1);
-
-    &.is-clamped {
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-  }
-
-  .osc-monster-ability-bullet {
-    display: inline-block;
-    position: relative;
-    top: calc(var(--spacer-1) / -2);
-    width: var(--spacer-3);
-    text-indent: 0;
-    font-size: calc(var(--fs-3xs) * 0.82);
   }
 
   .osc-monster-ability-name {
@@ -291,19 +181,9 @@
     letter-spacing: 0;
     text-transform: none;
     color: var(--text);
-    text-indent: 0;
-  }
-
-  .osc-monster-ability-tag {
-    margin-right: var(--spacer-1);
-    text-indent: 0;
   }
 
   .osc-monster-ability-text {
-    * {
-      text-indent: 0;
-    }
-
     > :first-child {
       display: inline;
     }
@@ -323,48 +203,6 @@
 
   .osc-monster-ability-toggle {
     margin-left: 1em;
-  }
-
-  .osc-monster-popover {
-    position: fixed;
-    z-index: 100;
-    width: calc(var(--spacer-12) * 5);
-    padding: 3px;
-    border: 1px solid var(--text);
-    background-color: var(--bg);
-    background-image: var(--vellum-grain);
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--ink) 18%, transparent);
-  }
-
-  .osc-monster-popover-inner {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacer-2);
-    border: 1px solid var(--hairline);
-  }
-
-  .osc-monster-popover-field {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .osc-monster-popover-input {
-    width: 100%;
-    padding: var(--spacer-1) calc(var(--spacer-1) * 1.5);
-    font-family: var(--mono);
-    color: var(--text);
-    background: color-mix(in srgb, var(--surface) 40%, transparent);
-    border: 1px solid var(--hairline);
-    border-radius: 2px;
-
-    &:focus {
-      border-color: var(--text);
-    }
-
-    &::placeholder {
-      color: var(--text-faint);
-    }
   }
 
   .osc-rich-text-body {

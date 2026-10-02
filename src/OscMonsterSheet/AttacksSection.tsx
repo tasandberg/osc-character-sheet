@@ -7,6 +7,7 @@ import {
   type ContextMenuState,
 } from "@ui/ContextMenu";
 import { IconButton } from "@ui/IconButton";
+import { PatternPip } from "@ui/PatternPip";
 import { Pips } from "@ui/Pips";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
@@ -40,34 +41,6 @@ function patternEntries(item: MonsterItem): ContextMenuEntry[] {
       checked: (item.system.pattern ?? "transparent") === pattern,
       onSelect: () => void setPattern(item, pattern),
     }),
-  );
-}
-
-function PatternDot({
-  pattern,
-  onCycle,
-}: {
-  pattern: string;
-  onCycle?: () => void;
-}) {
-  if (!onCycle) {
-    return (
-      <span
-        className="osc-monster-pattern-dot"
-        data-pattern={pattern}
-        title={`${pattern} pattern`}
-      />
-    );
-  }
-  return (
-    <button
-      type="button"
-      className="osc-monster-pattern-dot"
-      data-pattern={pattern}
-      aria-label={`Attack pattern: ${pattern}. Click to change`}
-      title={`${pattern} pattern`}
-      onClick={onCycle}
-    />
   );
 }
 
@@ -149,7 +122,8 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
         onContextMenu={weapon && ((event) => openMenu(weapon, event))}
       >
         <span role="cell" className="u-flex u-items-center">
-          <PatternDot
+          <PatternPip
+            label="Attack pattern"
             pattern={attack.pattern}
             onCycle={
               canEdit && weapon ? () => void cyclePattern(weapon) : undefined

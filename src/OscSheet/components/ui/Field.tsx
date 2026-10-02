@@ -7,12 +7,20 @@ export function Field({
   hint,
   error,
   children,
+  variant,
+  htmlFor,
   className,
   ...rest
-}: HTMLAttributes<HTMLDivElement> & { label?: ReactNode; hint?: ReactNode; error?: ReactNode }) {
+}: HTMLAttributes<HTMLDivElement> & {
+  htmlFor?: string;
+  label?: ReactNode;
+  hint?: ReactNode;
+  error?: ReactNode;
+  variant?: "hairline";
+}) {
   return (
-    <div className={cx("field", className)} {...rest}>
-      {label != null && <label className="field-label">{label}</label>}
+    <div className={cx("field", variant, className)} {...rest}>
+      {label != null && <label className="field-label" htmlFor={htmlFor}>{label}</label>}
       {children}
       {error != null ? (
         <span className="field-error">{error}</span>
@@ -23,6 +31,11 @@ export function Field({
   );
 }
 
-export function Input({ invalid, className, ...rest }: InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }) {
-  return <input className={cx("input", invalid && "is-error", className)} {...rest} />;
+export function Input({
+  invalid,
+  variant,
+  className,
+  ...rest
+}: InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; variant?: "hairline" }) {
+  return <input className={cx("input", variant, invalid && "is-error", className)} {...rest} />;
 }
