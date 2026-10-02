@@ -1,6 +1,6 @@
 import "./styles/monster.scss";
 import type { ContextConnector } from "foundry-vtt-react";
-import { ThemedRoot } from "@src/OscSheet";
+import { ThemedRoot } from "@app/ThemedRoot";
 import { SheetErrorBoundary } from "@app/ErrorBoundary";
 import type { OSEActor, OscContext } from "@domain/types";
 import { LimitedMonsterSheet, MonsterSheet } from "./MonsterSheet";
