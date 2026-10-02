@@ -17,11 +17,12 @@ lives in `../CLAUDE.md`.
   `pnpm lint`, `pnpm test` (vitest). Verify changes with all four before committing.
 - **Visual verification is the e2e suite** (`tools/e2e/specs/`), which drives a real Foundry
   world — the only place this sheet's CSS meets Foundry's. There is no component workbench
-  here; the shared design system and its Storybook live in the `old-school-chronicle`
-  monorepo's `packages/ui`.
+  or Storybook. The sheet owns its components (`components/ui/` + `styles/vellum/`); only
+  tokens are shared, via `@old-school-chronicle/vellum` (tokens-only npm package: CSS vars,
+  Tailwind theme, scales, postcss-scope).
 - App entry: `src/OscSheet/index.tsx` → `OscSheetProvider` (Foundry actor sync) →
   `SheetShell` (view-models + layout slots) → tab bodies. State = React Context + Foundry
-  actor as source of truth; view-models in `viewModels/` compute derived data.
+  actor as source of truth; `select*` selectors in `domain/` and `features/` compute view-models.
 - **Styling — utilities first.** Prefer Vellum `u-*` utility classes (in JSX) and
   `components/ui/` primitives over hand-written `.osc-*` classes + SCSS. Reach for a utility
   or primitive before authoring any bespoke rule; reserve SCSS for genuinely bespoke bits
@@ -36,13 +37,12 @@ lives in `../CLAUDE.md`.
   bracketed (`tw:text-[var(--enc-c,var(--text))]`).
 - UI vocabulary: reach for the `components/ui/` primitives (`Button`, `IconButton`, `Tag`,
   `SectionTitle`, `Stamp`, `Field`, `Modal`, …) before hand-rolling a new `.osc-*`
-  button/heading/tag class. Their styles live in `styles/vellum/` and are auto-scoped under
-  `.osc-sheet`, so they beat the `.osc-sheet-app … { all: unset }` reset.
+  button/heading/tag class. Their styles live in `styles/vellum/`, auto-scoped under `.osc-sheet`
+  and unlayered, so they beat the `@layer base` `all: unset` reset.
 - Guardrails (run by `pnpm lint`): **stylelint** forbids bare px `font-size` / hex colors in
-  `styles/*.scss` (`var(--token, #fallback)` is fine; `vellum/` and sub-10px glyph sizes are
+  `src/**/*.scss` (`var(--token, #fallback)` is fine; `vellum/*.css` and sub-10px glyph sizes are
   exempt — the latter via an inline `// stylelint-disable-line` + reason), and an **ESLint**
-  rule bans literal color/px in inline `style={{}}` (dynamic values like `` `${x}%` `` are fine;
-  the legacy tree is exempt).
+  rule bans literal color/px in inline `style={{}}` (dynamic values like `` `${x}%` `` are fine).
 
 ## Refactor / cleanup backlog
 
