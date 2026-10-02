@@ -14,7 +14,7 @@ export function SpellsSection({ actor, levels, canEdit }: Props) {
   if (!levels.length) return null;
   return (
     <section aria-label="Spells">
-      <SectionTitle className="osc-monster-section-title">Spells</SectionTitle>
+      <SectionTitle variant="hairline">Spells</SectionTitle>
       <dl className="u-m-0 u-stack u-gap-1">
         {levels.map(({ level, spells }) => (
           <div key={level} className="u-flex u-items-baseline u-gap-2">

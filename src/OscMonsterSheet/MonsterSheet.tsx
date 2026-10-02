@@ -81,7 +81,7 @@ export function MonsterSheet() {
         )}
       </div>
       <Tabs<TabId>
-        className="osc-monster-tabs"
+        variant="folder"
         tabs={TABS}
         active={tab}
         onSelect={setTab}

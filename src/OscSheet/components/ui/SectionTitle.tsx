@@ -8,7 +8,7 @@ type Props = HTMLAttributes<HTMLHeadingElement> & {
    * "Equipped" / "All Items"). `bare` — keeps the display type but drops the
    * rule + margins, for embedded heads like a modal title.
    */
-  variant?: "sub" | "bare";
+  variant?: "sub" | "bare" | "hairline";
 };
 
 /** @category Layout */

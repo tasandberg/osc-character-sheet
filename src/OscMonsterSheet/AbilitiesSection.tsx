@@ -116,7 +116,7 @@ export function AbilitiesSection({
 
   return (
     <section aria-label="Abilities">
-      <SectionTitle className="osc-monster-section-title">
+      <SectionTitle variant="hairline">
         <span className="u-flex-1">Abilities</span>
         {canEdit && (
           <IconButton

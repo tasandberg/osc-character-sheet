@@ -176,7 +176,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
 
   return (
     <section aria-label="Attacks">
-      <SectionTitle className="osc-monster-section-title">
+      <SectionTitle variant="hairline">
         <span className="u-flex-1">Attacks</span>
         {canEdit && (
           <span className="u-row u-gap-2">

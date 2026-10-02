@@ -156,6 +156,11 @@ $space-family:
 }
 .u-border-none { border: none; }
 
+.u-paper {
+  background-image: var(--vellum-grain);
+  background-attachment: fixed;
+}
+
 /* ─── Foundry responsive display (min-width on the `app` container) ──────── */
 /* u-foundry-{xs|md|lg}-display-{none|flex|block|grid|inline-flex}: applies at
    the tier width AND UP. Container queries can't read var(), so this map is the
