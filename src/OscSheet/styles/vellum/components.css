@@ -935,6 +935,27 @@ button.pip:hover {
   width: 9px;
   height: 9px;
 }
+.pips.xs {
+  gap: 3px;
+}
+.pips.xs .pip {
+  width: var(--spacer-2);
+  height: var(--spacer-2);
+}
+.pips.ink .pip {
+  background: transparent;
+  border-color: currentColor;
+}
+.pips.ink .pip.filled {
+  background: currentColor;
+}
+.pips.ink button.pip:hover,
+.pips.ink button.pip:focus-visible {
+  border-color: currentColor;
+  transform: none;
+  outline: 1px solid var(--text-dim);
+  outline-offset: 1px;
+}
 /* square — sharp-cornered dots instead of the disc (e.g. inventory uses) */
 .pips.square .pip {
   border-radius: 0;

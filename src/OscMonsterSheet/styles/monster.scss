@@ -328,35 +328,6 @@
     }
   }
 
-  .osc-monster-tally {
-    gap: 3px;
-  }
-
-  .osc-monster-tally-box {
-    display: block;
-    width: var(--spacer-2);
-    height: var(--spacer-2);
-    border: 1px solid var(--text);
-
-    &.is-filled {
-      background: var(--text);
-    }
-  }
-
-  .is-exhausted .osc-monster-tally-box {
-    border-color: var(--text-mute);
-  }
-
-  button.osc-monster-tally-box {
-    cursor: pointer;
-
-    &:hover,
-    &:focus-visible {
-      outline: 1px solid var(--text-dim);
-      outline-offset: 1px;
-    }
-  }
-
   .osc-monster-abilities {
     display: flex;
     flex-direction: column;

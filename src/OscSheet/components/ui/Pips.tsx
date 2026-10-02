@@ -13,6 +13,7 @@ export function Pips({
   total,
   filled,
   size,
+  tone,
   square,
   hollow,
   className,
@@ -23,8 +24,9 @@ export function Pips({
 }: {
   total: number;
   filled: number;
-  /** dot size — default (md, 16px) or "sm" (9px) */
-  size?: "sm";
+  /** dot size — default (md, 16px), "sm" (9px) or "xs" (8px) */
+  size?: "sm" | "xs";
+  tone?: "ink";
   /** square dots instead of the default circle */
   square?: boolean;
   /** bordered ring style (transparent empty) that holds `glyph`; default = solid disc */
@@ -43,6 +45,7 @@ export function Pips({
       className={cx(
         "pips",
         size,
+        tone,
         square && "square",
         hollow && "hollow",
         className,

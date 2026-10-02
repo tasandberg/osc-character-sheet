@@ -2,6 +2,7 @@ import { useState, type MouseEvent } from "react";
 import { createOwnedItem } from "@domain/createOwnedItem";
 import type { OSEActor } from "@domain/types";
 import { IconButton } from "@ui/IconButton";
+import { Pips } from "@ui/Pips";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
@@ -19,7 +20,7 @@ import {
   type PopupMenuState,
 } from "./parts/PopupMenu";
 import { RollLabel } from "./parts/RollLabel";
-import { UsesTally } from "./parts/UsesTally";
+import { InlineEdit } from "./parts/InlineEdit";
 import type { MonsterActor, MonsterItem } from "./types";
 import { EMPTY_VALUE, type AttackGroup, type AttackRow } from "./viewModel";
 
@@ -66,6 +67,51 @@ function PatternDot({
       aria-label={`Attack pattern: ${pattern}. Click to change`}
       title={`${pattern} pattern`}
       onClick={onCycle}
+    />
+  );
+}
+
+const MAX_PIPS = 6;
+
+function Uses({
+  name,
+  value,
+  max,
+  onSet,
+}: {
+  name: string;
+  value: number;
+  max: number;
+  onSet?: (value: number) => void;
+}) {
+  if (max > MAX_PIPS) {
+    return (
+      <span className="osc-monster-value u-fs-xs">
+        <InlineEdit
+          label={`${name} uses left`}
+          value={String(value)}
+          onCommit={
+            onSet &&
+            ((next) => {
+              const n = Number.parseInt(next, 10);
+              if (Number.isFinite(n)) onSet(Math.min(n, max));
+            })
+          }
+        />
+        /{max}
+      </span>
+    );
+  }
+  return (
+    <Pips
+      total={max}
+      filled={value}
+      size="xs"
+      tone="ink"
+      square
+      role="group"
+      aria-label={`${name}: ${value} of ${max} uses left`}
+      onSetFilled={onSet}
     />
   );
 }
@@ -158,7 +204,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
         </span>
         <span role="cell" className="u-flex u-justify-end">
           {attack.uses && (
-            <UsesTally
+            <Uses
               name={attack.name}
               value={attack.uses.value}
               max={attack.uses.max}
