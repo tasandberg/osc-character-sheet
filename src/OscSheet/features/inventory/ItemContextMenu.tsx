@@ -1,12 +1,11 @@
 // Right-click context menu for an inventory item (View / Send / Unequip /
 // Consume / Delete), anchored at the cursor and kept on-screen.
-import { useLayoutEffect, useMemo, useRef } from "react";
-import { computePosition, flip, shift } from "@floating-ui/dom";
+import { useMemo } from "react";
 import { FEATURES } from "@app/features";
 import { collectItemMenuEntries } from "@domain/extensions";
 import type { OSEActor, OseItem } from "@domain/types";
 import type { MenuState } from "@features/inventory/types";
-import { useDismiss } from "@ui/useDismiss";
+import { ContextMenu, type ContextMenuEntry } from "@ui/ContextMenu";
 
 export function ItemContextMenu({
   menu,
@@ -35,115 +34,67 @@ export function ItemContextMenu({
   /** Open the Send dialog for this item. Absent → item can't be sent (e.g. coins). */
   onSend?: (id: string) => void;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useDismiss(ref, onClose, { closeOnBlur: true });
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const cursor = { getBoundingClientRect: () => new DOMRect(menu.x, menu.y) };
-    void computePosition(cursor, el, {
-      strategy: "fixed",
-      placement: "bottom-start",
-      middleware: [flip(), shift({ padding: 8 })],
-    }).then(({ x, y }) =>
-      Object.assign(el.style, { left: `${x}px`, top: `${y}px` }),
-    );
-  }, [menu.x, menu.y]);
-
   const moduleEntries = useMemo(
     () => collectItemMenuEntries(actor, doc, canEdit),
     [actor, doc, canEdit],
   );
+  const id = menu.item.id;
+
+  const entries: ContextMenuEntry[] = [
+    { label: "View Item", icon: "fa-solid fa-eye", onSelect: () => onOpen(id) },
+    ...(FEATURES.sendItem && onSend
+      ? [
+          {
+            label: "Send Item",
+            icon: "fa-solid fa-gift",
+            onSelect: () => onSend(id),
+          },
+        ]
+      : []),
+    ...(canEdit && menu.item.equipped === true
+      ? [
+          {
+            label: "Unequip",
+            icon: "fa-solid fa-hand",
+            onSelect: () => onEquip(id),
+          },
+        ]
+      : []),
+    ...(canEdit && menu.item.quantity != null
+      ? [
+          {
+            label: "Consume one",
+            icon: "fa-solid fa-circle-minus",
+            onSelect: () => onConsume(id),
+          },
+        ]
+      : []),
+    ...moduleEntries.map((entry, index) => ({
+      label: entry.label,
+      icon: entry.icon ?? "fa-solid fa-puzzle-piece",
+      danger: entry.danger,
+      disabled: entry.disabled === true,
+      separator: index === 0,
+      onSelect: () => doc && entry.onClick(doc, actor),
+    })),
+    ...(canEdit
+      ? [
+          {
+            label: "Delete Item",
+            icon: "fa-solid fa-trash",
+            danger: true,
+            onSelect: () => onDelete(id),
+          },
+        ]
+      : []),
+  ];
 
   return (
-    <div
-      ref={ref}
-      className="osc-ctx"
-      onPointerDown={(e) => e.stopPropagation()}
-    >
-      <div className="osc-ctx-title">{menu.item.name}</div>
-      <button
-        type="button"
-        className="osc-ctx-item"
-        onClick={() => {
-          onOpen(menu.item.id);
-          onClose();
-        }}
-      >
-        <i className="fa-solid fa-eye" aria-hidden="true" /> View Item
-      </button>
-      {FEATURES.sendItem && onSend && (
-        <button
-          type="button"
-          className="osc-ctx-item"
-          onClick={() => {
-            onSend(menu.item.id);
-            onClose();
-          }}
-        >
-          <i className="fa-solid fa-gift" aria-hidden="true" /> Send Item
-        </button>
-      )}
-      {canEdit && menu.item.equipped === true && (
-        <button
-          type="button"
-          className="osc-ctx-item"
-          onClick={() => {
-            onEquip(menu.item.id);
-            onClose();
-          }}
-        >
-          <i className="fa-solid fa-hand" aria-hidden="true" /> Unequip
-        </button>
-      )}
-      {canEdit && menu.item.quantity != null && (
-        <button
-          type="button"
-          className="osc-ctx-item"
-          onClick={() => {
-            onConsume(menu.item.id);
-            onClose();
-          }}
-        >
-          <i className="fa-solid fa-circle-minus" aria-hidden="true" /> Consume
-          one
-        </button>
-      )}
-      {moduleEntries.length > 0 && doc && (
-        <div className="osc-ctx-ext u-mt-1 u-pt-1">
-          {moduleEntries.map((entry, i) => (
-            <button
-              key={`${entry.label}-${i}`}
-              type="button"
-              className={`osc-ctx-item${entry.danger ? " is-danger" : ""}`}
-              disabled={entry.disabled === true}
-              onClick={() => {
-                entry.onClick(doc, actor);
-                onClose();
-              }}
-            >
-              <i
-                className={entry.icon ?? "fa-solid fa-puzzle-piece"}
-                aria-hidden="true"
-              />{" "}
-              {entry.label}
-            </button>
-          ))}
-        </div>
-      )}
-      {canEdit && (
-        <button
-          type="button"
-          className="osc-ctx-item is-danger"
-          onClick={() => {
-            onDelete(menu.item.id);
-            onClose();
-          }}
-        >
-          <i className="fa-solid fa-trash" aria-hidden="true" /> Delete Item
-        </button>
-      )}
-    </div>
+    <ContextMenu
+      anchor={{ x: menu.x, y: menu.y }}
+      title={menu.item.name}
+      entries={entries}
+      onClose={onClose}
+    />
   );
 }

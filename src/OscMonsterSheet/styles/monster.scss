@@ -313,21 +313,6 @@
     }
   }
 
-  .osc-monster-submenu-anchor {
-    position: relative;
-  }
-
-  .osc-monster-submenu {
-    position: absolute;
-    top: calc(var(--spacer-1) * -1);
-    left: 100%;
-    z-index: 1;
-
-    .menu {
-      min-width: calc(var(--spacer-10) * 4);
-    }
-  }
-
   .osc-monster-abilities {
     display: flex;
     flex-direction: column;
@@ -437,11 +422,6 @@
     &::placeholder {
       color: var(--text-faint);
     }
-  }
-
-  .osc-monster-popup {
-    position: fixed;
-    z-index: 100;
   }
 
   .osc-rich-text-body {

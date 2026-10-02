@@ -5,59 +5,62 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from "react";
-import { computePosition, flip, shift } from "@floating-ui/dom";
-import { Menu, MenuItem, MenuLabel } from "@ui/Menu";
-import { useDismiss } from "@ui/useDismiss";
+import { Menu, MenuItem, MenuLabel, MenuSep } from "./Menu";
+import { useFixedAnchor, type Anchor } from "./useFixedAnchor";
 
-export type PopupMenuEntry = {
+export type ContextMenuEntry = {
   label: string;
   icon?: string;
   danger?: boolean;
+  disabled?: boolean;
   checked?: boolean;
+  separator?: boolean;
   onSelect?: () => void;
-  entries?: PopupMenuEntry[];
+  entries?: ContextMenuEntry[];
 };
 
-export type PopupMenuState = {
-  x: number;
-  y: number;
+export type ContextMenuState = {
+  anchor: Anchor;
   title?: string;
-  entries: PopupMenuEntry[];
+  entries: ContextMenuEntry[];
 };
 
-const iconFor = (entry: PopupMenuEntry) => {
-  const icon = entry.checked ? "fa-check" : entry.icon;
+const iconFor = (entry: ContextMenuEntry) => {
+  const icon = entry.checked ? "fa-solid fa-check" : entry.icon;
   if (!icon && entry.checked === undefined) return undefined;
   return icon ? (
-    <i className={`fa-solid ${icon}`} aria-hidden="true" />
+    <i className={icon} aria-hidden="true" />
   ) : (
     <span aria-hidden="true" />
   );
 };
 
-function MenuEntries({
+function Entries({
   entries,
   onSelect,
 }: {
-  entries: PopupMenuEntry[];
-  onSelect: (entry: PopupMenuEntry) => void;
+  entries: ContextMenuEntry[];
+  onSelect: (entry: ContextMenuEntry) => void;
 }) {
   const [openLabel, setOpenLabel] = useState<string | null>(null);
 
-  const activate = (entry: PopupMenuEntry) => {
+  const activate = (entry: ContextMenuEntry) => {
+    if (entry.disabled) return;
     if (entry.entries) setOpenLabel(entry.label);
     else onSelect(entry);
   };
 
-  return entries.map((entry) => {
+  return entries.map((entry, index) => {
     const open = openLabel === entry.label;
+    const key = `${entry.label}-${index}`;
     const item = (
       <MenuItem
-        key={entry.label}
+        key={key}
         tabIndex={0}
         danger={entry.danger}
         role={entry.checked === undefined ? "menuitem" : "menuitemradio"}
         aria-checked={entry.checked}
+        aria-disabled={entry.disabled || undefined}
         aria-haspopup={entry.entries ? "menu" : undefined}
         aria-expanded={entry.entries ? open : undefined}
         icon={iconFor(entry)}
@@ -82,51 +85,39 @@ function MenuEntries({
         {entry.label}
       </MenuItem>
     );
-    if (!entry.entries) return item;
-    return (
-      <div key={entry.label} className="osc-monster-submenu-anchor">
+    const row = entry.entries ? (
+      <div key={key} className="menu-submenu-anchor">
         {item}
         {open && (
-          <div
-            className="osc-monster-submenu"
-            role="menu"
-            aria-label={entry.label}
-          >
+          <div className="menu-submenu" role="menu" aria-label={entry.label}>
             <Menu>
-              <MenuEntries entries={entry.entries} onSelect={onSelect} />
+              <Entries entries={entry.entries} onSelect={onSelect} />
             </Menu>
           </div>
         )}
       </div>
+    ) : (
+      item
     );
+    if (!entry.separator) return row;
+    return [<MenuSep key={`${key}-sep`} />, row];
   });
 }
 
-export function PopupMenu({
-  menu,
+export function ContextMenu({
+  anchor,
+  title,
+  entries,
   onClose,
-}: {
-  menu: PopupMenuState;
-  onClose: () => void;
-}) {
+}: ContextMenuState & { onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
-  useDismiss(ref, onClose, { closeOnBlur: true });
+  useFixedAnchor(ref, anchor, { onDismiss: onClose, closeOnBlur: true });
 
   useLayoutEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const anchor = { getBoundingClientRect: () => new DOMRect(menu.x, menu.y) };
-    void computePosition(anchor, element, {
-      strategy: "fixed",
-      placement: "bottom-start",
-      middleware: [flip(), shift({ padding: 8 })],
-    }).then(({ x, y }) =>
-      Object.assign(element.style, { left: `${x}px`, top: `${y}px` }),
-    );
-    element.querySelector<HTMLElement>("[role^=menuitem]")?.focus();
-  }, [menu.x, menu.y]);
+    ref.current?.querySelector<HTMLElement>("[role^=menuitem]")?.focus();
+  }, [anchor.x, anchor.y]);
 
-  const select = (entry: PopupMenuEntry) => {
+  const select = (entry: ContextMenuEntry) => {
     onClose();
     entry.onSelect?.();
   };
@@ -134,9 +125,10 @@ export function PopupMenu({
   return (
     <div
       ref={ref}
-      className="osc-monster-popup"
+      className="context-menu"
       role="menu"
-      aria-label={menu.title}
+      aria-label={title}
+      onPointerDown={(event) => event.stopPropagation()}
       onKeyDown={(event) => {
         if (event.key !== "Escape") return;
         event.stopPropagation();
@@ -144,8 +136,8 @@ export function PopupMenu({
       }}
     >
       <Menu>
-        {menu.title && <MenuLabel>{menu.title}</MenuLabel>}
-        <MenuEntries entries={menu.entries} onSelect={select} />
+        {title && <MenuLabel>{title}</MenuLabel>}
+        <Entries entries={entries} onSelect={select} />
       </Menu>
     </div>
   );

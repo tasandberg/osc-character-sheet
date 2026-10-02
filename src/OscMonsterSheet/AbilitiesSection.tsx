@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { createOwnedItem } from "@domain/createOwnedItem";
 import type { OSEActor } from "@domain/types";
+import { ContextMenu, type ContextMenuState } from "@ui/ContextMenu";
 import { IconButton } from "@ui/IconButton";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
@@ -9,7 +10,6 @@ import { rollable } from "@ui/rollable";
 import { useSetting } from "@src/OscSheet/settings";
 import { rollMonsterItem } from "./actions";
 import { itemMenu } from "./parts/itemMenu";
-import { PopupMenu, type PopupMenuState } from "./parts/PopupMenu";
 import { RollLabel } from "./parts/RollLabel";
 import { useEnrichedHtml } from "./parts/useEnrichedHtml";
 import type { MonsterActor, MonsterItem } from "./types";
@@ -19,7 +19,7 @@ type AbilityProps = {
   actor: MonsterActor;
   ability: AbilityEntry;
   item?: MonsterItem;
-  onMenu?: (menu: PopupMenuState) => void;
+  onMenu?: (menu: ContextMenuState) => void;
   canEdit: boolean;
 };
 
@@ -111,7 +111,7 @@ export function AbilitiesSection({
   abilities: AbilityEntry[];
   canEdit: boolean;
 }) {
-  const [menu, setMenu] = useState<PopupMenuState | null>(null);
+  const [menu, setMenu] = useState<ContextMenuState | null>(null);
   if (!abilities.length && !canEdit) return null;
 
   return (
@@ -147,7 +147,7 @@ export function AbilitiesSection({
           ))}
         </ul>
       )}
-      {menu && <PopupMenu menu={menu} onClose={() => setMenu(null)} />}
+      {menu && <ContextMenu {...menu} onClose={() => setMenu(null)} />}
     </section>
   );
 }

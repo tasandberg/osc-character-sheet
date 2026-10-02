@@ -1,6 +1,11 @@
 import { useState, type MouseEvent } from "react";
 import { createOwnedItem } from "@domain/createOwnedItem";
 import type { OSEActor } from "@domain/types";
+import {
+  ContextMenu,
+  type ContextMenuEntry,
+  type ContextMenuState,
+} from "@ui/ContextMenu";
 import { IconButton } from "@ui/IconButton";
 import { Pips } from "@ui/Pips";
 import { SectionTitle } from "@ui/SectionTitle";
@@ -14,11 +19,6 @@ import {
   setUses,
 } from "./actions";
 import { itemMenu } from "./parts/itemMenu";
-import {
-  PopupMenu,
-  type PopupMenuEntry,
-  type PopupMenuState,
-} from "./parts/PopupMenu";
 import { RollLabel } from "./parts/RollLabel";
 import { InlineEdit } from "./parts/InlineEdit";
 import type { MonsterActor, MonsterItem } from "./types";
@@ -30,7 +30,7 @@ type Props = {
   canEdit: boolean;
 };
 
-function patternEntries(item: MonsterItem): PopupMenuEntry[] {
+function patternEntries(item: MonsterItem): ContextMenuEntry[] {
   const colours = Object.entries(CONFIG.OSE?.colors ?? {}).map(
     ([pattern, label]) => ({ pattern, label: game.i18n.localize(label) }),
   );
@@ -117,7 +117,7 @@ function Uses({
 }
 
 export function AttacksSection({ actor, groups, canEdit }: Props) {
-  const [menu, setMenu] = useState<PopupMenuState | null>(null);
+  const [menu, setMenu] = useState<ContextMenuState | null>(null);
   const attacks = groups.flatMap((group) => group.attacks);
 
   const openMenu = (item: MonsterItem, event: MouseEvent) => {
@@ -131,7 +131,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
               base.entries[0],
               {
                 label: "Attack group",
-                icon: "fa-link",
+                icon: "fa-solid fa-link",
                 entries: patternEntries(item),
               },
               ...base.entries.slice(1),
@@ -269,7 +269,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
           {attacks.map(row)}
         </div>
       )}
-      {menu && <PopupMenu menu={menu} onClose={() => setMenu(null)} />}
+      {menu && <ContextMenu {...menu} onClose={() => setMenu(null)} />}
     </section>
   );
 }

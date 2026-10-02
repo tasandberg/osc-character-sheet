@@ -1,10 +1,10 @@
 import { useState, type MouseEvent } from "react";
 import { Button } from "@ui/Button";
+import { ContextMenu, type ContextMenuState } from "@ui/ContextMenu";
 import type { RollEvent } from "@domain/types";
 import { InlineEdit } from "./parts/InlineEdit";
 import { LeaderRow } from "./parts/LeaderRow";
 import { MovementPopover } from "./parts/MovementPopover";
-import { PopupMenu, type PopupMenuState } from "./parts/PopupMenu";
 import { RollLabel } from "./parts/RollLabel";
 import { TreasureValue } from "./parts/TreasureValue";
 import { clearTreasure, rollBareAttack } from "./actions";
@@ -20,7 +20,7 @@ type Props = {
 };
 
 export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
-  const [menu, setMenu] = useState<PopupMenuState | null>(null);
+  const [menu, setMenu] = useState<ContextMenuState | null>(null);
   const [movementAnchor, setMovementAnchor] = useState<DOMRect | null>(null);
   const canEdit = !!commit;
   const { appearing, movement } = view;
@@ -32,8 +32,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
       const rect = event.currentTarget.getBoundingClientRect();
       const source = { ctrlKey: event.ctrlKey, metaKey: event.metaKey };
       setMenu({
-        x: rect.left,
-        y: rect.bottom,
+        anchor: { x: rect.left, y: rect.bottom },
         title: "Roll number appearing",
         entries: [
           {
@@ -257,7 +256,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
           </div>
         )}
       </div>
-      {menu && <PopupMenu menu={menu} onClose={() => setMenu(null)} />}
+      {menu && <ContextMenu {...menu} onClose={() => setMenu(null)} />}
       {movementAnchor && commit && (
         <MovementPopover
           anchor={movementAnchor}

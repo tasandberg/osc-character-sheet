@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef, type KeyboardEvent } from "react";
-import { computePosition, flip, shift } from "@floating-ui/dom";
-import { useDismiss } from "@ui/useDismiss";
+import { useFixedAnchor } from "@ui/useFixedAnchor";
 
 type Props = {
   anchor: DOMRect;
@@ -39,20 +38,14 @@ export function MovementPopover({
     onClose();
   };
 
-  useDismiss(ref, () => close(true));
+  useFixedAnchor(ref, anchor, {
+    placement: "bottom-end",
+    gap: 6,
+    onDismiss: () => close(true),
+  });
 
   useLayoutEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const reference = { getBoundingClientRect: () => anchor };
-    void computePosition(reference, element, {
-      strategy: "fixed",
-      placement: "bottom-end",
-      middleware: [flip(), shift({ padding: 8 })],
-    }).then(({ x, y }) =>
-      Object.assign(element.style, { left: `${x}px`, top: `${y + 6}px` }),
-    );
-    element.querySelector("input")?.focus();
+    ref.current?.querySelector("input")?.focus();
   }, [anchor]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {

@@ -463,6 +463,13 @@
 .menu-item.danger {
   color: var(--crimson);
 }
+.menu-item[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: default;
+}
+.menu-item[aria-disabled="true"]:hover {
+  background: transparent;
+}
 .menu-item .ic {
   width: 14px;
   color: var(--text-mute);
@@ -490,6 +497,23 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-dim);
+}
+
+.context-menu {
+  position: fixed;
+  z-index: 100;
+}
+.menu-submenu-anchor {
+  position: relative;
+}
+.menu-submenu {
+  position: absolute;
+  top: calc(var(--spacer-1) * -1);
+  left: 100%;
+  z-index: 1;
+}
+.menu-submenu .menu {
+  min-width: calc(var(--spacer-10) * 4);
 }
 
 /* Floating popover variant — anchored to a parent, with arrow indicator.
