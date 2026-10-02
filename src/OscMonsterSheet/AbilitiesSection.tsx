@@ -60,7 +60,7 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
             onRoll={item?.sheet ? () => item.sheet?.render(true) : undefined}
             title={canEdit ? "Edit ability" : "View ability"}
           >
-            {ability.name}.
+            {ability.name}
           </RollLabel>
         }
       >

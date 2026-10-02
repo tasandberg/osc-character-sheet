@@ -228,7 +228,7 @@ describe("OscMonsterSheet", () => {
     sleeping.roll = vi.fn();
     await mount(makeMonster({}, [sleeping]));
 
-    click(button("Sleeping."));
+    click(button("Sleeping"));
     expect(sleeping.sheet.render).toHaveBeenCalledWith(true);
     expect(sleeping.roll).not.toHaveBeenCalled();
 
