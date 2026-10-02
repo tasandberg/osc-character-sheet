@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import { cx } from "@ui/cx";
 import { IconButton } from "@ui/IconButton";
 import { openImagePicker } from "@ui/imagePicker";
@@ -12,7 +13,7 @@ type Props = {
   img: string;
   view?: MonsterView;
   commit?: Commit;
-  onRollHp?: () => void;
+  onRollHp?: (event: MouseEvent) => void;
   onPickImage?: (path: string) => void;
 };
 

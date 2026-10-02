@@ -70,8 +70,9 @@ export type MonsterActor = {
     type: "Item",
     updates: Record<string, unknown>[],
   ) => Promise<unknown>;
-  rollHP: (options?: { event?: RollEvent }) => Promise<unknown>;
-  rollHitDice: (options?: { event?: RollEvent }) => void;
+  rollHitDice: (options?: {
+    event?: RollEvent;
+  }) => Promise<{ total?: number } | null | undefined>;
   rollMorale: (options?: { event?: RollEvent }) => void;
   rollReaction: (options?: { event?: RollEvent }) => void;
   rollLoyalty: (options?: { event?: RollEvent }) => void;

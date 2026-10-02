@@ -11,6 +11,13 @@ export async function rollMonsterItem(item: MonsterItem, event?: RollEvent) {
   item.roll({ skipDialog: skipRollDialog(event) });
 }
 
+export async function rollHitPoints(actor: MonsterActor, event?: RollEvent) {
+  const roll = await actor.rollHitDice({ event });
+  const total = roll?.total;
+  if (typeof total !== "number" || !Number.isFinite(total)) return;
+  await actor.update({ "system.hp.max": total, "system.hp.value": total });
+}
+
 export function rollBareAttack(actor: MonsterActor, event?: RollEvent) {
   actor.targetAttack({ roll: {} }, undefined, {
     type: undefined,

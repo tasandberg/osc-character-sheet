@@ -3,6 +3,7 @@ import EditableContent from "@features/notes/EditableContent";
 import { Tabs } from "@ui/Tabs";
 import { AbilitiesSection } from "./AbilitiesSection";
 import { AttacksSection } from "./AttacksSection";
+import { rollHitPoints } from "./actions";
 import { makeCommit } from "./commit";
 import { MonsterHeader } from "./MonsterHeader";
 import { SpellsSection } from "./SpellsSection";
@@ -33,7 +34,9 @@ export function MonsterSheet() {
           img={view.img}
           view={view}
           commit={commit}
-          onRollHp={canEdit ? () => void actor.rollHP() : undefined}
+          onRollHp={
+            canEdit ? (event) => void rollHitPoints(actor, event) : undefined
+          }
           onPickImage={
             canEdit ? (path) => void updateActor({ img: path }) : undefined
           }

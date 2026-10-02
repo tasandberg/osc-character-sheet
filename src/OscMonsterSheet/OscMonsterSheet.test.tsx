@@ -67,11 +67,7 @@ function click(element: HTMLElement) {
   act(() => element.click());
 }
 
-function type(
-  value: string,
-  key: "Enter",
-  selector = "[role=textbox]",
-) {
+function type(value: string, key: "Enter", selector = "[role=textbox]") {
   const field = container.querySelector<HTMLElement>(selector)!;
   act(() => {
     if (field instanceof HTMLInputElement) {
@@ -144,16 +140,27 @@ describe("OscMonsterSheet", () => {
     const actor = makeMonster();
     actor.rollMorale = vi.fn();
     actor.rollSave = vi.fn();
-    actor.rollHP = vi.fn();
     await mount(actor);
 
     click(button("Morale"));
     click(button("Paralysis"));
-    click(button("Roll hit points"));
 
     expect(actor.rollMorale).toHaveBeenCalled();
     expect(actor.rollSave).toHaveBeenCalledWith("paralysis", expect.anything());
-    expect(actor.rollHP).toHaveBeenCalled();
+  });
+
+  it("sets current and max hit points to the rolled total", async () => {
+    const actor = makeMonster();
+    actor.rollHitDice = async () => ({ total: 97 });
+    actor.update = vi.fn().mockResolvedValue(actor);
+    await mount(actor);
+
+    await act(async () => button("Roll hit points").click());
+
+    expect(actor.update).toHaveBeenCalledWith({
+      "system.hp.max": 97,
+      "system.hp.value": 97,
+    });
   });
 
   it("attacks from the d20 button, spending a use, and opens the attack from its name", async () => {
