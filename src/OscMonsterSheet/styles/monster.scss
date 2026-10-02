@@ -190,8 +190,8 @@
   }
 
   .osc-monster-ability-text {
-    font-family: var(--sans);
-    font-size: var(--fs-xs);
+    font-style: italic;
+    font-synthesis: none;
     color: var(--text-dim);
 
     > :first-child {
