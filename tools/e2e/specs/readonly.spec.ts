@@ -125,11 +125,11 @@ test.describe("read-only sheet (non-owner)", () => {
 
     // Item context menu is view-only: only "View Item", no Send/Unequip/Consume/Delete.
     await itemRow.click({ button: "right" });
-    const menu = sheet.locator(".osc-ctx");
+    const menu = sheet.getByRole("menu");
     await expect(menu).toBeVisible();
-    await expect(menu.locator(".osc-ctx-item")).toHaveCount(1);
-    await expect(menu.locator(".osc-ctx-item")).toHaveText(/View Item/);
-    await expect(menu.locator(".osc-ctx-item.is-danger")).toHaveCount(0);
+    await expect(menu.getByRole("menuitem")).toHaveCount(1);
+    await expect(menu.getByRole("menuitem")).toHaveText(/View Item/);
+    await expect(menu.getByRole("menuitem", { name: /Delete/ })).toHaveCount(0);
   });
 
   // Control: the OWNER (GM) sheet renders the very affordances the observer lacks,

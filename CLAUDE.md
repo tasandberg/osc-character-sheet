@@ -49,13 +49,8 @@ lives in `../CLAUDE.md`.
 **Keep this list current as we build.** When a file grows unwieldy or a responsibility
 wants its own module, add it here (don't silently let files balloon). Prune entries when done.
 
-- **`src/OscSheet/features/inventory/InventoryViewDnd.tsx` (~1000 lines)** — too big. Holds
-  the root component AND a dozen sub-components (EquippedTray, ItemContextMenu, ContainerRow,
-  SortableRow, SortHeader(Row), CoinRow, EncumbranceBar, NameCell, RowEquip…). Split sub-
-  components into their own files (e.g. `inventory/EquippedTray.tsx`, `ItemContextMenu.tsx`,
-  `rows/`), and lift the groups↔VM helpers (`buildGroups`, `persist`, etc.) into a module.
 - **`src/OscSheet/app/SheetShell.tsx`** — accumulating item-mutation handlers (equip/nest/
   consume/reorder/equippedOrder + toasts). Extract into a `useInventoryActions(actor, items)`
   hook.
-- **`src/OscSheet/styles/inventory.scss` (~570 lines)** — split alongside the component
-  breakup (equipped tray, rows, container, sticky head as separate partials).
+- **`src/OscSheet/styles/vellum/components.css` (~1850 lines)** — one file for every primitive.
+  Split into per-primitive partials (menu, form controls, tags, pips, stat-block layout).

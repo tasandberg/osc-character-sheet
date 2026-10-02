@@ -400,6 +400,203 @@
   color: var(--on-accent);
 }
 
+.icon-btn.raised {
+  width: var(--spacer-5);
+  height: var(--spacer-5);
+  font-size: var(--fs-3xs);
+  border: 1px solid var(--raised-wall);
+  border-radius: 0;
+  background: var(--raised-face);
+  color: var(--text);
+  box-shadow:
+    inset 1px 1px 0 var(--raised-lit),
+    inset -1px -1px 0 var(--raised-shade),
+    1px 1px 0 var(--raised-wall);
+}
+.icon-btn.raised:hover:not(:disabled) {
+  background: var(--raised-face-hi);
+  color: var(--text);
+}
+.icon-btn.raised:active:not(:disabled) {
+  box-shadow: inset 1px 1px 0 var(--raised-shade);
+  transform: translate(1px, 1px);
+}
+.icon-btn.raised:disabled {
+  color: var(--text-mute);
+  background: transparent;
+  border-color: var(--border);
+  box-shadow: none;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .icon-btn.raised:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+.inline-edit {
+  display: inline-block;
+  vertical-align: baseline;
+  cursor: text;
+  border-radius: 1px;
+  outline: 1px dotted transparent;
+  outline-offset: 2px;
+}
+.inline-edit:hover,
+.inline-edit.is-editing {
+  outline-color: var(--text-dim);
+}
+.inline-edit.is-editing {
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.inline-edit.is-empty:not(.is-editing) {
+  color: var(--text-faint);
+}
+button.inline-edit {
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.roll-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacer-1);
+  cursor: pointer;
+}
+.roll-label:hover,
+.roll-label:focus-visible {
+  color: var(--text);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.roll-label-die {
+  flex: none;
+  font-size: 0.75em;
+}
+
+.field.hairline {
+  gap: 3px;
+}
+.field.hairline .field-label {
+  font-weight: 600;
+  font-size: var(--fs-3xs);
+  line-height: 1.2;
+  letter-spacing: 0.09em;
+  white-space: nowrap;
+}
+.input.hairline {
+  padding: var(--spacer-1) calc(var(--spacer-1) * 1.5);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  transition: none;
+}
+.input.hairline:focus {
+  border-color: var(--text);
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+}
+.input.hairline::placeholder {
+  font-style: normal;
+}
+
+.rule-frame {
+  padding: 3px;
+  border: 1px solid var(--text);
+}
+.rule-frame-inner {
+  border: 1px solid var(--hairline);
+}
+.popover {
+  position: fixed;
+  z-index: 100;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+.leader-row {
+  padding-block: 2px;
+}
+.leader-row-fill {
+  flex: 1;
+  min-width: var(--spacer-2);
+  position: relative;
+  top: calc(var(--spacer-1) * -1);
+  border-bottom: 1px dotted var(--hairline);
+}
+.leader-row-value {
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.divided-row {
+  display: flex;
+}
+.divided-row > * {
+  flex: 1 1 auto;
+  padding: 1px var(--spacer-1);
+}
+.divided-row > * + * {
+  border-left: 1px solid var(--hairline);
+}
+
+.bullet-paragraph {
+  padding-left: var(--spacer-3);
+  text-indent: calc(var(--spacer-3) * -1);
+}
+.bullet-paragraph > * {
+  text-indent: 0;
+}
+.bullet-paragraph.is-clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bullet-paragraph-bullet {
+  display: inline-block;
+  position: relative;
+  top: calc(var(--spacer-1) / -2);
+  width: var(--spacer-3);
+  font-size: calc(var(--fs-3xs) * 0.82);
+}
+
+.pattern-pip {
+  --pattern-colour: var(--text-faint);
+  display: inline-block;
+  width: var(--spacer-2);
+  height: var(--spacer-2);
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: var(--pattern-colour);
+}
+.pattern-pip.md {
+  width: var(--spacer-3);
+  height: var(--spacer-3);
+}
+.pattern-pip[data-pattern="red"] { --pattern-colour: var(--pattern-red); }
+.pattern-pip[data-pattern="orange"] { --pattern-colour: var(--pattern-orange); }
+.pattern-pip[data-pattern="yellow"] { --pattern-colour: var(--pattern-yellow); }
+.pattern-pip[data-pattern="green"] { --pattern-colour: var(--pattern-green); }
+.pattern-pip[data-pattern="blue"] { --pattern-colour: var(--pattern-blue); }
+.pattern-pip[data-pattern="purple"] { --pattern-colour: var(--pattern-purple); }
+.pattern-pip[data-pattern="white"] {
+  --pattern-colour: var(--pattern-white);
+  border-color: var(--text-mute);
+}
+.pattern-pip[data-pattern="transparent"] {
+  --pattern-colour: transparent;
+  border: 1px dashed var(--text-mute);
+}
+button.pattern-pip {
+  cursor: pointer;
+}
+button.pattern-pip:hover,
+button.pattern-pip:focus-visible {
+  outline: 1px solid var(--text-dim);
+  outline-offset: 2px;
+}
+
 /* ─── Dropdown menu ─────────────────────────────────────────────────── */
 
 .menu {
@@ -429,6 +626,13 @@
 .menu-item.danger {
   color: var(--crimson);
 }
+.menu-item[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: default;
+}
+.menu-item[aria-disabled="true"]:hover {
+  background: transparent;
+}
 .menu-item .ic {
   width: 14px;
   color: var(--text-mute);
@@ -456,6 +660,23 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-dim);
+}
+
+.context-menu {
+  position: fixed;
+  z-index: 100;
+}
+.menu-submenu-anchor {
+  position: relative;
+}
+.menu-submenu {
+  position: absolute;
+  top: calc(var(--spacer-1) * -1);
+  left: 100%;
+  z-index: 1;
+}
+.menu-submenu .menu {
+  min-width: calc(var(--spacer-10) * 4);
 }
 
 /* Floating popover variant — anchored to a parent, with arrow indicator.
@@ -756,6 +977,15 @@
   text-transform: uppercase;
   padding: var(--spacer-1) var(--spacer-2-5) 2px;
 }
+.tag.is-rollable {
+  cursor: pointer;
+}
+.tag.is-rollable:hover,
+.tag.is-rollable:focus-visible {
+  color: var(--text);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
 /* count — brass-solid numeric pill (container item counts, etc.) */
 .tag.count {
   background: var(--accent-alt-dim);
@@ -900,6 +1130,27 @@ button.pip:hover {
 .pips.sm .pip {
   width: 9px;
   height: 9px;
+}
+.pips.xs {
+  gap: 3px;
+}
+.pips.xs .pip {
+  width: var(--spacer-2);
+  height: var(--spacer-2);
+}
+.pips.ink .pip {
+  background: transparent;
+  border-color: currentColor;
+}
+.pips.ink .pip.filled {
+  background: currentColor;
+}
+.pips.ink button.pip:hover,
+.pips.ink button.pip:focus-visible {
+  border-color: currentColor;
+  transform: none;
+  outline: 1px solid var(--text-dim);
+  outline-offset: 1px;
 }
 /* square — sharp-cornered dots instead of the disc (e.g. inventory uses) */
 .pips.square .pip {

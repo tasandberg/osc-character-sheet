@@ -1,4 +1,5 @@
 import OscSheet from "@src/applications/osc-sheet";
+import OscMonsterSheet from "@src/applications/osc-monster-sheet";
 import { installAdvancedClasses } from "@src/util/adaptAdvancedClasses";
 import { onRenderChatMessage } from "@domain/chat/applyDamage";
 import { registerSendItemSocket } from "@features/inventory/sendItemSocket";
@@ -57,6 +58,15 @@ export function initialize() {
         types: ["character", "npc"],
         makeDefault: true,
         label: "Enhanced Character Sheet",
+      },
+    );
+    foundry.documents.collections.Actors.registerSheet(
+      game.system?.id,
+      OscMonsterSheet,
+      {
+        types: ["monster"],
+        makeDefault: true,
+        label: "Enhanced Monster Sheet",
       },
     );
   });

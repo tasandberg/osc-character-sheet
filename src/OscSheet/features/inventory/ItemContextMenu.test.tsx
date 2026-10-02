@@ -41,14 +41,21 @@ let root: Root;
 
 const render = (node: React.ReactNode) => act(() => root.render(node));
 
-const labels = () =>
-  [...container.querySelectorAll(".osc-ctx-item")].map((el) =>
-    el.textContent?.trim(),
+const items = () => [
+  ...container.querySelectorAll<HTMLElement>("[role^=menuitem]"),
+];
+const labels = () => items().map((el) => el.textContent?.trim());
+const item = (label: string) =>
+  items().find((el) => el.textContent?.includes(label));
+const press = (el: HTMLElement | undefined) =>
+  act(() =>
+    el?.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    ),
   );
 
 beforeEach(() => {
   container = document.createElement("div");
-  container.className = "osc-inv";
   document.body.append(container);
   root = createRoot(container);
 });
@@ -111,21 +118,19 @@ describe("ItemContextMenu module entries", () => {
         onDelete={noop}
       />,
     );
-    const button = [...container.querySelectorAll("button")].find((b) =>
-      b.textContent?.includes("Mark as Wares"),
-    );
-    act(() =>
-      button?.dispatchEvent(new MouseEvent("click", { bubbles: true })),
-    );
+    press(item("Mark as Wares"));
     expect(seen).toEqual([doc, actor]);
     expect(closed).toBe(true);
   });
 
   it("honours disabled", () => {
+    let ran = false;
     stubHooks(({ entries }) =>
       entries.push({
         label: "Send to Personal Chest",
-        onClick: noop,
+        onClick: () => {
+          ran = true;
+        },
         disabled: true,
       }),
     );
@@ -142,13 +147,11 @@ describe("ItemContextMenu module entries", () => {
         onDelete={noop}
       />,
     );
-    const button = [...container.querySelectorAll("button")].find((b) =>
-      b.textContent?.includes("Send to Personal Chest"),
-    );
-    expect((button as HTMLButtonElement).disabled).toBe(true);
+    press(item("Send to Personal Chest"));
+    expect(ran).toBe(false);
   });
 
-  it("renders no extra group without listeners", () => {
+  it("renders only the built-in entries without listeners", () => {
     render(
       <ItemContextMenu
         menu={menu}
@@ -162,6 +165,6 @@ describe("ItemContextMenu module entries", () => {
         onDelete={noop}
       />,
     );
-    expect(container.querySelector(".osc-ctx-ext")).toBeNull();
+    expect(labels()).toEqual(["View Item", "Consume one", "Delete Item"]);
   });
 });

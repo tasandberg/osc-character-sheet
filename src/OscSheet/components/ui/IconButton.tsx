@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes } from "react";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   /** Hover/intent treatment. Default = neutral (faint → text-dim). */
-  variant?: "danger" | "accent" | "round";
+  variant?: "danger" | "accent" | "round" | "raised";
   /** Compact 18px box for inline carets / × / trash glyphs. */
   size?: "sm";
   /** Toggled/active state (e.g. an edit-mode pen). */

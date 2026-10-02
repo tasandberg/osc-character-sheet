@@ -5,13 +5,14 @@ type Props<T extends string> = {
   tabs: Tab<T>[];
   active: T;
   onSelect: (id: T) => void;
+  variant?: "folder";
   className?: string;
 };
 
 /** @category Navigation */
-export function Tabs<T extends string>({ tabs, active, onSelect, className }: Props<T>) {
+export function Tabs<T extends string>({ tabs, active, onSelect, variant, className }: Props<T>) {
   return (
-    <div className={cx("tabs", className)} role="tablist">
+    <div className={cx("tabs", variant, className)} role="tablist">
       {tabs.map((t) => (
         <button
           key={t.id}

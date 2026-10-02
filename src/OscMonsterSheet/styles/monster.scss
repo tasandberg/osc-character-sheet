@@ -1,0 +1,225 @@
+.osc-monster {
+  font-family: var(--serif);
+  font-size: var(--fs-md);
+  line-height: 1.45;
+
+  .osc-monster-layout {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .osc-monster-fixed {
+    flex: none;
+  }
+
+  .osc-monster-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-3) transparent;
+  }
+
+  .osc-monster-label {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: var(--fs-3xs);
+    line-height: 1.2;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  .osc-monster-value {
+    font-family: var(--mono);
+    white-space: nowrap;
+  }
+
+  .osc-monster-link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--spacer-1);
+    font-family: var(--mono);
+    color: var(--gold);
+    cursor: pointer;
+
+    > i {
+      font-size: 0.85em;
+    }
+
+    .osc-monster-link-text {
+      text-decoration: underline dotted;
+      text-underline-offset: 3px;
+    }
+
+    &:hover .osc-monster-link-text,
+    &:focus-visible .osc-monster-link-text {
+      text-decoration-style: solid;
+    }
+  }
+
+  [data-theme="cream"] & .osc-monster-link {
+    color: var(--accent-alt);
+  }
+
+  .osc-monster-portrait {
+    display: block;
+    padding: 2px;
+    border: 1px solid var(--text);
+
+    > img,
+    > i {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: calc(var(--spacer-4) * 4);
+      height: calc(var(--spacer-4) * 4);
+      object-fit: cover;
+      border: 1px solid var(--hairline);
+      background: color-mix(in srgb, var(--accent-alt) 8%, transparent);
+      color: var(--text-mute);
+      font-size: var(--fs-2xl);
+    }
+  }
+
+  button.osc-monster-portrait {
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--accent-alt);
+    }
+  }
+
+  .osc-monster-name {
+    font-family: var(--display);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--text);
+    border: none;
+    overflow-wrap: anywhere;
+  }
+
+  .osc-monster-hit-points {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .osc-monster-hit-points-current {
+    font-family: var(--display);
+    line-height: 1;
+    color: var(--crimson);
+  }
+
+  .osc-monster-stat-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .osc-monster-footnote {
+    text-align: right;
+    font-family: var(--serif);
+  }
+
+  .osc-monster-label.osc-monster-save-label {
+    font-size: calc(var(--fs-3xs) * 0.86);
+    letter-spacing: 0.07em;
+  }
+
+  .osc-monster-save-value {
+    font-family: var(--display);
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .osc-monster-item-name {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: var(--fs-base);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+    white-space: normal;
+  }
+
+  .osc-monster-attack-table {
+    display: grid;
+    grid-template-columns:
+      max-content max-content minmax(0, 1fr)
+      max-content max-content;
+    column-gap: var(--spacer-4);
+
+    &.has-actions {
+      grid-template-columns:
+        max-content max-content minmax(0, 1fr)
+        max-content max-content max-content;
+    }
+  }
+
+  .osc-monster-attack-row {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: center;
+    padding-block: 2px;
+
+    &.is-exhausted,
+    &.is-exhausted .osc-monster-item-name {
+      color: var(--text-mute);
+    }
+  }
+
+  .osc-monster-abilities {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacer-1);
+    list-style: none;
+  }
+
+  .osc-monster-ability-name {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: var(--fs-base);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+  }
+
+  .osc-monster-ability-text {
+    color: var(--text-dim);
+
+    > :first-child {
+      display: inline;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    > * + * {
+      margin-top: var(--spacer-1);
+    }
+
+    table {
+      max-width: 100%;
+    }
+  }
+
+  .osc-monster-ability-toggle {
+    margin-left: 1em;
+  }
+
+  .osc-rich-text-body {
+    font-family: var(--serif);
+  }
+
+  .osc-rich-text-body table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
