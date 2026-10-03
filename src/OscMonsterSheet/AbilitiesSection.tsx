@@ -56,7 +56,7 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
         clamp={expanded ? undefined : 3}
         lead={
           <RollLabel
-            className="osc-monster-label osc-monster-ability-name"
+            className="osc-monster-label osc-monster-ability-name u-mr-1"
             glyph={false}
             onRoll={item?.sheet ? () => item.sheet?.render(true) : undefined}
             title={canEdit ? "Edit ability" : "View ability"}
