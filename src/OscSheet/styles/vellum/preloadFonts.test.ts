@@ -19,7 +19,7 @@ describe("preloadSheetFonts", () => {
       '"IM Fell English SC"',
       "IM Fell English",
       "IM Fell English",
-      "Inter",
+      "Libre Franklin",
       '"JetBrains Mono"',
       "Signika",
       "Modesto Condensed",
@@ -32,7 +32,7 @@ describe("preloadSheetFonts", () => {
       '"IM Fell English SC"',
       "IM Fell English",
       "IM Fell English",
-      "Inter",
+      "Libre Franklin",
       '"JetBrains Mono"',
     ]);
   });

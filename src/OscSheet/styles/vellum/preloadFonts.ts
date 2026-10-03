@@ -1,11 +1,8 @@
-import vellumFontsCss from "@old-school-chronicle/vellum/fonts.css?raw";
-import sheetFontsCss from "./fonts.css?raw";
+import fontsCss from "@old-school-chronicle/vellum/fonts.css?raw";
 
 export const SHEET_FONT_FAMILIES = new Set(
   Array.from(
-    (vellumFontsCss + sheetFontsCss).matchAll(
-      /font-family:\s*["']?([^"';]+?)["']?\s*;/g,
-    ),
+    fontsCss.matchAll(/font-family:\s*["']?([^"';]+?)["']?\s*;/g),
     ([, family]) => family,
   ),
 );

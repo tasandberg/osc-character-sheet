@@ -1,7 +1,6 @@
 import type { OscSheetAppProps } from "@domain/types";
 import "@old-school-chronicle/vellum/tokens.css";
 import "@old-school-chronicle/vellum/fonts.css";
-import "./styles/vellum/fonts.css";
 import "./styles/vellum/sheet-base.scss";
 import "./styles/vellum/utilities.scss";
 import "./styles/vellum/components.css";

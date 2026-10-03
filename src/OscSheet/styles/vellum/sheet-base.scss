@@ -20,9 +20,8 @@
   --spacer-2-5: 10px;
 }
 
-/* Pins the pre-0.5 sans, 3xs step and opaque surfaces until the sheet adopts them. */
+/* Pins the pre-0.5 3xs step and opaque surfaces until the sheet adopts them. */
 :root {
-  --sans: "Inter", -apple-system, system-ui, "Helvetica Neue", sans-serif;
   --fs-3xs: calc(0.6875rem * var(--fs-scale, 1));
 }
 
