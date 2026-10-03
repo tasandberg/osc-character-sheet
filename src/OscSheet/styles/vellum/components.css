@@ -63,7 +63,7 @@
 }
 .input::placeholder,
 .textarea::placeholder {
-  color: var(--text-faint);
+  color: var(--text-mute);
   font-style: italic;
 }
 .input.is-error,
@@ -324,7 +324,7 @@
 }
 .pill-select .pill:hover:not(.on) {
   color: var(--text-dim);
-  border-color: var(--text-faint);
+  border-color: var(--hair);
 }
 .pill-select .pill.on {
   color: var(--accent-alt);
@@ -450,7 +450,7 @@
   background: color-mix(in srgb, var(--surface) 60%, transparent);
 }
 .inline-edit.is-empty:not(.is-editing) {
-  color: var(--text-faint);
+  color: var(--text-mute);
 }
 button.inline-edit {
   font: inherit;
@@ -561,7 +561,7 @@ button.inline-edit {
 }
 
 .pattern-pip {
-  --pattern-colour: var(--text-faint);
+  --pattern-colour: var(--text-mute);
   display: inline-block;
   width: var(--spacer-2);
   height: var(--spacer-2);
@@ -780,7 +780,7 @@ button.pattern-pip:focus-visible {
   right: var(--spacer-3);
   transform: translateY(-50%);
   display: inline-flex;
-  color: var(--text-faint);
+  color: var(--text-mute);
   font-size: var(--fs-2xs);
   pointer-events: none;
   transition: color 120ms ease;
@@ -789,7 +789,7 @@ button.pattern-pip:focus-visible {
   color: var(--text-dim);
 }
 .combobox-opt.combobox-hint {
-  color: var(--text-faint);
+  color: var(--text-mute);
   cursor: default;
   border-bottom: 1px solid var(--border-soft);
 }
@@ -845,7 +845,7 @@ button.pattern-pip:focus-visible {
   font-family: var(--sans);
   font-size: var(--fs-xs);
   font-style: italic;
-  color: var(--text-faint);
+  color: var(--text-mute);
 }
 
 /* ─── Menu trigger — circular ⋯ chip ────────────────────────────────── */
@@ -1492,7 +1492,7 @@ button.pip:hover {
 .toast .x {
   background: transparent;
   border: none;
-  color: var(--text-faint);
+  color: var(--text-mute);
   font-size: var(--fs-md);
   cursor: pointer;
   padding: 0;
@@ -1530,7 +1530,7 @@ button.pip:hover {
   width: 38px;
   height: 38px;
   margin: 0 auto var(--spacer-2-5);
-  color: var(--text-faint);
+  color: var(--text-mute);
 }
 .empty .ttl {
   font-family: var(--display);

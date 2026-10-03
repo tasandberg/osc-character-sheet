@@ -222,7 +222,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-faint, #6a6354);
+  color: var(--text-mute);
   font-size: var(--fs-xs, 12px);
   line-height: 1;
   padding: var(--spacer-1);
@@ -255,7 +255,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--text-faint, #6a6354);
+  color: var(--text-mute);
   font-size: var(--fs-sm, 13px);
   transition:
     color 0.12s,

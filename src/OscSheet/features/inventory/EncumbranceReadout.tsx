@@ -37,7 +37,7 @@ export function EncumbranceReadout({ e }: { e: EncumbranceVM }) {
         // 2px gap keeps the three scores + tinted slashes reading as one group.
         // The dotted underline hints at the hover breakdown; it's a border, not
         // text-decoration, which doesn't render through an inline-flex.
-        className="rates tw:inline-flex tw:items-baseline tw:gap-[2px] tw:border-b tw:border-dotted tw:border-text-faint"
+        className="rates tw:inline-flex tw:items-baseline tw:gap-[2px] tw:border-b tw:border-dotted tw:border-(--hair)"
         tabIndex={0}
         aria-label={`Movement: ${moveRatesLabel(e.moveBands)}${e.status ? `. ${e.status}` : ""}`}
       >
@@ -50,7 +50,7 @@ export function EncumbranceReadout({ e }: { e: EncumbranceVM }) {
         />
       </span>
       {/* -mx-1 halves the flex gap flanking the middot so it pulls in */}
-      <i className="fa fa-dot u-text-faint tw:-mx-1" />
+      <i className="fa fa-dot u-text-muted tw:-mx-1" />
       {e.label && <span className="load u-text-dim">{e.label}</span>}
     </span>
   );

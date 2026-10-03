@@ -98,7 +98,7 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
       {editing && (
         <div className="tw:mt-3 tw:flex tw:items-center tw:gap-2">
           <input
-            className="tw:max-w-[220px] tw:min-w-0 tw:flex-1 tw:rounded-sm tw:border tw:border-border-soft tw:bg-bg-2 tw:px-2 tw:py-1 tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text tw:placeholder:text-text-faint tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-gold"
+            className="tw:max-w-[220px] tw:min-w-0 tw:flex-1 tw:rounded-sm tw:border tw:border-border-soft tw:bg-bg-2 tw:px-2 tw:py-1 tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text tw:placeholder:text-text-mute tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-gold"
             type="text"
             list="osc-lang-choices"
             placeholder="Add a language…"
