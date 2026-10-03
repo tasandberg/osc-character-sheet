@@ -160,6 +160,10 @@ class OscSheet extends ReactActorSheetV2 {
     );
   }
 
+  _render(force) {
+    return this.render({ force });
+  }
+
   // OSE exposes no Tweaks API: run its V2 static action, else the v1 handler headless.
   static #onConfigureTweaks() {
     const entry = OscSheet.#tweaksSheetEntry(this.document);
