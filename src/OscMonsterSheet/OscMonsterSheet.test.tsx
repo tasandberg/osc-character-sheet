@@ -123,6 +123,14 @@ describe("OscMonsterSheet", () => {
     expect(container.querySelector("[role=textbox]")).toBeNull();
   });
 
+  it("offers an unset retainer loyalty for editing", async () => {
+    await mount(
+      makeMonster({ system: { retainer: { enabled: true, loyalty: null } } }),
+    );
+
+    expect(button("Edit Loyalty").textContent).toBe("—");
+  });
+
   it("adds movement details from the movement popover", async () => {
     const actor = makeMonster({ details: { movement: "" } });
     actor.update = vi.fn().mockResolvedValue(actor);

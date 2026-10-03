@@ -135,6 +135,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               <InlineEditValue
                 label="Loyalty"
                 value={view.loyalty}
+                placeholder="—"
                 onCommit={commit?.number("system.retainer.loyalty")}
               />
             </LeaderRow>
