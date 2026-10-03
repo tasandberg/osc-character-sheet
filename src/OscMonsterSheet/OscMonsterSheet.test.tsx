@@ -5,6 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import OscMonsterSheetApp from "@src/OscMonsterSheet";
 import { makeItem, makeMonster } from "./__fixtures__/dragonTurtle";
 import type { MonsterActor } from "./types";
+import { notifySettingChanged, type SettingKey } from "@src/OscSheet/settings";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -20,7 +21,14 @@ let settings: Record<string, unknown>;
 };
 (globalThis as { game?: unknown }).game = {
   system: { id: "ose" },
-  settings: { get: (_scope: string, key: string) => settings[key] },
+  settings: {
+    get: (_scope: string, key: string) => settings[key],
+    set: (_scope: string, key: SettingKey, value: unknown) => {
+      settings[key] = value;
+      notifySettingChanged(key);
+      return Promise.resolve(value);
+    },
+  },
   i18n: { localize: (key: string) => key },
 };
 (globalThis as { CONFIG?: unknown }).CONFIG = {
@@ -342,5 +350,25 @@ describe("OscMonsterSheet", () => {
     expect(text()).toContain("Lurks beneath the waves.");
     for (const hidden of ["Armour Class", "Claw", "Hit Points", "Chaotic"])
       expect(text()).not.toContain(hidden);
+  });
+
+  it("keeps the character sheet's theme until the monster preferences override it", async () => {
+    settings.theme = "cream";
+    await mount(makeMonster(), { canEdit: false });
+    click(button("Settings"));
+    const same = [...container.querySelectorAll("label")]
+      .find((label) => label.textContent === "Same as character sheet")!
+      .querySelector("input")!;
+    expect(same.checked).toBe(true);
+    expect(container.querySelector("[aria-label=Theme]")).toBeNull();
+
+    click(same);
+    expect(settings.monsterTheme).toBe("cream");
+    click(
+      [
+        ...container.querySelectorAll<HTMLElement>("[aria-label=Theme] button"),
+      ].find((option) => option.textContent === "Dark")!,
+    );
+    expect(settings.monsterTheme).toBe("dark");
   });
 });

@@ -1,13 +1,19 @@
+import type { ReactNode } from "react";
 import { Modal, Field, Segmented, Toggle, Button } from "@ui";
 import { setSetting, SETTINGS, useOscSettings } from "@src/OscSheet/settings";
-import { type Theme } from "@src/OscSheet/theme";
+import { type ThemeSetting } from "@src/OscSheet/theme";
 import {
   FONT_SCALES,
   FONT_SCALE_FACTOR,
   type FontScale,
 } from "@src/OscSheet/fontScale";
+import {
+  SAME_AS_CHARACTER_SHEET,
+  type SheetKind,
+} from "@src/OscSheet/appearance";
 
-const THEME_OPTIONS: { value: Theme; label: string }[] = [
+const THEME_OPTIONS: { value: ThemeSetting; label: string }[] = [
+  { value: "system", label: "System" },
   { value: "dark", label: "Dark" },
   { value: "cream", label: "Light" },
 ];
@@ -29,14 +35,131 @@ const FONT_SCALE_OPTIONS = FONT_SCALES.map((value) => ({
   ),
 }));
 
+function SegmentedGroup<T extends string>({
+  label,
+  options,
+  value,
+  onValueChange,
+}: {
+  label: string;
+  options: { value: T; label: ReactNode }[];
+  value: T;
+  onValueChange: (next: T) => void;
+}) {
+  return (
+    <div role="group" aria-label={label}>
+      <Segmented
+        options={options}
+        value={value}
+        onValueChange={onValueChange}
+      />
+    </div>
+  );
+}
+
+function InheritableGroup<T extends string>({
+  label,
+  options,
+  value,
+  inherited,
+  onValueChange,
+}: {
+  label: string;
+  options: { value: T; label: ReactNode }[];
+  value: T | typeof SAME_AS_CHARACTER_SHEET;
+  inherited: T;
+  onValueChange: (next: T | typeof SAME_AS_CHARACTER_SHEET) => void;
+}) {
+  const inheriting = value === SAME_AS_CHARACTER_SHEET;
+  return (
+    <div className="u-stack u-gap-3">
+      <Toggle
+        checked={inheriting}
+        onChange={(e) =>
+          onValueChange(e.target.checked ? SAME_AS_CHARACTER_SHEET : inherited)
+        }
+      >
+        Same as character sheet
+      </Toggle>
+      {!inheriting && (
+        <SegmentedGroup
+          label={label}
+          options={options}
+          value={value}
+          onValueChange={onValueChange}
+        />
+      )}
+    </div>
+  );
+}
+
+function CharacterPreferences() {
+  const { theme, fontScale, showSpellImages } = useOscSettings();
+  return (
+    <>
+      <Field label="Theme" hint="Applies to your sheets only.">
+        <SegmentedGroup
+          label="Theme"
+          options={THEME_OPTIONS}
+          value={theme}
+          onValueChange={(next) => setSetting("theme", next)}
+        />
+      </Field>
+      <Field label="Font size">
+        <SegmentedGroup
+          label="Font size"
+          options={FONT_SCALE_OPTIONS}
+          value={fontScale}
+          onValueChange={(next) => setSetting("fontScale", next)}
+        />
+      </Field>
+      <Field label="Spell images">
+        <Toggle
+          checked={showSpellImages}
+          onChange={(e) => setSetting("showSpellImages", e.target.checked)}
+        >
+          {SETTINGS.showSpellImages.hint}
+        </Toggle>
+      </Field>
+    </>
+  );
+}
+
+function MonsterPreferences() {
+  const { theme, fontScale, monsterTheme, monsterFontScale } = useOscSettings();
+  return (
+    <>
+      <Field label="Theme" hint="Applies to your monster sheets only.">
+        <InheritableGroup
+          label="Theme"
+          options={THEME_OPTIONS}
+          value={monsterTheme}
+          inherited={theme}
+          onValueChange={(next) => setSetting("monsterTheme", next)}
+        />
+      </Field>
+      <Field label="Font size">
+        <InheritableGroup
+          label="Font size"
+          options={FONT_SCALE_OPTIONS}
+          value={monsterFontScale}
+          inherited={fontScale}
+          onValueChange={(next) => setSetting("monsterFontScale", next)}
+        />
+      </Field>
+    </>
+  );
+}
+
 export function SettingsModal({
   open,
   onClose,
+  sheet = "character",
 }: {
   open: boolean;
   onClose: () => void;
+  sheet?: SheetKind;
 }) {
-  const { theme, fontScale, showSpellImages } = useOscSettings();
   if (!open) return null;
   const footer = (
     <Button variant="primary" onClick={onClose}>
@@ -52,32 +175,11 @@ export function SettingsModal({
       className="modal-inset osc-settings-modal"
     >
       <div className="u-stack u-gap-5">
-        <Field label="Theme" hint="Applies to your sheets only.">
-          <div role="group" aria-label="Theme">
-            <Segmented
-              options={THEME_OPTIONS}
-              value={theme}
-              onValueChange={(next) => setSetting("theme", next)}
-            />
-          </div>
-        </Field>
-        <Field label="Font size">
-          <div role="group" aria-label="Font size">
-            <Segmented
-              options={FONT_SCALE_OPTIONS}
-              value={fontScale}
-              onValueChange={(next) => setSetting("fontScale", next)}
-            />
-          </div>
-        </Field>
-        <Field label="Spell images">
-          <Toggle
-            checked={showSpellImages}
-            onChange={(e) => setSetting("showSpellImages", e.target.checked)}
-          >
-            {SETTINGS.showSpellImages.hint}
-          </Toggle>
-        </Field>
+        {sheet === "monster" ? (
+          <MonsterPreferences />
+        ) : (
+          <CharacterPreferences />
+        )}
       </div>
     </Modal>
   );

@@ -4,6 +4,7 @@ import { IconButton } from "@ui/IconButton";
 import { openImagePicker } from "@ui/imagePicker";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import type { Commit } from "./commit";
+import { MonsterSettingsButton } from "./parts/MonsterSettingsButton";
 import type { MonsterView } from "./viewModel";
 
 const LONG_NAME = 22;
@@ -128,6 +129,7 @@ export function MonsterHeader({
           </div>
         </div>
       )}
+      <MonsterSettingsButton />
     </header>
   );
 }

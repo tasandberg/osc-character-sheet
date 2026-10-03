@@ -3,6 +3,7 @@ import OscSheet from "@src/applications/osc-sheet";
 
 class OscMonsterSheet extends OscSheet {
   reactApp = OscMonsterSheetApp;
+  static sheetKind = "monster";
 
   static DEFAULT_OPTIONS = {
     window: { title: "OSC Monster Sheet" },

@@ -1,8 +1,12 @@
 import OscSheetApp from "@src/OscSheet";
-import { applyTheme } from "@src/OscSheet/theme";
+import { applyTheme, watchFoundryColorScheme } from "@src/OscSheet/theme";
 import { MODULE_ID } from "@src/OscSheet/domain/flags";
 import { applyFontScale } from "@src/OscSheet/fontScale";
-import { getSetting, settingRegistrations } from "@src/OscSheet/settings";
+import { sheetFontScale, sheetTheme } from "@src/OscSheet/appearance";
+import {
+  getSettingsSnapshot,
+  settingRegistrations,
+} from "@src/OscSheet/settings";
 import { watchPortraitUploadFolder } from "@src/OscSheet/features/portraitImage/uploadFolder";
 import {
   alignedMenuLeft,
@@ -15,6 +19,7 @@ import { ReactActorSheetV2 } from "foundry-vtt-react";
 
 class OscSheet extends ReactActorSheetV2 {
   reactApp = OscSheetApp;
+  static sheetKind = "character";
   static DEFAULT_OPTIONS = {
     window: {
       title: "OSC Character Sheet",
@@ -46,15 +51,27 @@ class OscSheet extends ReactActorSheetV2 {
   };
 
   static registerSettings() {
+    const openSheets = () =>
+      [...foundry.applications.instances.values()].filter(
+        (app) => app instanceof OscSheet
+      );
     const rerender = () => {
-      for (const app of foundry.applications.instances.values()) {
-        if (app instanceof OscSheet) app.render();
-      }
+      for (const app of openSheets()) app.render();
     };
     for (const { key, data } of settingRegistrations(rerender)) {
       game.settings.register(MODULE_ID, key, data);
     }
     watchPortraitUploadFolder();
+    watchFoundryColorScheme(() => {
+      for (const app of openSheets()) if (app.element) app.applyAppearance();
+    });
+  }
+
+  applyAppearance() {
+    const settings = getSettingsSnapshot();
+    const kind = this.constructor.sheetKind;
+    applyTheme(this.element, sheetTheme(kind, settings));
+    applyFontScale(this.element, sheetFontScale(kind, settings));
   }
 
   // Local builds append the branch they were built FROM, so a stale dist is
@@ -65,8 +82,7 @@ class OscSheet extends ReactActorSheetV2 {
 
   async _onRender(context, options) {
     await super._onRender(context, options);
-    applyTheme(this.element, getSetting("theme"));
-    applyFontScale(this.element, getSetting("fontScale"));
+    this.applyAppearance();
     // Accent by kind: retainers/hirelings (system.retainer.enabled) go teal;
     // everyone else keeps the brass --gold. See styles.scss [data-kind].
     this.element.dataset.kind = this.document?.system?.retainer?.enabled
