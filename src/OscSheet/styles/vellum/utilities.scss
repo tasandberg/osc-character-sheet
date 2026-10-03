@@ -47,7 +47,7 @@ $gap-axis:   sp-subset(1 2 3 4);
 
 /* name → palette token (irregular mappings, so a map not a plain list) */
 $text-colors: (
-  "": text, dim: text-dim, muted: text-mute, faint: text-faint,
+  "": text, dim: text-dim, muted: text-mute,
   accent: teal, brass: accent-alt, danger: crimson, warn: mustard,
   success: forest, on-accent: on-accent,
 );

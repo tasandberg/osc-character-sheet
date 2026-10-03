@@ -41,7 +41,7 @@ Prefix `u-`. Values are always tokens — never invent a value.
   `u-m-auto`/`u-mx-auto`/`u-mt-auto`/`u-mr-auto`/`u-ml-auto`
 - **Font size:** `u-fs-{3xs…8xl}` (see scale below)
 - **Radius:** `u-r-{sm|md|lg|xl}`
-- **Color:** text `u-text`, `u-text-{dim|muted|faint|accent|brass|danger|warn|success|on-accent}`;
+- **Color:** text `u-text`, `u-text-{dim|muted|accent|brass|danger|warn|success|on-accent}`;
   bg `u-bg`, `u-bg-{2|surface|surface-2|surface-3|ink|accent|brass|danger}`;
   border `u-border`, `u-border-{soft|accent|brass|danger|none}`
 - **Foundry responsive display:** `u-foundry-{tier}-display-{value}` (`value` =
@@ -79,7 +79,7 @@ wrong everywhere it lands.
   `--fs-4xs` is a token only — there is no `u-fs-4xs`.
 - **Radius** `--r-*`: `sm`4 `md`6 `lg`10 `xl`14.
 - **Palette** (theme-aware, dark + cream): `--ink`, `--bg`/`--bg-2`,
-  `--surface`/`-2`/`-3`, `--text`/`-dim`/`-mute`/`-faint`, `--border`/`-soft`,
+  `--surface`/`-2`/`-3`, `--text`/`-dim`/`-mute`, `--hair`/`-soft`, `--border`/`-soft`,
   `--teal` (accent / equipped), `--crimson`, `--forest`, `--mustard`,
   `--accent-alt` (**brass**), `--gold` (=mustard), `--on-accent`. Use tokens /
   color utilities — never a hex or invented color.

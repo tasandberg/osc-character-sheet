@@ -119,7 +119,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         <div className={`${TILE} tw:cursor-default`}>
           <Stamp className={TILE_STAMP}>MOVE</Stamp>
           {/* dotted underline hints at the hover breakdown (all three rates + enc) */}
-          <div className={`${TILE_V} tw:underline tw:decoration-text-faint tw:decoration-dotted tw:underline-offset-[2px]`}>
+          <div className={`${TILE_V} tw:underline tw:decoration-(--hair) tw:decoration-dotted tw:underline-offset-[2px]`}>
             {vitals.move}ft
           </div>
           <MoveTooltip
