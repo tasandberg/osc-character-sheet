@@ -32,6 +32,14 @@ describe("findTweaksSheetEntry", () => {
     expect(entry?.id).toBe("fork.Sheet");
   });
 
+  it("matches a sheet whose tweaks handler is a static action", () => {
+    const entry = findTweaksSheetEntry([
+      { id: "osc-character-sheet.OscSheet", cls: plain },
+      { id: "ose.OseActorSheetMonster", cls: { prototype: {}, _onConfigureActor() {} } },
+    ]);
+    expect(entry?.id).toBe("ose.OseActorSheetMonster");
+  });
+
   it("returns undefined when nothing matches", () => {
     expect(
       findTweaksSheetEntry([{ id: "osc-character-sheet.OscSheet", cls: plain }]),
