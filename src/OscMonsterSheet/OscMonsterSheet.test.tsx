@@ -226,6 +226,26 @@ describe("OscMonsterSheet", () => {
     ]);
   });
 
+  it("offers an Inventory tab listing the monster's gear once inventory is enabled", async () => {
+    const tabs = () =>
+      [...container.querySelectorAll<HTMLElement>("[role=tab]")].map(
+        (tab) => tab.textContent,
+      );
+    const pearl = makeItem({ name: "Black Pearl", type: "item" });
+    await mount(makeMonster({}, [pearl]));
+    expect(tabs()).toEqual(["Stats", "Notes"]);
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    await mount(
+      makeMonster({ system: { config: { enableInventory: true } } }, [pearl]),
+    );
+    expect(tabs()).toEqual(["Stats", "Inventory", "Notes"]);
+    click(button("Inventory"));
+
+    expect(text()).toContain("Black Pearl");
+  });
+
   it("hides morale when the world morale rule is off", async () => {
     settings.morale = false;
     await mount(makeMonster());

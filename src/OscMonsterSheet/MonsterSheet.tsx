@@ -1,4 +1,13 @@
 import { useState } from "react";
+import { useOscSheetContext } from "@app/context";
+import type { OSEActor, OseItem } from "@domain/types";
+import { InventoryView } from "@features/inventory";
+import {
+  selectEncumbrance,
+  selectInventory,
+  selectWealth,
+} from "@features/inventory/inventory";
+import { useInventoryActions } from "@features/inventory/useInventoryActions";
 import EditableContent from "@features/notes/EditableContent";
 import { Tabs } from "@ui/Tabs";
 import { AbilitiesSection } from "./AbilitiesSection";
@@ -13,16 +22,35 @@ import { readMonsterSettings } from "./systemSettings";
 import { useMonsterSheet } from "./useMonsterSheet";
 import { selectMonster } from "./viewModel";
 
-type TabId = "stats" | "notes";
+type TabId = "stats" | "inventory" | "notes";
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: "stats", label: "Stats" },
-  { id: "notes", label: "Notes" },
-];
+const TAB_LABELS: Record<TabId, string> = {
+  stats: "Stats",
+  inventory: "Inventory",
+  notes: "Notes",
+};
+
+function MonsterInventory() {
+  const { actor, items } = useOscSheetContext();
+  const actions = useInventoryActions();
+  const owned = items as OseItem[];
+  return (
+    <InventoryView
+      inventory={selectInventory(owned)}
+      encumbrance={selectEncumbrance(actor as OSEActor, owned)}
+      wealth={selectWealth(owned)}
+      {...actions}
+    />
+  );
+}
 
 export function MonsterSheet() {
   const { actor, updateActor, canEdit } = useMonsterSheet();
-  const [tab, setTab] = useState<TabId>("stats");
+  const [selectedTab, setTab] = useState<TabId>("stats");
+  const tabIds: TabId[] = actor.system.config?.enableInventory
+    ? ["stats", "inventory", "notes"]
+    : ["stats", "notes"];
+  const tab = tabIds.includes(selectedTab) ? selectedTab : "stats";
   const view = selectMonster(actor, readMonsterSettings());
   const commit = canEdit ? makeCommit(updateActor) : undefined;
 
@@ -55,9 +83,11 @@ export function MonsterSheet() {
       <div
         className="osc-monster-scroll u-stack u-gap-4 u-px-5 u-py-4"
         role="tabpanel"
-        aria-label={tab === "stats" ? "Stats" : "Notes"}
+        aria-label={TAB_LABELS[tab]}
       >
-        {tab === "stats" ? (
+        {tab === "inventory" ? (
+          <MonsterInventory />
+        ) : tab === "stats" ? (
           <>
             <AttacksSection
               actor={actor}
@@ -85,7 +115,7 @@ export function MonsterSheet() {
       </div>
       <Tabs<TabId>
         variant="folder"
-        tabs={TABS}
+        tabs={tabIds.map((id) => ({ id, label: TAB_LABELS[id] }))}
         active={tab}
         onSelect={setTab}
       />

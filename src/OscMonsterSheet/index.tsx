@@ -2,6 +2,8 @@ import "./styles/monster.scss";
 import type { ContextConnector } from "foundry-vtt-react";
 import { ThemedRoot } from "@app/ThemedRoot";
 import { SheetErrorBoundary } from "@app/ErrorBoundary";
+import { OptimisticProvider } from "@app/OptimisticProvider";
+import { ToastProvider } from "@ui/ToastHost";
 import type { OSEActor, OscContext } from "@domain/types";
 import { LimitedMonsterSheet, MonsterSheet } from "./MonsterSheet";
 import { MonsterSheetProvider } from "./MonsterSheetProvider";
@@ -35,7 +37,11 @@ export default function OscMonsterSheetApp({
         canViewFullSheet={canViewFullSheet ?? false}
       >
         <ThemedRoot className="osc-monster u-paper">
-          <MonsterBody />
+          <ToastProvider>
+            <OptimisticProvider>
+              <MonsterBody />
+            </OptimisticProvider>
+          </ToastProvider>
         </ThemedRoot>
       </MonsterSheetProvider>
     </SheetErrorBoundary>
