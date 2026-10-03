@@ -66,13 +66,11 @@ export default function EditableContent({
         </div>
       ) : (
         // Static view card; max-w = a reading measure, not the full tab width.
-        <div className="tw:relative tw:max-w-[640px] tw:rounded-md tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:py-2">
+        <div className="tw:flow-root tw:max-w-[640px] tw:rounded-md tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:py-2">
           {canEdit && (
-            // Pinned top-right. `tw:absolute` outranks the `all: unset` reset
-            // (@layer base) — without it the pencil drops into normal flow.
             <IconButton
               variant="accent"
-              className="tw:absolute tw:top-2 tw:right-2 tw:z-[2]"
+              className="tw:float-right tw:ml-2"
               title={`Edit ${title}`}
               aria-label={`Edit ${title}`}
               onClick={() => setEditing(true)}
