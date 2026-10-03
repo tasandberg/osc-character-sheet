@@ -181,6 +181,20 @@ describe("OscMonsterSheet", () => {
     expect(gaze.sheet.render).toHaveBeenCalledWith(true);
   });
 
+  it("sets how many times an attack can be used per round", async () => {
+    const tail = makeItem({ name: "Tail" });
+    tail.update = vi.fn().mockResolvedValue(tail);
+    await mount(makeMonster({}, [tail]));
+
+    click(button("Edit Tail attacks per round"));
+    type("2", "Enter");
+
+    expect(tail.update).toHaveBeenCalledWith({
+      "system.counter.max": 2,
+      "system.counter.value": 2,
+    });
+  });
+
   it("opens the attack's actions from its overflow button", async () => {
     await mount(makeMonster());
 
