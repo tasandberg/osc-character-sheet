@@ -129,27 +129,6 @@ describe("selectMonster", () => {
       ).treasure,
     ).toBeNull();
   });
-
-  it("lists memorised spells by level only for spellcasters", () => {
-    const spell = makeItem({
-      name: "Charm",
-      type: "spell",
-      system: { cast: 1, memorized: 2 },
-    });
-    const caster = makeMonster({
-      system: { spells: { enabled: true, spellList: { 1: [spell], 2: [] } } },
-    });
-    expect(selectMonster(caster, descending).spellLevels).toEqual([
-      {
-        level: 1,
-        spells: [{ id: "Charm", name: "Charm", cast: 1, memorized: 2 }],
-      },
-    ]);
-    const disabled = makeMonster({
-      system: { spells: { enabled: false, spellList: { 1: [spell] } } },
-    });
-    expect(selectMonster(disabled, descending).spellLevels).toEqual([]);
-  });
 });
 
 describe("nextPattern", () => {

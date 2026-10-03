@@ -33,13 +33,6 @@ export type AbilityEntry = {
   save: string | null;
 };
 
-export type SpellEntry = {
-  id: string;
-  name: string;
-  cast: number;
-  memorized: number;
-};
-
 export type SaveEntry = { key: MonsterSaveKey; label: string; value: string };
 
 export const SAVE_LABELS: Record<MonsterSaveKey, string> = {
@@ -170,22 +163,6 @@ function abilities(items: MonsterItem[]): AbilityEntry[] {
   });
 }
 
-function spellLevels(actor: MonsterActor) {
-  const spells = actor.system.spells;
-  if (!spells?.enabled) return [];
-  return Object.entries(spells.spellList ?? {})
-    .filter(([, list]) => list.length > 0)
-    .map(([level, list]) => ({
-      level: Number(level),
-      spells: list.map<SpellEntry>((spell) => ({
-        id: spell.id,
-        name: spell.name,
-        cast: Number(spell.system.cast) || 0,
-        memorized: Number(spell.system.memorized) || 0,
-      })),
-    }));
-}
-
 export function selectMonster(actor: MonsterActor, settings: MonsterSettings) {
   const { system } = actor;
   const { details } = system;
@@ -250,7 +227,6 @@ export function selectMonster(actor: MonsterActor, settings: MonsterSettings) {
     needsSaves: !!system.isNew,
     attackGroups: attackGroups(system.attackPatterns ?? {}),
     abilities: abilities(system.abilities ?? []),
-    spellLevels: spellLevels(actor),
   };
 }
 

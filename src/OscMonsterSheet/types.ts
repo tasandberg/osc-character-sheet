@@ -61,7 +61,11 @@ export type MonsterActor = {
     };
     retainer?: { enabled: boolean; loyalty: number | null };
     config?: { enableInventory?: boolean };
-    spells?: { enabled: boolean; spellList?: Record<string, MonsterItem[]> };
+    spells?: {
+      enabled: boolean;
+      slots?: { [n: number]: { used: number; max: number } };
+      spellList?: Record<string, MonsterItem[]>;
+    };
     attackPatterns?: Record<string, MonsterItem[]>;
     abilities?: MonsterItem[];
     isNew?: boolean;

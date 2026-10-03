@@ -254,6 +254,31 @@ describe("OscMonsterSheet", () => {
     expect(text()).toContain("Black Pearl");
   });
 
+  it("offers a Spells tab listing the monster's spells once it casts", async () => {
+    const charm = makeItem({
+      name: "Charm Person",
+      type: "spell",
+      system: { lvl: 1, cast: 1, memorized: 1 },
+    });
+    await mount(
+      makeMonster(
+        {
+          system: {
+            spells: {
+              enabled: true,
+              slots: { 1: { used: 0, max: 1 } },
+              spellList: { 1: [charm] },
+            },
+          },
+        },
+        [charm],
+      ),
+    );
+    click(button("Spells"));
+
+    expect(text()).toContain("Charm Person");
+  });
+
   it("hides morale when the world morale rule is off", async () => {
     settings.morale = false;
     await mount(makeMonster());
