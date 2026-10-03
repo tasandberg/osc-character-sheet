@@ -6,7 +6,7 @@ export function RichText({ html, className }: { html: string; className?: string
   const fdTheme = useSetting("theme") === "cream" ? "theme-light" : "theme-dark";
   return (
     <div
-      className={cx("osc-rich-text-body", "themed", fdTheme, className)}
+      className={cx("osc-rich-text-body", "themed", fdTheme, "tw:select-text", className)}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

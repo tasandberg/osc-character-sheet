@@ -52,6 +52,7 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
     >
       <BulletParagraph
         ref={body}
+        className="tw:select-text"
         clamp={expanded ? undefined : 3}
         lead={
           <RollLabel
