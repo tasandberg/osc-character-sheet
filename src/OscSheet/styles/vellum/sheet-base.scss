@@ -15,21 +15,31 @@
 
 * { box-sizing: border-box; }
 
-/* Local scale extensions — promote into vellum's _scales.scss on its next publish. */
+/* Local scale extension — promote into vellum's _scales.scss on its next publish. */
 :root {
-  --fs-4xs: calc(0.5rem * var(--fs-scale, 1));
   --spacer-2-5: 10px;
 }
 
-/* Muted text tiers lifted to ≥4.5:1 on --surface-2. */
+/* Pins the pre-0.5 sans, 3xs step and opaque surfaces until the sheet adopts them. */
+:root {
+  --sans: "Inter", -apple-system, system-ui, "Helvetica Neue", sans-serif;
+  --fs-3xs: calc(0.6875rem * var(--fs-scale, 1));
+}
+
+:root,
+[data-theme="cream"] {
+  --bg-2: var(--bg-2-solid);
+  --surface: var(--surface-solid);
+  --surface-2: var(--surface-2-solid);
+}
+
+/* Muted text lifted to ≥4.5:1 on --surface-2. */
 :root {
   --text-mute: #a59f90;
-  --text-faint: #9a9280;
 }
 
 [data-theme="cream"] {
   --text-mute: #605b58;
-  --text-faint: #686054;
 }
 
 :root {
@@ -104,7 +114,6 @@ body {
 .tiny    { font-size: var(--fs-3xs); }
 .dim     { color: var(--text-dim); }
 .mute    { color: var(--text-mute); }
-.faint   { color: var(--text-faint); }
 .italic  { font-style: italic; }
 
 /* The "stamp" — a black bar with cream chiseled caps. Used for stat keys
@@ -347,7 +356,7 @@ body {
   font-size: var(--fs-3xs);
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: var(--text-faint);
+  color: var(--text-mute);
 }
 .charbar .value { font-family: var(--display); font-size: var(--fs-2xl); line-height: 1; }
 .charbar .value .sub { font-family: var(--sans); font-size: var(--fs-xs); color: var(--text-mute); margin-left: 6px; letter-spacing: 0; text-transform: none; }
@@ -505,7 +514,7 @@ body {
 .tab .count {
   font-family: var(--mono);
   font-size: var(--fs-3xs);
-  color: var(--text-faint);
+  color: var(--text-mute);
   margin-left: 6px;
   letter-spacing: 0;
   text-transform: none;
@@ -589,7 +598,7 @@ body {
   line-height: 1;
   letter-spacing: -0.01em;
 }
-.hp-row .big .slash { color: var(--text-faint); font-weight: 300; margin: 0 4px; }
+.hp-row .big .slash { color: var(--text-mute); font-weight: 300; margin: 0 4px; }
 .hp-row .big .max   { color: var(--text-mute); }
 .hp-row .controls { display: flex; flex-direction: column; gap: 6px; flex: 1; max-width: 380px; }
 .hp-row .input-row { display: flex; gap: 6px; align-items: center; }
@@ -631,14 +640,14 @@ body {
 .weapon .stat {
   display: flex; flex-direction: column; align-items: center; min-width: 64px;
 }
-.weapon .stat .l { font-family: var(--serif); font-style: italic; font-size: var(--fs-3xs); color: var(--text-faint); }
+.weapon .stat .l { font-family: var(--serif); font-style: italic; font-size: var(--fs-3xs); color: var(--text-mute); }
 .weapon .stat .v { font-family: var(--mono); font-size: var(--fs-md); color: var(--text); }
 
 .ammo {
   display: flex; align-items: center; gap: 4px;
   font-family: var(--mono); font-size: var(--fs-2xs); color: var(--text-mute);
 }
-.ammo .pip { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); }
+.ammo .pip { width: 6px; height: 6px; border-radius: 50%; background: var(--text-mute); }
 .ammo .pip.full { background: var(--brass); }
 
 /* THAC0 / DAC matrix */
@@ -657,7 +666,7 @@ body {
   font-size: var(--fs-xs);
   border-radius: 3px;
 }
-.matrix .cell .ac { color: var(--text-faint); font-size: var(--fs-3xs); display: block; }
+.matrix .cell .ac { color: var(--text-mute); font-size: var(--fs-3xs); display: block; }
 .matrix .cell .v  { color: var(--text); font-family: var(--display); font-size: var(--fs-md); }
 
 /* ---------- Spells tab ---------- */
@@ -703,7 +712,7 @@ body {
 }
 .slot-pip.spent {
   background: transparent;
-  border-color: var(--text-faint);
+  border-color: var(--hair);
   opacity: 0.5;
 }
 .slot-pip.filled::after { content: "✦"; color: var(--on-accent); font-size: var(--fs-sm); }
@@ -765,7 +774,7 @@ body {
 .book-spell:hover { border-style: solid; border-color: var(--brass-dim); }
 .book-spell.prepared { border-color: var(--brass); background: oklch(0.76 0.12 80 / 0.06); border-style: solid; }
 .book-spell .nm { font-family: var(--serif); font-size: var(--fs-sm); color: var(--text); flex: 1; }
-.book-spell .add { font-family: var(--mono); font-size: var(--fs-xs); color: var(--text-faint); }
+.book-spell .add { font-family: var(--mono); font-size: var(--fs-xs); color: var(--text-mute); }
 .book-spell.prepared .add { color: var(--brass); }
 
 /* ---------- Inventory tab ---------- */
@@ -781,17 +790,17 @@ body {
   background: var(--surface);
 }
 .inv-list .row.hdr { background: var(--bg-2); padding: 8px 14px; }
-.inv-list .row.hdr span { font-family: var(--display); font-size: var(--fs-3xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-faint); }
+.inv-list .row.hdr span { font-family: var(--display); font-size: var(--fs-3xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); }
 .inv-list .row .ic { width: 24px; height: 24px; display: grid; place-items: center; background: var(--ink); color: var(--brass); border-radius: 3px; font-size: var(--fs-xs); font-family: var(--display); }
 .inv-list .row .nm { font-family: var(--serif); font-size: var(--fs-sm); color: var(--text); }
 .inv-list .row .qty, .inv-list .row .wt { font-family: var(--mono); font-size: var(--fs-xs); text-align: right; color: var(--text-dim); }
-.inv-list .row .x { color: var(--text-faint); cursor: pointer; text-align: right; }
+.inv-list .row .x { color: var(--text-mute); cursor: pointer; text-align: right; }
 .inv-list .row .x:hover { color: var(--oxblood-2); }
 
 .enc-card { display: flex; flex-direction: column; gap: 10px; }
 .enc-card .bar { height: 14px; background: oklch(0 0 0 / 0.4); border-radius: 99px; overflow: hidden; position: relative; border: 1px solid var(--border-soft); }
 .enc-card .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--sage), var(--brass) 60%, var(--oxblood)); transition: width 0.3s; }
-.enc-card .marks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-faint); }
+.enc-card .marks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-mute); }
 .enc-card .mv-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
 .enc-card .mv {
   background: var(--bg-2);
@@ -800,7 +809,7 @@ body {
   padding: 8px;
   text-align: center;
 }
-.enc-card .mv .l { font-family: var(--display); font-size: var(--fs-3xs); color: var(--text-faint); letter-spacing: 0.1em; }
+.enc-card .mv .l { font-family: var(--display); font-size: var(--fs-3xs); color: var(--text-mute); letter-spacing: 0.1em; }
 .enc-card .mv .v { font-family: var(--display); font-size: var(--fs-xl); color: var(--text); margin-top: 2px; }
 .enc-card .mv .u { font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-mute); }
 
@@ -818,7 +827,7 @@ body {
   margin-bottom: 12px;
 }
 .tray-head .ttl { font-family: var(--display); font-size: var(--fs-sm); letter-spacing: 0.1em; text-transform: uppercase; }
-.tray-head .clear { background: transparent; border: none; color: var(--text-faint); font-family: var(--mono); font-size: var(--fs-2xs); cursor: pointer; }
+.tray-head .clear { background: transparent; border: none; color: var(--text-mute); font-family: var(--mono); font-size: var(--fs-2xs); cursor: pointer; }
 .tray-head .clear:hover { color: var(--text); }
 
 .dice-stage {
@@ -835,10 +844,10 @@ body {
     radial-gradient(ellipse at 30% 30%, oklch(0.95 0.04 80 / 0.05) 0, transparent 50%),
     var(--surface);
 }
-.dice-stage.empty { color: var(--text-faint); font-family: var(--serif); font-style: italic; font-size: var(--fs-xs); }
+.dice-stage.empty { color: var(--text-mute); font-family: var(--serif); font-style: italic; font-size: var(--fs-xs); }
 
 .die-container { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.die-container .src { font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-faint); }
+.die-container .src { font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-mute); }
 
 /* 3D-ish die — a square with thick borders and inset shading.
    For d20 we use a hexagon-ish clip-path. */
@@ -959,7 +968,7 @@ body {
 .log-entry .res.miss { color: var(--text-mute); }
 .log-entry .res.crit { color: var(--oxblood-2); }
 .log-entry .res.dmg { color: var(--oxblood-2); }
-.log-entry .when { font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-faint); }
+.log-entry .when { font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-mute); }
 
 /* ---------- Generic buttons ---------- */
 
@@ -1093,7 +1102,7 @@ $btn-outline-tones: (
   font-family: var(--display); font-size: var(--fs-md); letter-spacing: 0.06em; text-transform: uppercase;
 }
 .enum-card .h .tag {
-  font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-faint);
+  font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-mute);
   background: var(--bg-2); padding: 3px 8px; border-radius: 99px;
 }
 .enum-card ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
@@ -1104,7 +1113,7 @@ $btn-outline-tones: (
 .enum-card li b { color: var(--text); font-family: var(--display); font-weight: 400; letter-spacing: 0.02em; }
 .enum-card li .trig {
   display: inline-block;
-  font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-faint);
+  font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-mute);
   margin-left: 6px;
 }
 
