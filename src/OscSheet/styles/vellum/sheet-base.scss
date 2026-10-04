@@ -13,7 +13,9 @@
   -moz-osx-font-smoothing: auto;
 }
 
-* { box-sizing: border-box; }
+@layer base {
+  * { box-sizing: border-box; }
+}
 
 /* Local scale extension — promote into vellum's _scales.scss on its next publish. */
 :root {

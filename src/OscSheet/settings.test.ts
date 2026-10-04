@@ -35,7 +35,7 @@ afterEach(() => {
 
 describe("getSetting outside Foundry", () => {
   it("falls back to each setting's default with no game global", () => {
-    expect(getSetting("theme")).toBe("dark");
+    expect(getSetting("theme")).toBe("system");
     expect(getSetting("fontScale")).toBe("medium");
     expect(getSetting("disableMemorization")).toBe(false);
     expect(getSetting("showSpellImages")).toBe(true);
@@ -49,7 +49,7 @@ describe("getSetting outside Foundry", () => {
         },
       },
     };
-    expect(getSetting("theme")).toBe("dark");
+    expect(getSetting("theme")).toBe("system");
     expect(getSetting("showSpellImages")).toBe(true);
   });
 });
@@ -75,7 +75,7 @@ describe("getSetting coercion", () => {
       [`${NS}.disableMemorization`]: "yes",
       [`${NS}.showSpellImages`]: null,
     });
-    expect(getSetting("theme")).toBe("dark");
+    expect(getSetting("theme")).toBe("system");
     expect(getSetting("fontScale")).toBe("medium");
     expect(getSetting("disableMemorization")).toBe(false);
     expect(getSetting("showSpellImages")).toBe(true);
@@ -118,8 +118,8 @@ describe("settingRegistrations", () => {
       scope: "user",
       type: String,
       config: true,
-      default: "dark",
-      choices: { dark: "Dark", cream: "Cream" },
+      default: "system",
+      choices: { system: "System", dark: "Dark", cream: "Light" },
     });
     expect(byKey.fontScale).toMatchObject({
       scope: "user",
@@ -209,9 +209,11 @@ describe("settings snapshot", () => {
 
   it("reports every registry key, defaulted with no game global", () => {
     expect(getSettingsSnapshot()).toEqual({
-      theme: "dark",
+      theme: "system",
       disableMemorization: false,
       fontScale: "medium",
+      monsterTheme: "inherit",
+      monsterFontScale: "inherit",
       showSpellImages: true,
       portraitUploads: false,
       portraitUploadPath: "",

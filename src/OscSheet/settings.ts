@@ -7,7 +7,12 @@
 import { useCallback, useSyncExternalStore } from "react";
 import { MODULE_ID } from "@domain/flags";
 import { resolveFontScale } from "@src/OscSheet/fontScale";
-import { resolveTheme } from "@src/OscSheet/theme";
+import { resolveThemeSetting } from "@src/OscSheet/theme";
+import {
+  resolveMonsterFontScale,
+  resolveMonsterTheme,
+  SAME_AS_CHARACTER_SHEET,
+} from "@src/OscSheet/appearance";
 
 type SettingScope = "world" | "user";
 
@@ -36,13 +41,13 @@ const resolveString =
 export const SETTINGS = {
   theme: {
     name: "Sheet theme",
-    hint: "Color theme for the OSC Character Sheet.",
+    hint: "Color theme for the OSC Character Sheet. System follows Foundry's color scheme.",
     scope: "user",
     config: true,
     type: String,
-    choices: { dark: "Dark", cream: "Cream" },
-    default: "dark",
-    resolve: resolveTheme,
+    choices: { system: "System", dark: "Dark", cream: "Light" },
+    default: "system",
+    resolve: resolveThemeSetting,
   },
   disableMemorization: {
     name: "Disable spell memorization",
@@ -62,6 +67,36 @@ export const SETTINGS = {
     choices: { compact: "Compact", medium: "Medium", large: "Large" },
     default: "medium",
     resolve: resolveFontScale,
+  },
+  monsterTheme: {
+    name: "Monster sheet theme",
+    hint: "Color theme for the OSC Monster Sheet.",
+    scope: "user",
+    config: true,
+    type: String,
+    choices: {
+      [SAME_AS_CHARACTER_SHEET]: "Same as character sheet",
+      system: "System",
+      dark: "Dark",
+      cream: "Light",
+    },
+    default: SAME_AS_CHARACTER_SHEET,
+    resolve: resolveMonsterTheme,
+  },
+  monsterFontScale: {
+    name: "Monster sheet font size",
+    hint: "Scales monster sheet text up for readability.",
+    scope: "user",
+    config: true,
+    type: String,
+    choices: {
+      [SAME_AS_CHARACTER_SHEET]: "Same as character sheet",
+      compact: "Compact",
+      medium: "Medium",
+      large: "Large",
+    },
+    default: SAME_AS_CHARACTER_SHEET,
+    resolve: resolveMonsterFontScale,
   },
   showSpellImages: {
     name: "Show spell images",

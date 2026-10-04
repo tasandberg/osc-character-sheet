@@ -20,7 +20,7 @@ type Props<T extends string | number> = {
 /**
  * A wrapping row of discrete selectable pills (single-select), each with an
  * optional trailing count — e.g. spell-level tabs "Lv 1 (3)". Unlike the
- * connected `Segmented` control, pills are separate, wrap to multiple rows, and
+ * connected `vm-segmented` control, pills are separate, wrap to multiple rows, and
  * the active pill takes a brass outline.
  *
  * @category Controls

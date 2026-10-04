@@ -5,6 +5,7 @@ import "./styles/vellum/sheet-base.scss";
 import "./styles/vellum/utilities.scss";
 import "./styles/vellum/components.css";
 import "./styles/styles.scss";
+import "@old-school-chronicle/vellum/components.css";
 import "./styles/edit-modal.scss";
 // Tailwind entry — prefixed, scoped, no preflight. LAST on purpose: its
 // utilities are unlayered (tailwind.css explains why), so source order is what
