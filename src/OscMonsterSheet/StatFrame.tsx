@@ -92,6 +92,19 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               onClear={canEdit ? () => void clearTreasure(actor) : undefined}
             />
           </LeaderRow>
+          <LeaderRow
+            valueClassName="u-fs-xs"
+            label={
+              <RollLabel
+                className="osc-monster-label"
+                onRoll={(event) => actor.rollReaction({ event })}
+              >
+                Reaction
+              </RollLabel>
+            }
+          >
+            2d6
+          </LeaderRow>
           {view.loyalty != null && (
             <LeaderRow
               valueClassName="u-fs-xs"
@@ -207,19 +220,6 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               placeholder="—"
               onCommit={commit?.loose("system.details.appearing.w")}
             />
-          </LeaderRow>
-          <LeaderRow
-            valueClassName="u-fs-xs"
-            label={
-              <RollLabel
-                className="osc-monster-label"
-                onRoll={(event) => actor.rollReaction({ event })}
-              >
-                Reaction
-              </RollLabel>
-            }
-          >
-            2d6
           </LeaderRow>
         </div>
       </div>
