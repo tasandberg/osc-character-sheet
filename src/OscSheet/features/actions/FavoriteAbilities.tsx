@@ -45,6 +45,7 @@ function AbilityCard({
       {...rollable(() => feature.onActivate())}
     >
       <Monogram
+        icon={feature.icon}
         img={feature.img}
         monogram={feature.name.charAt(0).toUpperCase()}
         className="skic tw:grid tw:size-5 tw:place-items-center tw:rounded-sm tw:bg-ink tw:font-display tw:text-[length:var(--fs-2xs)] tw:text-stamp-text"

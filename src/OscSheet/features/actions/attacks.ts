@@ -1,5 +1,6 @@
 import { computeAttack, type AttackSettings } from "@domain/attackMath";
 import type { OSEActor } from "@domain/types";
+import { itemArt } from "@domain/itemArt";
 import type { AttackVM, AttackMode, RollSpec } from "@domain/vm-types";
 
 /** OSE's world settings for attack maths. Safe in non-Foundry tests (both default off). */
@@ -84,7 +85,7 @@ export function selectAttacks(
       id: w._id as string,
       itemId: w._id as string,
       name: w.name as string,
-      img: w.img,
+      ...itemArt(w),
       modes,
       qualities,
     });

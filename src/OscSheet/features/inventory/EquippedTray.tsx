@@ -159,6 +159,7 @@ export function EquippedTray({
             aria-label={item.name}
           >
             <Monogram
+              icon={item.icon}
               img={item.img}
               monogram={item.monogram}
               className={

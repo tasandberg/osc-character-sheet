@@ -102,7 +102,7 @@ function RowInner({
   const stacked = !item.isContainer && item.quantity != null;
   return (
     <>
-      <ItemImage img={item.img} monogram={item.monogram} />
+      <ItemImage img={item.img} icon={item.icon} monogram={item.monogram} />
       <NameCell
         item={item}
         onOpen={onOpen}

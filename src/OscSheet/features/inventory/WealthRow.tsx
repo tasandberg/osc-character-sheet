@@ -68,7 +68,7 @@ export function WealthRow({
       <span className="osc-inv-drag" title="Drag to reorder">
         <i className="fa-solid fa-grip-lines" aria-hidden="true" />
       </span>
-      <ItemImage img={row.img} monogram={row.monogram} />
+      <ItemImage img={row.img} icon={row.icon} monogram={row.monogram} />
       <div className="osc-inv-name-c">
         <div className="osc-inv-name-row">
           <button

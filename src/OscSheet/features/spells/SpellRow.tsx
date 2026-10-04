@@ -4,6 +4,7 @@ import { cx } from "@ui/cx";
 import { Button } from "@ui/Button";
 import { IconButton } from "@ui/IconButton";
 import { Pips } from "@ui/Pips";
+import { itemArt } from "@domain/itemArt";
 import { Monogram } from "@ui/Monogram";
 import { useSetting } from "@src/OscSheet/settings";
 import { SpellLevelBadge } from "@features/spells/SpellLevelBadge";
@@ -139,7 +140,7 @@ export function SpellRow({
       )}
       {showImage && (
         <Monogram
-          img={spell.img}
+          {...itemArt(spell)}
           monogram={String(spell.name).charAt(0).toUpperCase()}
           className={cx(
             "tw:grid tw:size-8 tw:flex-none tw:@max-md/app:self-start tw:place-items-center tw:overflow-hidden tw:rounded-sm tw:bg-ink tw:font-display tw:text-(length:--fs-md) tw:text-stamp-text",

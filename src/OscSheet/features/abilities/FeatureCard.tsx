@@ -65,6 +65,7 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
       >
         {/* 40px ink stamp — image or monogram fallback. */}
         <Monogram
+          icon={feature.icon}
           img={feature.img}
           monogram={monogram}
           className="ft-ic tw:grid tw:size-10 tw:flex-none tw:place-items-center tw:rounded-md tw:bg-ink tw:font-display tw:text-[length:var(--fs-xl)] tw:text-stamp-text"

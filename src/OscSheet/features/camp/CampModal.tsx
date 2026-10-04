@@ -7,6 +7,7 @@ import {
   worldTimeNow,
 } from "@features/camp/rations";
 import { FLAGS, readFlag, setFlag } from "@domain/flags";
+import { itemArt } from "@domain/itemArt";
 import {
   countRestorableSpells,
   restoreAllSpells,
@@ -265,7 +266,7 @@ export function CampModal({ open, onClose }: Props) {
                 onClick={() => onEat(it._id!)}
               >
                 <ItemImage
-                  img={it.img ?? ""}
+                  {...itemArt(it)}
                   monogram={monogram(it.name ?? "")}
                 />
                 <span className="u-flex-1 tw:text-left tw:normal-case tw:tracking-normal u-fs-sm">

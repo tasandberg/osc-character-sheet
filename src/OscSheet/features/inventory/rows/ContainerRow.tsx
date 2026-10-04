@@ -99,7 +99,7 @@ export function ContainerRow({
         <span className="osc-inv-drag" aria-hidden="true">
           <i className="fa-solid fa-grip-lines" />
         </span>
-        <ItemImage img={item.img} monogram={item.monogram} />
+        <ItemImage img={item.img} icon={item.icon} monogram={item.monogram} />
         <NameCell
           item={item}
           onOpen={onOpen}

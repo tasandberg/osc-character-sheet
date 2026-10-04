@@ -19,6 +19,7 @@ import { IconButton } from "@ui/IconButton";
 import { cx } from "@ui/cx";
 import { Pips } from "@ui/Pips";
 import { InlineButton } from "@ui/InlineButton";
+import { itemArt } from "@domain/itemArt";
 import { Monogram } from "@ui/Monogram";
 import { useSetting } from "@src/OscSheet/settings";
 
@@ -278,7 +279,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
                 >
                   {showImages && (
                     <Monogram
-                      img={spell.img}
+                      {...itemArt(spell)}
                       monogram={String(spell.name).charAt(0).toUpperCase()}
                       className={BOOKSPELL_ICON}
                       imgClassName="tw:object-cover"
@@ -299,7 +300,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
               >
                 {showImages && (
                   <Monogram
-                    img={spell.img}
+                    {...itemArt(spell)}
                     monogram={String(spell.name).charAt(0).toUpperCase()}
                     className={BOOKSPELL_ICON}
                     imgClassName="tw:object-cover"

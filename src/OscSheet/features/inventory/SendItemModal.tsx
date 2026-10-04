@@ -80,6 +80,7 @@ export function SendItemModal({
       {/* The item being sent: art, name, and (for stacks) a quantity stepper. */}
       <div className="u-row u-gap-3">
         <Monogram
+          icon={item.icon}
           img={item.img}
           monogram={initials(item.name)}
           className="osc-send-target-ic"

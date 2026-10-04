@@ -86,6 +86,7 @@ function WeaponRow({
     >
       <div className="winfo">
         <Monogram
+          icon={a.icon}
           img={a.img}
           monogram={monogram(a.name)}
           className="wic"

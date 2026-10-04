@@ -1,3 +1,4 @@
+import type { OscIconName } from "@old-school-chronicle/vellum/icons";
 import type { AttackKind, OSESave, OseSpell } from "@domain/types";
 
 export interface IdentityVM {
@@ -83,6 +84,7 @@ export interface AttackVM {
   itemId: string;
   name: string;
   img: string;
+  icon?: OscIconName | null;
   /** One per attack mode, melee before missile. length 1 = a single static tag. */
   modes: AttackMode[];
   qualities: { label: string; icon: string }[];
@@ -124,6 +126,7 @@ export interface InventoryItemVM {
   id: string;
   name: string;
   img: string;
+  icon?: OscIconName | null;
   category: string; // "Weapon" | "Armour" | "Gear" | "Container"
   categoryRank: number; // weapon 0, armour 1, gear 2, container 3
   /** Weapon damage die, e.g. "1d8". "" for non-weapons. */
@@ -199,6 +202,7 @@ export interface CoinVM {
   name: string;
   /** The backing item's image (Foundry item img); "" when unset. */
   img: string;
+  icon?: OscIconName | null;
   value: number;
   /** gp value of one coin of this denom (system.cost, std fallback) — for the wealth total. */
   gpEach: number;
@@ -216,6 +220,7 @@ export interface TreasureVM {
   id: string;
   name: string;
   img: string;
+  icon?: OscIconName | null;
   /** 2-letter fallback monogram when the item has no art. */
   monogram: string;
   /** Stack count; singletons (nulled `quantity`) fall back to 1. */
@@ -238,6 +243,7 @@ interface WealthRowShared {
   id: string;
   name: string;
   img: string;
+  icon?: OscIconName | null;
   /** 2-letter fallback shown when the item has no art. */
   monogram: string;
   /** Coin count (editable) or treasure stack count (read-only). */

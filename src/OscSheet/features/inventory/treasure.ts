@@ -6,6 +6,7 @@ import type {
   WealthSortKey,
   SortDir,
 } from "@domain/vm-types";
+import { itemArt } from "@domain/itemArt";
 import { monogram } from "./monogram";
 import { bucketsAsCoinsOrGems, slotsOf } from "./slots";
 
@@ -72,7 +73,7 @@ export function selectCoins(items: OseItem[]): CoinVM[] {
         denom: d.toUpperCase(),
         id: it._id as string,
         name: (it.name as string) ?? d.toUpperCase(),
-        img: (it.img as string) ?? "",
+        ...itemArt(it),
         value: it.system.quantity?.value ?? 0,
         gpEach: cost > 0 ? cost : (GP_PER_COIN[d] ?? 0),
         coinsOrGems: bucketsAsCoinsOrGems(it),
@@ -109,7 +110,7 @@ export function selectTreasure(items: OseItem[]): TreasureVM[] {
       return {
         id: it._id as string,
         name: it.name as string,
-        img: (it.img as string) ?? "",
+        ...itemArt(it),
         monogram: monogram(it.name as string),
         qty,
         weight: s.cumulativeWeight ?? s.weight ?? 0,
@@ -136,6 +137,7 @@ export function selectWealth(items: OseItem[]): WealthRow[] {
     id: c.id,
     name: c.name,
     img: c.img,
+    icon: c.icon,
     monogram: c.denom,
     denom: c.denom,
     gpEach: c.gpEach,
@@ -150,6 +152,7 @@ export function selectWealth(items: OseItem[]): WealthRow[] {
     id: t.id,
     name: t.name,
     img: t.img,
+    icon: t.icon,
     monogram: t.monogram,
     qty: t.qty,
     weight: t.weight,

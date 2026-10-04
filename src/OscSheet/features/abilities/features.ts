@@ -1,4 +1,6 @@
 import type { OSEActor, OseAbility, OseRollType } from "@domain/types";
+import type { OscIconName } from "@old-school-chronicle/vellum/icons";
+import { itemArt } from "@domain/itemArt";
 import { showDeleteDialog } from "@domain/foundryDialogs";
 import { isFavorite, toggleFavorite } from "@domain/favorites";
 
@@ -6,6 +8,7 @@ export interface FeatureVM {
   id: string;
   name: string;
   img: string;
+  icon?: OscIconName | null;
   /** Raw HTML description; enriched at render via Foundry's TextEditor. */
   description: string;
   /** Raw `requirements` (e.g. "elf" / "magic-user"). undefined when unset. */
@@ -76,7 +79,7 @@ export function selectFeatures(actor: OSEActor): FeatureVM[] {
     return {
       id: item._id as string,
       name: item.name,
-      img: item.img,
+      ...itemArt(item),
       description: s.description ?? "",
       requirements: s.requirements || undefined,
       requiresLabel: requiresLabel(s.requirements),

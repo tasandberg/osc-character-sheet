@@ -6,6 +6,7 @@ import type {
   InventoryItemVM,
 } from "@domain/vm-types";
 import { FLAGS, readFlag } from "@domain/flags";
+import { itemArt } from "@domain/itemArt";
 import { monogram } from "./monogram";
 import { bucketsAsCoinsOrGems, slotsOf } from "./slots";
 
@@ -101,7 +102,7 @@ function toVM(
   return {
     id: item._id as string,
     name: item.name as string,
-    img: item.img,
+    ...itemArt(item),
     category: cat.label,
     categoryRank: cat.rank,
     damage: dmg,
