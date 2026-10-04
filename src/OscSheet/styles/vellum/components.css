@@ -596,8 +596,8 @@ button.inline-edit {
   line-height: 1;
 }
 .pattern-pip.triangle[data-pattern="transparent"] {
-  --pattern-colour: currentColor;
   border: 0;
+  -webkit-text-stroke: 1px var(--text-mute);
 }
 .pattern-pip.triangle[data-pattern="white"] {
   border: 0;
