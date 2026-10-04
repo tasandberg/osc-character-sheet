@@ -31,13 +31,7 @@ export type AbilityEntry = {
   description: string;
   rollTag: string | null;
   save: string | null;
-};
-
-export type SpellEntry = {
-  id: string;
-  name: string;
-  cast: number;
-  memorized: number;
+  pattern: string;
 };
 
 export type SaveEntry = { key: MonsterSaveKey; label: string; value: string };
@@ -106,7 +100,10 @@ const normaliseMovement = (value: string) =>
 
 function movement(actor: MonsterActor) {
   const base = text(actor.system.movement?.base);
-  const encounter = text(actor.system.movement?.encounter);
+  const rawEncounter = actor.system.movement?.encounter;
+  const encounter = text(
+    typeof rawEncounter === "number" ? Math.floor(rawEncounter) : rawEncounter,
+  );
   const primary = base
     ? encounter
       ? `${base}′ (${encounter}′)`
@@ -166,24 +163,9 @@ function abilities(items: MonsterItem[]): AbilityEntry[] {
         ? composeTag(roll, item.system.rollType, item.system.rollTarget)
         : null,
       save: saveLabel(item.system.save),
+      pattern: item.system.pattern || "transparent",
     };
   });
-}
-
-function spellLevels(actor: MonsterActor) {
-  const spells = actor.system.spells;
-  if (!spells?.enabled) return [];
-  return Object.entries(spells.spellList ?? {})
-    .filter(([, list]) => list.length > 0)
-    .map(([level, list]) => ({
-      level: Number(level),
-      spells: list.map<SpellEntry>((spell) => ({
-        id: spell.id,
-        name: spell.name,
-        cast: Number(spell.system.cast) || 0,
-        memorized: Number(spell.system.memorized) || 0,
-      })),
-    }));
 }
 
 export function selectMonster(actor: MonsterActor, settings: MonsterSettings) {
@@ -250,7 +232,6 @@ export function selectMonster(actor: MonsterActor, settings: MonsterSettings) {
     needsSaves: !!system.isNew,
     attackGroups: attackGroups(system.attackPatterns ?? {}),
     abilities: abilities(system.abilities ?? []),
-    spellLevels: spellLevels(actor),
   };
 }
 

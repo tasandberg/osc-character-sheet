@@ -458,19 +458,17 @@ button.inline-edit {
 }
 
 .roll-label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacer-1);
+  display: inline;
   cursor: pointer;
+  border-bottom: 2px dotted transparent;
 }
 .roll-label:hover,
 .roll-label:focus-visible {
   color: var(--text);
-  text-decoration: underline dotted;
-  text-underline-offset: 3px;
+  border-bottom-color: currentColor;
 }
 .roll-label-die {
-  flex: none;
+  display: inline;
   font-size: 0.75em;
 }
 
@@ -520,8 +518,6 @@ button.inline-edit {
 .leader-row-fill {
   flex: 1;
   min-width: var(--spacer-2);
-  position: relative;
-  top: calc(var(--spacer-1) * -1);
   border-bottom: 1px dotted var(--hairline);
 }
 .leader-row-value {
@@ -541,8 +537,8 @@ button.inline-edit {
 }
 
 .bullet-paragraph {
-  padding-left: var(--spacer-3);
-  text-indent: calc(var(--spacer-3) * -1);
+  padding-left: var(--spacer-4);
+  text-indent: calc(var(--spacer-4) * -1);
 }
 .bullet-paragraph > * {
   text-indent: 0;
@@ -554,9 +550,7 @@ button.inline-edit {
 }
 .bullet-paragraph-bullet {
   display: inline-block;
-  position: relative;
-  top: calc(var(--spacer-1) / -2);
-  width: var(--spacer-3);
+  width: var(--spacer-4);
   font-size: calc(var(--fs-3xs) * 0.82);
 }
 
@@ -588,6 +582,25 @@ button.inline-edit {
   --pattern-colour: transparent;
   border: 1px dashed var(--text-mute);
 }
+.pattern-pip.triangle {
+  width: auto;
+  height: auto;
+  padding: 1px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--pattern-colour);
+  font-size: var(--fs-xs);
+  line-height: 1;
+}
+.pattern-pip.triangle[data-pattern="transparent"] {
+  border: 0;
+  -webkit-text-stroke: 1px var(--text-mute);
+}
+.pattern-pip.triangle[data-pattern="white"] {
+  border: 0;
+  -webkit-text-stroke: 1px var(--text-mute);
+}
 button.pattern-pip {
   cursor: pointer;
 }
@@ -595,6 +608,10 @@ button.pattern-pip:hover,
 button.pattern-pip:focus-visible {
   outline: 1px solid var(--text-dim);
   outline-offset: 2px;
+}
+button.pattern-pip.triangle:hover,
+button.pattern-pip.triangle:focus-visible {
+  outline-offset: -1px;
 }
 
 /* ─── Dropdown menu ─────────────────────────────────────────────────── */

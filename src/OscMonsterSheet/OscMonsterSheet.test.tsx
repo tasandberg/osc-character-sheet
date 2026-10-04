@@ -123,6 +123,14 @@ describe("OscMonsterSheet", () => {
     expect(container.querySelector("[role=textbox]")).toBeNull();
   });
 
+  it("offers an unset retainer loyalty for editing", async () => {
+    await mount(
+      makeMonster({ system: { retainer: { enabled: true, loyalty: null } } }),
+    );
+
+    expect(button("Edit Loyalty").textContent).toBe("—");
+  });
+
   it("adds movement details from the movement popover", async () => {
     const actor = makeMonster({ details: { movement: "" } });
     actor.update = vi.fn().mockResolvedValue(actor);
@@ -134,6 +142,19 @@ describe("OscMonsterSheet", () => {
     expect(actor.update).toHaveBeenCalledWith({
       "system.details.movement": "360′ (120′) flying",
     });
+  });
+
+  it("rolls lair numbers appearing from their own row", async () => {
+    const actor = makeMonster();
+    actor.rollAppearing = vi.fn();
+    await mount(actor);
+
+    click(button("Lair"));
+
+    expect(actor.rollAppearing).toHaveBeenCalledWith(
+      expect.objectContaining({ check: "wilderness" }),
+    );
+    expect(button("Edit Number appearing in a lair").textContent).toBe("1d4");
   });
 
   it("rolls from the label", async () => {
@@ -181,6 +202,20 @@ describe("OscMonsterSheet", () => {
     expect(gaze.sheet.render).toHaveBeenCalledWith(true);
   });
 
+  it("sets how many times an attack can be used per round", async () => {
+    const tail = makeItem({ name: "Tail" });
+    tail.update = vi.fn().mockResolvedValue(tail);
+    await mount(makeMonster({}, [tail]));
+
+    click(button("Edit Tail attacks per round"));
+    type("2", "Enter");
+
+    expect(tail.update).toHaveBeenCalledWith({
+      "system.counter.max": 2,
+      "system.counter.value": 2,
+    });
+  });
+
   it("opens the attack's actions from its overflow button", async () => {
     await mount(makeMonster());
 
@@ -212,10 +247,69 @@ describe("OscMonsterSheet", () => {
     ]);
   });
 
+  it("offers an Inventory tab listing the monster's gear once inventory is enabled", async () => {
+    const tabs = () =>
+      [...container.querySelectorAll<HTMLElement>("[role=tab]")].map(
+        (tab) => tab.textContent,
+      );
+    const pearl = makeItem({ name: "Black Pearl", type: "item" });
+    await mount(makeMonster({}, [pearl]));
+    expect(tabs()).toEqual(["Stats", "Notes"]);
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    await mount(
+      makeMonster({ system: { config: { enableInventory: true } } }, [pearl]),
+    );
+    expect(tabs()).toEqual(["Stats", "Inventory", "Notes"]);
+    click(button("Inventory"));
+
+    expect(text()).toContain("Black Pearl");
+  });
+
+  it("offers a Spells tab listing the monster's spells once it casts", async () => {
+    const charm = makeItem({
+      name: "Charm Person",
+      type: "spell",
+      system: { lvl: 1, cast: 1, memorized: 1 },
+    });
+    await mount(
+      makeMonster(
+        {
+          system: {
+            spells: {
+              enabled: true,
+              slots: { 1: { used: 0, max: 1 } },
+              spellList: { 1: [charm] },
+            },
+          },
+        },
+        [charm],
+      ),
+    );
+    click(button("Spells"));
+
+    expect(text()).toContain("Charm Person");
+  });
+
   it("hides morale when the world morale rule is off", async () => {
     settings.morale = false;
     await mount(makeMonster());
     expect(text()).not.toContain("Morale");
+  });
+
+  it("cycles an ability's attack pattern from its bullet", async () => {
+    const sleeping = makeItem({
+      name: "Sleeping",
+      type: "ability",
+      system: { pattern: "transparent" },
+    });
+    sleeping.update = vi.fn();
+    await mount(makeMonster({}, [sleeping]));
+
+    click(button("Attack pattern: transparent. Click to change"));
+
+    expect(sleeping.update).toHaveBeenCalledWith({ "system.pattern": "green" });
   });
 
   it("opens an ability from its name and rolls it from its roll tag", async () => {

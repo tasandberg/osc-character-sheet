@@ -17,6 +17,7 @@ import {
   cyclePattern,
   resetAttacks,
   rollMonsterItem,
+  setAttacksPerRound,
   setPattern,
   setUses,
 } from "./actions";
@@ -49,39 +50,57 @@ const MAX_PIPS = 6;
 
 function Uses({
   name,
-  value,
-  max,
+  uses,
   onSet,
+  onSetMax,
 }: {
   name: string;
-  value: number;
-  max: number;
+  uses: { value: number; max: number } | null;
   onSet?: (value: number) => void;
+  onSetMax?: (max: number) => void;
 }) {
+  const max = uses?.max ?? 0;
+  const maxField = onSetMax && (
+    <InlineEditValue
+      label={`${name} attacks per round`}
+      value={max ? String(max) : ""}
+      placeholder={EMPTY_VALUE}
+      parse="int"
+      onCommit={onSetMax}
+    />
+  );
+  if (!uses) return maxField ?? null;
   if (max > MAX_PIPS) {
     return (
       <span className="osc-monster-value u-fs-xs">
         <InlineEditValue
           label={`${name} uses left`}
-          value={String(value)}
+          value={String(uses.value)}
           parse="int"
           onCommit={onSet && ((next) => onSet(Math.min(next, max)))}
         />
-        /{max}
+        /{maxField ?? max}
       </span>
     );
   }
-  return (
+  const pips = (
     <Pips
       total={max}
-      filled={value}
+      filled={uses.value}
       size="xs"
       tone="ink"
       square
       role="group"
-      aria-label={`${name}: ${value} of ${max} uses left`}
+      aria-label={`${name}: ${uses.value} of ${max} uses left`}
       onSetFilled={onSet}
     />
+  );
+  if (!maxField) return pips;
+  return (
+    <span className="u-row u-gap-1">
+      {pips}
+      <span className="osc-monster-value u-fs-xs">/{maxField}</span>
+    </span>
   );
 }
 
@@ -187,18 +206,20 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
             ` ${attack.bonus > 0 ? "+" : ""}${attack.bonus}`}
         </span>
         <span role="cell" className="u-flex u-justify-end">
-          {attack.uses && (
-            <Uses
-              name={attack.name}
-              value={attack.uses.value}
-              max={attack.uses.max}
-              onSet={
-                canEdit && weapon
-                  ? (value) => void setUses(weapon, value)
-                  : undefined
-              }
-            />
-          )}
+          <Uses
+            name={attack.name}
+            uses={attack.uses}
+            onSet={
+              canEdit && weapon
+                ? (value) => void setUses(weapon, value)
+                : undefined
+            }
+            onSetMax={
+              canEdit && weapon
+                ? (max) => void setAttacksPerRound(weapon, max)
+                : undefined
+            }
+          />
         </span>
         {canEdit && (
           <span role="cell" className="u-flex u-items-center">

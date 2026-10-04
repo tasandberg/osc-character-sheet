@@ -52,6 +52,19 @@ export function setUses(item: MonsterItem, value: number) {
   return item.update({ "system.counter.value": Math.max(0, value) });
 }
 
+export function setAttacksPerRound(item: MonsterItem, max: number) {
+  const next = Math.max(0, max);
+  const previous = Number(item.system.counter?.max) || 0;
+  const remaining = Number(item.system.counter?.value) || 0;
+  return item.update({
+    "system.counter.max": next,
+    "system.counter.value": Math.min(
+      next,
+      Math.max(0, remaining + next - previous),
+    ),
+  });
+}
+
 export function clearTreasure(actor: MonsterActor) {
   return actor.update({ "system.details.treasure.table": null });
 }

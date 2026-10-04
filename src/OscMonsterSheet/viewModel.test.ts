@@ -72,6 +72,14 @@ describe("selectMonster", () => {
     expect(selectMonster(repeated, descending).movement.footnote).toBeNull();
   });
 
+  it("rounds the encounter movement rate down to whole feet", () => {
+    const slow = makeMonster({
+      system: { movement: { base: 20, encounter: 20 / 3 } },
+      details: { movement: "" },
+    });
+    expect(selectMonster(slow, descending).movement.display).toBe("20′ (6′)");
+  });
+
   it("groups weapons by attack pattern", () => {
     const groups = selectMonster(makeMonster(), descending).attackGroups;
     expect(
@@ -113,6 +121,7 @@ describe("selectMonster", () => {
         description: "",
         rollTag: "1d100 ≤5",
         save: "save vs spell",
+        pattern: "transparent",
       },
     ]);
   });
@@ -128,27 +137,6 @@ describe("selectMonster", () => {
         descending,
       ).treasure,
     ).toBeNull();
-  });
-
-  it("lists memorised spells by level only for spellcasters", () => {
-    const spell = makeItem({
-      name: "Charm",
-      type: "spell",
-      system: { cast: 1, memorized: 2 },
-    });
-    const caster = makeMonster({
-      system: { spells: { enabled: true, spellList: { 1: [spell], 2: [] } } },
-    });
-    expect(selectMonster(caster, descending).spellLevels).toEqual([
-      {
-        level: 1,
-        spells: [{ id: "Charm", name: "Charm", cast: 1, memorized: 2 }],
-      },
-    ]);
-    const disabled = makeMonster({
-      system: { spells: { enabled: false, spellList: { 1: [spell] } } },
-    });
-    expect(selectMonster(disabled, descending).spellLevels).toEqual([]);
   });
 });
 

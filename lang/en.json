@@ -3,5 +3,6 @@
     "hello": "Hello Foundry React Module Template!"
   },
   "TYPES.Actor.character": "Character",
+  "TYPES.Actor.monster": "Monster",
   "OSE.category.actions": "Actions"
 }

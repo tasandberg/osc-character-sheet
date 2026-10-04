@@ -522,6 +522,7 @@ body {
 
 .tabs.folder {
   position: static;
+  z-index: auto;
   flex: none;
   align-items: flex-start;
   gap: calc(var(--spacer-1) / 2);

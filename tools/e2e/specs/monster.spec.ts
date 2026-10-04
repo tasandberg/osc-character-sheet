@@ -2,7 +2,7 @@ import { test, expect } from "../fixtures";
 import { actorGet, chatCount } from "../helpers";
 
 test.describe("monster sheet", () => {
-  test("edits a value inline and rolls number appearing from the popup", async ({ gamePage }, testInfo) => {
+  test("edits a value inline and rolls lair number appearing", async ({ gamePage }, testInfo) => {
     const name = `E2E Monster ${testInfo.testId}`;
     const appId = await gamePage.evaluate(async (monsterName) => {
       const g = globalThis as any;
@@ -34,8 +34,7 @@ test.describe("monster sheet", () => {
         .toContainEqual(4);
 
       const before = await chatCount(gamePage);
-      await sheet.getByRole("button", { name: "Appearing", exact: true }).click();
-      await gamePage.getByRole("menuitem", { name: /Lair/ }).click();
+      await sheet.getByRole("button", { name: "Lair", exact: true }).click();
       await expect.poll(() => chatCount(gamePage), { timeout: 15_000 }).toBeGreaterThan(before);
     } finally {
       await gamePage.evaluate(async (monsterName) => {

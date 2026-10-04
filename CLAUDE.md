@@ -49,8 +49,5 @@ lives in `../CLAUDE.md`.
 **Keep this list current as we build.** When a file grows unwieldy or a responsibility
 wants its own module, add it here (don't silently let files balloon). Prune entries when done.
 
-- **`src/OscSheet/app/SheetShell.tsx`** — accumulating item-mutation handlers (equip/nest/
-  consume/reorder/equippedOrder + toasts). Extract into a `useInventoryActions(actor, items)`
-  hook.
 - **`src/OscSheet/styles/vellum/components.css` (~1850 lines)** — one file for every primitive.
   Split into per-primitive partials (menu, form controls, tags, pips, stat-block layout).

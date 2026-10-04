@@ -7,7 +7,7 @@ export function alignedMenuLeft(toggleRight: number, menuWidth: number): number 
 
 export interface SheetClassEntry {
   id?: string;
-  cls?: { prototype?: Record<string, unknown> };
+  cls?: { prototype?: Record<string, unknown>; _onConfigureActor?: unknown };
 }
 
 /** Registered OSE sheet carrying `_onConfigureActor` (method match survives upstream renames). */
@@ -15,7 +15,9 @@ export function findTweaksSheetEntry<T extends SheetClassEntry>(
   entries: T[],
 ): T | undefined {
   const withHandler = entries.filter(
-    (e) => typeof e.cls?.prototype?._onConfigureActor === "function",
+    (e) =>
+      typeof e.cls?._onConfigureActor === "function" ||
+      typeof e.cls?.prototype?._onConfigureActor === "function",
   );
   return withHandler.find((e) => e.id?.startsWith("ose.")) ?? withHandler[0];
 }

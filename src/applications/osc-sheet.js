@@ -160,11 +160,18 @@ class OscSheet extends ReactActorSheetV2 {
     );
   }
 
-  // OSE exposes no Tweaks API: run the v1 sheet's own handler on a headless
-  // instance (upstream-safe; position seeds the dialog over our window).
+  _render(force) {
+    return this.render({ force });
+  }
+
+  // OSE exposes no Tweaks API: run its V2 static action, else the v1 handler headless.
   static #onConfigureTweaks() {
     const entry = OscSheet.#tweaksSheetEntry(this.document);
     try {
+      if (typeof entry.cls._onConfigureActor === "function") {
+        entry.cls._onConfigureActor.call(this);
+        return;
+      }
       const { top, left, width } = this.position;
       const sheet = new entry.cls(this.document, { top, left, width });
       sheet._onConfigureActor(new Event("click"));
