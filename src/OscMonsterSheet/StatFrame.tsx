@@ -202,7 +202,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
             valueClassName="u-fs-xs"
             label={
               <RollLabel
-                className="osc-monster-label u-ml-3"
+                className="osc-monster-label"
                 onRoll={
                   appearing.rollableLair
                     ? (event) =>
