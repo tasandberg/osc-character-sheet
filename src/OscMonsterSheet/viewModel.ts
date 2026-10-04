@@ -99,7 +99,10 @@ const normaliseMovement = (value: string) =>
 
 function movement(actor: MonsterActor) {
   const base = text(actor.system.movement?.base);
-  const encounter = text(actor.system.movement?.encounter);
+  const rawEncounter = actor.system.movement?.encounter;
+  const encounter = text(
+    typeof rawEncounter === "number" ? Math.floor(rawEncounter) : rawEncounter,
+  );
   const primary = base
     ? encounter
       ? `${base}′ (${encounter}′)`

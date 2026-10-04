@@ -72,6 +72,14 @@ describe("selectMonster", () => {
     expect(selectMonster(repeated, descending).movement.footnote).toBeNull();
   });
 
+  it("rounds the encounter movement rate down to whole feet", () => {
+    const slow = makeMonster({
+      system: { movement: { base: 20, encounter: 20 / 3 } },
+      details: { movement: "" },
+    });
+    expect(selectMonster(slow, descending).movement.display).toBe("20′ (6′)");
+  });
+
   it("groups weapons by attack pattern", () => {
     const groups = selectMonster(makeMonster(), descending).attackGroups;
     expect(
