@@ -25,7 +25,13 @@ export function RollLabel({
     >
       {children}
       {glyph && (
-        <i className="fa-solid fa-dice-d20 roll-label-die" aria-hidden="true" />
+        <>
+          {"\u00a0"}
+          <i
+            className="fa-solid fa-dice-d20 roll-label-die"
+            aria-hidden="true"
+          />
+        </>
       )}
     </button>
   );
