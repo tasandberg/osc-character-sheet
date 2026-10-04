@@ -163,7 +163,6 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   position: relative;
-  transition: background 0.15s;
 }
 .toggle .track::after {
   content: "";
@@ -174,9 +173,7 @@
   height: 14px;
   background: var(--text-mute);
   border-radius: 50%;
-  transition:
-    transform 0.15s,
-    background 0.15s;
+  transition: transform 0.15s;
 }
 .toggle input:checked + .track {
   background: var(--teal);
