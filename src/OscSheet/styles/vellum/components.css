@@ -518,8 +518,6 @@ button.inline-edit {
 .leader-row-fill {
   flex: 1;
   min-width: var(--spacer-2);
-  position: relative;
-  top: calc(var(--spacer-1) * -1);
   border-bottom: 1px dotted var(--hairline);
 }
 .leader-row-value {
