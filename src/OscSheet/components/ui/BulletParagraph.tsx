@@ -22,7 +22,10 @@ export function BulletParagraph({
       className={cx("bullet-paragraph", clamp && "is-clamped", className)}
       style={clamp ? { WebkitLineClamp: clamp } : undefined}
     >
-      <span aria-hidden="true" className="bullet-paragraph-bullet">
+      <span
+        aria-hidden={typeof bullet === "string" || undefined}
+        className="bullet-paragraph-bullet"
+      >
         {bullet}
       </span>
       {lead}

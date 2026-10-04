@@ -298,6 +298,20 @@ describe("OscMonsterSheet", () => {
     expect(text()).not.toContain("Morale");
   });
 
+  it("cycles an ability's attack pattern from its bullet", async () => {
+    const sleeping = makeItem({
+      name: "Sleeping",
+      type: "ability",
+      system: { pattern: "transparent" },
+    });
+    sleeping.update = vi.fn();
+    await mount(makeMonster({}, [sleeping]));
+
+    click(button("Attack pattern: transparent. Click to change"));
+
+    expect(sleeping.update).toHaveBeenCalledWith({ "system.pattern": "green" });
+  });
+
   it("opens an ability from its name and rolls it from its roll tag", async () => {
     const sleeping = makeItem({
       name: "Sleeping",

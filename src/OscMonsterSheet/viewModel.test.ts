@@ -121,6 +121,7 @@ describe("selectMonster", () => {
         description: "",
         rollTag: "1d100 ≤5",
         save: "save vs spell",
+        pattern: "transparent",
       },
     ]);
   });

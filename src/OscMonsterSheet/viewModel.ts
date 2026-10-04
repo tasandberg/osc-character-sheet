@@ -31,6 +31,7 @@ export type AbilityEntry = {
   description: string;
   rollTag: string | null;
   save: string | null;
+  pattern: string;
 };
 
 export type SaveEntry = { key: MonsterSaveKey; label: string; value: string };
@@ -162,6 +163,7 @@ function abilities(items: MonsterItem[]): AbilityEntry[] {
         ? composeTag(roll, item.system.rollType, item.system.rollTarget)
         : null,
       save: saveLabel(item.system.save),
+      pattern: item.system.pattern || "transparent",
     };
   });
 }

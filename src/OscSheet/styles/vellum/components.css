@@ -584,6 +584,25 @@ button.inline-edit {
   --pattern-colour: transparent;
   border: 1px dashed var(--text-mute);
 }
+.pattern-pip.triangle {
+  width: auto;
+  height: auto;
+  padding: 1px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--pattern-colour);
+  font-size: var(--fs-3xs);
+  line-height: 1;
+}
+.pattern-pip.triangle[data-pattern="transparent"] {
+  --pattern-colour: currentColor;
+  border: 0;
+}
+.pattern-pip.triangle[data-pattern="white"] {
+  border: 0;
+  -webkit-text-stroke: 1px var(--text-mute);
+}
 button.pattern-pip {
   cursor: pointer;
 }
@@ -591,6 +610,10 @@ button.pattern-pip:hover,
 button.pattern-pip:focus-visible {
   outline: 1px solid var(--text-dim);
   outline-offset: 2px;
+}
+button.pattern-pip.triangle:hover,
+button.pattern-pip.triangle:focus-visible {
+  outline-offset: -1px;
 }
 
 /* ─── Dropdown menu ─────────────────────────────────────────────────── */

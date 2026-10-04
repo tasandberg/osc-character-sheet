@@ -4,11 +4,12 @@ import type { OSEActor } from "@domain/types";
 import { BulletParagraph } from "@ui/BulletParagraph";
 import { ContextMenu, type ContextMenuState } from "@ui/ContextMenu";
 import { IconButton } from "@ui/IconButton";
+import { PatternPip } from "@ui/PatternPip";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import { useSetting } from "@src/OscSheet/settings";
-import { rollMonsterItem } from "./actions";
+import { cyclePattern, rollMonsterItem } from "./actions";
 import { itemMenu } from "./parts/itemMenu";
 import { RollLabel } from "@ui/RollLabel";
 import { useEnrichedHtml } from "./parts/useEnrichedHtml";
@@ -52,6 +53,16 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
     >
       <BulletParagraph
         ref={body}
+        bullet={
+          <PatternPip
+            shape="triangle"
+            label="Attack pattern"
+            pattern={ability.pattern}
+            onCycle={
+              canEdit && item ? () => void cyclePattern(item) : undefined
+            }
+          />
+        }
         className="tw:select-text"
         clamp={expanded ? undefined : 3}
         lead={
