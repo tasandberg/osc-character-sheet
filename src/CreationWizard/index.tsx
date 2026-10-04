@@ -1,19 +1,32 @@
 import "./wizard.scss";
-import { SectionTitle } from "@ui/SectionTitle";
+import { useMemo } from "react";
+import type { OSEActor } from "@domain/types";
+import type { FlagDocument } from "@domain/flags";
+import { userFlagDraftStore } from "./draftStore";
+import { houseRules, readHouseRuleSettings } from "./houseRuleSettings";
+import { CreationWizard } from "./CreationWizard";
 
 type Props = {
-  actor?: { name: string };
+  actor?: OSEActor;
+  onClose: () => void;
 };
 
-export default function CreationWizardApp({ actor }: Props) {
+export default function CreationWizardApp({ actor, onClose }: Props) {
+  const store = useMemo(
+    () =>
+      userFlagDraftStore(
+        game.user as unknown as FlagDocument,
+        actor?.id ?? "new",
+      ),
+    [actor?.id],
+  );
+  const rules = useMemo(() => houseRules(readHouseRuleSettings()), []);
   return (
-    <div className="osc-sheet-app u-items-center u-justify-center u-p-6">
-      <main className="u-stack u-items-center">
-        <SectionTitle>
-          {actor ? `Create ${actor.name}` : "New Character"}
-        </SectionTitle>
-        <p className="u-fs-sm u-text-dim">Character creation is on its way.</p>
-      </main>
-    </div>
+    <CreationWizard
+      worldName={game.world?.title ?? ""}
+      houseRules={rules}
+      store={store}
+      onCancel={onClose}
+    />
   );
 }
