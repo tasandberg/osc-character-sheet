@@ -144,6 +144,19 @@ describe("OscMonsterSheet", () => {
     });
   });
 
+  it("rolls lair numbers appearing from their own row", async () => {
+    const actor = makeMonster();
+    actor.rollAppearing = vi.fn();
+    await mount(actor);
+
+    click(button("Lair"));
+
+    expect(actor.rollAppearing).toHaveBeenCalledWith(
+      expect.objectContaining({ check: "wilderness" }),
+    );
+    expect(button("Edit Number appearing in a lair").textContent).toBe("1d4");
+  });
+
   it("rolls from the label", async () => {
     const actor = makeMonster();
     actor.rollMorale = vi.fn();

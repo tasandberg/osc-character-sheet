@@ -1,10 +1,8 @@
-import { useState, type MouseEvent } from "react";
+import { useState } from "react";
 import { Button } from "@ui/Button";
 import { DividedRow } from "@ui/DividedRow";
 import { LeaderRow } from "@ui/LeaderRow";
 import { RuleFrame } from "@ui/RuleFrame";
-import { ContextMenu, type ContextMenuState } from "@ui/ContextMenu";
-import type { RollEvent } from "@domain/types";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import { MovementPopover } from "./parts/MovementPopover";
 import { RollLabel } from "@ui/RollLabel";
@@ -22,35 +20,9 @@ type Props = {
 };
 
 export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
-  const [menu, setMenu] = useState<ContextMenuState | null>(null);
   const [movementAnchor, setMovementAnchor] = useState<DOMRect | null>(null);
   const canEdit = !!commit;
   const { appearing, movement } = view;
-
-  const rollAppearing = (event: MouseEvent<HTMLElement>) => {
-    const roll = (check: "dungeon" | "wilderness", source: RollEvent) =>
-      actor.rollAppearing({ event: source, check });
-    if (appearing.rollableDungeon && appearing.rollableLair) {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const source = { ctrlKey: event.ctrlKey, metaKey: event.metaKey };
-      setMenu({
-        anchor: { x: rect.left, y: rect.bottom },
-        title: "Roll number appearing",
-        entries: [
-          {
-            label: `Dungeon · ${appearing.dungeon}`,
-            onSelect: () => roll("dungeon", source),
-          },
-          {
-            label: `Lair · ${appearing.lair}`,
-            onSelect: () => roll("wilderness", source),
-          },
-        ],
-      });
-      return;
-    }
-    roll(appearing.rollableDungeon ? "dungeon" : "wilderness", event);
-  };
 
   return (
     <RuleFrame as="section" aria-label="Statistics" inset="u-px-3 u-py-2">
@@ -196,8 +168,9 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               <RollLabel
                 className="osc-monster-label"
                 onRoll={
-                  appearing.rollableDungeon || appearing.rollableLair
-                    ? rollAppearing
+                  appearing.rollableDungeon
+                    ? (event) =>
+                        actor.rollAppearing({ event, check: "dungeon" })
                     : undefined
                 }
               >
@@ -210,15 +183,30 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               value={appearing.dungeon}
               placeholder="—"
               onCommit={commit?.loose("system.details.appearing.d")}
-            />{" "}
-            (
+            />
+          </LeaderRow>
+          <LeaderRow
+            valueClassName="u-fs-xs"
+            label={
+              <RollLabel
+                className="osc-monster-label u-ml-3"
+                onRoll={
+                  appearing.rollableLair
+                    ? (event) =>
+                        actor.rollAppearing({ event, check: "wilderness" })
+                    : undefined
+                }
+              >
+                Lair
+              </RollLabel>
+            }
+          >
             <InlineEditValue
               label="Number appearing in a lair"
               value={appearing.lair}
               placeholder="—"
               onCommit={commit?.loose("system.details.appearing.w")}
             />
-            )
           </LeaderRow>
           <LeaderRow
             valueClassName="u-fs-xs"
@@ -276,7 +264,6 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
           </Button>
         </div>
       )}
-      {menu && <ContextMenu {...menu} onClose={() => setMenu(null)} />}
       {movementAnchor && commit && (
         <MovementPopover
           anchor={movementAnchor}
