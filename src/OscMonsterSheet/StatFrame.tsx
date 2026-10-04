@@ -27,7 +27,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
   return (
     <RuleFrame as="section" aria-label="Statistics" inset="u-px-3 u-py-2">
       <div className="osc-monster-stat-grid u-grid-2 tw:gap-x-5">
-        <div className="osc-monster-stat-column">
+        <div className="osc-monster-stat-column u-gap-1">
           <LeaderRow
             valueClassName="u-fs-xs"
             label={
@@ -126,7 +126,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
             </LeaderRow>
           )}
         </div>
-        <div className="osc-monster-stat-column">
+        <div className="osc-monster-stat-column u-gap-1">
           <LeaderRow
             valueClassName="u-fs-xs"
             label={<span className="osc-monster-label">Movement</span>}
