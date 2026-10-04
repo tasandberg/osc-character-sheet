@@ -201,17 +201,25 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
           <LeaderRow
             valueClassName="u-fs-xs"
             label={
-              <RollLabel
-                className="osc-monster-label"
-                onRoll={
-                  appearing.rollableLair
-                    ? (event) =>
-                        actor.rollAppearing({ event, check: "wilderness" })
-                    : undefined
-                }
-              >
-                Lair
-              </RollLabel>
+              <>
+                <span
+                  aria-hidden="true"
+                  className="osc-monster-label u-text-dim"
+                >
+                  ↳
+                </span>
+                <RollLabel
+                  className="osc-monster-label"
+                  onRoll={
+                    appearing.rollableLair
+                      ? (event) =>
+                          actor.rollAppearing({ event, check: "wilderness" })
+                      : undefined
+                  }
+                >
+                  Lair
+                </RollLabel>
+              </>
             }
           >
             <InlineEditValue
