@@ -6,11 +6,12 @@ type Props<T extends string> = {
   options: Option<T>[];
   value: T;
   onValueChange: (next: T) => void;
+  disabled?: boolean;
   className?: string;
 };
 
 /** @category Controls */
-export function Segmented<T extends string>({ options, value, onValueChange, className }: Props<T>) {
+export function Segmented<T extends string>({ options, value, onValueChange, disabled, className }: Props<T>) {
   return (
     <div className={cx("segmented", className)}>
       {options.map((o) => (
@@ -18,6 +19,8 @@ export function Segmented<T extends string>({ options, value, onValueChange, cla
           key={o.value}
           type="button"
           className={cx(o.value === value && "on")}
+          aria-pressed={o.value === value}
+          disabled={disabled}
           onClick={() => onValueChange(o.value)}
         >
           {o.label}

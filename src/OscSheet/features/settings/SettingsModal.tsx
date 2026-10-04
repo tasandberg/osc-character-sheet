@@ -40,11 +40,13 @@ function SegmentedGroup<T extends string>({
   options,
   value,
   onValueChange,
+  disabled,
 }: {
   label: string;
   options: { value: T; label: ReactNode }[];
   value: T;
   onValueChange: (next: T) => void;
+  disabled?: boolean;
 }) {
   return (
     <div role="group" aria-label={label}>
@@ -52,6 +54,7 @@ function SegmentedGroup<T extends string>({
         options={options}
         value={value}
         onValueChange={onValueChange}
+        disabled={disabled}
       />
     </div>
   );
@@ -81,14 +84,13 @@ function InheritableGroup<T extends string>({
       >
         Same as character sheet
       </Toggle>
-      {!inheriting && (
-        <SegmentedGroup
-          label={label}
-          options={options}
-          value={value}
-          onValueChange={onValueChange}
-        />
-      )}
+      <SegmentedGroup
+        label={label}
+        options={options}
+        value={inheriting ? inherited : value}
+        onValueChange={onValueChange}
+        disabled={inheriting}
+      />
     </div>
   );
 }

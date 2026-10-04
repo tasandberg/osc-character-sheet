@@ -359,16 +359,19 @@ describe("OscMonsterSheet", () => {
     const same = [...container.querySelectorAll("label")]
       .find((label) => label.textContent === "Same as character sheet")!
       .querySelector("input")!;
+    const themeOption = (name: string) =>
+      [
+        ...container.querySelectorAll<HTMLButtonElement>(
+          "[aria-label=Theme] button",
+        ),
+      ].find((option) => option.textContent === name)!;
     expect(same.checked).toBe(true);
-    expect(container.querySelector("[aria-label=Theme]")).toBeNull();
+    expect(themeOption("Light").getAttribute("aria-pressed")).toBe("true");
+    expect(themeOption("Dark").disabled).toBe(true);
 
     click(same);
     expect(settings.monsterTheme).toBe("cream");
-    click(
-      [
-        ...container.querySelectorAll<HTMLElement>("[aria-label=Theme] button"),
-      ].find((option) => option.textContent === "Dark")!,
-    );
+    click(themeOption("Dark"));
     expect(settings.monsterTheme).toBe("dark");
   });
 });

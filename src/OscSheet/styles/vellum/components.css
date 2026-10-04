@@ -243,35 +243,57 @@
   border-radius: 50%;
 }
 
-/* Segmented control */
+/* Segmented control — vellum's beveled segment (.vm-segment) */
 .segmented {
   display: inline-flex;
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 2px;
-  gap: 1px;
+  align-self: flex-start;
+  border: 1px solid var(--btn-wall);
+  border-left: 0;
 }
 .segmented button {
-  background: transparent;
-  border: none;
-  color: var(--text-mute);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  margin: 0;
+  padding: 0 var(--spacer-3);
   font-family: var(--sans);
+  font-size: max(var(--fs-3xs), 12px);
   font-weight: 500;
-  font-size: var(--fs-2xs);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 6px var(--spacer-3);
-  border-radius: 2px;
+  white-space: nowrap;
+  color: var(--text-mute);
+  background: var(--btn-face);
+  border: 0;
+  border-left: 1px solid var(--btn-wall);
+  border-radius: 0;
+  box-shadow:
+    inset 1px 1px 0 var(--btn-lit),
+    inset -1px -1px 0 var(--btn-shade);
   cursor: pointer;
-  transition: all 0.12s;
+}
+.segmented button:hover:not(:disabled) {
+  background: var(--btn-face-hi);
 }
 .segmented button.on {
-  background: var(--surface-3);
+  position: relative;
+  box-sizing: content-box;
+  margin: -1px -1px -1px 0;
   color: var(--text);
+  background-color: var(--btn-pressed);
+  border: 1px solid var(--stamp-wall);
+  box-shadow: inset 3px 3px 0 var(--btn-press-shade);
 }
-.segmented button:hover:not(.on) {
-  color: var(--text-dim);
+.segmented button:focus-visible {
+  position: relative;
+  z-index: 10;
+  outline: 2px solid var(--accent-alt);
+}
+.segmented button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* ─── Pill select — wrapping discrete single-select pills with counts ─────
