@@ -129,7 +129,7 @@ export function MonsterHeader({
           </div>
         </div>
       )}
-      <MonsterSettingsButton />
+      {!view && <MonsterSettingsButton />}
     </header>
   );
 }

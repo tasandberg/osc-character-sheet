@@ -16,6 +16,7 @@ import { AttacksSection } from "./AttacksSection";
 import { rollHitPoints } from "./actions";
 import { makeCommit } from "./commit";
 import { MonsterHeader } from "./MonsterHeader";
+import { MonsterSettingsButton } from "./parts/MonsterSettingsButton";
 import { StatFrame } from "./StatFrame";
 import { openSaveGenerator } from "./systemSheet";
 import { readMonsterSettings } from "./systemSettings";
@@ -114,12 +115,17 @@ export function MonsterSheet() {
           />
         )}
       </div>
-      <Tabs<TabId>
-        variant="folder"
-        tabs={tabIds.map((id) => ({ id, label: TAB_LABELS[id] }))}
-        active={tab}
-        onSelect={setTab}
-      />
+      <div className="osc-monster-tab-strip">
+        <Tabs<TabId>
+          variant="folder"
+          tabs={tabIds.map((id) => ({ id, label: TAB_LABELS[id] }))}
+          active={tab}
+          onSelect={setTab}
+        />
+        <div className="osc-monster-tab-strip-actions u-flex u-items-center">
+          <MonsterSettingsButton />
+        </div>
+      </div>
     </div>
   );
 }

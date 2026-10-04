@@ -7,12 +7,11 @@ export function MonsterSettingsButton() {
   return (
     <>
       <IconButton
-        className="u-flex-none tw:self-start"
         aria-label="Settings"
         title="Settings"
         onClick={() => setOpen(true)}
       >
-        <i className="fa-solid fa-gear" aria-hidden="true" />
+        <i className="fa-solid fa-gear u-fs-md" aria-hidden="true" />
       </IconButton>
       <SettingsModal
         open={open}

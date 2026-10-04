@@ -10,6 +10,20 @@
     min-height: 0;
   }
 
+  .osc-monster-tab-strip {
+    display: grid;
+    flex: none;
+
+    > * {
+      grid-area: 1 / 1;
+    }
+  }
+
+  .osc-monster-tab-strip-actions {
+    justify-self: end;
+    margin: var(--spacer-3) var(--spacer-5) 0;
+  }
+
   .osc-monster-fixed {
     flex: none;
   }
