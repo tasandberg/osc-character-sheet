@@ -13,26 +13,33 @@
 // rule overrides an unlayered vellum primitive at (0,2,0) on the same property,
 // and the extra class is what wins it on specificity rather than source order.
 .osc-sheet-app {
-  // Sparse content (theme + font size), so cap narrower than the 540px DS
-  // default to keep it proportionate; .modal's width:100% still shrinks it
-  // below the cap on narrow sheets.
+  // Shell mirrors Chronicle's Vellum modal; vellum ships no modal CSS.
   .osc-settings-modal {
-    max-width: 380px;
+    max-width: 400px;
     margin: 0;
-    // More generous + symmetric outer breathing room than the DS default. With
-    // the Done footer, the visible top gap is the head padding-top and the bottom
-    // is the FOOTER padding-bottom. Head-top sits a touch under the footer-bottom
-    // to offset the display title's line-height leading, so they read equal
-    // (measured ~24px top / ~25px bottom). Body's own top/bottom is the internal
-    // spacing between the head/foot bands. Horizontal padding unchanged throughout.
-    .modal-head { padding-top: var(--spacer-5); } // 20px
+    background: var(--surface-solid);
+    border: 1px solid var(--edge);
+    border-radius: 0;
+    box-shadow: var(--raise-shadow);
+    outline: none;
+
+    .modal-head {
+      align-items: center;
+      padding: var(--spacer-6) var(--spacer-6) 0;
+      border-bottom: 0;
+    }
     .modal-body {
-      padding-top: var(--spacer-6); // 24px
-      padding-bottom: var(--spacer-4); // 16px (footer sits below)
+      padding: var(--spacer-6);
+      font-family: var(--sans);
+      color: var(--text);
+    }
+    .vm-segment:has(.vm-segment-input:disabled) {
+      opacity: 0.5;
     }
     .modal-foot {
-      padding-top: var(--spacer-4); // 16px
-      padding-bottom: var(--spacer-6); // 24px — matches the head-top outer gap
+      padding: 0 var(--spacer-6) var(--spacer-6);
+      border-top: 0;
+      background: none;
     }
   }
 }

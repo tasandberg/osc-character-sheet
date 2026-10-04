@@ -79,20 +79,20 @@ describe("Topbar settings", () => {
     act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
 
-    act(() => byText('[aria-label="Theme"] button', "Light")!.click());
+    act(() => byText('[role="radiogroup"][aria-label="Theme"] label', "Light")!.click());
     expect(set).toHaveBeenCalledWith("osc-character-sheet", "theme", "cream");
 
-    act(() => byText('[aria-label="Font size"] button', "Large")!.click());
+    act(() => byText('[role="radiogroup"][aria-label="Font size"] label', "Large")!.click());
     expect(set).toHaveBeenCalledWith("osc-character-sheet", "fontScale", "large");
   });
 
-  it("defaults spell images on and writes the toggle", () => {
+  it("defaults spell images on and writes the checkbox", () => {
     act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
 
-    const toggle = container.querySelector<HTMLInputElement>(".toggle input")!;
-    expect(toggle.checked).toBe(true);
-    act(() => toggle.click());
+    const checkbox = container.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+    expect(checkbox.checked).toBe(true);
+    act(() => checkbox.click());
     expect(set).toHaveBeenCalledWith("osc-character-sheet", "showSpellImages", false);
   });
 });

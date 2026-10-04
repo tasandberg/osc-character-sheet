@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Modal, Field, Segmented, Toggle, Button } from "@ui";
+import { Modal } from "@ui";
 import { setSetting, SETTINGS, useOscSettings } from "@src/OscSheet/settings";
 import { type ThemeSetting } from "@src/OscSheet/theme";
 import {
@@ -11,6 +11,7 @@ import {
   SAME_AS_CHARACTER_SHEET,
   type SheetKind,
 } from "@src/OscSheet/appearance";
+import { VellumCheckbox, VellumField, VellumSegmented } from "./controls";
 
 const THEME_OPTIONS: { value: ThemeSetting; label: string }[] = [
   { value: "system", label: "System" },
@@ -35,63 +36,37 @@ const FONT_SCALE_OPTIONS = FONT_SCALES.map((value) => ({
   ),
 }));
 
-function SegmentedGroup<T extends string>({
-  label,
-  options,
-  value,
-  onValueChange,
-  disabled,
-}: {
-  label: string;
-  options: { value: T; label: ReactNode }[];
-  value: T;
-  onValueChange: (next: T) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <div role="group" aria-label={label}>
-      <Segmented
-        options={options}
-        value={value}
-        onValueChange={onValueChange}
-        disabled={disabled}
-      />
-    </div>
-  );
-}
-
-function InheritableGroup<T extends string>({
+function InheritableSegmented<T extends string>({
   label,
   options,
   value,
   inherited,
-  onValueChange,
+  onChange,
 }: {
   label: string;
   options: { value: T; label: ReactNode }[];
   value: T | typeof SAME_AS_CHARACTER_SHEET;
   inherited: T;
-  onValueChange: (next: T | typeof SAME_AS_CHARACTER_SHEET) => void;
+  onChange: (next: T | typeof SAME_AS_CHARACTER_SHEET) => void;
 }) {
   const inheriting = value === SAME_AS_CHARACTER_SHEET;
   return (
-    <div className="u-stack u-gap-3">
-      <Toggle
+    <>
+      <VellumCheckbox
+        label="Same as character sheet"
         checked={inheriting}
-        onChange={(e) =>
-          onValueChange(e.target.checked ? SAME_AS_CHARACTER_SHEET : inherited)
+        onChange={(checked) =>
+          onChange(checked ? SAME_AS_CHARACTER_SHEET : inherited)
         }
-      >
-        Same as character sheet
-      </Toggle>
-      <SegmentedGroup
+      />
+      <VellumSegmented
         label={label}
         options={options}
         value={inheriting ? inherited : value}
-        onValueChange={onValueChange}
+        onChange={onChange}
         disabled={inheriting}
       />
-    </div>
+    </>
   );
 }
 
@@ -99,30 +74,29 @@ function CharacterPreferences() {
   const { theme, fontScale, showSpellImages } = useOscSettings();
   return (
     <>
-      <Field label="Theme" hint="Applies to your sheets only.">
-        <SegmentedGroup
+      <VellumField label="Theme" helper="Applies to your sheets only.">
+        <VellumSegmented
           label="Theme"
           options={THEME_OPTIONS}
           value={theme}
-          onValueChange={(next) => setSetting("theme", next)}
+          onChange={(next) => setSetting("theme", next)}
         />
-      </Field>
-      <Field label="Font size">
-        <SegmentedGroup
+      </VellumField>
+      <VellumField label="Font size">
+        <VellumSegmented
           label="Font size"
           options={FONT_SCALE_OPTIONS}
           value={fontScale}
-          onValueChange={(next) => setSetting("fontScale", next)}
+          onChange={(next) => setSetting("fontScale", next)}
         />
-      </Field>
-      <Field label="Spell images">
-        <Toggle
+      </VellumField>
+      <VellumField label="Spell images">
+        <VellumCheckbox
+          label={SETTINGS.showSpellImages.hint}
           checked={showSpellImages}
-          onChange={(e) => setSetting("showSpellImages", e.target.checked)}
-        >
-          {SETTINGS.showSpellImages.hint}
-        </Toggle>
-      </Field>
+          onChange={(checked) => setSetting("showSpellImages", checked)}
+        />
+      </VellumField>
     </>
   );
 }
@@ -131,24 +105,24 @@ function MonsterPreferences() {
   const { theme, fontScale, monsterTheme, monsterFontScale } = useOscSettings();
   return (
     <>
-      <Field label="Theme" hint="Applies to your monster sheets only.">
-        <InheritableGroup
+      <VellumField label="Theme" helper="Applies to your monster sheets only.">
+        <InheritableSegmented
           label="Theme"
           options={THEME_OPTIONS}
           value={monsterTheme}
           inherited={theme}
-          onValueChange={(next) => setSetting("monsterTheme", next)}
+          onChange={(next) => setSetting("monsterTheme", next)}
         />
-      </Field>
-      <Field label="Font size">
-        <InheritableGroup
+      </VellumField>
+      <VellumField label="Font size">
+        <InheritableSegmented
           label="Font size"
           options={FONT_SCALE_OPTIONS}
           value={monsterFontScale}
           inherited={fontScale}
-          onValueChange={(next) => setSetting("monsterFontScale", next)}
+          onChange={(next) => setSetting("monsterFontScale", next)}
         />
-      </Field>
+      </VellumField>
     </>
   );
 }
@@ -164,19 +138,19 @@ export function SettingsModal({
 }) {
   if (!open) return null;
   const footer = (
-    <Button variant="primary" onClick={onClose}>
+    <button type="button" className="vm-btn vm-btn-primary" onClick={onClose}>
       Close
-    </Button>
+    </button>
   );
   return (
     <Modal
       open={open}
-      title="Preferences"
+      title={<span className="vm-heading">Preferences</span>}
       onClose={onClose}
       footer={footer}
       className="modal-inset osc-settings-modal"
     >
-      <div className="u-stack u-gap-5">
+      <div className="u-stack u-gap-6">
         {sheet === "monster" ? (
           <MonsterPreferences />
         ) : (

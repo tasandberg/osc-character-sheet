@@ -361,12 +361,14 @@ describe("OscMonsterSheet", () => {
       .querySelector("input")!;
     const themeOption = (name: string) =>
       [
-        ...container.querySelectorAll<HTMLButtonElement>(
-          "[aria-label=Theme] button",
+        ...container.querySelectorAll<HTMLLabelElement>(
+          "[role=radiogroup][aria-label=Theme] label",
         ),
-      ].find((option) => option.textContent === name)!;
+      ]
+        .find((option) => option.textContent === name)!
+        .querySelector("input")!;
     expect(same.checked).toBe(true);
-    expect(themeOption("Light").getAttribute("aria-pressed")).toBe("true");
+    expect(themeOption("Light").checked).toBe(true);
     expect(themeOption("Dark").disabled).toBe(true);
 
     click(same);
