@@ -210,6 +210,7 @@ describe("settings snapshot", () => {
   it("reports every registry key, defaulted with no game global", () => {
     expect(getSettingsSnapshot()).toEqual({
       theme: "system",
+      creationWizard: false,
       disableMemorization: false,
       fontScale: "medium",
       monsterTheme: "inherit",
