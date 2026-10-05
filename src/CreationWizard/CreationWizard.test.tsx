@@ -12,7 +12,7 @@ import { memoryDraftStore, type DraftStore } from "./draftStore";
 let host: HTMLDivElement;
 let root: Root;
 
-function open(store: DraftStore = memoryDraftStore(), onCancel = vi.fn()) {
+function open(store: DraftStore = memoryDraftStore(), onClose = vi.fn()) {
   host = document.createElement("div");
   document.body.append(host);
   root = createRoot(host);
@@ -22,11 +22,11 @@ function open(store: DraftStore = memoryDraftStore(), onCancel = vi.fn()) {
         worldName="Hollow Fen"
         houseRules={[]}
         store={store}
-        onCancel={onCancel}
+        onClose={onClose}
       />,
     ),
   );
-  return { store, onCancel };
+  return { store, onClose };
 }
 
 function close() {
@@ -74,18 +74,27 @@ describe("CreationWizard", () => {
     expect(currentStep()).toBe("1Scores");
   });
 
-  it("offers Cancel on the first step and Back afterwards", () => {
-    const { onCancel } = open();
-    press("Cancel");
-    expect(onCancel).toHaveBeenCalled();
-
+  it("goes Back to the previous step", () => {
+    open();
     press("Mark done");
     act(() => next().click());
     press("Back");
     expect(currentStep()).toBe("1Scores");
   });
 
-  it("resumes the saved step and draft when reopened", () => {
+  it("discards the draft and closes once Cancel is confirmed", () => {
+    const { store, onClose } = open();
+    press("Mark done");
+    press("Cancel");
+    expect(onClose).not.toHaveBeenCalled();
+    expect(store.load()).toBeDefined();
+
+    press("Discard");
+    expect(onClose).toHaveBeenCalled();
+    expect(store.load()).toBeUndefined();
+  });
+
+  it("keeps the draft when the window closes, and resumes it on reopen", () => {
     const { store } = open();
     press("Mark done");
     act(() => next().click());

@@ -26,7 +26,7 @@ export default function CreationWizardApp({ actor, onClose }: Props) {
       worldName={game.world?.title ?? ""}
       houseRules={rules}
       store={store}
-      onCancel={onClose}
+      onClose={onClose}
     />
   );
 }

@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { ConfirmDialog } from "@ui/ConfirmDialog";
 import type { DraftStore } from "./draftStore";
 import { placeholderFlow } from "./flow";
 import type { HouseRule } from "./houseRuleSettings";
@@ -9,18 +11,19 @@ type Props = {
   worldName: string;
   houseRules: HouseRule[];
   store: DraftStore;
-  onCancel: () => void;
+  onClose: () => void;
 };
 
 export function CreationWizard({
   worldName,
   houseRules,
   store,
-  onCancel,
+  onClose,
 }: Props) {
   const wizard = useWizard(placeholderFlow, store);
   const { step, draft } = wizard;
   const done = draft.done.includes(step);
+  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
 
   return (
     <WizardShell
@@ -33,7 +36,22 @@ export function CreationWizard({
       onSelectStep={wizard.goTo}
       onNext={wizard.goNext}
       onBack={wizard.previous && wizard.goBack}
-      onCancel={onCancel}
+      onCancel={() => setConfirmingDiscard(true)}
+      overlay={
+        <ConfirmDialog
+          open={confirmingDiscard}
+          title="Discard this character?"
+          body="Your choices so far will be lost."
+          confirmLabel="Discard"
+          cancelLabel="Keep editing"
+          variant="danger"
+          onConfirm={() => {
+            store.clear();
+            onClose();
+          }}
+          onCancel={() => setConfirmingDiscard(false)}
+        />
+      }
     >
       <PlaceholderStep
         step={step}

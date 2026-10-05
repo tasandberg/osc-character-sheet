@@ -18,6 +18,7 @@ type Props = {
   onCancel: () => void;
   onCreate?: () => void;
   children: ReactNode;
+  overlay?: ReactNode;
 };
 
 export function WizardShell({
@@ -33,6 +34,7 @@ export function WizardShell({
   onCancel,
   onCreate,
   children,
+  overlay,
 }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const scrollsFurther = useScrollsFurther(bodyRef, step);
@@ -104,6 +106,7 @@ export function WizardShell({
           )}
         </button>
       </footer>
+      {overlay}
     </div>
   );
 }
