@@ -82,7 +82,7 @@
   .osc-monster-portrait {
     display: block;
     padding: 2px;
-    border: 1px solid var(--text);
+    border: 1px solid var(--hair);
 
     > img,
     > i {
@@ -92,7 +92,7 @@
       width: calc(var(--spacer-4) * 4);
       height: calc(var(--spacer-4) * 4);
       object-fit: cover;
-      border: 1px solid var(--hairline);
+      border: 1px solid var(--hair-soft);
       background: color-mix(in srgb, var(--accent-alt) 8%, transparent);
       color: var(--text-mute);
       font-size: var(--fs-2xl);
@@ -106,6 +106,14 @@
     &:focus-visible {
       border-color: var(--accent-alt);
     }
+  }
+
+  .rule-frame {
+    border-color: var(--hair);
+  }
+
+  .rule-frame-inner {
+    border-color: var(--hair-soft);
   }
 
   .osc-monster-name {
@@ -124,7 +132,7 @@
 
   .osc-monster-hit-points-current {
     font-family: var(--display);
-    line-height: 1;
+    line-height: var(--fs-3xl);
     color: var(--crimson);
   }
 

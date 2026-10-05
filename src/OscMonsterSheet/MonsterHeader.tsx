@@ -99,7 +99,7 @@ export function MonsterHeader({
             <span>
               <InlineEditValue
                 label="Current hit points"
-                className="osc-monster-hit-points-current u-fs-3xl"
+                className="osc-monster-hit-points-current u-fs-5xl"
                 value={view.hp.value}
                 placeholder="0"
                 onCommit={commit?.number("system.hp.value")}
