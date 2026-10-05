@@ -116,6 +116,15 @@ export const SETTINGS = {
     default: false,
     resolve: resolveBoolean(false),
   },
+  creationWizardNoticeShown: {
+    name: "Creation wizard update notice shown",
+    hint: "Set once the GM has been told the wizard needs a newer OSE system.",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+    resolve: resolveBoolean(false),
+  },
   portraitUploads: {
     name: "Portrait image uploads",
     hint: "Let players drop image files onto a sheet portrait to upload them as portrait or token art.",

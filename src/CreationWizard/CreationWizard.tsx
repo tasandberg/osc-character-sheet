@@ -1,16 +1,19 @@
-import { placeholderFlow } from "./flow";
+import { creationFlow } from "./flow";
 import type { HouseRule } from "./houseRuleSettings";
 import { PlaceholderStep } from "./PlaceholderStep";
+import type { CreationRules } from "./rules";
+import { ScoresStep } from "./scores/ScoresStep";
 import { useWizard } from "./useWizard";
 import { WizardShell } from "./WizardShell";
 
 type Props = {
   worldName: string;
   houseRules: HouseRule[];
+  rules: CreationRules;
 };
 
-export function CreationWizard({ worldName, houseRules }: Props) {
-  const wizard = useWizard(placeholderFlow);
+export function CreationWizard({ worldName, houseRules, rules }: Props) {
+  const wizard = useWizard(creationFlow);
   const { step, draft } = wizard;
   const done = draft.done.includes(step);
 
@@ -26,15 +29,26 @@ export function CreationWizard({ worldName, houseRules }: Props) {
       onNext={wizard.goNext}
       onBack={wizard.previous && wizard.goBack}
     >
-      <PlaceholderStep
-        step={step}
-        done={done}
-        onToggleDone={() =>
-          wizard.setDraft((d) => ({
-            done: done ? d.done.filter((s) => s !== step) : [...d.done, step],
-          }))
-        }
-      />
+      {step === "scores" ? (
+        <ScoresStep
+          draft={draft.scores}
+          rules={rules}
+          onChange={(update) =>
+            wizard.setDraft((d) => ({ ...d, scores: update(d.scores) }))
+          }
+        />
+      ) : (
+        <PlaceholderStep
+          step={step}
+          done={done}
+          onToggleDone={() =>
+            wizard.setDraft((d) => ({
+              ...d,
+              done: done ? d.done.filter((s) => s !== step) : [...d.done, step],
+            }))
+          }
+        />
+      )}
     </WizardShell>
   );
 }

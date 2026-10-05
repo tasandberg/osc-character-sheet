@@ -1,11 +1,17 @@
 import "./wizard.scss";
 import { useMemo } from "react";
+import { foundryCreationRules } from "./foundryRules";
 import { houseRules, readHouseRuleSettings } from "./houseRuleSettings";
 import { CreationWizard } from "./CreationWizard";
 
 export default function CreationWizardApp() {
   const rules = useMemo(() => houseRules(readHouseRuleSettings()), []);
+  const creationRules = useMemo(foundryCreationRules, []);
   return (
-    <CreationWizard worldName={game.world?.title ?? ""} houseRules={rules} />
+    <CreationWizard
+      worldName={game.world?.title ?? ""}
+      houseRules={rules}
+      rules={creationRules}
+    />
   );
 }
