@@ -1,19 +1,11 @@
 import "./wizard.scss";
-import { SectionTitle } from "@ui/SectionTitle";
+import { useMemo } from "react";
+import { houseRules, readHouseRuleSettings } from "./houseRuleSettings";
+import { CreationWizard } from "./CreationWizard";
 
-type Props = {
-  actor?: { name: string };
-};
-
-export default function CreationWizardApp({ actor }: Props) {
+export default function CreationWizardApp() {
+  const rules = useMemo(() => houseRules(readHouseRuleSettings()), []);
   return (
-    <div className="osc-sheet-app u-items-center u-justify-center u-p-6">
-      <main className="u-stack u-items-center">
-        <SectionTitle>
-          {actor ? `Create ${actor.name}` : "New Character"}
-        </SectionTitle>
-        <p className="u-fs-sm u-text-dim">Character creation is on its way.</p>
-      </main>
-    </div>
+    <CreationWizard worldName={game.world?.title ?? ""} houseRules={rules} />
   );
 }

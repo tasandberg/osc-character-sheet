@@ -2,3 +2,112 @@
   min-width: 720px;
   min-height: 540px;
 }
+
+.osc-creation-wizard-app {
+  overflow: hidden;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  container: app creation-wizard / inline-size;
+
+  .vm-step-num-done {
+    border-color: var(--gold);
+    background: var(--gold);
+    color: var(--on-accent);
+  }
+}
+
+.osc-creation-top {
+  position: relative;
+  min-height: calc(var(--spacer-6) + var(--spacer-1));
+  border-bottom: 1px solid var(--hair);
+}
+
+.osc-creation-crumb {
+  white-space: nowrap;
+}
+
+.osc-creation-house-rules-button {
+  display: none;
+  white-space: nowrap;
+}
+
+.osc-creation-steps-nav {
+  border-bottom: 1px solid var(--hair-soft);
+}
+
+.osc-creation-step {
+  min-height: calc(var(--spacer-12) + var(--spacer-2));
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  color: var(--text-mute);
+}
+
+.osc-creation-step-done {
+  color: var(--text);
+  cursor: pointer;
+
+  &:hover .vm-heading,
+  &:focus-visible .vm-heading {
+    color: var(--gold);
+  }
+}
+
+.osc-creation-step-current {
+  border-bottom-color: var(--text);
+  color: var(--text);
+}
+
+.osc-creation-step-summary {
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.osc-creation-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.osc-creation-more-below {
+  position: sticky;
+  bottom: 0;
+  height: 0;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+
+  > .vm-btn {
+    transform: translateY(calc(-100% - var(--spacer-2)));
+  }
+}
+
+.osc-creation-footer {
+  flex: none;
+  border-top: 1px solid var(--hair);
+}
+
+@container creation-wizard (max-width: 58.5em) {
+  .osc-creation-wizard-app {
+    .osc-creation-house-rules {
+      display: none;
+    }
+
+    .osc-creation-house-rules-button {
+      display: inline-flex;
+    }
+
+    .osc-creation-step-done .osc-creation-step-summary {
+      display: none;
+    }
+
+    .osc-creation-step {
+      min-height: var(--spacer-12);
+      gap: var(--spacer-2);
+    }
+
+    .osc-creation-footer {
+      flex-wrap: wrap;
+    }
+  }
+}
