@@ -57,9 +57,9 @@ export function MonsterHeader({
     <header className="u-flex u-items-center u-gap-4">
       <MonsterPortrait img={img} onPickImage={onPickImage} />
       <div className="u-flex-1">
-        <h1
+        <div
           className={cx(
-            "osc-monster-name u-m-0",
+            "osc-monster-name",
             name.length > LONG_NAME ? "u-fs-2xl" : "u-fs-4xl",
           )}
         >
@@ -68,7 +68,7 @@ export function MonsterHeader({
             value={name}
             onCommit={commit?.text("name")}
           />
-        </h1>
+        </div>
         {view && (
           <div className="u-row u-items-baseline u-mt-2 u-text-dim u-wrap">
             <InlineEditValue
