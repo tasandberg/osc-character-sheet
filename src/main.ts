@@ -1,5 +1,6 @@
 import OscSheet from "@src/applications/osc-sheet";
 import OscMonsterSheet from "@src/applications/osc-monster-sheet";
+import OscCreationWizard from "@src/applications/creation-wizard";
 import { installAdvancedClasses } from "@src/util/adaptAdvancedClasses";
 import { onRenderChatMessage } from "@domain/chat/applyDamage";
 import { registerSendItemSocket } from "@features/inventory/sendItemSocket";
@@ -19,6 +20,7 @@ export function initialize() {
     logger("Initializing module");
     preloadSheetFonts();
     OscSheet.registerSettings();
+    OscCreationWizard.register();
     registerMigrationSetting();
   });
 

@@ -107,6 +107,15 @@ export const SETTINGS = {
     default: true,
     resolve: resolveBoolean(true),
   },
+  creationWizard: {
+    name: "Character creation wizard",
+    hint: "Show a New Character button in the Actors sidebar and a Create Character prompt on blank character sheets.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    resolve: resolveBoolean(false),
+  },
   portraitUploads: {
     name: "Portrait image uploads",
     hint: "Let players drop image files onto a sheet portrait to upload them as portrait or token art.",
