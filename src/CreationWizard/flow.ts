@@ -7,7 +7,6 @@ import {
 
 export interface CreationFlow<D> {
   emptyDraft(): D;
-  parseDraft(raw: unknown): D | undefined;
   status(draft: D): StepStatuses;
   summary(draft: D, step: CreationStep): string | undefined;
 }
@@ -16,12 +15,6 @@ export type PlaceholderDraft = { done: CreationStep[] };
 
 export const placeholderFlow: CreationFlow<PlaceholderDraft> = {
   emptyDraft: () => ({ done: [] }),
-  parseDraft: (raw) => {
-    const done = (raw as Partial<PlaceholderDraft> | null)?.done;
-    return Array.isArray(done)
-      ? { done: done.filter((step) => CREATION_STEPS.includes(step)) }
-      : undefined;
-  },
   status: ({ done }) => {
     const ready = CREATION_STEPS.filter((step) => step !== "review").every(
       (step) => done.includes(step),

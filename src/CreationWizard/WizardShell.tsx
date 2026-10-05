@@ -15,10 +15,8 @@ type Props = {
   onSelectStep: (step: CreationStep) => void;
   onNext: () => void;
   onBack?: () => void;
-  onCancel: () => void;
   onCreate?: () => void;
   children: ReactNode;
-  overlay?: ReactNode;
 };
 
 export function WizardShell({
@@ -31,10 +29,8 @@ export function WizardShell({
   onSelectStep,
   onNext,
   onBack,
-  onCancel,
   onCreate,
   children,
-  overlay,
 }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const scrollsFurther = useScrollsFurther(bodyRef, step);
@@ -80,14 +76,16 @@ export function WizardShell({
         )}
       </div>
       <footer className="osc-creation-footer u-row u-gap-3 tw:mx-5 u-pt-3 u-pb-4">
-        <button
-          type="button"
-          className="vm-btn vm-btn-secondary vm-btn-lg"
-          onClick={onBack ?? onCancel}
-        >
-          <i className="fa-solid fa-chevron-left" aria-hidden="true" />
-          {onBack ? "Back" : "Cancel"}
-        </button>
+        {onBack && (
+          <button
+            type="button"
+            className="vm-btn vm-btn-secondary vm-btn-lg"
+            onClick={onBack}
+          >
+            <i className="fa-solid fa-chevron-left" aria-hidden="true" />
+            Back
+          </button>
+        )}
         <span className="u-flex-1" />
         {help && <span className="vm-help">{help}</span>}
         <button
@@ -106,7 +104,6 @@ export function WizardShell({
           )}
         </button>
       </footer>
-      {overlay}
     </div>
   );
 }

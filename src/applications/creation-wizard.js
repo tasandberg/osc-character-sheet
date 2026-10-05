@@ -34,7 +34,7 @@ class OscCreationWizard extends ReactApplicationV2 {
     super({
       ...options,
       reactApp: CreationWizardApp,
-      initialProps: { actor, onClose: () => this.close() },
+      initialProps: { actor },
     });
   }
 

@@ -1,9 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { CreationWizard } from "./CreationWizard";
-import { memoryDraftStore, type DraftStore } from "./draftStore";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -12,21 +11,13 @@ import { memoryDraftStore, type DraftStore } from "./draftStore";
 let host: HTMLDivElement;
 let root: Root;
 
-function open(store: DraftStore = memoryDraftStore(), onClose = vi.fn()) {
+function open() {
   host = document.createElement("div");
   document.body.append(host);
   root = createRoot(host);
   act(() =>
-    root.render(
-      <CreationWizard
-        worldName="Hollow Fen"
-        houseRules={[]}
-        store={store}
-        onClose={onClose}
-      />,
-    ),
+    root.render(<CreationWizard worldName="Hollow Fen" houseRules={[]} />),
   );
-  return { store, onClose };
 }
 
 function close() {
@@ -74,39 +65,24 @@ describe("CreationWizard", () => {
     expect(currentStep()).toBe("1Scores");
   });
 
-  it("goes Back to the previous step", () => {
+  it("shows Back only after the first step", () => {
     open();
+    expect(button("Back")).toBeUndefined();
+
     press("Mark done");
     act(() => next().click());
     press("Back");
     expect(currentStep()).toBe("1Scores");
   });
 
-  it("discards the draft and closes once Cancel is confirmed", () => {
-    const { store, onClose } = open();
-    press("Mark done");
-    press("Cancel");
-    expect(onClose).not.toHaveBeenCalled();
-    expect(store.load()).toBeDefined();
-
-    press("Discard");
-    expect(onClose).toHaveBeenCalled();
-    expect(store.load()).toBeUndefined();
-  });
-
-  it("keeps the draft when the window closes, and resumes it on reopen", () => {
-    const { store } = open();
+  it("starts fresh when the window is reopened", () => {
+    open();
     press("Mark done");
     act(() => next().click());
     close();
 
-    open(store);
-    expect(currentStep()).toBe("2Class");
-    expect(button("1Scores")).toBeDefined();
-  });
-
-  it("starts fresh at the first step when the saved draft is unreadable", () => {
-    open(memoryDraftStore({ step: "review", draft: "not a draft" }));
+    open();
     expect(currentStep()).toBe("1Scores");
+    expect(button("1Scores")).toBeUndefined();
   });
 });
