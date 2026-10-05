@@ -17,7 +17,9 @@ test.describe("creation wizard", () => {
 
       const wizard = gamePage.locator("#osc-creation-wizard");
       await expect(wizard).toBeVisible();
-      await expect(wizard.getByRole("heading", { name: "New Character" })).toBeVisible();
+      await expect(
+        wizard.getByRole("banner").getByRole("heading", { name: "New Character" }),
+      ).toBeVisible();
 
       const style = await wizard.evaluate((el) => ({
         width: el.getBoundingClientRect().width,
