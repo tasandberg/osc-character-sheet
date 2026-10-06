@@ -60,7 +60,7 @@ export type MonsterActor = {
       treasure?: { table?: string | null; type?: string };
     };
     retainer?: { enabled: boolean; loyalty: number | null };
-    config?: { enableInventory?: boolean };
+    config?: { enableInventory?: boolean; ignoreBonusDamage?: boolean };
     spells?: {
       enabled: boolean;
       slots?: { [n: number]: { used: number; max: number } };

@@ -31,7 +31,7 @@ describe("selectMonster", () => {
   it("shows ascending AC and attack bonus when the world uses ascending AC", () => {
     const view = selectMonster(makeMonster(), ascending);
     expect(view.armourClass).toMatchObject({
-      label: "Ascending AC",
+      label: "AC",
       value: "21",
       path: "system.aac.value",
     });

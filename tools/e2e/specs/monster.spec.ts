@@ -26,15 +26,15 @@ test.describe("monster sheet", () => {
 
     try {
       const sheet = gamePage.locator(`[id="${appId}"]`);
-      await sheet.getByRole("button", { name: /^Edit (Armour Class|Ascending AC)$/ }).click();
-      await sheet.getByRole("textbox", { name: /^(Armour Class|Ascending AC)$/ }).fill("4");
+      await sheet.getByRole("button", { name: /^Edit (Armour Class|AC)$/ }).click();
+      await sheet.getByRole("textbox", { name: /^(Armour Class|AC)$/ }).fill("4");
       await gamePage.keyboard.press("Enter");
       await expect
         .poll(async () => [await actorGet(gamePage, name, "system.ac.value"), await actorGet(gamePage, name, "system.aac.value")])
         .toContainEqual(4);
 
       const before = await chatCount(gamePage);
-      await sheet.getByRole("button", { name: "Lair", exact: true }).click();
+      await sheet.getByRole("button", { name: "Roll Lair", exact: true }).click();
       await expect.poll(() => chatCount(gamePage), { timeout: 15_000 }).toBeGreaterThan(before);
     } finally {
       await gamePage.evaluate(async (monsterName) => {

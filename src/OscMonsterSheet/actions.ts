@@ -1,7 +1,10 @@
+import { postRollCard } from "@domain/chat/attackCard";
 import { skipRollDialog } from "@domain/rolls/skipRollDialog";
-import type { RollEvent } from "@domain/types";
+import { readAttackSettings } from "@features/actions/attacks";
+import { computeAttack } from "@domain/attackMath";
+import type { OSEActor, RollEvent } from "@domain/types";
 import type { MonsterActor, MonsterItem } from "./types";
-import { nextPattern } from "./viewModel";
+import { nextPattern, text } from "./viewModel";
 
 export async function rollMonsterItem(item: MonsterItem, event?: RollEvent) {
   if (item.type === "weapon") {
@@ -9,6 +12,46 @@ export async function rollMonsterItem(item: MonsterItem, event?: RollEvent) {
     await item.update({ "system.counter.value": Math.max(0, remaining - 1) });
   }
   item.roll({ skipDialog: skipRollDialog(event) });
+}
+
+function attackMath(actor: MonsterActor, item: MonsterItem) {
+  return computeAttack(
+    {
+      kind: "melee",
+      die: text(item.system.damage),
+      weaponBonus: Number(item.system.bonus) || 0,
+      strMod: 0,
+      dexMod: 0,
+      thac0: { bba: actor.system.thac0.bba ?? 0 },
+      ignoreBonusDamage: !!actor.system.config?.ignoreBonusDamage,
+    },
+    readAttackSettings(),
+  );
+}
+
+export async function rollMonsterHit(actor: MonsterActor, item: MonsterItem) {
+  const remaining = Number(item.system.counter?.value) || 0;
+  if (item.system.counter?.max)
+    await item.update({ "system.counter.value": Math.max(0, remaining - 1) });
+  const { hit } = attackMath(actor, item);
+  return postRollCard(actor as unknown as OSEActor, {
+    label: hit.label,
+    formula: hit.formula,
+    flavor: `${actor.name} attacks with ${item.name}`,
+    kind: "hit",
+    weapon: item.name,
+  });
+}
+
+export function rollMonsterDamage(actor: MonsterActor, item: MonsterItem) {
+  const { dmg } = attackMath(actor, item);
+  return postRollCard(actor as unknown as OSEActor, {
+    label: dmg.label,
+    formula: dmg.formula,
+    flavor: `${actor.name} deals damage with ${item.name}`,
+    kind: "damage",
+    weapon: item.name,
+  });
 }
 
 export async function rollHitPoints(actor: MonsterActor, event?: RollEvent) {

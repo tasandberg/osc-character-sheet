@@ -4,6 +4,7 @@ import { cx } from "./cx";
 type Base = {
   label: string;
   value: string;
+  editValue?: string;
   placeholder?: string;
   className?: string;
 };
@@ -23,7 +24,7 @@ function selectContents(element: HTMLElement) {
 }
 
 export function InlineEditValue(props: Props) {
-  const { label, value, placeholder, className } = props;
+  const { label, value, editValue = value, placeholder, className } = props;
   const [editing, setEditing] = useState(false);
   const [revision, setRevision] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
@@ -47,10 +48,10 @@ export function InlineEditValue(props: Props) {
 
   const finish = () => {
     const typed = (ref.current?.textContent ?? "").trim();
-    const next = !value && typed === placeholder ? "" : typed;
+    const next = !editValue && typed === placeholder ? "" : typed;
     setEditing(false);
     setRevision((n) => n + 1);
-    if (!cancelled.current && next !== value) commit(next);
+    if (!cancelled.current && next !== editValue) commit(next);
     cancelled.current = false;
   };
 
@@ -93,7 +94,7 @@ export function InlineEditValue(props: Props) {
       onBlur={editing ? finish : undefined}
       onKeyDown={onKeyDown}
     >
-      {display}
+      {editing ? editValue || placeholder : display}
     </span>
   );
 }

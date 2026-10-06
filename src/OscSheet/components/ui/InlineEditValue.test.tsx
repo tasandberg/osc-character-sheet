@@ -66,4 +66,21 @@ describe("InlineEditValue", () => {
     expect(committed).toEqual([]);
     expect(container.textContent).toBe("3");
   });
+
+  it("edits the raw value behind a formatted display", () => {
+    act(() =>
+      root.render(
+        <InlineEditValue
+          label="Uses"
+          value="+9"
+          editValue="9"
+          onCommit={() => {}}
+        />,
+      ),
+    );
+    act(() =>
+      container.querySelector<HTMLElement>("[aria-label='Edit Uses']")?.click(),
+    );
+    expect(container.querySelector("[role=textbox]")?.textContent).toBe("9");
+  });
 });

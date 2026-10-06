@@ -1,6 +1,5 @@
 import type { MouseEvent } from "react";
 import { cx } from "@ui/cx";
-import { IconButton } from "@ui/IconButton";
 import { openImagePicker } from "@ui/imagePicker";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import type { Commit } from "./commit";
@@ -73,7 +72,7 @@ export function MonsterHeader({
           <div className="u-row u-items-baseline u-mt-2 u-text-dim u-wrap">
             <InlineEditValue
               label="Alignment"
-              className="osc-monster-value u-fs-xs"
+              className="osc-monster-value"
               value={view.alignment}
               placeholder="Alignment"
               onCommit={commit?.text("system.details.alignment")}
@@ -82,7 +81,7 @@ export function MonsterHeader({
             <span className="u-row u-gap-1 u-items-baseline">
               <InlineEditValue
                 label="XP"
-                className="osc-monster-value u-fs-xs"
+                className="osc-monster-value"
                 value={view.xp}
                 placeholder="0"
                 onCommit={commit?.loose("system.details.xp")}
@@ -94,17 +93,33 @@ export function MonsterHeader({
       </div>
       {view && (
         <div className="osc-monster-hit-points u-flex-none">
-          <span className="osc-monster-label">Hit Points</span>
-          <div className="u-mt-1 u-flex u-items-center u-justify-end u-gap-2">
+          <span className="osc-monster-label u-flex u-items-center u-justify-end">
+            Hit Points
+            {onRollHp && view.hp.rollable && (
+              <button
+                type="button"
+                className="osc-monster-roll-die"
+                aria-label="Roll hit points"
+                title="Roll hit points from Hit Dice"
+                onClick={onRollHp}
+              >
+                <i
+                  className="fa-solid fa-dice-d20 roll-label-die"
+                  aria-hidden="true"
+                />
+              </button>
+            )}
+          </span>
+          <div className="u-mt-1">
             <span>
               <InlineEditValue
                 label="Current hit points"
-                className="osc-monster-hit-points-current u-fs-3xl"
+                className="osc-monster-hit-points-current u-fs-5xl"
                 value={view.hp.value}
                 placeholder="0"
                 onCommit={commit?.number("system.hp.value")}
               />
-              <span className="osc-monster-value u-fs-xs u-text-dim">
+              <span className="osc-monster-value u-text-dim">
                 {" / "}
                 <InlineEditValue
                   label="Maximum hit points"
@@ -114,18 +129,6 @@ export function MonsterHeader({
                 />
               </span>
             </span>
-            {onRollHp && (
-              <IconButton
-                variant="raised"
-                size="sm"
-                aria-label="Roll hit points"
-                title="Roll hit points from Hit Dice"
-                disabled={!view.hp.rollable}
-                onClick={onRollHp}
-              >
-                <i className="fa-solid fa-dice-d20" aria-hidden="true" />
-              </IconButton>
-            )}
           </div>
         </div>
       )}

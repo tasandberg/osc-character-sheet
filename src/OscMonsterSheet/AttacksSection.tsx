@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from "react";
+import { useState, type CSSProperties, type MouseEvent } from "react";
 import { createOwnedItem } from "@domain/createOwnedItem";
 import type { OSEActor } from "@domain/types";
 import {
@@ -16,7 +16,8 @@ import { cx } from "@ui/cx";
 import {
   cyclePattern,
   resetAttacks,
-  rollMonsterItem,
+  rollMonsterDamage,
+  rollMonsterHit,
   setAttacksPerRound,
   setPattern,
   setUses,
@@ -52,54 +53,58 @@ function Uses({
   name,
   uses,
   onSet,
-  onSetMax,
 }: {
   name: string;
   uses: { value: number; max: number } | null;
   onSet?: (value: number) => void;
-  onSetMax?: (max: number) => void;
 }) {
-  const max = uses?.max ?? 0;
-  const maxField = onSetMax && (
-    <InlineEditValue
-      label={`${name} attacks per round`}
-      value={max ? String(max) : ""}
-      placeholder={EMPTY_VALUE}
-      parse="int"
-      onCommit={onSetMax}
-    />
-  );
-  if (!uses) return maxField ?? null;
+  if (!uses) return null;
+  const { value, max } = uses;
   if (max > MAX_PIPS) {
     return (
-      <span className="osc-monster-value u-fs-xs">
-        <InlineEditValue
-          label={`${name} uses left`}
-          value={String(uses.value)}
-          parse="int"
-          onCommit={onSet && ((next) => onSet(Math.min(next, max)))}
-        />
-        /{maxField ?? max}
-      </span>
+      <InlineEditValue
+        label={`${name} uses left`}
+        className="osc-monster-value"
+        value={String(value)}
+        parse="int"
+        onCommit={onSet && ((next) => onSet(Math.min(next, max)))}
+      />
     );
   }
-  const pips = (
+  return (
     <Pips
       total={max}
-      filled={uses.value}
+      filled={value}
       size="xs"
       tone="ink"
       square
       role="group"
-      aria-label={`${name}: ${uses.value} of ${max} uses left`}
+      aria-label={`${name}: ${value} of ${max} uses left`}
       onSetFilled={onSet}
     />
   );
-  if (!maxField) return pips;
+}
+
+function AttacksPerRound({
+  name,
+  max,
+  onSetMax,
+}: {
+  name: string;
+  max: number;
+  onSetMax?: (max: number) => void;
+}) {
+  if (!onSetMax && max <= 1) return null;
   return (
-    <span className="u-row u-gap-1">
-      {pips}
-      <span className="osc-monster-value u-fs-xs">/{maxField}</span>
+    <span className="osc-monster-value u-text-dim u-ml-1">
+      ×{" "}
+      <InlineEditValue
+        label={`${name} attacks per round`}
+        value={max ? String(max) : ""}
+        placeholder="1"
+        parse="int"
+        onCommit={onSetMax}
+      />
     </span>
   );
 }
@@ -143,7 +148,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
     setMenuFor(null);
   };
 
-  const row = (attack: AttackRow) => {
+  const row = (attack: AttackRow, joinsNext: boolean) => {
     const weapon = actor.items.get(attack.id);
     return (
       <div
@@ -155,8 +160,22 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
         )}
         onContextMenu={weapon && ((event) => openMenu(weapon, event))}
       >
-        <span role="cell" className="u-flex u-items-center">
+        <span
+          role="cell"
+          className={cx(
+            "osc-monster-pattern-cell u-flex u-justify-center",
+            joinsNext && "joins-next",
+          )}
+          style={
+            joinsNext
+              ? ({
+                  "--pattern-link": `var(--pattern-${attack.pattern})`,
+                } as CSSProperties)
+              : undefined
+          }
+        >
           <PatternPip
+            size="md"
             label="Attack pattern"
             pattern={attack.pattern}
             onCycle={
@@ -164,43 +183,67 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
             }
           />
         </span>
-        <span role="cell" className="u-flex u-items-center">
+        <span role="cell" className="osc-monster-attack-name">
+          <span className="u-flex u-items-center u-wrap">
+            <RollLabel
+              className="osc-monster-label osc-monster-item-name"
+              glyph={false}
+              title={canEdit ? "Edit attack" : "View attack"}
+              onRoll={
+                weapon?.sheet ? () => weapon.sheet?.render(true) : undefined
+              }
+            >
+              {attack.name}
+            </RollLabel>
+            <AttacksPerRound
+              name={attack.name}
+              max={attack.uses?.max ?? 0}
+              onSetMax={
+                canEdit && weapon
+                  ? (max) => void setAttacksPerRound(weapon, max)
+                  : undefined
+              }
+            />
+            {attack.save && (
+              <Tag size="xs" className="u-ml-2">
+                {attack.save}
+              </Tag>
+            )}
+            {attack.slow && (
+              <Tag size="xs" className="u-ml-1">
+                slow
+              </Tag>
+            )}
+          </span>
+        </span>
+        <span role="cell">
           {canEdit && weapon && (
             <IconButton
               variant="raised"
-              size="sm"
+              className="osc-monster-roll-button"
               aria-label={`Attack with ${attack.name}`}
               title={`Attack with ${attack.name}`}
               disabled={attack.exhausted}
-              onClick={(event) => void rollMonsterItem(weapon, event)}
+              onClick={() => void rollMonsterHit(actor, weapon)}
             >
-              <i className="fa-solid fa-dice-d20" aria-hidden="true" />
+              ATK
             </IconButton>
           )}
         </span>
-        <span role="cell" className="osc-monster-attack-name">
-          <RollLabel
-            className="osc-monster-label osc-monster-item-name"
-            glyph={false}
-            title={canEdit ? "Edit attack" : "View attack"}
-            onRoll={
-              weapon?.sheet ? () => weapon.sheet?.render(true) : undefined
-            }
-          >
-            {attack.name}
-          </RollLabel>
-          {attack.save && (
-            <Tag size="xs" className="u-ml-1">
-              {attack.save}
-            </Tag>
-          )}
-          {attack.slow && (
-            <Tag size="xs" className="u-ml-1">
-              slow
-            </Tag>
+        <span role="cell">
+          {canEdit && weapon && (
+            <IconButton
+              variant="raised"
+              className="osc-monster-roll-button"
+              aria-label={`Roll damage for ${attack.name}`}
+              title={`Roll damage for ${attack.name}`}
+              onClick={() => void rollMonsterDamage(actor, weapon)}
+            >
+              DMG
+            </IconButton>
           )}
         </span>
-        <span role="cell" className="osc-monster-value u-fs-xs">
+        <span role="cell" className="osc-monster-value">
           {attack.damage ?? EMPTY_VALUE}
           {attack.bonus != null &&
             ` ${attack.bonus > 0 ? "+" : ""}${attack.bonus}`}
@@ -212,11 +255,6 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
             onSet={
               canEdit && weapon
                 ? (value) => void setUses(weapon, value)
-                : undefined
-            }
-            onSetMax={
-              canEdit && weapon
-                ? (max) => void setAttacksPerRound(weapon, max)
                 : undefined
             }
           />
@@ -279,24 +317,18 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
         )}
       </SectionTitle>
       {attacks.length === 0 ? (
-        <p className="u-m-0 u-fs-sm u-text-dim">No attacks.</p>
+        <p className="u-m-0 u-text-dim">No attacks.</p>
       ) : (
         <div
           role="table"
           aria-label="Attacks"
           className={cx("osc-monster-attack-table", canEdit && "has-actions")}
         >
-          <div role="row" className="osc-monster-attack-row osc-monster-label">
-            <span role="columnheader" />
-            <span role="columnheader" />
-            <span role="columnheader">Attack</span>
-            <span role="columnheader">Damage</span>
-            <span role="columnheader" className="tw:text-right">
-              Uses
-            </span>
-            {canEdit && <span role="columnheader" />}
-          </div>
-          {attacks.map(row)}
+          {groups.flatMap((group) =>
+            group.attacks.map((attack, index) =>
+              row(attack, group.coloured && index < group.attacks.length - 1),
+            ),
+          )}
         </div>
       )}
       {menu && <ContextMenu {...menu} onClose={closeMenu} />}
