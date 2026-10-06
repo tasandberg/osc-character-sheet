@@ -1,7 +1,56 @@
 .osc-monster {
-  font-family: var(--serif);
+  --sans: var(--font-sans, "Signika", sans-serif);
+  --serif: var(--sans);
+  --mono: var(--sans);
+  --sans-x-height: 0.53;
+  --link-accent: var(--gold);
+  --text-dim: color-mix(in srgb, var(--text-mute) 55%, var(--text));
+  font-family: var(--sans);
   font-size: var(--fs-md);
+  font-size-adjust: var(--sans-x-height);
   line-height: 1.45;
+
+  :is(.section-title, [class*="fa-"]) {
+    font-size-adjust: none;
+  }
+
+  [data-theme="cream"] & {
+    --link-accent: var(--accent-alt);
+  }
+
+  .roll-label-die {
+    color: var(--link-accent);
+  }
+
+  .osc-monster-roll-die {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: top;
+    height: 1lh;
+    margin-left: var(--spacer-1);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      filter: brightness(1.2);
+    }
+  }
+
+  .tag {
+    font-size: var(--fs-xs);
+    letter-spacing: 0;
+  }
+
+  .tabs.folder .tab {
+    font-size: var(--fs-xs);
+  }
+
+  .field.hairline .field-label {
+    font-weight: 400;
+    font-size: var(--fs-md);
+    letter-spacing: 0;
+    text-transform: none;
+  }
 
   .osc-monster-layout {
     display: flex;
@@ -37,18 +86,14 @@
   }
 
   .osc-monster-label {
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: var(--fs-3xs);
+    font-weight: 400;
+    font-size: var(--fs-md);
     line-height: 1.2;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
     color: var(--text-dim);
     white-space: nowrap;
   }
 
   .osc-monster-value {
-    font-family: var(--mono);
     white-space: nowrap;
   }
 
@@ -56,8 +101,7 @@
     display: inline-flex;
     align-items: baseline;
     gap: var(--spacer-1);
-    font-family: var(--mono);
-    color: var(--gold);
+    color: var(--link-accent);
     cursor: pointer;
 
     > i {
@@ -73,10 +117,6 @@
     &:focus-visible .osc-monster-link-text {
       text-decoration-style: solid;
     }
-  }
-
-  [data-theme="cream"] & .osc-monster-link {
-    color: var(--accent-alt);
   }
 
   .osc-monster-portrait {
@@ -111,6 +151,7 @@
   .osc-monster-name {
     font-family: var(--display);
     font-weight: 400;
+    font-size-adjust: none;
     line-height: 1;
     color: var(--text);
     border: none;
@@ -124,6 +165,7 @@
 
   .osc-monster-hit-points-current {
     font-family: var(--display);
+    font-size-adjust: none;
     line-height: 1;
     color: var(--crimson);
   }
@@ -134,43 +176,35 @@
     min-width: 0;
   }
 
-  .osc-monster-footnote {
-    text-align: right;
-    font-family: var(--serif);
-  }
-
-  .osc-monster-label.osc-monster-save-label {
-    font-size: calc(var(--fs-3xs) * 0.86);
-    letter-spacing: 0.07em;
+  .osc-monster-save-label,
+  .osc-monster-save-value {
+    text-box: trim-both cap alphabetic;
   }
 
   .osc-monster-save-value {
-    font-family: var(--display);
     line-height: 1;
     color: var(--text);
   }
 
   .osc-monster-item-name {
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: var(--fs-base);
-    letter-spacing: 0;
-    text-transform: none;
+    font-weight: 600;
+    font-size: var(--fs-md);
     color: var(--text);
     white-space: normal;
   }
 
   .osc-monster-attack-table {
     display: grid;
+    --attack-row-padding: var(--spacer-2);
     grid-template-columns:
-      max-content max-content minmax(0, 1fr)
-      max-content max-content;
-    column-gap: var(--spacer-4);
+      max-content minmax(0, 1fr) max-content max-content max-content
+      max-content;
+    column-gap: var(--spacer-3);
 
     &.has-actions {
       grid-template-columns:
-        max-content max-content minmax(0, 1fr)
-        max-content max-content max-content;
+        max-content minmax(0, 1fr) max-content max-content max-content
+        max-content max-content;
     }
   }
 
@@ -178,13 +212,51 @@
     display: grid;
     grid-column: 1 / -1;
     grid-template-columns: subgrid;
-    align-items: center;
-    padding-block: 2px;
+    --name-line: calc(var(--fs-sm) * 1.45);
+    align-items: start;
+    padding-block: var(--attack-row-padding);
+
+    > [role="cell"]:not(.osc-monster-attack-name, .osc-monster-pattern-cell) {
+      display: flex;
+      align-items: center;
+      min-height: var(--name-line);
+    }
 
     &.is-exhausted,
     &.is-exhausted .osc-monster-item-name {
       color: var(--text-mute);
     }
+  }
+
+  .osc-monster-pattern-cell {
+    --pip-size: var(--spacer-3);
+    --pip-offset: calc((var(--name-line) - var(--pip-size)) / 2);
+    position: relative;
+    align-self: stretch;
+    align-items: flex-start;
+    padding-top: var(--pip-offset);
+
+    .pattern-pip {
+      position: relative;
+      z-index: 1;
+    }
+
+    &.joins-next::after {
+      content: "";
+      position: absolute;
+      top: calc(var(--pip-offset) + var(--pip-size) / 2);
+      left: 50%;
+      height: calc(100% + 2 * var(--attack-row-padding));
+      border-left: 2px solid var(--pattern-link);
+      transform: translateX(-50%);
+    }
+  }
+
+  .icon-btn.raised.osc-monster-roll-button {
+    width: auto;
+    padding-inline: var(--spacer-1);
+    font-size: var(--fs-xs);
+    font-weight: 600;
   }
 
   .osc-monster-abilities {
@@ -195,16 +267,13 @@
   }
 
   .osc-monster-ability-name {
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: var(--fs-base);
-    letter-spacing: 0;
-    text-transform: none;
+    font-weight: 600;
+    font-size: var(--fs-md);
     color: var(--text);
   }
 
   .osc-monster-ability-text {
-    color: var(--text-dim);
+    color: var(--text);
 
     > :first-child {
       display: inline;
@@ -212,6 +281,10 @@
 
     p {
       margin: 0;
+    }
+
+    :is(strong, b) {
+      font-weight: 600;
     }
 
     > * + * {
@@ -228,7 +301,8 @@
   }
 
   .osc-rich-text-body {
-    font-family: var(--serif);
+    font-size: var(--fs-md);
+    line-height: 1.45;
   }
 
   .osc-rich-text-body table {

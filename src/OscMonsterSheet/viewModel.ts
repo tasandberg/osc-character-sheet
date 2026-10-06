@@ -3,7 +3,12 @@ import type { MonsterActor, MonsterItem, MonsterSaveKey } from "./types";
 
 export type MonsterSettings = { ascendingAC: boolean; morale: boolean };
 
-export type EditableStat = { label: string; value: string; path: string };
+export type EditableStat = {
+  label: string;
+  value: string;
+  editValue?: string;
+  path: string;
+};
 
 export type DocumentLink = { uuid: string; label: string | null };
 
@@ -58,7 +63,8 @@ export const EMPTY_VALUE = "—";
 
 const SHORT_TABLE_NAME = 12;
 
-const text = (value: unknown) => (value == null ? "" : String(value).trim());
+export const text = (value: unknown) =>
+  value == null ? "" : String(value).trim();
 
 function formatXp(xp: unknown): string {
   return typeof xp === "number" ? xp.toLocaleString("en-US") : text(xp);
@@ -174,7 +180,7 @@ export function selectMonster(actor: MonsterActor, settings: MonsterSettings) {
   const acSource = settings.ascendingAC ? system.aac : system.ac;
   const ac = text(acSource?.value);
   const armourClass: EditableStat = {
-    label: settings.ascendingAC ? "Ascending AC" : "Armour Class",
+    label: settings.ascendingAC ? "AC" : "Armour Class",
     value: ac,
     path: settings.ascendingAC ? "system.aac.value" : "system.ac.value",
   };
@@ -182,6 +188,7 @@ export function selectMonster(actor: MonsterActor, settings: MonsterSettings) {
     ? {
         label: "Attack",
         value: signed(system.thac0?.bba),
+        editValue: text(system.thac0?.bba),
         path: "system.thac0.bba",
       }
     : {

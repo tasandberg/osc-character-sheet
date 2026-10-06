@@ -14,7 +14,7 @@ import { notifySettingChanged, type SettingKey } from "@src/OscSheet/settings";
 let settings: Record<string, unknown>;
 
 (globalThis as { foundry?: unknown }).foundry = {
-  utils: { debounce: (fn: unknown) => fn },
+  utils: { debounce: (fn: unknown) => fn, escapeHTML: (html: string) => html },
   applications: {
     ux: { TextEditor: { enrichHTML: (html: string) => Promise.resolve(html) } },
   },
@@ -35,6 +35,22 @@ let settings: Record<string, unknown>;
   OSE: { colors: { green: "", red: "", yellow: "" }, roll_type: {} },
 };
 (globalThis as { fromUuidSync?: unknown }).fromUuidSync = () => null;
+(globalThis as { Roll?: unknown }).Roll = class {
+  total = 10;
+  terms = [];
+  constructor(public formula: string) {}
+  evaluate() {
+    return Promise.resolve(this);
+  }
+  getTooltip() {
+    return Promise.resolve("");
+  }
+};
+const chatMessage = { create: vi.fn(), getSpeaker: () => ({}) };
+(globalThis as { ChatMessage?: unknown }).ChatMessage = chatMessage;
+const postedFormula = () =>
+  (chatMessage.create.mock.lastCall?.[0] as { rolls: { formula: string }[] })
+    .rolls[0].formula;
 
 let container: HTMLDivElement;
 let root: Root;
@@ -112,7 +128,7 @@ describe("OscMonsterSheet", () => {
       "9,000",
       "Armour Class",
       "30d8",
-      "90′ (30′)*",
+      "90′ (30′) · 30' (10') on land",
       "Claw",
       "Capsize",
     ])
@@ -157,7 +173,7 @@ describe("OscMonsterSheet", () => {
     actor.rollAppearing = vi.fn();
     await mount(actor);
 
-    click(button("Lair"));
+    click(button("Roll Lair"));
 
     expect(actor.rollAppearing).toHaveBeenCalledWith(
       expect.objectContaining({ check: "wilderness" }),
@@ -165,13 +181,13 @@ describe("OscMonsterSheet", () => {
     expect(button("Edit Number appearing in a lair").textContent).toBe("1d4");
   });
 
-  it("rolls from the label", async () => {
+  it("rolls from the die after the value", async () => {
     const actor = makeMonster();
     actor.rollMorale = vi.fn();
     actor.rollSave = vi.fn();
     await mount(actor);
 
-    click(button("Morale"));
+    click(button("Roll Morale"));
     click(button("Paralysis"));
 
     expect(actor.rollMorale).toHaveBeenCalled();
@@ -192,22 +208,34 @@ describe("OscMonsterSheet", () => {
     });
   });
 
-  it("attacks from the d20 button, spending a use, and opens the attack from its name", async () => {
+  it("rolls to hit from ATK, spending a use, and opens the attack from its name", async () => {
+    settings.ascendingAC = true;
     const gaze = makeItem({
       name: "Gaze",
-      system: { pattern: "red", counter: { value: 1, max: 1 } },
+      system: { pattern: "red", bonus: 1, counter: { value: 1, max: 1 } },
     });
     gaze.update = vi.fn().mockResolvedValue(gaze);
-    gaze.roll = vi.fn();
     gaze.sheet = { render: vi.fn() };
     await mount(makeMonster({}, [gaze]));
 
     await act(async () => button("Attack with Gaze").click());
     expect(gaze.update).toHaveBeenCalledWith({ "system.counter.value": 0 });
-    expect(gaze.roll).toHaveBeenCalled();
+    expect(postedFormula()).toBe("1d20+14+1");
 
     click(button("Gaze"));
     expect(gaze.sheet.render).toHaveBeenCalledWith(true);
+  });
+
+  it("rolls damage with the weapon bonus from DMG", async () => {
+    const spear = makeItem({
+      name: "Spear",
+      system: { damage: "1d6", bonus: 2 },
+    });
+    await mount(makeMonster({}, [spear]));
+
+    await act(async () => button("Roll damage for Spear").click());
+
+    expect(postedFormula()).toBe("1d6+2");
   });
 
   it("sets how many times an attack can be used per round", async () => {
@@ -234,7 +262,7 @@ describe("OscMonsterSheet", () => {
       (item) => item.textContent,
     );
     expect(actions).toEqual([
-      "Edit",
+      "View",
       "Attack group›",
       "Show in chat",
       "Delete",
@@ -304,20 +332,6 @@ describe("OscMonsterSheet", () => {
     settings.morale = false;
     await mount(makeMonster());
     expect(text()).not.toContain("Morale");
-  });
-
-  it("cycles an ability's attack pattern from its bullet", async () => {
-    const sleeping = makeItem({
-      name: "Sleeping",
-      type: "ability",
-      system: { pattern: "transparent" },
-    });
-    sleeping.update = vi.fn();
-    await mount(makeMonster({}, [sleeping]));
-
-    click(button("Attack pattern: transparent. Click to change"));
-
-    expect(sleeping.update).toHaveBeenCalledWith({ "system.pattern": "green" });
   });
 
   it("opens an ability from its name and rolls it from its roll tag", async () => {

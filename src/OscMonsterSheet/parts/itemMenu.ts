@@ -14,8 +14,8 @@ export function itemMenu(
     title: item.name,
     entries: [
       {
-        label: canEdit ? "Edit" : "View",
-        icon: canEdit ? "fa-solid fa-pen-to-square" : "fa-solid fa-eye",
+        label: "View",
+        icon: "fa-solid fa-eye",
         onSelect: () => item.sheet?.render(true),
       },
       {

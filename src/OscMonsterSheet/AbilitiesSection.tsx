@@ -4,12 +4,11 @@ import type { OSEActor } from "@domain/types";
 import { BulletParagraph } from "@ui/BulletParagraph";
 import { ContextMenu, type ContextMenuState } from "@ui/ContextMenu";
 import { IconButton } from "@ui/IconButton";
-import { PatternPip } from "@ui/PatternPip";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import { useSetting } from "@src/OscSheet/settings";
-import { cyclePattern, rollMonsterItem } from "./actions";
+import { rollMonsterItem } from "./actions";
 import { itemMenu } from "./parts/itemMenu";
 import { RollLabel } from "@ui/RollLabel";
 import { useEnrichedHtml } from "./parts/useEnrichedHtml";
@@ -54,14 +53,9 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
       <BulletParagraph
         ref={body}
         bullet={
-          <PatternPip
-            shape="triangle"
-            label="Attack pattern"
-            pattern={ability.pattern}
-            onCycle={
-              canEdit && item ? () => void cyclePattern(item) : undefined
-            }
-          />
+          <span aria-hidden="true" className="u-fs-xs u-text-mute">
+            ▶
+          </span>
         }
         className="tw:select-text"
         clamp={expanded ? undefined : 3}
@@ -145,7 +139,7 @@ export function AbilitiesSection({
         )}
       </SectionTitle>
       {abilities.length === 0 ? (
-        <p className="u-m-0 u-fs-sm u-text-dim">No special abilities.</p>
+        <p className="u-m-0 u-text-dim">No special abilities.</p>
       ) : (
         <ul className="osc-monster-abilities u-m-0 u-p-0">
           {abilities.map((ability) => (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type MouseEvent, type ReactNode } from "react";
 import { Button } from "@ui/Button";
 import { DividedRow } from "@ui/DividedRow";
 import { LeaderRow } from "@ui/LeaderRow";
@@ -19,17 +19,60 @@ type Props = {
   onGenerateSaves?: () => void;
 };
 
+function RollRow({
+  label,
+  prefix,
+  onRoll,
+  children,
+}: {
+  label: string;
+  prefix?: ReactNode;
+  onRoll?: (event: MouseEvent<HTMLButtonElement>) => void;
+  children: ReactNode;
+}) {
+  return (
+    <LeaderRow
+      label={
+        <>
+          {prefix}
+          <span className="osc-monster-label">{label}</span>
+        </>
+      }
+    >
+      {children}
+      {onRoll && (
+        <button
+          type="button"
+          className="osc-monster-roll-die"
+          aria-label={`Roll ${label}`}
+          title={`Roll ${label}`}
+          onClick={onRoll}
+        >
+          <i
+            className="fa-solid fa-dice-d20 roll-label-die"
+            aria-hidden="true"
+          />
+        </button>
+      )}
+    </LeaderRow>
+  );
+}
+
 export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
   const [movementAnchor, setMovementAnchor] = useState<DOMRect | null>(null);
   const canEdit = !!commit;
   const { appearing, movement } = view;
 
   return (
-    <RuleFrame as="section" aria-label="Statistics" inset="u-px-3 u-py-2">
+    <RuleFrame
+      as="section"
+      aria-label="Statistics"
+      className="osc-monster-stats"
+      inset="u-px-3 u-py-2"
+    >
       <div className="osc-monster-stat-grid u-grid-2 tw:gap-x-5">
         <div className="osc-monster-stat-column">
           <LeaderRow
-            valueClassName="u-fs-xs"
             label={
               <span className="osc-monster-label">
                 {view.armourClass.label}
@@ -43,19 +86,12 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               onCommit={commit?.number(view.armourClass.path)}
             />
           </LeaderRow>
-          <LeaderRow
-            valueClassName="u-fs-xs"
-            label={
-              <RollLabel
-                className="osc-monster-label"
-                onRoll={
-                  view.hitDice.rollable
-                    ? (event) => actor.rollHitDice({ event })
-                    : undefined
-                }
-              >
-                Hit Dice
-              </RollLabel>
+          <RollRow
+            label="Hit Dice"
+            onRoll={
+              view.hitDice.rollable
+                ? (event) => actor.rollHitDice({ event })
+                : undefined
             }
           >
             <InlineEditValue
@@ -64,131 +100,25 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               placeholder="—"
               onCommit={commit?.text("system.hp.hd")}
             />
-          </LeaderRow>
-          <LeaderRow
-            valueClassName="u-fs-xs"
-            label={
-              <RollLabel
-                className="osc-monster-label"
-                onRoll={(event) => rollBareAttack(actor, event)}
-              >
-                {view.attack.label}
-              </RollLabel>
-            }
+          </RollRow>
+          <RollRow
+            label={view.attack.label}
+            onRoll={(event) => rollBareAttack(actor, event)}
           >
             <InlineEditValue
               label={view.attack.label}
               value={view.attack.value}
+              editValue={view.attack.editValue}
               placeholder="—"
               onCommit={commit?.number(view.attack.path)}
             />
-          </LeaderRow>
-          <LeaderRow
-            valueClassName="u-fs-xs"
-            label={<span className="osc-monster-label">Treasure</span>}
-          >
-            <TreasureValue
-              treasure={view.treasure}
-              onClear={canEdit ? () => void clearTreasure(actor) : undefined}
-            />
-          </LeaderRow>
-          <LeaderRow
-            valueClassName="u-fs-xs"
-            label={
-              <RollLabel
-                className="osc-monster-label"
-                onRoll={(event) => actor.rollReaction({ event })}
-              >
-                Reaction
-              </RollLabel>
-            }
-          >
-            2d6
-          </LeaderRow>
-          {view.loyalty != null && (
-            <LeaderRow
-              valueClassName="u-fs-xs"
-              label={
-                <RollLabel
-                  className="osc-monster-label"
-                  onRoll={(event) => actor.rollLoyalty({ event })}
-                >
-                  Loyalty
-                </RollLabel>
-              }
-            >
-              <InlineEditValue
-                label="Loyalty"
-                value={view.loyalty}
-                placeholder="—"
-                onCommit={commit?.number("system.retainer.loyalty")}
-              />
-            </LeaderRow>
-          )}
-        </div>
-        <div className="osc-monster-stat-column">
-          <LeaderRow
-            valueClassName="u-fs-xs"
-            label={<span className="osc-monster-label">Movement</span>}
-          >
-            {commit ? (
-              <button
-                type="button"
-                className="inline-edit"
-                aria-label="Edit movement"
-                aria-expanded={!!movementAnchor}
-                onClick={(event) =>
-                  setMovementAnchor(event.currentTarget.getBoundingClientRect())
-                }
-              >
-                {movement.display}
-                {movement.footnote && "*"}
-              </button>
-            ) : (
-              <span>
-                {movement.display}
-                {movement.footnote && "*"}
-              </span>
-            )}
-          </LeaderRow>
-          {view.morale && (
-            <LeaderRow
-              valueClassName="u-fs-xs"
-              label={
-                <RollLabel
-                  className="osc-monster-label"
-                  onRoll={
-                    view.morale.rollable
-                      ? (event) => actor.rollMorale({ event })
-                      : undefined
-                  }
-                >
-                  Morale
-                </RollLabel>
-              }
-            >
-              <InlineEditValue
-                label="Morale"
-                value={view.morale.value}
-                placeholder="—"
-                onCommit={commit?.loose("system.details.morale")}
-              />
-            </LeaderRow>
-          )}
-          <LeaderRow
-            valueClassName="u-fs-xs"
-            label={
-              <RollLabel
-                className="osc-monster-label"
-                onRoll={
-                  appearing.rollableDungeon
-                    ? (event) =>
-                        actor.rollAppearing({ event, check: "dungeon" })
-                    : undefined
-                }
-              >
-                Appearing
-              </RollLabel>
+          </RollRow>
+          <RollRow
+            label="Appearing"
+            onRoll={
+              appearing.rollableDungeon
+                ? (event) => actor.rollAppearing({ event, check: "dungeon" })
+                : undefined
             }
           >
             <InlineEditValue
@@ -197,29 +127,18 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               placeholder="—"
               onCommit={commit?.loose("system.details.appearing.d")}
             />
-          </LeaderRow>
-          <LeaderRow
-            valueClassName="u-fs-xs"
-            label={
-              <>
-                <span
-                  aria-hidden="true"
-                  className="osc-monster-label u-text-dim"
-                >
-                  ↳
-                </span>
-                <RollLabel
-                  className="osc-monster-label"
-                  onRoll={
-                    appearing.rollableLair
-                      ? (event) =>
-                          actor.rollAppearing({ event, check: "wilderness" })
-                      : undefined
-                  }
-                >
-                  Lair
-                </RollLabel>
-              </>
+          </RollRow>
+          <RollRow
+            prefix={
+              <span aria-hidden="true" className="osc-monster-label u-text-dim">
+                ↳
+              </span>
+            }
+            label="Lair"
+            onRoll={
+              appearing.rollableLair
+                ? (event) => actor.rollAppearing({ event, check: "wilderness" })
+                : undefined
             }
           >
             <InlineEditValue
@@ -228,19 +147,87 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               placeholder="—"
               onCommit={commit?.loose("system.details.appearing.w")}
             />
+          </RollRow>
+        </div>
+        <div className="osc-monster-stat-column">
+          <RollRow
+            label="Reaction"
+            onRoll={(event) => actor.rollReaction({ event })}
+          >
+            2d6
+          </RollRow>
+          {view.morale && (
+            <RollRow
+              label="Morale"
+              onRoll={
+                view.morale.rollable
+                  ? (event) => actor.rollMorale({ event })
+                  : undefined
+              }
+            >
+              <InlineEditValue
+                label="Morale"
+                value={view.morale.value}
+                placeholder="—"
+                onCommit={commit?.loose("system.details.morale")}
+              />
+            </RollRow>
+          )}
+          {view.loyalty != null && (
+            <RollRow
+              label="Loyalty"
+              onRoll={(event) => actor.rollLoyalty({ event })}
+            >
+              <InlineEditValue
+                label="Loyalty"
+                value={view.loyalty}
+                placeholder="—"
+                onCommit={commit?.number("system.retainer.loyalty")}
+              />
+            </RollRow>
+          )}
+          <LeaderRow
+            label={<span className="osc-monster-label">Treasure</span>}
+          >
+            <TreasureValue
+              treasure={view.treasure}
+              onClear={canEdit ? () => void clearTreasure(actor) : undefined}
+            />
           </LeaderRow>
         </div>
       </div>
-      {movement.footnote && (
-        <p className="osc-monster-footnote u-m-0 u-mt-1 u-fs-sm u-text-dim">
-          * {movement.footnote}
-        </p>
-      )}
+      <div className="u-mt-3">
+        <LeaderRow label={<span className="osc-monster-label">Movement</span>}>
+          {commit ? (
+            <button
+              type="button"
+              className="inline-edit"
+              aria-label="Edit movement"
+              aria-expanded={!!movementAnchor}
+              onClick={(event) =>
+                setMovementAnchor(event.currentTarget.getBoundingClientRect())
+              }
+            >
+              {movement.display}
+              {movement.footnote && (
+                <span className="u-text-dim"> · {movement.footnote}</span>
+              )}
+            </button>
+          ) : (
+            <span>
+              {movement.display}
+              {movement.footnote && (
+                <span className="u-text-dim"> · {movement.footnote}</span>
+              )}
+            </span>
+          )}
+        </LeaderRow>
+      </div>
       <DividedRow className="u-items-baseline u-mt-2 u-pt-2 tw:border-t tw:border-(--hairline)">
         {view.saves.map((save) => (
           <div
             key={save.key}
-            className="u-flex u-items-baseline u-justify-center tw:gap-[calc(var(--spacer-1)*1.5)]"
+            className="u-flex u-items-center u-justify-center tw:gap-[calc(var(--spacer-1)*1.5)]"
           >
             <RollLabel
               className="osc-monster-label osc-monster-save-label"
