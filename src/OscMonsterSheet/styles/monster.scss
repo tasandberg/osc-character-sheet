@@ -176,6 +176,10 @@
     min-width: 0;
   }
 
+  .osc-monster-save-label {
+    border-top: 2px solid transparent;
+  }
+
   .osc-monster-save-label,
   .osc-monster-save-value {
     text-box: trim-both cap alphabetic;

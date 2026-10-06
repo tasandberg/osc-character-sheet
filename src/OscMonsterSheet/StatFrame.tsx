@@ -223,7 +223,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
           )}
         </LeaderRow>
       </div>
-      <DividedRow className="u-items-baseline u-mt-2 u-pt-2 tw:border-t tw:border-(--hairline)">
+      <DividedRow className="u-items-center u-mt-3 u-pt-3 u-pb-1 tw:border-t tw:border-(--hairline)">
         {view.saves.map((save) => (
           <div
             key={save.key}
@@ -239,7 +239,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
             </RollLabel>
             <InlineEditValue
               label={`Save versus ${save.label}`}
-              className="osc-monster-save-value u-fs-xl"
+              className="osc-monster-save-value"
               value={save.value}
               placeholder="—"
               onCommit={commit?.number(`system.saves.${save.key}.value`)}
