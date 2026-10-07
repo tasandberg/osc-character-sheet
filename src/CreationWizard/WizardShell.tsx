@@ -1,9 +1,9 @@
 import { useRef, type ReactNode } from "react";
 import { HouseRules } from "./HouseRules";
+import { MoreBelow } from "./MoreBelow";
 import type { HouseRule } from "./houseRuleSettings";
 import { StepsNav } from "./StepsNav";
 import { STEP_LABELS, type CreationStep, type StepStatuses } from "./steps";
-import { useScrollsFurther } from "./useScrollsFurther";
 
 type Props = {
   worldName: string;
@@ -33,7 +33,6 @@ export function WizardShell({
   children,
 }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null);
-  const scrollsFurther = useScrollsFurther(bodyRef, step);
   const status = statuses[step];
   const canAdvance =
     status.complete && (next !== undefined || onCreate !== undefined);
@@ -57,23 +56,7 @@ export function WizardShell({
       </header>
       <div ref={bodyRef} className="osc-creation-body u-px-5 u-py-3">
         <div>{children}</div>
-        {scrollsFurther && (
-          <div className="osc-creation-more-below">
-            <button
-              type="button"
-              className="vm-btn vm-btn-secondary"
-              onClick={() =>
-                bodyRef.current?.scrollBy({
-                  top: bodyRef.current.clientHeight * 0.8,
-                  behavior: "smooth",
-                })
-              }
-            >
-              More below
-              <i className="fa-solid fa-chevron-down" aria-hidden="true" />
-            </button>
-          </div>
-        )}
+        <MoreBelow scroller={bodyRef} contentKey={step} />
       </div>
       <footer className="osc-creation-footer u-row u-gap-3 tw:mx-5 u-pt-3 u-pb-4">
         {onBack && (

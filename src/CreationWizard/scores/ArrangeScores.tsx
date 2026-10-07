@@ -129,6 +129,26 @@ export function ArrangeScores({
         <div className="vm-sheet-head">
           <h2 className="vm-sheet-head-title">Ability Scores</h2>
           <span className="vm-sheet-head-hint">{empty.length} to place</span>
+          {anyRolled && (
+            <div className="u-row u-gap-3 u-ml-auto tw:-my-1 tw:self-center">
+              <button
+                type="button"
+                className="vm-btn vm-btn-secondary"
+                aria-disabled={!unplaced.length || !empty.length}
+                onClick={() => unplaced.length && placeRestInOrder()}
+              >
+                Place the rest in order
+              </button>
+              <button
+                type="button"
+                className="vm-btn vm-btn-secondary"
+                aria-disabled={empty.length === ABILITIES.length}
+                onClick={() => onPlace({})}
+              >
+                Clear placements
+              </button>
+            </div>
+          )}
         </div>
         <ScoreGrid>
           {ABILITIES.map((ability) => {
@@ -174,26 +194,6 @@ export function ArrangeScores({
             );
           })}
         </ScoreGrid>
-        {anyRolled && (
-          <div className="u-row u-gap-3">
-            <button
-              type="button"
-              className="vm-btn vm-btn-secondary"
-              aria-disabled={!unplaced.length || !empty.length}
-              onClick={() => unplaced.length && placeRestInOrder()}
-            >
-              Place the rest in order
-            </button>
-            <button
-              type="button"
-              className="vm-btn vm-btn-secondary"
-              aria-disabled={empty.length === ABILITIES.length}
-              onClick={() => onPlace({})}
-            >
-              Clear placements
-            </button>
-          </div>
-        )}
       </section>
     </>
   );

@@ -92,17 +92,6 @@ export function availableClassNames(): string[] {
   return [...names].sort((a, b) => a.localeCompare(b));
 }
 
-type ClassRequirements = { name: string; requirements: Record<string, number> };
-
-export function classRequirementList(): ClassRequirements[] {
-  const byName = new Map<string, ClassRequirements>();
-  for (const map of classMaps())
-    for (const [name, def] of Object.entries(map))
-      if (!byName.has(canon(name)))
-        byName.set(canon(name), { name, requirements: def.requirements ?? {} });
-  return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
-}
-
 /** Rulebook slot maxima for the actor's class+level, keyed by spell level (1-based). */
 export function selectSpellSlotDefaults(
   actor: OSEActor,

@@ -3,7 +3,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { CreationWizard } from "./CreationWizard";
-import type { CreationRules } from "./rules";
+import type { ClassDetail, CreationClass, CreationRules } from "./rules";
 import type { AbilityScores } from "./scores/scoresDraft";
 
 (
@@ -13,13 +13,52 @@ import type { AbilityScores } from "./scores/scoresDraft";
 let host: HTMLDivElement;
 let root: Root;
 let rolls: { total: number; dice: number[] }[];
+let details: Map<string, (detail: ClassDetail) => void>;
+
+const level1 = { hitDie: "1d8", thac0: 19, nextLevelXp: 2000, skills: [] };
+const classes: CreationClass[] = [
+  {
+    name: "Dwarf",
+    requirements: { con: 9 },
+    primeRequisites: ["str"],
+    ...level1,
+  },
+  { name: "Fighter", requirements: {}, primeRequisites: ["str"], ...level1 },
+  {
+    name: "Halfling",
+    requirements: { con: 9, dex: 9 },
+    primeRequisites: ["dex", "str"],
+    xpModifiers: [{ modifier: 10, anyOf: [{ dex: 13, str: 13 }] }],
+    ...level1,
+    hitDie: "1d6",
+  },
+  {
+    name: "Thief",
+    requirements: {},
+    primeRequisites: ["dex"],
+    hitDie: "1d4",
+    thac0: 19,
+    nextLevelXp: 1200,
+    skills: [
+      { key: "cs", chance: 87 },
+      { key: "hn", chance: 2 },
+    ],
+  },
+];
+
+const thiefDetail: ClassDetail = {
+  description: "<p>Thieves live by their skills of deception and stealth.</p>",
+  armour: "Leather, no shields",
+  weapons: "Any",
+  abilities: [
+    { name: "Back-stab", description: "<p>+4 to hit and double damage.</p>" },
+  ],
+  skillLabels: { cs: "Climb sheer surfaces", hn: "Hear noise" },
+};
 
 const rules: CreationRules = {
-  classes: [
-    { name: "Dwarf", requirements: { con: 9 } },
-    { name: "Fighter", requirements: {} },
-    { name: "Halfling", requirements: { con: 9, dex: 9 } },
-  ],
+  classes,
+  classDetail: (name) => new Promise((resolve) => details.set(name, resolve)),
   modifiers: (scores) =>
     Object.fromEntries(
       Object.entries(scores).map(([key, value]) => [
@@ -31,6 +70,7 @@ const rules: CreationRules = {
 };
 
 function open() {
+  details = new Map();
   rolls = [12, 7, 10, 15, 8, 11].map((total) => ({
     total,
     dice: [total - 2, 1, 1],
@@ -69,6 +109,15 @@ const currentStep = () =>
   host.querySelector('[aria-current="step"]')?.textContent;
 const next = () => buttons().find((b) => b.textContent?.startsWith("Next"))!;
 const aside = () => host.querySelector("aside")!.textContent;
+const rows = () =>
+  [...host.querySelectorAll("tbody tr")].map((row) => ({
+    text: row.textContent,
+    disabled: row.getAttribute("aria-disabled") === "true",
+  }));
+const radio = (name: string) =>
+  host.querySelector<HTMLInputElement>(
+    `input[type=radio][aria-label="${name}"]`,
+  )!;
 
 function type(label: string, value: string) {
   const input = host.querySelector<HTMLInputElement>(
@@ -209,5 +258,71 @@ describe("CreationWizard", () => {
         .filter((row) => row.getAttribute("aria-disabled") === "true")
         .map((row) => row.textContent),
     ).toEqual(["DwarfCON 9", "HalflingCON 9, DEX 9"]);
+  });
+
+  it("shows the XP adjustment of each class the scores allow", () => {
+    open();
+    enterScores(["7", "8", "7", "15", "8", "11"]);
+    expect(aside()).toContain("Fighter−10% XP");
+    expect(aside()).toContain("Thief+5% XP");
+    expect(aside()).toContain("DwarfCON 9");
+  });
+
+  it("offers only the classes the scores allow, then summarises the choice", () => {
+    open();
+    enterScores(["13", "8", "7", "15", "8", "11"]);
+    act(() => next().click());
+
+    expect(rows()).toEqual([
+      { text: "DwarfSTRCON 91d8Dwarf requires CON 9", disabled: true },
+      { text: "FighterSTR—1d8+5% from STR 13", disabled: false },
+      {
+        text: "HalflingDEX, STRCON 9, DEX 91d6Halfling requires CON 9 and DEX 9",
+        disabled: true,
+      },
+      { text: "ThiefDEX—1d4+5% from DEX 15", disabled: false },
+    ]);
+    expect(radio("Dwarf").disabled).toBe(true);
+    expect(next().getAttribute("aria-disabled")).toBe("true");
+    expect(host.textContent).toContain("Choose a class to continue");
+
+    act(() => radio("Thief").click());
+    expect(next().getAttribute("aria-disabled")).toBe("false");
+    act(() => next().click());
+    expect(button("2ClassThief · +5% XP")).toBeDefined();
+  });
+
+  it("describes the chosen class once its compendium entries load", async () => {
+    open();
+    enterScores(["13", "8", "7", "15", "8", "11"]);
+    act(() => next().click());
+    act(() => radio("Thief").click());
+
+    const panel = () =>
+      host.querySelector('aside[aria-label="Thief at first level"]')!;
+    expect(panel().querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(panel().textContent).toContain("Hit die1d4");
+    expect(panel().textContent).toContain("Prime req.+5% from DEX 15");
+    expect(panel().textContent).toContain("THAC019 [+0]");
+    expect(panel().textContent).toContain("Next level1,200 xp");
+
+    await act(async () => details.get("Thief")!(thiefDetail));
+    expect(panel().querySelector('[aria-busy="true"]')).toBeNull();
+    expect(panel().textContent).toContain(
+      "Thieves live by their skills of deception and stealth.",
+    );
+    expect(panel().textContent).toContain("ArmourLeather, no shields");
+    expect(panel().textContent).toContain("WeaponsAny");
+    const backStab = button("Back-stab")!;
+    const backStabText = () =>
+      document.getElementById(backStab.getAttribute("aria-controls")!)!;
+    expect(backStab.getAttribute("aria-expanded")).toBe("false");
+    expect(backStabText().hasAttribute("hidden")).toBe(true);
+    act(() => backStab.click());
+    expect(backStab.getAttribute("aria-expanded")).toBe("true");
+    expect(backStabText().hasAttribute("hidden")).toBe(false);
+    expect(backStabText().textContent).toBe("+4 to hit and double damage.");
+    expect(panel().textContent).toContain("Climb sheer surfaces87%");
+    expect(panel().textContent).toContain("Hear noise2-in-6");
   });
 });

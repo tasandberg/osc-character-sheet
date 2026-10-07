@@ -1,7 +1,10 @@
+import { useMemo } from "react";
+import { ClassStep } from "./class/ClassStep";
 import { creationFlow } from "./flow";
 import type { HouseRule } from "./houseRuleSettings";
 import { PlaceholderStep } from "./PlaceholderStep";
 import type { CreationRules } from "./rules";
+import { finalScores } from "./scores/scoresDraft";
 import { ScoresStep } from "./scores/ScoresStep";
 import { useWizard } from "./useWizard";
 import { WizardShell } from "./WizardShell";
@@ -16,6 +19,7 @@ export function CreationWizard({ worldName, houseRules, rules }: Props) {
   const wizard = useWizard(creationFlow);
   const { step, draft } = wizard;
   const done = draft.done.includes(step);
+  const scores = useMemo(() => finalScores(draft.scores), [draft.scores]);
 
   return (
     <WizardShell
@@ -36,6 +40,14 @@ export function CreationWizard({ worldName, houseRules, rules }: Props) {
           onChange={(update) =>
             wizard.setDraft((d) => ({ ...d, scores: update(d.scores) }))
           }
+        />
+      ) : step === "class" ? (
+        <ClassStep
+          classes={rules.classes}
+          scores={scores}
+          chosen={draft.class}
+          loadDetail={rules.classDetail}
+          onChoose={(cls) => wizard.setDraft((d) => ({ ...d, class: cls }))}
         />
       ) : (
         <PlaceholderStep

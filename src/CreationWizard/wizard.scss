@@ -1,3 +1,38 @@
+@layer base {
+  .osc-creation-wizard-app
+    :where(
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      ol,
+      ul,
+      li,
+      dl,
+      dt,
+      dd,
+      fieldset,
+      legend
+    ) {
+    margin: 0;
+    padding: 0;
+    color: inherit;
+    text-shadow: none;
+  }
+
+  .osc-creation-wizard-app :where(ol, ul) {
+    list-style: none;
+  }
+
+  .osc-creation-wizard-app :where(fieldset) {
+    min-width: 0;
+    border: 0;
+  }
+}
+
 .osc-sheet.osc-creation-wizard:not(.minimizing, .minimized, .maximizing) {
   min-width: 720px;
   min-height: 540px;
@@ -64,9 +99,17 @@
 
 .osc-creation-body {
   position: relative;
+  display: flex;
   flex: 1;
+  flex-direction: column;
   min-height: 0;
   overflow: auto;
+
+  > div:first-child {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+  }
 }
 
 .osc-creation-more-below {
@@ -144,6 +187,7 @@
 
 .osc-creation-split {
   display: grid;
+  flex: 1 0 auto;
   grid-template-columns: minmax(0, 1fr) calc(
       var(--spacer-12) * 5 + var(--spacer-2)
     );
@@ -158,9 +202,12 @@
 }
 
 .osc-creation-aside {
+  position: relative;
   min-width: 0;
-  padding-left: var(--spacer-5);
+  padding: 0 var(--spacer-2) 0 var(--spacer-5);
   border-left: 1px solid var(--hair);
+  overflow-y: auto;
+  contain: size;
 }
 
 .osc-creation-roll-chip {
@@ -225,6 +272,143 @@
   }
 }
 
+.osc-creation-xp-up {
+  color: var(--forest);
+}
+
+.osc-creation-xp-down {
+  color: var(--danger-ink);
+}
+
+.osc-creation-xp-flat {
+  color: var(--text-dim);
+}
+
+.osc-creation-class-step {
+  grid-template-columns: minmax(0, 1fr) clamp(
+      var(--spacer-10) * 8,
+      36%,
+      var(--spacer-10) * 11
+    );
+}
+
+.osc-creation-class-pane {
+  position: relative;
+  overflow-y: auto;
+  contain: size;
+}
+
+.osc-creation-wizard-app .osc-creation-class-table {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  overflow: visible;
+  border-collapse: collapse;
+  background: none;
+  font-size: var(--fs-xs);
+  line-height: 1.45;
+
+  thead,
+  tr {
+    background: none;
+  }
+
+  th,
+  td {
+    padding: var(--spacer-1);
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-bottom: 1px solid var(--hair);
+    background: var(--bg);
+    color: var(--text-dim);
+    font-family: var(--sans);
+    font-size: var(--fs-3xs);
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--hair-soft);
+    cursor: pointer;
+  }
+
+  tbody tr:not([aria-disabled="true"], .osc-creation-class-selected):hover {
+    background: var(--tint-hover);
+  }
+
+  tbody tr[aria-disabled="true"] {
+    color: var(--text-mute);
+    cursor: default;
+  }
+
+  .vm-mono {
+    white-space: nowrap;
+  }
+}
+
+.osc-creation-wizard-app
+  .osc-creation-class-table
+  .osc-creation-class-selected {
+  background: var(--tint-warm);
+
+  > :first-child {
+    box-shadow: inset 2px 0 0 var(--text);
+  }
+}
+
+.osc-creation-class-table .osc-creation-class-name {
+  white-space: nowrap;
+}
+
+.osc-creation-class-select {
+  width: 1%;
+
+  .vm-check {
+    gap: 0;
+  }
+}
+
+.osc-creation-class-reason {
+  color: var(--danger-ink);
+  font-family: var(--sans);
+  white-space: nowrap;
+}
+
+.osc-creation-class-ability-toggle {
+  width: 100%;
+  min-height: var(--spacer-8);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--gold);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+}
+
+.osc-creation-class-ability[hidden] {
+  display: none;
+}
+
+.osc-creation-class-description,
+.osc-creation-class-ability {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacer-2);
+}
+
 @container creation-wizard (max-width: 51.25em) {
   .osc-creation-wizard-app {
     .osc-creation-split {
@@ -233,6 +417,12 @@
 
     .osc-creation-pane {
       padding-right: 0;
+    }
+
+    .osc-creation-class-pane,
+    .osc-creation-aside {
+      overflow: visible;
+      contain: none;
     }
 
     .osc-creation-aside {

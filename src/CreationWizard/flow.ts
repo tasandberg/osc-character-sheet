@@ -1,5 +1,8 @@
+import { classBlockedReason, classSummary } from "./class/classDraft";
+import type { CreationClass } from "./rules";
 import {
   emptyScoresDraft,
+  finalScores,
   scoresBlockedReason,
   scoresSummary,
   type ScoresDraft,
@@ -17,10 +20,16 @@ export interface CreationFlow<D> {
   summary(draft: D, step: CreationStep): string | undefined;
 }
 
-export type CreationDraft = { scores: ScoresDraft; done: CreationStep[] };
+export type CreationDraft = {
+  scores: ScoresDraft;
+  class?: CreationClass;
+  done: CreationStep[];
+};
 
 function blockedReason(draft: CreationDraft, step: CreationStep) {
   if (step === "scores") return scoresBlockedReason(draft.scores);
+  if (step === "class")
+    return classBlockedReason(draft.class, finalScores(draft.scores));
   if (step === "review")
     return CREATION_STEPS.every(
       (s) => s === "review" || !blockedReason(draft, s),
@@ -47,5 +56,9 @@ export const creationFlow: CreationFlow<CreationDraft> = {
       }),
     ) as StepStatuses,
   summary: (draft, step) =>
-    step === "scores" ? scoresSummary(draft.scores) : undefined,
+    step === "scores"
+      ? scoresSummary(draft.scores)
+      : step === "class"
+        ? classSummary(draft.class, finalScores(draft.scores))
+        : undefined,
 };
