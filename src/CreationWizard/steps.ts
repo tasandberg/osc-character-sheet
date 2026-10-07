@@ -1,5 +1,6 @@
 export const CREATION_STEPS = [
   "scores",
+  "race",
   "class",
   "details",
   "gear",
@@ -9,6 +10,7 @@ export type CreationStep = (typeof CREATION_STEPS)[number];
 
 export const STEP_LABELS: Record<CreationStep, string> = {
   scores: "Scores",
+  race: "Race",
   class: "Class",
   details: "Details",
   gear: "Gear",
@@ -33,13 +35,18 @@ export function stepPhase(
   return statuses[step].complete ? "done" : "todo";
 }
 
-export function firstIncompleteStep(statuses: StepStatuses): CreationStep {
-  return CREATION_STEPS.find((step) => !statuses[step].complete) ?? "review";
+export function firstIncompleteStep(
+  steps: readonly CreationStep[],
+  statuses: StepStatuses,
+): CreationStep {
+  return steps.find((step) => !statuses[step].complete) ?? "review";
 }
 
 export function adjacentStep(
+  steps: readonly CreationStep[],
   step: CreationStep,
   offset: 1 | -1,
 ): CreationStep | undefined {
-  return CREATION_STEPS[CREATION_STEPS.indexOf(step) + offset];
+  const index = steps.indexOf(step);
+  return index < 0 ? undefined : steps[index + offset];
 }

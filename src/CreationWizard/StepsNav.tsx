@@ -1,6 +1,5 @@
 import { cx } from "@ui/cx";
 import {
-  CREATION_STEPS,
   STEP_LABELS,
   stepPhase,
   type CreationStep,
@@ -8,17 +7,24 @@ import {
 } from "./steps";
 
 type Props = {
+  steps: readonly CreationStep[];
   current: CreationStep;
   statuses: StepStatuses;
   summary: (step: CreationStep) => string | undefined;
   onSelect: (step: CreationStep) => void;
 };
 
-export function StepsNav({ current, statuses, summary, onSelect }: Props) {
+export function StepsNav({
+  steps,
+  current,
+  statuses,
+  summary,
+  onSelect,
+}: Props) {
   return (
     <nav aria-label="Creation steps" className="osc-creation-steps-nav">
       <ol className="vm-steps">
-        {CREATION_STEPS.map((step, index) => {
+        {steps.map((step, index) => {
           const phase = stepPhase(step, current, statuses);
           const stepSummary = phase === "done" ? summary(step) : undefined;
           const content = (

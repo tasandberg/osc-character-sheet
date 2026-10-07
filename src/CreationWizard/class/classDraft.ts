@@ -18,7 +18,7 @@ export const requirementList = (cls: CreationClass) =>
   );
 
 const isAllowed = (cls: CreationClass, restrictions?: ClassRestrictions) =>
-  !restrictions?.allowed || restrictions.allowed.has(cls.name);
+  !restrictions?.allowed || restrictions.allowed(cls.name);
 
 export const ineligibleReason = (
   cls: CreationClass,
@@ -41,6 +41,8 @@ export function classBlockedReason(
   restrictions?: ClassRestrictions,
 ): string | undefined {
   if (!cls) return "Choose a class to continue";
+  if (!isAllowed(cls, restrictions))
+    return `${cls.name} isn’t open to this character; choose another class`;
   if (!isEligible(cls, scores, restrictions))
     return `Your scores no longer allow ${cls.name}; choose another class`;
   return undefined;
@@ -49,8 +51,11 @@ export function classBlockedReason(
 export function classSummary(
   cls: CreationClass | undefined,
   scores: AbilityScores,
+  restrictions?: ClassRestrictions,
+  raceName?: string,
 ): string | undefined {
-  if (!cls || classBlockedReason(cls, scores)) return undefined;
+  if (!cls || classBlockedReason(cls, scores, restrictions)) return undefined;
+  const name = raceName ? `${raceName} ${cls.name}` : cls.name;
   const xp = xpAdjustment(cls, scores);
-  return xp ? `${cls.name} · ${formatXpModifier(xp.modifier)} XP` : cls.name;
+  return xp ? `${name} · ${formatXpModifier(xp.modifier)} XP` : name;
 }

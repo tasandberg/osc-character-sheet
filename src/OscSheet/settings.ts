@@ -24,6 +24,7 @@ type SettingDefinition<T> = {
   readonly type: typeof String | typeof Boolean;
   readonly choices?: Readonly<Record<string, string>>;
   readonly filePicker?: "folder";
+  readonly requiresModule?: string;
   readonly default: T;
   readonly resolve: (value: unknown) => T;
 };
@@ -112,6 +113,16 @@ export const SETTINGS = {
     hint: "Show a New Character button in the Actors sidebar and a Create Character prompt on blank character sheets.",
     scope: "world",
     config: true,
+    type: Boolean,
+    default: false,
+    resolve: resolveBoolean(false),
+  },
+  separateRaceAndClass: {
+    name: "Separate race and class",
+    hint: "Let players choose a race and then a class in the creation wizard, using the Advanced Fantasy rules.",
+    scope: "world",
+    config: true,
+    requiresModule: "ose-advancedfantasytome",
     type: Boolean,
     default: false,
     resolve: resolveBoolean(false),
@@ -265,12 +276,21 @@ export type SettingRegistration = Omit<
   readonly onChange: () => void;
 };
 
+type ModuleLookup = { get(id: string): { active?: boolean } | undefined };
+
+const moduleActive = (id: string) =>
+  !!(globalThis as { game?: { modules?: ModuleLookup } }).game?.modules?.get(id)
+    ?.active;
+
 export function settingRegistrations(
   onChange: () => void,
 ): { key: SettingKey; data: SettingRegistration }[] {
   const defs: Record<SettingKey, SettingDefinition<unknown>> = SETTINGS;
   return (Object.keys(defs) as SettingKey[]).map((key) => {
-    const { name, hint, scope, config, type, choices, filePicker } = defs[key];
+    const { name, hint, scope, type, choices, filePicker, requiresModule } =
+      defs[key];
+    const config =
+      defs[key].config && (!requiresModule || moduleActive(requiresModule));
     return {
       key,
       data: {
