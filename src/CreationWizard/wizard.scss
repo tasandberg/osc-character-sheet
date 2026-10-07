@@ -336,12 +336,8 @@
   }
 
   thead th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
     padding-block: var(--spacer-2);
     border-bottom: 1px solid var(--hair);
-    background: var(--bg);
     color: var(--text-dim);
     font-size: var(--fs-3xs);
     font-weight: 600;
