@@ -49,6 +49,13 @@ describe("Topbar XP band", () => {
     act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
     expect(byText("span", "5,000")).toBeTruthy();
   });
+
+  it("renders without a next level when the actor has no next-level XP", () => {
+    const maxed: TopbarVM = { ...vm, nextLevel: null, xp: { ...vm.xp, next: null }, pct: 100 };
+    act(() => root.render(<Topbar vm={maxed} onEdit={() => {}} onLevelUp={() => {}} />));
+    expect(byText("span", "6,420 XP")).toBeTruthy();
+    expect(container.textContent).not.toContain("Lv 4");
+  });
 });
 
 describe("Topbar settings", () => {
