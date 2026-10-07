@@ -18,9 +18,15 @@ export function useScrollsFurther(
         : new ResizeObserver(update);
     observer?.observe(el);
     for (const child of el.children) observer?.observe(child);
+    const mutations =
+      typeof MutationObserver === "undefined"
+        ? undefined
+        : new MutationObserver(update);
+    mutations?.observe(el, { childList: true, subtree: true });
     return () => {
       el.removeEventListener("scroll", update);
       observer?.disconnect();
+      mutations?.disconnect();
     };
   }, [ref, contentKey]);
   return scrollsFurther;

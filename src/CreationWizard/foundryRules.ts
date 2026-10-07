@@ -1,4 +1,8 @@
-import { classRequirementList } from "@domain/classRules";
+import {
+  activeClassSet,
+  foundryClassDetail,
+  foundryClasses,
+} from "./class/foundryClasses";
 import type { CreationRules } from "./rules";
 import {
   ABILITIES,
@@ -41,15 +45,10 @@ async function rollScore(label: string) {
 }
 
 export function foundryCreationRules(): CreationRules {
+  const set = activeClassSet();
   return {
-    classes: classRequirementList().map(({ name, requirements }) => ({
-      name,
-      requirements: Object.fromEntries(
-        Object.entries(requirements).filter(([key]) =>
-          (ABILITIES as readonly string[]).includes(key),
-        ),
-      ),
-    })),
+    classes: foundryClasses(set),
+    classDetail: foundryClassDetail(set),
     modifiers,
     rollScore,
   };

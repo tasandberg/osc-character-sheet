@@ -1,12 +1,18 @@
 import { cx } from "@ui/cx";
-import { classStanding, type ClassRequirements } from "./classStanding";
+import { XpAdjustmentText } from "../class/XpAdjustmentText";
+import type { CreationClass } from "../rules";
+import { xpAdjustment } from "../rules/xpAdjustment";
+import { classStanding } from "./classStanding";
 import { ABILITIES, abbreviation, type AbilityScores } from "./scoresDraft";
 
-type Props = { classes: ClassRequirements[]; scores: AbilityScores };
+type Props = { classes: CreationClass[]; scores: AbilityScores };
 
 export function ClassAside({ classes, scores }: Props) {
   const known = ABILITIES.filter((a) => scores[a] !== undefined);
-  const standings = classes.map((c) => classStanding(c, scores));
+  const standings = classes.map((cls) => ({
+    cls,
+    ...classStanding(cls, scores),
+  }));
   const open = standings.filter((s) => s.status !== "failed").length;
   const hint = !known.length
     ? "after you roll"
@@ -27,7 +33,7 @@ export function ClassAside({ classes, scores }: Props) {
       </div>
       {known.length ? (
         <ul className="osc-creation-class-list">
-          {standings.map(({ name, status, note }) => (
+          {standings.map(({ cls, name, status, note }) => (
             <li
               key={name}
               className={cx(
@@ -37,7 +43,13 @@ export function ClassAside({ classes, scores }: Props) {
               aria-disabled={status === "failed" || undefined}
             >
               <span className="osc-creation-class-name u-fs-base">{name}</span>
-              {note && (
+              {status === "open" ? (
+                xpAdjustment(cls, scores) && (
+                  <span className="osc-creation-class-note vm-mono u-fs-2xs">
+                    <XpAdjustmentText cls={cls} scores={scores} />
+                  </span>
+                )
+              ) : (
                 <span className="osc-creation-class-note vm-mono u-fs-2xs">
                   {note}
                 </span>
