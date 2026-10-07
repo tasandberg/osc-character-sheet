@@ -35,7 +35,7 @@ function RollRow({
       label={
         <>
           {prefix}
-          <span className="osc-monster-label">{label}</span>
+          <span className="vm-key">{label}</span>
         </>
       }
     >
@@ -73,11 +73,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
       <div className="osc-monster-stat-grid u-grid-2 tw:gap-x-5">
         <div className="osc-monster-stat-column">
           <LeaderRow
-            label={
-              <span className="osc-monster-label">
-                {view.armourClass.label}
-              </span>
-            }
+            label={<span className="vm-key">{view.armourClass.label}</span>}
           >
             <InlineEditValue
               label={view.armourClass.label}
@@ -130,7 +126,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
           </RollRow>
           <RollRow
             prefix={
-              <span aria-hidden="true" className="osc-monster-label u-text-dim">
+              <span aria-hidden="true" className="vm-key">
                 ↳
               </span>
             }
@@ -186,9 +182,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               />
             </RollRow>
           )}
-          <LeaderRow
-            label={<span className="osc-monster-label">Treasure</span>}
-          >
+          <LeaderRow label={<span className="vm-key">Treasure</span>}>
             <TreasureValue
               treasure={view.treasure}
               onClear={canEdit ? () => void clearTreasure(actor) : undefined}
@@ -197,7 +191,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
         </div>
       </div>
       <div className="u-mt-3">
-        <LeaderRow label={<span className="osc-monster-label">Movement</span>}>
+        <LeaderRow label={<span className="vm-key">Movement</span>}>
           {commit ? (
             <button
               type="button"
@@ -230,7 +224,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
             className="u-flex u-items-center u-justify-center tw:gap-[calc(var(--spacer-1)*1.5)]"
           >
             <RollLabel
-              className="osc-monster-label osc-monster-save-label"
+              className="vm-key osc-monster-save-label"
               glyph={false}
               title={`Roll save versus ${save.label.toLowerCase()}`}
               onRoll={(event) => actor.rollSave(save.key, { event })}
