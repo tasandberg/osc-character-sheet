@@ -335,7 +335,7 @@
 
   th,
   td {
-    padding: var(--spacer-1);
+    padding: var(--spacer-3) var(--spacer-1);
     text-align: left;
     vertical-align: middle;
   }
@@ -344,6 +344,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
+    padding-block: var(--spacer-2);
     border-bottom: 1px solid var(--hair);
     background: var(--bg);
     color: var(--text-dim);
