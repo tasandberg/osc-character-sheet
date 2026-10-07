@@ -1,4 +1,10 @@
 import {
+  emptyScoresDraft,
+  scoresBlockedReason,
+  scoresSummary,
+  type ScoresDraft,
+} from "./scores/scoresDraft";
+import {
   CREATION_STEPS,
   STEP_LABELS,
   type CreationStep,
@@ -11,24 +17,35 @@ export interface CreationFlow<D> {
   summary(draft: D, step: CreationStep): string | undefined;
 }
 
-export type PlaceholderDraft = { done: CreationStep[] };
+export type CreationDraft = { scores: ScoresDraft; done: CreationStep[] };
 
-export const placeholderFlow: CreationFlow<PlaceholderDraft> = {
-  emptyDraft: () => ({ done: [] }),
-  status: ({ done }) => {
-    const ready = CREATION_STEPS.filter((step) => step !== "review").every(
-      (step) => done.includes(step),
-    );
-    return Object.fromEntries(
+function blockedReason(draft: CreationDraft, step: CreationStep) {
+  if (step === "scores") return scoresBlockedReason(draft.scores);
+  if (step === "review")
+    return CREATION_STEPS.every(
+      (s) => s === "review" || !blockedReason(draft, s),
+    )
+      ? undefined
+      : "Finish every step to create the character";
+  return draft.done.includes(step)
+    ? undefined
+    : `Mark ${STEP_LABELS[step]} done to continue`;
+}
+
+export const creationFlow: CreationFlow<CreationDraft> = {
+  emptyDraft: () => ({ scores: emptyScoresDraft(), done: [] }),
+  status: (draft) =>
+    Object.fromEntries(
       CREATION_STEPS.map((step) => {
-        const complete = step === "review" ? ready : done.includes(step);
-        const blockedReason =
-          step === "review"
-            ? "Finish every step to create the character"
-            : `Mark ${STEP_LABELS[step]} done to continue`;
-        return [step, complete ? { complete } : { complete, blockedReason }];
+        const reason = blockedReason(draft, step);
+        return [
+          step,
+          reason
+            ? { complete: false, blockedReason: reason }
+            : { complete: true },
+        ];
       }),
-    ) as StepStatuses;
-  },
-  summary: () => undefined,
+    ) as StepStatuses,
+  summary: (draft, step) =>
+    step === "scores" ? scoresSummary(draft.scores) : undefined,
 };
