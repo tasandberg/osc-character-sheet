@@ -1,3 +1,38 @@
+@layer base {
+  .osc-creation-wizard-app
+    :where(
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      ol,
+      ul,
+      li,
+      dl,
+      dt,
+      dd,
+      fieldset,
+      legend
+    ) {
+    margin: 0;
+    padding: 0;
+    color: inherit;
+    text-shadow: none;
+  }
+
+  .osc-creation-wizard-app :where(ol, ul) {
+    list-style: none;
+  }
+
+  .osc-creation-wizard-app :where(fieldset) {
+    min-width: 0;
+    border: 0;
+  }
+}
+
 .osc-sheet.osc-creation-wizard:not(.minimizing, .minimized, .maximizing) {
   min-width: 720px;
   min-height: 540px;
@@ -8,15 +43,6 @@
   font-size: var(--fs-sm);
   line-height: 1.45;
   container: app creation-wizard / inline-size;
-
-  :where(h1, h2, h3, h4, h5, h6, dt, dd) {
-    color: inherit;
-    text-shadow: none;
-  }
-
-  :where(dt, dd) {
-    margin: 0;
-  }
 
   .vm-step-num-done {
     border-color: var(--gold);
@@ -73,9 +99,17 @@
 
 .osc-creation-body {
   position: relative;
+  display: flex;
   flex: 1;
+  flex-direction: column;
   min-height: 0;
   overflow: auto;
+
+  > div:first-child {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+  }
 }
 
 .osc-creation-more-below {
@@ -153,6 +187,7 @@
 
 .osc-creation-split {
   display: grid;
+  flex: 1 0 auto;
   grid-template-columns: minmax(0, 1fr) calc(
       var(--spacer-12) * 5 + var(--spacer-2)
     );
@@ -167,9 +202,12 @@
 }
 
 .osc-creation-aside {
+  position: relative;
   min-width: 0;
-  padding-left: var(--spacer-5);
+  padding: 0 var(--spacer-2) 0 var(--spacer-5);
   border-left: 1px solid var(--hair);
+  overflow-y: auto;
+  contain: size;
 }
 
 .osc-creation-roll-chip {
@@ -246,32 +284,16 @@
   color: var(--text-dim);
 }
 
-.osc-creation-body:has(> div > .osc-creation-class-step) {
-  display: flex;
-  flex-direction: column;
-
-  > div:first-child {
-    flex: 1;
-    min-height: 0;
-  }
-}
-
 .osc-creation-class-step {
-  height: 100%;
   grid-template-columns: minmax(0, 1fr) calc(
       var(--spacer-12) * 6 + var(--spacer-2)
     );
 }
 
-.osc-creation-class-pane,
-.osc-creation-class-aside {
+.osc-creation-class-pane {
   position: relative;
-  min-height: 0;
-  overflow: auto;
-}
-
-.osc-creation-class-aside {
-  padding-right: var(--spacer-2);
+  overflow-y: auto;
+  contain: size;
 }
 
 .osc-creation-wizard-app .osc-creation-class-table {
@@ -374,17 +396,10 @@
       padding-right: 0;
     }
 
-    .osc-creation-body:has(> div > .osc-creation-class-step) {
-      display: block;
-    }
-
-    .osc-creation-class-step {
-      height: auto;
-    }
-
     .osc-creation-class-pane,
-    .osc-creation-class-aside {
+    .osc-creation-aside {
       overflow: visible;
+      contain: none;
     }
 
     .osc-creation-aside {

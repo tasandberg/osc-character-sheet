@@ -1,4 +1,5 @@
 import "./wizard.scss";
+import "./vellum-candidates.scss";
 import { useMemo } from "react";
 import { foundryCreationRules } from "./foundryRules";
 import { houseRules, readHouseRuleSettings } from "./houseRuleSettings";

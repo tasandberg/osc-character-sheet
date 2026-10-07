@@ -1,5 +1,7 @@
+import { useRef } from "react";
 import { cx } from "@ui/cx";
 import { XpAdjustmentText } from "../class/XpAdjustmentText";
+import { MoreBelow } from "../MoreBelow";
 import type { CreationClass } from "../rules";
 import { xpAdjustment } from "../rules/xpAdjustment";
 import { classStanding } from "./classStanding";
@@ -8,6 +10,7 @@ import { ABILITIES, abbreviation, type AbilityScores } from "./scoresDraft";
 type Props = { classes: CreationClass[]; scores: AbilityScores };
 
 export function ClassAside({ classes, scores }: Props) {
+  const asideRef = useRef<HTMLElement>(null);
   const known = ABILITIES.filter((a) => scores[a] !== undefined);
   const standings = classes.map((cls) => ({
     cls,
@@ -24,6 +27,7 @@ export function ClassAside({ classes, scores }: Props) {
 
   return (
     <aside
+      ref={asideRef}
       className="osc-creation-aside u-stack"
       aria-label="Classes these scores allow"
     >
@@ -63,6 +67,7 @@ export function ClassAside({ classes, scores }: Props) {
           each one’s XP adjustment.
         </p>
       )}
+      <MoreBelow scroller={asideRef} contentKey={classes} />
     </aside>
   );
 }
