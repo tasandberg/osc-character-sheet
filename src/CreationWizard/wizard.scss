@@ -285,8 +285,10 @@
 }
 
 .osc-creation-class-step {
-  grid-template-columns: minmax(0, 1fr) calc(
-      var(--spacer-12) * 6 + var(--spacer-2)
+  grid-template-columns: minmax(0, 1fr) clamp(
+      var(--spacer-10) * 8,
+      36%,
+      var(--spacer-10) * 11
     );
 }
 
@@ -313,7 +315,7 @@
 
   th,
   td {
-    padding: var(--spacer-1) var(--spacer-2);
+    padding: var(--spacer-1);
     text-align: left;
     vertical-align: middle;
   }
@@ -377,6 +379,7 @@
 .osc-creation-class-reason {
   color: var(--danger-ink);
   font-family: var(--sans);
+  white-space: nowrap;
 }
 
 .osc-creation-class-ability-toggle {
