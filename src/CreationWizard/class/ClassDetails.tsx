@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
+import { cx } from "@ui/cx";
 import { Skeleton } from "@ui/Skeleton";
-import type { ClassDetail, CreationClass } from "../rules";
+import type { ClassAbility, ClassDetail, CreationClass } from "../rules";
 import { IN_SIX_SKILLS } from "../rules/classConstants";
 import type { AbilityScores } from "../scores/scoresDraft";
 import { XpAdjustmentText } from "./XpAdjustmentText";
@@ -35,6 +36,37 @@ const signed = (n: number) => (n < 0 ? `−${-n}` : `+${n}`);
 
 const skillChance = (key: string, chance: number) =>
   IN_SIX_SKILLS.includes(key) ? `${chance}-in-6` : `${chance}%`;
+
+function AbilityDisclosure({ ability }: { ability: ClassAbility }) {
+  const [open, setOpen] = useState(false);
+  const textId = useId();
+  return (
+    <li>
+      <button
+        type="button"
+        className="osc-creation-class-ability-toggle u-row u-gap-2"
+        aria-expanded={open}
+        aria-controls={textId}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <i
+          className={cx(
+            "fa-solid u-fs-2xs",
+            open ? "fa-chevron-down" : "fa-chevron-right",
+          )}
+          aria-hidden="true"
+        />
+        <span className="vm-heading vm-heading-sm">{ability.name}</span>
+      </button>
+      <div
+        id={textId}
+        className="osc-creation-class-ability u-pb-2"
+        hidden={!open}
+        dangerouslySetInnerHTML={{ __html: ability.description }}
+      />
+    </li>
+  );
+}
 
 export function ClassDetails({ cls, scores, loadDetail }: Props) {
   const loaded = useClassDetail(cls.name, loadDetail);
@@ -90,12 +122,13 @@ export function ClassDetails({ cls, scores, loadDetail }: Props) {
       {detail && (detail.abilities.length > 0 || cls.skills.length > 0) && (
         <section className="u-stack u-gap-3" aria-label="Abilities">
           <h3 className="vm-section-title-hairline">Abilities</h3>
-          {detail.abilities.map((ability) => (
-            <div key={ability.name} className="osc-creation-class-ability">
-              <h4 className="vm-heading vm-heading-sm">{ability.name}</h4>
-              <div dangerouslySetInnerHTML={{ __html: ability.description }} />
-            </div>
-          ))}
+          {detail.abilities.length > 0 && (
+            <ul className="u-flex tw:flex-col">
+              {detail.abilities.map((ability) => (
+                <AbilityDisclosure key={ability.name} ability={ability} />
+              ))}
+            </ul>
+          )}
           {cls.skills.length > 0 && (
             <dl className="u-grid u-grid-2 u-gap-y-3 u-gap-x-4">
               {cls.skills.map(({ key, chance }) => (

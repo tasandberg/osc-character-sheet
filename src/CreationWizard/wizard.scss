@@ -379,6 +379,26 @@
   font-family: var(--sans);
 }
 
+.osc-creation-class-ability-toggle {
+  width: 100%;
+  min-height: var(--spacer-8);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--gold);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+}
+
+.osc-creation-class-ability[hidden] {
+  display: none;
+}
+
 .osc-creation-class-description,
 .osc-creation-class-ability {
   display: flex;

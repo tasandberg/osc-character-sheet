@@ -313,9 +313,15 @@ describe("CreationWizard", () => {
     );
     expect(panel().textContent).toContain("ArmourLeather, no shields");
     expect(panel().textContent).toContain("WeaponsAny");
-    expect(panel().textContent).toContain(
-      "Back-stab+4 to hit and double damage.",
-    );
+    const backStab = button("Back-stab")!;
+    const backStabText = () =>
+      document.getElementById(backStab.getAttribute("aria-controls")!)!;
+    expect(backStab.getAttribute("aria-expanded")).toBe("false");
+    expect(backStabText().hasAttribute("hidden")).toBe(true);
+    act(() => backStab.click());
+    expect(backStab.getAttribute("aria-expanded")).toBe("true");
+    expect(backStabText().hasAttribute("hidden")).toBe(false);
+    expect(backStabText().textContent).toBe("+4 to hit and double damage.");
     expect(panel().textContent).toContain("Climb sheer surfaces87%");
     expect(panel().textContent).toContain("Hear noise2-in-6");
   });
