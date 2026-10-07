@@ -243,8 +243,3 @@ export function selectMonster(actor: MonsterActor, settings: MonsterSettings) {
 }
 
 export type MonsterView = ReturnType<typeof selectMonster>;
-
-export function nextPattern(current: string, colours: string[]): string {
-  const cycle = [...colours, "transparent"];
-  return cycle[(cycle.indexOf(current) + 1) % cycle.length];
-}

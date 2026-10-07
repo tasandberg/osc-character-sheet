@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { makeItem, makeMonster } from "./__fixtures__/dragonTurtle";
-import { nextPattern, selectMonster } from "./viewModel";
+import { selectMonster } from "./viewModel";
 
 const descending = { ascendingAC: false, morale: true };
 const ascending = { ascendingAC: true, morale: true };
@@ -137,14 +137,5 @@ describe("selectMonster", () => {
         descending,
       ).treasure,
     ).toBeNull();
-  });
-});
-
-describe("nextPattern", () => {
-  it("cycles through the colours, then transparent, then back", () => {
-    const colours = ["green", "red"];
-    expect(nextPattern("green", colours)).toBe("red");
-    expect(nextPattern("red", colours)).toBe("transparent");
-    expect(nextPattern("transparent", colours)).toBe("green");
   });
 });

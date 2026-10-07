@@ -32,7 +32,10 @@ let settings: Record<string, unknown>;
   i18n: { localize: (key: string) => key },
 };
 (globalThis as { CONFIG?: unknown }).CONFIG = {
-  OSE: { colors: { green: "", red: "", yellow: "" }, roll_type: {} },
+  OSE: {
+    colors: { green: "Green", red: "Red", yellow: "Yellow" },
+    roll_type: {},
+  },
 };
 (globalThis as { fromUuidSync?: unknown }).fromUuidSync = () => null;
 (globalThis as { Roll?: unknown }).Roll = class {
@@ -267,6 +270,27 @@ describe("OscMonsterSheet", () => {
       "Show in chat",
       "Delete",
     ]);
+  });
+
+  it("moves an attack to another group from its pip", async () => {
+    const bite = makeItem({ name: "Bite", system: { pattern: "red" } });
+    bite.update = vi.fn();
+    await mount(makeMonster({}, [bite]));
+
+    click(button("Attack pattern: red"));
+    const menu = container.querySelector(
+      "[role=menu][aria-label='Attack group']",
+    );
+    const green = [
+      ...(menu?.querySelectorAll("[role=menuitemradio]") ?? []),
+    ].find((item) => item.textContent?.startsWith("Green"));
+    act(() => {
+      green?.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      );
+    });
+
+    expect(bite.update).toHaveBeenCalledWith({ "system.pattern": "green" });
   });
 
   it("refills every weapon's uses on a new round", async () => {

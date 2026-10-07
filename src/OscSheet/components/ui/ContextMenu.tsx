@@ -6,6 +6,7 @@ import {
   type PointerEvent,
 } from "react";
 import { Menu, MenuItem, MenuLabel, MenuSep } from "./Menu";
+import { PatternPip } from "./PatternPip";
 import type { Placement } from "@floating-ui/dom";
 import { useFixedAnchor, type Anchor } from "./useFixedAnchor";
 
@@ -15,6 +16,7 @@ export type ContextMenuEntry = {
   danger?: boolean;
   disabled?: boolean;
   checked?: boolean;
+  swatch?: string;
   separator?: boolean;
   onSelect?: () => void;
   entries?: ContextMenuEntry[];
@@ -28,6 +30,7 @@ export type ContextMenuState = {
 };
 
 const iconFor = (entry: ContextMenuEntry) => {
+  if (entry.swatch) return <PatternPip pattern={entry.swatch} />;
   const icon = entry.checked ? "fa-solid fa-check" : entry.icon;
   if (!icon && entry.checked === undefined) return undefined;
   return icon ? (
@@ -66,7 +69,9 @@ function Entries({
         aria-haspopup={entry.entries ? "menu" : undefined}
         aria-expanded={entry.entries ? open : undefined}
         icon={iconFor(entry)}
-        shortcut={entry.entries ? "›" : undefined}
+        shortcut={
+          entry.entries ? "›" : entry.swatch && entry.checked ? "✓" : undefined
+        }
         onPointerEnter={() => setOpenLabel(entry.entries ? entry.label : null)}
         onPointerDown={(event: PointerEvent<HTMLDivElement>) => {
           if (event.button !== 0) return;
