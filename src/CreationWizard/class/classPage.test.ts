@@ -3,12 +3,12 @@ import { describe, it, expect } from "vitest";
 import { parseClassPage } from "./classPage";
 
 describe("parseClassPage", () => {
-  it("reads armour, weapons and the introduction from an SRD class page", () => {
+  it("reads armour, weapons and the first introductory paragraph from an SRD class page", () => {
     const page = parseClassPage(
       "<div><table><tbody><tr><td><strong>Prime requisite</strong></td><td>DEX</td></tr><tr><td><strong>Armour</strong></td><td>Leather, no shields</td></tr><tr><td><strong>Weapons</strong></td><td>Any</td></tr></tbody></table><p>Thieves live by stealth.</p><p>Not to be trusted.</p><h2>Back-stab</h2><p>+4 to hit.</p></div>",
     );
     expect(page).toEqual({
-      description: "<p>Thieves live by stealth.</p><p>Not to be trusted.</p>",
+      description: "<p>Thieves live by stealth.</p>",
       armour: "Leather, no shields",
       weapons: "Any",
     });

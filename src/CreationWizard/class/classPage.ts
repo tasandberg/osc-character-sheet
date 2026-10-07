@@ -37,16 +37,11 @@ export function parseClassPage(html: string): ClassPage {
     stats[key.toLowerCase()] = clean(statValue(label));
   }
 
-  const intro: string[] = [];
-  for (
-    let el = table.nextElementSibling;
-    el && !/^H[1-6]$/.test(el.tagName);
-    el = el.nextElementSibling
-  )
-    intro.push(el.outerHTML);
+  let intro = table.nextElementSibling;
+  while (intro && intro.tagName !== "P") intro = intro.nextElementSibling;
 
   return {
-    description: intro.join(""),
+    description: intro?.outerHTML ?? "",
     armour: stats.armour || undefined,
     weapons: stats.weapons || undefined,
   };
