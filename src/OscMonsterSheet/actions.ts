@@ -4,7 +4,7 @@ import { readAttackSettings } from "@features/actions/attacks";
 import { computeAttack } from "@domain/attackMath";
 import type { OSEActor, RollEvent } from "@domain/types";
 import type { MonsterActor, MonsterItem } from "./types";
-import { nextPattern, text } from "./viewModel";
+import { text } from "./viewModel";
 
 export async function rollMonsterItem(item: MonsterItem, event?: RollEvent) {
   if (item.type === "weapon") {
@@ -77,14 +77,6 @@ export function resetAttacks(actor: MonsterActor) {
         Number.parseInt(String(weapon.system.counter?.max ?? 0), 10) || 0,
     }));
   return actor.updateEmbeddedDocuments("Item", updates);
-}
-
-export function cyclePattern(item: MonsterItem) {
-  const colours = Object.keys(CONFIG.OSE?.colors ?? {});
-  return setPattern(
-    item,
-    nextPattern(item.system.pattern ?? "transparent", colours),
-  );
 }
 
 export function setPattern(item: MonsterItem, pattern: string) {
