@@ -39,10 +39,36 @@
 }
 
 .osc-creation-wizard-app {
+  --sans: var(--font-sans, "Signika", sans-serif);
+  --serif: var(--sans);
+  --mono: var(--sans);
+  --sans-x-height: 0.53;
   overflow: hidden;
+  font-family: var(--sans);
   font-size: var(--fs-sm);
+  font-size-adjust: var(--sans-x-height);
+  font-variant-numeric: tabular-nums;
   line-height: 1.45;
   container: app creation-wizard / inline-size;
+
+  :is(
+    .vm-heading,
+    .vm-sheet-head-title,
+    .vm-section-title-hairline,
+    .vm-choice-card-title,
+    .vm-flavor,
+    [class*="fa-"]
+  ) {
+    font-size-adjust: none;
+  }
+
+  .vm-flavor {
+    font-family: "IM Fell English", Georgia, serif;
+  }
+
+  .vm-score-stamp {
+    font-family: var(--sans);
+  }
 
   .vm-step-num-done {
     border-color: var(--gold);
@@ -219,14 +245,12 @@
   min-width: calc(var(--spacer-12) + var(--spacer-2));
   min-height: calc(var(--spacer-12) + var(--spacer-2));
   padding: var(--spacer-1) var(--spacer-2);
-  font-family: var(--sans);
   font-size: var(--fs-3xl);
   font-weight: 500;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 
   small {
-    font-family: var(--mono);
     font-size: var(--fs-3xs);
     font-weight: 400;
     color: var(--text-dim);
@@ -250,10 +274,6 @@
   min-height: calc(var(--spacer-8) + var(--spacer-1));
   padding: var(--spacer-2) 0;
   border-bottom: 1px dotted var(--hair-soft);
-}
-
-.osc-creation-class-name {
-  font-family: var(--display);
 }
 
 .osc-creation-class-note {
@@ -327,7 +347,6 @@
     border-bottom: 1px solid var(--hair);
     background: var(--bg);
     color: var(--text-dim);
-    font-family: var(--sans);
     font-size: var(--fs-3xs);
     font-weight: 600;
     letter-spacing: 0.09em;
@@ -378,7 +397,6 @@
 
 .osc-creation-class-reason {
   color: var(--danger-ink);
-  font-family: var(--sans);
   white-space: nowrap;
 }
 
