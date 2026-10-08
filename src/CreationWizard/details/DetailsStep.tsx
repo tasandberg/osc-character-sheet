@@ -89,15 +89,10 @@ function AlignmentSection({
       ? loaded.detail[chosen.value]
       : undefined;
   return (
-    <section
-      className="osc-creation-rule u-stack u-gap-3 u-pt-4"
-      aria-labelledby="osc-creation-al"
-    >
-      <div className="vm-sheet-head">
-        <h2 className="vm-sheet-head-title" id="osc-creation-al">
-          Alignment
-        </h2>
-      </div>
+    <section className="vm-field u-gap-2" aria-labelledby="osc-creation-al">
+      <span className="vm-key" id="osc-creation-al">
+        Alignment
+      </span>
       <VellumSegmented
         label="Alignment"
         options={ALIGNMENTS}
@@ -153,15 +148,10 @@ function HitPointsSection({
   };
 
   return (
-    <section
-      className="osc-creation-rule u-stack u-gap-3 u-pt-4"
-      aria-labelledby="osc-creation-hp"
-    >
-      <div className="vm-sheet-head">
-        <h2 className="vm-sheet-head-title" id="osc-creation-hp">
-          Hit Points
-        </h2>
-      </div>
+    <section className="vm-field u-gap-2" aria-labelledby="osc-creation-hp">
+      <span className="vm-key" id="osc-creation-hp">
+        Hit Points
+      </span>
       <div className="u-row u-gap-3 u-wrap">
         <span
           className={cx(
@@ -292,7 +282,7 @@ export function DetailsStep(props: Props) {
     <div className="osc-creation-split osc-creation-class-step">
       <div
         ref={paneRef}
-        className="osc-creation-pane osc-creation-details-pane u-gap-4"
+        className="osc-creation-pane osc-creation-details-pane u-gap-5"
       >
         <label className="osc-creation-name vm-field u-gap-1">
           <span className="vm-key">Name</span>
@@ -305,19 +295,17 @@ export function DetailsStep(props: Props) {
             }
           />
         </label>
-        <div className="osc-creation-vitals u-grid u-gap-6 u-items-start">
-          <AlignmentSection
-            draft={draft}
-            alignmentText={rules.alignmentText}
-            onChange={onChange}
-          />
-          <HitPointsSection
-            details={details}
-            cls={cls}
-            rules={rules}
-            onChange={onChange}
-          />
-        </div>
+        <HitPointsSection
+          details={details}
+          cls={cls}
+          rules={rules}
+          onChange={onChange}
+        />
+        <AlignmentSection
+          draft={draft}
+          alignmentText={rules.alignmentText}
+          onChange={onChange}
+        />
         <MoreBelow scroller={paneRef} contentKey={details.level} />
       </div>
       <ClassStats {...props} />

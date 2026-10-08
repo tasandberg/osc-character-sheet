@@ -468,13 +468,6 @@
   max-width: calc(var(--spacer-12) * 6);
 }
 
-.osc-creation-vitals {
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(min(100%, calc(var(--spacer-12) * 5)), 1fr)
-  );
-}
-
 .osc-creation-hp-well {
   .osc-creation-wizard-app & {
     width: calc(var(--spacer-12) * 2);
