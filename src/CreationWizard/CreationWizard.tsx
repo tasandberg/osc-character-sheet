@@ -23,7 +23,11 @@ type Props = {
 };
 
 export function CreationWizard({ worldName, houseRules, rules }: Props) {
-  const wizard = useWizard(creationFlow);
+  const flow = useMemo(
+    () => creationFlow(rules.separateRaces),
+    [rules.separateRaces],
+  );
+  const wizard = useWizard(flow);
   const { step, draft } = wizard;
   const done = draft.done.includes(step);
   const scores = useMemo(() => finalScores(draft.scores), [draft.scores]);

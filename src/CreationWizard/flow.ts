@@ -75,10 +75,12 @@ function blockedReason(
     : `Mark ${STEP_LABELS[step]} done to continue`;
 }
 
-export const creationFlow: CreationFlow<CreationDraft> = {
+export const creationFlow = (
+  separateRaces: boolean,
+): CreationFlow<CreationDraft> => ({
   emptyDraft: () => ({
     scores: emptyScoresDraft(),
-    raceMode: "asClass",
+    raceMode: separateRaces ? "separate" : "asClass",
     done: [],
   }),
   steps,
@@ -107,4 +109,4 @@ export const creationFlow: CreationFlow<CreationDraft> = {
               chosenRace(draft)?.name,
             )
           : undefined,
-};
+});

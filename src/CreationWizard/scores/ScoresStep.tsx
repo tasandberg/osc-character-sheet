@@ -68,8 +68,8 @@ const METHODS: {
 const QUESTION = "How will you roll ability scores?";
 
 const RACE_MODES: { value: RaceMode; label: string }[] = [
-  { value: "asClass", label: "As class" },
   { value: "separate", label: "Separate" },
+  { value: "asClass", label: "As class" },
 ];
 
 function RaceModeSwitch({

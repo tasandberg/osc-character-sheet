@@ -353,14 +353,13 @@ describe("CreationWizard", () => {
     expect(panel().textContent).toContain("Hear noise2-in-6");
   });
 
-  it("adds a Race step when the player chooses race separately", () => {
+  it("adds a Race step by default when the world separates race and class", () => {
     open();
     expect(host.textContent).not.toContain("How race is chosen");
     close();
 
     openSeparate();
     enterScores(["13", "8", "7", "15", "8", "11"]);
-    choose("Separate");
     expect(stepNames()).toEqual([
       "1Scores",
       "2Race",
@@ -395,7 +394,6 @@ describe("CreationWizard", () => {
   it("applies the race’s modifiers, then offers only the classes it allows", () => {
     openSeparate();
     enterScores(["13", "8", "7", "15", "8", "11"]);
-    choose("Separate");
     act(() => next().click());
     act(() => radio("Half-Orc").click());
     expect(host.querySelector("aside")!.textContent).toContain(
@@ -416,7 +414,6 @@ describe("CreationWizard", () => {
   it("derives racial abilities and save bonuses from the adjusted scores", async () => {
     openSeparate();
     enterScores(["13", "8", "7", "15", "10", "11"]);
-    choose("Separate");
     act(() => next().click());
     act(() => radio("Dwarf").click());
 
