@@ -1,7 +1,9 @@
 import { useMemo } from "react";
 import { ClassStep } from "./class/ClassStep";
+import { DetailsStep } from "./details/DetailsStep";
 import {
   chosenRace,
+  classDetails,
   classRestrictions,
   classScores,
   creationFlow,
@@ -23,15 +25,13 @@ type Props = {
 };
 
 export function CreationWizard({ worldName, houseRules, rules }: Props) {
-  const flow = useMemo(
-    () => creationFlow(rules.separateRaces),
-    [rules.separateRaces],
-  );
+  const flow = useMemo(() => creationFlow(rules), [rules]);
   const wizard = useWizard(flow);
   const { step, draft } = wizard;
   const done = draft.done.includes(step);
   const scores = useMemo(() => finalScores(draft.scores), [draft.scores]);
   const race = chosenRace(draft);
+  const details = classDetails(draft, rules);
 
   return (
     <WizardShell
@@ -78,6 +78,18 @@ export function CreationWizard({ worldName, houseRules, rules }: Props) {
           restrictions={classRestrictions(draft)}
           loadDetail={rules.classDetail}
           onChoose={(cls) => wizard.setDraft((d) => ({ ...d, class: cls }))}
+        />
+      ) : step === "details" && draft.class && details ? (
+        <DetailsStep
+          draft={draft.details}
+          details={details}
+          cls={draft.class}
+          race={race}
+          scores={classScores(draft)}
+          rules={rules}
+          onChange={(update) =>
+            wizard.setDraft((d) => ({ ...d, details: update(d.details) }))
+          }
         />
       ) : (
         <PlaceholderStep

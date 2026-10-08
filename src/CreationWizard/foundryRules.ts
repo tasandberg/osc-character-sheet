@@ -5,6 +5,11 @@ import {
 } from "./class/foundryClasses";
 import { getSetting } from "@src/OscSheet/settings";
 import { foundryRaceDetail, tomeActive } from "./race/foundryRaces";
+import {
+  foundryAlignmentText,
+  maximumHitPoints,
+  rollHitPoints,
+} from "./details/foundryDetails";
 import type { CreationRules } from "./rules";
 import {
   ABILITIES,
@@ -55,5 +60,9 @@ export function foundryCreationRules(): CreationRules {
     raceDetail: foundryRaceDetail(),
     modifiers,
     rollScore,
+    maxHitPointsAtFirstLevel: getSetting("maxHitPointsAtFirstLevel"),
+    maximumHitPoints,
+    rollHitPoints,
+    alignmentText: foundryAlignmentText(),
   };
 }

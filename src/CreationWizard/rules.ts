@@ -4,12 +4,21 @@ import type { AbilityScores, RolledScore } from "./scores/scoresDraft";
 
 export type ClassSkill = { key: string; chance: number };
 
+export type ClassLevel = {
+  xp: number;
+  hd: string;
+  thac0: number;
+  saves: number[];
+  spells?: number[];
+};
+
 export type CreationClass = ClassRequirements &
   PrimeRequisiteRules & {
     hitDie: string;
     thac0: number;
     nextLevelXp: number | null;
     skills: ClassSkill[];
+    levels: ClassLevel[];
   };
 
 export type ClassRestrictions = {
@@ -29,6 +38,10 @@ export type ClassDetail = {
 
 export type RaceDetail = { description: string; abilities: ClassAbility[] };
 
+export type Alignment = "lawful" | "neutral" | "chaotic";
+
+export type AlignmentText = Partial<Record<Alignment, string>>;
+
 export type CreationRules = {
   classes: CreationClass[];
   classDetail(name: string): Promise<ClassDetail>;
@@ -36,4 +49,8 @@ export type CreationRules = {
   raceDetail(name: string): Promise<RaceDetail>;
   modifiers(scores: AbilityScores): AbilityScores;
   rollScore(label: string): Promise<RolledScore>;
+  maxHitPointsAtFirstLevel: boolean;
+  maximumHitPoints(formula: string): number;
+  rollHitPoints(formula: string, label: string): Promise<RolledScore>;
+  alignmentText(): Promise<AlignmentText>;
 };

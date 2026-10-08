@@ -127,6 +127,15 @@ export const SETTINGS = {
     default: false,
     resolve: resolveBoolean(false),
   },
+  maxHitPointsAtFirstLevel: {
+    name: "Maximum hit points at 1st level",
+    hint: "Characters made at 1st level in the creation wizard start with the most hit points their Hit Die allows.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    resolve: resolveBoolean(false),
+  },
   creationWizardNoticeShown: {
     name: "Creation wizard update notice shown",
     hint: "Set once the GM has been told the wizard needs a newer OSE system.",

@@ -228,6 +228,7 @@ describe("settings snapshot", () => {
       theme: "system",
       creationWizard: false,
       separateRaceAndClass: false,
+      maxHitPointsAtFirstLevel: false,
       creationWizardNoticeShown: false,
       disableMemorization: false,
       fontScale: "medium",
