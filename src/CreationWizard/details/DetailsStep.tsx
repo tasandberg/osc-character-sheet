@@ -82,17 +82,8 @@ function LevelStepper({
 
 function AlignmentSection({
   draft,
-  alignmentText,
   onChange,
-}: Pick<Props, "draft" | "onChange"> & {
-  alignmentText: () => Promise<AlignmentText>;
-}) {
-  const loaded = useCompendiumDetail("alignment", alignmentText);
-  const chosen = ALIGNMENTS.find((a) => a.value === draft.alignment);
-  const text =
-    chosen && loaded.status === "ready"
-      ? loaded.detail[chosen.value]
-      : undefined;
+}: Pick<Props, "draft" | "onChange">) {
   return (
     <section
       className="osc-creation-rule u-stack u-gap-3 u-pt-4"
@@ -109,19 +100,33 @@ function AlignmentSection({
         value={draft.alignment as Alignment}
         onChange={(alignment) => onChange((d) => ({ ...d, alignment }))}
       />
-      {chosen && (
-        <>
-          <h3 className="vm-heading vm-heading-sm">{chosen.label}</h3>
-          {text ? (
-            <p className="vm-flavor">{text}</p>
-          ) : (
-            loaded.status !== "loading" && (
-              <p className="vm-help">
-                No alignment description found in the compendiums.
-              </p>
-            )
-          )}
-        </>
+    </section>
+  );
+}
+
+function AlignmentDescription({
+  alignment,
+  alignmentText,
+}: {
+  alignment?: Alignment;
+  alignmentText: () => Promise<AlignmentText>;
+}) {
+  const loaded = useCompendiumDetail("alignment", alignmentText);
+  const chosen = ALIGNMENTS.find((a) => a.value === alignment);
+  if (!chosen) return null;
+  const text =
+    loaded.status === "ready" ? loaded.detail[chosen.value] : undefined;
+  return (
+    <section className="osc-creation-rule u-stack u-gap-2 u-pt-3">
+      <h3 className="vm-heading vm-heading-sm">{chosen.label}</h3>
+      {text ? (
+        <p className="vm-flavor">{text}</p>
+      ) : (
+        loaded.status !== "loading" && (
+          <p className="vm-help">
+            No alignment description found in the compendiums.
+          </p>
+        )
       )}
     </section>
   );
@@ -171,7 +176,7 @@ function HitPointsSection({
           Hit Points
         </h2>
       </div>
-      <div className="u-row u-gap-3 u-wrap">
+      <div className="u-row u-gap-3">
         <input
           className="osc-creation-hp-input vm-input vm-input-underline u-fs-3xl"
           type="text"
@@ -187,11 +192,13 @@ function HitPointsSection({
             }))
           }
         />
-        {hitPoints?.dice && <DiceRow dice={hitPoints.dice} />}
+        <div className="osc-creation-hp-dice u-flex-1">
+          {hitPoints?.dice && <DiceRow dice={hitPoints.dice} />}
+        </div>
         <button
           type="button"
           className={cx(
-            "vm-btn vm-btn-sm",
+            "vm-btn vm-btn-sm u-flex-none",
             text ? "vm-btn-secondary" : "vm-btn-primary",
           )}
           aria-disabled={rolling || undefined}
@@ -210,12 +217,14 @@ function HitPointsSection({
 }
 
 function ClassStats({
+  draft,
   details,
   cls,
   race,
   scores,
   rules,
-}: Pick<Props, "details" | "cls" | "race" | "scores" | "rules">) {
+}: Pick<Props, "draft" | "details" | "cls" | "race" | "scores" | "rules">) {
+  const asideRef = useRef<HTMLElement>(null);
   const { row, nextXp } = details;
   const slots = spellSlots(row);
   const wis = rules.modifiers(scores).wis;
@@ -242,17 +251,17 @@ function ClassStats({
     ["Max level", ordinal(details.cap)],
   ];
   return (
-    <section
-      className="osc-creation-rule u-stack u-gap-3 u-pt-4"
+    <aside
+      ref={asideRef}
+      className="osc-creation-aside osc-creation-class-aside u-stack"
       aria-label={`${cls.name} at level ${details.level}`}
     >
       <div className="vm-sheet-head">
         <h2 className="vm-sheet-head-title">
-          {race ? `${race.name} ${cls.name}` : cls.name}
+          {race ? `${race.name} ${cls.name}` : cls.name} · level {details.level}
         </h2>
-        <span className="vm-sheet-head-hint">level {details.level}</span>
       </div>
-      <dl className="u-grid u-grid-3 u-gap-x-4 u-gap-y-3">
+      <dl className="u-grid u-grid-2 u-gap-x-4 u-gap-y-3">
         {stats.map(([label, value]) => (
           <div key={label} className="u-flex tw:flex-col u-gap-1">
             <dt className="vm-key">{label}</dt>
@@ -262,23 +271,28 @@ function ClassStats({
       </dl>
       <h3 className="vm-heading vm-heading-sm">Saving throws</h3>
       <dl
-        className="osc-creation-saves u-flex u-py-3"
+        className="osc-creation-saves u-flex tw:flex-col"
         aria-label="Saving throws, roll d20 at or above target"
       >
         {SAVES.map((name, i) => (
           <div
             key={name}
-            className="osc-creation-save u-flex u-flex-1 u-items-baseline u-justify-center u-gap-3 u-px-2"
+            className="osc-creation-save u-flex u-items-baseline u-justify-between u-gap-3 u-py-1"
           >
             <dt className="vm-key">{name}</dt>
-            <dd className="osc-creation-save-target u-fs-4xl">
+            <dd className="osc-creation-save-target u-fs-2xl">
               {row.saves[i]}
             </dd>
           </div>
         ))}
       </dl>
       {notes.length > 0 && <p className="vm-help">{notes.join(" · ")}</p>}
-    </section>
+      <AlignmentDescription
+        alignment={draft.alignment}
+        alignmentText={rules.alignmentText}
+      />
+      <MoreBelow scroller={asideRef} contentKey={details.level} />
+    </aside>
   );
 }
 
@@ -286,56 +300,41 @@ export function DetailsStep(props: Props) {
   const { draft, details, cls, rules, onChange } = props;
   const paneRef = useRef<HTMLDivElement>(null);
   return (
-    <div
-      ref={paneRef}
-      className="osc-creation-details-pane u-flex tw:flex-col u-gap-4 u-pr-2"
-    >
-      <div className="osc-creation-identity u-grid u-gap-5 u-items-start">
-        <label className="vm-field u-gap-1">
-          <span className="vm-key">Name</span>
-          <input
-            className="vm-input vm-input-underline vm-input-title"
-            type="text"
-            value={draft.name}
-            onChange={(event) =>
-              onChange((d) => ({ ...d, name: event.target.value }))
-            }
+    <div className="osc-creation-split osc-creation-class-step">
+      <div
+        ref={paneRef}
+        className="osc-creation-pane osc-creation-details-pane u-gap-4"
+      >
+        <div className="osc-creation-identity u-grid u-gap-5 u-items-start">
+          <label className="vm-field u-gap-1">
+            <span className="vm-key">Name</span>
+            <input
+              className="vm-input vm-input-underline vm-input-title"
+              type="text"
+              value={draft.name}
+              onChange={(event) =>
+                onChange((d) => ({ ...d, name: event.target.value }))
+              }
+            />
+          </label>
+          <LevelStepper
+            level={details.level}
+            cap={details.cap}
+            onLevel={(level) => onChange((d) => ({ ...d, level }))}
           />
-        </label>
-        <label className="vm-field u-gap-1">
-          <span className="vm-key">Title</span>
-          <input
-            className="vm-input vm-input-underline"
-            type="text"
-            placeholder="Optional"
-            value={draft.title}
-            onChange={(event) =>
-              onChange((d) => ({ ...d, title: event.target.value }))
-            }
+        </div>
+        <div className="osc-creation-vitals u-grid u-gap-x-6">
+          <AlignmentSection draft={draft} onChange={onChange} />
+          <HitPointsSection
+            details={details}
+            cls={cls}
+            rules={rules}
+            onChange={onChange}
           />
-          <span className="vm-field-helper">
-            shown under the name on the sheet
-          </span>
-        </label>
-        <LevelStepper
-          level={details.level}
-          cap={details.cap}
-          onLevel={(level) => onChange((d) => ({ ...d, level }))}
-        />
+        </div>
+        <MoreBelow scroller={paneRef} contentKey={details.level} />
       </div>
-      <AlignmentSection
-        draft={draft}
-        alignmentText={rules.alignmentText}
-        onChange={onChange}
-      />
-      <HitPointsSection
-        details={details}
-        cls={cls}
-        rules={rules}
-        onChange={onChange}
-      />
       <ClassStats {...props} />
-      <MoreBelow scroller={paneRef} contentKey={details.level} />
     </div>
   );
 }

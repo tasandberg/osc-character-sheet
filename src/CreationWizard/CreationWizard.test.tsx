@@ -561,12 +561,14 @@ describe("CreationWizard details", () => {
     press("Raise level");
     press("Raise level");
 
-    const aside = () =>
-      host.querySelector('section[aria-label="Thief at level 3"]')!.textContent;
-    expect(aside()).toContain("Experience2,400 xp");
-    expect(aside()).toContain("Next level3,600 xp");
-    expect(aside()).toContain("Hit dice3d4");
-    expect(aside()).toContain("THAC017 [+2]");
+    const stats = () =>
+      [...host.querySelectorAll("h2")]
+        .find((h) => h.textContent === "Thief · level 3")!
+        .closest("aside")!.textContent;
+    expect(stats()).toContain("Experience2,400 xp");
+    expect(stats()).toContain("Next level3,600 xp");
+    expect(stats()).toContain("Hit dice3d4");
+    expect(stats()).toContain("THAC017 [+2]");
     expect(saves()).toEqual(["11", "12", "11", "14", "13"]);
     expect(hitPoints()).toBe("");
     await pressAsync("Roll 3d4");
@@ -586,6 +588,9 @@ describe("CreationWizard details", () => {
     act(() => radio("Thief").click());
     await act(async () => next().click());
 
+    expect(
+      [...host.querySelectorAll("h2")].map((h) => h.textContent),
+    ).toContain("Dwarf Thief · level 1");
     expect(host.textContent).toContain("up to 9th");
     expect(host.textContent).toContain(
       "+3 vs poison, spells, wands (Resilience, CON 11)",

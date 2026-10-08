@@ -23,7 +23,6 @@ export type HitPoints = {
 
 export type DetailsDraft = {
   name: string;
-  title: string;
   alignment?: Alignment;
   level: number;
   hitPoints?: HitPoints;
@@ -31,7 +30,6 @@ export type DetailsDraft = {
 
 export const emptyDetailsDraft = (): DetailsDraft => ({
   name: "",
-  title: "",
   level: 1,
 });
 

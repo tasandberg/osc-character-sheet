@@ -314,10 +314,6 @@
   contain: size;
 }
 
-.osc-creation-details-pane {
-  flex: 1;
-}
-
 .osc-creation-wizard-app .osc-creation-class-table {
   width: 100%;
   margin: 0;
@@ -455,7 +451,23 @@
 }
 
 .osc-creation-identity {
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.osc-creation-vitals {
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, calc(var(--spacer-12) * 5)), 1fr)
+  );
+}
+
+.osc-creation-hp-dice {
+  min-width: 0;
+
+  .vm-score-dice {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
 }
 
 .osc-creation-rule {
@@ -479,7 +491,7 @@
   white-space: nowrap;
 
   + .osc-creation-save {
-    border-left: 1px solid var(--hair);
+    border-top: 1px solid var(--hair-soft);
   }
 }
 
