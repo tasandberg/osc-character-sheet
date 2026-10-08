@@ -1,8 +1,12 @@
 .osc-creation-wizard-app .vm-btn-primary {
   gap: 6px;
   font-family: var(--sans);
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-sm);
   font-weight: 500;
+
+  &.vm-btn-sm {
+    font-size: var(--fs-2xs);
+  }
 }
 
 .osc-creation-wizard-app :is(.vm-btn, .vm-segment) {
