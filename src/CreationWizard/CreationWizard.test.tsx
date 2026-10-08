@@ -563,7 +563,7 @@ describe("CreationWizard details", () => {
 
     const stats = () =>
       [...host.querySelectorAll("h2")]
-        .find((h) => h.textContent === "Thief · level 3")!
+        .find((h) => h.textContent === "Thief · level")!
         .closest("aside")!.textContent;
     expect(stats()).toContain("Experience2,400 xp");
     expect(stats()).toContain("Next level3,600 xp");
@@ -575,7 +575,7 @@ describe("CreationWizard details", () => {
     expect(hitPointRolls.at(-1)).toBe("max(3d4 + -3, 3)");
 
     for (let i = 0; i < 9; i++) press("Raise level");
-    expect(host.textContent).toContain("up to 10th");
+    expect(stats()).toContain("Max level10th");
     expect(button("Raise level")!.getAttribute("aria-disabled")).toBe("true");
   });
 
@@ -590,8 +590,8 @@ describe("CreationWizard details", () => {
 
     expect(
       [...host.querySelectorAll("h2")].map((h) => h.textContent),
-    ).toContain("Dwarf Thief · level 1");
-    expect(host.textContent).toContain("up to 9th");
+    ).toContain("Dwarf Thief · level");
+    expect(host.textContent).toContain("Max level9th");
     expect(host.textContent).toContain(
       "+3 vs poison, spells, wands (Resilience, CON 11)",
     );

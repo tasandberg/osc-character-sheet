@@ -450,8 +450,22 @@
   white-space: nowrap;
 }
 
-.osc-creation-identity {
-  grid-template-columns: minmax(0, 1fr) auto;
+.osc-creation-level-stepper {
+  align-self: center;
+  gap: var(--spacer-1);
+
+  .vm-stepper-btn {
+    width: var(--spacer-6);
+    height: var(--spacer-6);
+  }
+
+  .vm-stepper-value {
+    min-width: var(--spacer-6);
+  }
+}
+
+.osc-creation-name {
+  max-width: calc(var(--spacer-12) * 6);
 }
 
 .osc-creation-vitals {
@@ -461,25 +475,17 @@
   );
 }
 
-.osc-creation-hp-dice {
-  min-width: 0;
-
-  .vm-score-dice {
-    flex-wrap: wrap;
-    justify-content: flex-start;
+.osc-creation-hp-well {
+  .osc-creation-wizard-app & {
+    width: calc(var(--spacer-12) * 2);
+    height: var(--spacer-12);
+    color: var(--crimson);
   }
 }
 
-.osc-creation-rule {
-  border-top: 1px solid var(--hair-soft);
-}
-
-.osc-creation-hp-input {
-  width: calc(var(--spacer-12) + var(--spacer-4));
-  height: auto;
-  color: var(--crimson);
-  font-weight: 500;
-  text-align: center;
+.osc-creation-hp-dice .vm-score-dice {
+  flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
 .osc-creation-saves {
