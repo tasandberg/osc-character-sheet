@@ -3,6 +3,9 @@
   font-family: var(--sans);
   font-size: var(--fs-2xs);
   font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+}
+
+.osc-creation-wizard-app :is(.vm-btn, .vm-segment) {
+  letter-spacing: normal;
+  text-transform: none;
 }
