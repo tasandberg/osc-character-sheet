@@ -505,3 +505,9 @@
   font-weight: 500;
   line-height: 1;
 }
+
+.osc-creation-wizard-app,
+.osc-creation-wizard-app * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-3) transparent;
+}
