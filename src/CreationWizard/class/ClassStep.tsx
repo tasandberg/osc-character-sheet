@@ -12,6 +12,7 @@ import {
   type CreationRace,
 } from "../race/raceDraft";
 import { ClassDetails } from "./ClassDetails";
+import { ClassIcon } from "./ClassIcon";
 import { ineligibleReason, isEligible, requirementList } from "./classDraft";
 import { XpAdjustmentText } from "./XpAdjustmentText";
 
@@ -103,15 +104,23 @@ export function ClassStep({
                       </label>
                     </td>
                     <td className="osc-creation-class-name u-fs-md">
-                      {cls.name}
-                      {race && isNpcOnly(race, cls.name) && (
-                        <span
-                          className="vm-tag vm-tag-xs u-ml-2"
-                          title="The referee may allow this class for NPCs only"
-                        >
-                          NPC only*
-                        </span>
-                      )}
+                      <span className="u-row">
+                        <ClassIcon
+                          name={cls.name}
+                          size={18}
+                          color={!eligible ? "mute" : selected ? "gold" : "dim"}
+                          holdSpace
+                        />
+                        {cls.name}
+                        {race && isNpcOnly(race, cls.name) && (
+                          <span
+                            className="vm-tag vm-tag-xs"
+                            title="The referee may allow this class for NPCs only"
+                          >
+                            NPC only*
+                          </span>
+                        )}
+                      </span>
                     </td>
                     <td className="vm-mono">
                       {cls.primeRequisites.map(abbreviation).join(", ") || "—"}

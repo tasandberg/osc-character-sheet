@@ -12,6 +12,7 @@ import type { ClassAbility, ClassDetail, CreationClass } from "../rules";
 import { IN_SIX_SKILLS } from "../rules/classConstants";
 import type { AbilityScores } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
+import { ClassIcon } from "./ClassIcon";
 import { XpAdjustmentText } from "./XpAdjustmentText";
 
 type Props = {
@@ -108,7 +109,8 @@ export function ClassDetails({ cls, scores, race, loadDetail }: Props) {
 
   return (
     <>
-      <div className="vm-sheet-head">
+      <div className="vm-sheet-head u-items-center">
+        <ClassIcon name={cls.name} size={22} color="gold" />
         <h2 className="vm-sheet-head-title">
           {race ? `${race.name} ${cls.name}` : cls.name}
         </h2>
