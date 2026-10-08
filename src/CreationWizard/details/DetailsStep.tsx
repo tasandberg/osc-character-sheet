@@ -187,11 +187,19 @@ function HitPointsSection({
           {text ? `Reroll ${row.hd}` : `Roll ${row.hd}`}
         </button>
       </div>
-      {hitPoints?.dice && (
-        <div className="osc-creation-hp-dice">
+      <div className="osc-creation-hp-dice">
+        {hitPoints?.dice ? (
           <DiceRow dice={hitPoints.dice} />
-        </div>
-      )}
+        ) : (
+          <span className="vm-score-dice" aria-hidden="true">
+            {Array.from({ length: parseInt(row.hd) }, (_, i) => (
+              <span key={i} className="vm-score-die u-text-muted">
+                —
+              </span>
+            ))}
+          </span>
+        )}
+      </div>
       {invalid ? (
         <p className="vm-field-error">Hit points start at 1</p>
       ) : (
