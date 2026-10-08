@@ -276,7 +276,7 @@ export function EditModal({
               <span className={LAB_ID}>Next Level</span>
               <NumberInput
                 className="input mono"
-                value={sys.details.xp.next}
+                value={sys.details.xp.next ?? 0}
                 min={0}
                 onCommit={(n) => set("system.details.xp.next", n)}
               />

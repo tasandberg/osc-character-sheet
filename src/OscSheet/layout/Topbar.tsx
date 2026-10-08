@@ -113,10 +113,14 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
           </div>
         </div>
 
-        <div className={`${LV} next`}>
-          <b className={`${LV_N} tw:text-stamp-text-dim`}>Lv {vm.nextLevel}</b>
-          <span className={LV_XP}>{vm.xp.next.toLocaleString()}</span>
-        </div>
+        {vm.xp.next != null && (
+          <div className={`${LV} next`}>
+            <b className={`${LV_N} tw:text-stamp-text-dim`}>
+              Lv {vm.nextLevel}
+            </b>
+            <span className={LV_XP}>{vm.xp.next.toLocaleString()}</span>
+          </div>
+        )}
       </div>
 
       <div className="tw:ml-auto tw:flex tw:items-center tw:gap-1">

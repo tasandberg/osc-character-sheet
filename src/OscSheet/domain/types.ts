@@ -82,7 +82,7 @@ export type OSEActor = Actor & {
       xp: {
         bonus: number;
         value: number;
-        next: number;
+        next: number | null;
         share: number;
       };
     };

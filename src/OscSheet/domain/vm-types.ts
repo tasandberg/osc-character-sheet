@@ -104,10 +104,10 @@ export interface ExplorationVM {
 
 export interface TopbarVM {
   level: number;
-  nextLevel: number;
+  nextLevel: number | null;
   /** `floor` is the class table's XP for the current level, `next` the actor's
    *  next-level XP — the two ends of the band the bar fills. */
-  xp: { value: number; floor: number; next: number };
+  xp: { value: number; floor: number; next: number | null };
   /** Progress through the current level's XP band, 0–100. */
   pct: number;
 }
