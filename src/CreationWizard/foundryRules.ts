@@ -3,6 +3,8 @@ import {
   foundryClassDetail,
   foundryClasses,
 } from "./class/foundryClasses";
+import { getSetting } from "@src/OscSheet/settings";
+import { foundryRaceDetail, tomeActive } from "./race/foundryRaces";
 import type { CreationRules } from "./rules";
 import {
   ABILITIES,
@@ -49,6 +51,8 @@ export function foundryCreationRules(): CreationRules {
   return {
     classes: foundryClasses(set),
     classDetail: foundryClassDetail(set),
+    separateRaces: tomeActive() && getSetting("separateRaceAndClass"),
+    raceDetail: foundryRaceDetail(),
     modifiers,
     rollScore,
   };

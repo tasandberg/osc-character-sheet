@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import { cx } from "@ui/cx";
 import { XpAdjustmentText } from "../class/XpAdjustmentText";
 import { MoreBelow } from "../MoreBelow";
@@ -7,9 +7,13 @@ import { xpAdjustment } from "../rules/xpAdjustment";
 import { classStanding } from "./classStanding";
 import { ABILITIES, abbreviation, type AbilityScores } from "./scoresDraft";
 
-type Props = { classes: CreationClass[]; scores: AbilityScores };
+type Props = {
+  classes: CreationClass[];
+  scores: AbilityScores;
+  children?: ReactNode;
+};
 
-export function ClassAside({ classes, scores }: Props) {
+export function ClassAside({ classes, scores, children }: Props) {
   const asideRef = useRef<HTMLElement>(null);
   const known = ABILITIES.filter((a) => scores[a] !== undefined);
   const standings = classes.map((cls) => ({
@@ -35,6 +39,7 @@ export function ClassAside({ classes, scores }: Props) {
         <h2 className="vm-sheet-head-title">Classes</h2>
         <span className="vm-sheet-head-hint">{hint}</span>
       </div>
+      {children}
       {known.length ? (
         <ul className="osc-creation-class-list">
           {standings.map(({ cls, name, status, note }) => (

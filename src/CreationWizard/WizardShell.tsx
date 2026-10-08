@@ -8,6 +8,7 @@ import { STEP_LABELS, type CreationStep, type StepStatuses } from "./steps";
 type Props = {
   worldName: string;
   houseRules: HouseRule[];
+  steps: readonly CreationStep[];
   step: CreationStep;
   statuses: StepStatuses;
   next?: CreationStep;
@@ -22,6 +23,7 @@ type Props = {
 export function WizardShell({
   worldName,
   houseRules,
+  steps,
   step,
   statuses,
   next,
@@ -48,6 +50,7 @@ export function WizardShell({
           <HouseRules worldName={worldName} rules={houseRules} />
         </div>
         <StepsNav
+          steps={steps}
           current={step}
           statuses={statuses}
           summary={summary}

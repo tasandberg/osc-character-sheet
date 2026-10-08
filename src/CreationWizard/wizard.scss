@@ -56,14 +56,9 @@
     .vm-sheet-head-title,
     .vm-section-title-hairline,
     .vm-choice-card-title,
-    .vm-flavor,
     [class*="fa-"]
   ) {
     font-size-adjust: none;
-  }
-
-  .vm-flavor {
-    font-family: "IM Fell English", Georgia, serif;
   }
 
   .vm-score-stamp {
@@ -335,17 +330,14 @@
 
   th,
   td {
-    padding: var(--spacer-1);
+    padding: var(--spacer-3) var(--spacer-1);
     text-align: left;
     vertical-align: middle;
   }
 
   thead th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
+    padding-block: var(--spacer-2);
     border-bottom: 1px solid var(--hair);
-    background: var(--bg);
     color: var(--text-dim);
     font-size: var(--fs-3xs);
     font-weight: 600;

@@ -1,9 +1,12 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { VellumSegmented } from "@features/settings/controls";
+import { RACES, type RaceMode } from "../race/raceDraft";
 import type { CreationRules } from "../rules";
 import { ArrangeScores } from "./ArrangeScores";
 import { ClassAside } from "./ClassAside";
 import { InOrderScores } from "./InOrderScores";
 import { ManualScores } from "./ManualScores";
+import { RaceAside } from "./RaceAside";
 import {
   ABILITY_NAMES,
   finalScores,
@@ -64,13 +67,46 @@ const METHODS: {
 
 const QUESTION = "How will you roll ability scores?";
 
+const RACE_MODES: { value: RaceMode; label: string }[] = [
+  { value: "separate", label: "Separate" },
+  { value: "asClass", label: "As class" },
+];
+
+function RaceModeSwitch({
+  value,
+  onChange,
+}: {
+  value: RaceMode;
+  onChange: (mode: RaceMode) => void;
+}) {
+  return (
+    <VellumSegmented
+      label="How race is chosen"
+      options={RACE_MODES}
+      value={value}
+      onChange={onChange}
+      full
+    />
+  );
+}
+
 type Props = {
   draft: ScoresDraft;
   rules: CreationRules;
+  worldName: string;
+  raceMode: RaceMode;
+  onRaceMode: (mode: RaceMode) => void;
   onChange: (update: (draft: ScoresDraft) => ScoresDraft) => void;
 };
 
-export function ScoresStep({ draft, rules, onChange }: Props) {
+export function ScoresStep({
+  draft,
+  rules,
+  worldName,
+  raceMode,
+  onRaceMode,
+  onChange,
+}: Props) {
   const [rolling, setRolling] = useState(false);
   const scores = useMemo(() => finalScores(draft), [draft]);
   const mods = useMemo(() => rules.modifiers(scores), [rules, scores]);
@@ -173,7 +209,21 @@ export function ScoresStep({ draft, rules, onChange }: Props) {
           />
         )}
       </div>
-      <ClassAside classes={rules.classes} scores={scores} />
+      {rules.separateRaces && raceMode === "separate" ? (
+        <RaceAside races={RACES} scores={scores}>
+          <RaceModeSwitch value={raceMode} onChange={onRaceMode} />
+          <p className="vm-help">
+            {worldName} allows Advanced Fantasy races. Pick a race in its own
+            step, then a class it allows.
+          </p>
+        </RaceAside>
+      ) : (
+        <ClassAside classes={rules.classes} scores={scores}>
+          {rules.separateRaces && (
+            <RaceModeSwitch value={raceMode} onChange={onRaceMode} />
+          )}
+        </ClassAside>
+      )}
     </div>
   );
 }

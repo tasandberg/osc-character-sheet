@@ -1,41 +1,54 @@
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { cx } from "@ui/cx";
-import { Skeleton } from "@ui/Skeleton";
+import { CompendiumDescription, Facts } from "../CompendiumText";
+import {
+  formatMaxLevel,
+  maxLevel,
+  raceLanguages,
+  raceSaveBonus,
+  type CreationRace,
+} from "../race/raceDraft";
 import type { ClassAbility, ClassDetail, CreationClass } from "../rules";
 import { IN_SIX_SKILLS } from "../rules/classConstants";
 import type { AbilityScores } from "../scores/scoresDraft";
+import { useCompendiumDetail } from "../useCompendiumDetail";
 import { XpAdjustmentText } from "./XpAdjustmentText";
 
 type Props = {
   cls: CreationClass;
   scores: AbilityScores;
+  race?: CreationRace;
   loadDetail: (name: string) => Promise<ClassDetail>;
 };
 
-type Loaded =
-  | { status: "loading" }
-  | { status: "ready"; detail: ClassDetail }
-  | { status: "failed" };
-
-function useClassDetail(name: string, load: Props["loadDetail"]) {
-  const [state, setState] = useState<Loaded>({ status: "loading" });
-  useEffect(() => {
-    let live = true;
-    load(name).then(
-      (detail) => live && setState({ status: "ready", detail }),
-      () => live && setState({ status: "failed" }),
-    );
-    return () => {
-      live = false;
-    };
-  }, [name, load]);
-  return state;
-}
+const withArticle = (noun: string) =>
+  `${/^[aeiou]/i.test(noun) ? "an" : "a"} ${noun}`;
 
 const signed = (n: number) => (n < 0 ? `−${-n}` : `+${n}`);
 
 const skillChance = (key: string, chance: number) =>
   IN_SIX_SKILLS.includes(key) ? `${chance}-in-6` : `${chance}%`;
+
+function raceFacts(
+  race: CreationRace,
+  scores: AbilityScores,
+): [string, ReactNode][] {
+  const save = raceSaveBonus(race, scores);
+  return [
+    [
+      "Saves",
+      save ? (
+        <>
+          {save.summary} <span className="vm-help">({save.basis})</span>
+        </>
+      ) : (
+        "No racial bonus"
+      ),
+    ],
+    ["Infravision", race.infravision ? `${race.infravision}′` : "None"],
+    ["Languages", raceLanguages(race).join(", ")],
+  ];
+}
 
 function AbilityDisclosure({ ability }: { ability: ClassAbility }) {
   const [open, setOpen] = useState(false);
@@ -68,12 +81,20 @@ function AbilityDisclosure({ ability }: { ability: ClassAbility }) {
   );
 }
 
-export function ClassDetails({ cls, scores, loadDetail }: Props) {
-  const loaded = useClassDetail(cls.name, loadDetail);
+export function ClassDetails({ cls, scores, race, loadDetail }: Props) {
+  const loaded = useCompendiumDetail(cls.name, loadDetail);
   const detail = loaded.status === "ready" ? loaded.detail : undefined;
   const pending = loaded.status === "loading" ? "…" : "—";
 
   const facts: [string, ReactNode][] = [
+    ...(race
+      ? ([
+          [
+            "Max level",
+            `${formatMaxLevel(maxLevel(race, cls.name))}, as ${withArticle(race.name.toLowerCase())}`,
+          ],
+        ] as [string, ReactNode][])
+      : []),
     ["Hit die", cls.hitDie],
     ["Prime req.", <XpAdjustmentText cls={cls} scores={scores} withBasis />],
     ["Armour", detail?.armour ?? pending],
@@ -88,37 +109,19 @@ export function ClassDetails({ cls, scores, loadDetail }: Props) {
   return (
     <>
       <div className="vm-sheet-head">
-        <h2 className="vm-sheet-head-title">{cls.name}</h2>
+        <h2 className="vm-sheet-head-title">
+          {race ? `${race.name} ${cls.name}` : cls.name}
+        </h2>
         <span className="vm-sheet-head-hint">level 1</span>
       </div>
-      {loaded.status === "loading" ? (
-        <div className="u-stack u-gap-2" aria-busy="true" aria-label="Loading">
-          <Skeleton height="var(--spacer-4)" />
-          <Skeleton height="var(--spacer-4)" />
-          <Skeleton width="60%" height="var(--spacer-4)" />
-        </div>
-      ) : loaded.status === "failed" ? (
-        <p className="vm-help">
-          Couldn’t load this class from the compendiums.
-        </p>
-      ) : detail?.description ? (
-        <div
-          className="osc-creation-class-description vm-flavor"
-          dangerouslySetInnerHTML={{ __html: detail.description }}
-        />
-      ) : (
-        <p className="vm-help">
-          No class description found in the compendiums.
-        </p>
+      <CompendiumDescription loaded={loaded} noun="class" />
+      <Facts facts={facts} />
+      {race && (
+        <section className="u-stack u-gap-3" aria-label="From race">
+          <h3 className="vm-section-title-hairline">From race</h3>
+          <Facts facts={raceFacts(race, scores)} />
+        </section>
       )}
-      <dl className="u-grid tw:grid-cols-[max-content_minmax(0,1fr)] u-gap-x-4 u-gap-y-2 u-items-baseline">
-        {facts.map(([label, value]) => (
-          <div key={label} className="tw:contents">
-            <dt className="vm-key">{label}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
-      </dl>
       {detail && (detail.abilities.length > 0 || cls.skills.length > 0) && (
         <section className="u-stack u-gap-3" aria-label="Abilities">
           <h3 className="vm-section-title-hairline">Abilities</h3>

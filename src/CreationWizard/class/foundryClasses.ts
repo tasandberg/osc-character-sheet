@@ -6,21 +6,21 @@ import { parseClassPage } from "./classPage";
 
 export type ClassSet = "classic" | "advanced";
 
-const TOME = "ose-advancedfantasytome";
+export const TOME = "ose-advancedfantasytome";
 const TOME_ABILITIES = `${TOME}.abilities`;
 const CLASS_BOOKS: Record<ClassSet, string> = {
   classic: "classicfantasycompendium.classic-fantasy-srd",
   advanced: `${TOME}.rules`,
 };
 
-type IndexEntry = {
+export type IndexEntry = {
   _id: string;
   name: string;
   folder?: string | null;
   sort?: number;
   system?: { description?: string };
 };
-type Pack = {
+export type Pack = {
   collection: string;
   documentName: string;
   metadata: { label: string; packageName: string };
@@ -35,8 +35,8 @@ type Pack = {
 };
 type Packs = { get(id: string): Pack | undefined; contents: Pack[] };
 
-const packs = () => game.packs as unknown as Packs;
-const squash = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+export const packs = () => game.packs as unknown as Packs;
+export const squash = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 type ClassMaps = Partial<Record<ClassSet, Record<string, OseClass>>>;
 const classMaps = () => (CONFIG.OSE?.classes ?? {}) as ClassMaps;
@@ -83,11 +83,15 @@ function toCreationClass(def: OseClass): CreationClass {
 export const foundryClasses = (set: ClassSet) =>
   classDefinitions(set).map(toCreationClass);
 
-async function classPageHtml(name: string, set: ClassSet) {
-  const pack = packs().get(CLASS_BOOKS[set]);
+export async function journalPageHtml(
+  packId: string,
+  entryName: RegExp,
+  name: string,
+) {
+  const pack = packs().get(packId);
   if (!pack) return undefined;
   const entries = [...(await pack.getIndex())].filter((e) =>
-    /class/i.test(e.name),
+    entryName.test(e.name),
   );
   for (const entry of entries) {
     const doc = await pack.getDocument(entry._id);
@@ -159,7 +163,7 @@ function splitSkills(abilities: ClassAbility[], skillKeys: string[]) {
   return { abilities: rest, skillLabels };
 }
 
-const enrich = (html: string) =>
+export const enrich = (html: string) =>
   html
     ? foundry.applications.ux.TextEditor.enrichHTML(html, {
         documents: true,
@@ -173,7 +177,7 @@ async function loadClassDetail(
   set: ClassSet,
 ): Promise<ClassDetail> {
   const [html, rawAbilities] = await Promise.all([
-    classPageHtml(def.name, set),
+    journalPageHtml(CLASS_BOOKS[set], /class/i, def.name),
     classAbilities(def, set),
   ]);
   const page = parseClassPage(html ?? "");

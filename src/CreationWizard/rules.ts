@@ -13,8 +13,8 @@ export type CreationClass = ClassRequirements &
   };
 
 export type ClassRestrictions = {
-  allowed?: ReadonlySet<string>;
-  maxLevel?: Readonly<Record<string, number>>;
+  allowed?: (className: string) => boolean;
+  maxLevel?: (className: string) => number | undefined;
 };
 
 export type ClassAbility = { name: string; description: string };
@@ -27,9 +27,13 @@ export type ClassDetail = {
   skillLabels: Record<string, string>;
 };
 
+export type RaceDetail = { description: string; abilities: ClassAbility[] };
+
 export type CreationRules = {
   classes: CreationClass[];
   classDetail(name: string): Promise<ClassDetail>;
+  separateRaces: boolean;
+  raceDetail(name: string): Promise<RaceDetail>;
   modifiers(scores: AbilityScores): AbilityScores;
   rollScore(label: string): Promise<RolledScore>;
 };
