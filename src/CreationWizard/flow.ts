@@ -14,6 +14,12 @@ import {
   type CreationRace,
   type RaceMode,
 } from "./race/raceDraft";
+import {
+  emptyGearDraft,
+  gearBlockedReason,
+  gearSummary,
+  type GearDraft,
+} from "./gear/gearDraft";
 import type { CreationClass, CreationRules } from "./rules";
 import {
   emptyScoresDraft,
@@ -42,6 +48,7 @@ export type CreationDraft = {
   race?: CreationRace;
   class?: CreationClass;
   details: DetailsDraft;
+  gear: GearDraft;
   done: CreationStep[];
 };
 
@@ -101,6 +108,7 @@ function blockedReason(
       ? detailsBlockedReason(draft.details, details)
       : "Choose a class to continue";
   }
+  if (step === "gear") return gearBlockedReason(draft.gear);
   if (step === "review")
     return steps(draft).every(
       (s) => s === "review" || !blockedReason(draft, s, rules),
@@ -119,6 +127,7 @@ export const creationFlow = (
     scores: emptyScoresDraft(),
     raceMode: rules.separateRaces ? "separate" : "asClass",
     details: emptyDetailsDraft(),
+    gear: emptyGearDraft(),
     done: [],
   }),
   steps,
@@ -139,6 +148,7 @@ export const creationFlow = (
       const details = classDetails(draft, rules);
       return details && detailsSummary(draft.details, details);
     }
+    if (step === "gear") return gearSummary(draft.gear);
     return step === "scores"
       ? scoresSummary(draft.scores)
       : step === "race"

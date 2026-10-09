@@ -1,3 +1,4 @@
+import type { LoadGearCatalog, PreviewLoad } from "./gear/gearTypes";
 import type { PrimeRequisiteRules } from "./rules/xpAdjustment";
 import type { ClassRequirements } from "./scores/classStanding";
 import type { AbilityScores, RolledScore } from "./scores/scoresDraft";
@@ -54,4 +55,7 @@ export type CreationRules = {
   rollHitPoints(formula: string, label: string): Promise<RolledScore>;
   alignmentText(): Promise<AlignmentText>;
   saveNames: string[];
+  rollStartingGold(formula: string, label: string): Promise<RolledScore>;
+  loadGearCatalog: LoadGearCatalog;
+  previewLoad: PreviewLoad;
 };

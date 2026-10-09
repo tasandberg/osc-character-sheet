@@ -17,6 +17,7 @@ type Props = {
   onNext: () => void;
   onBack?: () => void;
   onCreate?: () => void;
+  stats?: ReactNode;
   children: ReactNode;
 };
 
@@ -32,6 +33,7 @@ export function WizardShell({
   onNext,
   onBack,
   onCreate,
+  stats,
   children,
 }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -72,6 +74,7 @@ export function WizardShell({
             Back
           </button>
         )}
+        {stats}
         <span className="u-flex-1" />
         {help && <span className="vm-help">{help}</span>}
         <button

@@ -8,6 +8,8 @@ import {
   classScores,
   creationFlow,
 } from "./flow";
+import { GearFooter } from "./gear/GearFooter";
+import { GearStep } from "./gear/GearStep";
 import type { HouseRule } from "./houseRuleSettings";
 import { PlaceholderStep } from "./PlaceholderStep";
 import { RACES } from "./race/raceDraft";
@@ -45,6 +47,7 @@ export function CreationWizard({ worldName, houseRules, rules }: Props) {
       onSelectStep={wizard.goTo}
       onNext={wizard.goNext}
       onBack={wizard.previous && wizard.goBack}
+      stats={step === "gear" && <GearFooter draft={draft.gear} rules={rules} />}
     >
       {step === "scores" ? (
         <ScoresStep
@@ -89,6 +92,14 @@ export function CreationWizard({ worldName, houseRules, rules }: Props) {
           rules={rules}
           onChange={(update) =>
             wizard.setDraft((d) => ({ ...d, details: update(d.details) }))
+          }
+        />
+      ) : step === "gear" ? (
+        <GearStep
+          draft={draft.gear}
+          rules={rules}
+          onChange={(update) =>
+            wizard.setDraft((d) => ({ ...d, gear: update(d.gear) }))
           }
         />
       ) : (
