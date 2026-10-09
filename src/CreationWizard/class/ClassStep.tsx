@@ -12,7 +12,7 @@ import {
   type CreationRace,
 } from "../race/raceDraft";
 import { ClassDetails } from "./ClassDetails";
-import { ClassIcon } from "./ClassIcon";
+import { ChoiceIcon } from "../ChoiceIcon";
 import { ineligibleReason, isEligible, requirementList } from "./classDraft";
 import { XpAdjustmentText } from "./XpAdjustmentText";
 
@@ -105,7 +105,7 @@ export function ClassStep({
                     </td>
                     <td className="osc-creation-class-name u-fs-md">
                       <span className="u-row">
-                        <ClassIcon
+                        <ChoiceIcon
                           name={cls.name}
                           size={18}
                           color={!eligible ? "mute" : selected ? "gold" : "dim"}

@@ -8,9 +8,12 @@ type Props = {
   name: string;
   size: number;
   color: OscIconColor;
+  className?: string;
 };
 
-export function ClassIcon({ name, size, color }: Props) {
+export function ChoiceIcon({ name, size, color, className }: Props) {
   const icon = classIcon(name);
-  return icon ? <OscIcon name={icon} size={size} color={color} /> : null;
+  return icon ? (
+    <OscIcon name={icon} size={size} color={color} className={className} />
+  ) : null;
 }

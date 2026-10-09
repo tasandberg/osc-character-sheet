@@ -375,6 +375,12 @@
   }
 }
 
+.osc-creation-heading-icon {
+  display: inline-block;
+  margin-right: var(--spacer-2);
+  vertical-align: calc(0.5cap - 11px);
+}
+
 .osc-creation-class-table .osc-creation-class-name {
   white-space: nowrap;
 }
