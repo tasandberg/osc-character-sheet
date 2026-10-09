@@ -158,7 +158,7 @@ function HitPointsSection({
       <span className="vm-key" id="osc-creation-hp">
         Hit Points
       </span>
-      <div className="osc-creation-column vm-score-tile-sm-sunk u-flex u-gap-3">
+      <div className="osc-creation-column u-flex u-gap-3">
         <span
           className={cx(
             scoreFaceClass(invalid && "vm-score-face-invalid"),
@@ -166,7 +166,7 @@ function HitPointsSection({
           )}
         >
           <input
-            className="vm-score-figure vm-score-input u-fs-xl"
+            className="vm-score-figure vm-score-input"
             type="text"
             inputMode="numeric"
             aria-label="Hit points"
@@ -182,17 +182,6 @@ function HitPointsSection({
           />
         </span>
         <div className="osc-creation-hp-dice u-flex u-flex-1 tw:flex-col u-justify-between u-items-start u-gap-2">
-          {hitPoints?.dice ? (
-            <DiceRow dice={hitPoints.dice} />
-          ) : (
-            <span className="vm-score-dice" aria-hidden="true">
-              {Array.from({ length: parseInt(row.hd) }, (_, i) => (
-                <span key={i} className="vm-score-die u-text-muted">
-                  —
-                </span>
-              ))}
-            </span>
-          )}
           <button
             type="button"
             className={cx(
@@ -204,6 +193,17 @@ function HitPointsSection({
           >
             {text ? `Reroll ${row.hd}` : `Roll ${row.hd}`}
           </button>
+          {hitPoints?.dice ? (
+            <DiceRow dice={hitPoints.dice} />
+          ) : (
+            <span className="vm-score-dice" aria-hidden="true">
+              {Array.from({ length: parseInt(row.hd) }, (_, i) => (
+                <span key={i} className="vm-score-die u-text-muted">
+                  —
+                </span>
+              ))}
+            </span>
+          )}
         </div>
       </div>
       {invalid ? (
