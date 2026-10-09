@@ -20,8 +20,23 @@ let root: Root;
 let rolls: { total: number; dice: number[] }[];
 let details: Map<string, (detail: ClassDetail) => void>;
 let raceDetails: Map<string, (detail: RaceDetail) => void>;
+let hitPointRolls: string[];
 
-const level1 = { hitDie: "1d8", thac0: 19, nextLevelXp: 2000, skills: [] };
+const levelTable = (die: string, count: number) =>
+  Array.from({ length: count }, (_, i) => ({
+    xp: i * 1200,
+    hd: `${i + 1}${die}`,
+    thac0: 19 - i,
+    saves: [13, 14, 13, 16, 15].map((save) => save - i),
+  }));
+
+const level1 = {
+  hitDie: "1d8",
+  thac0: 19,
+  nextLevelXp: 2000,
+  skills: [],
+  levels: levelTable("d8", 1),
+};
 const classes: CreationClass[] = [
   {
     name: "Dwarf",
@@ -37,6 +52,7 @@ const classes: CreationClass[] = [
     xpModifiers: [{ modifier: 10, anyOf: [{ dex: 13, str: 13 }] }],
     ...level1,
     hitDie: "1d6",
+    levels: levelTable("d6", 1),
   },
   {
     name: "Thief",
@@ -49,6 +65,7 @@ const classes: CreationClass[] = [
       { key: "cs", chance: 87 },
       { key: "hn", chance: 2 },
     ],
+    levels: levelTable("d4", 10),
   },
 ];
 
@@ -76,11 +93,28 @@ const rules: CreationRules = {
       ]),
     ) as AbilityScores,
   rollScore: async () => rolls.shift()!,
+  maxHitPointsAtFirstLevel: false,
+  saveNames: [
+    "Death Poison",
+    "Wands",
+    "Paralysis Petrify",
+    "Breath Attacks",
+    "Spells Rods Staves",
+  ],
+  maximumHitPoints: () => 8,
+  rollHitPoints: async (formula) => {
+    hitPointRolls.push(formula);
+    return { total: 3, dice: [4] };
+  },
+  alignmentText: async () => ({
+    neutral: "Neutral beings believe in a balance between Law and Chaos.",
+  }),
 };
 
 function open(wizardRules = rules) {
   details = new Map();
   raceDetails = new Map();
+  hitPointRolls = [];
   rolls = [12, 7, 10, 15, 8, 11].map((total) => ({
     total,
     dice: [total - 2, 1, 1],
@@ -133,10 +167,21 @@ const radio = (name: string) =>
     `input[type=radio][aria-label="${name}"]`,
   )!;
 
-function type(label: string, value: string) {
-  const input = host.querySelector<HTMLInputElement>(
-    `input[aria-label="${label}"]`,
-  )!;
+const type = (label: string, value: string) =>
+  setInput(
+    host.querySelector<HTMLInputElement>(`input[aria-label="${label}"]`)!,
+    value,
+  );
+
+const typeField = (label: string, value: string) =>
+  setInput(
+    [...host.querySelectorAll("label")]
+      .find((l) => l.textContent?.startsWith(label))!
+      .querySelector("input")!,
+    value,
+  );
+
+function setInput(input: HTMLInputElement, value: string) {
   const setValue = Object.getOwnPropertyDescriptor(
     HTMLInputElement.prototype,
     "value",
@@ -173,6 +218,22 @@ function enterScores(values: string[]) {
   press("Enter manually");
   values.forEach((value, i) => type(ABILITY_LABELS[i], value));
 }
+
+async function toDetails() {
+  enterScores(["13", "8", "7", "15", "8", "11"]);
+  act(() => next().click());
+  act(() => radio("Thief").click());
+  await act(async () => next().click());
+}
+
+const hitPoints = () =>
+  host.querySelector<HTMLInputElement>('input[aria-label="Hit points"]')!.value;
+const saves = () =>
+  [
+    ...host.querySelectorAll(
+      'dl[aria-label="Saving throws, roll d20 at or above target"] dd',
+    ),
+  ].map((dd) => dd.textContent);
 
 describe("CreationWizard", () => {
   it("holds Next until the current step is complete, then advances", () => {
@@ -295,7 +356,7 @@ describe("CreationWizard", () => {
     expect(aside()).toContain("DwarfCON 9");
   });
 
-  it("offers only the classes the scores allow, then summarises the choice", () => {
+  it("offers only the classes the scores allow, then summarises the choice", async () => {
     open();
     enterScores(["13", "8", "7", "15", "8", "11"]);
     act(() => next().click());
@@ -315,7 +376,7 @@ describe("CreationWizard", () => {
 
     act(() => radio("Thief").click());
     expect(next().getAttribute("aria-disabled")).toBe("false");
-    act(() => next().click());
+    await act(async () => next().click());
     expect(button("2ClassThief · +5% XP")).toBeDefined();
   });
 
@@ -391,7 +452,7 @@ describe("CreationWizard", () => {
     expect(stepNames()).toHaveLength(5);
   });
 
-  it("applies the race’s modifiers, then offers only the classes it allows", () => {
+  it("applies the race’s modifiers, then offers only the classes it allows", async () => {
     openSeparate();
     enterScores(["13", "8", "7", "15", "8", "11"]);
     act(() => next().click());
@@ -406,7 +467,7 @@ describe("CreationWizard", () => {
       "ThiefDEX1d48th+5% from DEX 15",
     ]);
     act(() => radio("Thief").click());
-    act(() => next().click());
+    await act(async () => next().click());
     expect(button("2RaceHalf-Orc")).toBeDefined();
     expect(button("3ClassHalf-Orc Thief · +5% XP")).toBeDefined();
   });
@@ -453,5 +514,105 @@ describe("CreationWizard", () => {
     expect(classPanel).toContain(
       "LanguagesAlignment, Common, Dwarvish, Gnomish, Goblin, Kobold",
     );
+  });
+});
+
+describe("CreationWizard details", () => {
+  it("names the character, sets alignment and rolls hit points before Gear", async () => {
+    open();
+    await toDetails();
+    expect(currentStep()).toBe("3Details");
+    expect(host.textContent).toContain("Name your character to continue");
+
+    typeField("Name", "Wren Ashdown");
+    expect(host.textContent).toContain("Choose an alignment to continue");
+    choose("Neutral");
+    expect(host.textContent).toContain(
+      "Neutral beings believe in a balance between Law and Chaos.",
+    );
+    expect(host.textContent).toContain("Roll hit points to continue");
+    expect(next().getAttribute("aria-disabled")).toBe("true");
+
+    await pressAsync("Roll 1d4");
+    expect(hitPointRolls).toEqual(["max(1d4 + -1, 1)"]);
+    expect(hitPoints()).toBe("3");
+    expect(host.textContent).toContain(
+      "Rolled 1d4 for Thief, −1 for Constitution.",
+    );
+    expect(host.textContent).toContain("−1 vs magic (WIS 7)");
+    expect(saves()).toEqual(["13", "14", "13", "16", "15"]);
+
+    act(() => next().click());
+    expect(currentStep()).toBe("4Gear");
+    expect(button("3DetailsWren Ashdown · 1st level · 3 hp")).toBeDefined();
+  });
+
+  it("keeps hit points editable, but not below 1", async () => {
+    open();
+    await toDetails();
+    typeField("Name", "Wren");
+    choose("Lawful");
+
+    type("Hit points", "0");
+    expect(host.textContent).toContain("Hit points start at 1");
+    expect(next().getAttribute("aria-disabled")).toBe("true");
+
+    type("Hit points", "5");
+    expect(next().getAttribute("aria-disabled")).toBe("false");
+  });
+
+  it("takes saves, THAC0, XP and hit dice from the chosen level, up to the class maximum", async () => {
+    open();
+    await toDetails();
+    await pressAsync("Roll 1d4");
+    press("Raise level");
+    press("Raise level");
+
+    const stats = () =>
+      [...host.querySelectorAll("h2")]
+        .find((h) => h.textContent?.startsWith("Thief · level"))!
+        .closest("aside")!.textContent;
+    expect(stats()).toContain("Experience2,400 xp");
+    expect(stats()).toContain("Next level3,600 xp");
+    expect(stats()).toContain("Hit dice3d4");
+    expect(stats()).toContain("THAC017 [+2]");
+    expect(saves()).toEqual(["11", "12", "11", "14", "13"]);
+    expect(hitPoints()).toBe("");
+    await pressAsync("Roll 3d4");
+    expect(hitPointRolls.at(-1)).toBe("max(3d4 + -3, 3)");
+
+    for (let i = 0; i < 9; i++) press("Raise level");
+    expect(stats()).toContain("Max level10th");
+    expect(button("Raise level")!.getAttribute("aria-disabled")).toBe("true");
+  });
+
+  it("caps the level by race and adds the racial save bonus when race is separate", async () => {
+    openSeparate();
+    enterScores(["13", "8", "7", "15", "10", "11"]);
+    act(() => next().click());
+    act(() => radio("Dwarf").click());
+    act(() => next().click());
+    act(() => radio("Thief").click());
+    await act(async () => next().click());
+
+    expect(
+      [...host.querySelectorAll("h2")].map((h) => h.textContent),
+    ).toContain("Dwarf Thief · level 1");
+    expect(host.textContent).toContain("Max level9th");
+    expect(host.textContent).toContain(
+      "+3 vs poison, spells, wands (Resilience, CON 11)",
+    );
+  });
+
+  it("starts 1st-level characters at maximum hit points under the house rule", async () => {
+    open({ ...rules, maxHitPointsAtFirstLevel: true });
+    await toDetails();
+    expect(hitPoints()).toBe("8");
+    expect(host.textContent).toContain(
+      "Maximum of 1d4 for Thief, −1 for Constitution, by house rule.",
+    );
+
+    press("Raise level");
+    expect(hitPoints()).toBe("");
   });
 });

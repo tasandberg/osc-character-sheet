@@ -77,6 +77,7 @@ function toCreationClass(def: OseClass): CreationClass {
       key,
       chance,
     })),
+    levels: def.levels,
   };
 }
 

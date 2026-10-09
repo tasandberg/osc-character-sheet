@@ -1,5 +1,12 @@
 import { classBlockedReason, classSummary } from "./class/classDraft";
 import {
+  characterDetails,
+  detailsBlockedReason,
+  detailsSummary,
+  emptyDetailsDraft,
+  type DetailsDraft,
+} from "./details/detailsDraft";
+import {
   adjustedScores,
   raceBlockedReason,
   raceRestrictions,
@@ -7,7 +14,7 @@ import {
   type CreationRace,
   type RaceMode,
 } from "./race/raceDraft";
-import type { CreationClass } from "./rules";
+import type { CreationClass, CreationRules } from "./rules";
 import {
   emptyScoresDraft,
   finalScores,
@@ -34,8 +41,17 @@ export type CreationDraft = {
   raceMode: RaceMode;
   race?: CreationRace;
   class?: CreationClass;
+  details: DetailsDraft;
   done: CreationStep[];
 };
+
+export type FlowRules = Pick<
+  CreationRules,
+  | "separateRaces"
+  | "modifiers"
+  | "maxHitPointsAtFirstLevel"
+  | "maximumHitPoints"
+>;
 
 const CLASS_ONLY_STEPS = CREATION_STEPS.filter((step) => step !== "race");
 
@@ -50,12 +66,25 @@ export const classRestrictions = (draft: CreationDraft) => {
   return race && raceRestrictions(race);
 };
 
+export const classDetails = (draft: CreationDraft, rules: FlowRules) =>
+  draft.class &&
+  characterDetails({
+    draft: draft.details,
+    cls: draft.class,
+    restrictions: classRestrictions(draft),
+    conMod: rules.modifiers(classScores(draft)).con ?? 0,
+    maximum: rules.maxHitPointsAtFirstLevel
+      ? rules.maximumHitPoints
+      : undefined,
+  });
+
 const steps = (draft: CreationDraft) =>
   draft.raceMode === "separate" ? CREATION_STEPS : CLASS_ONLY_STEPS;
 
 function blockedReason(
   draft: CreationDraft,
   step: CreationStep,
+  rules: FlowRules,
 ): string | undefined {
   if (step === "scores") return scoresBlockedReason(draft.scores);
   if (step === "race")
@@ -66,8 +95,16 @@ function blockedReason(
       classScores(draft),
       classRestrictions(draft),
     );
+  if (step === "details") {
+    const details = classDetails(draft, rules);
+    return details
+      ? detailsBlockedReason(draft.details, details)
+      : "Choose a class to continue";
+  }
   if (step === "review")
-    return steps(draft).every((s) => s === "review" || !blockedReason(draft, s))
+    return steps(draft).every(
+      (s) => s === "review" || !blockedReason(draft, s, rules),
+    )
       ? undefined
       : "Finish every step to create the character";
   return draft.done.includes(step)
@@ -76,18 +113,19 @@ function blockedReason(
 }
 
 export const creationFlow = (
-  separateRaces: boolean,
+  rules: FlowRules,
 ): CreationFlow<CreationDraft> => ({
   emptyDraft: () => ({
     scores: emptyScoresDraft(),
-    raceMode: separateRaces ? "separate" : "asClass",
+    raceMode: rules.separateRaces ? "separate" : "asClass",
+    details: emptyDetailsDraft(),
     done: [],
   }),
   steps,
   status: (draft) =>
     Object.fromEntries(
       CREATION_STEPS.map((step) => {
-        const reason = blockedReason(draft, step);
+        const reason = blockedReason(draft, step, rules);
         return [
           step,
           reason
@@ -96,8 +134,12 @@ export const creationFlow = (
         ];
       }),
     ) as StepStatuses,
-  summary: (draft, step) =>
-    step === "scores"
+  summary: (draft, step) => {
+    if (step === "details") {
+      const details = classDetails(draft, rules);
+      return details && detailsSummary(draft.details, details);
+    }
+    return step === "scores"
       ? scoresSummary(draft.scores)
       : step === "race"
         ? raceSummary(draft.race, finalScores(draft.scores))
@@ -108,5 +150,6 @@ export const creationFlow = (
               classRestrictions(draft),
               chosenRace(draft)?.name,
             )
-          : undefined,
+          : undefined;
+  },
 });

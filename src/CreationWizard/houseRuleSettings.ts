@@ -1,8 +1,11 @@
+import { getSetting } from "@src/OscSheet/settings";
+
 export type HouseRule = { name: string; tag: string; detail: string };
 
 export type HouseRuleSettings = {
   encumbranceOption: unknown;
   ascendingAC: unknown;
+  maxHitPointsAtFirstLevel?: boolean;
 };
 
 const ENCUMBRANCE: Record<string, { tag: string; detail: string }> = {
@@ -29,6 +32,7 @@ const ENCUMBRANCE: Record<string, { tag: string; detail: string }> = {
 export function houseRules({
   encumbranceOption,
   ascendingAC,
+  maxHitPointsAtFirstLevel,
 }: HouseRuleSettings): HouseRule[] {
   const encumbrance =
     ENCUMBRANCE[String(encumbranceOption)] ?? ENCUMBRANCE.disabled;
@@ -45,6 +49,16 @@ export function houseRules({
           detail: "Descending, with THAC0",
         },
     { name: "Encumbrance", ...encumbrance },
+    ...(maxHitPointsAtFirstLevel
+      ? [
+          {
+            name: "Hit points",
+            tag: "Max HP at 1st level",
+            detail:
+              "1st-level characters start with the most their Hit Die allows",
+          },
+        ]
+      : []),
   ];
 }
 
@@ -62,5 +76,6 @@ export function readHouseRuleSettings(): HouseRuleSettings {
   return {
     encumbranceOption: read("encumbranceOption"),
     ascendingAC: read("ascendingAC"),
+    maxHitPointsAtFirstLevel: getSetting("maxHitPointsAtFirstLevel"),
   };
 }

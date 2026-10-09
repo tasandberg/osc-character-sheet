@@ -5,6 +5,11 @@ import {
 } from "./class/foundryClasses";
 import { getSetting } from "@src/OscSheet/settings";
 import { foundryRaceDetail, tomeActive } from "./race/foundryRaces";
+import {
+  foundryAlignmentText,
+  maximumHitPoints,
+  rollHitPoints,
+} from "./details/foundryDetails";
 import type { CreationRules } from "./rules";
 import {
   ABILITIES,
@@ -34,6 +39,13 @@ function modifiers(scores: AbilityScores): AbilityScores {
   ) as AbilityScores;
 }
 
+const SAVE_KEYS = ["death", "wand", "paralysis", "breath", "spell"];
+
+const saveNames = () => {
+  const names = (CONFIG.OSE?.saves_long ?? {}) as Record<string, string>;
+  return SAVE_KEYS.map((key) => game.i18n?.localize(names[key] ?? key) ?? key);
+};
+
 async function rollScore(label: string) {
   const roll = await new Roll("3d6").evaluate();
   await roll.toMessage(
@@ -55,5 +67,10 @@ export function foundryCreationRules(): CreationRules {
     raceDetail: foundryRaceDetail(),
     modifiers,
     rollScore,
+    maxHitPointsAtFirstLevel: getSetting("maxHitPointsAtFirstLevel"),
+    maximumHitPoints,
+    rollHitPoints,
+    alignmentText: foundryAlignmentText(),
+    saveNames: saveNames(),
   };
 }
