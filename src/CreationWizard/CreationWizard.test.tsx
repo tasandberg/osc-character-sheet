@@ -94,6 +94,13 @@ const rules: CreationRules = {
     ) as AbilityScores,
   rollScore: async () => rolls.shift()!,
   maxHitPointsAtFirstLevel: false,
+  saveNames: [
+    "Death Poison",
+    "Wands",
+    "Paralysis Petrify",
+    "Breath Attacks",
+    "Spells Rods Staves",
+  ],
   maximumHitPoints: () => 8,
   rollHitPoints: async (formula) => {
     hitPointRolls.push(formula);
@@ -563,7 +570,7 @@ describe("CreationWizard details", () => {
 
     const stats = () =>
       [...host.querySelectorAll("h2")]
-        .find((h) => h.textContent === "Thief · level")!
+        .find((h) => h.textContent?.startsWith("Thief · level"))!
         .closest("aside")!.textContent;
     expect(stats()).toContain("Experience2,400 xp");
     expect(stats()).toContain("Next level3,600 xp");
@@ -590,7 +597,7 @@ describe("CreationWizard details", () => {
 
     expect(
       [...host.querySelectorAll("h2")].map((h) => h.textContent),
-    ).toContain("Dwarf Thief · level");
+    ).toContain("Dwarf Thief · level 1");
     expect(host.textContent).toContain("Max level9th");
     expect(host.textContent).toContain(
       "+3 vs poison, spells, wands (Resilience, CON 11)",

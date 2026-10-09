@@ -15,7 +15,6 @@ import type { AbilityScores } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
 import {
   ALIGNMENTS,
-  SAVES,
   parseHitPoints,
   spellSlots,
   type CharacterDetails,
@@ -102,16 +101,20 @@ function AlignmentSection({
           onChange={(alignment) => onChange((d) => ({ ...d, alignment }))}
         />
       </div>
-      {chosen &&
-        (text ? (
-          <p className="vm-flavor">{text}</p>
-        ) : (
-          loaded.status !== "loading" && (
-            <p className="vm-help">
-              No alignment description found in the compendiums.
-            </p>
-          )
-        ))}
+      {!chosen ? (
+        <p className="vm-help u-text-muted">
+          Choose Lawful, Neutral or Chaotic. Alignment sets your
+          character&apos;s outlook and the alignment language they speak.
+        </p>
+      ) : text ? (
+        <p className="vm-flavor">{text}</p>
+      ) : (
+        loaded.status !== "loading" && (
+          <p className="vm-help">
+            No alignment description found in the compendiums.
+          </p>
+        )
+      )}
     </section>
   );
 }
@@ -212,7 +215,7 @@ function HitPointsSection({
   );
 }
 
-function ClassStats({ details, onChange, cls, race, scores, rules }: Props) {
+function ClassStats({ details, cls, race, scores, rules }: Props) {
   const asideRef = useRef<HTMLElement>(null);
   const { row, nextXp } = details;
   const slots = spellSlots(row);
@@ -246,15 +249,13 @@ function ClassStats({ details, onChange, cls, race, scores, rules }: Props) {
       className="osc-creation-aside osc-creation-class-aside u-stack"
       aria-label={`${cls.name} at level ${details.level}`}
     >
-      <div className="vm-sheet-head u-wrap">
-        <h2 className="vm-sheet-head-title osc-creation-nowrap">
-          {race ? `${race.name} ${cls.name}` : cls.name} · level
+      <div className="vm-sheet-head">
+        <h2 className="vm-sheet-head-title">
+          {race ? `${race.name} ${cls.name}` : cls.name}{" "}
+          <span className="tw:font-sans u-text-muted">
+            · level {details.level}
+          </span>
         </h2>
-        <LevelStepper
-          level={details.level}
-          cap={details.cap}
-          onLevel={(level) => onChange((d) => ({ ...d, level }))}
-        />
       </div>
       <dl className="u-grid u-grid-3 u-gap-x-4 u-gap-y-3">
         {stats.map(([label, value]) => (
@@ -269,7 +270,7 @@ function ClassStats({ details, onChange, cls, race, scores, rules }: Props) {
         className="osc-creation-saves u-flex tw:flex-col"
         aria-label="Saving throws, roll d20 at or above target"
       >
-        {SAVES.map((name, i) => (
+        {rules.saveNames.map((name, i) => (
           <div
             key={name}
             className="osc-creation-save u-flex u-items-baseline u-justify-between u-gap-3 u-py-1"
@@ -296,17 +297,29 @@ export function DetailsStep(props: Props) {
         ref={paneRef}
         className="osc-creation-pane osc-creation-details-pane u-gap-5"
       >
-        <label className="osc-creation-column vm-field u-gap-1">
-          <span className="vm-key">Name</span>
-          <input
-            className="vm-input vm-input-underline vm-input-title"
-            type="text"
-            value={draft.name}
-            onChange={(event) =>
-              onChange((d) => ({ ...d, name: event.target.value }))
-            }
-          />
-        </label>
+        <div className="u-flex u-items-start u-gap-5">
+          <label className="osc-creation-column vm-field u-flex-1 u-gap-1">
+            <span className="vm-key">Name</span>
+            <input
+              className="vm-input vm-input-underline vm-input-title"
+              type="text"
+              value={draft.name}
+              onChange={(event) =>
+                onChange((d) => ({ ...d, name: event.target.value }))
+              }
+            />
+          </label>
+          <div className="vm-field u-flex-none u-gap-1">
+            <span className="vm-key" aria-hidden="true">
+              Level
+            </span>
+            <LevelStepper
+              level={details.level}
+              cap={details.cap}
+              onLevel={(level) => onChange((d) => ({ ...d, level }))}
+            />
+          </div>
+        </div>
         <HitPointsSection
           details={details}
           cls={cls}

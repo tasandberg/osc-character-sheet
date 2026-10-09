@@ -12,8 +12,6 @@ export const ALIGNMENTS: { value: Alignment; label: string }[] = [
   { value: "chaotic", label: "Chaotic" },
 ];
 
-export const SAVES = ["Death", "Wand", "Paralysis", "Breath", "Spell"];
-
 export type HitPoints = {
   value: string;
   formula: string;

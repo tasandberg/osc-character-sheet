@@ -451,7 +451,7 @@
 }
 
 .osc-creation-level-stepper {
-  align-self: center;
+  align-self: flex-start;
   gap: var(--spacer-1);
 
   .vm-stepper-btn {

@@ -53,4 +53,5 @@ export type CreationRules = {
   maximumHitPoints(formula: string): number;
   rollHitPoints(formula: string, label: string): Promise<RolledScore>;
   alignmentText(): Promise<AlignmentText>;
+  saveNames: string[];
 };
