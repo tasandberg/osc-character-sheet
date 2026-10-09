@@ -464,14 +464,15 @@
   }
 }
 
-.osc-creation-name {
+.osc-creation-column {
   max-width: calc(var(--spacer-12) * 6);
 }
 
 .osc-creation-hp-well {
   .osc-creation-wizard-app & {
     width: calc(var(--spacer-12) * 2);
-    height: var(--spacer-12);
+    height: auto;
+    min-height: var(--spacer-12);
     color: var(--crimson);
   }
 }

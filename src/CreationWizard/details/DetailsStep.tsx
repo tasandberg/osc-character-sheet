@@ -93,12 +93,15 @@ function AlignmentSection({
       <span className="vm-key" id="osc-creation-al">
         Alignment
       </span>
-      <VellumSegmented
-        label="Alignment"
-        options={ALIGNMENTS}
-        value={draft.alignment as Alignment}
-        onChange={(alignment) => onChange((d) => ({ ...d, alignment }))}
-      />
+      <div className="osc-creation-column">
+        <VellumSegmented
+          full
+          label="Alignment"
+          options={ALIGNMENTS}
+          value={draft.alignment as Alignment}
+          onChange={(alignment) => onChange((d) => ({ ...d, alignment }))}
+        />
+      </div>
       {chosen &&
         (text ? (
           <p className="vm-flavor">{text}</p>
@@ -152,7 +155,7 @@ function HitPointsSection({
       <span className="vm-key" id="osc-creation-hp">
         Hit Points
       </span>
-      <div className="u-row u-gap-3 u-wrap">
+      <div className="osc-creation-column u-flex u-gap-3">
         <span
           className={cx(
             scoreFaceClass(invalid && "vm-score-face-invalid"),
@@ -175,30 +178,30 @@ function HitPointsSection({
             }
           />
         </span>
-        <button
-          type="button"
-          className={cx(
-            "vm-btn vm-btn-sm u-flex-none osc-creation-nowrap",
-            text ? "vm-btn-secondary" : "vm-btn-primary",
+        <div className="osc-creation-hp-dice u-flex u-flex-1 tw:flex-col u-justify-between u-items-start u-gap-2">
+          {hitPoints?.dice ? (
+            <DiceRow dice={hitPoints.dice} />
+          ) : (
+            <span className="vm-score-dice" aria-hidden="true">
+              {Array.from({ length: parseInt(row.hd) }, (_, i) => (
+                <span key={i} className="vm-score-die u-text-muted">
+                  —
+                </span>
+              ))}
+            </span>
           )}
-          aria-disabled={rolling || undefined}
-          onClick={roll}
-        >
-          {text ? `Reroll ${row.hd}` : `Roll ${row.hd}`}
-        </button>
-      </div>
-      <div className="osc-creation-hp-dice">
-        {hitPoints?.dice ? (
-          <DiceRow dice={hitPoints.dice} />
-        ) : (
-          <span className="vm-score-dice" aria-hidden="true">
-            {Array.from({ length: parseInt(row.hd) }, (_, i) => (
-              <span key={i} className="vm-score-die u-text-muted">
-                —
-              </span>
-            ))}
-          </span>
-        )}
+          <button
+            type="button"
+            className={cx(
+              "vm-btn vm-btn-sm osc-creation-nowrap",
+              text ? "vm-btn-secondary" : "vm-btn-primary",
+            )}
+            aria-disabled={rolling || undefined}
+            onClick={roll}
+          >
+            {text ? `Reroll ${row.hd}` : `Roll ${row.hd}`}
+          </button>
+        </div>
       </div>
       {invalid ? (
         <p className="vm-field-error">Hit points start at 1</p>
@@ -222,6 +225,7 @@ function ClassStats({ details, onChange, cls, race, scores, rules }: Props) {
   const stats: [string, string][] = [
     ["Experience", `${row.xp.toLocaleString()} xp`],
     ["Next level", nextXp === null ? "—" : `${nextXp.toLocaleString()} xp`],
+    ["Max level", ordinal(details.cap)],
     ["Hit dice", row.hd],
     ["THAC0", `${row.thac0} [${formatModifier(19 - row.thac0)}]`],
     ...(row.spells
@@ -234,16 +238,16 @@ function ClassStats({ details, onChange, cls, race, scores, rules }: Props) {
           ],
         ] as [string, string][])
       : []),
-    ["Max level", ordinal(details.cap)],
   ];
+
   return (
     <aside
       ref={asideRef}
       className="osc-creation-aside osc-creation-class-aside u-stack"
       aria-label={`${cls.name} at level ${details.level}`}
     >
-      <div className="vm-sheet-head">
-        <h2 className="vm-sheet-head-title">
+      <div className="vm-sheet-head u-wrap">
+        <h2 className="vm-sheet-head-title osc-creation-nowrap">
           {race ? `${race.name} ${cls.name}` : cls.name} · level
         </h2>
         <LevelStepper
@@ -252,7 +256,7 @@ function ClassStats({ details, onChange, cls, race, scores, rules }: Props) {
           onLevel={(level) => onChange((d) => ({ ...d, level }))}
         />
       </div>
-      <dl className="u-grid u-grid-2 u-gap-x-4 u-gap-y-3">
+      <dl className="u-grid u-grid-3 u-gap-x-4 u-gap-y-3">
         {stats.map(([label, value]) => (
           <div key={label} className="u-flex tw:flex-col u-gap-1">
             <dt className="vm-key">{label}</dt>
@@ -292,7 +296,7 @@ export function DetailsStep(props: Props) {
         ref={paneRef}
         className="osc-creation-pane osc-creation-details-pane u-gap-5"
       >
-        <label className="osc-creation-name vm-field u-gap-1">
+        <label className="osc-creation-column vm-field u-gap-1">
           <span className="vm-key">Name</span>
           <input
             className="vm-input vm-input-underline vm-input-title"
