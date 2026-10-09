@@ -470,7 +470,7 @@
 
 .osc-creation-hp-well {
   .osc-creation-wizard-app & {
-    width: calc(var(--spacer-12) * 2);
+    width: calc(var(--spacer-12) + var(--spacer-4));
     height: auto;
     min-height: var(--spacer-12);
     color: var(--crimson);

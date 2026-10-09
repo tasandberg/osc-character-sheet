@@ -158,7 +158,7 @@ function HitPointsSection({
       <span className="vm-key" id="osc-creation-hp">
         Hit Points
       </span>
-      <div className="osc-creation-column u-flex u-gap-3">
+      <div className="osc-creation-column vm-score-tile-sm-sunk u-flex u-gap-3">
         <span
           className={cx(
             scoreFaceClass(invalid && "vm-score-face-invalid"),
@@ -166,7 +166,7 @@ function HitPointsSection({
           )}
         >
           <input
-            className="vm-score-figure vm-score-input"
+            className="vm-score-figure vm-score-input u-fs-xl"
             type="text"
             inputMode="numeric"
             aria-label="Hit points"
@@ -252,7 +252,7 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
       <div className="vm-sheet-head">
         <h2 className="vm-sheet-head-title">
           {race ? `${race.name} ${cls.name}` : cls.name}{" "}
-          <span className="tw:font-sans u-text-muted">
+          <span className="tw:font-sans tw:font-normal u-fs-sm u-text-muted">
             · level {details.level}
           </span>
         </h2>
