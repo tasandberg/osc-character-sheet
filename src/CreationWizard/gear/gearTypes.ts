@@ -7,6 +7,7 @@ export interface GearItem {
   category: GearCategory;
   cost: number;
   weight: number;
+  detail?: string;
 }
 
 export interface CartLine {
@@ -18,6 +19,7 @@ export interface LoadPreview {
   enabled: boolean;
   carried: number;
   max: number | null;
+  tier: string | null;
   movement: { base: number; encounter: number; overland: number };
 }
 

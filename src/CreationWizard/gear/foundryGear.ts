@@ -1,3 +1,5 @@
+import type { OSEActor } from "@domain/types";
+import { selectEncumbrance } from "@features/inventory/encumbrance";
 import { TOME, activeClassSet, squash } from "../class/foundryClasses";
 import type {
   GearCategory,
@@ -6,16 +8,26 @@ import type {
   PreviewLoad,
 } from "./gearTypes";
 
-type GearEntry = {
+type GearDocument = {
   uuid: string;
   name: string;
   img?: string | null;
-  folder?: string | null;
-  system?: { cost?: number | null; weight?: number | null; treasure?: boolean };
+  type: string;
+  folder?: { id: string } | null;
+  system: {
+    cost?: number | null;
+    weight?: number | null;
+    treasure?: boolean;
+    damage?: string;
+    qualities?: { label: string }[];
+    type?: string;
+    ac?: { value?: number };
+    aac?: { value?: number };
+  };
 };
 type GearPack = {
   folders: { contents: { id: string; name: string }[] };
-  getIndex(options: { fields: string[] }): Promise<Iterable<GearEntry>>;
+  getDocuments(): Promise<GearDocument[]>;
 };
 type GearPacks = { get(id: string): GearPack | undefined };
 
@@ -32,29 +44,54 @@ const TOME_FOLDERS: Record<string, GearCategory> = {
   adventuringgear: "gear",
   ammunition: "ammunition",
 };
-const FIELDS = ["system.cost", "system.weight", "system.treasure", "folder"];
 
 const gearPacks = () => game.packs as unknown as GearPacks;
 
-const toGearItem = (entry: GearEntry, category: GearCategory): GearItem => ({
-  uuid: entry.uuid,
-  name: entry.name,
-  img: entry.img ?? "",
+function ascendingAC() {
+  const settings = game.settings as unknown as {
+    get(ns: string, key: string): unknown;
+  };
+  return !!settings.get(game.system.id, "ascendingAC");
+}
+
+function weaponDetail({ damage, qualities = [] }: GearDocument["system"]) {
+  const tags = qualities.map((q) => q.label.toLocaleLowerCase()).join(", ");
+  return [damage, tags].filter(Boolean).join(" · ") || undefined;
+}
+
+function armourDetail({ type, ac, aac }: GearDocument["system"]) {
+  const descending = ac?.value ?? 0;
+  const ascending = aac?.value ?? 0;
+  if (type === "shield") return `+${ascending} AC`;
+  return ascendingAC() ? `AC ${ascending}` : `AC ${descending} [${ascending}]`;
+}
+
+function detailOf(doc: GearDocument) {
+  if (doc.type === "weapon") return weaponDetail(doc.system);
+  if (doc.type === "armor") return armourDetail(doc.system);
+  return undefined;
+}
+
+const toGearItem = (doc: GearDocument, category: GearCategory): GearItem => ({
+  uuid: doc.uuid,
+  name: doc.name,
+  img: doc.img ?? "",
   category,
-  cost: entry.system?.cost ?? 0,
-  weight: entry.system?.weight ?? 0,
+  cost: doc.system.cost ?? 0,
+  weight: doc.system.weight ?? 0,
+  detail: detailOf(doc),
 });
 
-const notTreasure = (entry: GearEntry) => !entry.system?.treasure;
+const notTreasure = (doc: GearDocument) => !doc.system.treasure;
 
 async function classicGear() {
   const lists = await Promise.all(
     CLASSIC_PACKS.map(async ([id, category]) => {
       const pack = gearPacks().get(id);
       if (!pack) return [];
-      return [...(await pack.getIndex({ fields: FIELDS }))]
+      return (await pack.getDocuments())
         .filter(notTreasure)
-        .map((entry) => toGearItem(entry, category));
+        .map((doc) => toGearItem(doc, category));
     }),
   );
   return lists.flat();
@@ -69,9 +106,9 @@ async function tomeGear() {
       return category ? [[f.id, category] as const] : [];
     }),
   );
-  return [...(await pack.getIndex({ fields: FIELDS }))].flatMap((entry) => {
-    const category = categories.get(entry.folder ?? "");
-    return category && notTreasure(entry) ? [toGearItem(entry, category)] : [];
+  return (await pack.getDocuments()).flatMap((doc) => {
+    const category = categories.get(doc.folder?.id ?? "");
+    return category && notTreasure(doc) ? [toGearItem(doc, category)] : [];
   });
 }
 
@@ -88,12 +125,6 @@ export const loadGearCatalog: LoadGearCatalog = async () => {
 };
 
 type ItemSource = { system?: { quantity?: { value?: number | null } } };
-type LoadedActor = {
-  system: {
-    encumbrance: { enabled: boolean; value: number; max: number };
-    movement: { base: number; encounter: number; overland: number };
-  };
-};
 
 async function cartItemSource(uuid: string, quantity: number) {
   const doc = (await fromUuid(uuid)) as { toObject(): ItemSource } | null;
@@ -119,16 +150,18 @@ export const previewLoad: PreviewLoad = async (cart, catalog) => {
   ).flat();
   const ActorClass = CONFIG.Actor.documentClass as unknown as new (
     data: object,
-  ) => LoadedActor;
-  const { encumbrance, movement } = new ActorClass({
+  ) => OSEActor;
+  const actor = new ActorClass({
     name: "New character",
     type: "character",
     items,
-  }).system;
+  });
+  const { encumbrance, movement } = actor.system;
   return {
     enabled: encumbrance.enabled,
     carried: encumbrance.value,
     max: encumbrance.enabled ? encumbrance.max : null,
+    tier: encumbrance.enabled ? selectEncumbrance(actor).status : null,
     movement: {
       base: movement.base,
       encounter: movement.encounter,
