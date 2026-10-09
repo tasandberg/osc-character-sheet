@@ -74,6 +74,10 @@ For maintainers: reports use the Sentry protocol. The endpoint is baked in at bu
 
 The OSC Character Sheet is a React application mounted onto Foundry's ApplicationV2 via **[foundry-vtt-react](https://www.npmjs.com/package/foundry-vtt-react)** — a small framework for building React-powered sheets and apps that stay in sync with Foundry documents. If you're building your own React sheet, that's the place to start.
 
+## Credits
+
+Class icons by Lorc, Delapouite, Sbed and Carl Olsen from [game-icons.net](https://game-icons.net), used unmodified under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+
 ## Development
 
 ```bash

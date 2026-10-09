@@ -1,5 +1,6 @@
 import { useId, useState, type ReactNode } from "react";
 import { cx } from "@ui/cx";
+import { ChoiceIcon } from "../ChoiceIcon";
 import { CompendiumDescription, Facts } from "../CompendiumText";
 import type { ClassAbility, RaceDetail } from "../rules";
 import {
@@ -95,7 +96,15 @@ export function RaceDetails({ race, scores, loadDetail }: Props) {
   return (
     <>
       <div className="vm-sheet-head">
-        <h2 className="vm-sheet-head-title">{race.name}</h2>
+        <h2 className="vm-sheet-head-title">
+          <ChoiceIcon
+            name={race.name}
+            size={22}
+            color="gold"
+            className="osc-creation-heading-icon"
+          />
+          {race.name}
+        </h2>
         <span className="vm-sheet-head-hint">race</span>
       </div>
       {standing.status === "failed" && (

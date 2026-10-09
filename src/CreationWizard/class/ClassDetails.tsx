@@ -12,6 +12,7 @@ import type { ClassAbility, ClassDetail, CreationClass } from "../rules";
 import { IN_SIX_SKILLS } from "../rules/classConstants";
 import type { AbilityScores } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
+import { ChoiceIcon } from "../ChoiceIcon";
 import { XpAdjustmentText } from "./XpAdjustmentText";
 
 type Props = {
@@ -110,6 +111,12 @@ export function ClassDetails({ cls, scores, race, loadDetail }: Props) {
     <>
       <div className="vm-sheet-head">
         <h2 className="vm-sheet-head-title">
+          <ChoiceIcon
+            name={cls.name}
+            size={22}
+            color="gold"
+            className="osc-creation-heading-icon"
+          />
           {race ? `${race.name} ${cls.name}` : cls.name}
         </h2>
         <span className="vm-sheet-head-hint">level 1</span>

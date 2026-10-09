@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { cx } from "@ui/cx";
+import { ChoiceIcon } from "../ChoiceIcon";
 import { MoreBelow } from "../MoreBelow";
 import type { RaceDetail } from "../rules";
 import { ScoreLine } from "../scores/ScoreLine";
@@ -87,7 +88,14 @@ export function RaceStep({
                       </label>
                     </td>
                     <td className="osc-creation-class-name u-fs-md">
-                      {race.name}
+                      <span className="u-row">
+                        <ChoiceIcon
+                          name={race.name}
+                          size={18}
+                          color={!eligible ? "mute" : selected ? "gold" : "dim"}
+                        />
+                        {race.name}
+                      </span>
                     </td>
                     <td className="vm-mono">{requirementText(race) || "—"}</td>
                     <td className="vm-mono">
