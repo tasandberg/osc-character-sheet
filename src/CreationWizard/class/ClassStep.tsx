@@ -109,7 +109,6 @@ export function ClassStep({
                           name={cls.name}
                           size={18}
                           color={!eligible ? "mute" : selected ? "gold" : "dim"}
-                          holdSpace
                         />
                         {cls.name}
                         {race && isNpcOnly(race, cls.name) && (

@@ -8,18 +8,9 @@ type Props = {
   name: string;
   size: number;
   color: OscIconColor;
-  holdSpace?: boolean;
 };
 
-export function ClassIcon({ name, size, color, holdSpace }: Props) {
+export function ClassIcon({ name, size, color }: Props) {
   const icon = classIcon(name);
-  if (icon) return <OscIcon name={icon} size={size} color={color} />;
-  if (!holdSpace) return null;
-  return (
-    <span
-      className="tw:inline-block tw:shrink-0"
-      style={{ width: size, height: size }}
-      aria-hidden="true"
-    />
-  );
+  return icon ? <OscIcon name={icon} size={size} color={color} /> : null;
 }
