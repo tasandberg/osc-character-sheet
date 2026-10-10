@@ -3,6 +3,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { CreationWizard } from "./CreationWizard";
+import type { CartLine, GearItem } from "./gear/gearTypes";
 import type {
   ClassDetail,
   CreationClass,
@@ -21,6 +22,11 @@ let rolls: { total: number; dice: number[] }[];
 let details: Map<string, (detail: ClassDetail) => void>;
 let raceDetails: Map<string, (detail: RaceDetail) => void>;
 let hitPointRolls: string[];
+let goldRolls: { total: number; dice: number[] }[];
+let goldFormulas: string[];
+let previewedCarts: CartLine[][];
+let openedSheets: string[];
+let titles: string[];
 
 const levelTable = (die: string, count: number) =>
   Array.from({ length: count }, (_, i) => ({
@@ -79,6 +85,30 @@ const thiefDetail: ClassDetail = {
   skillLabels: { cs: "Climb sheer surfaces", hn: "Hear noise" },
 };
 
+const gear = (
+  name: string,
+  category: GearItem["category"],
+  cost: number,
+  weight: number,
+  detail?: string,
+): GearItem => ({
+  uuid: `Compendium.gear.${name}`,
+  name,
+  img: "",
+  category,
+  cost,
+  weight,
+  detail,
+});
+
+const catalog: GearItem[] = [
+  gear("Arrows (quiver of 20)", "ammunition", 5, 0),
+  gear("Dagger", "weapons", 3, 10, "1d4, melee, missile"),
+  gear("Plate mail", "armour", 50, 500, "AC 3 [16]"),
+  gear("Rope (50′)", "gear", 1, 0),
+  gear("Sword", "weapons", 10, 60, "1d8"),
+];
+
 const rules: CreationRules = {
   classes,
   classDetail: (name) => new Promise((resolve) => details.set(name, resolve)),
@@ -109,12 +139,41 @@ const rules: CreationRules = {
   alignmentText: async () => ({
     neutral: "Neutral beings believe in a balance between Law and Chaos.",
   }),
+  rollStartingGold: async (formula) => {
+    goldFormulas.push(formula);
+    return goldRolls.shift()!;
+  },
+  loadGearCatalog: async () => catalog,
+  previewLoad: async (cart, items) => {
+    previewedCarts.push(cart);
+    const carried = cart.reduce(
+      (sum, line) =>
+        sum +
+        (items.find((item) => item.uuid === line.uuid)?.weight ?? 0) *
+          line.quantity,
+      0,
+    );
+    const heavy = carried > 400;
+    return {
+      enabled: true,
+      carried,
+      max: 1600,
+      tier: heavy ? "Lightly encumbered" : "Unencumbered",
+      movement: { base: heavy ? 90 : 120, encounter: 40, overland: 24 },
+    };
+  },
+  openItemSheet: (uuid) => openedSheets.push(uuid),
 };
 
 function open(wizardRules = rules) {
   details = new Map();
   raceDetails = new Map();
   hitPointRolls = [];
+  goldRolls = [];
+  goldFormulas = [];
+  previewedCarts = [];
+  openedSheets = [];
+  titles = [];
   rolls = [12, 7, 10, 15, 8, 11].map((total) => ({
     total,
     dice: [total - 2, 1, 1],
@@ -128,6 +187,7 @@ function open(wizardRules = rules) {
         worldName="Hollow Fen"
         houseRules={[]}
         rules={wizardRules}
+        onTitle={(title) => titles.push(title)}
       />,
     ),
   );
@@ -469,7 +529,7 @@ describe("CreationWizard", () => {
     act(() => radio("Thief").click());
     await act(async () => next().click());
     expect(button("2RaceHalf-Orc")).toBeDefined();
-    expect(button("3ClassHalf-Orc Thief · +5% XP")).toBeDefined();
+    expect(button("3ClassThief · +5% XP")).toBeDefined();
   });
 
   it("derives racial abilities and save bonuses from the adjusted scores", async () => {
@@ -524,7 +584,9 @@ describe("CreationWizard details", () => {
     expect(currentStep()).toBe("3Details");
     expect(host.textContent).toContain("Name your character to continue");
 
+    expect(titles.at(-1)).toBe("New Character");
     typeField("Name", "Wren Ashdown");
+    expect(titles.at(-1)).toBe("New Character: Wren Ashdown");
     expect(host.textContent).toContain("Choose an alignment to continue");
     choose("Neutral");
     expect(host.textContent).toContain(
@@ -544,7 +606,7 @@ describe("CreationWizard details", () => {
 
     act(() => next().click());
     expect(currentStep()).toBe("4Gear");
-    expect(button("3DetailsWren Ashdown · 1st level · 3 hp")).toBeDefined();
+    expect(button("3Details1st level · 3 hp")).toBeDefined();
   });
 
   it("keeps hit points editable, but not below 1", async () => {
@@ -614,5 +676,110 @@ describe("CreationWizard details", () => {
 
     press("Raise level");
     expect(hitPoints()).toBe("");
+  });
+});
+
+async function toGear(...gold: number[]) {
+  goldRolls = gold.map((total) => ({ total, dice: [3, 3, 3] }));
+  await toDetails();
+  typeField("Name", "Wren");
+  choose("Neutral");
+  await pressAsync("Roll 1d4");
+  await act(async () => next().click());
+}
+
+const tab = (name: string) =>
+  buttons().find(
+    (b) => b.getAttribute("role") === "tab" && b.textContent?.startsWith(name),
+  )!;
+const shopNames = () =>
+  [...host.querySelectorAll("tbody tr")].map((row) =>
+    row
+      .querySelector('[aria-label^="Add "], [role="group"]')!
+      .getAttribute("aria-label")!
+      .replace(/^Add /, ""),
+  );
+const disabled = (name: string) =>
+  button(name)!.getAttribute("aria-disabled") === "true";
+const footer = () =>
+  host.querySelector('[aria-label="Load and movement"]')!.textContent;
+
+describe("CreationWizard gear", () => {
+  it("rolls starting gold once before shopping, and lets an empty pack continue", async () => {
+    open();
+    await toGear(120);
+    expect(currentStep()).toBe("4Gear");
+    expect(host.textContent).toContain("Roll starting gold to continue");
+    expect(disabled("Add Sword")).toBe(true);
+    expect(host.textContent).toContain("Roll starting gold first");
+
+    await pressAsync("Roll starting gold");
+    expect(goldFormulas).toEqual(["3d6 * 10"]);
+    expect(aside()).toContain("Gold left120 of 120 gp");
+    expect(button("Roll starting gold")).toBeUndefined();
+
+    act(() => next().click());
+    expect(button("4Gear0 items · 120 gp left")).toBeDefined();
+  });
+
+  it("starts on Weapons and searches within the chosen category", async () => {
+    open();
+    await toGear(120);
+    expect(tab("Weapons").getAttribute("aria-selected")).toBe("true");
+    expect(shopNames()).toEqual(["Dagger", "Sword"]);
+    expect(host.textContent).toContain("1d8");
+
+    act(() => tab("All").click());
+    expect(shopNames()).toHaveLength(5);
+    type("Search items", "ro");
+    expect(shopNames()).toEqual(["Arrows (quiver of 20)", "Rope (50′)"]);
+    act(() => tab("Armour").click());
+    expect(shopNames()).toEqual([]);
+    expect(host.textContent).toContain("Nothing matches “ro”.");
+  });
+
+  it("buys only what the gold covers, steps quantities and totals the pack", async () => {
+    open();
+    await toGear(25);
+    await pressAsync("Roll starting gold");
+
+    await pressAsync("Add Sword");
+    await pressAsync("One more Sword");
+    expect(aside()).toContain("Sword ×220 gp120 cn");
+    expect(aside()).toContain("Gold left5 of 25 gp");
+    expect(disabled("One more Sword")).toBe(true);
+    act(() => tab("Armour").click());
+    expect(disabled("Add Plate mail")).toBe(true);
+    expect(host.textContent).toContain("Not enough gold");
+
+    act(() => tab("Weapons").click());
+    await pressAsync("One fewer Sword");
+    await pressAsync("One fewer Sword");
+    expect(button("Add Sword")).toBeDefined();
+    expect(aside()).toContain("Nothing yet");
+  });
+
+  it("opens an item's sheet from its name", async () => {
+    open();
+    await toGear(120);
+    act(() => button("Sword")!.click());
+    expect(openedSheets).toEqual(["Compendium.gear.Sword"]);
+  });
+
+  it("shows OSE's load and movement for what's in the pack", async () => {
+    open();
+    await toGear(120);
+    await pressAsync("Roll starting gold");
+    act(() => tab("Armour").click());
+    await pressAsync("Add Plate mail");
+
+    expect(previewedCarts.at(-1)).toEqual([
+      { uuid: "Compendium.gear.Plate mail", quantity: 1 },
+    ]);
+    expect(
+      host.querySelector('[role="meter"]')!.getAttribute("aria-label"),
+    ).toBe("Load 500 of 1600 coins");
+    expect(footer()).toContain("Lightly encumbered");
+    expect(footer()).toContain("Movement90′");
   });
 });
