@@ -1,11 +1,22 @@
 import type { OSEActor } from "@domain/types";
+import { TOME } from "../class/foundryClasses";
 import { cartItemSource } from "../gear/foundryGear";
 import type { NewCharacter } from "./newCharacter";
 
-const COIN_PACK = "classicfantasycompendium.equipment-coins";
+const COIN_PACKS = [
+  "classicfantasycompendium.equipment-coins",
+  `${TOME}.equipment`,
+];
 
 type ItemSource = Record<string, unknown>;
-type CoinDocument = { name: string; toObject(): ItemSource };
+type CoinDocument = {
+  name: string;
+  system: { treasure?: boolean };
+  toObject(): ItemSource;
+};
+type CoinPacks = {
+  get(id: string): { getDocuments(): Promise<CoinDocument[]> } | undefined;
+};
 type WritableActor = OSEActor & {
   id: string;
   items: { map<T>(fn: (item: { id: string }) => T): T[] };
@@ -19,21 +30,28 @@ type ActorDocumentClass = {
 };
 
 const denomination = (name: string) =>
-  name.match(/\((pp|gp|ep|sp|cp)\)/i)?.[1]?.toLowerCase();
+  (name.match(/\((pp|gp|ep|sp|cp)\)/i) ??
+    name.match(/^\s*(pp|gp|ep|sp|cp)\s*$/i))?.[1]?.toLowerCase();
+
+async function packCoins() {
+  const coins = new Map<string, CoinDocument>();
+  for (const id of COIN_PACKS) {
+    const pack = (game.packs as unknown as CoinPacks).get(id);
+    for (const doc of (await pack?.getDocuments()) ?? []) {
+      const denom = doc.system.treasure && denomination(doc.name);
+      if (denom && !coins.has(denom)) coins.set(denom, doc);
+    }
+  }
+  return coins;
+}
 
 async function coinSources(gold: number) {
-  const pack = (
-    game.packs as unknown as {
-      get(id: string): { getDocuments(): Promise<CoinDocument[]> } | undefined;
-    }
-  ).get(COIN_PACK);
-  if (!pack) throw new Error("The coins compendium isn’t available.");
-  return (await pack.getDocuments()).map((coin) => {
+  return [...(await packCoins())].map(([denom, coin]) => {
     const source = coin.toObject();
     foundry.utils.setProperty(
       source,
       "system.quantity.value",
-      denomination(coin.name) === "gp" ? gold : 0,
+      denom === "gp" ? gold : 0,
     );
     return source;
   });

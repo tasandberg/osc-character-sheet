@@ -855,6 +855,31 @@ describe("CreationWizard review", () => {
     expect(finished).toBe(true);
   });
 
+  it("records a separately chosen race and speaks its languages", async () => {
+    openSeparate();
+    goldRolls = [{ total: 30, dice: [1, 1, 1] }];
+    enterScores(["13", "8", "7", "15", "10", "11"]);
+    act(() => next().click());
+    act(() => radio("Dwarf").click());
+    act(() => next().click());
+    act(() => radio("Thief").click());
+    await act(async () => next().click());
+    typeField("Name", "Brom");
+    choose("Lawful");
+    await pressAsync("Roll 1d4");
+    await act(async () => next().click());
+    await pressAsync("Roll starting gold");
+    await act(async () => next().click());
+
+    await act(async () => createButton().click());
+    const { details, languages } = createdCharacters[0].system as {
+      details: { class: string; race: string };
+      languages: { value: string[] };
+    };
+    expect(details).toMatchObject({ class: "Thief", race: "Dwarf" });
+    expect(languages.value).toContain("Dwarvish");
+  });
+
   it("stays on Review with the draft intact when creating fails", async () => {
     await toReview();
     creationSucceeds = false;

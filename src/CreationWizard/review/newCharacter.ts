@@ -13,13 +13,7 @@ import { xpAdjustment } from "../rules/xpAdjustment";
 import { raceLanguages } from "../race/raceDraft";
 import { ABILITIES } from "../scores/scoresDraft";
 
-const SAVE_KEYS = [
-  "death",
-  "wand",
-  "paralysis",
-  "breath",
-  "spell",
-] as const;
+const SAVE_KEYS = ["death", "wand", "paralysis", "breath", "spell"] as const;
 
 export type NewCharacter = {
   name: string;
@@ -56,6 +50,7 @@ export function newCharacter(
       ),
       details: {
         class: cls.name,
+        ...(race && { race: race.name }),
         level,
         alignment: ALIGNMENTS.find((a) => a.value === draft.details.alignment)!
           .label,
