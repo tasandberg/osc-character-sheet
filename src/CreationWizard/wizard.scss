@@ -546,6 +546,14 @@
   }
 }
 
+@supports selector(::-webkit-scrollbar) {
+  .osc-creation-wizard-app,
+  .osc-creation-wizard-app * {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
+}
+
 @supports not selector(::-webkit-scrollbar) {
   .osc-creation-wizard-app,
   .osc-creation-wizard-app * {
