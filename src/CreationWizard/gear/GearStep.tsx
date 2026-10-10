@@ -299,6 +299,24 @@ function GoldRoll({ draft, rules, onChange }: Props) {
   );
 }
 
+export function PackLines({ cart }: { cart: GearDraft["cart"] }) {
+  return (
+    <ul className="osc-creation-pack-lines">
+      {cart.map(({ item, quantity }) => (
+        <li key={item.uuid} className="osc-creation-pack-line">
+          <ItemImage img={item.img} />
+          <span>
+            {item.name}
+            {quantity > 1 && ` ×${quantity}`}
+          </span>
+          <span className="vm-mono">{item.cost * quantity} gp</span>
+          <span className="vm-mono">{weightText(item.weight * quantity)}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function Pack(props: Props) {
   const { draft } = props;
   const asideRef = useRef<HTMLElement>(null);
@@ -317,21 +335,7 @@ function Pack(props: Props) {
       </div>
       <GoldRoll {...props} />
       {draft.cart.length ? (
-        <ul className="osc-creation-pack-lines">
-          {draft.cart.map(({ item, quantity }) => (
-            <li key={item.uuid} className="osc-creation-pack-line">
-              <ItemImage img={item.img} />
-              <span>
-                {item.name}
-                {quantity > 1 && ` ×${quantity}`}
-              </span>
-              <span className="vm-mono">{item.cost * quantity} gp</span>
-              <span className="vm-mono">
-                {weightText(item.weight * quantity)}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <PackLines cart={draft.cart} />
       ) : (
         <p className="vm-help">Nothing yet. Add items from the shop.</p>
       )}

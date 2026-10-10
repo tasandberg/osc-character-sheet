@@ -17,6 +17,7 @@ type Props = {
   onNext: () => void;
   onBack?: () => void;
   onCreate?: () => void;
+  creating?: boolean;
   stats?: ReactNode;
   children: ReactNode;
 };
@@ -33,13 +34,16 @@ export function WizardShell({
   onNext,
   onBack,
   onCreate,
+  creating = false,
   stats,
   children,
 }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const status = statuses[step];
   const canAdvance =
-    status.complete && (next !== undefined || onCreate !== undefined);
+    status.complete &&
+    !creating &&
+    (next !== undefined || onCreate !== undefined);
   const help = status.complete ? undefined : status.blockedReason;
 
   return (
@@ -81,6 +85,7 @@ export function WizardShell({
           type="button"
           className="vm-btn vm-btn-primary"
           aria-disabled={!canAdvance}
+          aria-busy={creating || undefined}
           onClick={() => {
             if (!canAdvance) return;
             if (next) onNext();
@@ -88,8 +93,12 @@ export function WizardShell({
           }}
         >
           {next ? `Next: ${STEP_LABELS[next]}` : "Create Character"}
-          {next && (
+          {next ? (
             <i className="fa-solid fa-chevron-right" aria-hidden="true" />
+          ) : (
+            creating && (
+              <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" />
+            )
           )}
         </button>
       </footer>

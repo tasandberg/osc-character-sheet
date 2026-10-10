@@ -28,12 +28,7 @@ import {
   scoresSummary,
   type ScoresDraft,
 } from "./scores/scoresDraft";
-import {
-  CREATION_STEPS,
-  STEP_LABELS,
-  type CreationStep,
-  type StepStatuses,
-} from "./steps";
+import { CREATION_STEPS, type CreationStep, type StepStatuses } from "./steps";
 
 export interface CreationFlow<D> {
   emptyDraft(): D;
@@ -49,7 +44,6 @@ export type CreationDraft = {
   class?: CreationClass;
   details: DetailsDraft;
   gear: GearDraft;
-  done: CreationStep[];
 };
 
 export type FlowRules = Pick<
@@ -109,15 +103,11 @@ function blockedReason(
       : "Choose a class to continue";
   }
   if (step === "gear") return gearBlockedReason(draft.gear);
-  if (step === "review")
-    return steps(draft).every(
-      (s) => s === "review" || !blockedReason(draft, s, rules),
-    )
-      ? undefined
-      : "Finish every step to create the character";
-  return draft.done.includes(step)
+  return steps(draft).every(
+    (s) => s === "review" || !blockedReason(draft, s, rules),
+  )
     ? undefined
-    : `Mark ${STEP_LABELS[step]} done to continue`;
+    : "Finish every step to create the character";
 }
 
 export const creationFlow = (
@@ -128,7 +118,6 @@ export const creationFlow = (
     raceMode: rules.separateRaces ? "separate" : "asClass",
     details: emptyDetailsDraft(),
     gear: emptyGearDraft(),
-    done: [],
   }),
   steps,
   status: (draft) =>

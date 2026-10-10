@@ -1,4 +1,5 @@
 import type { LoadGearCatalog, PreviewLoad } from "./gear/gearTypes";
+import type { NewCharacter } from "./review/newCharacter";
 import type { PrimeRequisiteRules } from "./rules/xpAdjustment";
 import type { ClassRequirements } from "./scores/classStanding";
 import type { AbilityScores, RolledScore } from "./scores/scoresDraft";
@@ -59,4 +60,5 @@ export type CreationRules = {
   loadGearCatalog: LoadGearCatalog;
   previewLoad: PreviewLoad;
   openItemSheet(uuid: string): void;
+  createCharacter(character: NewCharacter): Promise<boolean>;
 };

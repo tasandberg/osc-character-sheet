@@ -4,6 +4,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { CreationWizard } from "./CreationWizard";
 import type { CartLine, GearItem } from "./gear/gearTypes";
+import type { NewCharacter } from "./review/newCharacter";
 import type {
   ClassDetail,
   CreationClass,
@@ -27,6 +28,9 @@ let goldFormulas: string[];
 let previewedCarts: CartLine[][];
 let openedSheets: string[];
 let titles: string[];
+let createdCharacters: NewCharacter[];
+let creationSucceeds: boolean;
+let finished: boolean;
 
 const levelTable = (die: string, count: number) =>
   Array.from({ length: count }, (_, i) => ({
@@ -163,6 +167,10 @@ const rules: CreationRules = {
     };
   },
   openItemSheet: (uuid) => openedSheets.push(uuid),
+  createCharacter: async (character) => {
+    createdCharacters.push(character);
+    return creationSucceeds;
+  },
 };
 
 function open(wizardRules = rules) {
@@ -174,6 +182,9 @@ function open(wizardRules = rules) {
   previewedCarts = [];
   openedSheets = [];
   titles = [];
+  createdCharacters = [];
+  creationSucceeds = true;
+  finished = false;
   rolls = [12, 7, 10, 15, 8, 11].map((total) => ({
     total,
     dice: [total - 2, 1, 1],
@@ -188,6 +199,7 @@ function open(wizardRules = rules) {
         houseRules={[]}
         rules={wizardRules}
         onTitle={(title) => titles.push(title)}
+        onCreated={() => (finished = true)}
       />,
     ),
   );
@@ -781,5 +793,76 @@ describe("CreationWizard gear", () => {
     ).toBe("Load 500 of 1600 coins");
     expect(footer()).toContain("Lightly encumbered");
     expect(footer()).toContain("Movement90′");
+  });
+});
+
+async function toReview() {
+  open();
+  await toGear(25);
+  await pressAsync("Roll starting gold");
+  await pressAsync("Add Sword");
+  await act(async () => next().click());
+}
+
+const createButton = () => button("Create Character")!;
+
+describe("CreationWizard review", () => {
+  it("reviews each step, then creates the character with its scores, class, gear and leftover gold", async () => {
+    await toReview();
+    expect(currentStep()).toBe("5Review");
+    const text = host.textContent;
+    expect(text).toContain("WrenNeutral Thief · 1st level");
+    expect(text).toContain("Strength13 +1");
+    expect(text).toContain("LanguagesAlignment, Common");
+    expect(text).toContain("Hit points3");
+    expect(text).toContain("Sword10 gp60 cn");
+    expect(text).toContain("Gold left15 gp");
+
+    await act(async () => createButton().click());
+    expect(createdCharacters).toEqual([
+      {
+        name: "Wren",
+        system: {
+          scores: {
+            str: { value: 13 },
+            int: { value: 8 },
+            wis: { value: 7 },
+            dex: { value: 15 },
+            con: { value: 8 },
+            cha: { value: 11 },
+          },
+          details: {
+            class: "Thief",
+            level: 1,
+            alignment: "Neutral",
+            xp: { value: 0, next: 1200, bonus: 5 },
+          },
+          hp: { hd: "1d4", value: 3, max: 3 },
+          thac0: { value: 19, bba: 0 },
+          saves: {
+            death: { value: 13 },
+            wand: { value: 14 },
+            paralysis: { value: 13 },
+            breath: { value: 16 },
+            spell: { value: 15 },
+          },
+          languages: { value: ["Alignment", "Common"] },
+        },
+        gear: [{ uuid: "Compendium.gear.Sword", quantity: 1 }],
+        gold: 15,
+      },
+    ]);
+    expect(finished).toBe(true);
+  });
+
+  it("stays on Review with the draft intact when creating fails", async () => {
+    await toReview();
+    creationSucceeds = false;
+
+    await act(async () => createButton().click());
+    expect(finished).toBe(false);
+    expect(currentStep()).toBe("5Review");
+    expect(host.textContent).toContain("Sword10 gp60 cn");
+    expect(createButton().getAttribute("aria-disabled")).toBe("false");
   });
 });

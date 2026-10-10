@@ -39,7 +39,11 @@ class OscCreationWizard extends ReactApplicationV2 {
     super({
       ...options,
       reactApp: CreationWizardApp,
-      initialProps: { actor, onTitle: (title) => this.setTitle(title) },
+      initialProps: {
+        actor,
+        onTitle: (title) => this.setTitle(title),
+        onCreated: () => this.close(),
+      },
     });
   }
 
