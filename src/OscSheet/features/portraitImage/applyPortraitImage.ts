@@ -162,6 +162,19 @@ export function portraitImageToast({
   return { title, message: `Also updated ${placedTokens} placed ${noun}` };
 }
 
+export type PortraitImageSlots = Pick<PortraitImageState, "portrait" | "token">;
+
+export function portraitImageUploader(actorName: string) {
+  const uploaded = new Map<File, string>();
+  return async (slot: ImageDrop): Promise<string> => {
+    if (slot.kind === "path") return slot.src;
+    const src =
+      uploaded.get(slot.file) ?? (await uploadStagedFile(actorName, slot.file));
+    uploaded.set(slot.file, src);
+    return src;
+  };
+}
+
 export async function applyPortraitImage(
   actor: PortraitImageActor,
   state: PortraitImageState,
@@ -170,16 +183,7 @@ export async function applyPortraitImage(
   if (!changed.portrait && !changed.token)
     return { ...changed, placedTokens: 0 };
 
-  const uploaded = new Map<File, string>();
-  const resolve = async (slot: ImageDrop): Promise<string> => {
-    if (slot.kind === "path") return slot.src;
-    const src =
-      uploaded.get(slot.file) ??
-      (await uploadStagedFile(actor.name, slot.file));
-    uploaded.set(slot.file, src);
-    return src;
-  };
-
+  const resolve = portraitImageUploader(actor.name);
   const update: Record<string, string> = {};
   if (changed.portrait) update.img = await resolve(state.portrait);
   const tokenSrc = changed.token ? await resolve(state.token) : null;

@@ -1,5 +1,9 @@
 import type { OSEActor } from "@domain/types";
 import { TOME } from "../class/foundryClasses";
+import {
+  PortraitUploadReportedError,
+  portraitImageUploader,
+} from "@features/portraitImage/applyPortraitImage";
 import { cartItemSource } from "../gear/foundryGear";
 import type { NewCharacter } from "./newCharacter";
 
@@ -65,27 +69,40 @@ async function itemSources({ gear, gold }: NewCharacter) {
   return [...items.flat(), ...coins] as ItemSource[];
 }
 
+async function imageData({ name, portrait, token }: NewCharacter) {
+  const upload = portraitImageUploader(name);
+  return {
+    ...(portrait && { img: await upload(portrait) }),
+    ...(token && { "prototypeToken.texture.src": await upload(token) }),
+  };
+}
+
+type Images = Record<string, string>;
+
 async function fill(
   actor: WritableActor,
   character: NewCharacter,
   items: ItemSource[],
+  images: Images,
 ) {
   await actor.deleteEmbeddedDocuments(
     "Item",
     actor.items.map((item) => item.id),
   );
-  await actor.update(
-    foundry.utils.flattenObject({
+  await actor.update({
+    ...foundry.utils.flattenObject({
       name: character.name,
       system: character.system,
     }),
-  );
+    ...images,
+  });
   await actor.createEmbeddedDocuments("Item", items);
   return actor;
 }
 
-const create = (character: NewCharacter, items: ItemSource[]) =>
+const create = (character: NewCharacter, items: ItemSource[], images: Images) =>
   (CONFIG.Actor.documentClass as unknown as ActorDocumentClass).create({
+    ...foundry.utils.expandObject(images),
     name: character.name,
     type: "character",
     system: character.system,
@@ -95,15 +112,19 @@ const create = (character: NewCharacter, items: ItemSource[]) =>
 export function createCharacter(existing?: OSEActor) {
   return async (character: NewCharacter) => {
     try {
-      const items = await itemSources(character);
+      const [items, images] = await Promise.all([
+        itemSources(character),
+        imageData(character),
+      ]);
       const actor = existing
-        ? await fill(existing as WritableActor, character, items)
-        : await create(character, items);
+        ? await fill(existing as WritableActor, character, items, images)
+        : await create(character, items, images);
       if (!actor) throw new Error("Foundry didn’t create the actor.");
       actor.sheet?.render(true);
       return true;
     } catch (error) {
       console.error(error);
+      if (error instanceof PortraitUploadReportedError) return false;
       ui.notifications?.error(
         `Couldn’t create ${character.name}: ${(error as Error).message}`,
       );

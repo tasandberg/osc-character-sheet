@@ -1,4 +1,6 @@
+import type { ImageDrop } from "@features/portraitImage/parseImageDrop";
 import { ALIGNMENTS, parseHitPoints } from "../details/detailsDraft";
+import { isChosen, livePortrait } from "../portrait/portraitDraft";
 import {
   chosenRace,
   classDetails,
@@ -17,6 +19,8 @@ const SAVE_KEYS = ["death", "wand", "paralysis", "breath", "spell"] as const;
 
 export type NewCharacter = {
   name: string;
+  portrait?: ImageDrop;
+  token?: ImageDrop;
   system: Record<string, unknown>;
   gear: CartLine[];
   gold: number;
@@ -42,8 +46,11 @@ export function newCharacter(
         ),
       }
     : undefined;
+  const images = livePortrait(draft.details.portrait);
   return {
     name: draft.details.name.trim(),
+    ...(images && isChosen(images.portrait) && { portrait: images.portrait }),
+    ...(images && isChosen(images.token) && { token: images.token }),
     system: {
       scores: Object.fromEntries(
         ABILITIES.map((a) => [a, { value: scores[a] }]),

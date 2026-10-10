@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { setWorld } from "@features/portraitImage/__fixtures__/dragWorld";
 import { CreationWizard } from "./CreationWizard";
 import type { CartLine, GearItem } from "./gear/gearTypes";
 import type { NewCharacter } from "./review/newCharacter";
@@ -878,6 +879,42 @@ describe("CreationWizard review", () => {
     };
     expect(details).toMatchObject({ class: "Thief", race: "Dwarf" });
     expect(languages.value).toContain("Dwarvish");
+  });
+
+  it("creates the character with the portrait chosen on Details", async () => {
+    setWorld({ portraitUploads: false, portraitUploadPath: "" });
+    vi.stubGlobal("foundry", {});
+    const picked: ((path: string) => void)[] = [];
+    vi.stubGlobal(
+      "FilePicker",
+      class {
+        constructor({ callback }: { callback(path: string): void }) {
+          picked.push(callback);
+        }
+        render() {}
+      },
+    );
+    open();
+    await toGear(25);
+    await act(async () => button("Back")!.click());
+    press("Choose portrait and token");
+    press("Browse for a portrait and token image");
+    act(() => picked[0]("heroes/wren.webp"));
+    await pressAsync("Save");
+    expect(
+      button("Choose portrait and token")!.querySelector("img")!.src,
+    ).toContain("heroes/wren.webp");
+
+    await act(async () => next().click());
+    await pressAsync("Roll starting gold");
+    await act(async () => next().click());
+    await act(async () => createButton().click());
+    const chosen = { kind: "path", src: "heroes/wren.webp" };
+    expect(createdCharacters[0]).toMatchObject({
+      portrait: chosen,
+      token: chosen,
+    });
+    vi.unstubAllGlobals();
   });
 
   it("stays on Review with the draft intact when creating fails", async () => {
