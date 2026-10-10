@@ -10,6 +10,7 @@ import {
   maximumHitPoints,
   rollHitPoints,
 } from "./details/foundryDetails";
+import { loadGearCatalog, previewLoad } from "./gear/foundryGear";
 import type { CreationRules } from "./rules";
 import {
   ABILITIES,
@@ -58,6 +59,15 @@ async function rollScore(label: string) {
   };
 }
 
+function cachedGearCatalog() {
+  let load: ReturnType<typeof loadGearCatalog> | undefined;
+  return () => {
+    load ??= loadGearCatalog();
+    load.catch(() => (load = undefined));
+    return load;
+  };
+}
+
 export function foundryCreationRules(): CreationRules {
   const set = activeClassSet();
   return {
@@ -72,5 +82,13 @@ export function foundryCreationRules(): CreationRules {
     rollHitPoints,
     alignmentText: foundryAlignmentText(),
     saveNames: saveNames(),
+    rollStartingGold: rollHitPoints,
+    loadGearCatalog: cachedGearCatalog(),
+    previewLoad,
+    openItemSheet: (uuid) => {
+      void fromUuid(uuid).then((doc) => {
+        (doc as Item | null)?.sheet?.render(true);
+      });
+    },
   };
 }

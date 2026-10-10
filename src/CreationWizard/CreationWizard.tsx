@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { ClassStep } from "./class/ClassStep";
 import { DetailsStep } from "./details/DetailsStep";
 import {
@@ -8,6 +8,8 @@ import {
   classScores,
   creationFlow,
 } from "./flow";
+import { GearFooter } from "./gear/GearFooter";
+import { GearStep } from "./gear/GearStep";
 import type { HouseRule } from "./houseRuleSettings";
 import { PlaceholderStep } from "./PlaceholderStep";
 import { RACES } from "./race/raceDraft";
@@ -22,9 +24,15 @@ type Props = {
   worldName: string;
   houseRules: HouseRule[];
   rules: CreationRules;
+  onTitle?: (title: string) => void;
 };
 
-export function CreationWizard({ worldName, houseRules, rules }: Props) {
+export function CreationWizard({
+  worldName,
+  houseRules,
+  rules,
+  onTitle,
+}: Props) {
   const flow = useMemo(() => creationFlow(rules), [rules]);
   const wizard = useWizard(flow);
   const { step, draft } = wizard;
@@ -32,6 +40,10 @@ export function CreationWizard({ worldName, houseRules, rules }: Props) {
   const scores = useMemo(() => finalScores(draft.scores), [draft.scores]);
   const race = chosenRace(draft);
   const details = classDetails(draft, rules);
+  const name = draft.details.name.trim();
+  useEffect(() => {
+    onTitle?.(name ? `New Character: ${name}` : "New Character");
+  }, [name, onTitle]);
 
   return (
     <WizardShell
@@ -45,6 +57,7 @@ export function CreationWizard({ worldName, houseRules, rules }: Props) {
       onSelectStep={wizard.goTo}
       onNext={wizard.goNext}
       onBack={wizard.previous && wizard.goBack}
+      stats={step === "gear" && <GearFooter draft={draft.gear} rules={rules} />}
     >
       {step === "scores" ? (
         <ScoresStep
@@ -89,6 +102,14 @@ export function CreationWizard({ worldName, houseRules, rules }: Props) {
           rules={rules}
           onChange={(update) =>
             wizard.setDraft((d) => ({ ...d, details: update(d.details) }))
+          }
+        />
+      ) : step === "gear" ? (
+        <GearStep
+          draft={draft.gear}
+          rules={rules}
+          onChange={(update) =>
+            wizard.setDraft((d) => ({ ...d, gear: update(d.gear) }))
           }
         />
       ) : (

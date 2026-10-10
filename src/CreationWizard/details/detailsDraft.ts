@@ -108,7 +108,7 @@ export const detailsSummary = (
 ) =>
   detailsBlockedReason(draft, details)
     ? undefined
-    : `${draft.name.trim()} · ${ordinal(details.level)} level · ${parseHitPoints(details.hitPoints?.value)} hp`;
+    : `${ordinal(details.level)} level · ${parseHitPoints(details.hitPoints?.value)} hp`;
 
 export const spellSlots = (row: ClassLevel) =>
   (row.spells ?? [])

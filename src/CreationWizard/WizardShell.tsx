@@ -17,6 +17,7 @@ type Props = {
   onNext: () => void;
   onBack?: () => void;
   onCreate?: () => void;
+  stats?: ReactNode;
   children: ReactNode;
 };
 
@@ -32,6 +33,7 @@ export function WizardShell({
   onNext,
   onBack,
   onCreate,
+  stats,
   children,
 }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -45,7 +47,7 @@ export function WizardShell({
       <header className="u-flex-none u-px-5 u-pt-2">
         <div className="osc-creation-top u-row u-gap-4 u-pb-1">
           <span className="osc-creation-crumb vm-heading vm-heading-sm u-text-brass">
-            {worldName}
+            Character Creation
           </span>
           <HouseRules worldName={worldName} rules={houseRules} />
         </div>
@@ -72,6 +74,7 @@ export function WizardShell({
             Back
           </button>
         )}
+        {stats}
         <span className="u-flex-1" />
         {help && <span className="vm-help">{help}</span>}
         <button

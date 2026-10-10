@@ -297,6 +297,9 @@ export function DetailsStep(props: Props) {
         ref={paneRef}
         className="osc-creation-pane osc-creation-details-pane u-gap-5"
       >
+        <div className="vm-sheet-head">
+          <h2 className="vm-sheet-head-title">Character Details</h2>
+        </div>
         <div className="u-flex u-items-start u-gap-5">
           <label className="osc-creation-column vm-field u-flex-1 u-gap-1">
             <span className="vm-key">Name</span>
