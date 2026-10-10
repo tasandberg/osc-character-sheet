@@ -4,6 +4,7 @@ import type {
   ClassRestrictions,
   CreationClass,
 } from "../rules";
+import type { PortraitDraft } from "../portrait/portraitDraft";
 import { ordinal } from "../race/raceDraft";
 
 export const ALIGNMENTS: { value: Alignment; label: string }[] = [
@@ -21,6 +22,7 @@ export type HitPoints = {
 
 export type DetailsDraft = {
   name: string;
+  portrait?: PortraitDraft;
   alignment?: Alignment;
   level: number;
   hitPoints?: HitPoints;

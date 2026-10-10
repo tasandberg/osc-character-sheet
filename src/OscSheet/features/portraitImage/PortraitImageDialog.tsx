@@ -50,13 +50,22 @@ function useStagedPreview(): (slot: ImageDrop) => string | undefined {
 type Props = {
   current: ActorImages;
   drop?: PortraitImageDrop;
+  staged?: PortraitImageState;
+  placedTokens?: boolean;
   onClose: () => void;
   onSave: (state: PortraitImageState) => Promise<void>;
 };
 
-export function PortraitImageDialog({ current, drop, onClose, onSave }: Props) {
-  const [state, setState] = useState<PortraitImageState>(() =>
-    initialPortraitImageState(current, drop),
+export function PortraitImageDialog({
+  current,
+  drop,
+  staged,
+  placedTokens = true,
+  onClose,
+  onSave,
+}: Props) {
+  const [state, setState] = useState<PortraitImageState>(
+    () => staged ?? initialPortraitImageState(current, drop),
   );
   const [busy, setBusy] = useState(false);
   const previewOf = useStagedPreview();
@@ -211,20 +220,22 @@ export function PortraitImageDialog({ current, drop, onClose, onSave }: Props) {
             )}
           </div>
         </Field>
-        <Field hint="Unlinked tokens already on scenes keep their image.">
-          <Check
-            checked={state.updatePlaced}
-            disabled={busy || !dirty.token}
-            onChange={(event) =>
-              setState((prev) => ({
-                ...prev,
-                updatePlaced: event.target.checked,
-              }))
-            }
-          >
-            Update tokens already on scenes
-          </Check>
-        </Field>
+        {placedTokens && (
+          <Field hint="Unlinked tokens already on scenes keep their image.">
+            <Check
+              checked={state.updatePlaced}
+              disabled={busy || !dirty.token}
+              onChange={(event) =>
+                setState((prev) => ({
+                  ...prev,
+                  updatePlaced: event.target.checked,
+                }))
+              }
+            >
+              Update tokens already on scenes
+            </Check>
+          </Field>
+        )}
       </div>
     </Modal>
   );

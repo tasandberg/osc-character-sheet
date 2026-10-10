@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { cx } from "@ui/cx";
 import { VellumSegmented } from "@features/settings/controls";
 import { MoreBelow } from "../MoreBelow";
+import { PortraitPicker } from "../portrait/PortraitPicker";
 import { ordinal, raceSaveBonus, type CreationRace } from "../race/raceDraft";
 import type {
   Alignment,
@@ -301,6 +302,10 @@ export function DetailsStep(props: Props) {
           <h2 className="vm-sheet-head-title">Character Details</h2>
         </div>
         <div className="u-flex u-items-start u-gap-5">
+          <PortraitPicker
+            draft={draft.portrait}
+            onChange={(portrait) => onChange((d) => ({ ...d, portrait }))}
+          />
           <label className="osc-creation-column vm-field u-flex-1 u-gap-1">
             <span className="vm-key">Name</span>
             <input
