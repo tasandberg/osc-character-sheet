@@ -19,7 +19,6 @@ type GearDocument = {
     weight?: number | null;
     treasure?: boolean;
     damage?: string;
-    qualities?: { label: string }[];
     type?: string;
     ac?: { value?: number };
     aac?: { value?: number };
@@ -54,11 +53,6 @@ function ascendingAC() {
   return !!settings.get(game.system.id, "ascendingAC");
 }
 
-function weaponDetail({ damage, qualities = [] }: GearDocument["system"]) {
-  const tags = qualities.map((q) => q.label.toLocaleLowerCase()).join(", ");
-  return [damage, tags].filter(Boolean).join(" · ") || undefined;
-}
-
 function armourDetail({ type, ac, aac }: GearDocument["system"]) {
   const descending = ac?.value ?? 0;
   const ascending = aac?.value ?? 0;
@@ -67,7 +61,7 @@ function armourDetail({ type, ac, aac }: GearDocument["system"]) {
 }
 
 function detailOf(doc: GearDocument) {
-  if (doc.type === "weapon") return weaponDetail(doc.system);
+  if (doc.type === "weapon") return doc.system.damage || undefined;
   if (doc.type === "armor") return armourDetail(doc.system);
   return undefined;
 }

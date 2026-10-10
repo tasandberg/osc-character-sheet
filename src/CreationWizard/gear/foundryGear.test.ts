@@ -110,10 +110,10 @@ describe("loadGearCatalog", () => {
     expect(summary(await loadGearCatalog())).toEqual([
       "Arrows:ammunition:5:0",
       "Chainmail:armour:40:400:AC 5 [14]",
-      "Dagger:weapons:3:10:1d4 · melee, missile",
+      "Dagger:weapons:3:10:1d4",
       "Rope:gear:1:0",
       "Shield:armour:10:100:+1 AC",
-      "Sword:weapons:10:60:1d8 · melee",
+      "Sword:weapons:10:60:1d8",
     ]);
   });
 
