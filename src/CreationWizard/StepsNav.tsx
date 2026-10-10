@@ -38,7 +38,7 @@ export function StepsNav({
               >
                 {index + 1}
               </span>
-              <span className="u-flex tw:flex-col u-gap-1 u-items-start">
+              <span className="osc-creation-step-label">
                 <span className="vm-heading vm-heading-sm">
                   {STEP_LABELS[step]}
                 </span>

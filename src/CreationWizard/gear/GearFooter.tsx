@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { cx } from "@ui/cx";
 import type { CreationRules } from "../rules";
 import { useCompendiumDetail } from "../useCompendiumDetail";
-import { cartLines, goldLeft, type GearDraft } from "./gearDraft";
+import { cartLines, type GearDraft } from "./gearDraft";
 import type { LoadPreview } from "./gearTypes";
 
 type Props = { draft: GearDraft; rules: CreationRules };
@@ -61,34 +61,14 @@ function Load({ preview }: { preview?: LoadPreview }) {
 }
 
 export function GearFooter(props: Props) {
-  const { draft } = props;
   const preview = useLoadPreview(props);
-  const left = goldLeft(draft);
   return (
     <div
       className="osc-creation-gear-footer u-flex u-items-center u-gap-5"
       role="group"
-      aria-label="Purse and load"
+      aria-label="Load and movement"
       aria-live="polite"
     >
-      <div className="osc-creation-gear-footer-cell u-flex tw:flex-col u-gap-1">
-        <span className="vm-key">Gold left</span>
-        <span className="u-flex u-items-baseline u-gap-2">
-          <span
-            className={cx(
-              "osc-creation-gear-figure u-fs-3xl",
-              left < 0 && "u-text-danger",
-            )}
-          >
-            {draft.gold ? left : "—"}
-          </span>
-          {draft.gold && (
-            <span className="u-fs-2xs u-text-dim osc-creation-nowrap">
-              of {draft.gold.total} gp
-            </span>
-          )}
-        </span>
-      </div>
       <div className="osc-creation-gear-footer-cell osc-creation-gear-load u-flex tw:flex-col u-gap-1">
         <Load preview={preview} />
       </div>

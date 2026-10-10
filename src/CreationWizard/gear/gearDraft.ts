@@ -50,11 +50,8 @@ export function affordReason(
   return item.cost > goldLeft(draft) ? "Not enough gold" : undefined;
 }
 
-export function gearBlockedReason(draft: GearDraft): string | undefined {
-  if (!draft.gold) return "Roll starting gold to continue";
-  const left = goldLeft(draft);
-  return left < 0 ? `Over budget by ${-left} gp` : undefined;
-}
+export const gearBlockedReason = (draft: GearDraft) =>
+  draft.gold ? undefined : "Roll starting gold to continue";
 
 export const gearSummary = (draft: GearDraft) => {
   if (gearBlockedReason(draft)) return undefined;

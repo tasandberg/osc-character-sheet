@@ -85,5 +85,10 @@ export function foundryCreationRules(): CreationRules {
     rollStartingGold: rollHitPoints,
     loadGearCatalog: cachedGearCatalog(),
     previewLoad,
+    openItemSheet: (uuid) => {
+      void fromUuid(uuid).then((doc) => {
+        (doc as Item | null)?.sheet?.render(true);
+      });
+    },
   };
 }

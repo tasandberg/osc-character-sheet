@@ -5,7 +5,11 @@ import { foundryCreationRules } from "./foundryRules";
 import { houseRules, readHouseRuleSettings } from "./houseRuleSettings";
 import { CreationWizard } from "./CreationWizard";
 
-export default function CreationWizardApp() {
+export default function CreationWizardApp({
+  onTitle,
+}: {
+  onTitle?: (title: string) => void;
+}) {
   const rules = useMemo(() => houseRules(readHouseRuleSettings()), []);
   const creationRules = useMemo(foundryCreationRules, []);
   return (
@@ -13,6 +17,7 @@ export default function CreationWizardApp() {
       worldName={game.world?.title ?? ""}
       houseRules={rules}
       rules={creationRules}
+      onTitle={onTitle}
     />
   );
 }

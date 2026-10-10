@@ -25,6 +25,8 @@ let hitPointRolls: string[];
 let goldRolls: { total: number; dice: number[] }[];
 let goldFormulas: string[];
 let previewedCarts: CartLine[][];
+let openedSheets: string[];
+let titles: string[];
 
 const levelTable = (die: string, count: number) =>
   Array.from({ length: count }, (_, i) => ({
@@ -104,7 +106,7 @@ const catalog: GearItem[] = [
   gear("Dagger", "weapons", 3, 10, "1d4, melee, missile"),
   gear("Plate mail", "armour", 50, 500, "AC 3 [16]"),
   gear("Rope (50′)", "gear", 1, 0),
-  gear("Sword", "weapons", 10, 60, "1d8, melee"),
+  gear("Sword", "weapons", 10, 60, "1d8"),
 ];
 
 const rules: CreationRules = {
@@ -160,6 +162,7 @@ const rules: CreationRules = {
       movement: { base: heavy ? 90 : 120, encounter: 40, overland: 24 },
     };
   },
+  openItemSheet: (uuid) => openedSheets.push(uuid),
 };
 
 function open(wizardRules = rules) {
@@ -169,6 +172,8 @@ function open(wizardRules = rules) {
   goldRolls = [];
   goldFormulas = [];
   previewedCarts = [];
+  openedSheets = [];
+  titles = [];
   rolls = [12, 7, 10, 15, 8, 11].map((total) => ({
     total,
     dice: [total - 2, 1, 1],
@@ -182,6 +187,7 @@ function open(wizardRules = rules) {
         worldName="Hollow Fen"
         houseRules={[]}
         rules={wizardRules}
+        onTitle={(title) => titles.push(title)}
       />,
     ),
   );
@@ -523,7 +529,7 @@ describe("CreationWizard", () => {
     act(() => radio("Thief").click());
     await act(async () => next().click());
     expect(button("2RaceHalf-Orc")).toBeDefined();
-    expect(button("3ClassHalf-Orc Thief · +5% XP")).toBeDefined();
+    expect(button("3ClassThief · +5% XP")).toBeDefined();
   });
 
   it("derives racial abilities and save bonuses from the adjusted scores", async () => {
@@ -578,7 +584,9 @@ describe("CreationWizard details", () => {
     expect(currentStep()).toBe("3Details");
     expect(host.textContent).toContain("Name your character to continue");
 
+    expect(titles.at(-1)).toBe("New Character");
     typeField("Name", "Wren Ashdown");
+    expect(titles.at(-1)).toBe("New Character: Wren Ashdown");
     expect(host.textContent).toContain("Choose an alignment to continue");
     choose("Neutral");
     expect(host.textContent).toContain(
@@ -598,7 +606,7 @@ describe("CreationWizard details", () => {
 
     act(() => next().click());
     expect(currentStep()).toBe("4Gear");
-    expect(button("3DetailsWren Ashdown · 1st level · 3 hp")).toBeDefined();
+    expect(button("3Details1st level · 3 hp")).toBeDefined();
   });
 
   it("keeps hit points editable, but not below 1", async () => {
@@ -685,16 +693,19 @@ const tab = (name: string) =>
     (b) => b.getAttribute("role") === "tab" && b.textContent?.startsWith(name),
   )!;
 const shopNames = () =>
-  [...host.querySelectorAll("tbody tr td:first-child")].map(
-    (td) => td.textContent,
+  [...host.querySelectorAll("tbody tr")].map((row) =>
+    row
+      .querySelector('[aria-label^="Add "], [role="group"]')!
+      .getAttribute("aria-label")!
+      .replace(/^Add /, ""),
   );
 const disabled = (name: string) =>
   button(name)!.getAttribute("aria-disabled") === "true";
 const footer = () =>
-  host.querySelector('[aria-label="Purse and load"]')!.textContent;
+  host.querySelector('[aria-label="Load and movement"]')!.textContent;
 
 describe("CreationWizard gear", () => {
-  it("rolls starting gold before shopping, and lets an empty pack continue", async () => {
+  it("rolls starting gold once before shopping, and lets an empty pack continue", async () => {
     open();
     await toGear(120);
     expect(currentStep()).toBe("4Gear");
@@ -704,9 +715,8 @@ describe("CreationWizard gear", () => {
 
     await pressAsync("Roll starting gold");
     expect(goldFormulas).toEqual(["3d6 * 10"]);
-    expect(aside()).toContain("× 10 = 120 gp");
-    expect(footer()).toContain("Gold left120of 120 gp");
-    expect(button("Reroll starting gold")).toBeDefined();
+    expect(aside()).toContain("Gold left120 of 120 gp");
+    expect(button("Roll starting gold")).toBeUndefined();
 
     act(() => next().click());
     expect(button("4Gear0 items · 120 gp left")).toBeDefined();
@@ -717,7 +727,7 @@ describe("CreationWizard gear", () => {
     await toGear(120);
     expect(tab("Weapons").getAttribute("aria-selected")).toBe("true");
     expect(shopNames()).toEqual(["Dagger", "Sword"]);
-    expect(host.textContent).toContain("1d8, melee");
+    expect(host.textContent).toContain("1d8");
 
     act(() => tab("All").click());
     expect(shopNames()).toHaveLength(5);
@@ -736,7 +746,7 @@ describe("CreationWizard gear", () => {
     await pressAsync("Add Sword");
     await pressAsync("One more Sword");
     expect(aside()).toContain("Sword ×220 gp120 cn");
-    expect(footer()).toContain("Gold left5of 25 gp");
+    expect(aside()).toContain("Gold left5 of 25 gp");
     expect(disabled("One more Sword")).toBe(true);
     act(() => tab("Armour").click());
     expect(disabled("Add Plate mail")).toBe(true);
@@ -747,6 +757,13 @@ describe("CreationWizard gear", () => {
     await pressAsync("One fewer Sword");
     expect(button("Add Sword")).toBeDefined();
     expect(aside()).toContain("Nothing yet");
+  });
+
+  it("opens an item's sheet from its name", async () => {
+    open();
+    await toGear(120);
+    act(() => button("Sword")!.click());
+    expect(openedSheets).toEqual(["Compendium.gear.Sword"]);
   });
 
   it("shows OSE's load and movement for what's in the pack", async () => {
@@ -764,18 +781,5 @@ describe("CreationWizard gear", () => {
     ).toBe("Load 500 of 1600 coins");
     expect(footer()).toContain("Lightly encumbered");
     expect(footer()).toContain("Movement90′");
-  });
-
-  it("holds Next when a reroll leaves the pack over budget", async () => {
-    open();
-    await toGear(60, 30);
-    await pressAsync("Roll starting gold");
-    act(() => tab("Armour").click());
-    await pressAsync("Add Plate mail");
-
-    await pressAsync("Reroll starting gold");
-    expect(footer()).toContain("Gold left-20of 30 gp");
-    expect(host.textContent).toContain("Over budget by 20 gp");
-    expect(next().getAttribute("aria-disabled")).toBe("true");
   });
 });

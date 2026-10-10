@@ -52,10 +52,8 @@ export function classSummary(
   cls: CreationClass | undefined,
   scores: AbilityScores,
   restrictions?: ClassRestrictions,
-  raceName?: string,
 ): string | undefined {
   if (!cls || classBlockedReason(cls, scores, restrictions)) return undefined;
-  const name = raceName ? `${raceName} ${cls.name}` : cls.name;
   const xp = xpAdjustment(cls, scores);
-  return xp ? `${name} · ${formatXpModifier(xp.modifier)} XP` : name;
+  return xp ? `${cls.name} · ${formatXpModifier(xp.modifier)} XP` : cls.name;
 }

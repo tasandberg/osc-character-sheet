@@ -58,4 +58,5 @@ export type CreationRules = {
   rollStartingGold(formula: string, label: string): Promise<RolledScore>;
   loadGearCatalog: LoadGearCatalog;
   previewLoad: PreviewLoad;
+  openItemSheet(uuid: string): void;
 };

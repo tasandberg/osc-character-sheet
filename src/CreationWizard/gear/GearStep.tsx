@@ -1,11 +1,10 @@
 import { useId, useRef, useState } from "react";
-import { cx } from "@ui/cx";
 import { MoreBelow } from "../MoreBelow";
 import type { CreationRules } from "../rules";
-import { DiceRow } from "../scores/ScoreTile";
 import { useCompendiumDetail } from "../useCompendiumDetail";
 import {
   affordReason,
+  goldLeft,
   itemCount,
   quantityOf,
   setQuantity,
@@ -32,7 +31,14 @@ type Props = {
   onChange: Change;
 };
 
-const weightText = (weight: number) => (weight ? `${weight} cn` : "—");
+const weightText = (weight: number) => (weight ? `${weight} cn` : "");
+
+const ItemImage = ({ img }: { img: string }) =>
+  img ? (
+    <img className="osc-creation-item-img" src={img} alt="" />
+  ) : (
+    <span className="osc-creation-item-img" />
+  );
 
 function QuantityStepper({
   item,
@@ -82,10 +88,12 @@ function ShopRow({
   item,
   draft,
   onChange,
+  openSheet,
 }: {
   item: GearItem;
   draft: GearDraft;
   onChange: Change;
+  openSheet: (uuid: string) => void;
 }) {
   const reasonId = useId();
   const quantity = quantityOf(draft, item.uuid);
@@ -94,12 +102,27 @@ function ShopRow({
     onChange((d) => setQuantity(d, item, next));
   return (
     <tr aria-selected={quantity > 0 || undefined}>
-      <td className="osc-creation-shop-name">{item.name}</td>
-      <td className="vm-table-num">{item.cost} gp</td>
-      <td className={cx("vm-table-num", !item.weight && "u-text-dim")}>
-        {weightText(item.weight)}
+      <td>
+        <span className="u-flex u-items-center u-gap-3">
+          <ItemImage img={item.img} />
+          <span>
+            <button
+              type="button"
+              className="osc-creation-shop-name vm-dotted-hover tw:block"
+              onClick={() => openSheet(item.uuid)}
+            >
+              {item.name}
+            </button>
+            {item.detail && (
+              <span className="tw:block u-fs-2xs u-text-dim">
+                {item.detail}
+              </span>
+            )}
+          </span>
+        </span>
       </td>
-      <td className="u-text-dim">{item.detail}</td>
+      <td className="vm-table-num">{item.cost} gp</td>
+      <td className="vm-table-num">{weightText(item.weight)}</td>
       <td className="osc-creation-shop-quantity">
         {quantity > 0 ? (
           <QuantityStepper
@@ -125,6 +148,14 @@ function ShopRow({
                 {blocked}
               </span>
             )}
+            <span
+              className="vm-stepper osc-creation-shop-sizer"
+              aria-hidden="true"
+            >
+              <span className="vm-stepper-btn" />
+              <span className="vm-stepper-value" />
+              <span className="vm-stepper-btn" />
+            </span>
           </>
         )}
       </td>
@@ -136,10 +167,12 @@ function Shop({
   catalog,
   draft,
   onChange,
+  openSheet,
 }: {
   catalog: GearItem[];
   draft: GearDraft;
   onChange: Change;
+  openSheet: (uuid: string) => void;
 }) {
   const paneRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<Tab>("weapons");
@@ -157,6 +190,9 @@ function Shop({
       ref={paneRef}
       className="osc-creation-pane osc-creation-shop-pane u-gap-3"
     >
+      <div className="vm-sheet-head">
+        <h2 className="vm-sheet-head-title">Equip Your Character</h2>
+      </div>
       <div className="u-row u-wrap u-gap-4">
         <div className="vm-tabs" role="tablist" aria-label="Shop category">
           {TABS.map((t) => (
@@ -173,7 +209,6 @@ function Shop({
             </button>
           ))}
         </div>
-        <span className="u-flex-1" />
         <label className="vm-search-wrap osc-creation-shop-search">
           <i
             className="vm-search-icon fa-solid fa-magnifying-glass"
@@ -196,9 +231,6 @@ function Shop({
               <th>{current.column}</th>
               <th className="vm-table-num">Cost</th>
               <th className="vm-table-num">Weight</th>
-              <th>
-                <span className="tw:sr-only">Detail</span>
-              </th>
               <th>In pack</th>
             </tr>
           </thead>
@@ -209,6 +241,7 @@ function Shop({
                 item={item}
                 draft={draft}
                 onChange={onChange}
+                openSheet={openSheet}
               />
             ))}
           </tbody>
@@ -238,28 +271,31 @@ function GoldRoll({ draft, rules, onChange }: Props) {
     }
   };
   return (
-    <div className="osc-creation-gold-roll u-flex u-wrap u-items-center u-gap-x-3 u-gap-y-2 u-px-3 u-py-2">
-      <span className="vm-key">Starting gold</span>
+    <dl className="osc-creation-gold-roll u-px-3 u-py-2">
       {draft.gold ? (
         <>
-          <DiceRow dice={draft.gold.dice} />
-          <span className="vm-mono">× 10 = {draft.gold.total} gp</span>
+          <dt className="vm-key">Gold left</dt>
+          <dd className="vm-mono">
+            {goldLeft(draft)}{" "}
+            <span className="u-text-dim">of {draft.gold.total} gp</span>
+          </dd>
         </>
       ) : (
-        <span className="vm-mono u-text-dim">3d6 × 10</span>
+        <>
+          <dt className="vm-key">Starting gold</dt>
+          <dd>
+            <button
+              type="button"
+              className="vm-btn vm-btn-sm vm-btn-primary osc-creation-nowrap"
+              aria-disabled={rolling || undefined}
+              onClick={roll}
+            >
+              Roll starting gold
+            </button>
+          </dd>
+        </>
       )}
-      <button
-        type="button"
-        className={cx(
-          "vm-btn vm-btn-sm osc-creation-nowrap",
-          draft.gold ? "vm-btn-secondary" : "vm-btn-primary",
-        )}
-        aria-disabled={rolling || undefined}
-        onClick={roll}
-      >
-        {draft.gold ? "Reroll starting gold" : "Roll starting gold"}
-      </button>
-    </div>
+    </dl>
   );
 }
 
@@ -281,15 +317,16 @@ function Pack(props: Props) {
       </div>
       <GoldRoll {...props} />
       {draft.cart.length ? (
-        <ul>
+        <ul className="osc-creation-pack-lines">
           {draft.cart.map(({ item, quantity }) => (
             <li key={item.uuid} className="osc-creation-pack-line">
+              <ItemImage img={item.img} />
               <span>
                 {item.name}
                 {quantity > 1 && ` ×${quantity}`}
               </span>
               <span className="vm-mono">{item.cost * quantity} gp</span>
-              <span className={cx("vm-mono", !item.weight && "u-text-dim")}>
+              <span className="vm-mono">
                 {weightText(item.weight * quantity)}
               </span>
             </li>
@@ -312,6 +349,7 @@ export function GearStep(props: Props) {
           catalog={catalog.detail}
           draft={props.draft}
           onChange={props.onChange}
+          openSheet={props.rules.openItemSheet}
         />
       ) : (
         <div className="osc-creation-pane">

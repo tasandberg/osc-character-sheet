@@ -158,7 +158,6 @@ export const creationFlow = (
               draft.class,
               classScores(draft),
               classRestrictions(draft),
-              chosenRace(draft)?.name,
             )
           : undefined;
   },

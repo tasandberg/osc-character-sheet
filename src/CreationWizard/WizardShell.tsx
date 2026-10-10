@@ -47,7 +47,7 @@ export function WizardShell({
       <header className="u-flex-none u-px-5 u-pt-2">
         <div className="osc-creation-top u-row u-gap-4 u-pb-1">
           <span className="osc-creation-crumb vm-heading vm-heading-sm u-text-brass">
-            {worldName}
+            Character Creation
           </span>
           <HouseRules worldName={worldName} rules={houseRules} />
         </div>

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { ClassStep } from "./class/ClassStep";
 import { DetailsStep } from "./details/DetailsStep";
 import {
@@ -24,9 +24,15 @@ type Props = {
   worldName: string;
   houseRules: HouseRule[];
   rules: CreationRules;
+  onTitle?: (title: string) => void;
 };
 
-export function CreationWizard({ worldName, houseRules, rules }: Props) {
+export function CreationWizard({
+  worldName,
+  houseRules,
+  rules,
+  onTitle,
+}: Props) {
   const flow = useMemo(() => creationFlow(rules), [rules]);
   const wizard = useWizard(flow);
   const { step, draft } = wizard;
@@ -34,6 +40,10 @@ export function CreationWizard({ worldName, houseRules, rules }: Props) {
   const scores = useMemo(() => finalScores(draft.scores), [draft.scores]);
   const race = chosenRace(draft);
   const details = classDetails(draft, rules);
+  const name = draft.details.name.trim();
+  useEffect(() => {
+    onTitle?.(name ? `New Character: ${name}` : "New Character");
+  }, [name, onTitle]);
 
   return (
     <WizardShell
