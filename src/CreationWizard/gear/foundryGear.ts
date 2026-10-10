@@ -120,7 +120,7 @@ export const loadGearCatalog: LoadGearCatalog = async () => {
 
 type ItemSource = { system?: { quantity?: { value?: number | null } } };
 
-async function cartItemSource(uuid: string, quantity: number) {
+export async function cartItemSource(uuid: string, quantity: number) {
   const doc = (await fromUuid(uuid)) as { toObject(): ItemSource } | null;
   if (!doc) return [];
   const source = doc.toObject();

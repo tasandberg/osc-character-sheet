@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ClassStep } from "./class/ClassStep";
 import { DetailsStep } from "./details/DetailsStep";
 import {
@@ -11,9 +11,10 @@ import {
 import { GearFooter } from "./gear/GearFooter";
 import { GearStep } from "./gear/GearStep";
 import type { HouseRule } from "./houseRuleSettings";
-import { PlaceholderStep } from "./PlaceholderStep";
 import { RACES } from "./race/raceDraft";
 import { RaceStep } from "./race/RaceStep";
+import { newCharacter } from "./review/newCharacter";
+import { ReviewStep } from "./review/ReviewStep";
 import type { CreationRules } from "./rules";
 import { finalScores } from "./scores/scoresDraft";
 import { ScoresStep } from "./scores/ScoresStep";
@@ -25,6 +26,7 @@ type Props = {
   houseRules: HouseRule[];
   rules: CreationRules;
   onTitle?: (title: string) => void;
+  onCreated?: () => void;
 };
 
 export function CreationWizard({
@@ -32,11 +34,12 @@ export function CreationWizard({
   houseRules,
   rules,
   onTitle,
+  onCreated,
 }: Props) {
   const flow = useMemo(() => creationFlow(rules), [rules]);
   const wizard = useWizard(flow);
   const { step, draft } = wizard;
-  const done = draft.done.includes(step);
+  const [creating, setCreating] = useState(false);
   const scores = useMemo(() => finalScores(draft.scores), [draft.scores]);
   const race = chosenRace(draft);
   const details = classDetails(draft, rules);
@@ -44,6 +47,17 @@ export function CreationWizard({
   useEffect(() => {
     onTitle?.(name ? `New Character: ${name}` : "New Character");
   }, [name, onTitle]);
+
+  const create = async () => {
+    const character = newCharacter(draft, rules);
+    if (creating || !character) return;
+    setCreating(true);
+    try {
+      if (await rules.createCharacter(character)) onCreated?.();
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <WizardShell
@@ -57,6 +71,8 @@ export function CreationWizard({
       onSelectStep={wizard.goTo}
       onNext={wizard.goNext}
       onBack={wizard.previous && wizard.goBack}
+      onCreate={create}
+      creating={creating}
       stats={step === "gear" && <GearFooter draft={draft.gear} rules={rules} />}
     >
       {step === "scores" ? (
@@ -113,16 +129,18 @@ export function CreationWizard({
           }
         />
       ) : (
-        <PlaceholderStep
-          step={step}
-          done={done}
-          onToggleDone={() =>
-            wizard.setDraft((d) => ({
-              ...d,
-              done: done ? d.done.filter((s) => s !== step) : [...d.done, step],
-            }))
-          }
-        />
+        draft.class &&
+        details && (
+          <ReviewStep
+            details={draft.details}
+            character={details}
+            cls={draft.class}
+            race={race}
+            scores={classScores(draft)}
+            gear={draft.gear}
+            rules={rules}
+          />
+        )
       )}
     </WizardShell>
   );
