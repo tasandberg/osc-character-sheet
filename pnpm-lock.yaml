@@ -12,8 +12,8 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
       '@old-school-chronicle/vellum':
-        specifier: 0.5.0
-        version: 0.5.0
+        specifier: 0.6.1
+        version: 0.6.1(react@19.2.7)
       '@sentry/browser':
         specifier: ^10.63.0
         version: 10.63.0
@@ -671,8 +671,13 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@old-school-chronicle/vellum@0.5.0':
-    resolution: {integrity: sha512-fB1qsWUIr2ug+GJoYzp4C1uLvW8qDm8GcLgnnnD8a1DpBFnWbGfNCgXMiJiiqGUt/eKuv62ifPD44jVPts0ldA==}
+  '@old-school-chronicle/vellum@0.6.1':
+    resolution: {integrity: sha512-R7ESYE/o59n8ZHujkgkXevGTQMcfIYxTOrxZ4CGoKPc6nYZ+Z+1Wtt7RDeet5SO9eWjB2oK2yLf3/f12ycZv2Q==}
+    peerDependencies:
+      react: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
@@ -4237,7 +4242,9 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@old-school-chronicle/vellum@0.5.0': {}
+  '@old-school-chronicle/vellum@0.6.1(react@19.2.7)':
+    optionalDependencies:
+      react: 19.2.7
 
   '@open-draft/deferred-promise@2.2.0':
     optional: true
