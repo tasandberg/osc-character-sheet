@@ -136,6 +136,12 @@
       color: var(--text-mute);
       font-size: var(--fs-2xl);
     }
+
+    > img {
+      width: auto;
+      min-width: calc(var(--spacer-4) * 4);
+      max-width: min(calc(var(--spacer-4) * 10), 25cqi);
+    }
   }
 
   button.osc-monster-portrait {
