@@ -36,6 +36,10 @@ import { useToast } from "@ui/toastContext";
 import type { OseItem } from "@domain/types";
 import type { VitalsVM } from "@domain/vm-types";
 import { selectAbilities } from "../features/actions/abilities";
+import { useSetting } from "@src/OscSheet/settings";
+import { isBlankCharacter } from "@features/creation/blankCharacter";
+import { CreateCharacterCallout } from "@features/creation/CreateCharacterCallout";
+import { creationWizardSupported } from "@src/CreationWizard/support";
 
 /**
  * Foundry-aware container: computes view-models, fills the Shell layout slots,
@@ -57,6 +61,7 @@ export default function SheetShell() {
     drop?: PortraitImageDrop;
   } | null>(null);
   const portraitDropZone = usePortraitDrop({ enabled: canEdit });
+  const creationWizard = useSetting("creationWizard");
 
   // Layout-slot props built inline from the actor (HeaderBand + Minibar share the shape).
   const { hp, aac, ac, scores, movement, initiative } = actor.system;
@@ -193,6 +198,10 @@ export default function SheetShell() {
             />
           }
         >
+          {creationWizard &&
+            creationWizardSupported() &&
+            canEdit &&
+            isBlankCharacter(actor) && <CreateCharacterCallout actor={actor} />}
           {activeTab.id === TabIds.ACTIONS ? (
             <ActionsView actor={actor} />
           ) : activeTab.id === TabIds.INVENTORY ? (

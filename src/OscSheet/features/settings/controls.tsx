@@ -24,16 +24,22 @@ export function VellumSegmented<T extends string>({
   value,
   onChange,
   disabled,
+  full,
 }: {
   label: string;
   options: { value: T; label: ReactNode }[];
   value: T;
   onChange: (value: T) => void;
   disabled?: boolean;
+  full?: boolean;
 }) {
   const name = useId();
   return (
-    <div role="radiogroup" aria-label={label} className="vm-segmented">
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className={full ? "vm-segmented vm-segmented-full" : "vm-segmented"}
+    >
       {options.map((option) => (
         <label key={option.value} className="vm-segment">
           <input
