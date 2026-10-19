@@ -4,23 +4,18 @@ import type { ActivateEvent } from "@ui/rollable";
 const BAND =
   "osc-retainer tw:flex tw:items-baseline tw:justify-center tw:gap-3 tw:py-0";
 
-const BAND_LABEL =
-  "tw:flex-none tw:font-display tw:text-(length:--fs-xs)" +
-  " tw:tracking-[0.1em] tw:text-text";
+const BAND_LABEL = "vm-key tw:flex-none tw:text-text";
 
-const BAND_SEP =
-  "tw:flex-none tw:font-display tw:text-(length:--fs-2xs) tw:text-text-mute";
+const BAND_SEP = "tw:flex-none tw:text-(length:--fs-xs) tw:text-text-mute";
 
 const STAT =
   "tw:flex tw:flex-none tw:items-baseline tw:gap-2 tw:whitespace-nowrap";
 
 const WAGE_STAT = "tw:flex tw:min-w-0 tw:items-baseline tw:gap-2";
 
-const STAT_LABEL =
-  "tw:flex-none tw:font-display tw:text-(length:--fs-2xs)" +
-  " tw:tracking-[0.1em] tw:text-text-dim";
+const STAT_LABEL = "vm-key tw:flex-none";
 
-const STAT_VALUE = "tw:font-mono tw:text-(length:--fs-md) tw:text-text";
+const STAT_VALUE = "tw:text-(length:--fs-md) tw:text-text";
 
 const WAGE_VALUE = `${STAT_VALUE} tw:min-w-0 tw:break-words`;
 

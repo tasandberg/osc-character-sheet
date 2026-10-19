@@ -10,7 +10,7 @@ export function ItemImage({ img, monogram }: { img: string; monogram: string }) 
     <span
       className={
         "osc-inv-img tw:inline-flex tw:items-center tw:justify-center " +
-        "tw:w-[30px] tw:h-[30px] tw:rounded-sm tw:overflow-hidden " +
+        "tw:w-[30px] tw:h-[30px] tw:overflow-hidden " +
         "tw:bg-ink tw:border tw:border-border"
       }
       aria-hidden="true"

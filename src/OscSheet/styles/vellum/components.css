@@ -14,9 +14,9 @@
 }
 .field-label {
   font-family: var(--sans);
-  font-weight: 500;
-  font-size: var(--fs-2xs);
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  font-size: max(var(--fs-3xs), 12px);
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--text-dim);
 }
@@ -64,7 +64,6 @@
 .input::placeholder,
 .textarea::placeholder {
   color: var(--text-mute);
-  font-style: italic;
 }
 .input.is-error,
 .textarea.is-error,
@@ -163,7 +162,7 @@
   height: var(--spacer-4);
   border: 1.5px solid var(--border);
   background: var(--bg-2);
-  border-radius: 3px;
+  border-radius: 0;
   display: grid;
   place-items: center;
   transition: all 0.12s;
@@ -215,12 +214,11 @@
   background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text-mute);
-  font-family: var(--display);
-  font-weight: 500;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--fs-xs);
-  letter-spacing: 0.03em;
   padding: var(--spacer-1) 11px;
-  border-radius: 999px;
+  border-radius: 0;
   cursor: pointer;
   transition:
     color 0.12s,
@@ -237,7 +235,7 @@
   min-width: 1.95em;
   height: 1.95em;
   padding: 0 0.3em;
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--bg-2);
   font-family: var(--mono);
   font-size: 0.8em;
@@ -361,7 +359,7 @@
   display: inline-block;
   vertical-align: baseline;
   cursor: text;
-  border-radius: 1px;
+  border-radius: 0;
   outline: 1px dotted transparent;
   outline-offset: 2px;
 }
@@ -411,7 +409,7 @@ button.inline-edit {
   font-size: var(--fs-xs);
   background: color-mix(in srgb, var(--surface) 40%, transparent);
   border: 1px solid var(--hairline);
-  border-radius: 2px;
+  border-radius: 0;
   transition: none;
 }
 .input.hairline:focus {
@@ -596,9 +594,9 @@ button.pattern-pip.triangle:focus-visible {
   padding: 6px var(--spacer-3) 3px;
   font-family: var(--sans);
   font-weight: 600;
-  font-size: var(--fs-2xs);
+  font-size: max(var(--fs-3xs), 12px);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.09em;
   color: var(--text-dim);
 }
 
@@ -784,8 +782,7 @@ button.pattern-pip.triangle:focus-visible {
   padding: var(--spacer-2) var(--spacer-3);
   font-family: var(--sans);
   font-size: var(--fs-xs);
-  font-style: italic;
-  color: var(--text-mute);
+  color: var(--text-dim);
 }
 
 /* ─── Menu trigger — circular ⋯ chip ────────────────────────────────── */
@@ -870,7 +867,7 @@ button.pattern-pip.triangle:focus-visible {
   padding: 3px 9px 2px;
   background: var(--surface);
   border: 1px solid var(--border-soft);
-  border-radius: 999px;
+  border-radius: 0;
   font-family: var(--mono);
   font-size: var(--fs-3xs);
   color: var(--text-dim);
@@ -911,9 +908,10 @@ button.pattern-pip.triangle:focus-visible {
   background: var(--ink);
   color: var(--stamp-text);
   border-color: var(--ink);
-  font-family: var(--display);
-  font-size: var(--fs-2xs);
-  letter-spacing: 0.08em;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: max(var(--fs-3xs), 12px);
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   padding: var(--spacer-1) var(--spacer-2-5) 2px;
 }
@@ -1156,7 +1154,7 @@ button.pip:hover {
   position: absolute;
   inset: 3px;
   border: 1px solid var(--gold-soft);
-  border-radius: 2px;
+  border-radius: 0;
   pointer-events: none;
   opacity: 0.5;
 }
@@ -1211,7 +1209,7 @@ button.pip:hover {
   transform: translateX(-50%);
   min-width: 38px;
   background: var(--ink);
-  border-radius: 99px;
+  border-radius: 0;
   padding: 2px 9px 1px;
   font-family: var(--mono);
   font-size: var(--fs-xs);
@@ -1270,8 +1268,9 @@ button.pip:hover {
   border-radius: var(--r-sm);
   display: grid;
   place-items: center;
-  font-family: var(--display);
-  font-size: var(--fs-xs);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: max(var(--fs-3xs), 12px);
 }
 .plaque-save .pv {
   font-family: var(--mono);
@@ -1344,10 +1343,10 @@ button.pip:hover {
 .modal-body {
   padding: 18px 22px;
   overflow-y: auto;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: var(--fs-md);
   color: var(--text-dim);
-  line-height: 1.55;
+  line-height: 1.45;
 }
 .modal-body p {
   margin: 0 0 var(--spacer-2-5);
@@ -1416,14 +1415,14 @@ button.pip:hover {
   flex: none;
 }
 .toast .ttl {
-  font-family: var(--display);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--fs-md);
-  letter-spacing: 0.02em;
   color: var(--text);
   line-height: 1.2;
 }
 .toast .msg {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: var(--fs-xs);
   color: var(--text-dim);
   margin-top: 2px;
@@ -1473,16 +1472,16 @@ button.pip:hover {
   color: var(--text-mute);
 }
 .empty .ttl {
-  font-family: var(--display);
-  font-size: var(--fs-lg);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-md);
   color: var(--text-dim);
   margin-bottom: var(--spacer-1);
 }
 .empty .msg {
-  font-family: var(--serif);
-  font-style: italic;
+  font-family: var(--sans);
   font-size: var(--fs-sm);
-  color: var(--text-mute);
+  color: var(--text-dim);
   max-width: 36ch;
   margin: 0 auto var(--spacer-3);
   line-height: 1.5;
@@ -1498,7 +1497,7 @@ button.pip:hover {
   );
   background-size: 200% 100%;
   animation: skel 1.2s ease-in-out infinite;
-  border-radius: 3px;
+  border-radius: 0;
 }
 @keyframes skel {
   0% {
@@ -1523,18 +1522,18 @@ button.pip:hover {
 .table thead th {
   background: var(--ink);
   color: var(--stamp-text);
-  font-family: var(--display);
-  font-size: var(--fs-2xs);
-  letter-spacing: 0.1em;
+  font-family: var(--sans);
+  font-size: max(var(--fs-3xs), 12px);
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   padding: 9px var(--spacer-3);
   text-align: left;
-  font-weight: 400;
+  font-weight: 600;
 }
 .table tbody td {
   padding: 9px var(--spacer-3);
-  font-family: var(--serif);
-  font-size: var(--fs-sm);
+  font-family: var(--sans);
+  font-size: var(--fs-md);
   color: var(--text);
   border-top: 1px solid var(--border-soft);
 }
@@ -1633,9 +1632,9 @@ button.pip:hover {
   box-shadow: 0 18px 48px oklch(0 0 0 / 0.5);
 }
 .ed-confirm-head {
-  font-family: var(--display);
-  font-size: var(--fs-lg);
-  letter-spacing: 0.02em;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-md);
   color: var(--stamp-text);
   background: var(--ink);
   padding: var(--spacer-2-5) var(--spacer-4);
@@ -1683,9 +1682,11 @@ button.pip:hover {
   background: var(--ink);
   color: var(--stamp-text);
   border-radius: var(--r-sm);
-  font-family: var(--display);
-  font-size: var(--fs-2xs);
-  letter-spacing: 0.08em;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: max(var(--fs-3xs), 12px);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 .ed-cell .num {
   background: var(--bg-2);

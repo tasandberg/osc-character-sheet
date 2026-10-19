@@ -1,0 +1,76 @@
+.osc-sheet-app {
+  --sans: var(--font-sans, "Signika", sans-serif);
+  --serif: var(--sans);
+  --mono: var(--sans);
+  --sans-x-height: 0.53;
+  --link-accent: var(--gold);
+  --r-sm: 0;
+  --r-md: 0;
+  --r-lg: 0;
+  --r-xl: 0;
+  font-family: var(--sans);
+  font-size: var(--fs-md);
+  font-size-adjust: var(--sans-x-height);
+  line-height: 1.45;
+
+  [data-theme="cream"] & {
+    --link-accent: var(--accent-alt);
+  }
+
+  :is(
+    [class*="fa-"],
+    .section-title,
+    .osc-name,
+    .osc-monster-name,
+    .osc-monster-hit-points-current,
+    .vv-big,
+    .osc-mb-name,
+    .osc-mb-hp-input,
+    .osc-mb-ac-v,
+    .plaque-ability .pv,
+    .ability .score,
+    .kv-card .val,
+    .hp-row .big,
+    .die,
+    .osc-rich-text-body :is(h1, h2, h3, h4, h5, h6)
+  ) {
+    font-size-adjust: none;
+  }
+
+  .roll-label-die {
+    color: var(--link-accent);
+  }
+
+  .osc-link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--spacer-1);
+    color: var(--link-accent);
+    cursor: pointer;
+
+    > i {
+      font-size: 0.85em;
+    }
+
+    .osc-link-text {
+      text-decoration: underline dotted;
+      text-underline-offset: 3px;
+    }
+
+    &:hover .osc-link-text,
+    &:focus-visible .osc-link-text {
+      text-decoration-style: solid;
+    }
+  }
+
+  .osc-rich-text-body {
+    font-size: var(--fs-md);
+    line-height: 1.45;
+  }
+
+  .osc-rich-text-body table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}

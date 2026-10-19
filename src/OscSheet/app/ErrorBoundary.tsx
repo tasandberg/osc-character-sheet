@@ -186,7 +186,7 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
           on your machine first. This is the exact payload:
         </p>
         <pre
-          className="mono u-my-2 u-p-3 u-text-dim u-bg-surface u-border-soft u-fs-2xs u-r-md"
+          className="mono u-my-2 u-p-3 u-text-dim u-bg-surface u-border-soft u-fs-2xs"
           style={{
             maxHeight: "14rem",
             overflow: "auto",

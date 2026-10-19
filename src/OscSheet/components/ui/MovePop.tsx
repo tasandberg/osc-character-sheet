@@ -17,12 +17,12 @@ import { HoverPop } from "@ui/HoverPop";
 // The row dissolves so its two cells land directly in the popover's grid — that
 // is what puts every value, rate and status alike, in one right-aligned column.
 const ROW = "r tw:contents";
-const K = "k tw:font-sans tw:text-[length:var(--fs-xs)] tw:text-text-dim";
+const K = "k tw:text-(length:--fs-xs) tw:text-text-dim";
 // The value cell keeps the body colour and is tinted only on a row carrying an
 // `.enc-t*` class, which is what sets --enc-c. `nowrap` so the pop widens for
 // "Severely encumbered" rather than wrapping it.
 const VV =
-  "vv tw:col-start-2 tw:text-right tw:font-mono tw:text-[length:var(--fs-xs)]" +
+  "vv tw:col-start-2 tw:text-right tw:text-(length:--fs-xs)" +
   " tw:whitespace-nowrap tw:text-[var(--enc-c,var(--text))]";
 
 function RateRow({ k, n, u }: { k: ReactNode; n: ReactNode; u: ReactNode }) {
@@ -73,7 +73,7 @@ export function MoveTooltip({
     // column grows to eat the slack, so every value ends flush at the right.
     <HoverPop data-testid="move-pop"
       className="tw:grid tw:min-w-[150px] tw:grid-cols-[minmax(max-content,1fr)_max-content] tw:gap-x-3 tw:gap-y-[3px] tw:[--enc-c:initial]">
-      <span className="hd tw:col-span-full tw:mb-[2px] tw:border-b tw:border-border-soft tw:pb-[3px] tw:font-sans tw:text-[length:var(--fs-3xs)] tw:font-semibold tw:tracking-[0.08em] tw:text-text-mute tw:uppercase">
+      <span className="hd tw:col-span-full tw:mb-[2px] tw:border-b tw:border-border-soft tw:pb-[3px] vm-key">
         Movement
       </span>
       {armor && <PopRow k="Armor" v={armor} />}

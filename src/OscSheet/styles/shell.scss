@@ -94,7 +94,7 @@
   font-size: var(--fs-2xs);
   color: var(--text-dim);
   background: var(--surface-2);
-  border-radius: 99px;
+  border-radius: 0;
   padding: 1px 5px;
 }
 .osc-tab:hover {
@@ -261,7 +261,7 @@
     font-size: var(--fs-2xs);
     color: var(--text-dim);
     background: var(--surface-2);
-    border-radius: 99px;
+    border-radius: 0;
     padding: 1px 6px;
   }
   .osc-htab:hover {

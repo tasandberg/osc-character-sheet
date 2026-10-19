@@ -85,7 +85,7 @@ export function SpellRow({
   // Exclusive strings: a spent row is struck and muted, and loses the gold
   // hover with it (the old `.osc-spell.spent .spn` won over `.spn:hover`).
   const spn = cx(
-    "spn tw:cursor-pointer tw:font-display tw:text-[length:var(--fs-lg)]",
+    "spn tw:cursor-pointer tw:font-semibold tw:text-(length:--fs-md)",
     spent
       ? "tw:text-text-mute tw:line-through"
       : "tw:text-text tw:hover:text-gold tw:hover:[text-shadow:0_0_8px_var(--gold-soft)]",
@@ -142,7 +142,7 @@ export function SpellRow({
           img={spell.img}
           monogram={String(spell.name).charAt(0).toUpperCase()}
           className={cx(
-            "tw:grid tw:size-8 tw:flex-none tw:@max-md/app:self-start tw:place-items-center tw:overflow-hidden tw:rounded-sm tw:bg-ink tw:font-display tw:text-(length:--fs-md) tw:text-stamp-text",
+            "tw:grid tw:size-8 tw:flex-none tw:@max-md/app:self-start tw:place-items-center tw:overflow-hidden tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text",
             spent && "tw:opacity-50",
           )}
           imgClassName="tw:object-cover"
@@ -165,7 +165,7 @@ export function SpellRow({
           {pool && (
             <span
               className={cx(
-                "pool tw:font-mono tw:text-(length:--fs-2xs) tw:whitespace-nowrap",
+                "pool tw:text-(length:--fs-xs) tw:whitespace-nowrap",
                 spent ? "tw:text-text-dim" : "tw:text-text",
               )}
             >
@@ -185,7 +185,7 @@ export function SpellRow({
           )}
         </span>
         {/* the " · " separators and the .dmg tint stay in spells.scss */}
-        <span className="spm tw:mt-px tw:block tw:font-mono tw:text-(length:--fs-3xs) tw:text-text-mute">
+        <span className="spm tw:mt-px tw:block tw:text-(length:--fs-xs) tw:text-text-dim">
           {meta}
         </span>
       </div>

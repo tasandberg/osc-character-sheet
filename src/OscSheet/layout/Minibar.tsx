@@ -48,15 +48,15 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
   return (
     <div ref={ref} className={`osc-minibar${collapsed ? " is-collapsed" : ""}`} aria-hidden={!collapsed}>
       <img
-        className="osc-mb-portrait tw:h-8 tw:w-8 tw:flex-none tw:rounded-sm tw:border tw:border-border-soft tw:object-cover"
+        className="osc-mb-portrait tw:h-8 tw:w-8 tw:flex-none tw:border tw:border-border-soft tw:object-cover"
         src={identity.img || undefined}
         alt=""
       />
       <div className="tw:min-w-0 tw:flex-auto">
-        <div className="tw:truncate tw:font-display tw:text-[length:var(--fs-md)] tw:leading-tight tw:text-text">
+        <div className="osc-mb-name tw:truncate tw:font-display tw:text-(length:--fs-md) tw:leading-tight tw:text-text">
           {identity.name}
         </div>
-        <div className="tw:truncate tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute">
+        <div className="tw:truncate tw:text-(length:--fs-xs) tw:text-text-dim">
           {identity.classLabel} {identity.level}
         </div>
       </div>
@@ -88,7 +88,7 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
             <span className="osc-mb-hp-input osc-mb-hp-static">{vitals.hp.value}</span>
           )}
           <span className="osc-mb-hp-slot">
-            <span className="osc-mb-hp-max tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute">
+            <span className="osc-mb-hp-max tw:text-(length:--fs-xs) tw:text-text-dim">
               /{vitals.hp.max}
             </span>
             {onSetHp && (
@@ -106,7 +106,7 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
         </div>
         <div className="osc-mb-ac">
           <Stamp className="osc-mb-stamp">AC</Stamp>
-          <span className="osc-mb-ac-v tw:font-display tw:text-[length:var(--fs-2xl)] tw:leading-flush tw:text-teal-accent">
+          <span className="osc-mb-ac-v tw:font-display tw:text-(length:--fs-2xl) tw:leading-flush tw:text-teal-accent">
             {vitals.ac.value}
           </span>
         </div>

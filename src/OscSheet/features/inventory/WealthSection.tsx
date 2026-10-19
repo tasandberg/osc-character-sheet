@@ -173,33 +173,33 @@ export function WealthSection({
             // Wider gap when it follows a dot (was a `.ci + .osc-wgem` sibling rule).
             <i
               className={cx(
-                "osc-wgem fa-solid fa-gem tw:text-[length:var(--fs-3xs)] tw:text-accent-alt",
+                "osc-wgem fa-solid fa-gem tw:text-(length:--fs-3xs) tw:text-accent-alt",
                 dots.length ? "tw:ml-[5px]" : "tw:ml-[3px]",
               )}
               aria-hidden="true"
             />
           )}
         </span>
-        <span className="key tw:font-sans tw:text-[length:var(--fs-xs)] tw:font-semibold tw:tracking-[0.13em] tw:uppercase tw:text-text-mute">
+        <span className="key vm-key">
           Treasure
         </span>
-        <span className="v tw:font-display tw:text-[length:var(--fs-lg)] tw:leading-flush tw:text-accent-alt">
+        <span className="v tw:font-semibold tw:text-(length:--fs-md) tw:leading-flush tw:text-accent-alt">
           {fmtCoin(totalGp)}
-          <small className="tw:ml-[2px] tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-accent-alt tw:opacity-75">gp</small>
+          <small className="tw:ml-[2px] tw:text-(length:--fs-xs) tw:text-accent-alt tw:opacity-75">gp</small>
         </span>
         {hasContent && <i className="osc-wcaret fa-solid fa-caret-right" aria-hidden="true" />}
-        <span className="wt tw:ml-auto tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-dim">
+        <span className="wt tw:ml-auto tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:text-text-dim">
           {load}
         </span>
       </button>
 
       {!hasContent && (
-        <p className="tw:mt-0 tw:mb-2 tw:ml-[2px] tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-dim">
+        <p className="tw:mt-0 tw:mb-2 tw:ml-[2px] tw:text-(length:--fs-sm) tw:text-text-dim">
           Drop coins, gems, or other valuables here to track your treasure.</p>
       )}
 
       {open && hasContent && (
-        <div className="tw:mt-[2px] tw:rounded-md tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:pt-[3px] tw:pb-[9px]">
+        <div className="tw:mt-[2px] tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:pt-[3px] tw:pb-[9px]">
           {/* One unified, fully-sortable table: units live in the headers so rows
               render bare numbers; a header click sorts every row together. The top
               pad separates this row from the "TREASURE …gp" header above. */}
@@ -279,13 +279,13 @@ export function WealthSection({
           {/* No top border — the last coin row's bottom rule is the divider (avoids a
               double line). Hidden in the xs column along with the Weight/Value cells. */}
           <div className="osc-coin-total tw:mt-[2px] tw:grid tw:items-baseline tw:gap-x-3 tw:pt-2 tw:pb-[1px] tw:@max-md/app:hidden">
-            <span className="lab tw:col-start-3 tw:font-sans tw:text-[length:var(--fs-3xs)] tw:font-semibold tw:tracking-[0.12em] tw:uppercase tw:text-text-mute">
+            <span className="lab vm-key tw:col-start-3">
               Total
             </span>
-            <span className="tw tw:col-start-5 tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-dim">
+            <span className="tw tw:col-start-5 tw:text-right tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:text-text-dim">
               {itemBased ? slots : fmtCoin(weight)}
             </span>
-            <span className="tv tw:col-start-6 tw:text-right tw:whitespace-nowrap tw:font-mono tw:text-[length:var(--fs-xs)] tw:font-bold tw:text-accent-alt">
+            <span className="tv tw:col-start-6 tw:text-right tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:font-bold tw:text-accent-alt">
               {fmtCoin(totalGp)}
             </span>
           </div>

@@ -1,26 +1,4 @@
 .osc-monster {
-  --sans: var(--font-sans, "Signika", sans-serif);
-  --serif: var(--sans);
-  --mono: var(--sans);
-  --sans-x-height: 0.53;
-  --link-accent: var(--gold);
-  font-family: var(--sans);
-  font-size: var(--fs-md);
-  font-size-adjust: var(--sans-x-height);
-  line-height: 1.45;
-
-  :is(.section-title, [class*="fa-"]) {
-    font-size-adjust: none;
-  }
-
-  [data-theme="cream"] & {
-    --link-accent: var(--accent-alt);
-  }
-
-  .roll-label-die {
-    color: var(--link-accent);
-  }
-
   .osc-monster-roll-die {
     display: inline-flex;
     align-items: center;
@@ -96,28 +74,6 @@
     white-space: nowrap;
   }
 
-  .osc-monster-link {
-    display: inline-flex;
-    align-items: baseline;
-    gap: var(--spacer-1);
-    color: var(--link-accent);
-    cursor: pointer;
-
-    > i {
-      font-size: 0.85em;
-    }
-
-    .osc-monster-link-text {
-      text-decoration: underline dotted;
-      text-underline-offset: 3px;
-    }
-
-    &:hover .osc-monster-link-text,
-    &:focus-visible .osc-monster-link-text {
-      text-decoration-style: solid;
-    }
-  }
-
   .osc-monster-portrait {
     display: block;
     padding: 2px;
@@ -156,7 +112,6 @@
   .osc-monster-name {
     font-family: var(--display);
     font-weight: 400;
-    font-size-adjust: none;
     line-height: 1;
     color: var(--text);
     border: none;
@@ -170,7 +125,6 @@
 
   .osc-monster-hit-points-current {
     font-family: var(--display);
-    font-size-adjust: none;
     line-height: 1;
     color: var(--crimson);
   }
@@ -307,16 +261,5 @@
 
   .osc-monster-ability-toggle {
     margin-left: var(--spacer-4);
-  }
-
-  .osc-rich-text-body {
-    font-size: var(--fs-md);
-    line-height: 1.45;
-  }
-
-  .osc-rich-text-body table {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
   }
 }

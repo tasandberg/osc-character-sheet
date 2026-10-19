@@ -26,10 +26,9 @@
     margin: 0;
   }
 
-  // Overrides the unlayered `.section-title` base on margin + size.
+  // Overrides the unlayered `.section-title` base on margin.
   .ed-sec > .section-title {
     margin: 0;
-    font-size: var(--fs-2xl);
   }
 
   // Decorative avatar at the head of "Identity & Vitals". Sized in `em` so it

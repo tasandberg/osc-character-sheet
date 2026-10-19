@@ -43,7 +43,7 @@ export function ImageDropZone({ zone, target, onImage, className }: Props) {
         handlers.onDrop(event);
       }}
     >
-      <span className="osc-image-drop-label u-fs-xl u-px-3 u-py-2 u-r-md">
+      <span className="osc-image-drop-label u-fs-xl u-px-3 u-py-2">
         {LABELS[target]}
       </span>
     </div>

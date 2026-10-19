@@ -16,26 +16,16 @@
 export const ED_FIELD =
   "ed-field tw:relative tw:flex tw:flex-col tw:gap-[5px] tw:min-w-0";
 
-// Small-caps micro label above a field. The identity grid and the exploration
-// grid want different type, and they differ on `tracking` — utilities in one
-// layer are ordered by Tailwind, not by the order they are written, so a shared
-// base plus a per-variant override could come out either way. Two exclusive
-// strings instead.
-const LAB_BASE =
-  "lab tw:font-sans tw:text-[length:var(--fs-3xs)] tw:font-semibold tw:uppercase tw:text-text-dim";
-
 /** Identity-grid label. The 12-col tracks are narrow, so it truncates rather
- *  than widening its field, and tightens tracking to buy characters. */
-export const LAB_ID = `${LAB_BASE} tw:tracking-[0.06em] tw:whitespace-nowrap tw:overflow-hidden tw:text-ellipsis`;
+ *  than widening its field. */
+export const LAB_ID = "lab vm-key tw:overflow-hidden tw:text-ellipsis";
 
-/** Exploration label — a real serif italic (skill names read as prose, not as
- *  stamped keys), so it shares nothing with LAB_BASE but its colour. */
-export const LAB_SKILL =
-  "lab tw:font-serif tw:italic tw:normal-case tw:text-[length:var(--fs-xs)] tw:font-normal tw:tracking-[0.02em] tw:text-text-dim";
+/** Exploration label — skill names read as prose, not as stamped keys. */
+export const LAB_SKILL = "lab tw:text-(length:--fs-sm) tw:text-text-dim";
 
 /** Inline annotation inside a label (the GM-only marker on Class). */
 export const ED_HINT =
-  "hint tw:font-mono tw:text-[length:var(--fs-3xs)] tw:leading-[1.4] tw:text-text-mute";
+  "hint tw:text-(length:--fs-xs) tw:leading-[1.4] tw:text-text-dim";
 
 /** Identity-grid span: half-width fields at the wide tier, and at the narrow
  *  tier the 12-col grid stays but every field goes half-row. */

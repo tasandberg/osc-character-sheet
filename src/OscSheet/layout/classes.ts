@@ -16,9 +16,9 @@
 // they are written on the element, so a shared base plus an override could come
 // out either way. The variants below are exclusive strings instead.
 const TB_BTN_BASE =
-  "osc-tb-btn tw:cursor-pointer tw:items-center tw:gap-2 tw:rounded-sm tw:border" +
-  " tw:font-sans tw:text-[length:var(--fs-3xs)] tw:font-medium" +
-  " tw:tracking-[0.08em] tw:whitespace-nowrap tw:uppercase" +
+  "osc-tb-btn tw:cursor-pointer tw:items-center tw:gap-2 tw:border" +
+  " tw:font-sans tw:text-[max(var(--fs-3xs),12px)] tw:font-semibold" +
+  " tw:tracking-[0.09em] tw:whitespace-nowrap tw:uppercase" +
   " tw:transition-[color,border-color,background] tw:duration-[120ms]" +
   // inert (display pass) — keep full fidelity, no dimming
   " tw:disabled:cursor-default";
@@ -54,4 +54,4 @@ export const TB_BTN_OVERFLOW =
 
 /** Leading glyph inside a topbar button. `leading-flush` stops the taller glyph
  *  line box from growing the button past its siblings. */
-export const TB_BTN_GLYPH = "i tw:text-[length:var(--fs-xs)] tw:leading-flush";
+export const TB_BTN_GLYPH = "i tw:text-(length:--fs-xs) tw:leading-flush";

@@ -52,10 +52,12 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
   padding: 6px 4px 7px;
-  color: var(--text-mute);
-  font-family: var(--display);
-  font-size: var(--fs-md, 15px);
-  letter-spacing: 0.02em;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: max(var(--fs-3xs), 12px);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     color 0.12s,
@@ -143,8 +145,9 @@
   color: var(--stamp-text, #e5dec8);
   display: grid;
   place-items: center;
-  font-family: var(--display);
-  font-size: var(--fs-lg, 16px);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-md);
   border: 1px solid var(--border, #3a342c);
 }
 .osc-weapon .wic-img {
@@ -154,8 +157,9 @@
   min-width: 0;
 }
 .osc-weapon .wname {
-  font-family: var(--display);
-  font-size: var(--fs-lg, 17px);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-md);
   color: var(--text, #e5dec8);
   line-height: 1.15;
   white-space: nowrap;
@@ -240,9 +244,9 @@
 }
 .osc-weapon .wstat .sl {
   font-family: var(--sans);
-  font-size: var(--fs-2xs, 11px);
+  font-size: max(var(--fs-3xs), 12px);
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--text-dim, #b5ad97);
 }
@@ -250,8 +254,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacer-1);
-  font-family: var(--mono);
-  font-size: var(--fs-sm, 13px);
+  font-size: var(--fs-md);
   white-space: nowrap;
   i {
     font-size: 0.9em;

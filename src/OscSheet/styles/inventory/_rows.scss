@@ -209,9 +209,9 @@
   object-fit: cover;
 }
 .osc-inv-img .mono {
-  font-family: var(--display);
-  font-size: var(--fs-2xs, 11px);
-  letter-spacing: 0.03em;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-xs);
   color: var(--text-dim, #b5ad97);
 }
 
@@ -226,7 +226,7 @@
   font-size: var(--fs-xs, 12px);
   line-height: 1;
   padding: var(--spacer-1);
-  border-radius: 3px;
+  border-radius: 0;
   transition: color 0.12s;
   &:active {
     cursor: grabbing;
@@ -287,8 +287,9 @@
   text-align: left;
 }
 .osc-inv-name .nm {
-  font-family: var(--display);
-  font-size: var(--fs-md, 15px);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-md);
   color: var(--text, #e5dec8);
   transition: color 0.12s;
   white-space: nowrap;

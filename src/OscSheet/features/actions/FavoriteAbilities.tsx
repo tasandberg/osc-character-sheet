@@ -47,7 +47,7 @@ function AbilityCard({
       <Monogram
         img={feature.img}
         monogram={feature.name.charAt(0).toUpperCase()}
-        className="skic tw:grid tw:size-5 tw:place-items-center tw:rounded-sm tw:bg-ink tw:font-display tw:text-[length:var(--fs-2xs)] tw:text-stamp-text"
+        className="skic tw:grid tw:size-5 tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-2xs) tw:text-stamp-text"
         imgClassName="tw:object-cover"
         data-testid={`fav-ability-img-${feature.id}`}
         {...macroDrag}
@@ -67,7 +67,7 @@ function AbilityCard({
         </button>
         {feature.rollTargetTag && (
           <span
-            className="tw:font-mono tw:whitespace-nowrap tw:text-text-mute"
+            className="tw:whitespace-nowrap tw:text-text-mute"
             data-testid={`fav-ability-target-${feature.id}`}
           >
             {feature.rollTargetTag}

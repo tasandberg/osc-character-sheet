@@ -27,7 +27,7 @@ export function TreasureValue({ treasure, onClear }: Props) {
   return (
     <button
       type="button"
-      className="osc-monster-link"
+      className="osc-link"
       title={
         onClear
           ? "Open treasure table · right-click to unlink"
@@ -43,7 +43,7 @@ export function TreasureValue({ treasure, onClear }: Props) {
       }
     >
       <i className="fa-solid fa-scroll" aria-hidden="true" />
-      <span className="osc-monster-link-text">{label}</span>
+      <span className="osc-link-text">{label}</span>
     </button>
   );
 }

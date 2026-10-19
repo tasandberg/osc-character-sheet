@@ -164,7 +164,7 @@ export function EquippedTray({
               className={
                 item.img
                   ? ""
-                  : "osc-equip-tt-ic tw:font-display tw:text-[length:var(--fs-xl)] tw:leading-flush"
+                  : "osc-equip-tt-ic tw:font-semibold tw:text-(length:--fs-lg) tw:leading-flush"
               }
             />
           </button>
@@ -172,23 +172,23 @@ export function EquippedTray({
             className="osc-equip-tt-pop tw:flex tw:flex-col tw:gap-[3px] tw:min-w-[132px] tw:max-w-[200px]"
             align="center"
           >
-            <span className="tw:font-display tw:text-[length:var(--fs-base)] tw:leading-tight tw:text-text">
+            <span className="tw:font-semibold tw:text-(length:--fs-md) tw:leading-tight tw:text-text">
               {item.name}
             </span>
-            <span className="tw:font-sans tw:text-[length:var(--fs-3xs)] tw:tracking-[0.08em] tw:uppercase tw:text-text-mute">
+            <span className="vm-key">
               {item.category}
             </span>
-            {/* stat rows — label on the left, mono value on the right */}
+            {/* stat rows — label on the left, value on the right */}
             <span className="tw:mt-1 tw:flex tw:flex-col tw:gap-[2px] tw:border-t tw:border-t-border-soft tw:pt-1">
               {equippedStats(item, variant).map((st) => (
                 <span
                   className="tw:flex tw:items-baseline tw:justify-between tw:gap-3"
                   key={st.label}
                 >
-                  <span className="k tw:font-sans tw:text-(length:--fs-2xs) tw:tracking-[0.04em] tw:uppercase tw:text-text-dim">
+                  <span className="k vm-key">
                     {st.label}
                   </span>
-                  <span className="v tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-dim">
+                  <span className="v tw:text-(length:--fs-sm) tw:text-text">
                     {st.value}
                   </span>
                 </span>
@@ -198,7 +198,7 @@ export function EquippedTray({
               <span className="tw:mt-1 tw:flex tw:flex-wrap tw:gap-1 tw:border-t tw:border-t-border-soft tw:pt-1">
                 {item.tags.map((t) => (
                   <span
-                    className="tw:inline-flex tw:items-center tw:gap-[3px] tw:rounded-sm tw:border tw:border-border-soft tw:bg-bg-2 tw:px-[6px] tw:py-[1px] tw:font-sans tw:text-[length:var(--fs-3xs)] tw:text-text-dim"
+                    className="tw:inline-flex tw:items-center tw:gap-[3px] tw:border tw:border-border-soft tw:bg-bg-2 tw:px-[6px] tw:py-[1px] tw:text-(length:--fs-xs) tw:text-text-dim"
                     key={t.label}
                   >
                     {/* 0.9em tracks the tag text, so the icon scales with the font setting */}

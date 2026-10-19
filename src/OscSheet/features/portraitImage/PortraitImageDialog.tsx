@@ -204,7 +204,7 @@ export function PortraitImageDialog({ current, drop, onClose, onSave }: Props) {
             {blocked && (
               <p
                 role="status"
-                className="osc-image-drop-message osc-image-drop-alert u-m-0 u-px-3 u-py-2 u-r-md u-bg-surface-2 u-border u-fs-xs u-text-dim"
+                className="osc-image-drop-message osc-image-drop-alert u-m-0 u-px-3 u-py-2 u-bg-surface-2 u-border u-fs-xs u-text-dim"
               >
                 {blocked}
               </p>

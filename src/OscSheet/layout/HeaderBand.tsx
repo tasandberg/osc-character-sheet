@@ -20,7 +20,7 @@ import { useHpInput } from "@ui/useHpInput";
 const TILE =
   "osc-tile tw:flex tw:min-w-[52px] tw:flex-none tw:flex-col tw:items-center tw:gap-1 tw:pt-[2px] tw:text-center" +
   " tw:@max-md/app:w-auto" +
-  " tw:@twopane/sheet:w-auto tw:@twopane/sheet:rounded-md tw:@twopane/sheet:border" +
+  " tw:@twopane/sheet:w-auto tw:@twopane/sheet:border" +
   " tw:@twopane/sheet:border-border-soft tw:@twopane/sheet:bg-surface" +
   " tw:@twopane/sheet:px-[6px] tw:@twopane/sheet:pt-[5px] tw:@twopane/sheet:pb-1";
 
@@ -29,18 +29,17 @@ const TILE =
 // shell.scss, which stays SCSS: at (0,3,0) it out-ranks these utilities.
 const TILE_STAMP =
   "tw:block tw:w-full tw:px-[4px] tw:pt-[3px] tw:pb-[2px] tw:text-center" +
-  " tw:text-[length:var(--fs-3xs)] tw:whitespace-nowrap";
+  " tw:whitespace-nowrap";
 
 const TILE_V =
-  "osc-tile-v tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text" +
-  " tw:@twopane/sheet:text-[length:var(--fs-xs)]";
+  "osc-tile-v tw:text-(length:--fs-sm) tw:text-text";
 
 // HP/AC card. Carries NO border colour: hp and ac each supply their own, and two
 // class-level utilities for one property are ordered by Tailwind rather than by
 // the order they are written, so a shared base plus an override could come out
 // either way. At XS the card becomes a 52×76 narrow-tall box.
 const VITAL =
-  "osc-vital tw:relative tw:rounded-md tw:border tw:bg-surface tw:px-[10px] tw:pt-[6px] tw:pb-[8px] tw:text-center" +
+  "osc-vital tw:relative tw:border tw:bg-surface tw:px-[10px] tw:pt-[6px] tw:pb-[8px] tw:text-center" +
   " tw:@max-md/app:flex tw:@max-md/app:min-h-[76px] tw:@max-md/app:flex-col tw:@max-md/app:items-center" +
   " tw:@max-md/app:justify-start tw:@max-md/app:gap-[1px]" +
   " tw:@max-md/app:px-[4px] tw:@max-md/app:pt-[5px] tw:@max-md/app:pb-[6px]";
@@ -48,17 +47,15 @@ const VITAL =
 // The <Stamp> label fills the box width (black bar) like the others.
 const VITAL_L =
   "vv-l tw:mb-[2px] tw:block tw:w-full" +
-  " tw:@max-md/app:px-[6px] tw:@max-md/app:pt-[4px] tw:@max-md/app:pb-[3px]" +
-  " tw:@max-md/app:text-[length:var(--fs-2xs)]";
+  " tw:@max-md/app:px-[6px] tw:@max-md/app:pt-[4px] tw:@max-md/app:pb-[3px]";
 
 // The hero numeral. Colour is per-card, as above.
 const VITAL_BIG =
-  "vv-big tw:my-[1px] tw:font-display tw:text-[length:var(--fs-4xl)] tw:leading-[1.05]" +
-  " tw:@max-md/app:text-[length:var(--fs-3xl)]";
+  "vv-big tw:my-[1px] tw:font-display tw:text-(length:--fs-4xl) tw:leading-[1.05]" +
+  " tw:@max-md/app:text-(length:--fs-3xl)";
 
 const VITAL_SUB =
-  "vv-sub tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute" +
-  " tw:@max-md/app:text-[length:var(--fs-3xs)]";
+  "vv-sub tw:text-(length:--fs-xs) tw:text-text-dim tw:@max-md/app:text-(length:--fs-2xs)";
 
 /** Full label by default; the short form takes over at XS, where the card is 52px wide. */
 const SUB_FULL = "full tw:@max-md/app:hidden";
