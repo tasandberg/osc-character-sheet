@@ -136,8 +136,8 @@
 }
 // ink-stamp monogram (or weapon art)
 .osc-weapon .wic {
-  width: 34px;
-  height: 34px;
+  width: var(--spacer-12);
+  height: var(--spacer-12);
   flex: 0 0 auto;
   border-radius: var(--r-md, 6px);
   background: var(--ink, #070605);
@@ -148,12 +148,6 @@
   font-weight: 600;
   font-size: var(--fs-md);
   border: 1px solid var(--border, #3a342c);
-}
-@container app (min-width: 480px) {
-  .osc-weapon .wic {
-    width: var(--spacer-12);
-    height: var(--spacer-12);
-  }
 }
 .osc-weapon .wic-img {
   object-fit: cover;
