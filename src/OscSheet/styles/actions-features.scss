@@ -185,27 +185,9 @@
   margin-top: 3px;
 }
 
-// kind switch — the box. Its end-cap radius maths and segment fill states stayed
-// in actions.scss; this is the frame they sit in.
-.kind-switch {
-  display: inline-flex;
-  align-items: stretch;
-  background: var(--bg-2, #1f1c17);
-  border: 1px solid var(--border, #3a342c);
-  border-radius: var(--r-sm, 4px);
-}
+// kind switch — a Vellum segmented control; the segment hosts its `.tag-pop`.
 .kind-seg {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3px var(--spacer-2);
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  i {
-    font-size: var(--fs-xs, 12px);
-  }
 }
 
 // Hit / Damage — plain clickable cells: a small HIT/DMG label over the value.

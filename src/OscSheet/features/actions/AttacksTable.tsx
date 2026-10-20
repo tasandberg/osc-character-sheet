@@ -114,24 +114,25 @@ function WeaponRow({
             {/* dual melee+missile → a segmented switch; single mode → a static tag */}
             {dual ? (
               <div
-                className="kind-switch"
-                role="group"
+                className="vm-segmented"
+                role="radiogroup"
                 aria-label="Attack mode"
               >
                 {a.modes.map((m, i) => (
-                  <button
-                    type="button"
+                  <label
                     key={m.kind}
                     data-testid={`attack-mode-${m.kind}-${a.itemId}`}
-                    className={cx(
-                      "kind-seg",
-                      m.kind,
-                      i === active && "selected",
-                    )}
-                    aria-pressed={i === active}
-                    onClick={() => setActive(i)}
+                    className="vm-segment kind-seg"
                     title={`${m.kindLabel} attack`}
                   >
+                    <input
+                      type="radio"
+                      className="vm-segment-input"
+                      name={`attack-mode-${a.itemId}`}
+                      checked={i === active}
+                      onChange={() => setActive(i)}
+                      aria-label={`${m.kindLabel} attack`}
+                    />
                     <i
                       className={cx("fa-solid", kindIcon(m.kind))}
                       aria-hidden="true"
@@ -139,7 +140,7 @@ function WeaponRow({
                     <span className="tag-pop" role="tooltip">
                       {m.kindLabel}
                     </span>
-                  </button>
+                  </label>
                 ))}
               </div>
             ) : (

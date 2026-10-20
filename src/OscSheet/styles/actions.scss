@@ -230,40 +230,6 @@
 // quality / mode tags (icon-only chips + hover popover) now live in vellum as
 // `.tag-chip` (see styles/vellum/components.css) via the Tag `variant="chip"`.
 
-// Segment layout is in actions-features.scss. The FILL states stay here: the
-// selected fill has to out-rank the hover fill, and both would be class-level
-// utilities at (0,2,0) / (0,3,0) whose relative order Tailwind decides — so
-// `hover:bg-surface-2` could paint over a selected segment. As SCSS the
-// (0,3,0) vs (0,2,0) split makes it explicit. `& + &` has no utility form
-// either. (`.osc-sheet-app` dropped: it only out-specified the button reset.)
-.kind-seg {
-  // no transition: the switch is purely presentational, so it should flip instantly
-  & + & {
-    border-left: 1px solid var(--border, #3a342c);
-  }
-  &:hover {
-    background: var(--surface-2, #2e2a23);
-  }
-  // idle icons carry the mode accent; selected flips to on-accent over a fill
-  &.melee i {
-    color: var(--gold);
-  }
-  &.missile i {
-    color: var(--teal-accent);
-  }
-  &.melee.selected {
-    background: var(--gold);
-    i {
-      color: var(--on-accent, #070605);
-    }
-  }
-  &.missile.selected {
-    background: var(--teal);
-    i {
-      color: var(--on-accent, #070605);
-    }
-  }
-}
 // hover popover (`.tag-pop`) + its reveal rules now live in vellum
 // (components.css) as a shared tooltip primitive — used by weapon tags,
 // kind-seg switches, and the hit/dmg (.wstat) buttons.
