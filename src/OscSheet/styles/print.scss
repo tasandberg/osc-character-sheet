@@ -58,7 +58,7 @@
         warn: mustard
       )
   {
-    .vm-btn-secondary.tone-#{$tone}:not(:disabled) {
+    .vm-btn.icon-tone-#{$tone}:not(:disabled) > i {
       color: var(--#{$token});
     }
   }

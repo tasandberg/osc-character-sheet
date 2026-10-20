@@ -210,7 +210,7 @@ function WeaponRow({
         onClick={(e) => onAttack?.(a.itemId, mode.kind, e)}
         title="Attack roll (hit + damage)"
         variant="outline"
-        tone="brass"
+        iconTone="brass"
         aria-label={`Attack with ${a.name}`}
       >
         <i className="fa-solid fa-dice-d20 u-mr-1" aria-hidden="true" />

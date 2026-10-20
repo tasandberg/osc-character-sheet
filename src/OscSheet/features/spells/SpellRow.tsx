@@ -194,7 +194,6 @@ export function SpellRow({
           {canCast && (
             <Button
               variant="outline"
-              tone="brass"
               size="sm"
               className="tw:min-w-[5em]"
               disabled={spent || casting}

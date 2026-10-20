@@ -271,7 +271,7 @@
 // Hit / Damage — plain clickable cells: a small HIT/DMG label over the value
 // (hit = mode icon + modifier; dmg = full formula). In actions-features.scss.
 
-// The Attack button is the shared Vellum <Button variant="outline" tone="brass">
+// The Attack button is the shared Vellum <Button variant="outline" iconTone="brass">
 // with an icon + label — the same primitive as the "with icon" outline story.
 // The bespoke `.fvtt-atk` rules that used to sit here (appearance AND the XS
 // `grid-area: atk`) are gone: no markup has carried the class since before this

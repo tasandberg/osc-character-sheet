@@ -243,12 +243,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
       </DividedRow>
       {view.needsSaves && onGenerateSaves && (
         <div className="u-flex u-justify-center u-mt-2">
-          <Button
-            variant="outline"
-            tone="brass"
-            size="sm"
-            onClick={onGenerateSaves}
-          >
+          <Button variant="outline" size="sm" onClick={onGenerateSaves}>
             Generate saves from Hit Dice
           </Button>
         </div>

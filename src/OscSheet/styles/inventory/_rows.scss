@@ -165,7 +165,7 @@
   pointer-events: none;
 }
 // Both "Use" affordances (pip-overflow fallback + xs inline) render as the shared
-// Vellum Button (`variant="outline" tone="brass" size="xs"`); these classes only
+// Vellum Button (`variant="outline" size="xs"`); these classes only
 // carry their positioning/visibility — the pill look comes from `.btn`. `display`
 // has to fight unlayered `.btn { display: inline-flex }`, so it can't be a utility.
 .osc-inv-use1,

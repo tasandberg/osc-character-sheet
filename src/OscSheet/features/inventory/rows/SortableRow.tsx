@@ -69,7 +69,6 @@ function InlineUse({
   return (
     <Button
       variant="outline"
-      tone="brass"
       size="xs"
       className="osc-inv-useinline"
       onClick={() => onSetQty(item.id, Math.max(0, value - 1))}

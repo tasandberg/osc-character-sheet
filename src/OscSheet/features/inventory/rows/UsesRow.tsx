@@ -86,7 +86,6 @@ export function UsesRow({
         {canEdit ? (
           <Button
             variant="outline"
-            tone="brass"
             size="xs"
             className="osc-inv-use1"
             onClick={() => set(value - 1)}
