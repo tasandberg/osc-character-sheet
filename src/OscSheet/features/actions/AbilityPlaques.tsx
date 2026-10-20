@@ -13,16 +13,18 @@ export function AbilityPlaques({ abilities, onRoll }: Props) {
     <section className="osc-section">
       <div className="osc-abilities">
         {abilities.map((a) => (
-          <StatPlaque
-            key={a.key}
-            variant="ability"
-            stampKey={a.label}
-            value={a.value}
-            caption={a.modLabel}
-            onActivate={onRoll && ((e) => onRoll(a.key, e))}
-            title={onRoll ? `Roll ${a.label} check` : undefined}
-            data-testid={`ability-${a.key}`}
-          />
+          <div key={a.key} className="osc-ability">
+            <span className="vm-key">{a.label}</span>
+            <StatPlaque
+              variant="ability"
+              value={a.value}
+              caption={a.modLabel}
+              onActivate={onRoll && ((e) => onRoll(a.key, e))}
+              title={onRoll ? `Roll ${a.label} check` : undefined}
+              aria-label={onRoll ? `Roll ${a.label} check` : undefined}
+              data-testid={`ability-${a.key}`}
+            />
+          </div>
         ))}
       </div>
     </section>

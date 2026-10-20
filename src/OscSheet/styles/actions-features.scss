@@ -27,6 +27,12 @@
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacer-2);
 }
+.osc-ability {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacer-1);
+}
 @container sheet (min-width: 470px) {
   .osc-abilities {
     grid-template-columns: repeat(6, 1fr);
