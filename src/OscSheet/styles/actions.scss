@@ -15,13 +15,13 @@
 
 // --- header band ---
 // Grid areas let medium and rail arrange the same markup differently:
-// medium = portrait | (name over Init/HD/Move) | HP/AC right.
+// medium = portrait | name + HP/AC, with Init/HD/Move on one line under both.
 .osc-head {
   display: grid;
   grid-template-columns: auto 1fr auto;
   grid-template-areas:
     "portrait ident  vitals"
-    "portrait subs   vitals";
+    "portrait subs   subs";
   gap: var(--spacer-2) var(--spacer-3);
   align-items: start;
 }
@@ -134,9 +134,8 @@
 // out-ranks the base utilities.
 .osc-substats {
   grid-area: subs;
-  overflow: hidden;
 
-  > .osc-tile::before {
+  > .osc-tile + .osc-tile::before {
     content: "";
     position: absolute;
     top: 15%;
@@ -146,12 +145,12 @@
   }
 }
 @container app (max-width: 479px) {
-  .osc-substats > .osc-tile::before {
+  .osc-substats > .osc-tile + .osc-tile::before {
     content: none;
   }
 }
 @container sheet (min-width: 700px) {
-  .osc-twopane .osc-substats > .osc-tile::before {
+  .osc-twopane .osc-substats > .osc-tile + .osc-tile::before {
     content: none;
   }
 }
