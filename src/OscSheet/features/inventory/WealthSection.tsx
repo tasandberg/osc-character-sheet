@@ -194,12 +194,12 @@ export function WealthSection({
       </button>
 
       {!hasContent && (
-        <p className="tw:mt-0 tw:mb-2 tw:ml-[2px] tw:text-(length:--fs-sm) tw:text-text-dim">
+        <p className="tw:mt-0 tw:mb-2 tw:ml-[2px] tw:text-(length:--fs-xs) tw:text-text-dim">
           Drop coins, gems, or other valuables here to track your treasure.</p>
       )}
 
       {open && hasContent && (
-        <div className="tw:mt-[2px] tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:pt-[3px] tw:pb-[9px]">
+        <div className="tw:mt-[2px] tw:pb-[9px]">
           {/* One unified, fully-sortable table: units live in the headers so rows
               render bare numbers; a header click sorts every row together. The top
               pad separates this row from the "TREASURE …gp" header above. */}
@@ -285,7 +285,7 @@ export function WealthSection({
             <span className="tw tw:col-start-5 tw:text-right tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:text-text-dim">
               {itemBased ? slots : fmtCoin(weight)}
             </span>
-            <span className="tv tw:col-start-6 tw:text-right tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:font-bold tw:text-accent-alt">
+            <span className="tv tw:col-start-6 tw:text-right tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:font-semibold tw:text-accent-alt">
               {fmtCoin(totalGp)}
             </span>
           </div>

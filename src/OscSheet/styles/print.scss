@@ -37,6 +37,51 @@
     font-size-adjust: none;
   }
 
+  .vm-btn-primary,
+  .vm-btn-danger,
+  .vm-btn-secondary {
+    font-family: var(--sans);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: nowrap;
+  }
+
+  @each $tone,
+    $token
+      in (
+        accent: teal-ink,
+        brass: accent-alt-ink,
+        danger: danger-ink,
+        success: forest,
+        warn: mustard
+      )
+  {
+    .vm-btn-secondary.tone-#{$tone}:not(:disabled) {
+      color: var(--#{$token});
+    }
+  }
+
+  .osc-btn-xs {
+    height: auto;
+    padding: 1px var(--spacer-2);
+  }
+
+  .osc-btn-status {
+    border-color: transparent;
+    background: none;
+    box-shadow: none;
+    cursor: default;
+  }
+
+  .vm-tag {
+    font-size: var(--fs-xs);
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
   .roll-label-die {
     color: var(--link-accent);
   }

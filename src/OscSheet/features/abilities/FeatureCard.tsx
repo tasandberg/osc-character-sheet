@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FeatureVM } from "@features/abilities/features";
 import { useOscSheetContext } from "@app/context";
-import { cx } from "@ui/cx";
 import { IconButton } from "@ui/IconButton";
 import { Monogram } from "@ui/Monogram";
 import { FavoriteStar } from "@features/abilities/FavoriteStar";
@@ -30,12 +29,8 @@ function useEnriched(html: string): string {
   return enriched;
 }
 
-/** Muted chip under the name. Font SIZE is left out on purpose: the static
- *  requires tag and the clickable roll tag differ there, and Tailwind orders
- *  utilities by its own rules, not by the order they appear on the element — so
- *  a size written "after" this string could still lose to it. */
-const FT_TAG =
-  "ft-tag tw:border tw:border-border-soft tw:bg-bg-2 tw:px-[7px] tw:pt-[2px] tw:pb-[1px] tw:whitespace-nowrap tw:text-text-dim";
+/** Muted chip under the name. */
+const FT_TAG = "ft-tag vm-tag vm-tag-xs";
 
 /**
  * Collapsible ability: ink-stamp · (name link + requires/roll tags) · chevron.
@@ -50,17 +45,10 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
   const toggle = () => setOpen((o) => !o);
 
   return (
-    <div
-      className={cx(
-        "fvtt-feat tw:overflow-hidden tw:border tw:bg-surface",
-        // Exclusive strings: Tailwind emits `border-border` BEFORE
-        // `border-border-soft`, so an element carrying both comes out soft.
-        open ? "tw:border-border" : "tw:border-border-soft",
-      )}
-    >
+    <div className="fvtt-feat tw:border-b tw:border-(--hairline)">
       {/* header row: clickable to expand (mouse); name/roll/chevron are their own controls */}
       <div
-        className="ft-head tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-3 tw:px-3 tw:py-2"
+        className="ft-head tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-3 tw:py-2"
         onClick={toggle}
       >
         {/* 40px ink stamp — image or monogram fallback. */}
@@ -85,12 +73,12 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
           {(feature.requiresLabel || feature.rollTag) && (
             <div className="ft-tags tw:flex tw:flex-wrap tw:gap-1">
               {feature.requiresLabel && (
-                <span className={`${FT_TAG} tw:text-(length:--fs-xs)`}>{feature.requiresLabel}</span>
+                <span className={FT_TAG}>{feature.requiresLabel}</span>
               )}
               {feature.rollTag && (
                 <button
                   type="button"
-                  className={`${FT_TAG} ft-tag-roll tw:cursor-pointer tw:text-(length:--fs-xs) tw:leading-[1.2] tw:transition-[background,border-color,color] tw:duration-[120ms] tw:hover:border-gold-soft tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-1 tw:focus-visible:outline-gold`}
+                  className={`${FT_TAG} ft-tag-roll tw:cursor-pointer tw:transition-[border-color,color] tw:duration-[120ms] tw:hover:border-gold-soft tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-1 tw:focus-visible:outline-gold`}
                   title={`Roll ${feature.rollTag}`}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -125,7 +113,7 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
       </div>
       {open && (
         // Body indented under the title (past the 40px stamp + gap).
-        <div className="ft-body tw:pt-0 tw:pr-3 tw:pb-3 tw:pl-[62px]">
+        <div className="ft-body tw:pt-0 tw:pb-3 tw:pl-[52px]">
           <RichText html={desc} />
           {canEdit && (
             <div className="ft-actions tw:mt-2 tw:flex tw:items-center tw:justify-end tw:gap-3">

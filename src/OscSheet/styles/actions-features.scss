@@ -1,4 +1,3 @@
-@use "mixins" as *;
 // Actions-tab feature styling — RESTORED, not new.
 //
 // These declarations were deleted from actions.scss on the assumption that the
@@ -77,18 +76,20 @@
 
 // --- saves & exploration cards ---
 // The column templates stayed in actions.scss; only the grid itself was lost.
-.fvtt-saves,
-.fvtt-explore {
+.fvtt-saves {
   display: grid;
   gap: var(--spacer-2);
+}
+.fvtt-explore {
+  display: grid;
+  gap: 0 var(--spacer-4);
 }
 .fvtt-skill {
   display: flex;
   align-items: center;
   gap: var(--spacer-2);
-  @include surface-card;
-  border-radius: var(--r-md, 6px);
-  padding: var(--spacer-2) var(--spacer-2) var(--spacer-2) var(--spacer-3);
+  padding: var(--spacer-2) 0;
+  border-bottom: 1px solid var(--hairline);
   transition:
     border-color 0.12s,
     background 0.12s;
@@ -101,8 +102,7 @@
   flex: none;
 }
 .fvtt-skill .skn {
-  font-family: var(--sans);
-  font-size: var(--fs-sm, 13px);
+  font-size: var(--fs-md);
   color: var(--text-dim, #b5ad97);
   flex: 1;
   min-width: 0;
@@ -112,9 +112,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacer-1);
-  font-family: var(--mono, monospace);
-  font-size: var(--fs-xs, 12px);
-  color: var(--text-mute, #8a8270);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
   white-space: nowrap;
   flex: none;
   i {
@@ -125,9 +124,8 @@
 
 // The card's grid template stayed in actions.scss; its box did not.
 .osc-weapon {
-  @include surface-card;
-  border-radius: var(--r-lg, 10px);
-  padding: 9px 10px;
+  padding: var(--spacer-2) 0;
+  border-bottom: 1px solid var(--hairline);
 }
 .osc-weapon .winfo {
   display: flex;

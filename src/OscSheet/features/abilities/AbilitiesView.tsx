@@ -36,7 +36,7 @@ export default function Abilities() {
         {features.length === 0 ? (
           <p className={FLAVOUR}>No abilities yet.</p>
         ) : (
-          <div className="tw:flex tw:flex-col tw:gap-2">
+          <div className="tw:flex tw:flex-col">
             {features.map((f) => (
               <FeatureCard key={f.id} feature={f} />
             ))}

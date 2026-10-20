@@ -21,7 +21,7 @@ export const ED_FIELD =
 export const LAB_ID = "lab vm-key tw:overflow-hidden tw:text-ellipsis";
 
 /** Exploration label — skill names read as prose, not as stamped keys. */
-export const LAB_SKILL = "lab tw:text-(length:--fs-sm) tw:text-text-dim";
+export const LAB_SKILL = "lab tw:text-(length:--fs-xs) tw:text-text-dim";
 
 /** Inline annotation inside a label (the GM-only marker on Class). */
 export const ED_HINT =

@@ -4,13 +4,6 @@
 // built main.css). Restyle/consolidation that *changes* output is done separately
 // with live-sheet visual checks — keep this file output-preserving.
 
-// Inked panel surface: dark fill + soft hairline border. The radius/padding that
-// vary per card stay at the call site.
-@mixin surface-card {
-  background: var(--surface, #23201a);
-  border: 1px solid var(--border-soft, #2c2823);
-}
-
 // Click-to-roll affordance for a bordered card (gold border + surface lift on
 // hover, gold focus ring). Include inside the card's own rule.
 @mixin rollable-card {

@@ -17,7 +17,7 @@ import {
 // slack instead.
 const LV =
   "tw:flex tw:shrink-0 tw:flex-col tw:items-center tw:leading-[1.05] tw:whitespace-nowrap";
-const LV_N = "tw:font-semibold tw:text-(length:--fs-sm)";
+const LV_N = "tw:font-semibold tw:text-(length:--fs-xs)";
 const LV_XP = "cur tw:mt-[1px] tw:text-(length:--fs-xs) tw:text-stamp-text-dim";
 
 type Props = {

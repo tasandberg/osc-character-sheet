@@ -9,12 +9,25 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: "sm" | "xs";
 };
 
+const VARIANT_CLASS = {
+  primary: "vm-btn-primary vm-btn-sm",
+  danger: "vm-btn-danger vm-btn-sm",
+  outline: "vm-btn-secondary",
+  ghost: "vm-btn-secondary",
+} as const;
+
 /** @category Controls */
 export function Button({ variant, tone, size, className, type = "button", ...rest }: Props) {
   return (
     <button
       type={type}
-      className={cx("btn", variant, tone && `tone-${tone}`, size, className)}
+      className={cx(
+        "vm-btn",
+        VARIANT_CLASS[variant ?? "outline"],
+        variant === "outline" && tone && `tone-${tone}`,
+        size === "xs" && "osc-btn-xs",
+        className,
+      )}
       {...rest}
     />
   );

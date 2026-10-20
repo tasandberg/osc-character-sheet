@@ -200,7 +200,7 @@ export function EditModal({
           <SectionTitle>
             <HeaderPortrait key={actor.img} src={actor.img} />
             Identity &amp; Vitals:{" "}
-            <em className="ed-id-class tw:font-sans tw:not-italic tw:text-(length:--fs-sm) tw:text-text-dim">
+            <em className="ed-id-class tw:font-sans tw:not-italic tw:text-(length:--fs-xs) tw:text-text-dim">
               {sys.details.class.replace(/-/g, " ")}
             </em>
           </SectionTitle>

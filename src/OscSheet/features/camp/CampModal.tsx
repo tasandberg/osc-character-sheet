@@ -26,7 +26,9 @@ const ACTION_BUTTON = "u-inline-flex u-items-center u-gap-2";
 /** Green check standing in for a section's action when there is nothing to do. */
 function ReadyStatus({ label }: { label: string }) {
   return (
-    <span className={`btn status ${ACTION_BUTTON} u-text-success`}>
+    <span
+      className={`vm-btn vm-btn-secondary osc-btn-status ${ACTION_BUTTON} u-text-success`}
+    >
       <i className="fa-solid fa-check" aria-hidden="true" />
       {label}
     </span>
@@ -170,7 +172,7 @@ export function CampModal({ open, onClose }: Props) {
               </Button>
             )}
           </div>
-          <span className="tw:font-sans u-fs-sm u-text-dim">
+          <span className="tw:font-sans u-fs-xs u-text-dim">
             <span className="mono u-fs-xs u-text">{daysLeft}</span>{" "}
             {daysLeft === 1 ? "day" : "days"} of rations left
             {sinceAte !== undefined && (
@@ -203,7 +205,7 @@ export function CampModal({ open, onClose }: Props) {
               </Button>
             )}
           </div>
-          <span className="tw:font-sans u-fs-sm u-text-dim">
+          <span className="tw:font-sans u-fs-xs u-text-dim">
             Recover <span className="mono u-fs-xs u-text">1d3</span> for a full
             day's rest
             <span className="u-text-muted">
@@ -233,7 +235,7 @@ export function CampModal({ open, onClose }: Props) {
                 </Button>
               )}
             </div>
-            <span className="tw:font-sans u-fs-sm u-text-dim">
+            <span className="tw:font-sans u-fs-xs u-text-dim">
               {spellsToRestore === 0 ? (
                 "Re-memorize spells from the book"
               ) : (
@@ -261,16 +263,14 @@ export function CampModal({ open, onClose }: Props) {
               <button
                 key={it._id}
                 type="button"
-                className="btn ghost u-row u-gap-3 u-items-center"
+                className="vm-btn vm-btn-secondary u-row u-gap-3 u-items-center tw:h-auto tw:py-1"
                 onClick={() => onEat(it._id!)}
               >
                 <ItemImage
                   img={it.img ?? ""}
                   monogram={monogram(it.name ?? "")}
                 />
-                <span className="u-flex-1 tw:text-left tw:normal-case tw:tracking-normal u-fs-sm">
-                  {it.name}
-                </span>
+                <span className="u-flex-1 tw:text-left u-fs-md">{it.name}</span>
                 <span className="mono u-fs-xs u-text-muted">
                   ×{it.system.quantity?.value ?? 0}
                 </span>

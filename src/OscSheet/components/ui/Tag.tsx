@@ -19,6 +19,16 @@ type Props = HTMLAttributes<HTMLSpanElement> & {
   onRoll?: (event: ActivateEvent) => void;
 };
 
+const INTENT_CLASS = {
+  teal: "vm-tag-teal",
+  crimson: "vm-tag-crimson",
+  forest: "vm-tag-forest",
+  mustard: "vm-tag-mustard",
+  brass: "vm-tag-accent",
+  solid: "vm-tag-solid",
+  count: "vm-tag-count",
+} as const;
+
 /** @category Display */
 export function Tag({
   intent,
@@ -36,10 +46,10 @@ export function Tag({
   return (
     <span
       className={cx(
-        "tag",
-        variant,
-        intent,
-        size,
+        "vm-tag",
+        variant === "chip" && "tag-chip",
+        intent && INTENT_CLASS[intent],
+        size === "xs" && "vm-tag-xs",
         onRoll && "is-rollable",
         className,
       )}

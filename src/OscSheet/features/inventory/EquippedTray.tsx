@@ -188,7 +188,7 @@ export function EquippedTray({
                   <span className="k vm-key">
                     {st.label}
                   </span>
-                  <span className="v tw:text-(length:--fs-sm) tw:text-text">
+                  <span className="v tw:text-(length:--fs-xs) tw:text-text">
                     {st.value}
                   </span>
                 </span>

@@ -15,14 +15,11 @@ import { useHpInput } from "@ui/useHpInput";
 // than the `tw:text-*` scale: the tokens are `calc(<rem> * var(--fs-scale))` and
 // follow the sheet's font-size setting, the Tailwind scale is the raw rem.
 
-// Init / HD / Move tile: borderless in the flex layouts so HP/AC stay the only
-// "boxes"; in the rail it gains a real box, because there it is a grid cell.
+// Init / HD / Move tile.
 const TILE =
   "osc-tile tw:flex tw:min-w-[52px] tw:flex-none tw:flex-col tw:items-center tw:gap-1 tw:pt-[2px] tw:text-center" +
   " tw:@max-md/app:w-auto" +
-  " tw:@twopane/sheet:w-auto tw:@twopane/sheet:border" +
-  " tw:@twopane/sheet:border-border-soft tw:@twopane/sheet:bg-surface" +
-  " tw:@twopane/sheet:px-[6px] tw:@twopane/sheet:pt-[5px] tw:@twopane/sheet:pb-1";
+  " tw:@twopane/sheet:w-auto tw:@twopane/sheet:px-[6px] tw:@twopane/sheet:pt-[5px] tw:@twopane/sheet:pb-1";
 
 // Smaller, snugger than the stamp's own `.sm`. The rail trims the sides further
 // still — see the clipped-MOVE note on `.osc-twopane .osc-tile .stamp` in
@@ -32,14 +29,11 @@ const TILE_STAMP =
   " tw:whitespace-nowrap";
 
 const TILE_V =
-  "osc-tile-v tw:text-(length:--fs-sm) tw:text-text";
+  "osc-tile-v tw:text-(length:--fs-md) tw:text-text";
 
-// HP/AC card. Carries NO border colour: hp and ac each supply their own, and two
-// class-level utilities for one property are ordered by Tailwind rather than by
-// the order they are written, so a shared base plus an override could come out
-// either way. At XS the card becomes a 52×76 narrow-tall box.
+// HP/AC block. At XS it becomes a 52×76 narrow-tall column.
 const VITAL =
-  "osc-vital tw:relative tw:border tw:bg-surface tw:px-[10px] tw:pt-[6px] tw:pb-[8px] tw:text-center" +
+  "osc-vital tw:relative tw:px-[10px] tw:pt-[6px] tw:pb-[8px] tw:text-center" +
   " tw:@max-md/app:flex tw:@max-md/app:min-h-[76px] tw:@max-md/app:flex-col tw:@max-md/app:items-center" +
   " tw:@max-md/app:justify-start tw:@max-md/app:gap-[1px]" +
   " tw:@max-md/app:px-[4px] tw:@max-md/app:pt-[5px] tw:@max-md/app:pb-[6px]";
@@ -134,7 +128,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
       {/* minmax(0,…) so a wide value can't auto-expand a track past its share
           and shove the sibling card out of the container. */}
       <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*11.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:gap-2 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
-        <div className={`${VITAL} hp tw:border-[color-mix(in_srgb,var(--crimson)_55%,transparent)]`}>
+        <div className={`${VITAL} hp`}>
           <Stamp className={VITAL_L}>HP</Stamp>
           <div className={VV_ROW}>
             {/* medium+: − / + steppers around the value; XS: an editable input (toggled in CSS) */}
@@ -159,7 +153,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
             <span className={SUB_SHORT}>/{vitals.hp.max}</span>
           </div>
         </div>
-        <div className={`${VITAL} ac tw:border-[color-mix(in_srgb,var(--teal)_50%,transparent)]`}>
+        <div className={`${VITAL} ac`}>
           <Stamp className={VITAL_L}>AC</Stamp>
           <div className={VV_ROW}>
             <div className={`${VITAL_BIG} tw:text-teal-accent`} data-testid="ac-value">{vitals.ac.value}</div>

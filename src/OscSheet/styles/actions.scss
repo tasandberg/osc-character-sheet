@@ -82,8 +82,8 @@
   border-radius: var(--r-sm, 4px);
   color: var(--text-dim, #b5ad97);
   cursor: pointer;
-  font-family: var(--sans);
-  font-size: var(--fs-sm, 13px);
+  font-size: var(--fs-xs);
+  font-weight: 600;
   line-height: 1;
   opacity: 0;
   transition:
@@ -190,7 +190,7 @@
 // `tw:` utility on the element would lose to them regardless of specificity.
 .fvtt-skill.osc-fav-ability .skv,
 .fvtt-skill.osc-fav-ability .skv i {
-  font-size: var(--fs-sm, 13px);
+  font-size: var(--fs-md);
 }
 
 // --- memorized spells quick-cast ---
@@ -228,24 +228,8 @@
 }
 
 // quality / mode tags (icon-only chips + hover popover) now live in vellum as
-// `.tag.chip` (see styles/vellum/components.css) via the Tag `variant="chip"`.
+// `.tag-chip` (see styles/vellum/components.css) via the Tag `variant="chip"`.
 
-// kind switch — when a weapon has BOTH melee+missile, the two kinds become a
-// joined segmented control (unmistakably a switch, not a quality chip). The
-// selected segment fills SOLID with its accent; the other is a hoverable button.
-// The switch's own box is in actions-features.scss; only the end-cap radius
-// maths stays — a calc off --r-sm on `> :first-child` / `> :last-child`, which is
-// structural position, not a class the JSX can carry.
-.kind-switch {
-  // no overflow: hidden — it clipped the segs' .tag-pop hover tooltips; the
-  // end segments round their own outer corners instead
-  > :first-child {
-    border-radius: calc(var(--r-sm, 4px) - 1px) 0 0 calc(var(--r-sm, 4px) - 1px);
-  }
-  > :last-child {
-    border-radius: 0 calc(var(--r-sm, 4px) - 1px) calc(var(--r-sm, 4px) - 1px) 0;
-  }
-}
 // Segment layout is in actions-features.scss. The FILL states stay here: the
 // selected fill has to out-rank the hover fill, and both would be class-level
 // utilities at (0,2,0) / (0,3,0) whose relative order Tailwind decides — so
@@ -397,7 +381,6 @@
       "info dmg"
       "info atk";
     gap: var(--spacer-1) var(--spacer-3);
-    padding: 8px;
   }
   .osc-weapon .winfo {
     grid-area: info;
@@ -435,41 +418,18 @@
   .osc-weapon .wstat .wv {
     font-size: var(--fs-xs, 12px);
   }
-  // abilities: 6-across in one compact row (flat — drop the md+ gold frame/brackets)
-  // The plaque base is now vellum `.plaque-ability` (0,2,0 once scoped); these XS
-  // overrides qualify with `.osc-sheet-app` (also 0,2,0) and load after vellum,
-  // so they still win at ≤479px. `.pk` only re-asserts margin:0 — its padding /
-  // font-size stay owned by `.stamp.sm` exactly as at wider widths (parity).
+  // abilities: 6-across in one compact row
   .osc-abilities {
     grid-template-columns: repeat(6, 1fr);
     gap: var(--spacer-1);
   }
   .osc-sheet-app .plaque-ability {
-    min-height: 0;
     padding: 5px 3px 6px;
-    border-color: var(--border-soft);
     align-items: stretch;
   }
-  .osc-sheet-app .plaque-ability::before,
-  .osc-sheet-app .plaque-ability::after {
-    content: none;
-  }
-  .osc-sheet-app .plaque-ability .pk {
-    margin: 0;
-  }
   .osc-sheet-app .plaque-ability .pv {
-    flex: 0 0 auto;
     font-size: var(--fs-xl, 18px);
     padding: 3px 0;
-  }
-  .osc-sheet-app .plaque-ability .pc {
-    position: static;
-    transform: none;
-    align-self: center;
-    min-width: 0;
-    font-size: var(--fs-3xs, 10px);
-    padding: 0 6px 1px;
-    margin-top: 2px;
   }
   // topbar: the Rest / Level Up / Edit → ⋮ collapse is a pair of
   // `@max-md/app:` utilities on the two elements (Topbar.tsx).

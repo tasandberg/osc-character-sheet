@@ -111,7 +111,7 @@ export function SpellRow({
         // The `.fvtt-castlist` framing rules in spells.scss out-specify the
         // border utilities here on purpose — that list is headerless and needs
         // its first row's top edge back.
-        "osc-spell tw:grid tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2",
+        "osc-spell tw:grid tw:items-center tw:gap-2 tw:border-b tw:border-(--hairline) tw:py-2",
         onToggleFavorite && "has-star",
         GRID_COLS[Number(!!onToggleFavorite) + Number(showImage)],
         free && "osc-spell-free",
@@ -196,7 +196,7 @@ export function SpellRow({
               variant="outline"
               tone="brass"
               size="sm"
-              className="tw:inline-flex tw:min-w-[5em] tw:items-center tw:justify-center tw:font-sans"
+              className="tw:min-w-[5em]"
               disabled={spent || casting}
               aria-busy={casting}
               onClick={handleCast}
@@ -209,9 +209,9 @@ export function SpellRow({
               {casting ? (
                 <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" />
               ) : spent ? (
-                "spent"
+                "Spent"
               ) : (
-                "cast"
+                "Cast"
               )}
             </Button>
           )}

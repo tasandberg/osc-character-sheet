@@ -80,7 +80,7 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
         data-testid="languages"
       >
         {current.length === 0 && !editing && (
-          <span className="tw:text-(length:--fs-sm) tw:text-text-dim">
+          <span className="tw:text-(length:--fs-xs) tw:text-text-dim">
             None
           </span>
         )}
@@ -98,7 +98,7 @@ export function LanguagesSection({ editing: forced }: { editing?: boolean }) {
       {editing && (
         <div className="tw:mt-3 tw:flex tw:items-center tw:gap-2">
           <input
-            className="tw:max-w-[220px] tw:min-w-0 tw:flex-1 tw:border tw:border-border-soft tw:bg-bg-2 tw:px-2 tw:py-1 tw:text-(length:--fs-sm) tw:text-text tw:placeholder:text-text-mute tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-gold"
+            className="tw:max-w-[220px] tw:min-w-0 tw:flex-1 tw:border tw:border-border-soft tw:bg-bg-2 tw:px-2 tw:py-1 tw:text-(length:--fs-md) tw:text-text tw:placeholder:text-text-mute tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-gold"
             type="text"
             list="osc-lang-choices"
             placeholder="Add a language…"

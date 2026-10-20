@@ -29,7 +29,7 @@
 }
 .field-error {
   font-family: var(--sans);
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-xs);
   color: var(--crimson);
 }
 
@@ -40,7 +40,7 @@
   border: 1px solid var(--border);
   color: var(--text);
   font-family: var(--sans);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   padding: var(--spacer-2) var(--spacer-2-5);
   border-radius: var(--r-sm);
   outline: none;
@@ -131,7 +131,7 @@
   border-right: 1px solid var(--border);
   color: var(--text);
   font-family: var(--mono);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   text-align: center;
   width: 52px;
   outline: none;
@@ -148,7 +148,7 @@
   cursor: pointer;
   user-select: none;
   font-family: var(--sans);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   color: var(--text);
 }
 .check input,
@@ -208,53 +208,21 @@
   gap: var(--spacer-2);
 }
 .pill-select .pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacer-2);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text-mute);
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: var(--fs-xs);
-  padding: var(--spacer-1) 11px;
-  border-radius: 0;
+  padding: var(--spacer-1) var(--spacer-3);
   cursor: pointer;
   transition:
     color 0.12s,
-    border-color 0.12s,
-    background 0.12s;
+    border-color 0.12s;
 }
-/* count → a flat, muted circle (level slot count). Token-only, so the DS decides the
-   per-theme shade: inactive recedes (--bg-2), active stands out (--border, the more
-   prominent neutral in every theme) with a brass number. */
 .pill-select .pill .ct {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.95em;
-  height: 1.95em;
-  padding: 0 0.3em;
-  border-radius: 0;
-  background: var(--bg-2);
-  font-family: var(--mono);
-  font-size: 0.8em;
-  line-height: 1;
-  letter-spacing: 0;
   color: var(--text-mute);
 }
 .pill-select .pill:hover:not(.on) {
-  color: var(--text-dim);
-  border-color: var(--hair);
-}
-.pill-select .pill.on {
-  color: var(--accent-alt);
-  border-color: var(--accent-alt);
-  background: color-mix(in oklab, var(--accent-alt) 12%, transparent);
+  color: var(--text);
+  border-color: var(--border);
 }
 .pill-select .pill.on .ct {
-  background: var(--border);
-  color: var(--accent-alt);
+  color: inherit;
 }
 
 /* ─── Icon button — transparent square wrapping a single glyph ───────────
@@ -553,7 +521,7 @@ button.pattern-pip.triangle:focus-visible {
   gap: var(--spacer-2-5);
   padding: var(--spacer-2) var(--spacer-3);
   font-family: var(--sans);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   color: var(--text);
   cursor: pointer;
   transition: background 0.1s;
@@ -581,7 +549,7 @@ button.pattern-pip.triangle:focus-visible {
 .menu-item .shortcut {
   margin-left: auto;
   font-family: var(--mono);
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-xs);
   color: var(--text-dim);
   letter-spacing: 0.04em;
 }
@@ -701,7 +669,7 @@ button.pattern-pip.triangle:focus-visible {
   gap: var(--spacer-2);
   overflow: hidden;
   font-family: var(--sans);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   color: var(--text);
   pointer-events: none;
 }
@@ -757,7 +725,7 @@ button.pattern-pip.triangle:focus-visible {
   gap: var(--spacer-3);
   padding: var(--spacer-2) var(--spacer-3);
   font-family: var(--sans);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   color: var(--text);
   cursor: pointer;
 }
@@ -860,121 +828,47 @@ button.pattern-pip.triangle:focus-visible {
 
 /* ─── Tag / Badge ───────────────────────────────────────────────────── */
 
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 9px 2px;
-  background: var(--surface);
-  border: 1px solid var(--border-soft);
-  border-radius: 0;
-  font-family: var(--mono);
-  font-size: var(--fs-3xs);
-  color: var(--text-dim);
-  letter-spacing: 0.02em;
-  line-height: 1.3;
-}
-.tag.xs {
-  gap: 3px;
-  padding: 1px 6px;
-  line-height: 1.2;
-}
-.tag.teal {
-  color: var(--teal-accent);
-  border-color: var(--teal);
-  background: color-mix(in oklab, var(--teal) 10%, transparent);
-}
-.tag.crimson {
-  color: var(--crimson);
-  border-color: var(--crimson);
-  background: color-mix(in oklab, var(--crimson) 10%, transparent);
-}
-.tag.forest {
-  color: var(--forest);
-  border-color: var(--forest);
-  background: color-mix(in oklab, var(--forest) 12%, transparent);
-}
-.tag.mustard {
-  color: var(--mustard);
-  border-color: var(--mustard);
-  background: color-mix(in oklab, var(--mustard) 12%, transparent);
-}
-.tag.brass {
-  color: var(--accent-alt);
-  border-color: var(--accent-alt);
-  background: color-mix(in oklab, var(--accent-alt) 12%, transparent);
-}
-.tag.solid {
-  background: var(--ink);
-  color: var(--stamp-text);
-  border-color: var(--ink);
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: max(var(--fs-3xs), 12px);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  padding: var(--spacer-1) var(--spacer-2-5) 2px;
-}
-.tag.is-rollable {
+.vm-tag.is-rollable {
   cursor: pointer;
 }
-.tag.is-rollable:hover,
-.tag.is-rollable:focus-visible {
+.vm-tag.is-rollable:hover,
+.vm-tag.is-rollable:focus-visible {
   color: var(--text);
   text-decoration: underline dotted;
   text-underline-offset: 3px;
 }
-/* count — brass-solid numeric pill (container item counts, etc.) */
-.tag.count {
-  background: var(--accent-alt-dim);
-  border-color: var(--accent-alt-dim);
-  color: var(--on-accent);
-  font-size: var(--fs-2xs);
-  padding: 1px 7px;
-  min-width: var(--spacer-4);
-  justify-content: center;
-}
-
-/* chip — the square, dark, icon-first weapon-tag box (quality / attack-kind
-   tags), ported verbatim from the retired `.fvtt-tag` in actions.scss. `.tag.chip`
-   (0,3,0 once vellum-scoped) sits ON TOP of the pill `.tag` base, so it must
-   restate every property that differs from the pill (radius, fill, font, colour,
-   letter-spacing) plus reset the pill-only `gap`/`line-height`. Icon accent:
-   melee = gold, missile = teal. The hover popover uses the shared `.tag-pop`
-   tooltip primitive (below). */
-.tag.chip {
+/* chip — the square, icon-first weapon-tag box (quality / attack-kind tags).
+   Icon accent: melee = gold, missile = teal. */
+.vm-tag.tag-chip {
   position: relative;
   justify-content: center;
   gap: 0;
   padding: var(--spacer-1);
-  background: var(--bg-2);
   border: 1px solid var(--border-soft);
-  border-radius: var(--r-sm);
-  font-family: var(--sans);
-  font-size: var(--fs-3xs);
+  font-size: var(--fs-xs);
+  font-weight: 400;
   line-height: normal;
-  letter-spacing: 0.03em;
-  color: var(--text-mute);
+  color: var(--text-dim);
   white-space: nowrap;
   cursor: default;
 }
-.tag.chip i {
+.vm-tag.tag-chip i {
   font-size: var(--fs-xs);
 }
-.tag.chip .tag-txt {
+.vm-tag.tag-chip .tag-txt {
   padding: 0 var(--spacer-1);
 }
-.tag.chip.melee i {
+.vm-tag.tag-chip.melee i {
   color: var(--gold);
 }
-.tag.chip.missile i {
+.vm-tag.tag-chip.missile i {
   color: var(--teal-accent);
 }
 
 /* ─── Tooltip popover — `.tag-pop` ───────────────────────────────────────
    Shared hover tooltip: absolutely positioned above its host, hidden until the
    host is hovered. Host must be position:relative. Consumers: weapon tag chips
-   (.tag.chip), the melee/missile kind-seg switch, and the hit/dmg .wstat
+   (.vm-tag.tag-chip), the melee/missile kind-seg switch, and the hit/dmg .wstat
    buttons (the latter two are Actions-tab classes, matched here as descendants
    of the reveal selectors). Ported from the retired actions.scss rule — tokens
    de-fallbacked and the shadow expressed in oklch to match vellum (same black @
@@ -991,15 +885,17 @@ button.pattern-pip.triangle:focus-visible {
   background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text-dim);
-  font-family: var(--mono);
-  font-size: var(--fs-2xs);
-  letter-spacing: 0.02em;
+  font-family: var(--sans);
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
   box-shadow: 0 4px 12px oklch(0 0 0 / 0.3);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.12s;
 }
-.tag.chip:hover .tag-pop,
+.vm-tag.tag-chip:hover .tag-pop,
 .kind-seg:hover .tag-pop,
 .wstat:hover .tag-pop {
   opacity: 1;
@@ -1114,9 +1010,8 @@ button.pip:hover {
    prop, which maps to a single namespaced class; sub-elements use generic
    classes scoped under the variant: `.pk` (stamp key), `.pv` (value), `.pc`
    (caption).
-     • `.plaque-ability` — gold-framed plaque (inner hairline + corner
-       brackets), big serif value, gold-on-ink mod pill pinned to the bottom.
-     • `.plaque-save` — inked surface card, 22px ink stamp, mono target, label.
+     • `.plaque-ability` — stamp key, big Fell value, mod caption.
+     • `.plaque-save` — 22px ink stamp, target, label.
    Naming: variant classes are `plaque-ability`/`plaque-save`, NOT bare
    `ability`/`save` — tokens.css already ships unrelated `.ability`/`.save`
    grid-row components, so a bare modifier would inherit their `display:grid`.
@@ -1140,150 +1035,65 @@ button.pip:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 96px;
-  background: linear-gradient(180deg, var(--surface-2), var(--surface));
-  border: 1px solid var(--gold-soft);
-  border-radius: var(--r-sm);
-  padding: var(--spacer-2) 6px 30px;
+  padding: var(--spacer-1) var(--spacer-1) var(--spacer-2);
   text-align: center;
-  overflow: hidden;
 }
-/* Inner hairline frame (corners connect) */
-.plaque-ability::before {
-  content: "";
-  position: absolute;
-  inset: 3px;
-  border: 1px solid var(--gold-soft);
-  border-radius: 0;
-  pointer-events: none;
-  opacity: 0.5;
-}
-/* Gold corner brackets reinforcing where the frame lines meet */
-.plaque-ability::after {
-  content: "";
-  position: absolute;
-  inset: 3px;
-  pointer-events: none;
-  opacity: 0.85;
-  background:
-    linear-gradient(var(--gold), var(--gold)) 0 0 / 9px 1.5px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 0 0 / 1.5px 9px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 100% 0 / 9px 1.5px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 100% 0 / 1.5px 9px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 0 100% / 9px 1.5px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 0 100% / 1.5px 9px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 100% 100% / 9px 1.5px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) 100% 100% / 1.5px 9px no-repeat;
-}
-[data-theme="cream"] .plaque-ability {
-  background: var(--surface);
-}
-[data-theme="cream"] .plaque-ability.rollable:hover {
-  background: var(--surface-2);
-}
-/* Stamp: stretched ink label near the top (padding/font-size left to .stamp.sm) */
 .plaque-ability .pk {
   align-self: stretch;
-  margin: 1px 7px 0;
   width: auto;
 }
-/* Big serif value fills the middle */
 .plaque-ability .pv {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
   font-family: var(--display);
   font-size: var(--fs-4xl);
-  line-height: 1;
+  line-height: 1.1;
   color: var(--text);
   margin: 0;
 }
-/* Mod pill: gold-on-ink capsule pinned to the bottom edge */
 .plaque-ability .pc {
-  position: absolute;
-  left: 50%;
-  bottom: 8px;
-  transform: translateX(-50%);
-  min-width: 38px;
-  background: var(--ink);
-  border-radius: 0;
-  padding: 2px 9px 1px;
-  font-family: var(--mono);
   font-size: var(--fs-xs);
   font-weight: 600;
+  color: var(--text-dim);
+}
+.plaque-ability.rollable,
+.plaque-save.rollable {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.plaque-ability.rollable:hover,
+.plaque-save.rollable:hover {
+  background: var(--tint-hover);
+}
+.plaque-ability.rollable:hover .pc {
   color: var(--gold);
 }
-[data-theme="cream"] .plaque-ability .pc {
-  background: color-mix(in srgb, var(--ink) 7%, var(--surface));
-  color: var(--ink);
-}
-/* rollable affordance (gold border + focus ring) */
-.plaque-ability.rollable {
-  cursor: pointer;
-  transition:
-    border-color 0.12s,
-    box-shadow 0.12s;
-}
-.plaque-ability.rollable:hover {
-  border-color: var(--gold);
-}
-.plaque-ability.rollable:focus-visible {
+.plaque-ability.rollable:focus-visible,
+.plaque-save.rollable:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: -2px;
 }
 
 /* ── Save plaque ────────────────────────────────────────────────────────── */
 .plaque-save {
-  background: var(--surface);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--r-md);
-  padding: var(--spacer-2) var(--spacer-1) 7px;
+  padding: var(--spacer-1);
   text-align: center;
-  transition:
-    border-color 0.12s,
-    background 0.12s;
 }
-.plaque-save.rollable {
-  cursor: pointer;
-}
-.plaque-save.rollable:hover {
-  border-color: var(--gold);
-  background: var(--surface-2);
-}
-.plaque-save.rollable:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: -2px;
-}
-/* 22px ink stamp (folds in the old .fvtt-save .stamp.sk reconciliation) */
 .plaque-save .pk {
   width: 22px;
   height: 22px;
   margin: 0 auto var(--spacer-1);
   padding: 0;
-  background: var(--ink);
-  color: var(--stamp-text);
-  border-radius: var(--r-sm);
   display: grid;
   place-items: center;
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: max(var(--fs-3xs), 12px);
 }
 .plaque-save .pv {
-  font-family: var(--mono);
   font-size: var(--fs-md);
+  font-weight: 600;
   color: var(--text);
 }
 .plaque-save .pc {
   display: block;
-  font-family: var(--sans);
-  font-size: var(--fs-2xs);
-  letter-spacing: 0.04em;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
-  margin-top: 2px;
 }
 
 /* ─── Modal / Dialog ────────────────────────────────────────────────── */
@@ -1480,7 +1290,7 @@ button.pip:hover {
 }
 .empty .msg {
   font-family: var(--sans);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
   color: var(--text-dim);
   max-width: 36ch;
   margin: 0 auto var(--spacer-3);
@@ -1693,7 +1503,7 @@ button.pip:hover {
   border: 1px solid var(--border);
   color: var(--text);
   font-family: var(--mono);
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   text-align: center;
   padding: var(--spacer-2) 2px;
   border-radius: var(--r-sm);
@@ -1714,7 +1524,7 @@ button.pip:hover {
 }
 .ed-cell .cm {
   font-family: var(--mono);
-  font-size: var(--fs-3xs);
+  font-size: var(--fs-xs);
   color: var(--text-mute);
   text-align: center;
   min-height: 13px;
@@ -1783,7 +1593,7 @@ button.pip:hover {
 }
 .ed-portrait-ph {
   font-family: var(--mono);
-  font-size: var(--fs-3xs);
+  font-size: var(--fs-xs);
   color: var(--text-mute);
 }
 .ed-portrait:focus-visible {

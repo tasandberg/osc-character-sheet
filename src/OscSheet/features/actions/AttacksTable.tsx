@@ -234,7 +234,7 @@ export function AttacksTable({
   return (
     <section className="osc-section" data-testid="attacks">
       <SectionTitle hint="click to roll">Attacks</SectionTitle>
-      <div className="tw:flex tw:flex-col tw:gap-1">
+      <div className="tw:flex tw:flex-col">
         {attacks.map((a) => (
           <WeaponRow
             key={a.id}

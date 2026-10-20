@@ -72,10 +72,8 @@
   cursor: pointer;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  font-family: var(--sans);
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-size: var(--fs-md);
+  font-weight: 600;
   padding: var(--spacer-2) 0;
   transition:
     color 0.12s,
@@ -90,12 +88,9 @@
 .osc-tab .osc-tab-ct {
   writing-mode: horizontal-tb;
   transform: rotate(180deg);
-  font-family: var(--mono);
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-xs);
+  font-weight: 400;
   color: var(--text-dim);
-  background: var(--surface-2);
-  border-radius: 0;
-  padding: 1px 5px;
 }
 .osc-tab:hover {
   color: var(--text-dim);
@@ -126,8 +121,8 @@
   color: var(--text-mute);
   cursor: pointer;
   font-family: var(--sans);
-  font-size: var(--fs-3xs);
-  font-weight: 500;
+  font-size: var(--fs-xs);
+  font-weight: 600;
   letter-spacing: 0.03em;
   transition: color 0.12s;
 }
@@ -243,10 +238,8 @@
     margin-bottom: -2px;
     padding: 7px 13px 9px; // optical vertical padding: leave raw
     color: var(--text-mute);
-    font-family: var(--sans);
-    font-weight: 500;
-    font-size: var(--fs-sm);
-    letter-spacing: 0.02em;
+    font-weight: 600;
+    font-size: var(--fs-md);
     cursor: pointer;
     transition:
       color 0.12s,
@@ -254,15 +247,12 @@
   }
   .osc-htab .osc-htab-ic {
     color: var(--gold-dim, var(--gold));
-    font-size: var(--fs-sm);
+    font-size: var(--fs-md);
   }
   .osc-htab .osc-htab-ct {
-    font-family: var(--mono);
-    font-size: var(--fs-2xs);
+    font-size: var(--fs-xs);
+    font-weight: 400;
     color: var(--text-dim);
-    background: var(--surface-2);
-    border-radius: 0;
-    padding: 1px 6px;
   }
   .osc-htab:hover {
     color: var(--text-dim);

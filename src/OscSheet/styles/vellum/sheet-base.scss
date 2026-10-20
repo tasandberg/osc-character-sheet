@@ -967,66 +967,6 @@ body {
 .log-entry .res.dmg { color: var(--oxblood-2); }
 .log-entry .when { font-family: var(--mono); font-size: var(--fs-3xs); color: var(--text-mute); }
 
-/* ---------- Generic buttons ---------- */
-
-.btn {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: var(--sans);
-  font-weight: 500;
-  font-size: var(--fs-2xs);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 8px 14px 6px;
-  border-radius: 0;
-  cursor: pointer;
-  transition: all 0.12s;
-  white-space: nowrap;
-}
-.btn:hover:not(:disabled) { border-color: var(--brass); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn.primary { background: var(--brass); color: var(--on-accent); border-color: var(--brass); }
-.btn.primary:hover:not(:disabled) { background: var(--brass-dim); }
-/* outline (primary) — the brass accent, outlined rather than filled */
-.btn.outline { background: transparent; color: var(--brass); border-color: var(--brass); }
-.btn.outline:hover:not(:disabled) { background: color-mix(in srgb, var(--brass) 12%, transparent); }
-.btn.danger { color: var(--oxblood-2); border-color: oklch(0.56 0.15 25 / 0.5); }
-.btn.danger:hover:not(:disabled) { background: oklch(0.56 0.15 25 / 0.15); }
-.btn.ghost { background: transparent; border-color: var(--border-soft); color: var(--text-dim); }
-/* status — a completed/inert action, keeping the button's box so swapping one for the other doesn't resize the row. */
-.btn.status { background: transparent; border-color: transparent; cursor: default; text-transform: none; letter-spacing: normal; }
-/* `.btn:hover` is (0,4,0) via `:not(:disabled)`, which a span can never match — so restate the border at the same weight. */
-.btn.status:hover { border-color: transparent; }
-.btn.sm { font-size: var(--fs-3xs); padding: 5px 9px 4px; }
-.btn.xs {
-  font-size: var(--fs-3xs);
-  line-height: 1;
-  padding: 3px 7px 2px;
-  letter-spacing: 0.06em;
-}
-
-/* Colored outline tones — compose with variant="outline" (e.g. tone="brass" for
-   the brass-gold Attack button). Tone names match the Vellum color vocabulary;
-   generated from the map so all major theme colors stay in sync with the
-   palette and can't drift. */
-$btn-outline-tones: (
-  accent:  teal,
-  brass:   accent-alt,
-  danger:  crimson,
-  success: forest,
-  warn:    mustard,
-);
-@each $tone, $tok in $btn-outline-tones {
-  .btn.outline.tone-#{$tone} {
-    color: var(--#{$tok});
-    border-color: var(--#{$tok});
-  }
-  .btn.outline.tone-#{$tone}:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--#{$tok}) 12%, transparent);
-  }
-}
-
 /* ---------- AC toggle ---------- */
 .ac-toggle {
   display: inline-flex;

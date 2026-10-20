@@ -83,7 +83,7 @@ export function WealthRow({
       </div>
       {isCoin ? (
         <input
-          className="osc-coin-qty tw:w-full tw:min-w-0 tw:border tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-right tw:text-(length:--fs-sm) tw:text-text tw:transition-[border-color] tw:duration-[120ms] tw:hover:border-border tw:focus:border-accent-alt tw:focus:outline-none"
+          className="osc-coin-qty tw:w-full tw:min-w-0 tw:border tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-right tw:text-(length:--fs-md) tw:text-text tw:transition-[border-color] tw:duration-[120ms] tw:hover:border-border tw:focus:border-accent-alt tw:focus:outline-none"
           type="number"
           min={0}
           inputMode="numeric"
@@ -106,7 +106,7 @@ export function WealthRow({
         // <input>, and must be indistinguishable from it apart from the missing
         // field chrome — hence the identical box metrics (font-size, padding,
         // transparent 1px border) and text colour.
-        <span className="tw:border tw:border-transparent tw:px-2 tw:py-[5px] tw:text-right tw:whitespace-nowrap tw:text-(length:--fs-sm) tw:text-text">
+        <span className="tw:border tw:border-transparent tw:px-2 tw:py-[5px] tw:text-right tw:whitespace-nowrap tw:text-(length:--fs-md) tw:text-text">
           {fmtCoin(row.qty)}
         </span>
       )}

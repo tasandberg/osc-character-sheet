@@ -2,7 +2,7 @@ import type { LoyaltyVM } from "@domain/vm-types";
 import type { ActivateEvent } from "@ui/rollable";
 
 const BAND =
-  "osc-retainer tw:flex tw:items-baseline tw:justify-center tw:gap-3 tw:py-0";
+  "osc-retainer tw:flex tw:items-baseline tw:justify-center tw:gap-3 tw:border-b tw:border-(--hairline) tw:pb-2";
 
 const BAND_LABEL = "vm-key tw:flex-none tw:text-text";
 
@@ -25,7 +25,7 @@ const ROLL_VALUE =
   " tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2" +
   " tw:focus-visible:outline-gold tw:disabled:cursor-default";
 
-const DIVIDER = "tw:h-3 tw:w-px tw:flex-none tw:self-center tw:bg-border";
+const DIVIDER = "tw:h-3 tw:w-px tw:flex-none tw:self-center tw:bg-(--hairline)";
 
 type Props = {
   retainer: LoyaltyVM | null;

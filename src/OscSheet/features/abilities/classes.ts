@@ -8,4 +8,4 @@
 /** Italic serif aside — the INT literacy/spoken line and the "no abilities yet"
  *  placeholder are typographically the same thing. */
 export const FLAVOUR =
-  "tw:mt-3 tw:mb-0 tw:text-(length:--fs-sm) tw:leading-normal tw:text-text-dim";
+  "tw:mt-3 tw:mb-0 tw:text-(length:--fs-xs) tw:leading-normal tw:text-text-dim";

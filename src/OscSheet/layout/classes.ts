@@ -16,9 +16,8 @@
 // they are written on the element, so a shared base plus an override could come
 // out either way. The variants below are exclusive strings instead.
 const TB_BTN_BASE =
-  "osc-tb-btn tw:cursor-pointer tw:items-center tw:gap-2 tw:border" +
-  " tw:font-sans tw:text-[max(var(--fs-3xs),12px)] tw:font-semibold" +
-  " tw:tracking-[0.09em] tw:whitespace-nowrap tw:uppercase" +
+  "osc-tb-btn vm-btn tw:cursor-pointer tw:items-center tw:gap-2 tw:border" +
+  " tw:text-(length:--fs-xs) tw:font-semibold tw:whitespace-nowrap" +
   " tw:transition-[color,border-color,background] tw:duration-[120ms]" +
   // inert (display pass) — keep full fidelity, no dimming
   " tw:disabled:cursor-default";
