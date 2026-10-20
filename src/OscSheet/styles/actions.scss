@@ -219,21 +219,14 @@
 // Spells-tab `.osc-spell` (see spells.scss).
 
 // --- attacks: woodcut weapon cards (ported from prototype .fvtt-weapon) ---
-// Card grid: Item (icon + name/tags) | Hit | Damage | tall brass Atk button.
+// Row grid: Item (icon + name/tags) | Hit | Damage | Attack, packed right on the name line.
 // AttacksTable is NOT converted — the card's box, info column, monogram, name,
 // tags and hit/dmg cells are in actions-features.scss.
 .osc-weapon {
   display: grid;
-  // fixed Hit/Damage/Atk columns so buttons are a consistent width per type and
-  // double-digit dice (1d10+2) don't shift the layout. Scaled off --fs-base so the
-  // tracks grow with the font-size setting (--fs-base = 16px at Medium).
-  grid-template-columns:
-    minmax(0, 1fr)
-    calc(var(--fs-base, 16px) * 3.875)
-    calc(var(--fs-base, 16px) * 5.125)
-    calc(var(--fs-base, 16px) * 6);
-  gap: var(--spacer-3);
-  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  column-gap: var(--spacer-2);
+  align-items: start;
 }
 // What's left of the weapon card below is the segmented kind switch's corner
 // maths, the segment colour states, and the `& + &` divider — none of which a
@@ -394,6 +387,7 @@
   // hit/dmg: label left, value right, one row each
   .osc-weapon .osc-roll-button {
     justify-self: stretch;
+    margin-top: 0;
   }
   .osc-weapon .wstat {
     justify-content: space-between;

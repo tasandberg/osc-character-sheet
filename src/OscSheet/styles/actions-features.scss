@@ -199,7 +199,7 @@
   position: relative;
 }
 .osc-weapon .osc-roll-button {
-  justify-self: start;
+  margin-top: calc((var(--fs-md) * 1.15 - var(--spacer-5)) / 2);
 }
 .osc-weapon .wstat .sl {
   text-transform: uppercase;
