@@ -167,8 +167,8 @@ function WeaponRow({
         </div>
       </div>
 
-      <button
-        type="button"
+      <Button
+        variant="outline"
         className="wstat hit"
         data-testid={`weapon-hit-${a.itemId}`}
         disabled={!onRoll}
@@ -186,9 +186,9 @@ function WeaponRow({
         <span className="tag-pop" role="tooltip">
           {`Roll to hit · ${mode.hitTip}`}
         </span>
-      </button>
-      <button
-        type="button"
+      </Button>
+      <Button
+        variant="outline"
         className="wstat dmg"
         disabled={!onRoll}
         onClick={() => onRoll?.(mode.dmg)}
@@ -199,7 +199,7 @@ function WeaponRow({
         <span className="tag-pop" role="tooltip">
           {`Roll damage · ${mode.dmgTip}`}
         </span>
-      </button>
+      </Button>
 
       {/* Always rendered; read-only (non-owner) shows it disabled — the composite
           Attack roll can write to the actor/item, so it's inert without canAttack.
