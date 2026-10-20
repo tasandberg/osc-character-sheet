@@ -236,7 +236,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
           {canEdit && weapon && (
             <IconButton
               variant="raised"
-              className="osc-monster-roll-button"
+              className="osc-roll-button"
               aria-label={`Attack with ${attack.name}`}
               title={`Attack with ${attack.name}`}
               disabled={attack.exhausted}
@@ -250,7 +250,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
           {canEdit && weapon && (
             <IconButton
               variant="raised"
-              className="osc-monster-roll-button"
+              className="osc-roll-button"
               aria-label={`Roll damage for ${attack.name}`}
               title={`Roll damage for ${attack.name}`}
               onClick={() => void rollMonsterDamage(actor, weapon)}

@@ -5,7 +5,7 @@ import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import { Monogram } from "@ui/Monogram";
-import { Button } from "@src/OscSheet/components/ui";
+import { IconButton } from "@ui/IconButton";
 
 type Props = {
   attacks: AttackVM[];
@@ -168,9 +168,9 @@ function WeaponRow({
         </div>
       </div>
 
-      <Button
-        variant="outline"
-        className="wstat hit"
+      <IconButton
+        variant="raised"
+        className="osc-roll-button wstat hit"
         data-testid={`weapon-hit-${a.itemId}`}
         disabled={!onRoll}
         onClick={() => onRoll?.(mode.hit)}
@@ -181,10 +181,10 @@ function WeaponRow({
         <span className="tag-pop" role="tooltip">
           {`Roll to hit · ${mode.hitTip}`}
         </span>
-      </Button>
-      <Button
-        variant="outline"
-        className="wstat dmg"
+      </IconButton>
+      <IconButton
+        variant="raised"
+        className="osc-roll-button wstat dmg"
         disabled={!onRoll}
         onClick={() => onRoll?.(mode.dmg)}
         aria-label={`Roll damage · ${mode.dmgTip}`}
@@ -194,24 +194,24 @@ function WeaponRow({
         <span className="tag-pop" role="tooltip">
           {`Roll damage · ${mode.dmgTip}`}
         </span>
-      </Button>
+      </IconButton>
 
       {/* Always rendered; read-only (non-owner) shows it disabled — the composite
           Attack roll can write to the actor/item, so it's inert without canAttack.
           Drag-to-hotbar is owner-only too, so macroDrag is omitted when disabled. */}
-      <Button
+      <IconButton
+        variant="raised"
+        className="osc-roll-button osc-icon-tone-brass"
         data-testid={`weapon-attack-${a.itemId}`}
         {...(canAttack ? macroDrag : {})}
         disabled={!canAttack || !onAttack}
         onClick={(e) => onAttack?.(a.itemId, mode.kind, e)}
         title="Attack roll (hit + damage)"
-        variant="outline"
-        iconTone="brass"
         aria-label={`Attack with ${a.name}`}
       >
-        <i className="fa-solid fa-dice-d20 u-mr-1" aria-hidden="true" />
+        <i className="fa-solid fa-dice-d20" aria-hidden="true" />
         <span>Attack</span>
-      </Button>
+      </IconButton>
     </div>
   );
 }

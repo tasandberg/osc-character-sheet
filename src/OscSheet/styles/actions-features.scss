@@ -194,15 +194,14 @@
   position: relative;
 }
 
-// Hit / Damage — single-line Vellum buttons: a HIT/DMG key and the modifier.
+// Hit / Damage — the shared raised roll buttons: a HIT/DMG key and the modifier.
 .wstat {
   position: relative;
-  justify-self: stretch;
+}
+.osc-weapon .osc-roll-button {
+  justify-self: start;
 }
 .osc-weapon .wstat .sl {
-  color: var(--text-dim);
-  font-size: max(var(--fs-3xs), 12px);
-  letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 .osc-weapon .wstat .wv {

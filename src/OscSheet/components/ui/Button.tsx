@@ -23,7 +23,7 @@ export function Button({ variant, iconTone, size, className, type = "button", ..
       className={cx(
         "vm-btn",
         VARIANT_CLASS[variant ?? "outline"],
-        iconTone && `icon-tone-${iconTone}`,
+        iconTone && `osc-icon-tone-${iconTone}`,
         size === "xs" && "osc-btn-xs",
         className,
       )}

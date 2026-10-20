@@ -58,7 +58,7 @@
         warn: mustard
       )
   {
-    .vm-btn.icon-tone-#{$tone}:not(:disabled) > i {
+    .osc-icon-tone-#{$tone}:not(:disabled) > i {
       color: var(--#{$token});
     }
   }
@@ -70,6 +70,17 @@
       display: block;
       line-height: 1;
     }
+  }
+
+  .icon-btn.raised.osc-roll-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacer-1);
+    width: auto;
+    padding-inline: var(--spacer-1);
+    font-size: var(--fs-xs);
+    font-weight: 600;
   }
 
   .osc-btn-xs {

@@ -372,6 +372,9 @@
     grid-area: dmg;
   }
   // hit/dmg: label left, value right, one row each
+  .osc-weapon .osc-roll-button {
+    justify-self: stretch;
+  }
   .osc-weapon .wstat {
     justify-content: space-between;
     gap: var(--spacer-3);
