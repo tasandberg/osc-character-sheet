@@ -57,7 +57,7 @@ export function SendItemModal({
 
   const footer = (
     <>
-      <Button variant="ghost" onClick={onClose}>
+      <Button variant="link" onClick={onClose}>
         Cancel
       </Button>
       <Button

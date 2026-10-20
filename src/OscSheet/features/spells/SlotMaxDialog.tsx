@@ -58,7 +58,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
         className="modal-inset osc-slot-modal"
         footer={
           <>
-            <Button variant="ghost" onClick={close}>
+            <Button variant="link" onClick={close}>
               Cancel
             </Button>
             <Button variant="primary" onClick={save}>

@@ -83,6 +83,23 @@
     font-weight: 600;
   }
 
+  .vm-btn-link {
+    color: var(--text);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+
+    &:hover:not(:disabled) {
+      color: var(--text);
+      text-decoration: underline;
+    }
+
+    &:is(:disabled, [aria-disabled="true"]) {
+      color: var(--text-mute);
+    }
+  }
+
   .osc-btn-xs {
     height: auto;
     padding: 1px var(--spacer-2);

@@ -128,7 +128,7 @@ export function PortraitImageDialog({ current, drop, onClose, onSave }: Props) {
 
   const footer = (
     <>
-      <Button variant="ghost" onClick={close} disabled={busy}>
+      <Button variant="link" onClick={close} disabled={busy}>
         Cancel
       </Button>
       <Button variant="primary" onClick={() => void save()} disabled={busy}>

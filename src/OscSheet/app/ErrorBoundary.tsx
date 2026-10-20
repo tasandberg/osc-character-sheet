@@ -159,7 +159,7 @@ function CrashFallback({ error, componentStack, onReopen, actor }: FallbackProps
             {SEND_LABEL[sendState]}
           </Button>
         )}
-        <Button size="sm" variant="ghost" onClick={() => void copy()}>
+        <Button size="sm" variant="link" onClick={() => void copy()}>
           {copied ? "Copied" : "Copy error details"}
         </Button>
       </div>
