@@ -197,6 +197,23 @@
   gap: 4px;
   margin-top: 3px;
 }
+@container app (min-width: 480px) {
+  .osc-weapon .winfo {
+    align-items: center;
+  }
+  .osc-weapon .wmain {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-3);
+  }
+  .osc-weapon .wline {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .osc-weapon .wtags {
+    margin-top: 0;
+  }
+}
 
 // kind switch — a Vellum segmented control; the segment hosts its `.tag-pop`.
 .kind-seg {

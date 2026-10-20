@@ -276,6 +276,11 @@
   column-gap: var(--spacer-3);
   align-items: start;
 }
+@container app (min-width: 480px) {
+  .osc-weapon {
+    align-items: center;
+  }
+}
 // What's left of the weapon card below is the segmented kind switch's corner
 // maths, the segment colour states, and the `& + &` divider — none of which a
 // utility can say. The card's own box is in actions-features.scss.
