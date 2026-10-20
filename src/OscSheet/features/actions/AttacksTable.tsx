@@ -1,4 +1,4 @@
-import { useState, type DragEvent, type MouseEvent } from "react";
+import { Fragment, useState, type DragEvent, type MouseEvent } from "react";
 import type { AttackKind } from "@domain/types";
 import type { AttackVM, RollSpec } from "@domain/vm-types";
 import { SectionTitle } from "@ui/SectionTitle";
@@ -157,15 +157,23 @@ function WeaponRow({
                 />
               )}
               {a.qualities.map((q) => (
-                <Tag
-                  variant="chip"
-                  key={q.label}
-                  title={q.label}
-                  icon={q.icon || undefined}
-                  tooltip={q.icon ? q.label : undefined}
-                >
-                  {q.icon ? null : <span className="tag-txt">{q.label}</span>}
-                </Tag>
+                <Fragment key={q.label}>
+                  <Tag
+                    variant="chip"
+                    className="u-foundry-md-display-none"
+                    title={q.label}
+                    icon={q.icon || undefined}
+                    tooltip={q.icon ? q.label : undefined}
+                  >
+                    {q.icon ? null : <span className="tag-txt">{q.label}</span>}
+                  </Tag>
+                  <Tag
+                    size="xs"
+                    className="u-foundry-xs-display-none u-foundry-md-display-inline-flex"
+                  >
+                    {q.label}
+                  </Tag>
+                </Fragment>
               ))}
             </div>
           )}
