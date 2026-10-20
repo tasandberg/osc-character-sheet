@@ -155,6 +155,14 @@
       1px 1px 0 var(--stamp-wall);
   }
 
+  .vm-segment:has(.vm-segment-input:checked) {
+    border-color: var(--btn-wall);
+  }
+
+  [data-theme="cream"] & .vm-segment:has(.vm-segment-input:checked) {
+    border-color: var(--stamp-wall);
+  }
+
   .osc-segmented-sm .vm-segment {
     height: calc(var(--spacer-6) - 2px);
     padding: 0 var(--spacer-2);
