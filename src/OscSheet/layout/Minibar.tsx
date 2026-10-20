@@ -64,7 +64,7 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
         <div className="osc-mb-hp">
           {/* hover swaps label/max → −/+ steppers; grid-stacked so width never shifts */}
           <span className="osc-mb-hp-slot">
-            <Stamp className="osc-mb-stamp">HP</Stamp>
+            <Stamp ink className="osc-mb-stamp">HP</Stamp>
             {onSetHp && (
               <button
                 type="button"
@@ -105,7 +105,7 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
           </span>
         </div>
         <div className="osc-mb-ac">
-          <Stamp className="osc-mb-stamp">AC</Stamp>
+          <Stamp ink className="osc-mb-stamp">AC</Stamp>
           <span className="osc-mb-ac-v tw:font-display tw:text-(length:--fs-2xl) tw:leading-flush tw:text-teal-accent">
             {vitals.ac.value}
           </span>

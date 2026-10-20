@@ -228,7 +228,7 @@
 .osc-weapon {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto auto;
-  column-gap: var(--spacer-2);
+  column-gap: var(--spacer-3);
   align-items: start;
 }
 // What's left of the weapon card below is the segmented kind switch's corner

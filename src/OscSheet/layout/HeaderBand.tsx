@@ -113,7 +113,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           and shove the sibling card out of the container. */}
       <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*11.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
         <div className={`${VITAL} hp`}>
-          <Stamp className={VITAL_L}>HP</Stamp>
+          <Stamp ink className={VITAL_L}>HP</Stamp>
           <div className={VV_ROW}>
             {/* medium+: − / + steppers around the value; XS: an editable input (toggled in CSS) */}
             {onSetHp && (
@@ -138,7 +138,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           </div>
         </div>
         <div className={`${VITAL} ac tw:border-l tw:border-(--hairline)`}>
-          <Stamp className={VITAL_L}>AC</Stamp>
+          <Stamp ink className={VITAL_L}>AC</Stamp>
           <div className={VV_ROW}>
             <div className={`${VITAL_BIG} tw:text-teal-accent`} data-testid="ac-value">{vitals.ac.value}</div>
           </div>

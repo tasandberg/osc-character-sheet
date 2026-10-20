@@ -127,6 +127,13 @@ body {
   line-height: 1.2;
 }
 
+.stamp.ink {
+  padding: 5px 8px 3px;
+  background: var(--ink);
+  color: var(--stamp-text);
+  line-height: 1;
+}
+
 .stamp.rollable {
   cursor: pointer;
   transition: color 0.12s;

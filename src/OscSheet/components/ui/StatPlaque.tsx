@@ -41,7 +41,9 @@ export function StatPlaque({
       data-testid={dataTestid}
       {...rollable(onActivate)}
     >
-      <Stamp className="pk">{stampKey}</Stamp>
+      <Stamp ink={variant === "ability"} className="pk">
+        {stampKey}
+      </Stamp>
       <div className="pv">{value}</div>
       {caption != null && <div className="pc">{caption}</div>}
     </div>

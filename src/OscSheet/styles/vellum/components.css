@@ -1077,7 +1077,8 @@ button.pip:hover {
     linear-gradient(var(--gold), var(--gold)) 100% 100% / 1.5px 9px no-repeat;
 }
 .plaque-ability .pk {
-  margin-top: 1px;
+  align-self: stretch;
+  margin: 1px 7px 0;
 }
 .plaque-ability .pv {
   position: relative;
