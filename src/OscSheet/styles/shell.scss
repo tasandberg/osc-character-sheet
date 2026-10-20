@@ -213,6 +213,9 @@
     justify-items: center;
     gap: var(--spacer-3);
   }
+  .osc-twopane .osc-substats {
+    column-gap: var(--spacer-3);
+  }
 }
 
 // Center tabs replace the right rail exactly when the two-pane engages.

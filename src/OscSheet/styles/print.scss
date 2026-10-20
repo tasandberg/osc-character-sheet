@@ -17,6 +17,21 @@
     --link-accent: var(--accent-alt);
   }
 
+  [data-theme="cream"] & .osc-topbar {
+    --btn-face: #2e2a23;
+    --btn-face-hi: #3a3429;
+    --btn-lit: #4d4538;
+    --btn-shade: #14120e;
+    --btn-wall: #070605;
+    --btn-pressed: #1f1c17;
+    --btn-press-shade: var(--btn-wall);
+    --stamp-wall: #5a5243;
+    --text: #e5dec8;
+    --text-mute: #9a927f;
+    --hair: rgba(229, 222, 200, 0.42);
+    --accent-alt: #c89e54;
+  }
+
   :is(
     [class*="fa-"],
     .section-title,
