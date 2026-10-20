@@ -94,26 +94,25 @@ function WeaponRow({
           {...macroDrag}
         />
         <div className="wmain">
-          <div className="wname">
-            {onOpen ? (
-              <button
-                type="button"
-                className="wname-btn"
-                data-testid={`weapon-name-${a.itemId}`}
-                onClick={() => onOpen(a.itemId)}
-                title={`Open ${a.name}`}
-              >
-                {a.name}
-              </button>
-            ) : (
-              a.name
-            )}{" "}
-            <span className="wkind">({mode.kindLabel.toLowerCase()})</span>{" "}
-            <span className="wdice">{mode.dmgDie}</span>
-          </div>
-          <div className="wtags">
-            {/* dual melee+missile → a segmented switch; single mode → a static tag */}
-            {dual ? (
+          <div className="wline">
+            <div className="wname">
+              {onOpen ? (
+                <button
+                  type="button"
+                  className="wname-btn"
+                  data-testid={`weapon-name-${a.itemId}`}
+                  onClick={() => onOpen(a.itemId)}
+                  title={`Open ${a.name}`}
+                >
+                  {a.name}
+                </button>
+              ) : (
+                a.name
+              )}{" "}
+              <span className="wkind">({mode.kindLabel.toLowerCase()})</span>{" "}
+              <span className="wdice">{mode.dmgDie}</span>
+            </div>
+            {dual && (
               <div
                 className="vm-segmented osc-segmented-sm"
                 role="radiogroup"
@@ -144,27 +143,32 @@ function WeaponRow({
                   </label>
                 ))}
               </div>
-            ) : (
-              <Tag
-                variant="chip"
-                className={a.modes[0].kind}
-                icon={kindIcon(a.modes[0].kind)}
-                tooltip={a.modes[0].kindLabel}
-                title={a.modes[0].kindLabel}
-              />
             )}
-            {a.qualities.map((q) => (
-              <Tag
-                variant="chip"
-                key={q.label}
-                title={q.label}
-                icon={q.icon || undefined}
-                tooltip={q.icon ? q.label : undefined}
-              >
-                {q.icon ? null : <span className="tag-txt">{q.label}</span>}
-              </Tag>
-            ))}
           </div>
+          {(!dual || a.qualities.length > 0) && (
+            <div className="wtags">
+              {!dual && (
+                <Tag
+                  variant="chip"
+                  className={a.modes[0].kind}
+                  icon={kindIcon(a.modes[0].kind)}
+                  tooltip={a.modes[0].kindLabel}
+                  title={a.modes[0].kindLabel}
+                />
+              )}
+              {a.qualities.map((q) => (
+                <Tag
+                  variant="chip"
+                  key={q.label}
+                  title={q.label}
+                  icon={q.icon || undefined}
+                  tooltip={q.icon ? q.label : undefined}
+                >
+                  {q.icon ? null : <span className="tag-txt">{q.label}</span>}
+                </Tag>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

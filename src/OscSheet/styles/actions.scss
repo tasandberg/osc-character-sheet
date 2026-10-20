@@ -190,9 +190,12 @@
   grid-template-columns: repeat(3, 1fr);
 }
 
-// Exploration: 2-up grid of gold glyph · label · N-in-6 ink pill.
+// Exploration: up to 2-up grid, dropping to one column under ~240px cells.
 .fvtt-explore {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(240px, calc((100% - var(--spacer-4)) / 2)), 1fr)
+  );
 }
 // In the narrow left rail (large view), 2-up is too tight — labels wrap to 3
 // lines. Stack to a single column there. (.osc-rail-extra only renders in two-pane.)

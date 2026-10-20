@@ -86,7 +86,7 @@
 }
 .fvtt-skill {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacer-2);
   padding: var(--spacer-2) 0;
   transition:
@@ -102,6 +102,9 @@
 }
 .fvtt-skill .skn {
   font-size: var(--fs-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--text-dim, #b5ad97);
   flex: 1;
   min-width: 0;
@@ -115,9 +118,9 @@
   color: var(--text-dim);
   white-space: nowrap;
   flex: none;
+  align-self: center;
   i {
-    color: var(--gold-dim);
-    font-size: var(--fs-xs, 12px);
+    font-size: var(--fs-xs);
   }
 }
 
@@ -127,7 +130,7 @@
 }
 .osc-weapon .winfo {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacer-3);
   min-width: 0;
 }
@@ -152,7 +155,15 @@
 .osc-weapon .wmain {
   min-width: 0;
 }
+.osc-weapon .wline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacer-1) var(--spacer-2);
+  min-height: var(--spacer-6);
+}
 .osc-weapon .wname {
+  min-width: 0;
   font-family: var(--sans);
   font-weight: 600;
   font-size: var(--fs-md);
@@ -199,7 +210,7 @@
   position: relative;
 }
 .osc-weapon .osc-roll-button {
-  margin-top: calc((var(--fs-md) * 1.15 - var(--spacer-5)) / 2);
+  margin-top: calc((var(--spacer-6) - var(--spacer-5)) / 2);
 }
 .osc-weapon .wstat .sl {
   text-transform: uppercase;

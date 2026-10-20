@@ -52,10 +52,10 @@ function AbilityCard({
         data-testid={`fav-ability-img-${feature.id}`}
         {...macroDrag}
       />
-      <span className="skn tw:flex tw:min-w-0 tw:flex-wrap tw:items-baseline tw:gap-x-2">
+      <span className="skn tw:flex tw:min-w-0 tw:items-baseline tw:gap-x-2">
         <button
           type="button"
-          className="tw:min-w-0 tw:cursor-pointer tw:border-0 tw:bg-transparent tw:p-0 tw:text-left tw:text-inherit tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
+          className="tw:min-w-0 tw:truncate tw:cursor-pointer tw:border-0 tw:bg-transparent tw:p-0 tw:text-left tw:text-inherit tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
           data-testid={`fav-ability-name-${feature.id}`}
           title={`Open ${feature.name}`}
           onClick={(e) => {
@@ -67,7 +67,7 @@ function AbilityCard({
         </button>
         {feature.rollTargetTag && (
           <span
-            className="tw:whitespace-nowrap tw:text-text-mute"
+            className="tw:flex-none tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:text-text-dim"
             data-testid={`fav-ability-target-${feature.id}`}
           >
             {feature.rollTargetTag}
@@ -76,10 +76,14 @@ function AbilityCard({
       </span>
       <span className="skv" data-testid={`fav-ability-roll-${feature.id}`}>
         {feature.rollFormula ?? "chat"}
-        <i
-          className={cx("fa-solid", feature.rollable ? "fa-dice-d20" : "fa-comment")}
-          aria-hidden="true"
-        />
+        <span className="osc-roll-die" aria-hidden="true">
+          <i
+            className={cx(
+              "fa-solid roll-label-die",
+              feature.rollable ? "fa-dice-d20" : "fa-comment",
+            )}
+          />
+        </span>
       </span>
     </div>
   );

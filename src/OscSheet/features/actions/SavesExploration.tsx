@@ -66,7 +66,9 @@ export function ExplorationGrid({
           <span className="skn">{e.label}</span>
           <span className="skv">
             {e.inSix}-in-6
-            <i className="fa-solid fa-dice-d6" aria-hidden="true" />
+            <span className="osc-roll-die" aria-hidden="true">
+              <i className="fa-solid fa-dice-d6 roll-label-die" />
+            </span>
           </span>
         </div>
       ))}
