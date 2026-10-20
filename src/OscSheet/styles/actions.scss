@@ -148,6 +148,17 @@
       grid-column: 2 / -1;
     }
   }
+  @container sheet (width < 525px) {
+    .osc-head {
+      grid-template-rows: auto auto 1fr;
+    }
+    .osc-head > .osc-portrait-wrap {
+      grid-row: 1 / -1;
+    }
+    .osc-head > .osc-substats {
+      grid-row: 3;
+    }
+  }
 }
 .osc-substats {
   grid-area: subs;
