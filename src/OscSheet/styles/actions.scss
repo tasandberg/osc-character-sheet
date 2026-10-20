@@ -134,6 +134,26 @@
 // out-ranks the base utilities.
 .osc-substats {
   grid-area: subs;
+  overflow: hidden;
+
+  > .osc-tile::before {
+    content: "";
+    position: absolute;
+    top: 15%;
+    bottom: 15%;
+    left: calc(var(--spacer-3) / -2);
+    border-left: 1px solid var(--hairline);
+  }
+}
+@container app (max-width: 479px) {
+  .osc-substats > .osc-tile::before {
+    content: none;
+  }
+}
+@container sheet (min-width: 700px) {
+  .osc-twopane .osc-substats > .osc-tile::before {
+    content: none;
+  }
 }
 // The movement popover — shared by the header MOVE tile and the inventory
 // encumbrance line — is wholly utilities in MovePop.tsx, which is also the single

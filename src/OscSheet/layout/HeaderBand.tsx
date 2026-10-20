@@ -15,9 +15,7 @@ import { useHpInput } from "@ui/useHpInput";
 // follow the sheet's font-size setting, the Tailwind scale is the raw rem.
 
 // Init / HD / Move: key + value inline, hairline-divided.
-const TILE =
-  "osc-tile tw:relative tw:inline-flex tw:flex-none tw:items-baseline tw:gap-2 tw:px-3" +
-  " tw:border-l tw:border-(--hairline) tw:first:border-l-0 tw:first:pl-0";
+const TILE = "osc-tile tw:relative tw:inline-flex tw:flex-none tw:items-baseline tw:gap-1";
 
 const TILE_V =
   "osc-tile-v tw:text-(length:--fs-md) tw:font-semibold tw:text-text";
@@ -79,7 +77,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         onContextMenu={onPortraitContextMenu}
       />
       <Identity identity={identity} />
-      <div className="osc-substats tw:flex tw:flex-wrap tw:items-baseline tw:gap-y-1 tw:self-start tw:@max-md/app:justify-center tw:@twopane/sheet:justify-center">
+      <div className="osc-substats tw:flex tw:flex-wrap tw:items-baseline tw:gap-x-3 tw:gap-y-1 tw:self-start tw:@max-md/app:justify-center tw:@twopane/sheet:justify-center">
         <div className={TILE}>
           <Stamp>INIT</Stamp>
           <span className={TILE_V}>{formatMod(vitals.initMod)}</span>
