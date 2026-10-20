@@ -89,7 +89,6 @@
   align-items: center;
   gap: var(--spacer-2);
   padding: var(--spacer-2) 0;
-  border-bottom: 1px solid var(--hairline);
   transition:
     border-color 0.12s,
     background 0.12s;
@@ -125,7 +124,6 @@
 // The card's grid template stayed in actions.scss; its box did not.
 .osc-weapon {
   padding: var(--spacer-2) 0;
-  border-bottom: 1px solid var(--hairline);
 }
 .osc-weapon .winfo {
   display: flex;

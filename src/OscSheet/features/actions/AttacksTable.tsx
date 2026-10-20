@@ -80,7 +80,7 @@ function WeaponRow({
 
   return (
     <div
-      className="osc-weapon"
+      className="osc-weapon osc-ruled-row"
       role="row"
       data-testid={`weapon-row-${a.itemId}`}
     >

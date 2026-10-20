@@ -111,7 +111,7 @@ export function SpellRow({
         // The `.fvtt-castlist` framing rules in spells.scss out-specify the
         // border utilities here on purpose — that list is headerless and needs
         // its first row's top edge back.
-        "osc-spell tw:grid tw:items-center tw:gap-2 tw:border-b tw:border-(--hairline) tw:py-2",
+        "osc-spell osc-ruled-row tw:grid tw:items-center tw:gap-2 tw:py-2",
         onToggleFavorite && "has-star",
         GRID_COLS[Number(!!onToggleFavorite) + Number(showImage)],
         free && "osc-spell-free",

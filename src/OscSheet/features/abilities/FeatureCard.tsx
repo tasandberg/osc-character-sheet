@@ -45,7 +45,7 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
   const toggle = () => setOpen((o) => !o);
 
   return (
-    <div className="fvtt-feat tw:border-b tw:border-(--hairline)">
+    <div className="fvtt-feat osc-ruled-row">
       {/* header row: clickable to expand (mouse); name/roll/chevron are their own controls */}
       <div
         className="ft-head tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-3 tw:py-2"

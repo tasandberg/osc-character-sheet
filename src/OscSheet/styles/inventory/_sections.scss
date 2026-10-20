@@ -39,12 +39,11 @@
   left: -12px;
 }
 
-// --- Equipped tray: ruled row of large ink-stamp tiles ---
-// Flex/gap/padding are utilities on the element; the rule and the drop-target
+// --- Equipped tray: row of large ink-stamp tiles ---
+// Flex/gap/padding are utilities on the element; the drop-target outline and its
 // transition stay here.
 .osc-equip-tray {
   border: 1px solid transparent;
-  border-bottom-color: var(--hairline);
   transition:
     border-color 0.12s,
     background 0.12s;
@@ -53,7 +52,6 @@
 .osc-equip-tray.is-drop-target {
   border-style: dotted;
   border-color: var(--teal);
-  border-bottom-color: var(--teal);
   background: color-mix(in oklab, var(--teal) 8%, transparent);
 }
 

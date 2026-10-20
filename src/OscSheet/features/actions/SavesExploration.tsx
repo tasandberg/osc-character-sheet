@@ -54,7 +54,7 @@ export function ExplorationGrid({
   onRoll?: (key: string, event: ActivateEvent) => void;
 }) {
   return (
-    <div className="fvtt-explore">
+    <div className="fvtt-explore osc-ruled-grid">
       {exploration.map((e) => (
         <div
           key={e.key}

@@ -63,6 +63,15 @@
     }
   }
 
+  .vm-btn {
+    line-height: 1;
+
+    > i {
+      display: block;
+      line-height: 1;
+    }
+  }
+
   .osc-btn-xs {
     height: auto;
     padding: 1px var(--spacer-2);
@@ -80,6 +89,31 @@
     font-weight: 400;
     letter-spacing: 0;
     text-transform: none;
+  }
+
+  .vm-btn:is(.vm-btn-primary, .vm-btn-danger, .vm-btn-secondary):is(
+      :disabled,
+      [aria-disabled="true"]
+    ) {
+    border: 1px solid var(--hair);
+    background: transparent;
+    box-shadow: none;
+    color: var(--text-mute);
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .osc-ruled-row + .osc-ruled-row {
+    border-top: 1px solid var(--hair-soft);
+  }
+
+  .osc-ruled-grid {
+    overflow: hidden;
+
+    > * {
+      margin-top: -1px;
+      border-top: 1px solid var(--hair-soft);
+    }
   }
 
   .roll-label-die {

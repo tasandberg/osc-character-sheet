@@ -37,9 +37,9 @@ const BOOKSPELL =
   "tw:flex tw:items-center tw:gap-2 tw:py-1 tw:text-left tw:text-(length:--fs-md) tw:text-text-dim";
 const BOOKSPELL_ICON =
   "tw:grid tw:size-5 tw:flex-none tw:place-items-center tw:overflow-hidden tw:bg-ink tw:font-semibold tw:text-(length:--fs-2xs) tw:text-stamp-text";
-/** Empty state, ruled like a row. */
+/** Empty state, spaced like a row. */
 const EMPTY_ROW =
-  "osc-spell-empty tw:border-b tw:border-(--hairline) tw:py-2 tw:text-(length:--fs-xs) tw:text-text-dim";
+  "osc-spell-empty tw:py-2 tw:text-(length:--fs-xs) tw:text-text-dim";
 
 /**
  * One spell level: ink-stamp "Level N" badge + "used / max" + slot pips,
