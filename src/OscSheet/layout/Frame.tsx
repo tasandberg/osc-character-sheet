@@ -31,7 +31,7 @@ export function Frame({
   return (
     <>
       {topbar && (
-        <div className="osc-topbar tw:border-b tw:border-border tw:bg-ink tw:px-2 tw:pt-1 tw:pb-2">
+        <div className="osc-topbar tw:border-b tw:border-border tw:bg-ink tw:px-2 tw:pt-[calc(var(--spacer-1)+2px)] tw:pb-[calc(var(--spacer-2)+2px)]">
           {topbar}
         </div>
       )}
