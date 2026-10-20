@@ -17,7 +17,12 @@
     --link-accent: var(--accent-alt);
   }
 
+  .osc-topbar {
+    --btn-face: color-mix(in oklab, var(--btn-face-hi) 25%, var(--ink));
+  }
+
   [data-theme="cream"] & .osc-topbar {
+    --btn-face: color-mix(in oklab, var(--btn-face-hi) 25%, var(--bg-2-solid));
     --stamp-text: var(--text);
     --stamp-text-dim: var(--text-dim);
     border-bottom-color: var(--hairline);
