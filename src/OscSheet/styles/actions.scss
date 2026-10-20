@@ -148,11 +148,6 @@
       grid-column: 2 / -1;
     }
   }
-  @container sheet (width < 590px) {
-    .osc-head > .osc-vitals {
-      grid-row: 1;
-    }
-  }
 }
 .osc-substats {
   grid-area: subs;
@@ -173,9 +168,12 @@
     border-left: 1px solid var(--hair-soft);
   }
 }
-@container sheet (width < 520px) {
+@container sheet (width < 590px) {
   .osc-substats {
     column-gap: var(--spacer-3);
+  }
+  .osc-sheet-app .osc-substats .osc-tile-v {
+    font-size: var(--fs-xs);
   }
   .osc-substats > .osc-tile + .osc-tile::before {
     left: calc(var(--spacer-3) / -2);
