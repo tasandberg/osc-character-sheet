@@ -48,6 +48,10 @@
   scrollbar-color: var(--surface-3) transparent;
 }
 
+[data-theme="cream"] .osc-sheet-app .osc-body {
+  background-color: transparent;
+}
+
 .osc-twopane > .osc-left {
   padding-bottom: 15px; // intentional: 15px optical offset, leave raw
   border-bottom: 1px solid var(--border-soft);
