@@ -40,7 +40,7 @@ export function Identity({
         {identity.name}
       </div>
       {showClassLine && (
-        <div className="tw:font-semibold tw:text-(length:--fs-md) tw:text-gold tw:@twopane/sheet:text-center">
+        <div className="tw:text-(length:--fs-md) tw:text-teal-accent tw:@twopane/sheet:text-center">
           {identity.classLabel} {identity.level}
           {standing ? ` · ${standing}` : ""} · {identity.alignment}
         </div>

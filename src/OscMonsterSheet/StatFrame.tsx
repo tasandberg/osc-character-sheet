@@ -43,7 +43,7 @@ function RollRow({
       {onRoll && (
         <button
           type="button"
-          className="osc-monster-roll-die"
+          className="osc-roll-die"
           aria-label={`Roll ${label}`}
           title={`Roll ${label}`}
           onClick={onRoll}

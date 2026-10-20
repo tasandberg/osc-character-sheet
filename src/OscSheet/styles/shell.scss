@@ -209,20 +209,6 @@
     justify-items: center;
     gap: var(--spacer-3);
   }
-  // 2px sides, not 8px: in the rail the three tiles are equal 1fr columns of a
-  // ~204px pane, and the tile stamp is `width: 100%`, so the stamp cannot
-  // grow to fit its label — "MOVE" overflowed its ink chip and read as a
-  // clipped word. The base ("MOVE grows to fit its label") only holds in the
-  // flex layouts; the grid here overrides it. Widening the column instead would
-  // break the tiles' uniformity, and shrinking the font undoes the deliberate
-  // size bump, so the padding is what gives. Verified at all three font scales
-  // — 8px and even 4px still clip at `large`.
-  //
-  // This one CAN stay: at (0,3,0) it out-ranks the tile stamp's base utilities.
-  .osc-twopane .osc-tile .stamp {
-    font-size: var(--fs-2xs);
-    padding: 5px 2px 3px;
-  }
 }
 
 // Center tabs replace the right rail exactly when the two-pane engages.

@@ -64,9 +64,11 @@ function mount(isEditable: boolean, hd?: string) {
   );
 }
 
-const hdStamp = () =>
-  [...container.querySelectorAll<HTMLElement>(".osc-tile .stamp")].find(
-    (el) => el.textContent === "HD",
+const hdRoll = () =>
+  container.querySelector<HTMLElement>('[aria-label="OSE.roll.hd"]');
+const stampLabelled = (text: string) =>
+  [...container.querySelectorAll<HTMLElement>("*")].find(
+    (el) => el.children.length === 0 && el.textContent === text,
   );
 
 beforeEach(() => {
@@ -81,10 +83,10 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("HD stamp", () => {
+describe("HD roll", () => {
   it("delegates a click to actor.rollHitDice", () => {
     mount(true);
-    act(() => hdStamp()!.click());
+    act(() => hdRoll()!.click());
     expect(rollHitDice).toHaveBeenCalledTimes(1);
     expect(rollHitDice.mock.calls[0][0]).toHaveProperty("event");
   });
@@ -93,7 +95,7 @@ describe("HD stamp", () => {
     mount(true);
     for (const key of ["Enter", " "])
       act(() =>
-        hdStamp()!.dispatchEvent(
+        hdRoll()!.dispatchEvent(
           new KeyboardEvent("keydown", { key, bubbles: true }),
         ),
       );
@@ -102,34 +104,28 @@ describe("HD stamp", () => {
 
   it("is announced as a button and reachable by keyboard", () => {
     mount(true);
-    const stamp = hdStamp()!;
-    expect(stamp.getAttribute("role")).toBe("button");
-    expect(stamp.tabIndex).toBe(0);
-    expect(stamp.getAttribute("aria-label")).toBe("OSE.roll.hd");
+    const roll = hdRoll()!;
+    expect(roll.getAttribute("role")).toBe("button");
+    expect(roll.tabIndex).toBe(0);
   });
 
   it("leaves INIT and MOVE inert", () => {
     mount(true);
-    const inert = [
-      ...container.querySelectorAll<HTMLElement>(".osc-tile .stamp"),
-    ].filter((el) => el.textContent !== "HD");
-    expect(inert.length).toBeGreaterThan(0);
-    for (const el of inert) expect(el.getAttribute("role")).toBeNull();
+    for (const text of ["INIT", "MOVE"])
+      expect(stampLabelled(text)!.getAttribute("role")).toBeNull();
   });
 
   it("offers no roll to a viewer without permission", () => {
     mount(false);
-    const stamp = hdStamp()!;
-    expect(stamp.getAttribute("role")).toBeNull();
-    act(() => stamp.click());
+    expect(hdRoll()).toBeNull();
+    act(() => stampLabelled("HD")!.click());
     expect(rollHitDice).not.toHaveBeenCalled();
   });
 
   it("offers no roll when the actor has no hit dice", () => {
     mount(true, "");
-    const stamp = hdStamp()!;
-    expect(stamp.getAttribute("role")).toBeNull();
-    act(() => stamp.click());
+    expect(hdRoll()).toBeNull();
+    act(() => stampLabelled("HD")!.click());
     expect(rollHitDice).not.toHaveBeenCalled();
   });
 });

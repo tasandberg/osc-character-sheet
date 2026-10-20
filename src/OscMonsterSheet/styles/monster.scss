@@ -1,18 +1,4 @@
 .osc-monster {
-  .osc-monster-roll-die {
-    display: inline-flex;
-    align-items: center;
-    vertical-align: top;
-    height: 1lh;
-    margin-left: var(--spacer-1);
-    cursor: pointer;
-
-    &:hover,
-    &:focus-visible {
-      filter: brightness(1.2);
-    }
-  }
-
   .tabs.folder .tab {
     font-size: var(--fs-xs);
   }

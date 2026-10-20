@@ -3,7 +3,6 @@ import { armorTierLabel, formatMod } from "@domain/format";
 import { Identity } from "@layout/Identity";
 import { Portrait } from "@layout/Portrait";
 import { Stamp } from "@ui/Stamp";
-import { cx } from "@ui/cx";
 import { rollable, type ActivateEvent } from "@ui/rollable";
 import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
@@ -15,33 +14,22 @@ import { useHpInput } from "@ui/useHpInput";
 // than the `tw:text-*` scale: the tokens are `calc(<rem> * var(--fs-scale))` and
 // follow the sheet's font-size setting, the Tailwind scale is the raw rem.
 
-// Init / HD / Move tile.
+// Init / HD / Move: key + value inline, hairline-divided.
 const TILE =
-  "osc-tile tw:flex tw:min-w-[52px] tw:flex-none tw:flex-col tw:items-center tw:gap-1 tw:pt-[2px] tw:text-center" +
-  " tw:@max-md/app:w-auto" +
-  " tw:@twopane/sheet:w-auto tw:@twopane/sheet:px-[6px] tw:@twopane/sheet:pt-[5px] tw:@twopane/sheet:pb-1";
-
-// Smaller, snugger than the stamp's own `.sm`. The rail trims the sides further
-// still — see the clipped-MOVE note on `.osc-twopane .osc-tile .stamp` in
-// shell.scss, which stays SCSS: at (0,3,0) it out-ranks these utilities.
-const TILE_STAMP =
-  "tw:block tw:w-full tw:px-[4px] tw:pt-[3px] tw:pb-[2px] tw:text-center" +
-  " tw:whitespace-nowrap";
+  "osc-tile tw:relative tw:inline-flex tw:flex-none tw:items-baseline tw:gap-2 tw:px-3" +
+  " tw:border-l tw:border-(--hairline) tw:first:border-l-0 tw:first:pl-0";
 
 const TILE_V =
-  "osc-tile-v tw:text-(length:--fs-md) tw:text-text";
+  "osc-tile-v tw:text-(length:--fs-md) tw:font-semibold tw:text-text";
 
-// HP/AC block. At XS it becomes a 52×76 narrow-tall column.
+// HP/AC column, hairline-divided. At XS it becomes a 52×76 narrow-tall column.
 const VITAL =
-  "osc-vital tw:relative tw:px-[10px] tw:pt-[6px] tw:pb-[8px] tw:text-center" +
+  "osc-vital tw:relative tw:px-[10px] tw:pt-[2px] tw:pb-[2px] tw:text-center" +
   " tw:@max-md/app:flex tw:@max-md/app:min-h-[76px] tw:@max-md/app:flex-col tw:@max-md/app:items-center" +
   " tw:@max-md/app:justify-start tw:@max-md/app:gap-[1px]" +
   " tw:@max-md/app:px-[4px] tw:@max-md/app:pt-[5px] tw:@max-md/app:pb-[6px]";
 
-// The <Stamp> label fills the box width (black bar) like the others.
-const VITAL_L =
-  "vv-l tw:mb-[2px] tw:block tw:w-full" +
-  " tw:@max-md/app:px-[6px] tw:@max-md/app:pt-[4px] tw:@max-md/app:pb-[3px]";
+const VITAL_L = "vv-l tw:mb-[2px] tw:flex";
 
 // The hero numeral. Colour is per-card, as above.
 const VITAL_BIG =
@@ -91,28 +79,26 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         onContextMenu={onPortraitContextMenu}
       />
       <Identity identity={identity} />
-      <div className="osc-substats tw:flex tw:gap-2 tw:self-start tw:@max-md/app:grid tw:@max-md/app:grid-cols-3 tw:@twopane/sheet:grid tw:@twopane/sheet:w-full tw:@twopane/sheet:grid-cols-3">
+      <div className="osc-substats tw:flex tw:flex-wrap tw:items-baseline tw:gap-y-1 tw:self-start tw:@max-md/app:justify-center tw:@twopane/sheet:justify-center">
         <div className={TILE}>
-          <Stamp className={TILE_STAMP}>INIT</Stamp>
-          <div className={TILE_V}>{formatMod(vitals.initMod)}</div>
+          <Stamp>INIT</Stamp>
+          <span className={TILE_V}>{formatMod(vitals.initMod)}</span>
         </div>
         <div className={TILE}>
-          <Stamp
-            className={cx(TILE_STAMP, rollHd && "rollable")}
-            title={hdLabel}
-            aria-label={hdLabel}
-            {...rollable(rollHd)}
-          >
-            HD
-          </Stamp>
-          <div className={TILE_V}>{vitals.hd}</div>
+          <Stamp>HD</Stamp>
+          <span className={TILE_V}>{vitals.hd}</span>
+          {rollHd && (
+            <span className="osc-roll-die" title={hdLabel} aria-label={hdLabel} {...rollable(rollHd)}>
+              <i className="fa-solid fa-dice-d20 roll-label-die" aria-hidden="true" />
+            </span>
+          )}
         </div>
         <div className={`${TILE} tw:cursor-default`}>
-          <Stamp className={TILE_STAMP}>MOVE</Stamp>
+          <Stamp>MOVE</Stamp>
           {/* dotted underline hints at the hover breakdown (all three rates + enc) */}
-          <div className={`${TILE_V} tw:underline tw:decoration-(--hair) tw:decoration-dotted tw:underline-offset-[2px]`}>
+          <span className={`${TILE_V} tw:underline tw:decoration-(--hair) tw:decoration-dotted tw:underline-offset-[2px]`}>
             {vitals.move}ft
-          </div>
+          </span>
           <MoveTooltip
             bands={m}
             tier={encumbrance?.enabled ? encumbrance.tier : undefined}
@@ -127,7 +113,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
       </div>
       {/* minmax(0,…) so a wide value can't auto-expand a track past its share
           and shove the sibling card out of the container. */}
-      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*11.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:gap-2 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
+      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*11.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
         <div className={`${VITAL} hp`}>
           <Stamp className={VITAL_L}>HP</Stamp>
           <div className={VV_ROW}>
@@ -149,11 +135,11 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
             )}
           </div>
           <div className={VITAL_SUB}>
-            <span className={SUB_FULL}>Max {vitals.hp.max}</span>
+            <span className={SUB_FULL}>of {vitals.hp.max}</span>
             <span className={SUB_SHORT}>/{vitals.hp.max}</span>
           </div>
         </div>
-        <div className={`${VITAL} ac`}>
+        <div className={`${VITAL} ac tw:border-l tw:border-(--hairline)`}>
           <Stamp className={VITAL_L}>AC</Stamp>
           <div className={VV_ROW}>
             <div className={`${VITAL_BIG} tw:text-teal-accent`} data-testid="ac-value">{vitals.ac.value}</div>

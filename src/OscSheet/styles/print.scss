@@ -144,6 +144,20 @@
     }
   }
 
+  .osc-roll-die {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: top;
+    height: 1lh;
+    margin-left: var(--spacer-1);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      filter: brightness(1.2);
+    }
+  }
+
   .roll-label-die {
     color: var(--link-accent);
   }
