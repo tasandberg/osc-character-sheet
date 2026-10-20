@@ -5,7 +5,7 @@ import { rollable, type ActivateEvent } from "./rollable";
 
 /** An "ink-stamp key · big value · caption" stat cell, optionally wired to a
  *  roll. Two vellum variants (see `.plaque` in components.css):
- *    • `ability` — stamp key, big value, mod caption.
+ *    • `ability` — gold-framed plaque with a bottom mod pill.
  *    • `save` — 22px stamp, target, label.
  *  Sub-elements are styled by the variant via generic `.pk`/`.pv`/`.pc` classes.
  *  When `onActivate` is set the cell becomes a keyboard-accessible button and
