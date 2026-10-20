@@ -10,7 +10,7 @@ type Props = {
 
 export function Portrait({ identity, onClick, onContextMenu, canEdit }: Props) {
   return (
-    <div className="osc-portrait-wrap profile tw:relative tw:aspect-square tw:w-[110px] tw:@max-md/app:h-[54px] tw:@max-md/app:w-[54px] tw:@max-md/app:self-center tw:@twopane/sheet:h-[120px] tw:@twopane/sheet:w-[120px] tw:@twopane/sheet:self-center">
+    <div className="osc-portrait-wrap profile tw:relative tw:aspect-square tw:w-[calc(var(--spacer-12)*2)] tw:@max-md/app:h-[54px] tw:@max-md/app:w-[54px] tw:@max-md/app:self-center tw:@twopane/sheet:h-[120px] tw:@twopane/sheet:w-[120px] tw:@twopane/sheet:self-center">
       <img
         className={
           "osc-portrait profile-img tw:absolute tw:inset-0 tw:h-full tw:w-full" +
