@@ -2,7 +2,6 @@ import { useState } from "react";
 import type { SaveVM, ExplorationVM, AbilityVM } from "@domain/vm-types";
 import type { OSESave } from "@domain/types";
 import { SectionTitle } from "@ui/SectionTitle";
-import { StatPlaque } from "@ui/StatPlaque";
 import { cx } from "@ui/cx";
 import { rollable, type ActivateEvent } from "@ui/rollable";
 import SavesModTag from "@src/OscSheet/components/ui/SavesModTag";
@@ -15,36 +14,6 @@ type Props = {
   onRollSave?: (key: OSESave, event: ActivateEvent) => void;
   onRollExploration?: (key: string, event: ActivateEvent) => void;
 };
-
-/** 1–2 char ink-stamp from the save label (Death → D, Paralysis → P). */
-function saveStamp(label: string): string {
-  return label.charAt(0).toUpperCase();
-}
-
-export function SavesGrid({
-  saves,
-  onRoll,
-}: {
-  saves: SaveVM[];
-  onRoll?: (key: OSESave, event: ActivateEvent) => void;
-}) {
-  return (
-    <div className="fvtt-saves">
-      {saves.map((s) => (
-        <StatPlaque
-          key={s.key}
-          variant="save"
-          stampKey={saveStamp(s.label)}
-          value={s.target}
-          caption={s.label}
-          onActivate={onRoll && ((e) => onRoll(s.key, e))}
-          title={onRoll ? `Roll ${s.label} save (≥ ${s.target})` : undefined}
-          data-testid={`save-${s.key}`}
-        />
-      ))}
-    </div>
-  );
-}
 
 export function SavesBand({
   saves,
@@ -121,7 +90,7 @@ export function SavesExploration({
     return (
       <section className="osc-section">
         <SectionTitle hint="roll-above d20">Saving Throws</SectionTitle>
-        <SavesGrid saves={saves} onRoll={onRollSave} />
+        <SavesBand saves={saves} onRoll={onRollSave} />
         <SectionTitle hint="1-in-6">Exploration</SectionTitle>
         <ExplorationGrid exploration={exploration} onRoll={onRollExploration} />
       </section>
@@ -158,7 +127,7 @@ export function SavesExploration({
       </div>
       {tab === "saves" ? (
         <div className="tw:space-y-1">
-          <SavesGrid saves={saves} onRoll={onRollSave} />
+          <SavesBand saves={saves} onRoll={onRollSave} />
           <SavesModTag wisdomAbility={wisdomAbility} />
         </div>
       ) : (

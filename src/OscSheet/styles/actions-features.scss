@@ -74,12 +74,8 @@
   border-bottom-color: var(--gold);
 }
 
-// --- saves & exploration cards ---
-// The column templates stayed in actions.scss; only the grid itself was lost.
-.fvtt-saves {
-  display: grid;
-  gap: var(--spacer-2);
-}
+// --- exploration grid ---
+// The column template stayed in actions.scss; only the grid itself was lost.
 .fvtt-explore {
   display: grid;
   gap: 0 var(--spacer-4);

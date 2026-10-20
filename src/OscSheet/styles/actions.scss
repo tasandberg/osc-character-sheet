@@ -214,27 +214,7 @@
 // --- saves/exploration tab nav (rail, large view) ---
 // Nav + tabs are in actions-features.scss; SavesExploration.tsx is NOT converted.
 
-// --- saves & exploration cards (rows → cards) ---
-// Saves: 5-up grid of ink-stamp · mono target · tiny label. The save-card box +
-// stamp/value/label styling (incl. the .stamp.sk 22px reconciliation) lives in
-// vellum as `.plaque-save` (StatPlaque variant="save"); `display:grid` and the
-// gap are utilities on the containers.
-//
-// NOT converted. The column templates are here; the grid itself, the cards and
-// the tab nav are in actions-features.scss — restored, because the deletion that
-// took them assumed a conversion of SavesExploration.tsx that never happened.
-//
-// The templates would stay here regardless: the rail variants below are
-// parent-context overrides (`.osc-rail-extra .fvtt-saves`), which no utility can
-// express, and at (0,2,0) they tie with a scoped utility that is imported last.
-.fvtt-saves {
-  grid-template-columns: repeat(5, 1fr);
-}
-// In the narrow left rail (large view), 5-up overflows — drop to 3+2.
-.osc-rail-extra .fvtt-saves {
-  grid-template-columns: repeat(3, 1fr);
-}
-
+// --- saves band & exploration grid ---
 .osc-saves-band {
   container-type: inline-size;
   display: grid;
@@ -260,6 +240,20 @@
   }
   &.rollable:focus-visible {
     outline: 2px solid var(--gold);
+  }
+}
+.osc-rail-extra .osc-saves-band {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.osc-rail-extra .osc-saves-band-cell {
+  grid-column: span 2;
+
+  &:nth-child(4) {
+    grid-column: 2 / span 2;
+    border-left: 0;
+  }
+  &:nth-child(n + 4) {
+    border-top: 1px solid var(--hair-soft);
   }
 }
 .osc-saves-band-label {
