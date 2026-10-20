@@ -103,6 +103,18 @@
     transform: none;
   }
 
+  :is(
+      .vm-bevel:where(button, a[href], summary, label, [role="button"]),
+      .vm-btn-secondary:not(.osc-btn-status),
+      .vm-icon-btn-raised,
+      .vm-stepper-btn
+    ):active:not(:disabled, [aria-disabled="true"]),
+  .vm-pressed {
+    box-shadow:
+      inset 3px 3px 0 var(--btn-press-shade),
+      1px 1px 0 var(--stamp-wall);
+  }
+
   .osc-ruled-row + .osc-ruled-row {
     border-top: 1px solid var(--hair-soft);
   }
