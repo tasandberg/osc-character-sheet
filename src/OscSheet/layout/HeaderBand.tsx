@@ -20,7 +20,7 @@ const TILE =
   " tw:@twopane/sheet:flex-col tw:@twopane/sheet:items-center tw:@twopane/sheet:gap-0";
 
 const TILE_V =
-  "osc-tile-v tw:text-(length:--fs-md) tw:tabular-nums tw:text-text";
+  "osc-tile-v tw:text-(length:--fs-md) tw:tabular-nums tw:text-text-dim";
 
 // HP/AC column, hairline-divided. At XS it becomes a 52×76 narrow-tall column.
 const VITAL =
@@ -88,7 +88,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           <Stamp>HD</Stamp>
           <span className={TILE_V}>{vitals.hd}</span>
           {rollHd && (
-            <span className="osc-roll-die osc-roll-die-muted" title={hdLabel} aria-label={hdLabel} {...rollable(rollHd)}>
+            <span className="osc-roll-die" title={hdLabel} aria-label={hdLabel} {...rollable(rollHd)}>
               <i className="fa-solid fa-dice-d20 roll-label-die" aria-hidden="true" />
             </span>
           )}
@@ -96,7 +96,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         <div className={`${TILE} tw:cursor-default`}>
           <Stamp>MOVE</Stamp>
           {/* dotted underline hints at the hover breakdown (all three rates + enc) */}
-          <span className={`${TILE_V} tw:underline tw:decoration-(--hair) tw:decoration-dotted tw:underline-offset-[2px]`}>
+          <span className={`${TILE_V} tw:underline tw:decoration-(--text-dim) tw:decoration-dotted tw:underline-offset-[2px]`}>
             {vitals.move}ft
           </span>
           <MoveTooltip

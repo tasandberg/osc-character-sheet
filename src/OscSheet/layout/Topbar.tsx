@@ -103,7 +103,7 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
           <span className="v tw:block tw:text-center tw:text-(length:--fs-xs) tw:text-stamp-text">
             {vm.xp.value.toLocaleString()} XP
           </span>
-          <div className="tw:relative tw:mt-[2px] tw:h-[6px] tw:overflow-hidden tw:border tw:border-[rgba(229,222,200,0.22)] tw:bg-[rgba(0,0,0,0.35)]">
+          <div className="tw:relative tw:mt-[2px] tw:h-[6px] tw:overflow-hidden tw:border tw:border-(--hair-soft) tw:bg-(--well)">
             <i
               className="tw:absolute tw:top-0 tw:bottom-0 tw:left-0 tw:bg-gold"
               style={{ width: `${pct}%` }}
