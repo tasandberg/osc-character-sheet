@@ -349,6 +349,42 @@
   justify-content: flex-start;
 }
 
+.osc-tb-actions .vm-btn-secondary {
+  gap: 0;
+  min-width: calc(var(--spacer-1) * 7);
+  justify-content: center;
+  padding-inline: var(--spacer-1);
+  transition:
+    gap 0.15s ease-out,
+    padding-inline 0.15s ease-out;
+
+  .lbl {
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:
+      max-width 0.15s ease-out,
+      opacity 0.15s ease-out;
+  }
+
+  &:is(:hover, :focus-visible) {
+    gap: var(--spacer-2);
+    padding-inline: var(--spacer-2);
+
+    .lbl {
+      max-width: 6em;
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &,
+    .lbl {
+      transition: none;
+    }
+  }
+}
+
 // === XS / mobile (≤479px app): compact header + topbar overflow ===
 // MUST live here (after the base .osc-head / .osc-tb-* rules) to win the cascade —
 // shell.scss loads earlier, so XS overrides placed there lose at equal specificity.
