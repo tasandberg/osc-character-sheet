@@ -34,10 +34,6 @@
   --surface-2: var(--surface-2-solid);
 }
 
-/* Muted text lifted to ≥4.5:1 on --surface-2. */
-:root {
-  --text-mute: #a59f90;
-}
 
 [data-theme="cream"] {
   --text-mute: #605b58;
