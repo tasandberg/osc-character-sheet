@@ -1011,7 +1011,7 @@ button.pip:hover {
    classes scoped under the variant: `.pk` (stamp key), `.pv` (value), `.pc`
    (caption).
      • `.plaque-ability` — gold-framed plaque (inner hairline + corner
-       brackets), big serif value, gold-on-ink mod pill pinned to the bottom.
+       brackets), big tabular value, gold-on-ink mod circle pinned to the bottom.
      • `.plaque-save` — 22px ink stamp, target, label.
    Naming: variant classes are `plaque-ability`/`plaque-save`, NOT bare
    `ability`/`save` — tokens.css already ships unrelated `.ability`/`.save`
@@ -1083,7 +1083,7 @@ button.pip:hover {
   margin: 1px 7px 0;
   width: auto;
 }
-/* Big serif value fills the middle */
+/* Big tabular value fills the middle */
 .plaque-ability .pv {
   position: relative;
   flex: 1;
@@ -1091,22 +1091,26 @@ button.pip:hover {
   align-items: center;
   justify-content: center;
   width: 100%;
-  font-family: var(--display);
+  font-family: var(--sans);
   font-size: var(--fs-4xl);
+  font-variant-numeric: tabular-nums;
   line-height: 1;
   color: var(--text);
   margin: 0;
 }
-/* Mod pill: gold-on-ink capsule pinned to the bottom edge */
+/* Mod: gold-on-ink circle pinned to the bottom edge */
 .plaque-ability .pc {
   position: absolute;
   left: 50%;
   bottom: 8px;
   transform: translateX(-50%);
-  min-width: 38px;
+  display: grid;
+  place-items: center;
+  width: 2.4em;
+  height: 2.4em;
   background: var(--ink);
-  border-radius: 0;
-  padding: 2px 9px 1px;
+  border-radius: 50%;
+  padding: 0;
   font-family: var(--mono);
   font-size: var(--fs-xs);
   font-weight: 600;
