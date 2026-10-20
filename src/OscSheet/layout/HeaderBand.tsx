@@ -29,11 +29,11 @@ const VITAL =
   " tw:@max-md/app:justify-start tw:@max-md/app:gap-[1px]" +
   " tw:@max-md/app:px-[4px] tw:@max-md/app:pt-[5px] tw:@max-md/app:pb-[6px]";
 
-const VITAL_L = "vv-l tw:mb-[2px] tw:flex";
+const VITAL_L = "vv-l tw:flex";
 
 // The hero numeral. Colour is per-card, as above.
 const VITAL_BIG =
-  "vv-big tw:my-[1px] tw:font-display tw:text-(length:--fs-5xl) tw:leading-[1.05]" +
+  "vv-big tw:-mt-2 tw:font-display tw:text-(length:--fs-4xl) tw:leading-none" +
   " tw:@max-md/app:text-(length:--fs-3xl)";
 
 const VITAL_SUB =
@@ -139,7 +139,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
             <span className={SUB_SHORT}>/{vitals.hp.max}</span>
           </div>
         </div>
-        <div className={`${VITAL} ac tw:border-l tw:border-(--hairline)`}>
+        <div className={`${VITAL} ac tw:border-l tw:border-(--hair-soft)`}>
           <Stamp ink className={VITAL_L}>AC</Stamp>
           <div className={VV_ROW}>
             <div className={`${VITAL_BIG} tw:text-teal-accent`} data-testid="ac-value">{vitals.ac.value}</div>

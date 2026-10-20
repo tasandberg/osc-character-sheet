@@ -147,6 +147,7 @@
 }
 .osc-substats {
   grid-area: subs;
+  margin-top: var(--spacer-2);
 
   > .osc-tile + .osc-tile::before {
     content: "";
@@ -154,7 +155,7 @@
     top: 15%;
     bottom: 15%;
     left: calc(var(--spacer-4) / -2);
-    border-left: 1px solid var(--hairline);
+    border-left: 1px solid var(--hair-soft);
   }
 }
 @container app (max-width: 479px) {
