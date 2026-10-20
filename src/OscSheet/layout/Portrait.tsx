@@ -14,8 +14,8 @@ export function Portrait({ identity, onClick, onContextMenu, canEdit }: Props) {
       <img
         className={
           "osc-portrait profile-img tw:absolute tw:inset-0 tw:h-full tw:w-full" +
-          " tw:border tw:border-(--hairline) tw:bg-bg-2 tw:object-contain" +
-          (canEdit ? " tw:cursor-pointer tw:hover:border-gold" : "")
+          " tw:bg-bg-2 tw:object-contain" +
+          (canEdit ? " tw:cursor-pointer tw:hover:outline tw:hover:outline-gold" : "")
         }
         src={identity.img || undefined}
         alt={identity.name}
