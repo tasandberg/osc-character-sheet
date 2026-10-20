@@ -115,6 +115,12 @@
       1px 1px 0 var(--stamp-wall);
   }
 
+  .osc-segmented-sm .vm-segment {
+    height: 24px;
+    padding: 0 var(--spacer-2);
+    font-size: var(--fs-xs);
+  }
+
   .osc-ruled-row + .osc-ruled-row {
     border-top: 1px solid var(--hair-soft);
   }

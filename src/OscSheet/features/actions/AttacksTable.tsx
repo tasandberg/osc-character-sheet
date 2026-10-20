@@ -108,13 +108,14 @@ function WeaponRow({
             ) : (
               a.name
             )}{" "}
-            <span className="wkind">({mode.kindLabel.toLowerCase()})</span>
+            <span className="wkind">({mode.kindLabel.toLowerCase()})</span>{" "}
+            <span className="wdice">{mode.dmgDie}</span>
           </div>
           <div className="wtags">
             {/* dual melee+missile → a segmented switch; single mode → a static tag */}
             {dual ? (
               <div
-                className="vm-segmented"
+                className="vm-segmented osc-segmented-sm"
                 role="radiogroup"
                 aria-label="Attack mode"
               >
@@ -176,13 +177,7 @@ function WeaponRow({
         aria-label={`Roll to hit · ${mode.hitTip}`}
       >
         <span className="sl">Hit</span>
-        <span className="wv">
-          <i
-            className={cx("fa-solid", kindIcon(mode.kind))}
-            aria-hidden="true"
-          />
-          {mode.hitDisplay}
-        </span>
+        <span className="wv">{mode.hitDisplay}</span>
         <span className="tag-pop" role="tooltip">
           {`Roll to hit · ${mode.hitTip}`}
         </span>
@@ -195,7 +190,7 @@ function WeaponRow({
         aria-label={`Roll damage · ${mode.dmgTip}`}
       >
         <span className="sl">Dmg</span>
-        <span className="wv">{mode.dmgDisplay}</span>
+        <span className="wv">{mode.dmgModDisplay}</span>
         <span className="tag-pop" role="tooltip">
           {`Roll damage · ${mode.dmgTip}`}
         </span>

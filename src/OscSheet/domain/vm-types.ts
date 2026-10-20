@@ -72,6 +72,10 @@ export interface AttackMode {
   dmg: RollSpec;
   /** Button text — always-signed mono, e.g. "1d6+0" / "1d10+2". */
   dmgDisplay: string;
+  /** The damage dice alone, e.g. "1d6". */
+  dmgDie: string;
+  /** The damage modifier alone, always signed, e.g. "+0". */
+  dmgModDisplay: string;
   /** Full damage formula with named mods for the popover, e.g. "1d6 + 1 (str)". */
   dmgTip: string;
 }

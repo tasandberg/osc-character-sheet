@@ -178,6 +178,10 @@
 .osc-weapon .wname .wkind {
   color: var(--text-mute, #8a8270);
 }
+.osc-weapon .wname .wdice {
+  font-weight: 400;
+  color: var(--text-dim);
+}
 .osc-weapon .wtags {
   display: flex;
   flex-wrap: wrap;
@@ -190,14 +194,10 @@
   position: relative;
 }
 
-// Hit / Damage — Vellum buttons: a HIT/DMG key over the value.
+// Hit / Damage — single-line Vellum buttons: a HIT/DMG key and the modifier.
 .wstat {
   position: relative;
   justify-self: stretch;
-  flex-direction: column;
-  gap: 1px;
-  height: auto;
-  padding-block: var(--spacer-1);
 }
 .osc-weapon .wstat .sl {
   color: var(--text-dim);
@@ -206,11 +206,5 @@
   text-transform: uppercase;
 }
 .osc-weapon .wstat .wv {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacer-1);
   white-space: nowrap;
-  i {
-    font-size: 0.9em;
-  }
 }

@@ -62,6 +62,8 @@ describe("selectAttacks", () => {
     expect(melee.hitTip).toBe("1d20 + 1 (weapon)");
     expect(melee.dmg.formula).toBe("1d4+1");
     expect(melee.dmgDisplay).toBe("1d4+1");
+    expect(melee.dmgDie).toBe("1d4");
+    expect(melee.dmgModDisplay).toBe("+1");
     expect(melee.dmgTip).toBe("1d4 + 1 (weapon)");
   });
 

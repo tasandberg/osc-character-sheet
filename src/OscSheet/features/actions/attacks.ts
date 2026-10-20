@@ -1,4 +1,5 @@
 import { computeAttack, type AttackSettings } from "@domain/attackMath";
+import { formatMod } from "@domain/format";
 import type { OSEActor } from "@domain/types";
 import type { AttackVM, AttackMode, RollSpec } from "@domain/vm-types";
 
@@ -73,6 +74,12 @@ export function selectAttacks(
         hitTip: math.hit.tip,
         dmg,
         dmgDisplay: math.dmg.display,
+        dmgDie:
+          math.dmg.terms
+            .filter((t) => t.label === "die")
+            .map((t) => t.value)
+            .join("+") || math.dmg.display,
+        dmgModDisplay: formatMod(math.dmg.total),
         dmgTip: math.dmg.tip,
       };
     };

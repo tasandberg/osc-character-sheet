@@ -21,6 +21,8 @@ const dagger: AttackVM = {
       hitTip: "d20+1",
       dmg: { label: "Dagger", formula: "1d4", flavor: "damage" },
       dmgDisplay: "1d4",
+      dmgDie: "1d4",
+      dmgModDisplay: "+0",
       dmgTip: "1d4",
     },
   ],

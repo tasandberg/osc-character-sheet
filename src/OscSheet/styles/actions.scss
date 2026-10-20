@@ -234,8 +234,8 @@
 // (components.css) as a shared tooltip primitive — used by weapon tags,
 // kind-seg switches, and the hit/dmg (.wstat) buttons.
 
-// Hit / Damage — Vellum buttons, key over the value (hit = mode icon +
-// modifier; dmg = full formula). In actions-features.scss.
+// Hit / Damage — single-line Vellum buttons, key + modifier; the damage dice sit
+// after the weapon name. In actions-features.scss.
 
 // The Attack button is the shared Vellum <Button variant="outline" iconTone="brass">
 // with an icon + label — the same primitive as the "with icon" outline story.
@@ -373,7 +373,6 @@
   }
   // hit/dmg: label left, value right, one row each
   .osc-weapon .wstat {
-    flex-direction: row;
     justify-content: space-between;
     gap: var(--spacer-3);
     min-width: 128px;
