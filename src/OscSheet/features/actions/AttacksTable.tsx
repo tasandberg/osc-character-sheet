@@ -169,6 +169,7 @@ function WeaponRow({
                   </Tag>
                   <Tag
                     size="xs"
+                    icon={q.icon || undefined}
                     className="u-foundry-xs-display-none u-foundry-md-display-inline-flex"
                   >
                     {q.label}
