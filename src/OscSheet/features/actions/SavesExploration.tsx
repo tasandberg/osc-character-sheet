@@ -46,6 +46,31 @@ export function SavesGrid({
   );
 }
 
+export function SavesBand({
+  saves,
+  onRoll,
+}: {
+  saves: SaveVM[];
+  onRoll?: (key: OSESave, event: ActivateEvent) => void;
+}) {
+  return (
+    <div className="osc-saves-band">
+      {saves.map((s) => (
+        <div
+          key={s.key}
+          className={cx("osc-saves-band-cell", onRoll && "rollable")}
+          title={onRoll ? `Roll ${s.label} save (≥ ${s.target})` : undefined}
+          data-testid={`save-${s.key}`}
+          {...rollable(onRoll && ((e) => onRoll(s.key, e)))}
+        >
+          <span className="osc-saves-band-label">{s.label}</span>
+          <span className="osc-saves-band-value">{s.target}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function ExplorationGrid({
   exploration,
   onRoll,

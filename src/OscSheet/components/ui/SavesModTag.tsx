@@ -11,8 +11,9 @@ export default function SavesModTag({
   return (
     <Tag
       intent="teal"
+      size="xs"
       tooltip={`Wisdom ${wisdomAbility.value}`}
-      className="tw:mb-4 tw:grow-0"
+      className="tw:grow-0"
     >
       <span className="u-foundry-xs-display-none u-foundry-md-display-block">
         {wisdomAbility.modLabel} vs Magic
