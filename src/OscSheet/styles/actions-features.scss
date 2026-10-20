@@ -149,6 +149,12 @@
   font-size: var(--fs-md);
   border: 1px solid var(--border, #3a342c);
 }
+@container app (min-width: 480px) {
+  .osc-weapon .wic {
+    width: var(--spacer-12);
+    height: var(--spacer-12);
+  }
+}
 .osc-weapon .wic-img {
   object-fit: cover;
 }
@@ -208,9 +214,6 @@
 // Hit / Damage — the shared raised roll buttons: a HIT/DMG key and the modifier.
 .wstat {
   position: relative;
-}
-.osc-weapon .osc-roll-button {
-  margin-top: calc((var(--spacer-6) - var(--spacer-5)) / 2);
 }
 .osc-weapon .wstat .sl {
   text-transform: uppercase;
