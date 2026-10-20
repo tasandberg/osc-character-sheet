@@ -15,14 +15,16 @@
 
 // --- header band ---
 // Grid areas let medium and rail arrange the same markup differently:
-// medium = portrait | name + HP/AC, with Init/HD/Move on one line under both.
+// medium = portrait | (name over Init/HD/Move) | HP/AC right. The stat row
+// never wraps; a header too narrow for it beside HP/AC moves it under everything.
 .osc-head {
   display: grid;
   grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto 1fr;
   grid-template-areas:
     "portrait ident  vitals"
-    "portrait subs   subs";
-  gap: var(--spacer-2) var(--spacer-3);
+    "portrait subs   vitals";
+  gap: 0 var(--spacer-3);
   align-items: start;
 }
 // Only `grid-area` stays on the header's children: the areas are what let medium,
@@ -132,6 +134,17 @@
 // three tiers of them. The one rail override that stays SCSS is the stamp's side
 // padding in shell.scss — see the clipped-MOVE note there; at (0,3,0) it still
 // out-ranks the base utilities.
+.osc-sheet-app .osc-substats .osc-roll-die {
+  margin-left: calc(var(--spacer-1) - var(--spacer-2));
+}
+@container sheet (width < 590px) {
+  .osc-head {
+    row-gap: var(--spacer-2);
+    grid-template-areas:
+      "portrait ident vitals"
+      "subs     subs  subs";
+  }
+}
 .osc-substats {
   grid-area: subs;
 

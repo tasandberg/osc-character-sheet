@@ -20,11 +20,11 @@ const TILE =
   " tw:@twopane/sheet:flex-col tw:@twopane/sheet:items-center tw:@twopane/sheet:gap-0";
 
 const TILE_V =
-  "osc-tile-v tw:text-(length:--fs-md) tw:font-semibold tw:text-text";
+  "osc-tile-v tw:text-(length:--fs-md) tw:tabular-nums tw:text-text";
 
 // HP/AC column, hairline-divided. At XS it becomes a 52×76 narrow-tall column.
 const VITAL =
-  "osc-vital tw:relative tw:px-[10px] tw:pt-[2px] tw:pb-[2px] tw:text-center" +
+  "osc-vital tw:relative tw:px-[6px] tw:pt-[2px] tw:pb-[2px] tw:text-center" +
   " tw:@max-md/app:flex tw:@max-md/app:min-h-[76px] tw:@max-md/app:flex-col tw:@max-md/app:items-center" +
   " tw:@max-md/app:justify-start tw:@max-md/app:gap-[1px]" +
   " tw:@max-md/app:px-[4px] tw:@max-md/app:pt-[5px] tw:@max-md/app:pb-[6px]";
@@ -37,7 +37,7 @@ const VITAL_BIG =
   " tw:@max-md/app:text-(length:--fs-3xl)";
 
 const VITAL_SUB =
-  "vv-sub tw:text-(length:--fs-xs) tw:text-text-dim tw:@max-md/app:text-(length:--fs-2xs)";
+  "vv-sub tw:mt-1 tw:text-(length:--fs-xs) tw:text-text-dim tw:@max-md/app:text-(length:--fs-2xs)";
 
 /** Full label by default; the short form takes over at XS, where the card is 52px wide. */
 const SUB_FULL = "full tw:@max-md/app:hidden";
@@ -88,7 +88,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           <Stamp>HD</Stamp>
           <span className={TILE_V}>{vitals.hd}</span>
           {rollHd && (
-            <span className="osc-roll-die" title={hdLabel} aria-label={hdLabel} {...rollable(rollHd)}>
+            <span className="osc-roll-die osc-roll-die-muted" title={hdLabel} aria-label={hdLabel} {...rollable(rollHd)}>
               <i className="fa-solid fa-dice-d20 roll-label-die" aria-hidden="true" />
             </span>
           )}
@@ -113,7 +113,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
       </div>
       {/* minmax(0,…) so a wide value can't auto-expand a track past its share
           and shove the sibling card out of the container. */}
-      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*11.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
+      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*10.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
         <div className={`${VITAL} hp`}>
           <Stamp ink className={VITAL_L}>HP</Stamp>
           <div className={VV_ROW}>

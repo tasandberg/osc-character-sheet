@@ -176,6 +176,14 @@
     }
   }
 
+  .osc-roll-die-muted .roll-label-die {
+    color: var(--text-dim);
+  }
+
+  .osc-roll-die-muted:is(:hover, :focus-visible) .roll-label-die {
+    color: var(--link-accent);
+  }
+
   .roll-label-die {
     color: var(--link-accent);
   }
