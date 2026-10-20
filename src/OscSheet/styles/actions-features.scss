@@ -192,9 +192,6 @@
   color: var(--gold);
   text-decoration: underline;
 }
-.osc-weapon .wname .wkind {
-  color: var(--text-mute, #8a8270);
-}
 .osc-weapon .wname .wdice {
   font-weight: 400;
   color: var(--text-dim);
@@ -202,6 +199,7 @@
 .osc-weapon .wtags {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 4px;
   margin-top: 3px;
 }

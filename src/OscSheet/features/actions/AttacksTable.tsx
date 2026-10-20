@@ -109,9 +109,10 @@ function WeaponRow({
               ) : (
                 a.name
               )}{" "}
-              <span className="wkind">({mode.kindLabel.toLowerCase()})</span>{" "}
               <span className="wdice">{mode.dmgDie}</span>
             </div>
+          </div>
+          <div className="wtags">
             {dual && (
               <div
                 className="vm-segmented osc-segmented-sm"
@@ -144,40 +145,36 @@ function WeaponRow({
                 ))}
               </div>
             )}
-          </div>
-          {(!dual || a.qualities.length > 0) && (
-            <div className="wtags">
-              {!dual && (
+            {!dual && (
+              <Tag
+                variant="chip"
+                className={a.modes[0].kind}
+                icon={kindIcon(a.modes[0].kind)}
+                tooltip={a.modes[0].kindLabel}
+                title={a.modes[0].kindLabel}
+              />
+            )}
+            {a.qualities.map((q) => (
+              <Fragment key={q.label}>
                 <Tag
                   variant="chip"
-                  className={a.modes[0].kind}
-                  icon={kindIcon(a.modes[0].kind)}
-                  tooltip={a.modes[0].kindLabel}
-                  title={a.modes[0].kindLabel}
-                />
-              )}
-              {a.qualities.map((q) => (
-                <Fragment key={q.label}>
-                  <Tag
-                    variant="chip"
-                    className="u-foundry-lg-display-none"
-                    title={q.label}
-                    icon={q.icon || undefined}
-                    tooltip={q.icon ? q.label : undefined}
-                  >
-                    {q.icon ? null : <span className="tag-txt">{q.label}</span>}
-                  </Tag>
-                  <Tag
-                    size="xs"
-                    icon={q.icon || undefined}
-                    className="u-foundry-xs-display-none u-foundry-lg-display-inline-flex"
-                  >
-                    {q.label}
-                  </Tag>
-                </Fragment>
-              ))}
-            </div>
-          )}
+                  className="u-foundry-lg-display-none"
+                  title={q.label}
+                  icon={q.icon || undefined}
+                  tooltip={q.icon ? q.label : undefined}
+                >
+                  {q.icon ? null : <span className="tag-txt">{q.label}</span>}
+                </Tag>
+                <Tag
+                  size="xs"
+                  icon={q.icon || undefined}
+                  className="u-foundry-xs-display-none u-foundry-lg-display-inline-flex"
+                >
+                  {q.label}
+                </Tag>
+              </Fragment>
+            ))}
+          </div>
         </div>
       </div>
 
