@@ -77,7 +77,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         onContextMenu={onPortraitContextMenu}
       />
       <Identity identity={identity} />
-      <div className="osc-substats tw:flex tw:flex-wrap tw:items-baseline tw:gap-x-3 tw:gap-y-1 tw:self-start tw:@max-md/app:justify-center tw:@twopane/sheet:justify-center">
+      <div className="osc-substats tw:flex tw:flex-wrap tw:items-baseline tw:gap-x-2 tw:gap-y-1 tw:self-start tw:@max-md/app:justify-center tw:@twopane/sheet:justify-center">
         <div className={TILE}>
           <Stamp>INIT</Stamp>
           <span className={TILE_V}>{formatMod(vitals.initMod)}</span>
