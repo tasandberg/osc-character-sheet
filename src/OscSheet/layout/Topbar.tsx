@@ -124,7 +124,7 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
       <div className="tw:ml-auto tw:flex tw:items-center tw:gap-1">
         <div
           data-testid="topbar-actions"
-          className="osc-tb-actions tw:contents tw:@max-md/app:hidden"
+          className="tw:contents tw:@max-md/app:hidden"
         >
           {actionButtons}
         </div>
