@@ -1006,8 +1006,9 @@ button.pip:hover {
 }
 
 /* ─── StatPlaque — stat cell (key `.pk` · value `.pv` · caption `.pc`) ───
-     • `.plaque-ability` — a raised box in Vellum's bevel recipe (the whole box
-       rolls) with the gold inner hairline + corner brackets, value, mod circle.
+     • `.plaque-ability` — a raised plaque in Vellum's bevel recipe (the whole
+       plaque rolls) with the gold inner hairline + corner brackets, key, value,
+       mod circle.
      • `.plaque-save` — key letter, target, label.
    `plaque-ability`/`plaque-save`, not bare `ability`/`save`: sheet-base ships
    unrelated `.ability`/`.save` grid rows. */
@@ -1021,9 +1022,8 @@ button.pip:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacer-1);
-  width: calc(var(--spacer-10) + var(--spacer-4));
-  padding: var(--spacer-2) var(--spacer-1);
+  min-height: 96px;
+  padding: var(--spacer-2) 6px 30px;
   text-align: center;
   background-color: var(--btn-face);
   border: 1px solid var(--btn-wall);
@@ -1076,8 +1076,16 @@ button.pip:hover {
     linear-gradient(var(--gold), var(--gold)) 100% 100% / 9px 1.5px no-repeat,
     linear-gradient(var(--gold), var(--gold)) 100% 100% / 1.5px 9px no-repeat;
 }
+.plaque-ability .pk {
+  margin-top: 1px;
+}
 .plaque-ability .pv {
   position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   font-family: var(--sans);
   font-size: var(--fs-2xl);
   font-variant-numeric: tabular-nums;
@@ -1085,9 +1093,12 @@ button.pip:hover {
   color: var(--text);
   margin: 0;
 }
-/* Mod: gold-on-ink circle under the value */
+/* Mod: gold-on-ink circle pinned to the bottom edge */
 .plaque-ability .pc {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
   display: grid;
   place-items: center;
   width: 1.8em;

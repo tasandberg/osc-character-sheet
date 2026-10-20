@@ -386,15 +386,29 @@
     gap: var(--spacer-1);
   }
   .osc-sheet-app .plaque-ability {
-    width: 100%;
-    padding: var(--spacer-1) 2px;
+    min-height: 0;
+    padding: 5px 3px 6px;
+    align-items: stretch;
   }
   .osc-sheet-app .plaque-ability::before,
   .osc-sheet-app .plaque-ability::after {
     content: none;
   }
+  .osc-sheet-app .plaque-ability .pk {
+    margin: 0;
+  }
   .osc-sheet-app .plaque-ability .pv {
+    flex: 0 0 auto;
     font-size: var(--fs-xl, 18px);
+    padding: 3px 0;
+  }
+  .osc-sheet-app .plaque-ability .pc {
+    position: static;
+    transform: none;
+    align-self: center;
+    min-width: 0;
+    font-size: var(--fs-3xs, 10px);
+    margin-top: 2px;
   }
   // topbar: the Rest / Level Up / Edit → ⋮ collapse is a pair of
   // `@max-md/app:` utilities on the two elements (Topbar.tsx).
