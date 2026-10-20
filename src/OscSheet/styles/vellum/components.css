@@ -1005,27 +1005,12 @@ button.pip:hover {
   color: var(--on-accent);
 }
 
-/* ─── StatPlaque — stat cell (stamp key · value · caption) ───────────────
-   Vellum-native (Wave 2). Two variants, selected by the StatPlaque `variant`
-   prop, which maps to a single namespaced class; sub-elements use generic
-   classes scoped under the variant: `.pk` (stamp key), `.pv` (value), `.pc`
-   (caption).
-     • `.plaque-ability` — gold-framed plaque (inner hairline + corner
-       brackets), big tabular value, gold-on-ink mod circle pinned to the bottom.
-     • `.plaque-save` — 22px ink stamp, target, label.
-   Naming: variant classes are `plaque-ability`/`plaque-save`, NOT bare
-   `ability`/`save` — tokens.css already ships unrelated `.ability`/`.save`
-   grid-row components, so a bare modifier would inherit their `display:grid`.
-   Specificity: `.plaque-<v> .pk` scopes to (0,3,0), tying `.stamp.sm` (0,3,0),
-   but this file loads after tokens.css so `.pk` wins the tie. For `.plaque-save`
-   that lets `.pk` own the full stamp geometry incl. `padding:0`/`font-size`
-   (folds in the old `.fvtt-save .stamp.sk` reconciliation — 22px square, no
-   inflation). For `.plaque-ability` the stamp padding/font-size are
-   intentionally NOT set, so `.stamp.sm` keeps supplying them exactly as before
-   (parity with the old `.osc-abil .osc-abil-k`, whose padding was already
-   outranked by `.stamp.sm`). The Actions XS overrides (`.osc-sheet-app
-   .plaque-ability …` in actions.scss) load after this file, so they still win
-   at ≤479px. */
+/* ─── StatPlaque — stat cell (key `.pk` · value `.pv` · caption `.pc`) ───
+     • `.plaque-ability` — a raised Vellum bevel (the whole cell rolls) with the
+       gold inner hairline + corner brackets, big tabular value, mod circle.
+     • `.plaque-save` — key letter, target, label.
+   `plaque-ability`/`plaque-save`, not bare `ability`/`save`: sheet-base ships
+   unrelated `.ability`/`.save` grid rows. */
 .plaque {
   text-align: center;
 }
@@ -1037,12 +1022,8 @@ button.pip:hover {
   flex-direction: column;
   align-items: center;
   min-height: 96px;
-  background: linear-gradient(180deg, var(--surface-2), var(--surface));
-  border: 1px solid var(--gold-soft);
-  border-radius: var(--r-sm);
   padding: var(--spacer-2) 6px 30px;
   text-align: center;
-  overflow: hidden;
 }
 /* Inner hairline frame (corners connect) */
 .plaque-ability::before {
@@ -1071,17 +1052,8 @@ button.pip:hover {
     linear-gradient(var(--gold), var(--gold)) 100% 100% / 9px 1.5px no-repeat,
     linear-gradient(var(--gold), var(--gold)) 100% 100% / 1.5px 9px no-repeat;
 }
-[data-theme="cream"] .plaque-ability {
-  background: var(--surface);
-}
-[data-theme="cream"] .plaque-ability.rollable:hover {
-  background: var(--surface-2);
-}
-/* Stamp: stretched ink label near the top (padding/font-size left to .stamp.sm) */
 .plaque-ability .pk {
-  align-self: stretch;
-  margin: 1px 7px 0;
-  width: auto;
+  margin-top: 1px;
 }
 /* Big tabular value fills the middle */
 .plaque-ability .pv {
@@ -1120,21 +1092,6 @@ button.pip:hover {
   background: color-mix(in srgb, var(--ink) 7%, var(--surface));
   color: var(--ink);
 }
-/* rollable affordance (gold border + focus ring) */
-.plaque-ability.rollable {
-  cursor: pointer;
-  transition:
-    border-color 0.12s,
-    box-shadow 0.12s;
-}
-.plaque-ability.rollable:hover {
-  border-color: var(--gold);
-}
-.plaque-ability.rollable:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: -2px;
-}
-
 /* ── Save plaque ────────────────────────────────────────────────────────── */
 .plaque-save.rollable {
   cursor: pointer;
@@ -1404,8 +1361,8 @@ button.pip:hover {
   overflow: hidden;
 }
 .table thead th {
-  background: var(--ink);
-  color: var(--stamp-text);
+  border-bottom: 1px solid var(--hairline);
+  color: var(--text-dim);
   font-family: var(--sans);
   font-size: max(var(--fs-3xs), 12px);
   letter-spacing: 0.09em;
@@ -1563,9 +1520,7 @@ button.pip:hover {
 .ed-cell .ck {
   text-align: center;
   padding: var(--spacer-1) 0 3px;
-  background: var(--ink);
-  color: var(--stamp-text);
-  border-radius: var(--r-sm);
+  color: var(--text-dim);
   font-family: var(--sans);
   font-weight: 600;
   font-size: max(var(--fs-3xs), 12px);

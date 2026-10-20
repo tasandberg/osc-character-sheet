@@ -25,10 +25,7 @@ import { useSetting } from "@src/OscSheet/settings";
 // --- level head: badge · ready count · slot pips ---
 const HEAD =
   "osc-spellhead tw:flex tw:items-center tw:gap-2 tw:border-b tw:border-(--hairline) tw:py-[7px]";
-/** `--stamp-text` is the light on-ink cream (same as the save stamps) — it reads
- *  on the ink chip in BOTH themes and is lighter than the gold accent. */
-const HEAD_LV =
-  "lv vm-key tw:bg-ink tw:px-2 tw:pt-[3px] tw:pb-[2px] tw:text-stamp-text";
+const HEAD_LV = "lv vm-key";
 const HEAD_SC = "sc tw:text-(length:--fs-xs) tw:text-text-dim";
 
 /** Spellbook entry. The name opens the sheet; the memorize button and, when the
