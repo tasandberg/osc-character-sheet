@@ -16,7 +16,7 @@
 // --- header band ---
 // Grid areas let medium and rail arrange the same markup differently:
 // medium = portrait | (name over Init/HD/Move) | HP/AC right. The stat row
-// never wraps; a header too narrow for it beside HP/AC moves it under everything.
+// shrinks to its content and wraps, centred, when the name column is too narrow.
 .osc-head {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -145,24 +145,18 @@
     }
     .osc-head > .osc-substats {
       grid-row: 2;
-      grid-column: 2 / -1;
-    }
-  }
-  @container sheet (width < 525px) {
-    .osc-head {
-      grid-template-rows: auto auto 1fr;
-    }
-    .osc-head > .osc-portrait-wrap {
-      grid-row: 1 / -1;
-    }
-    .osc-head > .osc-substats {
-      grid-row: 3;
+      grid-column: 2;
+      justify-self: start;
+      max-width: 100%;
+      flex-wrap: wrap;
+      justify-content: center;
     }
   }
 }
 .osc-substats {
   grid-area: subs;
   column-gap: var(--spacer-4);
+  row-gap: var(--spacer-1);
   margin-top: calc(var(--spacer-2) + 2px);
 
   .osc-roll-die > i {
