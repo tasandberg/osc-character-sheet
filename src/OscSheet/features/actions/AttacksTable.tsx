@@ -160,7 +160,7 @@ function WeaponRow({
                 <Fragment key={q.label}>
                   <Tag
                     variant="chip"
-                    className="u-foundry-md-display-none"
+                    className="u-foundry-lg-display-none"
                     title={q.label}
                     icon={q.icon || undefined}
                     tooltip={q.icon ? q.label : undefined}
@@ -170,7 +170,7 @@ function WeaponRow({
                   <Tag
                     size="xs"
                     icon={q.icon || undefined}
-                    className="u-foundry-xs-display-none u-foundry-md-display-inline-flex"
+                    className="u-foundry-xs-display-none u-foundry-lg-display-inline-flex"
                   >
                     {q.label}
                   </Tag>
