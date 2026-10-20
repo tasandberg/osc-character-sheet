@@ -34,7 +34,7 @@ export function Identity({
     <div className="osc-ident tw:flex tw:min-w-0 tw:flex-col tw:gap-[calc(var(--spacer-1)*1.5)] tw:@max-md/app:overflow-hidden tw:@twopane/sheet:w-full tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
       {/* padding + equal negative margin: layout unchanged, clip box grows so the display face's J survives */}
       <div
-        className="osc-name tw:overflow-hidden tw:p-[0.14em] tw:-mx-[0.14em] tw:-mb-[0.14em] tw:-mt-[0.26em] tw:font-display tw:leading-[0.95] tw:tracking-[0.01em] tw:whitespace-nowrap tw:text-text tw:@max-md/app:text-ellipsis tw:@twopane/sheet:self-stretch tw:@twopane/sheet:text-center"
+        className="osc-name tw:overflow-hidden tw:p-[0.14em] tw:-mx-[0.14em] tw:-mb-[0.14em] tw:mt-[calc(var(--spacer-1)-0.26em)] tw:font-display tw:leading-[0.95] tw:tracking-[0.01em] tw:whitespace-nowrap tw:text-text tw:@max-md/app:text-ellipsis tw:@twopane/sheet:self-stretch tw:@twopane/sheet:text-center"
         ref={nameRef}
       >
         {identity.name}
