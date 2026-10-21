@@ -196,6 +196,18 @@
   .osc-twopane .osc-substats > .osc-tile + .osc-tile::before {
     content: none;
   }
+  .osc-twopane .osc-substats .stamp {
+    padding: 5px 8px 3px;
+    background: var(--ink);
+    color: var(--stamp-text);
+    line-height: 1;
+  }
+  .osc-twopane .osc-substats .stamp.rollable:hover {
+    color: var(--gold);
+  }
+  .osc-sheet-app .osc-twopane .osc-substats .osc-roll-die {
+    display: none;
+  }
 }
 // The movement popover — shared by the header MOVE tile and the inventory
 // encumbrance line — is wholly utilities in MovePop.tsx, which is also the single

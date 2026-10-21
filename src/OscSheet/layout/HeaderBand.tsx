@@ -89,11 +89,18 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           <span className={TILE_V}>{formatMod(vitals.initMod)}</span>
         </div>
         <div className={TILE}>
-          <Stamp>HD</Stamp>
+          <Stamp
+            className={rollHd ? "rollable" : undefined}
+            title={hdLabel}
+            aria-label={hdLabel}
+            {...rollable(rollHd)}
+          >
+            HD
+          </Stamp>
           <span className={TILE_V}>{vitals.hd}</span>
           {rollHd && (
-            <span className="osc-roll-die" title={hdLabel} aria-label={hdLabel} {...rollable(rollHd)}>
-              <i className="fa-solid fa-dice-d20 roll-label-die" aria-hidden="true" />
+            <span className="osc-roll-die" title={hdLabel} aria-hidden="true" onClick={rollHd}>
+              <i className="fa-solid fa-dice-d20 roll-label-die" />
             </span>
           )}
         </div>
