@@ -99,8 +99,8 @@ test.describe("tab feature surfaces", () => {
     const saves = rail.locator('[data-testid^="save-"]');
     await expect(saves).toHaveCount(5);
     await expect(saves.first()).toBeVisible();
-    // 5-up in the body, 3-up in the narrow rail (3 + 2). The collapse is 5 rows.
-    expect(rowsOf(await boxesOf(saves))).toBeLessThanOrEqual(2);
+    // Stacked one per row in the rail, each label beside its target.
+    expect(rowsOf(await boxesOf(saves.first().locator("> *")))).toBe(1);
 
     // Exploration is presence-only. It is deliberately one-per-row in the rail,
     // so a row count says nothing, and every intra-row relation measured against
