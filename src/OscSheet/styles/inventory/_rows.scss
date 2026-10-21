@@ -153,6 +153,9 @@
   border-color: var(--accent-alt, #c89e54);
   opacity: 0.5;
 }
+.osc-inv-pips.pips .pip {
+  border-color: var(--accent-alt, #c89e54);
+}
 .osc-inv-pips .pip.filled {
   background: var(--accent-alt, #c89e54);
   opacity: 1;
