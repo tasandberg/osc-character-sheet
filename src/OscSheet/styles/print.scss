@@ -171,6 +171,10 @@
     border-color: var(--stamp-wall);
   }
 
+  .section-title > :is(.vm-btn, .vm-tag) {
+    margin-block: calc(var(--spacer-2) * -1) var(--spacer-1);
+  }
+
   .vm-tag-count {
     min-width: var(--spacer-5);
     height: var(--spacer-5);
