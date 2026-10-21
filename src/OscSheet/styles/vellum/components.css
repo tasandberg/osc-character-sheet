@@ -1087,11 +1087,10 @@ button.pip:hover {
   align-items: center;
   justify-content: center;
   width: 100%;
-  font-family: var(--display);
-  font-size: var(--fs-3xl);
-  font-size-adjust: none;
+  font-family: var(--sans);
+  font-size: var(--fs-2xl);
+  font-variant-numeric: tabular-nums;
   line-height: 1;
-  top: -0.24em;
   color: var(--text);
   margin: 0;
 }
