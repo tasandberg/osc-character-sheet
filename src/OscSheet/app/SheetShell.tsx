@@ -177,7 +177,12 @@ export default function SheetShell() {
               }
               onRollInit={
                 canEdit
-                  ? () => actor.rollInitiative({ createCombatants: true })
+                  ? () =>
+                      game.combat
+                        ? actor.rollInitiative({ createCombatants: true })
+                        : ui.notifications?.warn("COMBAT.NoneActive", {
+                            localize: true,
+                          })
                   : undefined
               }
             />

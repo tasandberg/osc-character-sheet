@@ -14,9 +14,13 @@ import type { OSEActor } from "@domain/types";
     ux: { TextEditor: { enrichHTML: (v: string) => Promise.resolve(v) } },
   },
 };
-(globalThis as { game?: unknown }).game = {
+const game = {
   i18n: { localize: (k: string) => k },
+  combat: null as unknown,
 };
+(globalThis as { game?: unknown }).game = game;
+const warn = vi.fn();
+(globalThis as { ui?: unknown }).ui = { notifications: { warn } };
 (globalThis as { CONFIG?: unknown }).CONFIG = { OSE: { classes: {} } };
 (globalThis as { ResizeObserver?: unknown }).ResizeObserver = class {
   observe() {}
@@ -112,10 +116,19 @@ describe("HD roll", () => {
     expect(roll.tabIndex).toBe(0);
   });
 
-  it("rolls initiative from INIT", () => {
+  it("rolls initiative from INIT during a combat", () => {
+    game.combat = {};
     mount(true);
     act(() => stampLabelled("INIT")!.click());
     expect(rollInitiative).toHaveBeenCalledTimes(1);
+    game.combat = null;
+  });
+
+  it("warns instead of starting a combat when none is active", () => {
+    mount(true);
+    act(() => stampLabelled("INIT")!.click());
+    expect(rollInitiative).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalled();
   });
 
   it("leaves MOVE inert", () => {
