@@ -1022,8 +1022,8 @@ button.pip:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 96px;
-  padding: var(--spacer-2) 6px 30px;
+  min-height: 98px;
+  padding: var(--spacer-2) 6px 32px;
   text-align: center;
   background-color: var(--btn-face);
   border: 1px solid var(--btn-wall);
@@ -1093,7 +1093,6 @@ button.pip:hover {
   line-height: 1;
   color: var(--text);
   margin: 0;
-  padding-bottom: 4px;
 }
 /* Mod: gold-on-ink circle pinned to the bottom edge */
 .plaque-ability .pc {
