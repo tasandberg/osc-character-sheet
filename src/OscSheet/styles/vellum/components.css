@@ -1091,6 +1091,7 @@ button.pip:hover {
   font-size: var(--fs-3xl);
   font-size-adjust: none;
   line-height: 1;
+  top: -0.24em;
   color: var(--text);
   margin: 0;
 }
