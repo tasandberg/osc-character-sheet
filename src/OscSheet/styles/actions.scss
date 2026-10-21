@@ -135,6 +135,9 @@
 // three tiers of them. The one rail override that stays SCSS is the stamp's side
 // padding in shell.scss — see the clipped-MOVE note there; at (0,3,0) it still
 // out-ranks the base utilities.
+.osc-sheet-app .osc-vitals .stamp.ink {
+  padding: 8px 8px 6px;
+}
 .osc-sheet-app .osc-substats .stamp.stamp {
   display: block;
   border: 1px solid transparent;

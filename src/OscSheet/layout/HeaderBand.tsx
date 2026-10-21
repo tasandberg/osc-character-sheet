@@ -34,7 +34,7 @@ const VITAL_L = "vv-l tw:flex";
 
 // The hero numeral. Colour is per-card, as above.
 const VITAL_BIG =
-  "vv-big tw:-mt-1 tw:font-display tw:text-(length:--fs-4xl) tw:leading-none" +
+  "vv-big tw:-mt-1 tw:font-display tw:text-(length:--fs-5xl) tw:leading-none" +
   " tw:@max-md/app:text-(length:--fs-3xl)";
 
 const VITAL_SUB =
