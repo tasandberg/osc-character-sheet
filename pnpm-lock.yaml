@@ -34,8 +34,8 @@ importers:
         specifier: ^9.33.0
         version: 9.34.0
       '@ose-foundry-core/types':
-        specifier: github:tasandberg/ose-foundry-core#types-v0.1.0
-        version: https://codeload.github.com/tasandberg/ose-foundry-core/tar.gz/0ec7583b74f40cc7d343de59ae5991be34ed047c(@league-of-foundry-developers/foundry-vtt-types@13.346.0-beta.20251209192131(63ed09af4cea38bed3b96d997d05ee5d))
+        specifier: 0.0.2
+        version: 0.0.2(@league-of-foundry-developers/foundry-vtt-types@13.346.0-beta.20251209192131(63ed09af4cea38bed3b96d997d05ee5d))
       '@pixi/compressed-textures':
         specifier: github:foundry-vtt-types/pixi-compressed-textures#main
         version: https://codeload.github.com/foundry-vtt-types/pixi-compressed-textures/tar.gz/890bd5cf9f92d6e48103b733513ccb603e5d1a36(@pixi/assets@7.4.3(@pixi/core@https://codeload.github.com/foundry-vtt-types/pixi-core/tar.gz/b2554df0b43183980830a08d92a960ede78ad25e))(@pixi/core@https://codeload.github.com/foundry-vtt-types/pixi-core/tar.gz/b2554df0b43183980830a08d92a960ede78ad25e)
@@ -691,9 +691,8 @@ packages:
   '@open-draft/until@2.1.0':
     resolution: {integrity: sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==}
 
-  '@ose-foundry-core/types@https://codeload.github.com/tasandberg/ose-foundry-core/tar.gz/0ec7583b74f40cc7d343de59ae5991be34ed047c':
-    resolution: {tarball: https://codeload.github.com/tasandberg/ose-foundry-core/tar.gz/0ec7583b74f40cc7d343de59ae5991be34ed047c}
-    version: 0.1.0
+  '@ose-foundry-core/types@0.0.2':
+    resolution: {integrity: sha512-jN6/8OFiZRJmPQowV74+LpP7S88yyfJQWIOtguojhda9C3ae4PCEZa76dO9Xb2+P9bUMSQxyigR2esHua2aLeg==}
     peerDependencies:
       '@league-of-foundry-developers/foundry-vtt-types': 13.346.0-beta.20251209192131
 
@@ -4261,7 +4260,7 @@ snapshots:
   '@open-draft/until@2.1.0':
     optional: true
 
-  '@ose-foundry-core/types@https://codeload.github.com/tasandberg/ose-foundry-core/tar.gz/0ec7583b74f40cc7d343de59ae5991be34ed047c(@league-of-foundry-developers/foundry-vtt-types@13.346.0-beta.20251209192131(63ed09af4cea38bed3b96d997d05ee5d))':
+  '@ose-foundry-core/types@0.0.2(@league-of-foundry-developers/foundry-vtt-types@13.346.0-beta.20251209192131(63ed09af4cea38bed3b96d997d05ee5d))':
     dependencies:
       '@league-of-foundry-developers/foundry-vtt-types': 13.346.0-beta.20251209192131(63ed09af4cea38bed3b96d997d05ee5d)
 
