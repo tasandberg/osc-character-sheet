@@ -196,14 +196,50 @@
   .osc-twopane .osc-substats > .osc-tile + .osc-tile::before {
     content: none;
   }
-  .osc-twopane .osc-substats .stamp {
-    padding: 5px 8px 3px;
+  .osc-sheet-app .osc-twopane .osc-substats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacer-2);
+  }
+  .osc-sheet-app .osc-twopane .osc-substats > .osc-tile {
+    align-items: stretch;
+    gap: var(--spacer-1);
+    text-align: center;
+  }
+  .osc-sheet-app .osc-twopane .osc-substats .stamp {
+    display: block;
+    padding: 5px 2px 3px;
     background: var(--ink);
     color: var(--stamp-text);
+    font-family: var(--display);
+    font-size: var(--fs-sm);
+    font-weight: 400;
+    font-size-adjust: none;
+    letter-spacing: 0.08em;
     line-height: 1;
+    white-space: nowrap;
+    box-shadow: inset 0 -1px 0 oklch(0 0 0 / 0.5);
   }
-  .osc-twopane .osc-substats .stamp.rollable:hover {
-    color: var(--gold);
+  .osc-sheet-app .osc-twopane .osc-substats .stamp.rollable {
+    transition:
+      background-color 0.12s ease-out,
+      box-shadow 0.12s ease-out,
+      transform 0.12s ease-out;
+  }
+  .osc-sheet-app .osc-twopane .osc-substats .stamp.rollable:is(:hover, :focus-visible) {
+    background: color-mix(in srgb, var(--ink) 88%, var(--stamp-text));
+    color: var(--stamp-text);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.22),
+      inset 0 -2px 0 oklch(0 0 0 / 0.6),
+      0 2px 0 oklch(0 0 0 / 0.55);
+    transform: translateY(-1px);
+  }
+  .osc-sheet-app .osc-twopane .osc-substats .stamp.rollable:active {
+    background: var(--ink);
+    box-shadow: inset 0 2px 3px oklch(0 0 0 / 0.7);
+    transform: translateY(1px);
+    transition-duration: 0.04s;
   }
   .osc-sheet-app .osc-twopane .osc-substats .osc-roll-die {
     display: none;
