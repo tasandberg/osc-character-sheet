@@ -253,17 +253,14 @@
     border-top: 1px solid var(--hair-soft);
   }
 }
-.osc-rail-extra .osc-saves-band-label {
-  font-size: var(--fs-sm);
-}
 .osc-saves-band-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-dim);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-2xs);
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 .osc-saves-band-value {
@@ -281,7 +278,6 @@
   }
   .osc-saves-band-label {
     max-width: 100%;
-    font-size: var(--fs-xs);
   }
 }
 
