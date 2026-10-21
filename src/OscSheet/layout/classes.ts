@@ -32,7 +32,7 @@ export const TB_BTN = `${TB_BTN_BASE} vm-btn vm-btn-secondary tw:inline-flex`;
 export const TB_BTN_LEVEL_UP = `${TB_BTN_BASE} vm-btn ${TB_BTN_UP} tw:inline-flex`;
 
 /** Icon-only button (the settings cog): a raised Vellum icon button. */
-export const TB_BTN_ICON = `${TB_BTN_BASE} vm-bevel vm-bevel-icon icon tw:inline-flex tw:text-text`;
+export const TB_BTN_ICON = `${TB_BTN_BASE} vm-bevel vm-bevel-icon icon tw:inline-flex`;
 
 /** The XS ⋮ overflow toggle — the same text button, revealed only at XS. This is
  *  the ONE variant whose display is a base+variant pair rather than a flat

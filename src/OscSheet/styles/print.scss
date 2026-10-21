@@ -21,6 +21,14 @@
     --btn-face: color-mix(in oklab, var(--btn-face-hi) 25%, var(--ink));
   }
 
+  .osc-topbar :is(.vm-btn-secondary, .vm-bevel) {
+    color: var(--text-dim);
+
+    &:hover {
+      color: var(--text);
+    }
+  }
+
   [data-theme="cream"] & .osc-topbar {
     --btn-face: color-mix(in oklab, var(--btn-face-hi) 25%, var(--bg-2-solid));
     --stamp-text: var(--text);
