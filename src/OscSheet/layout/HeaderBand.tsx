@@ -34,11 +34,11 @@ const VITAL_L = "vv-l tw:flex";
 
 // The hero numeral. Colour is per-card, as above.
 const VITAL_BIG =
-  "vv-big tw:-mt-1 tw:font-display tw:text-(length:--fs-5xl) tw:leading-none" +
+  "vv-big tw:-mt-1 tw:font-display tw:text-(length:--fs-6xl) tw:leading-none" +
   " tw:@max-md/app:text-(length:--fs-3xl)";
 
 const VITAL_SUB =
-  "vv-sub tw:mt-1 tw:text-(length:--fs-xs) tw:text-text-dim tw:@max-md/app:text-(length:--fs-2xs)";
+  "vv-sub tw:mt-3 tw:text-(length:--fs-xs) tw:text-text-dim tw:@max-md/app:text-(length:--fs-2xs)";
 
 /** Full label by default; the short form takes over at XS, where the card is 52px wide. */
 const SUB_FULL = "full tw:@max-md/app:hidden";
