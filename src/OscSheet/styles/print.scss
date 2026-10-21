@@ -171,6 +171,13 @@
     border-color: var(--stamp-wall);
   }
 
+  .vm-tag-count {
+    min-width: var(--spacer-5);
+    height: var(--spacer-5);
+    padding: 0 var(--spacer-1);
+    border-radius: 999px;
+  }
+
   .osc-segmented-sm .vm-segment {
     height: calc(var(--spacer-6) - 2px);
     padding: 0 var(--spacer-2);
