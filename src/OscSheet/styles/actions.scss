@@ -163,6 +163,18 @@
     }
   }
 }
+@container app (width < #{bp.$md}) {
+  .osc-sheet-app .osc-head .osc-substats > .osc-tile {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacer-2);
+  }
+  .osc-sheet-app .osc-head .osc-substats .stamp.stamp {
+    flex: none;
+    padding-inline: 7px;
+  }
+}
 .osc-substats {
   grid-area: subs;
   margin-top: calc(var(--spacer-2) + 2px);
