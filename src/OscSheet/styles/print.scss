@@ -169,19 +169,6 @@
     font-size: var(--fs-xs);
   }
 
-  .osc-ruled-row + .osc-ruled-row {
-    border-top: 1px solid var(--hair-soft);
-  }
-
-  .osc-ruled-grid {
-    overflow: hidden;
-
-    > * {
-      margin-top: -1px;
-      border-top: 1px solid var(--hair-soft);
-    }
-  }
-
   .osc-roll-die {
     display: inline-flex;
     align-items: center;
