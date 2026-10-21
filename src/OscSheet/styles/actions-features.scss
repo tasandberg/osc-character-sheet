@@ -226,4 +226,11 @@
 }
 .osc-weapon .wstat .wv {
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.osc-weapon .wstat.hit {
+  min-width: 4.25em;
+}
+.osc-weapon .wstat.dmg {
+  min-width: 5em;
 }
