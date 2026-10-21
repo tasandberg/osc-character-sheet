@@ -85,11 +85,12 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
       <Identity identity={identity} />
       <div ref={substatsRef} className="osc-substats tw:flex tw:items-center tw:self-start tw:@max-md/app:justify-center tw:@twopane/sheet:justify-center">
         <div className={TILE}>
-          <Stamp>INIT</Stamp>
+          <Stamp ink>INIT</Stamp>
           <span className={TILE_V}>{formatMod(vitals.initMod)}</span>
         </div>
         <div className={TILE}>
           <Stamp
+            ink
             className={rollHd ? "rollable" : undefined}
             title={hdLabel}
             aria-label={hdLabel}
@@ -105,7 +106,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           )}
         </div>
         <div className={`${TILE} tw:cursor-default`}>
-          <Stamp>MOVE</Stamp>
+          <Stamp ink>MOVE</Stamp>
           {/* dotted underline hints at the hover breakdown (all three rates + enc) */}
           <span className={`${TILE_V} tw:underline tw:decoration-(--text-dim) tw:decoration-dotted tw:underline-offset-[2px]`}>
             {vitals.move}ft
