@@ -13,7 +13,7 @@ export default function SavesModTag({
       intent="teal"
       size="xs"
       tooltip={`Wisdom ${wisdomAbility.value}`}
-      className="tw:grow-0"
+      className="tw:-mt-1 tw:mb-1 tw:grow-0"
     >
       <span className="u-foundry-xs-display-none u-foundry-md-display-block">
         {wisdomAbility.modLabel} vs Magic
