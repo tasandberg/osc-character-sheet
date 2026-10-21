@@ -27,6 +27,10 @@ function widestShare(boxes: Box[], container: Box): number {
   return Math.max(...boxes.map((b) => b.width)) / container.width;
 }
 
+function overlaps(a: Box, b: Box): boolean {
+  return a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+}
+
 /** Combined box width as a fraction of the container's width. */
 function filledShare(boxes: Box[], container: Box): number {
   return boxes.reduce((sum, b) => sum + b.width, 0) / container.width;
@@ -161,5 +165,44 @@ test.describe("tab feature surfaces", () => {
     await spellsTab.click();
     await expect(spellsTab).toHaveAttribute("aria-selected", "true");
     await expect(sheet.locator('[data-testid="spells-title"]')).toBeVisible();
+  });
+});
+
+test.describe("narrower layouts", () => {
+  test("medium keeps the header, attack rows and saves band side by side", async ({
+    gamePage,
+    fighter,
+  }) => {
+    const sheet = await openCharacterSheet(gamePage, fighter.name, { width: 650 });
+    await expect(sheet.locator('[data-testid="tab-rail"]')).toBeVisible();
+
+    const [vitals] = await boxesOf(sheet.locator(".osc-vitals"));
+    for (const tile of await boxesOf(sheet.locator(".osc-substats > .osc-tile")))
+      expect(overlaps(tile, vitals)).toBe(false);
+
+    const weaponRows = sheet.locator('[data-testid^="weapon-row-"]');
+    await expect(weaponRows.first()).toBeVisible();
+    for (const row of await weaponRows.all()) {
+      const parts = row.locator(".wtags > :visible").or(row.getByRole("button"));
+      expect(rowsOf(await boxesOf(parts))).toBe(1);
+    }
+
+    const saves = sheet.locator('[data-testid^="save-"]:visible');
+    await expect(saves).toHaveCount(5);
+    expect(rowsOf(await boxesOf(saves))).toBe(1);
+  });
+
+  test("narrow swaps the rail for a bottom bar and inlines the header stats", async ({
+    gamePage,
+    fighter,
+  }) => {
+    const sheet = await openCharacterSheet(gamePage, fighter.name, { width: 500 });
+    await expect(sheet.locator('[data-testid="bottom-bar"]')).toBeVisible();
+    await expect(sheet.locator('[data-testid="tab-rail"]')).toBeHidden();
+
+    const tiles = sheet.locator(".osc-substats > .osc-tile");
+    await expect(tiles).toHaveCount(3);
+    for (const tile of await tiles.all())
+      expect(rowsOf(await boxesOf(tile.locator("> :visible")))).toBe(1);
   });
 });

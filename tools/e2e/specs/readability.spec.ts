@@ -87,4 +87,31 @@ test.describe("text readability", () => {
       await setSetting(gamePage, "theme", "dark");
     }
   });
+
+  test("ability descriptions with pasted dark text stay readable in the dark theme", async ({
+    gamePage,
+    fighter,
+  }) => {
+    await gamePage.evaluate(
+      (name) =>
+        (globalThis as any).game.actors.getName(name).createEmbeddedDocuments("Item", [
+          {
+            name: "Pasted Lore",
+            type: "ability",
+            system: {
+              description: '<p><span style="color: #191813">Pasted dark text</span></p>',
+            },
+          },
+        ]),
+      fighter.name,
+    );
+    const sheet = await openCharacterSheet(gamePage, fighter.name);
+    await sheet.locator('[data-testid="tab-abilities"]').click();
+    await sheet.getByRole("button", { name: "Expand" }).first().click();
+
+    const text = sheet.getByText("Pasted dark text");
+    await expect(text).toBeVisible();
+    const { fg, bg } = await labelStyle(text);
+    expect(contrast(fg, bg)).toBeGreaterThanOrEqual(4.5);
+  });
 });
