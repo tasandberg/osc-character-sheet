@@ -38,6 +38,7 @@ export const raistlin = {
     },
     movement: { base: 120, encounter: 40, overland: 24 },
     hp: { value: 8, max: 9, hd: "3d4" },
+    init: scores.dex.init,
     saves: {
       death: { value: 13 },
       wand: { value: 14 },
