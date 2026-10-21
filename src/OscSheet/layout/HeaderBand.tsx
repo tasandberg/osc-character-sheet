@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { EncumbranceVM, IdentityVM, VitalsVM } from "@domain/vm-types";
 import { armorTierLabel, formatMod } from "@domain/format";
 import { Identity } from "@layout/Identity";
@@ -6,6 +7,7 @@ import { Stamp } from "@ui/Stamp";
 import { rollable, type ActivateEvent } from "@ui/rollable";
 import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
+import { useWrapStarts } from "@ui/useWrapStarts";
 
 // Tiers are container queries: `app` for the XS compact header, `sheet` for the
 // narrow left rail in the two-pane view. The two can never both match — `sheet`
@@ -70,6 +72,8 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   const rollHd = vitals.hd ? onRollHd : undefined;
   const hdLabel = rollHd ? game.i18n.localize("OSE.roll.hd") : undefined;
+  const substatsRef = useRef<HTMLDivElement>(null);
+  useWrapStarts(substatsRef);
   return (
     <div className="osc-head">
       <Portrait
@@ -79,7 +83,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         onContextMenu={onPortraitContextMenu}
       />
       <Identity identity={identity} />
-      <div className="osc-substats tw:flex tw:items-center tw:self-start tw:@max-md/app:justify-center tw:@twopane/sheet:justify-center">
+      <div ref={substatsRef} className="osc-substats tw:flex tw:items-center tw:self-start tw:@max-md/app:justify-center tw:@twopane/sheet:justify-center">
         <div className={TILE}>
           <Stamp>INIT</Stamp>
           <span className={TILE_V}>{formatMod(vitals.initMod)}</span>

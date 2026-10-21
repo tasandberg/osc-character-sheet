@@ -184,6 +184,9 @@
     left: calc(var(--spacer-3) / -2);
   }
 }
+.osc-substats > .osc-tile[data-wrap-start]::before {
+  content: none;
+}
 @container app (max-width: 479px) {
   .osc-substats > .osc-tile + .osc-tile::before {
     content: none;
