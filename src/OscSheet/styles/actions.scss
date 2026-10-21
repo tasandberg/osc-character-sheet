@@ -226,14 +226,26 @@
     box-shadow:
       inset 0 1px 0 oklch(1 0 0 / 0.22),
       inset 0 -2px 0 oklch(0 0 0 / 0.6),
-      0 2px 0 oklch(0 0 0 / 0.55);
+      0 2px 0 oklch(0 0 0 / 0.55),
+      0 4px 5px -2px oklch(0 0 0 / 0.45);
     transform: translateY(-1px);
   }
   .osc-sheet-app .osc-twopane .osc-substats .stamp.rollable:active {
     background: var(--ink);
-    box-shadow: inset 0 2px 3px oklch(0 0 0 / 0.7);
+    box-shadow:
+      inset 0 2px 3px oklch(0 0 0 / 0.7),
+      inset 0 -1px 0 oklch(1 0 0 / 0.06),
+      0 1px 1px -1px oklch(0 0 0 / 0.4);
     transform: translateY(1px);
     transition-duration: 0.04s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .osc-sheet-app .osc-twopane .osc-substats .stamp.rollable {
+      transition: none;
+    }
+    .osc-sheet-app .osc-twopane .osc-substats .stamp.rollable:is(:hover, :focus-visible, :active) {
+      transform: none;
+    }
   }
   .osc-sheet-app .osc-twopane .osc-substats .osc-roll-die {
     display: none;
