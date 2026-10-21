@@ -13,14 +13,14 @@ export async function joinAsUser(page: Page, label: string, { canvas = false } =
   await page.goto(`${URL}/join`, { waitUntil: "domcontentloaded" });
   // Foundry 14.366 replaced the user <select name="userid"> with <input name="username">.
   const userInput = page.locator('input[name="username"]');
-  const userSelect = page.locator('select[name="userid"]');
+  const userSelect = page.locator('select[name="userId"], select[name="userid"]');
   await userInput.or(userSelect).first().waitFor({ timeout: 30_000 });
   if (await userInput.count()) {
     await userInput.fill(label);
   } else {
     // Options for already-connected users are disabled client-side only; re-enable first.
     await page.evaluate(() => {
-      for (const o of document.querySelectorAll('select[name="userid"] option'))
+      for (const o of document.querySelectorAll('select[name="userId"] option, select[name="userid"] option'))
         (o as HTMLOptionElement).disabled = false;
     });
     await userSelect.selectOption({ label });
