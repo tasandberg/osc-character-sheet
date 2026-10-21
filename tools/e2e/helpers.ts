@@ -46,8 +46,12 @@ export async function joinAsGM(page: Page): Promise<void> {
  * `ose.OscSheet` with makeDefault, and the actor fixture pins the actor's
  * core.sheetClass flag, so render() shows the OSC sheet.
  */
-export async function openCharacterSheet(page: Page, actorName: string): Promise<Locator> {
-  const appId = await page.evaluate(async (name) => {
+export async function openCharacterSheet(
+  page: Page,
+  actorName: string,
+  { width = 920 }: { width?: number } = {},
+): Promise<Locator> {
+  const appId = await page.evaluate(async ({ name, width }) => {
     const g = globalThis as any;
     // Foundry parks a persistent #notifications overlay (min-resolution warning
     // under headless) over the sheet, intercepting clicks. Let pointer events
@@ -73,10 +77,10 @@ export async function openCharacterSheet(page: Page, actorName: string): Promise
     // attached, and setPosition() calls getComputedStyle() on it. Wait for it.
     for (let i = 0; i < 60 && !(actor.sheet.element instanceof HTMLElement); i++)
       await new Promise((r) => setTimeout(r, 50));
-    // Force the wide (large) layout tier so the horizontal tab bar renders.
-    actor.sheet.setPosition?.({ width: 920, height: 820 });
+    // Defaults to the wide (large) layout tier so the horizontal tab bar renders.
+    actor.sheet.setPosition?.({ width, height: 820 });
     return actor.sheet.element?.id as string;
-  }, actorName);
+  }, { name: actorName, width });
   // Address this actor's window by id: a page may briefly hold another sheet.
   const sheet = appId ? page.locator(`[id="${appId}"]`) : page.locator(".osc-sheet").first();
   await sheet.waitFor({ state: "visible", timeout: 30_000 });

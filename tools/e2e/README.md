@@ -26,7 +26,7 @@ PRs run automatically; fork PRs need a maintainer's `safe-to-test` label.
 | `setup-data-dir.sh` | Assembles a Foundry `/data` dir: the pinned OSE release (`OSE_VERSION`, default 2.2.2; `compatibility.verified` bumped to `14` for CI), the freshly-built osc-character-sheet module (`module.json` + `dist` + `lang`), and the minimal `e2e` world fixture. |
 | `activate-world.mjs` | First-boot activation: `--phase eula` accepts the EULA (generates the host-bound license signature), the caller restarts the container so felddy's `FOUNDRY_WORLD` auto-launches the world, `--phase await` polls `/api/status` until active. |
 | `global-setup.ts` | Joins as Gamemaster, enables the osc-character-sheet module + reloads, then seeds one passwordless GM (`E2E GM <slot>`) and one passwordless OBSERVER player (`E2E Observer <slot>`) per parallel slot. Runs once before the specs. |
-| `helpers.ts` | `joinAsUser` / `joinAsGM`, `openCharacterSheet` (forces the wide layout), chat/item readers, and the layout primitives `boxesOf` / `rowsOf`. |
+| `helpers.ts` | `joinAsUser` / `joinAsGM`, `openCharacterSheet` (wide layout unless given a `width`), chat/item readers, and the layout primitives `boxesOf` / `rowsOf`. |
 | `fixtures.ts` | Worker-scoped `gamePage` / `observerPage` (this slot's GM and view-only player, each its own browser context), plus the test-scoped `fighter` actor. |
 | `specs/*.spec.ts` | One spec per core flow: smoke, tabs, ability, save, attack, equip, coin, `readonly` (non-owner view-only sheet), and `surfaces` (per-tab feature surfaces + layout invariants). |
 

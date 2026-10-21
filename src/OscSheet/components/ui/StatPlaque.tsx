@@ -5,8 +5,8 @@ import { rollable, type ActivateEvent } from "./rollable";
 
 /** An "ink-stamp key · big value · caption" stat cell, optionally wired to a
  *  roll. Two vellum variants (see `.plaque` in components.css):
- *    • `ability` — gold-framed plaque with a bottom mod pill.
- *    • `save` — inked surface card with a 22px stamp.
+ *    • `ability` — raised gold-bracketed plaque with a bottom mod circle.
+ *    • `save` — 22px stamp, target, label.
  *  Sub-elements are styled by the variant via generic `.pk`/`.pv`/`.pc` classes.
  *  When `onActivate` is set the cell becomes a keyboard-accessible button and
  *  gains the `rollable` class. */
@@ -41,7 +41,9 @@ export function StatPlaque({
       data-testid={dataTestid}
       {...rollable(onActivate)}
     >
-      <Stamp className="pk">{stampKey}</Stamp>
+      <Stamp ink={variant === "ability"} className="pk">
+        {stampKey}
+      </Stamp>
       <div className="pv">{value}</div>
       {caption != null && <div className="pc">{caption}</div>}
     </div>

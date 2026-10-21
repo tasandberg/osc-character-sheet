@@ -19,7 +19,7 @@ import { AttacksTable } from "@features/actions/AttacksTable";
 import { FavoriteAbilities } from "@features/actions/FavoriteAbilities";
 import { selectFavoriteAbilities } from "@features/abilities/features";
 import { MemorizedSpells } from "@features/actions/MemorizedSpells";
-import { SavesGrid, ExplorationGrid } from "@features/actions/SavesExploration";
+import { SavesBand, ExplorationGrid } from "@features/actions/SavesExploration";
 import { SectionTitle } from "@ui/SectionTitle";
 import type { ActivateEvent } from "@ui/rollable";
 import { useOscSheetContext } from "@app/context";
@@ -97,7 +97,7 @@ export function ActionsView({ actor }: Props) {
             <span className="hint">Roll d20 ≥ score</span>
             <SavesModTag wisdomAbility={abilities[2]} />
           </SectionTitle>
-          <SavesGrid saves={selectSaves(actor)} onRoll={onSave} />
+          <SavesBand saves={selectSaves(actor)} onRoll={onSave} />
         </section>
         <section className="u-foundry-lg-display-none">
           <SectionTitle hint="1-in-6">Exploration</SectionTitle>

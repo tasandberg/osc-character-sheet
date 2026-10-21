@@ -19,7 +19,7 @@
 // (variant="round" / variant="accent"); see .icon-btn in components.css.
 
 // --- Languages: ink-stamp chips ---
-// Language chips are now <Tag>; .tag provides the pill. The × stays bespoke —
+// Language chips are now <Tag> (vm-tag). The × stays bespoke —
 // it tucks inside the chip (an .icon-btn box would inflate the chip height) and
 // it is rendered by the shared <Tag>, not by this feature's markup.
 .osc-sheet-app .osc-lang-x {

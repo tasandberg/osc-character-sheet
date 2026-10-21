@@ -38,7 +38,7 @@ export function PillSelect<T extends string | number>({
         <button
           key={String(o.value)}
           type="button"
-          className={cx("pill", o.value === value && "on")}
+          className={cx("pill vm-tag", o.value === value && "on vm-tag-accent")}
           aria-pressed={o.value === value}
           onClick={() => onValueChange(o.value)}
         >

@@ -24,24 +24,19 @@ import { useSetting } from "@src/OscSheet/settings";
 
 // --- level head: badge · ready count · slot pips ---
 const HEAD =
-  "osc-spellhead tw:flex tw:items-center tw:gap-2 tw:rounded-t-[7px] tw:border tw:border-border-soft tw:bg-surface-2 tw:px-3 tw:py-[7px]";
-/** `--stamp-text` is the light on-ink cream (same as the save stamps) — it reads
- *  on the ink chip in BOTH themes and is lighter than the gold accent. */
-const HEAD_LV =
-  "lv tw:rounded-sm tw:bg-ink tw:px-2 tw:pt-[3px] tw:pb-[2px] tw:font-display tw:text-[length:var(--fs-xs)] tw:tracking-[0.06em] tw:text-stamp-text";
-const HEAD_SC =
-  "sc tw:font-mono tw:text-[length:var(--fs-xs)] tw:text-text-mute";
+  "osc-spellhead tw:flex tw:items-center tw:gap-2 tw:border-b tw:border-(--hairline) tw:py-[7px]";
+const HEAD_LV = "lv vm-key";
+const HEAD_SC = "sc tw:text-(length:--fs-xs) tw:text-text-dim";
 
-/** Spellbook entry — a full-width dashed card. The name opens the sheet; the
- *  memorize button and, when the sheet is editable, a delete follow it. */
+/** Spellbook entry. The name opens the sheet; the memorize button and, when the
+ *  sheet is editable, a delete follow it. */
 const BOOKSPELL =
-  "tw:flex tw:items-center tw:gap-2 tw:rounded-[5px] tw:border tw:border-dashed tw:border-border-soft tw:bg-surface tw:px-2 tw:py-[5px] tw:text-left tw:font-serif tw:text-[length:var(--fs-sm)] tw:text-text-dim";
+  "tw:flex tw:items-center tw:gap-2 tw:py-1 tw:text-left tw:text-(length:--fs-md) tw:text-text-dim";
 const BOOKSPELL_ICON =
-  "tw:grid tw:size-5 tw:flex-none tw:place-items-center tw:overflow-hidden tw:rounded-sm tw:bg-ink tw:font-display tw:text-[length:var(--fs-3xs)] tw:text-stamp-text";
-/** Empty state, framed like a row — `.osc-spell` carries no box of its own, so
- *  the bare markup this replaced fell outside the panel. */
+  "tw:grid tw:size-5 tw:flex-none tw:place-items-center tw:overflow-hidden tw:bg-ink tw:font-semibold tw:text-(length:--fs-2xs) tw:text-stamp-text";
+/** Empty state, spaced like a row. */
 const EMPTY_ROW =
-  "osc-spell-empty tw:border tw:border-t-0 tw:border-border-soft tw:bg-surface tw:px-3 tw:py-2 tw:font-serif tw:text-[length:var(--fs-sm)] tw:italic tw:text-text-dim";
+  "osc-spell-empty tw:py-2 tw:text-(length:--fs-xs) tw:text-text-dim";
 
 /**
  * One spell level: ink-stamp "Level N" badge + "used / max" + slot pips,
@@ -77,7 +72,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
   const bookName = (spell: OseSpell) => (
     <button
       type="button"
-      className="bn tw:min-w-0 tw:flex-1 tw:cursor-pointer tw:truncate tw:text-left tw:font-serif tw:text-(length:--fs-sm) tw:text-text-dim tw:hover:text-gold tw:hover:[text-shadow:0_0_8px_var(--gold-soft)] tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
+      className="bn tw:min-w-0 tw:flex-1 tw:cursor-pointer tw:truncate tw:text-left tw:text-(length:--fs-md) tw:text-text tw:hover:text-gold tw:hover:[text-shadow:0_0_8px_var(--gold-soft)] tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
       onClick={() => spell.sheet.render(true)}
     >
       {spell.name}
@@ -135,9 +130,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
           />
         </div>
         {spellbook.length === 0 ? (
-          <div className={cx(EMPTY_ROW, "tw:rounded-b-[7px]")}>
-            No spells at this level.
-          </div>
+          <div className={EMPTY_ROW}>No spells at this level.</div>
         ) : (
           spellbook.map((spell) => (
             <SpellRow
@@ -204,7 +197,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
       </div>
 
       {prepared.length === 0 ? (
-        <div className={cx(EMPTY_ROW, empty && "tw:rounded-b-[7px]")}>
+        <div className={EMPTY_ROW}>
           {empty
             ? "No spells at this level."
             : "None memorized — open the spellbook."}
@@ -245,10 +238,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
       {!empty && (
         <button
           type="button"
-          className={cx(
-            "osc-bookbtn tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-2 tw:border tw:border-t-0 tw:border-dashed tw:border-border tw:bg-transparent tw:px-3 tw:py-2 tw:font-display tw:text-(length:--fs-xs) tw:tracking-[0.04em] tw:text-text-mute tw:hover:text-text",
-            bookOpen ? "tw:rounded-none" : "tw:rounded-b-[7px]",
-          )}
+          className="osc-bookbtn tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-2 tw:bg-transparent tw:py-2 tw:font-semibold tw:text-(length:--fs-xs) tw:text-text-dim tw:hover:text-text"
           onClick={() => setBookOpen((o) => !o)}
           aria-expanded={bookOpen}
         >
@@ -265,7 +255,7 @@ export default function SpellLevel({ vm }: { vm: SpellLevelVM }) {
       {bookOpen && !empty && (
         <div
           data-testid="spellbook"
-          className="tw:flex tw:flex-col tw:gap-1 tw:rounded-b-[7px] tw:border tw:border-t-0 tw:border-border-soft tw:bg-bg-2 tw:p-2"
+          className="tw:flex tw:flex-col tw:pb-2 tw:pl-4"
         >
           {spellbook.map((spell) => {
             // Read-only: list known spells as static rows (no memorize action).

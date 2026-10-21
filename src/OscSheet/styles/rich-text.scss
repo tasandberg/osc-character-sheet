@@ -7,6 +7,7 @@
 }
 .osc-rich-text-body :is(h1, h2, h3, h4, h5, h6) { font-family: var(--display); color: var(--text, #e7e0cc); }
 .osc-rich-text-body :is(a.content-link, a.inline-roll) { font-family: var(--sans); }
+.osc-rich-text-body [style*="color"] { color: inherit !important; }
 // Accent bar follows the active --gold (flips teal by data-kind).
 .osc-rich-text-body blockquote {
   margin: var(--spacer-3, 12px) 0;

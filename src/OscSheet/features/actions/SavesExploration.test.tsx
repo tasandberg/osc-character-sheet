@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { SavesGrid } from "@features/actions/SavesExploration";
+import { SavesBand } from "@features/actions/SavesExploration";
 import type { SaveVM } from "@domain/vm-types";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -22,10 +22,10 @@ afterEach(() => {
   container.remove();
 });
 
-describe("SavesGrid", () => {
+describe("SavesBand", () => {
   it("passes the click event to onRoll (ctrl-click)", () => {
     const onRoll = vi.fn();
-    act(() => root.render(<SavesGrid saves={saves} onRoll={onRoll} />));
+    act(() => root.render(<SavesBand saves={saves} onRoll={onRoll} />));
 
     const plaque = container.querySelector<HTMLDivElement>('[data-testid="save-death"]')!;
     act(() => {

@@ -36,7 +36,7 @@ export default function OscMonsterSheetApp({
         canEdit={isEditable ?? actor?.isOwner ?? false}
         canViewFullSheet={canViewFullSheet ?? false}
       >
-        <ThemedRoot className="osc-monster u-paper">
+        <ThemedRoot className="osc-monster">
           <ToastProvider>
             <OptimisticProvider>
               <MonsterBody />

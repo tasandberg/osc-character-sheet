@@ -98,7 +98,7 @@ export function MonsterHeader({
             {onRollHp && view.hp.rollable && (
               <button
                 type="button"
-                className="osc-monster-roll-die"
+                className="osc-roll-die"
                 aria-label="Roll hit points"
                 title="Roll hit points from Hit Dice"
                 onClick={onRollHp}

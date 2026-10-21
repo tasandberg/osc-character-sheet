@@ -43,7 +43,7 @@ function RollRow({
       {onRoll && (
         <button
           type="button"
-          className="osc-monster-roll-die"
+          className="osc-roll-die"
           aria-label={`Roll ${label}`}
           title={`Roll ${label}`}
           onClick={onRoll}
@@ -243,12 +243,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
       </DividedRow>
       {view.needsSaves && onGenerateSaves && (
         <div className="u-flex u-justify-center u-mt-2">
-          <Button
-            variant="outline"
-            tone="brass"
-            size="sm"
-            onClick={onGenerateSaves}
-          >
+          <Button variant="outline" size="sm" onClick={onGenerateSaves}>
             Generate saves from Hit Dice
           </Button>
         </div>

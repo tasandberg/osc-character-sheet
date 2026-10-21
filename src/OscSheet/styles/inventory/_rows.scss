@@ -1,3 +1,4 @@
+@use "../breakpoints" as bp;
 // Inventory tab — single-column list view + encumbrance bar.
 //
 // Most of the plumbing here now lives as `tw:` utilities on the components in
@@ -152,6 +153,9 @@
   border-color: var(--accent-alt, #c89e54);
   opacity: 0.5;
 }
+.osc-inv-pips.pips .pip {
+  border-color: var(--accent-alt, #c89e54);
+}
 .osc-inv-pips .pip.filled {
   background: var(--accent-alt, #c89e54);
   opacity: 1;
@@ -165,7 +169,7 @@
   pointer-events: none;
 }
 // Both "Use" affordances (pip-overflow fallback + xs inline) render as the shared
-// Vellum Button (`variant="outline" tone="brass" size="xs"`); these classes only
+// Vellum Button (`variant="outline" size="xs"`); these classes only
 // carry their positioning/visibility — the pill look comes from `.btn`. `display`
 // has to fight unlayered `.btn { display: inline-flex }`, so it can't be a utility.
 .osc-inv-use1,
@@ -209,9 +213,9 @@
   object-fit: cover;
 }
 .osc-inv-img .mono {
-  font-family: var(--display);
-  font-size: var(--fs-2xs, 11px);
-  letter-spacing: 0.03em;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-xs);
   color: var(--text-dim, #b5ad97);
 }
 
@@ -226,7 +230,7 @@
   font-size: var(--fs-xs, 12px);
   line-height: 1;
   padding: var(--spacer-1);
-  border-radius: 3px;
+  border-radius: 0;
   transition: color 0.12s;
   &:active {
     cursor: grabbing;
@@ -287,8 +291,9 @@
   text-align: left;
 }
 .osc-inv-name .nm {
-  font-family: var(--display);
-  font-size: var(--fs-md, 15px);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--fs-md);
   color: var(--text, #e5dec8);
   transition: color 0.12s;
   white-space: nowrap;
@@ -354,7 +359,7 @@
 // xs / mobile (bottom-tabs layout): drop the Type column to save width, and swap
 // the "Uses" pip sub-row for the inline Use pill on the item row. Everything else
 // in this tier is a `tw:@max-md/app:` variant on the component.
-@container app (max-width: 479px) {
+@container app (width < #{bp.$md}) {
   .osc-inv-row {
     grid-template-columns: 18px 30px 1fr 44px 44px;
   }

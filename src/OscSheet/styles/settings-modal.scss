@@ -33,9 +33,6 @@
       font-family: var(--sans);
       color: var(--text);
     }
-    .vm-segment:has(.vm-segment-input:disabled) {
-      opacity: 0.5;
-    }
     .modal-foot {
       padding: 0 var(--spacer-6) var(--spacer-6);
       border-top: 0;

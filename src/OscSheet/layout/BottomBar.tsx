@@ -3,7 +3,7 @@ import type { TabItem } from "@layout/types";
 
 type Props = { tabs: TabItem[]; active: string; onSelect: (id: string) => void };
 
-/** Horizontal bottom nav bar; shown only at XS (app ≤ 479c), where it replaces the rail. */
+/** Horizontal bottom nav bar; shown only at XS (app below md), where it replaces the rail. */
 export function BottomBar({ tabs, active, onSelect }: Props) {
   return (
     <nav

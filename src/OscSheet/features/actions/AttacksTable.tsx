@@ -1,11 +1,11 @@
-import { useState, type DragEvent, type MouseEvent } from "react";
+import { Fragment, useState, type DragEvent, type MouseEvent } from "react";
 import type { AttackKind } from "@domain/types";
 import type { AttackVM, RollSpec } from "@domain/vm-types";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import { Monogram } from "@ui/Monogram";
-import { Button } from "@src/OscSheet/components/ui";
+import { IconButton } from "@ui/IconButton";
 
 type Props = {
   attacks: AttackVM[];
@@ -80,7 +80,7 @@ function WeaponRow({
 
   return (
     <div
-      className="osc-weapon"
+      className="osc-weapon osc-ruled-row"
       role="row"
       data-testid={`weapon-row-${a.itemId}`}
     >
@@ -94,44 +94,46 @@ function WeaponRow({
           {...macroDrag}
         />
         <div className="wmain">
-          <div className="wname">
-            {onOpen ? (
-              <button
-                type="button"
-                className="wname-btn"
-                data-testid={`weapon-name-${a.itemId}`}
-                onClick={() => onOpen(a.itemId)}
-                title={`Open ${a.name}`}
-              >
-                {a.name}
-              </button>
-            ) : (
-              a.name
-            )}{" "}
-            <span className="wkind">({mode.kindLabel.toLowerCase()})</span>
+          <div className="wline">
+            <div className="wname">
+              {onOpen ? (
+                <button
+                  type="button"
+                  className="wname-btn"
+                  data-testid={`weapon-name-${a.itemId}`}
+                  onClick={() => onOpen(a.itemId)}
+                  title={`Open ${a.name}`}
+                >
+                  {a.name}
+                </button>
+              ) : (
+                a.name
+              )}{" "}
+              <span className="wdice">{mode.dmgDie}</span>
+            </div>
           </div>
           <div className="wtags">
-            {/* dual melee+missile → a segmented switch; single mode → a static tag */}
-            {dual ? (
+            {dual && (
               <div
-                className="kind-switch"
-                role="group"
+                className="vm-segmented osc-segmented-sm"
+                role="radiogroup"
                 aria-label="Attack mode"
               >
                 {a.modes.map((m, i) => (
-                  <button
-                    type="button"
+                  <label
                     key={m.kind}
                     data-testid={`attack-mode-${m.kind}-${a.itemId}`}
-                    className={cx(
-                      "kind-seg",
-                      m.kind,
-                      i === active && "selected",
-                    )}
-                    aria-pressed={i === active}
-                    onClick={() => setActive(i)}
+                    className="vm-segment kind-seg"
                     title={`${m.kindLabel} attack`}
                   >
+                    <input
+                      type="radio"
+                      className="vm-segment-input"
+                      name={`attack-mode-${a.itemId}`}
+                      checked={i === active}
+                      onChange={() => setActive(i)}
+                      aria-label={`${m.kindLabel} attack`}
+                    />
                     <i
                       className={cx("fa-solid", kindIcon(m.kind))}
                       aria-hidden="true"
@@ -139,10 +141,11 @@ function WeaponRow({
                     <span className="tag-pop" role="tooltip">
                       {m.kindLabel}
                     </span>
-                  </button>
+                  </label>
                 ))}
               </div>
-            ) : (
+            )}
+            {!dual && (
               <Tag
                 variant="chip"
                 className={a.modes[0].kind}
@@ -152,70 +155,73 @@ function WeaponRow({
               />
             )}
             {a.qualities.map((q) => (
-              <Tag
-                variant="chip"
-                key={q.label}
-                title={q.label}
-                icon={q.icon || undefined}
-                tooltip={q.icon ? q.label : undefined}
-              >
-                {q.icon ? null : <span className="tag-txt">{q.label}</span>}
-              </Tag>
+              <Fragment key={q.label}>
+                <Tag
+                  variant="chip"
+                  className="u-foundry-lg-display-none"
+                  title={q.label}
+                  icon={q.icon || undefined}
+                  tooltip={q.icon ? q.label : undefined}
+                >
+                  {q.icon ? null : <span className="tag-txt">{q.label}</span>}
+                </Tag>
+                <Tag
+                  size="xs"
+                  icon={q.icon || undefined}
+                  className="u-foundry-xs-display-none u-foundry-lg-display-inline-flex"
+                >
+                  {q.label}
+                </Tag>
+              </Fragment>
             ))}
           </div>
         </div>
       </div>
 
-      <button
-        type="button"
-        className="wstat hit"
+      <IconButton
+        variant="raised"
+        className="osc-roll-button wstat hit"
         data-testid={`weapon-hit-${a.itemId}`}
         disabled={!onRoll}
         onClick={() => onRoll?.(mode.hit)}
         aria-label={`Roll to hit · ${mode.hitTip}`}
       >
         <span className="sl">Hit</span>
-        <span className="wv">
-          <i
-            className={cx("fa-solid", kindIcon(mode.kind))}
-            aria-hidden="true"
-          />
-          {mode.hitDisplay}
-        </span>
+        <span className="wv">{mode.hitDisplay}</span>
         <span className="tag-pop" role="tooltip">
           {`Roll to hit · ${mode.hitTip}`}
         </span>
-      </button>
-      <button
-        type="button"
-        className="wstat dmg"
+      </IconButton>
+      <IconButton
+        variant="raised"
+        className="osc-roll-button wstat dmg"
         disabled={!onRoll}
         onClick={() => onRoll?.(mode.dmg)}
         aria-label={`Roll damage · ${mode.dmgTip}`}
       >
         <span className="sl">Dmg</span>
-        <span className="wv">{mode.dmgDisplay}</span>
+        <span className="wv">{mode.dmgModDisplay}</span>
         <span className="tag-pop" role="tooltip">
           {`Roll damage · ${mode.dmgTip}`}
         </span>
-      </button>
+      </IconButton>
 
       {/* Always rendered; read-only (non-owner) shows it disabled — the composite
           Attack roll can write to the actor/item, so it's inert without canAttack.
           Drag-to-hotbar is owner-only too, so macroDrag is omitted when disabled. */}
-      <Button
+      <IconButton
+        variant="raised"
+        className="osc-roll-button osc-icon-tone-brass"
         data-testid={`weapon-attack-${a.itemId}`}
         {...(canAttack ? macroDrag : {})}
         disabled={!canAttack || !onAttack}
         onClick={(e) => onAttack?.(a.itemId, mode.kind, e)}
         title="Attack roll (hit + damage)"
-        variant="outline"
-        tone="brass"
         aria-label={`Attack with ${a.name}`}
       >
-        <i className="fa-solid fa-dice-d20 u-mr-1" aria-hidden="true" />
+        <i className="fa-solid fa-dice-d20" aria-hidden="true" />
         <span>Attack</span>
-      </Button>
+      </IconButton>
     </div>
   );
 }
@@ -234,7 +240,7 @@ export function AttacksTable({
   return (
     <section className="osc-section" data-testid="attacks">
       <SectionTitle hint="click to roll">Attacks</SectionTitle>
-      <div className="tw:flex tw:flex-col tw:gap-1">
+      <div className="tw:flex tw:flex-col">
         {attacks.map((a) => (
           <WeaponRow
             key={a.id}

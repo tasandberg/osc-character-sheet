@@ -35,7 +35,7 @@ export function SheetImageDrop({ zone, onImage, children }: Props) {
             <div className="osc-image-drop-face is-blocked u-flex u-items-center u-justify-center u-p-4">
               <p
                 role="status"
-                className="osc-image-drop-message u-m-0 u-px-4 u-py-3 u-r-md u-bg-surface-2 u-border u-fs-md u-text"
+                className="osc-image-drop-message u-m-0 u-px-4 u-py-3 u-bg-surface-2 u-border u-fs-md u-text"
               >
                 {zone.message}
               </p>

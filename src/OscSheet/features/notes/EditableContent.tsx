@@ -66,7 +66,7 @@ export default function EditableContent({
         </div>
       ) : (
         // Static view card; max-w = a reading measure, not the full tab width.
-        <div className="tw:max-w-[640px] tw:rounded-md tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:py-2">
+        <div className="tw:max-w-[640px] tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:py-2">
           {canEdit && (
             <div className="tw:flex tw:justify-end">
               <IconButton
@@ -82,7 +82,7 @@ export default function EditableContent({
           {enriched.trim() ? (
             <RichText html={enriched} />
           ) : (
-            <p className="tw:m-0 tw:italic tw:text-text-dim">
+            <p className="tw:m-0 tw:text-(length:--fs-xs) tw:text-text-dim">
               No {title.toLowerCase()} yet.
             </p>
           )}
