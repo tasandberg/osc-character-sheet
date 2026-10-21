@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import type { EncumbranceVM, IdentityVM, VitalsVM } from "@domain/vm-types";
 import { armorTierLabel, formatMod } from "@domain/format";
 import { Identity } from "@layout/Identity";
@@ -7,7 +6,6 @@ import { Stamp } from "@ui/Stamp";
 import { rollable, type ActivateEvent } from "@ui/rollable";
 import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
-import { useWrapStarts } from "@ui/useWrapStarts";
 
 // Tiers are container queries: `app` for the XS compact header, `sheet` for the
 // narrow left rail in the two-pane view. The two can never both match — `sheet`
@@ -18,8 +16,9 @@ import { useWrapStarts } from "@ui/useWrapStarts";
 
 // Init / HD / Move: key + value inline, hairline-divided.
 const TILE =
-  "osc-tile tw:relative tw:inline-flex tw:flex-none tw:items-center tw:gap-2 tw:whitespace-nowrap" +
-  " tw:@twopane/sheet:flex-col tw:@twopane/sheet:items-center tw:@twopane/sheet:gap-0";
+  "osc-tile tw:relative tw:flex tw:min-w-0 tw:flex-col tw:items-stretch tw:gap-1 tw:text-center tw:whitespace-nowrap";
+
+const STAT_BUTTON = "osc-stat-button vm-bevel rollable";
 
 const TILE_V =
   "osc-tile-v tw:text-(length:--fs-md) tw:tabular-nums tw:text-text-dim";
@@ -63,17 +62,17 @@ type Props = {
   onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
   canEditPortrait?: boolean;
   onRollHd?: (event: ActivateEvent) => void;
+  onRollInit?: (event: ActivateEvent) => void;
 };
 
 /** Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
  *  · HP/AC in medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, onRollHd }: Props) {
+export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, onRollHd, onRollInit }: Props) {
   const m = vitals.moveBands;
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   const rollHd = vitals.hd ? onRollHd : undefined;
   const hdLabel = rollHd ? game.i18n.localize("OSE.roll.hd") : undefined;
-  const substatsRef = useRef<HTMLDivElement>(null);
-  useWrapStarts(substatsRef);
+  const initLabel = onRollInit ? game.i18n.localize("COMBAT.InitiativeRoll") : undefined;
   return (
     <div className="osc-head">
       <Portrait
@@ -83,15 +82,21 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         onContextMenu={onPortraitContextMenu}
       />
       <Identity identity={identity} />
-      <div ref={substatsRef} className="osc-substats tw:flex tw:items-center tw:self-start tw:@max-md/app:justify-center tw:@twopane/sheet:justify-center">
+      <div className="osc-substats tw:grid tw:grid-cols-[repeat(3,minmax(max-content,1fr))] tw:gap-2 tw:self-start">
         <div className={TILE}>
-          <Stamp ink>INIT</Stamp>
+          <Stamp
+            className={onRollInit ? STAT_BUTTON : "ink"}
+            title={initLabel}
+            aria-label={initLabel}
+            {...rollable(onRollInit)}
+          >
+            INIT
+          </Stamp>
           <span className={TILE_V}>{formatMod(vitals.initMod)}</span>
         </div>
         <div className={TILE}>
           <Stamp
-            ink
-            className={rollHd ? "rollable" : undefined}
+            className={rollHd ? STAT_BUTTON : "ink"}
             title={hdLabel}
             aria-label={hdLabel}
             {...rollable(rollHd)}
@@ -99,11 +104,6 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
             HD
           </Stamp>
           <span className={TILE_V}>{vitals.hd}</span>
-          {rollHd && (
-            <span className="osc-roll-die" title={hdLabel} aria-hidden="true" onClick={rollHd}>
-              <i className="fa-solid fa-dice-d20 roll-label-die" />
-            </span>
-          )}
         </div>
         <div className={`${TILE} tw:cursor-default`}>
           <Stamp ink>MOVE</Stamp>

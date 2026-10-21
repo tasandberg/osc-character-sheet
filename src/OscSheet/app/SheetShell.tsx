@@ -175,6 +175,11 @@ export default function SheetShell() {
               onRollHd={
                 canEdit ? (event) => actor.rollHitDice({ event }) : undefined
               }
+              onRollInit={
+                canEdit
+                  ? () => actor.rollInitiative({ createCombatants: true })
+                  : undefined
+              }
             />
           }
           minibar={

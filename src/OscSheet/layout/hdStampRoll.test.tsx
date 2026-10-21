@@ -33,6 +33,7 @@ const connector = {
 } as never;
 
 const rollHitDice = vi.fn();
+const rollInitiative = vi.fn();
 
 function makeActor(hd = "3d4") {
   const { system, ...rest } = raistlin;
@@ -46,6 +47,7 @@ function makeActor(hd = "3d4") {
     items: { contents: [] },
     update: vi.fn().mockResolvedValue(undefined),
     rollHitDice,
+    rollInitiative,
   } as unknown as OSEActor;
 }
 
@@ -73,6 +75,7 @@ const stampLabelled = (text: string) =>
 
 beforeEach(() => {
   rollHitDice.mockClear();
+  rollInitiative.mockClear();
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);
@@ -109,10 +112,15 @@ describe("HD roll", () => {
     expect(roll.tabIndex).toBe(0);
   });
 
-  it("leaves INIT and MOVE inert", () => {
+  it("rolls initiative from INIT", () => {
     mount(true);
-    for (const text of ["INIT", "MOVE"])
-      expect(stampLabelled(text)!.getAttribute("role")).toBeNull();
+    act(() => stampLabelled("INIT")!.click());
+    expect(rollInitiative).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves MOVE inert", () => {
+    mount(true);
+    expect(stampLabelled("MOVE")!.getAttribute("role")).toBeNull();
   });
 
   it("offers no roll to a viewer without permission", () => {
