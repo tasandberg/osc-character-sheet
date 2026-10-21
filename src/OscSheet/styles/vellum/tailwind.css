@@ -41,7 +41,7 @@
 
   --spacing-0: 0px; /* vellum's scale starts at 1, so `p-0`/`min-w-0` need this */
 
-  --container-md: 480px; /* app: bottom bar ⇄ vertical rail */
+  --container-md: 560px; /* app: bottom bar ⇄ vertical rail */
   --container-lg: 740px; /* app: rail ⇄ horizontal tab bar */
   --container-roomy: 600px; /* sheet: content padding opens up */
   --container-twopane: 700px; /* sheet: single column ⇄ rail + pane */

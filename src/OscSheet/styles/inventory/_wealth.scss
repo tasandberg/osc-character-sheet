@@ -1,3 +1,4 @@
+@use "../breakpoints" as bp;
 // ---------------------------------------------------------------------------
 // Coin editor
 // ---------------------------------------------------------------------------
@@ -109,7 +110,7 @@
 // hides itself with `tw:@max-md/app:hidden`. The positional `:nth-child` rule
 // this used to need is gone: it depended on the header and the row hiding by
 // different mechanisms, which is exactly how they drifted out of step.
-@container app (max-width: 479px) {
+@container app (width < #{bp.$md}) {
   .osc-coin-colhead,
   .osc-coin-row {
     grid-template-columns: 18px 30px minmax(0, 1fr) 92px;

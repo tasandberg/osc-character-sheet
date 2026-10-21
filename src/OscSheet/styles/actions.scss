@@ -1,4 +1,5 @@
 @use "mixins" as *;
+@use "breakpoints" as bp;
 // Display-layout helpers for the Actions tab + sheet furniture (pass 1).
 // Pure layout on top of the Vellum component classes; colors come from tokens.
 
@@ -51,7 +52,7 @@
   grid-area: ident;
 }
 // The name's SIZE is the one header declaration that can't be a utility. It has
-// three values across TWO different containers (base, `sheet ≥470`, `app ≤479`),
+// three values across TWO different containers (base, `sheet ≥470`, `app < md`),
 // and the original cascade resolves an overlap by source order — XS last. As
 // utilities the two container variants would be ordered by Tailwind, not by this
 // file, so the ≥470 bump could silently win at XS. Everything else about
@@ -149,7 +150,7 @@
 [data-theme="cream"] .osc-sheet-app .osc-substats .stamp.osc-stat-button {
   --btn-face: color-mix(in oklab, var(--btn-face-hi) 25%, var(--bg-2-solid));
 }
-@container app (min-width: 480px) {
+@container app (width >= #{bp.$md}) {
   @container sheet (width < 700px) {
     .osc-head > .osc-vitals {
       grid-row: 1 / span 2;
@@ -292,7 +293,7 @@
   column-gap: var(--spacer-3);
   align-items: start;
 }
-@container app (min-width: 480px) {
+@container app (width >= #{bp.$md}) {
   .osc-weapon {
     align-items: center;
   }
@@ -370,10 +371,10 @@
   justify-content: flex-start;
 }
 
-// === XS / mobile (≤479px app): compact header + topbar overflow ===
+// === XS / mobile (below md): compact header + topbar overflow ===
 // MUST live here (after the base .osc-head / .osc-tb-* rules) to win the cascade —
 // shell.scss loads earlier, so XS overrides placed there lose at equal specificity.
-@container app (max-width: 479px) {
+@container app (width < #{bp.$md}) {
   // Exploration and favorited abilities: 2-up leaves no room for the label, so
   // both stack. They share the .fvtt-explore grid.
   .fvtt-explore {

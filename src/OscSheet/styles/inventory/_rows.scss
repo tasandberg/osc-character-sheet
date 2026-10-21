@@ -1,3 +1,4 @@
+@use "../breakpoints" as bp;
 // Inventory tab — single-column list view + encumbrance bar.
 //
 // Most of the plumbing here now lives as `tw:` utilities on the components in
@@ -355,7 +356,7 @@
 // xs / mobile (bottom-tabs layout): drop the Type column to save width, and swap
 // the "Uses" pip sub-row for the inline Use pill on the item row. Everything else
 // in this tier is a `tw:@max-md/app:` variant on the component.
-@container app (max-width: 479px) {
+@container app (width < #{bp.$md}) {
   .osc-inv-row {
     grid-template-columns: 18px 30px 1fr 44px 44px;
   }

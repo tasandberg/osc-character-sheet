@@ -1,11 +1,12 @@
+@use "breakpoints" as bp;
 // Collapsing-header minibar (MEDIUM layout only).
 //
 // Mounted as the first child of .osc-sheet-body (sheet container). It pins to the top of
 // the scroller once the full header scrolls out (the `is-collapsed` class is toggled
 // in Minibar.tsx). Two container gates restrict it to the medium band:
-//   - xs  (app ≤ 479): bottom-tab layout → hidden
+//   - xs  (app below md): bottom-tab layout → hidden
 //   - lg  (app ≥ 740): two-pane sticky header → hidden
-// so it only shows in the 480–739 band, AND only while collapsed.
+// so it only shows in the md band, AND only while collapsed.
 
 .osc-minibar {
   position: sticky;
@@ -167,17 +168,17 @@
 // === medium-only gates (source of truth) ===
 // Gates resolve against the nearest `app` container (.osc-sheet-app); the minibar
 // lives inside the `sheet` container but container queries walk up the ancestor chain.
-@container app (max-width: 479px) {
+@container app (width < #{bp.$md}) {
   .osc-minibar { display: none; }
 }
-@container app (min-width: 740px) {
+@container app (width >= #{bp.$lg}) {
   .osc-minibar { display: none; }
 }
 
 // While the minibar is pinned (collapsed, medium only), push any sticky inventory
 // head down so it parks flush below the minibar instead of overlapping it at top:0.
 // Gated to the medium band so the offset never applies where the minibar is hidden.
-@container app (min-width: 480px) and (max-width: 739px) {
+@container app (#{bp.$md} <= width < #{bp.$lg}) {
   .osc-minibar.is-collapsed ~ .osc-pad .osc-inv-stickyhead {
     top: var(--osc-minibar-h, 49px);
   }

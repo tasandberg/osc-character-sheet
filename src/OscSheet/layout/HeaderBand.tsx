@@ -9,7 +9,7 @@ import { useHpInput } from "@ui/useHpInput";
 
 // Tiers are container queries: `app` for the XS compact header, `sheet` for the
 // narrow left rail in the two-pane view. The two can never both match — `sheet`
-// lives inside `app`, so it cannot be ≥700 while `app` is <480 — so their
+// lives inside `app`, so it cannot be ≥700 while `app` is below md — so their
 // relative order never decides anything. Sizes go through `var(--fs-*)` rather
 // than the `tw:text-*` scale: the tokens are `calc(<rem> * var(--fs-scale))` and
 // follow the sheet's font-size setting, the Tailwind scale is the raw rem.

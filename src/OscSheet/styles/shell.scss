@@ -1,3 +1,4 @@
+@use "breakpoints" as bp;
 // Shell layout — responsive app scaffold (P3).
 // Adapted from the Vellum prototype foundry-styles.css shell rules, re-prefixed
 // `osc-` and tokenised. Two container contexts:
@@ -220,7 +221,7 @@
 
 // Center tabs replace the right rail exactly when the two-pane engages.
 // sheet two-pane = 700; rail is 40px wide, so sheet 700 ⟺ app ≈ 740.
-@container app (min-width: 740px) {
+@container app (width >= #{bp.$lg}) {
   .osc-htab {
     display: inline-flex;
     align-items: center;
@@ -259,11 +260,11 @@
   }
 }
 
-// === XS tier (≤ 479c on app) ===
+// === XS tier (app < md) ===
 // Bottom bar replaces the rail; header reflows to compact single-column.
 // XS nav swap only — the header + topbar XS overrides live in actions.scss (after
 // the base rules) so they win the cascade; shell.scss loads first and would lose.
-@container app (max-width: 479px) {
+@container app (width < #{bp.$md}) {
   // content clears the bottom bar
   .osc-sheet-body {
     padding-bottom: var(--spacer-1);

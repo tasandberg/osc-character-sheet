@@ -1,3 +1,4 @@
+@use "breakpoints" as bp;
 // Actions-tab feature styling — RESTORED, not new.
 //
 // These declarations were deleted from actions.scss on the assumption that the
@@ -193,7 +194,7 @@
   gap: 4px;
   margin-top: 3px;
 }
-@container app (min-width: 480px) {
+@container app (width >= #{bp.$md}) {
   .osc-weapon .winfo {
     align-items: center;
   }
