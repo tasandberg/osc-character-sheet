@@ -14,13 +14,9 @@ import type { OSEActor } from "@domain/types";
     ux: { TextEditor: { enrichHTML: (v: string) => Promise.resolve(v) } },
   },
 };
-const game = {
+(globalThis as { game?: unknown }).game = {
   i18n: { localize: (k: string) => k },
-  combat: null as unknown,
 };
-(globalThis as { game?: unknown }).game = game;
-const warn = vi.fn();
-(globalThis as { ui?: unknown }).ui = { notifications: { warn } };
 (globalThis as { CONFIG?: unknown }).CONFIG = { OSE: { classes: {} } };
 (globalThis as { ResizeObserver?: unknown }).ResizeObserver = class {
   observe() {}
@@ -37,7 +33,6 @@ const connector = {
 } as never;
 
 const rollHitDice = vi.fn();
-const rollInitiative = vi.fn();
 
 function makeActor(hd = "3d4") {
   const { system, ...rest } = raistlin;
@@ -51,7 +46,6 @@ function makeActor(hd = "3d4") {
     items: { contents: [] },
     update: vi.fn().mockResolvedValue(undefined),
     rollHitDice,
-    rollInitiative,
   } as unknown as OSEActor;
 }
 
@@ -79,7 +73,6 @@ const stampLabelled = (text: string) =>
 
 beforeEach(() => {
   rollHitDice.mockClear();
-  rollInitiative.mockClear();
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);
@@ -116,24 +109,10 @@ describe("HD roll", () => {
     expect(roll.tabIndex).toBe(0);
   });
 
-  it("rolls initiative from INIT during a combat", () => {
-    game.combat = {};
+  it("leaves INIT and MOVE inert", () => {
     mount(true);
-    act(() => stampLabelled("INIT")!.click());
-    expect(rollInitiative).toHaveBeenCalledTimes(1);
-    game.combat = null;
-  });
-
-  it("warns instead of starting a combat when none is active", () => {
-    mount(true);
-    act(() => stampLabelled("INIT")!.click());
-    expect(rollInitiative).not.toHaveBeenCalled();
-    expect(warn).toHaveBeenCalled();
-  });
-
-  it("leaves MOVE inert", () => {
-    mount(true);
-    expect(stampLabelled("MOVE")!.getAttribute("role")).toBeNull();
+    for (const text of ["INIT", "MOVE"])
+      expect(stampLabelled(text)!.getAttribute("role")).toBeNull();
   });
 
   it("offers no roll to a viewer without permission", () => {

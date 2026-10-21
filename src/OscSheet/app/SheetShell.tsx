@@ -175,16 +175,6 @@ export default function SheetShell() {
               onRollHd={
                 canEdit ? (event) => actor.rollHitDice({ event }) : undefined
               }
-              onRollInit={
-                canEdit
-                  ? () =>
-                      game.combat
-                        ? actor.rollInitiative({ createCombatants: true })
-                        : ui.notifications?.warn("COMBAT.NoneActive", {
-                            localize: true,
-                          })
-                  : undefined
-              }
             />
           }
           minibar={

@@ -62,17 +62,15 @@ type Props = {
   onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
   canEditPortrait?: boolean;
   onRollHd?: (event: ActivateEvent) => void;
-  onRollInit?: (event: ActivateEvent) => void;
 };
 
 /** Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
  *  · HP/AC in medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, onRollHd, onRollInit }: Props) {
+export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, onRollHd }: Props) {
   const m = vitals.moveBands;
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   const rollHd = vitals.hd ? onRollHd : undefined;
   const hdLabel = rollHd ? game.i18n.localize("OSE.roll.hd") : undefined;
-  const initLabel = onRollInit ? game.i18n.localize("COMBAT.InitiativeRoll") : undefined;
   return (
     <div className="osc-head">
       <Portrait
@@ -84,14 +82,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
       <Identity identity={identity} />
       <div className="osc-substats tw:grid tw:grid-cols-[repeat(3,minmax(max-content,1fr))] tw:gap-2 tw:self-start">
         <div className={TILE}>
-          <Stamp
-            className={onRollInit ? STAT_BUTTON : "ink"}
-            title={initLabel}
-            aria-label={initLabel}
-            {...rollable(onRollInit)}
-          >
-            INIT
-          </Stamp>
+<Stamp ink>INIT</Stamp>
           <span className={TILE_V}>{formatMod(vitals.initMod)}</span>
         </div>
         <div className={TILE}>
