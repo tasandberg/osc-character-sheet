@@ -3,6 +3,7 @@ import { armorTierLabel, formatMod } from "@domain/format";
 import { Identity } from "@layout/Identity";
 import { Portrait } from "@layout/Portrait";
 import { Stamp } from "@ui/Stamp";
+import { Button } from "@ui/Button";
 import { rollable, type ActivateEvent } from "@ui/rollable";
 import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
@@ -44,7 +45,7 @@ const VITAL_SUB =
 const SUB_FULL = "full tw:@max-md/app:hidden";
 const SUB_SHORT = "short tw:hidden tw:@max-md/app:inline";
 
-const VV_ROW = "vv-row tw:flex tw:items-center tw:justify-center tw:gap-2";
+const VV_ROW = "vv-row tw:flex tw:items-center tw:justify-center tw:gap-1";
 
 // Reserve width for the digits so the value's digit count never shifts the
 // flanking − / + steppers as HP changes; tabular-nums keeps digit widths uniform.
@@ -122,7 +123,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           <div className={VV_ROW}>
             {/* medium+: − / + steppers around the value; XS: an editable input (toggled in CSS) */}
             {onSetHp && (
-              <button type="button" className="vv-step" aria-label="Lose 1 HP" onClick={hp.dec}>−</button>
+              <Button variant="link" className="vv-step" aria-label="Lose 1 HP" onClick={hp.dec}>−</Button>
             )}
             <div className={`${VITAL_BIG} ${VV_VALUE} tw:text-crimson`}>{vitals.hp.value}</div>
             {onSetHp && (
@@ -134,7 +135,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
               />
             )}
             {onSetHp && (
-              <button type="button" className="vv-step" aria-label="Heal 1 HP" onClick={hp.inc}>+</button>
+              <Button variant="link" className="vv-step" aria-label="Heal 1 HP" onClick={hp.inc}>+</Button>
             )}
           </div>
           <div className={VITAL_SUB}>
