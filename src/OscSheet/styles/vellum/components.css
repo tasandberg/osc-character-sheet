@@ -1093,6 +1093,7 @@ button.pip:hover {
   line-height: 1;
   color: var(--text);
   margin: 0;
+  padding-bottom: 4px;
 }
 /* Mod: gold-on-ink circle pinned to the bottom edge */
 .plaque-ability .pc {
