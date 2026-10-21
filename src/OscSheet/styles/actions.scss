@@ -143,12 +143,15 @@
   white-space: nowrap;
 }
 .osc-sheet-app .osc-substats .stamp.osc-stat-button {
-  --btn-face: color-mix(in oklab, var(--btn-face-hi) 25%, var(--ink));
+  --btn-face: color-mix(in oklab, var(--stamp-text) 10%, var(--ink));
+  --btn-face-hi: color-mix(in oklab, var(--stamp-text) 18%, var(--ink));
+  --btn-lit: color-mix(in oklab, var(--stamp-text) 26%, var(--ink));
+  --btn-shade: var(--ink);
+  --btn-wall: var(--ink);
+  --btn-pressed: var(--ink);
+  --btn-press-shade: var(--ink);
   border-color: var(--btn-wall);
-  color: var(--text);
-}
-[data-theme="cream"] .osc-sheet-app .osc-substats .stamp.osc-stat-button {
-  --btn-face: color-mix(in oklab, var(--btn-face-hi) 25%, var(--bg-2-solid));
+  color: var(--stamp-text);
 }
 @container app (width >= #{bp.$md}) {
   @container sheet (width < 700px) {
