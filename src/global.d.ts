@@ -10,7 +10,6 @@ declare global {
   const fromUuid = foundry.utils.fromUuid;
   const fromUuidSync = foundry.utils.fromUuidSync;
 
-  // The OSE system's CONFIG.OSE block, typed from the published fork types.
   interface CONFIG {
     OSE: OseConfig;
   }

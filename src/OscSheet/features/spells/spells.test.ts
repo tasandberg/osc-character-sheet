@@ -23,14 +23,14 @@ describe("spellMeta", () => {
       spell({
         range: "150'",
         duration: "1 turn",
-        save: "vs spells",
+        save: "spell",
         roll: "1d6+1",
       }),
     );
     expect(parts).toEqual([
       { kind: "range", text: "R 150'" },
       { kind: "duration", text: "D 1 turn" },
-      { kind: "save", text: "save vs spells" },
+      { kind: "save", text: "save spell" },
       { kind: "roll", text: "1d6+1" },
     ]);
   });

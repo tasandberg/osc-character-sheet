@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
-    "@ose-foundry-core/types": "github:tasandberg/ose-foundry-core#types-v0.1.0",
+    "@ose-foundry-core/types": "0.0.2",
     "@pixi/compressed-textures": "github:foundry-vtt-types/pixi-compressed-textures#main",
     "@sentry/cli": "^3.6.0",
     "@tailwindcss/vite": "^4.3.3",
