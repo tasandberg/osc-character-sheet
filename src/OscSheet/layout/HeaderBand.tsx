@@ -147,7 +147,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
             )}
           </div>
           <div className={VITAL_SUB}>
-            <span className={SUB_FULL}>of {vitals.hp.max}</span>
+            <span className={SUB_FULL}>Max {vitals.hp.max}</span>
             <span className={SUB_SHORT}>/{vitals.hp.max}</span>
           </div>
         </div>
