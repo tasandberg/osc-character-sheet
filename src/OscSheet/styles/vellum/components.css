@@ -1082,6 +1082,7 @@ button.pip:hover {
 }
 .plaque-ability .pv {
   position: relative;
+  top: 2px;
   flex: 1;
   display: flex;
   align-items: center;
