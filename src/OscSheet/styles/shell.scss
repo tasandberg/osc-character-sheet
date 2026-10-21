@@ -18,6 +18,7 @@
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-gutter: stable;
   container-type: inline-size;
   container-name: sheet;
   // collapsed-minibar height — shared so sticky inventory heads can pin below it
