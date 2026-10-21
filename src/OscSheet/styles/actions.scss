@@ -247,11 +247,9 @@
   align-items: baseline;
   justify-content: space-between;
   padding-inline: 0;
-
-  & + & {
-    border-left: 0;
-    border-top: 1px solid var(--hair-soft);
-  }
+}
+.osc-rail-extra .osc-saves-band-cell + .osc-saves-band-cell {
+  border-left: 0;
 }
 .osc-saves-band-label {
   overflow: hidden;
