@@ -27,6 +27,8 @@ import { useDragReorder } from "@features/inventory/useDragReorder";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { WealthSection } from "@features/inventory/WealthSection";
 import { SendItemModal } from "@features/inventory/SendItemModal";
+import { EatRationModal } from "@features/camp/EatRationModal";
+import { isRation } from "@features/camp/rations";
 import {
   selectSendTargets,
   isGmConnected,
@@ -99,6 +101,7 @@ export function InventoryView({
   const [menu, setMenu] = useState<MenuState | null>(null);
   // The item whose Send dialog is open (a full inventory VM node), null = closed.
   const [sending, setSending] = useState<InventoryItemVM | null>(null);
+  const [eatingId, setEatingId] = useState<string | null>(null);
 
   // Foundry items by id — source for the hotbar drag payload. Dragging a row onto
   // the macro bar creates an item macro (OSE's hotbarDrop hook), like the stock sheet.
@@ -107,6 +110,13 @@ export function InventoryView({
   const itemDragData: ItemDragData = (id) => {
     const it = itemsById.get(id);
     return it ? buildItemMacroDragData(actor, it) : undefined;
+  };
+
+  const setQty = (id: string, value: number) => {
+    const it = itemsById.get(id);
+    if (it && isRation(it) && value < (it.system.quantity?.value ?? 0))
+      setEatingId(id);
+    else onSetQty(id, value);
   };
 
   const openMenu: OnContext = (e, item) => {
@@ -406,7 +416,7 @@ export function InventoryView({
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
-                onSetQty={onSetQty}
+                onSetQty={setQty}
               />
             ) : (
               <SortableRow
@@ -422,7 +432,7 @@ export function InventoryView({
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
-                onSetQty={onSetQty}
+                onSetQty={setQty}
               />
             );
           })}
@@ -447,6 +457,11 @@ export function InventoryView({
           }
         />
       )}
+
+      <EatRationModal
+        item={(eatingId && itemsById.get(eatingId)) || null}
+        onClose={() => setEatingId(null)}
+      />
 
       {sending &&
         (() => {
