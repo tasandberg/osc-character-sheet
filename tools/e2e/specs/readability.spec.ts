@@ -57,7 +57,7 @@ test.describe("text readability", () => {
     try {
       const sheet = await openCharacterSheet(gamePage, fighter.name);
       const label = sheet
-        .locator('[data-testid="save-death"]:visible .osc-saves-band-label')
+        .locator('[data-testid="save-death"]:visible :is(.osc-saves-band-label, .skn)')
         .first();
       await expect(label).toBeVisible();
 

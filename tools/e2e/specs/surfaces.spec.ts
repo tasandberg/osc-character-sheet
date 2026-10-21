@@ -99,7 +99,7 @@ test.describe("tab feature surfaces", () => {
     const saves = rail.locator('[data-testid^="save-"]');
     await expect(saves).toHaveCount(5);
     await expect(saves.first()).toBeVisible();
-    // Stacked one per row in the rail, each label beside its target.
+    // One per row in the rail, each label beside its target.
     expect(rowsOf(await boxesOf(saves.first().locator("> *")))).toBe(1);
 
     // Exploration is presence-only. It is deliberately one-per-row in the rail,

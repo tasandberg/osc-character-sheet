@@ -212,18 +212,6 @@
     outline: 2px solid var(--gold);
   }
 }
-.osc-rail-extra .osc-saves-band {
-  grid-template-columns: minmax(0, 1fr);
-}
-.osc-rail-extra .osc-saves-band-cell {
-  flex-direction: row;
-  align-items: baseline;
-  justify-content: space-between;
-  padding-inline: 0;
-}
-.osc-rail-extra .osc-saves-band-cell + .osc-saves-band-cell {
-  border-left: 0;
-}
 .osc-saves-band-label {
   overflow: hidden;
   text-overflow: ellipsis;

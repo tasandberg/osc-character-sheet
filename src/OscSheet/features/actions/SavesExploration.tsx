@@ -40,6 +40,37 @@ export function SavesBand({
   );
 }
 
+export function SavesList({
+  saves,
+  onRoll,
+}: {
+  saves: SaveVM[];
+  onRoll?: (key: OSESave, event: ActivateEvent) => void;
+}) {
+  return (
+    <div className="fvtt-explore">
+      {saves.map((s) => (
+        <div
+          key={s.key}
+          className={cx("fvtt-skill", onRoll && "rollable")}
+          title={onRoll ? `Roll ${s.label} save (≥ ${s.target})` : undefined}
+          data-testid={`save-${s.key}`}
+          {...rollable(onRoll && ((e) => onRoll(s.key, e)))}
+        >
+          <i className={cx("skic", s.icon)} aria-hidden="true" />
+          <span className="skn">{s.label}</span>
+          <span className="skv">
+            {s.target}
+            <span className="osc-roll-die" aria-hidden="true">
+              <i className="fa-solid fa-dice-d20 roll-label-die" />
+            </span>
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function ExplorationGrid({
   exploration,
   onRoll,
@@ -127,7 +158,7 @@ export function SavesExploration({
       </div>
       {tab === "saves" ? (
         <div className="tw:space-y-1">
-          <SavesBand saves={saves} onRoll={onRollSave} />
+          <SavesList saves={saves} onRoll={onRollSave} />
           <SavesModTag wisdomAbility={wisdomAbility} />
         </div>
       ) : (
