@@ -43,8 +43,16 @@ export function TargetDialog({ targets, onCancel, onConfirm }: Props) {
         <p className="u-fs-xs u-text-dim">No visible tokens in this scene.</p>
       ) : (
         <ul className="osc-attack-targets u-stack u-gap-1">
-          {targets.map((t) => (
-            <li key={t.id}>
+          {targets.map((t, i) => (
+            <li
+              key={t.id}
+              className={cx(
+                i > 0 &&
+                  !t.hostile &&
+                  targets[i - 1].hostile &&
+                  "u-mt-1 u-pt-2 tw:border-t tw:border-(--hairline)",
+              )}
+            >
               <button
                 type="button"
                 className={cx(

@@ -92,7 +92,12 @@ describe("AttacksTable", () => {
   });
 
   describe("targeting", () => {
-    const goblin = { id: "tok-goblin", name: "Goblin", img: "goblin.webp" };
+    const goblin = {
+      id: "tok-goblin",
+      name: "Goblin",
+      img: "goblin.webp",
+      hostile: true,
+    };
 
     const targeting = (overrides: Partial<AttackTargeting> = {}): AttackTargeting => ({
       listTargets: () => [goblin],

@@ -4,6 +4,7 @@ export interface AttackTargetVM {
   id: string;
   name: string;
   img: string;
+  hostile: boolean;
 }
 
 interface TokenLike {
@@ -46,6 +47,7 @@ const toTargetVM = (t: TokenLike): AttackTargetVM => ({
   id: t.id,
   name: t.name,
   img: t.document.texture?.src || t.actor?.img || "",
+  hostile: t.document.disposition === HOSTILE,
 });
 
 export function selectAttackTargets(current: {
@@ -62,7 +64,8 @@ export function selectAttackTargets(current: {
       (a.id === current.id || (!!current.uuid && a.uuid === current.uuid))
     )
       continue;
-    (t.document.disposition === HOSTILE ? hostile : others).push(toTargetVM(t));
+    const vm = toTargetVM(t);
+    (vm.hostile ? hostile : others).push(vm);
   }
   return [...hostile, ...others];
 }
@@ -75,7 +78,8 @@ export function currentUserTarget(): AttackTargetVM | null {
   if (
     next?.id !== cached?.id ||
     next?.name !== cached?.name ||
-    next?.img !== cached?.img
+    next?.img !== cached?.img ||
+    next?.hostile !== cached?.hostile
   )
     cached = next;
   return cached;
