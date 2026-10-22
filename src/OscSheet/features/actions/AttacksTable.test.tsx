@@ -197,6 +197,8 @@ describe("AttacksTable", () => {
 
       click(hitButton());
       expect(onRoll).not.toHaveBeenCalled();
+      expect(container.textContent).toContain("Choose a target for Dagger hit");
+      expect(buttonNamed("Roll Dagger hit without target")).toBeDefined();
 
       click(targetOption("Goblin"));
       click(buttonNamed("Attack Goblin"));

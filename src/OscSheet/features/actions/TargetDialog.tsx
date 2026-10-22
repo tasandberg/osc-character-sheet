@@ -7,11 +7,17 @@ import type { AttackTargetVM } from "@features/actions/attackTargets";
 
 type Props = {
   targets: AttackTargetVM[];
+  rollType?: string;
   onCancel: () => void;
   onConfirm: (target: AttackTargetVM | null) => void;
 };
 
-export function TargetDialog({ targets, onCancel, onConfirm }: Props) {
+export function TargetDialog({
+  targets,
+  rollType,
+  onCancel,
+  onConfirm,
+}: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected = targets.find((t) => t.id === selectedId) ?? null;
 
@@ -21,7 +27,11 @@ export function TargetDialog({ targets, onCancel, onConfirm }: Props) {
         Cancel
       </Button>
       <Button variant="primary" onClick={() => onConfirm(selected)}>
-        {selected ? `Attack ${selected.name}` : "Roll without target"}
+        {selected
+          ? `Attack ${selected.name}`
+          : rollType
+            ? `Roll ${rollType} without target`
+            : "Roll without target"}
       </Button>
     </>
   );
@@ -32,7 +42,7 @@ export function TargetDialog({ targets, onCancel, onConfirm }: Props) {
       title={
         <>
           <i className="fa-solid fa-crosshairs" aria-hidden="true" />
-          Choose a target
+          {rollType ? `Choose a target for ${rollType}` : "Choose a target"}
         </>
       }
       onClose={onCancel}

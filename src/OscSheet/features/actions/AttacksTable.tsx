@@ -41,6 +41,7 @@ type Props = {
 
 type TargetPrompt = {
   targets: AttackTargetVM[];
+  rollType?: string;
   proceed?: () => void;
 };
 
@@ -256,19 +257,26 @@ export function AttacksTable({
 }: Props) {
   const [prompt, setPrompt] = useState<TargetPrompt | null>(null);
 
-  const openPrompt = (proceed?: () => void) =>
-    targeting && setPrompt({ targets: targeting.listTargets(), proceed });
+  const openPrompt = (rollType?: string, proceed?: () => void) =>
+    targeting &&
+    setPrompt({ targets: targeting.listTargets(), rollType, proceed });
 
-  const guard = (run: () => void) => {
-    if (targeting?.promptForTarget && !targeting.current) openPrompt(run);
+  const guard = (rollType: string, run: () => void) => {
+    if (targeting?.promptForTarget && !targeting.current)
+      openPrompt(rollType, run);
     else run();
   };
 
-  const guardedRoll = onRoll && ((spec: RollSpec) => guard(() => onRoll(spec)));
-  const guardedAttack =
+  const guardedRoll = (a: AttackVM) =>
+    onRoll &&
+    ((spec: RollSpec) => {
+      const kind = a.modes.some((m) => m.dmg === spec) ? "damage" : "hit";
+      guard(`${a.name} ${kind}`, () => onRoll(spec));
+    });
+  const guardedAttack = (a: AttackVM) =>
     onAttack &&
     ((itemId: string, kind: AttackKind, event: MouseEvent<HTMLButtonElement>) =>
-      guard(() => onAttack(itemId, kind, event)));
+      guard(`${a.name} attack`, () => onAttack(itemId, kind, event)));
 
   const confirm = (target: AttackTargetVM | null) => {
     const proceed = prompt?.proceed;
@@ -314,8 +322,8 @@ export function AttacksTable({
           <WeaponRow
             key={a.id}
             a={a}
-            onRoll={guardedRoll}
-            onAttack={guardedAttack}
+            onRoll={guardedRoll(a)}
+            onAttack={guardedAttack(a)}
             onOpen={onOpen}
             dragData={dragData}
             canAttack={canAttack}
@@ -325,6 +333,7 @@ export function AttacksTable({
       {prompt && (
         <TargetDialog
           targets={prompt.targets}
+          rollType={prompt.rollType}
           onCancel={() => setPrompt(null)}
           onConfirm={confirm}
         />
