@@ -2,10 +2,21 @@ import { Fragment, useState, type DragEvent, type MouseEvent } from "react";
 import type { AttackKind } from "@domain/types";
 import type { AttackVM, RollSpec } from "@domain/vm-types";
 import { SectionTitle } from "@ui/SectionTitle";
+import { Button } from "@ui/Button";
+import { IconButton } from "@ui/IconButton";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import { Monogram } from "@ui/Monogram";
-import { IconButton } from "@ui/IconButton";
+import { TargetDialog } from "@features/actions/TargetDialog";
+import type { AttackTargetVM } from "@features/actions/attackTargets";
+
+export type AttackTargeting = {
+  listTargets: () => AttackTargetVM[];
+  current: AttackTargetVM | null;
+  onTarget: (tokenId: string) => void;
+  onClearTarget: () => void;
+  promptForTarget: boolean;
+};
 
 type Props = {
   attacks: AttackVM[];
@@ -26,6 +37,12 @@ type Props = {
    *  decrement), so it's owner-only. false renders the Attack button disabled
    *  (read-only sheet), not hidden. Default true. */
   canAttack?: boolean;
+  targeting?: AttackTargeting;
+};
+
+type TargetPrompt = {
+  targets: AttackTargetVM[];
+  proceed?: () => void;
 };
 
 /** Monogram glyph for the ink-stamp weapon icon (first letter, Title-case). */
@@ -236,23 +253,85 @@ export function AttacksTable({
   onOpen,
   dragData,
   canAttack = true,
+  targeting,
 }: Props) {
+  const [prompt, setPrompt] = useState<TargetPrompt | null>(null);
+
+  const openPrompt = (proceed?: () => void) =>
+    targeting && setPrompt({ targets: targeting.listTargets(), proceed });
+
+  const guard = (run: () => void) => {
+    if (targeting?.promptForTarget && !targeting.current) openPrompt(run);
+    else run();
+  };
+
+  const guardedRoll = onRoll && ((spec: RollSpec) => guard(() => onRoll(spec)));
+  const guardedAttack =
+    onAttack &&
+    ((itemId: string, kind: AttackKind, event: MouseEvent<HTMLButtonElement>) =>
+      guard(() => onAttack(itemId, kind, event)));
+
+  const confirm = (target: AttackTargetVM | null) => {
+    const proceed = prompt?.proceed;
+    setPrompt(null);
+    if (target) targeting?.onTarget(target.id);
+    proceed?.();
+  };
+
   return (
     <section className="osc-section" data-testid="attacks">
-      <SectionTitle hint="click to roll">Attacks</SectionTitle>
+      <SectionTitle>
+        Attacks
+        <span className="hint">click to roll</span>
+        {targeting &&
+          (targeting.current ? (
+            <span className="u-row u-nowrap u-gap-1 u-fs-xs tw:self-center tw:font-sans">
+              <span className="u-text-dim">Target:</span>
+              <Monogram
+                img={targeting.current.img}
+                monogram={monogram(targeting.current.name)}
+                className="osc-attack-target-ic osc-attack-target-ic-sm u-r-sm u-bg-2"
+              />
+              <span className="u-text">{targeting.current.name}</span>
+              <IconButton
+                size="sm"
+                aria-label="Clear target"
+                title="Clear target"
+                onClick={targeting.onClearTarget}
+              >
+                ×
+              </IconButton>
+            </span>
+          ) : (
+            <Button
+              variant="link"
+              className="tw:self-center"
+              onClick={() => openPrompt()}
+            >
+              Target
+            </Button>
+          ))}
+      </SectionTitle>
       <div className="tw:flex tw:flex-col">
         {attacks.map((a) => (
           <WeaponRow
             key={a.id}
             a={a}
-            onRoll={onRoll}
-            onAttack={onAttack}
+            onRoll={guardedRoll}
+            onAttack={guardedAttack}
             onOpen={onOpen}
             dragData={dragData}
             canAttack={canAttack}
           />
         ))}
       </div>
+      {prompt && (
+        <TargetDialog
+          targets={prompt.targets}
+          onCancel={() => setPrompt(null)}
+          onConfirm={confirm}
+        />
+      )}
     </section>
   );
 }

@@ -58,6 +58,15 @@ export const SETTINGS = {
     default: false,
     resolve: resolveBoolean(false),
   },
+  promptForTarget: {
+    name: "Prompt for target",
+    hint: "Ask players to pick a target when they roll Hit, Damage or Attack from the attacks list without one.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    resolve: resolveBoolean(false),
+  },
   fontScale: {
     name: "Sheet font size",
     hint: "Scales all sheet text up for readability.",

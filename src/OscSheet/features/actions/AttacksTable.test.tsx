@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { AttacksTable } from "@features/actions/AttacksTable";
+import { AttacksTable, type AttackTargeting } from "@features/actions/AttacksTable";
 import type { AttackVM } from "@domain/vm-types";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -89,5 +89,141 @@ describe("AttacksTable", () => {
     click("weapon-attack-sling");
 
     expect(onAttack.mock.calls[0][1]).toBe("missile");
+  });
+
+  describe("targeting", () => {
+    const goblin = { id: "tok-goblin", name: "Goblin", img: "goblin.webp" };
+
+    const targeting = (overrides: Partial<AttackTargeting> = {}): AttackTargeting => ({
+      listTargets: () => [goblin],
+      current: null,
+      onTarget: vi.fn(),
+      onClearTarget: vi.fn(),
+      promptForTarget: false,
+      ...overrides,
+    });
+
+    const buttonNamed = (name: string) =>
+      [...document.querySelectorAll<HTMLButtonElement>("button")].find(
+        (b) => b.textContent?.trim() === name,
+      );
+
+    const click = (el: HTMLElement | undefined) =>
+      act(() => {
+        el!.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      });
+
+    const hitButton = () =>
+      container.querySelector<HTMLButtonElement>('[data-testid="weapon-hit-dagger"]')!;
+
+    it("opens the target dialog from the header, listing visible enemies", () => {
+      act(() => root.render(<AttacksTable attacks={[dagger]} targeting={targeting()} />));
+
+      click(buttonNamed("Target"));
+
+      expect(buttonNamed("Goblin")).toBeDefined();
+    });
+
+    it("says so when no enemies are visible", () => {
+      act(() =>
+        root.render(
+          <AttacksTable attacks={[dagger]} targeting={targeting({ listTargets: () => [] })} />,
+        ),
+      );
+
+      click(buttonNamed("Target"));
+
+      expect(container.textContent).toContain("No visible enemies");
+    });
+
+    it("labels the CTA by whether a target is picked, and targets it", () => {
+      const onTarget = vi.fn();
+      act(() =>
+        root.render(<AttacksTable attacks={[dagger]} targeting={targeting({ onTarget })} />),
+      );
+
+      click(buttonNamed("Target"));
+      expect(buttonNamed("Continue without target")).toBeDefined();
+
+      click(buttonNamed("Goblin"));
+      click(buttonNamed("Attack Goblin"));
+
+      expect(onTarget).toHaveBeenCalledWith("tok-goblin");
+      expect(buttonNamed("Attack Goblin")).toBeUndefined();
+    });
+
+    it("shows the current target in the header, with a clear button", () => {
+      const onClearTarget = vi.fn();
+      act(() =>
+        root.render(
+          <AttacksTable
+            attacks={[dagger]}
+            targeting={targeting({ current: goblin, onClearTarget })}
+          />,
+        ),
+      );
+
+      expect(buttonNamed("Target")).toBeUndefined();
+      expect(container.textContent).toContain("Target:Goblin");
+
+      click(container.querySelector<HTMLButtonElement>('[aria-label="Clear target"]')!);
+
+      expect(onClearTarget).toHaveBeenCalled();
+    });
+
+    it("prompts before rolling when the setting is on and nothing is targeted", () => {
+      const onRoll = vi.fn();
+      const onTarget = vi.fn();
+      act(() =>
+        root.render(
+          <AttacksTable
+            attacks={[dagger]}
+            onRoll={onRoll}
+            targeting={targeting({ promptForTarget: true, onTarget })}
+          />,
+        ),
+      );
+
+      click(hitButton());
+      expect(onRoll).not.toHaveBeenCalled();
+
+      click(buttonNamed("Goblin"));
+      click(buttonNamed("Attack Goblin"));
+
+      expect(onTarget).toHaveBeenCalledWith("tok-goblin");
+      expect(onRoll).toHaveBeenCalledWith(dagger.modes[0].hit);
+    });
+
+    it("cancelling the prompt aborts the roll", () => {
+      const onRoll = vi.fn();
+      act(() =>
+        root.render(
+          <AttacksTable
+            attacks={[dagger]}
+            onRoll={onRoll}
+            targeting={targeting({ promptForTarget: true })}
+          />,
+        ),
+      );
+
+      click(hitButton());
+      click(buttonNamed("Cancel"));
+
+      expect(onRoll).not.toHaveBeenCalled();
+    });
+
+    it("rolls directly when the setting is off or a target exists", () => {
+      const onRoll = vi.fn();
+      const render = (t: AttackTargeting) =>
+        act(() => root.render(<AttacksTable attacks={[dagger]} onRoll={onRoll} targeting={t} />));
+
+      render(targeting());
+      click(hitButton());
+      render(targeting({ promptForTarget: true, current: goblin }));
+      click(hitButton());
+
+      expect(onRoll).toHaveBeenCalledTimes(2);
+      expect(buttonNamed("Continue without target")).toBeUndefined();
+    });
   });
 });

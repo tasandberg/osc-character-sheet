@@ -211,6 +211,7 @@ describe("settings snapshot", () => {
     expect(getSettingsSnapshot()).toEqual({
       theme: "system",
       disableMemorization: false,
+      promptForTarget: false,
       fontScale: "medium",
       monsterTheme: "inherit",
       monsterFontScale: "inherit",
