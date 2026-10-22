@@ -3,6 +3,7 @@ import type { AttackKind } from "@domain/types";
 import type { AttackVM, RollSpec } from "@domain/vm-types";
 import { SectionTitle } from "@ui/SectionTitle";
 import { IconButton } from "@ui/IconButton";
+import { Button } from "@ui/Button";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import { Monogram } from "@ui/Monogram";
@@ -302,14 +303,15 @@ export function AttacksTable({
               </IconButton>
             </span>
           ) : (
-            <IconButton
+            <Button
+              variant="muted"
               className="tw:self-center"
               aria-label="Target"
               title="Target"
               onClick={() => openPrompt()}
             >
               <i className="fa-solid fa-crosshairs" aria-hidden="true" />
-            </IconButton>
+            </Button>
           ))}
       </SectionTitle>
       <div className="tw:flex tw:flex-col">
