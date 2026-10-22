@@ -285,11 +285,9 @@ export function AttacksTable({
         {targeting &&
           (targeting.current ? (
             <span className="osc-attack-target-current u-row u-nowrap u-gap-1 u-fs-xs tw:self-center tw:font-sans">
-              <span className="u-text-dim">Target:</span>
-              <Monogram
-                img={targeting.current.img}
-                monogram={monogram(targeting.current.name)}
-                className="osc-attack-target-ic osc-attack-target-ic-sm u-r-sm u-bg-2"
+              <i
+                className="fa-solid fa-crosshairs u-text-dim"
+                aria-hidden="true"
               />
               <span className="u-text">{targeting.current.name}</span>
               <IconButton

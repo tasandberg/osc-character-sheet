@@ -164,7 +164,7 @@ describe("AttacksTable", () => {
       );
 
       expect(buttonNamed("Target")).toBeUndefined();
-      expect(container.textContent).toContain("Target:Goblin");
+      expect(container.textContent).toContain("Goblin");
 
       click(container.querySelector<HTMLButtonElement>('[aria-label="Clear target"]')!);
 
