@@ -2,7 +2,7 @@ import { cx } from "./cx";
 import type { ButtonHTMLAttributes } from "react";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "outline" | "danger" | "link";
+  variant?: "primary" | "outline" | "danger" | "link" | "muted";
   /** Colors only the leading icon; the label stays default ink. */
   iconTone?: "accent" | "brass" | "danger" | "success" | "warn";
   size?: "sm" | "xs";
@@ -13,6 +13,7 @@ const VARIANT_CLASS = {
   danger: "vm-btn-danger vm-btn-sm",
   outline: "vm-btn-secondary",
   link: "vm-btn-link",
+  muted: "vm-btn-secondary osc-btn-muted",
 } as const;
 
 /** @category Controls */

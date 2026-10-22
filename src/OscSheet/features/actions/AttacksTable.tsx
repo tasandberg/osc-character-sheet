@@ -304,7 +304,7 @@ export function AttacksTable({
             </span>
           ) : (
             <Button
-              variant="link"
+              variant="muted"
               className="tw:self-center"
               onClick={() => openPrompt()}
             >
