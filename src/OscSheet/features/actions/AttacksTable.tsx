@@ -285,7 +285,7 @@ export function AttacksTable({
         <span className="hint">click to roll</span>
         {targeting &&
           (targeting.current ? (
-            <span className="u-row u-nowrap u-gap-1 u-fs-xs tw:self-center tw:font-sans">
+            <span className="osc-attack-target-current u-row u-nowrap u-gap-1 u-fs-xs tw:self-center tw:font-sans">
               <span className="u-text-dim">Target:</span>
               <Monogram
                 img={targeting.current.img}

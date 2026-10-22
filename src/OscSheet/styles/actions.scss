@@ -511,3 +511,6 @@
   width: var(--spacer-6);
   height: var(--spacer-6);
 }
+.osc-attack-target-current > span {
+  text-box: trim-both cap alphabetic;
+}
