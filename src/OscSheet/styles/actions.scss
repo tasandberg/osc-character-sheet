@@ -514,3 +514,11 @@
 .osc-attack-target-current > span {
   text-box: trim-both cap alphabetic;
 }
+.icon-btn.osc-attack-target-btn {
+  display: inline-flex;
+  gap: var(--spacer-1);
+  width: auto;
+  padding: 0 var(--spacer-1);
+  font-family: var(--sans);
+  font-size: var(--fs-xs);
+}
