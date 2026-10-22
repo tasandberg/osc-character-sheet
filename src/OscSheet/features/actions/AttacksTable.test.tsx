@@ -116,7 +116,7 @@ describe("AttacksTable", () => {
     const hitButton = () =>
       container.querySelector<HTMLButtonElement>('[data-testid="weapon-hit-dagger"]')!;
 
-    it("opens the target dialog from the header, listing visible enemies", () => {
+    it("opens the target dialog from the header, listing visible tokens", () => {
       act(() => root.render(<AttacksTable attacks={[dagger]} targeting={targeting()} />));
 
       click(buttonNamed("Target"));
@@ -124,7 +124,7 @@ describe("AttacksTable", () => {
       expect(buttonNamed("Goblin")).toBeDefined();
     });
 
-    it("says so when no enemies are visible", () => {
+    it("says so when no tokens are visible", () => {
       act(() =>
         root.render(
           <AttacksTable attacks={[dagger]} targeting={targeting({ listTargets: () => [] })} />,
@@ -133,7 +133,7 @@ describe("AttacksTable", () => {
 
       click(buttonNamed("Target"));
 
-      expect(container.textContent).toContain("No visible enemies");
+      expect(container.textContent).toContain("No visible tokens");
     });
 
     it("labels the CTA by whether a target is picked, and targets it", () => {

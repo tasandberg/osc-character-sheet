@@ -40,7 +40,7 @@ export function TargetDialog({ targets, onCancel, onConfirm }: Props) {
       className="modal-inset"
     >
       {targets.length === 0 ? (
-        <p className="u-fs-xs u-text-dim">No visible enemies in this scene.</p>
+        <p className="u-fs-xs u-text-dim">No visible tokens in this scene.</p>
       ) : (
         <ul className="osc-attack-targets u-stack u-gap-1">
           {targets.map((t) => (

@@ -52,18 +52,19 @@ export function selectAttackTargets(current: {
   id: string | null;
   uuid?: string | null;
 }): AttackTargetVM[] {
-  const targets: AttackTargetVM[] = [];
+  const hostile: AttackTargetVM[] = [];
+  const others: AttackTargetVM[] = [];
   for (const t of getCanvas().tokens?.placeables ?? []) {
-    if (!t.visible || t.document.disposition !== HOSTILE) continue;
+    if (!t.visible) continue;
     const a = t.actor;
     if (
       a &&
       (a.id === current.id || (!!current.uuid && a.uuid === current.uuid))
     )
       continue;
-    targets.push(toTargetVM(t));
+    (t.document.disposition === HOSTILE ? hostile : others).push(toTargetVM(t));
   }
-  return targets;
+  return [...hostile, ...others];
 }
 
 let cached: AttackTargetVM | null = null;
