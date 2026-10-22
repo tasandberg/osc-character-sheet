@@ -2,7 +2,6 @@ import { Fragment, useState, type DragEvent, type MouseEvent } from "react";
 import type { AttackKind } from "@domain/types";
 import type { AttackVM, RollSpec } from "@domain/vm-types";
 import { SectionTitle } from "@ui/SectionTitle";
-import { Button } from "@ui/Button";
 import { IconButton } from "@ui/IconButton";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
@@ -303,13 +302,14 @@ export function AttacksTable({
               </IconButton>
             </span>
           ) : (
-            <Button
-              variant="muted"
+            <IconButton
               className="tw:self-center"
+              aria-label="Target"
+              title="Target"
               onClick={() => openPrompt()}
             >
-              Target
-            </Button>
+              <i className="fa-solid fa-crosshairs" aria-hidden="true" />
+            </IconButton>
           ))}
       </SectionTitle>
       <div className="tw:flex tw:flex-col">

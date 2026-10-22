@@ -105,7 +105,7 @@ describe("AttacksTable", () => {
 
     const buttonNamed = (name: string) =>
       [...document.querySelectorAll<HTMLButtonElement>("button")].find(
-        (b) => b.textContent?.trim() === name,
+        (b) => (b.getAttribute("aria-label") ?? b.textContent?.trim()) === name,
       );
 
     const click = (el: HTMLElement | undefined) =>
