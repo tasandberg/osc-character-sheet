@@ -21,7 +21,7 @@ export function TargetDialog({ targets, onCancel, onConfirm }: Props) {
         Cancel
       </Button>
       <Button variant="primary" onClick={() => onConfirm(selected)}>
-        {selected ? `Attack ${selected.name}` : "Continue without target"}
+        {selected ? `Attack ${selected.name}` : "Roll without target"}
       </Button>
     </>
   );

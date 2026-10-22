@@ -154,7 +154,7 @@ describe("AttacksTable", () => {
       );
 
       click(buttonNamed("Target"));
-      expect(buttonNamed("Continue without target")).toBeDefined();
+      expect(buttonNamed("Roll without target")).toBeDefined();
 
       click(targetOption("Goblin"));
       click(buttonNamed("Attack Goblin"));
@@ -234,7 +234,7 @@ describe("AttacksTable", () => {
       click(hitButton());
 
       expect(onRoll).toHaveBeenCalledTimes(2);
-      expect(buttonNamed("Continue without target")).toBeUndefined();
+      expect(buttonNamed("Roll without target")).toBeUndefined();
     });
   });
 });
