@@ -97,6 +97,7 @@ describe("AttacksTable", () => {
       name: "Goblin",
       img: "goblin.webp",
       hostile: true,
+      disposition: "Hostile",
     };
 
     const targeting = (overrides: Partial<AttackTargeting> = {}): AttackTargeting => ({
@@ -113,6 +114,11 @@ describe("AttacksTable", () => {
         (b) => (b.getAttribute("aria-label") ?? b.textContent?.trim()) === name,
       );
 
+    const targetOption = (name: string) =>
+      [...document.querySelectorAll<HTMLButtonElement>("button[aria-pressed]")].find(
+        (b) => b.textContent?.startsWith(name),
+      );
+
     const click = (el: HTMLElement | undefined) =>
       act(() => {
         el!.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
@@ -126,7 +132,7 @@ describe("AttacksTable", () => {
 
       click(buttonNamed("Target"));
 
-      expect(buttonNamed("Goblin")).toBeDefined();
+      expect(targetOption("Goblin")).toBeDefined();
     });
 
     it("says so when no tokens are visible", () => {
@@ -150,7 +156,7 @@ describe("AttacksTable", () => {
       click(buttonNamed("Target"));
       expect(buttonNamed("Continue without target")).toBeDefined();
 
-      click(buttonNamed("Goblin"));
+      click(targetOption("Goblin"));
       click(buttonNamed("Attack Goblin"));
 
       expect(onTarget).toHaveBeenCalledWith("tok-goblin");
@@ -192,7 +198,7 @@ describe("AttacksTable", () => {
       click(hitButton());
       expect(onRoll).not.toHaveBeenCalled();
 
-      click(buttonNamed("Goblin"));
+      click(targetOption("Goblin"));
       click(buttonNamed("Attack Goblin"));
 
       expect(onTarget).toHaveBeenCalledWith("tok-goblin");

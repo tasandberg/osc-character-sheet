@@ -37,26 +37,18 @@ export function TargetDialog({ targets, onCancel, onConfirm }: Props) {
       }
       onClose={onCancel}
       footer={footer}
-      className="modal-inset"
+      className="modal-inset osc-target-modal"
     >
       {targets.length === 0 ? (
         <p className="u-fs-xs u-text-dim">No visible tokens in this scene.</p>
       ) : (
-        <ul className="osc-attack-targets u-stack u-gap-1">
-          {targets.map((t, i) => (
-            <li
-              key={t.id}
-              className={cx(
-                i > 0 &&
-                  !t.hostile &&
-                  targets[i - 1].hostile &&
-                  "u-mt-1 u-pt-2 tw:border-t tw:border-(--hairline)",
-              )}
-            >
+        <ul className="osc-attack-targets u-stack u-gap-0">
+          {targets.map((t) => (
+            <li key={t.id}>
               <button
                 type="button"
                 className={cx(
-                  "osc-attack-target u-row u-gap-3 u-px-3 u-py-2 u-r-md u-fs-md u-text",
+                  "osc-attack-target u-row u-gap-3 u-px-2 u-py-1 u-fs-md u-text",
                   selectedId === t.id && "is-selected",
                 )}
                 aria-pressed={selectedId === t.id}
@@ -68,6 +60,7 @@ export function TargetDialog({ targets, onCancel, onConfirm }: Props) {
                   className="osc-attack-target-ic u-r-sm u-bg-2"
                 />
                 <span className="u-flex-1">{t.name}</span>
+                <span className="u-fs-xs u-text-dim">{t.disposition}</span>
               </button>
             </li>
           ))}

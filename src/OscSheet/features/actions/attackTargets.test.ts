@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 describe("selectAttackTargets", () => {
-  it("lists visible tokens other than the attacker, hostile first", () => {
+  it("lists visible tokens other than the attacker, hostile first, with their disposition", () => {
     (globalThis as { canvas?: unknown }).canvas = {
       tokens: {
         placeables: [
@@ -33,8 +33,15 @@ describe("selectAttackTargets", () => {
       },
     };
 
-    const names = selectAttackTargets({ id: "actor-me" }).map((t) => t.name);
+    const rows = selectAttackTargets({ id: "actor-me" }).map(
+      (t) => `${t.name} ${t.disposition}`,
+    );
 
-    expect(names).toEqual(["goblin", "ogre", "ally", "merchant"]);
+    expect(rows).toEqual([
+      "goblin Hostile",
+      "ogre Hostile",
+      "ally Friendly",
+      "merchant Neutral",
+    ]);
   });
 });

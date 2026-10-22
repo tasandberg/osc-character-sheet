@@ -5,6 +5,7 @@ export interface AttackTargetVM {
   name: string;
   img: string;
   hostile: boolean;
+  disposition: string;
 }
 
 interface TokenLike {
@@ -26,6 +27,7 @@ interface CanvasView {
 
 interface GameView {
   user?: { targets?: Iterable<TokenLike> };
+  i18n?: { localize(key: string): string };
 }
 
 interface HooksView {
@@ -41,13 +43,31 @@ const getGame = (): GameView =>
 const getHooks = (): HooksView | undefined =>
   (globalThis as unknown as { Hooks?: HooksView }).Hooks;
 
-const HOSTILE = -1;
+const TOKEN_DISPOSITIONS: Record<string, number> = {
+  SECRET: -2,
+  HOSTILE: -1,
+  NEUTRAL: 0,
+  FRIENDLY: 1,
+};
+const HOSTILE = TOKEN_DISPOSITIONS.HOSTILE;
+
+const dispositionLabel = (value: number): string => {
+  const key = Object.keys(TOKEN_DISPOSITIONS).find(
+    (k) => TOKEN_DISPOSITIONS[k] === value,
+  );
+  if (!key) return "";
+  const i18n = getGame().i18n;
+  return i18n
+    ? i18n.localize(`TOKEN.DISPOSITION.${key}`)
+    : key.charAt(0) + key.slice(1).toLowerCase();
+};
 
 const toTargetVM = (t: TokenLike): AttackTargetVM => ({
   id: t.id,
   name: t.name,
   img: t.document.texture?.src || t.actor?.img || "",
   hostile: t.document.disposition === HOSTILE,
+  disposition: dispositionLabel(t.document.disposition),
 });
 
 export function selectAttackTargets(current: {
@@ -79,7 +99,7 @@ export function currentUserTarget(): AttackTargetVM | null {
     next?.id !== cached?.id ||
     next?.name !== cached?.name ||
     next?.img !== cached?.img ||
-    next?.hostile !== cached?.hostile
+    next?.disposition !== cached?.disposition
   )
     cached = next;
   return cached;
