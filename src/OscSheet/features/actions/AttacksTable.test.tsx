@@ -98,6 +98,7 @@ describe("AttacksTable", () => {
       img: "goblin.webp",
       hostile: true,
       disposition: "Hostile",
+      dispositionKey: "HOSTILE" as const,
     };
 
     const targeting = (overrides: Partial<AttackTargeting> = {}): AttackTargeting => ({

@@ -3,7 +3,17 @@ import { Modal } from "@ui/Modal";
 import { Monogram } from "@ui/Monogram";
 import { Button } from "@ui/Button";
 import { cx } from "@ui/cx";
-import type { AttackTargetVM } from "@features/actions/attackTargets";
+import type {
+  AttackTargetVM,
+  TokenDisposition,
+} from "@features/actions/attackTargets";
+
+const DISPOSITION_TONES: Record<TokenDisposition, string> = {
+  HOSTILE: "u-text-danger",
+  NEUTRAL: "u-text-warn",
+  FRIENDLY: "u-text-success",
+  SECRET: "u-text-dim",
+};
 
 type Props = {
   targets: AttackTargetVM[];
@@ -70,7 +80,16 @@ export function TargetDialog({
                   className="osc-attack-target-ic u-r-sm u-bg-2"
                 />
                 <span className="u-flex-1">{t.name}</span>
-                <span className="u-fs-xs u-text-dim">{t.disposition}</span>
+                <span
+                  className={cx(
+                    "u-fs-xs",
+                    t.dispositionKey
+                      ? DISPOSITION_TONES[t.dispositionKey]
+                      : "u-text-dim",
+                  )}
+                >
+                  {t.disposition}
+                </span>
               </button>
             </li>
           ))}

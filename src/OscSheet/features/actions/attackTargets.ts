@@ -6,7 +6,10 @@ export interface AttackTargetVM {
   img: string;
   hostile: boolean;
   disposition: string;
+  dispositionKey: TokenDisposition | null;
 }
+
+export type TokenDisposition = "SECRET" | "HOSTILE" | "NEUTRAL" | "FRIENDLY";
 
 interface TokenLike {
   id: string;
@@ -43,7 +46,7 @@ const getGame = (): GameView =>
 const getHooks = (): HooksView | undefined =>
   (globalThis as unknown as { Hooks?: HooksView }).Hooks;
 
-const TOKEN_DISPOSITIONS: Record<string, number> = {
+const TOKEN_DISPOSITIONS: Record<TokenDisposition, number> = {
   SECRET: -2,
   HOSTILE: -1,
   NEUTRAL: 0,
@@ -51,10 +54,12 @@ const TOKEN_DISPOSITIONS: Record<string, number> = {
 };
 const HOSTILE = TOKEN_DISPOSITIONS.HOSTILE;
 
-const dispositionLabel = (value: number): string => {
-  const key = Object.keys(TOKEN_DISPOSITIONS).find(
+const dispositionKey = (value: number): TokenDisposition | null =>
+  (Object.keys(TOKEN_DISPOSITIONS) as TokenDisposition[]).find(
     (k) => TOKEN_DISPOSITIONS[k] === value,
-  );
+  ) ?? null;
+
+const dispositionLabel = (key: TokenDisposition | null): string => {
   if (!key) return "";
   const i18n = getGame().i18n;
   return i18n
@@ -62,13 +67,17 @@ const dispositionLabel = (value: number): string => {
     : key.charAt(0) + key.slice(1).toLowerCase();
 };
 
-const toTargetVM = (t: TokenLike): AttackTargetVM => ({
-  id: t.id,
-  name: t.name,
-  img: t.document.texture?.src || t.actor?.img || "",
-  hostile: t.document.disposition === HOSTILE,
-  disposition: dispositionLabel(t.document.disposition),
-});
+const toTargetVM = (t: TokenLike): AttackTargetVM => {
+  const key = dispositionKey(t.document.disposition);
+  return {
+    id: t.id,
+    name: t.name,
+    img: t.document.texture?.src || t.actor?.img || "",
+    hostile: t.document.disposition === HOSTILE,
+    disposition: dispositionLabel(key),
+    dispositionKey: key,
+  };
+};
 
 export function selectAttackTargets(current: {
   id: string | null;
