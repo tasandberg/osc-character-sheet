@@ -105,6 +105,7 @@ function RowInner({
     <Button
       variant="muted"
       size="xs"
+      className="tw:self-stretch"
       title={`Eat ${item.name}`}
       aria-label={`Eat ${item.name}`}
       onClick={() => onEat(item.id)}
