@@ -4,7 +4,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import OscMonsterSheetApp from "@src/OscMonsterSheet";
 import { makeItem, makeMonster } from "./__fixtures__/dragonTurtle";
-import type { MonsterActor } from "./types";
+import type { MonsterActor, MonsterItem } from "./types";
 import { notifySettingChanged, type SettingKey } from "@src/OscSheet/settings";
 
 (
@@ -325,6 +325,29 @@ describe("OscMonsterSheet", () => {
     click(button("Inventory"));
 
     expect(text()).toContain("Black Pearl");
+  });
+
+  it("totals the monster's carried slots in an item-based world", async () => {
+    const config = (globalThis as { CONFIG?: unknown }).CONFIG as {
+      OSE: Record<string, unknown>;
+    };
+    config.OSE.encumbrance = { type: "itembased" };
+    try {
+      await mount(
+        makeMonster({ system: { config: { enableInventory: true } } }, [
+          makeItem({
+            name: "Chest",
+            type: "item",
+            system: { itemslots: 4 } as MonsterItem["system"],
+          }),
+        ]),
+      );
+      click(button("Inventory"));
+
+      expect(text()).toContain("1 item · 4 slots");
+    } finally {
+      delete config.OSE.encumbrance;
+    }
   });
 
   it("offers a Spells tab listing the monster's spells once it casts", async () => {
