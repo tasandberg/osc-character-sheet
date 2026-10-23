@@ -29,7 +29,7 @@ export function TargetDialog({
 }: Props) {
   const footer = (
     <>
-      <Button variant="link" onClick={onCancel}>
+      <Button variant={rollType ? "link" : undefined} onClick={onCancel}>
         Close
       </Button>
       {rollType && (
