@@ -4,6 +4,8 @@ import { SettingsModal } from "@features/settings/SettingsModal";
 import { CampModal } from "@features/camp/CampModal";
 import { useDismiss } from "@ui/useDismiss";
 import { FEATURES } from "@app/features";
+import { IconButton } from "@ui/IconButton";
+import { openGuide } from "@features/guide/openGuide";
 import {
   TB_BTN,
   TB_BTN_GLYPH,
@@ -144,6 +146,17 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
             {menuOpen && <div className="osc-tb-menu">{actionButtons}</div>}
           </div>
         )}
+        <IconButton
+          className={TB_BTN_ICON}
+          onClick={() => void openGuide()}
+          title="User guide"
+          aria-label="Open user guide"
+        >
+          <i
+            className={`${TB_BTN_GLYPH} fa-solid fa-circle-question`}
+            aria-hidden="true"
+          />
+        </IconButton>
         <button
           type="button"
           className={TB_BTN_ICON}

@@ -22,6 +22,7 @@
     "@sentry/browser": "^10.63.0",
     "clsx": "^2.1.1",
     "foundry-vtt-react": "^0.3.1",
+    "minisearch": "^7.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -31,6 +32,7 @@
     "@pixi/compressed-textures": "github:foundry-vtt-types/pixi-compressed-textures#main",
     "@sentry/cli": "^3.6.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@types/mdast": "^4.0.4",
     "@types/node": "^24.3.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
@@ -39,8 +41,13 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
+    "github-slugger": "^2.0.0",
     "globals": "^16.3.0",
     "jsdom": "^29.1.1",
+    "mdast-util-from-markdown": "^2.1.0",
+    "mdast-util-gfm": "^3.1.0",
+    "mdast-util-to-string": "^4.0.0",
+    "micromark-extension-gfm": "^3.0.0",
     "postcss": "^8.5.15",
     "postcss-scss": "^4.0.9",
     "sass-embedded": "^1.91.0",
@@ -50,6 +57,7 @@
     "typescript-eslint": "^8.39.1",
     "vite": "^8.0.16",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^3.2.6"
+    "vitest": "^3.2.6",
+    "yaml": "^2.9.1"
   }
 }

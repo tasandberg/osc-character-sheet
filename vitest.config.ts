@@ -14,6 +14,7 @@ export default defineConfig({
       "@features": path.resolve(__dirname, "src/OscSheet/features"),
       "@domain": path.resolve(__dirname, "src/OscSheet/domain"),
       "@ui": path.resolve(__dirname, "src/OscSheet/components/ui"),
+      "virtual:osc-guide": path.resolve(__dirname, "src/OscSheet/features/guide/__fixtures__/guide.ts"),
     },
   },
   test: {

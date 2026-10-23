@@ -1,5 +1,5 @@
 import { cx } from "./cx";
-import type { HTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
+import type { ComponentProps, HTMLAttributes, ReactNode } from "react";
 
 /** @category Controls */
 export function Field({
@@ -36,6 +36,6 @@ export function Input({
   variant,
   className,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; variant?: "hairline" }) {
+}: ComponentProps<"input"> & { invalid?: boolean; variant?: "hairline" }) {
   return <input className={cx("input", variant, invalid && "is-error", className)} {...rest} />;
 }

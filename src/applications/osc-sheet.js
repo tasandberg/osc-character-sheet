@@ -14,6 +14,7 @@ import {
 } from "@src/applications/header-controls";
 import { canUserViewFullSheet } from "@src/OscSheet/domain/ownership";
 import { droppedItemData, folderEntries } from "@src/applications/dropFolder";
+import { GUIDE_APP_ID } from "@features/guide/openGuide";
 
 import { ReactActorSheetV2 } from "foundry-vtt-react";
 
@@ -55,8 +56,10 @@ class OscSheet extends ReactActorSheetV2 {
       [...foundry.applications.instances.values()].filter(
         (app) => app instanceof OscSheet
       );
+    const guide = () => foundry.applications.instances.get(GUIDE_APP_ID);
     const rerender = () => {
       for (const app of openSheets()) app.render();
+      guide()?.applyAppearance();
     };
     for (const { key, data } of settingRegistrations(rerender)) {
       game.settings.register(MODULE_ID, key, data);
@@ -64,6 +67,7 @@ class OscSheet extends ReactActorSheetV2 {
     watchPortraitUploadFolder();
     watchFoundryColorScheme(() => {
       for (const app of openSheets()) if (app.element) app.applyAppearance();
+      guide()?.applyAppearance();
     });
   }
 

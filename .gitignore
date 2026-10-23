@@ -33,6 +33,8 @@ build/
 # Must exclude docs/* rather than docs: git won't descend into an ignored dir.
 docs/*
 !docs/module-extensions.md
+!docs/guide/
+!docs/guide-authoring.md
 
 # Local, uncommitted Vite overrides
 vite.config.local.json
