@@ -12,7 +12,8 @@ type Props = {
 const COLUMN =
   "tw:flex tw:min-w-0 tw:flex-col tw:items-stretch tw:gap-2 tw:text-center";
 
-const ROLL_BUTTON = "osc-stat-button osc-ability-roll vm-bevel rollable";
+const ROLL_BUTTON =
+  "osc-stat-button osc-ability-roll vm-bevel vm-btn-muted vm-key tw:block tw:px-px tw:pt-1 tw:pb-[2px] tw:leading-none";
 
 const VALUE =
   "tw:cursor-default tw:font-sans tw:text-(length:--fs-3xl) tw:leading-none tw:tabular-nums tw:text-text";
@@ -43,15 +44,21 @@ function AbilityColumn({
   const rollLabel = onRoll ? `Roll ${name} check` : undefined;
   return (
     <div className={COLUMN}>
-      <Stamp
-        className={onRoll ? ROLL_BUTTON : "ink"}
-        title={rollLabel}
-        aria-label={rollLabel}
-        data-testid={`ability-${ability.key}`}
-        {...rollable(onRoll && ((e) => onRoll(ability.key, e)))}
-      >
-        {ability.label}
-      </Stamp>
+      {onRoll ? (
+        <span
+          className={ROLL_BUTTON}
+          title={rollLabel}
+          aria-label={rollLabel}
+          data-testid={`ability-${ability.key}`}
+          {...rollable((e) => onRoll(ability.key, e))}
+        >
+          {ability.label}
+        </span>
+      ) : (
+        <Stamp ink data-testid={`ability-${ability.key}`}>
+          {ability.label}
+        </Stamp>
+      )}
       <div className="tw:flex tw:flex-col tw:items-center tw:gap-[2px]">
         <span className={VALUE}>{ability.value}</span>
         <span className="tw:relative">

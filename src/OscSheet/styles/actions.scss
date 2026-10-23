@@ -124,7 +124,8 @@
   line-height: 1;
   white-space: nowrap;
 }
-.osc-sheet-app :is(.osc-substats, .osc-abilities) .stamp.osc-stat-button {
+.osc-sheet-app
+  :is(.osc-substats .stamp, .osc-abilities .osc-ability-roll).osc-stat-button {
   --btn-face: color-mix(in oklab, var(--stamp-text) 10%, var(--ink));
   --btn-face-hi: color-mix(in oklab, var(--stamp-text) 18%, var(--ink));
   --btn-lit: color-mix(in oklab, var(--stamp-text) 26%, var(--ink));
