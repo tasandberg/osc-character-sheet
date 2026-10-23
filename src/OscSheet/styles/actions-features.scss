@@ -21,8 +21,7 @@
 // existed only to beat `:is(button,…) { all: unset }`, and that reset now sits in
 // `@layer base`, which any unlayered rule out-ranks.
 
-// --- abilities: 3-up (6-up wide) grid of ability plaques ---
-// The plaque box itself is vellum's `.plaque-ability`; only the grid is ours.
+// --- abilities: 3-up (6-up wide) grid of ability columns ---
 .osc-abilities {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -31,6 +30,30 @@
 @container sheet (min-width: 470px) {
   .osc-abilities {
     grid-template-columns: repeat(6, 1fr);
+  }
+}
+.osc-ability-roll {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: -17px;
+    bottom: -9px;
+  }
+}
+.osc-ability-mod {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translateX(-50%);
   }
 }
 

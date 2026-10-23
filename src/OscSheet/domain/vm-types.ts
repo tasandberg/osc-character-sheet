@@ -29,12 +29,20 @@ export interface VitalsVM {
   moveBands: MoveBands;
 }
 
+export interface AbilityDetailVM {
+  labelKey: string;
+  value: string;
+  localizeValue?: boolean;
+}
+
 export interface AbilityVM {
   key: string;
   label: string;
+  nameKey: string;
   value: number;
   mod: number;
   modLabel: string;
+  details: AbilityDetailVM[];
 }
 
 export interface LoyaltyVM {
