@@ -27,7 +27,6 @@ let actor: OSEActor & {
   updateEmbeddedDocuments: ReturnType<typeof vi.fn>;
   setFlag: ReturnType<typeof vi.fn>;
 };
-const onSetQty = vi.fn();
 
 const button = (label: string) =>
   [...document.querySelectorAll<HTMLButtonElement>("button")].find(
@@ -55,7 +54,7 @@ function render() {
           onOpen={noop}
           onDelete={noop}
           onConsume={noop}
-          onSetQty={onSetQty}
+          onSetQty={noop}
           onReorder={noop}
           onReorderEquipped={noop}
           onNest={noop}
@@ -82,14 +81,11 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
-  onSetQty.mockReset();
 });
 
 describe("eating a ration from the inventory", () => {
-  it("pip click still just decrements", () => {
-    act(() => button("Use one Iron rations")!.click());
-    expect(onSetQty).toHaveBeenCalledWith("rations", 2);
-    expect(button("Eat Ration")).toBeUndefined();
+  it("rations have no use-one pips", () => {
+    expect(button("Use one Iron rations")).toBeUndefined();
   });
 
   it("the eat button opens the dialog with the time since the last meal", () => {

@@ -100,7 +100,7 @@ function RowInner({
   onSetQty: (id: string, value: number) => void;
   onEat?: (id: string) => void;
 }) {
-  const stacked = !item.isContainer && item.quantity != null;
+  const stacked = !item.isContainer && !item.isRation && item.quantity != null;
   const eat = canEdit && item.isRation && onEat && (
     <Button
       variant="muted"
