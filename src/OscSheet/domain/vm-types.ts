@@ -163,6 +163,7 @@ export interface InventoryItemVM {
   /** The narrower subset the system buckets at 100 to a slot (`system.isCoinsOrGems`), so
    *  it carries no per-row slot figure. Other valuables count their slots normally. */
   coinsOrGems: boolean;
+  isRation: boolean;
   isContainer: boolean;
   children: InventoryItemVM[]; // [] unless container; nested by containerId
 }

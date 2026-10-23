@@ -28,7 +28,6 @@ import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { WealthSection } from "@features/inventory/WealthSection";
 import { SendItemModal } from "@features/inventory/SendItemModal";
 import { EatRationModal } from "@features/camp/EatRationModal";
-import { isRation } from "@features/camp/rations";
 import {
   selectSendTargets,
   isGmConnected,
@@ -110,13 +109,6 @@ export function InventoryView({
   const itemDragData: ItemDragData = (id) => {
     const it = itemsById.get(id);
     return it ? buildItemMacroDragData(actor, it) : undefined;
-  };
-
-  const setQty = (id: string, value: number) => {
-    const it = itemsById.get(id);
-    if (it && isRation(it) && value < (it.system.quantity?.value ?? 0))
-      setEatingId(id);
-    else onSetQty(id, value);
   };
 
   const openMenu: OnContext = (e, item) => {
@@ -416,7 +408,8 @@ export function InventoryView({
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
-                onSetQty={setQty}
+                onSetQty={onSetQty}
+                onEat={setEatingId}
               />
             ) : (
               <SortableRow
@@ -432,7 +425,8 @@ export function InventoryView({
                 onEquip={onEquip}
                 onOpen={onOpen}
                 onContext={openMenu}
-                onSetQty={setQty}
+                onSetQty={onSetQty}
+                onEat={setEatingId}
               />
             );
           })}

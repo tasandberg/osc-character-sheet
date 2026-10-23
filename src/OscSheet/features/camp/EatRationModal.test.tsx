@@ -78,7 +78,6 @@ beforeEach(() => {
   document.body.appendChild(container);
   root = createRoot(container);
   render();
-  act(() => button("Use one Iron rations")!.click());
 });
 afterEach(() => {
   act(() => root.unmount());
@@ -87,13 +86,20 @@ afterEach(() => {
 });
 
 describe("eating a ration from the inventory", () => {
-  it("opens the eat dialog with the time since the last meal instead of decrementing", () => {
+  it("pip click still just decrements", () => {
+    act(() => button("Use one Iron rations")!.click());
+    expect(onSetQty).toHaveBeenCalledWith("rations", 2);
+    expect(button("Eat Ration")).toBeUndefined();
+  });
+
+  it("the eat button opens the dialog with the time since the last meal", () => {
+    act(() => button("Eat Iron rations")!.click());
     expect(button("Eat Ration")).toBeDefined();
     expect(document.body.textContent).toContain("1 day since last ration");
-    expect(onSetQty).not.toHaveBeenCalled();
   });
 
   it("Eat Ration consumes one and records the meal", () => {
+    act(() => button("Eat Iron rations")!.click());
     act(() => button("Eat Ration")!.click());
     expect(actor.updateEmbeddedDocuments).toHaveBeenCalledWith("Item", [
       { _id: "rations", "system.quantity.value": 2 },
@@ -107,6 +113,7 @@ describe("eating a ration from the inventory", () => {
   });
 
   it("Cancel closes without eating", () => {
+    act(() => button("Eat Iron rations")!.click());
     act(() => button("Cancel")!.click());
     expect(button("Eat Ration")).toBeUndefined();
     expect(actor.updateEmbeddedDocuments).not.toHaveBeenCalled();

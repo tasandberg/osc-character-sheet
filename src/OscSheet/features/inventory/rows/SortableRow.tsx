@@ -4,6 +4,7 @@ import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
 import { UsesRow } from "@features/inventory/rows/UsesRow";
 import { Button } from "@ui/Button";
+import { IconButton } from "@ui/IconButton";
 import { countedLoad, loadText, EQUIPPED } from "@features/inventory/groups";
 import {
   INV_ROW,
@@ -90,6 +91,7 @@ function RowInner({
   onEquip,
   onOpen,
   onSetQty,
+  onEat,
 }: {
   item: InventoryItemVM;
   canEdit: boolean;
@@ -97,8 +99,20 @@ function RowInner({
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onSetQty: (id: string, value: number) => void;
+  onEat?: (id: string) => void;
 }) {
   const stacked = !item.isContainer && item.quantity != null;
+  const eat = canEdit && item.isRation && onEat && (
+    <IconButton
+      size="sm"
+      variant="accent"
+      title={`Eat ${item.name}`}
+      aria-label={`Eat ${item.name}`}
+      onClick={() => onEat(item.id)}
+    >
+      <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />
+    </IconButton>
+  );
   return (
     <>
       <ItemImage img={item.img} monogram={item.monogram} />
@@ -106,9 +120,12 @@ function RowInner({
         item={item}
         onOpen={onOpen}
         action={
-          stacked && canEdit ? (
-            <InlineUse item={item} onSetQty={onSetQty} />
-          ) : undefined
+          <>
+            {stacked && canEdit && (
+              <InlineUse item={item} onSetQty={onSetQty} />
+            )}
+            {eat}
+          </>
         }
         below={
           stacked ? (
@@ -137,6 +154,7 @@ export function SortableRow({
   onOpen,
   onContext,
   onSetQty,
+  onEat,
 }: {
   item: InventoryItemVM;
   index: number;
@@ -153,6 +171,7 @@ export function SortableRow({
   onOpen: (id: string) => void;
   onContext: OnContext;
   onSetQty: (id: string, value: number) => void;
+  onEat?: (id: string) => void;
 }) {
   // The whole row is draggable (and stays a drop target). Clicks on the inner
   // buttons/inputs still fire — a click is a press without movement — so
@@ -188,6 +207,7 @@ export function SortableRow({
           onEquip={onEquip}
           onOpen={onOpen}
           onSetQty={onSetQty}
+          onEat={onEat}
         />
       </div>
     </>

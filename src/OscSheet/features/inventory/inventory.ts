@@ -1,4 +1,5 @@
 import type { OseItem } from "@domain/types";
+import { isRation } from "@features/camp/rations";
 import type {
   InventorySortKey,
   SortDir,
@@ -117,6 +118,7 @@ function toVM(
     quantity: hasQty ? { value: q.value, max: q.max || q.value } : null,
     treasure: !!s.treasure,
     coinsOrGems: bucketsAsCoinsOrGems(item),
+    isRation: isRation(item),
     isContainer: item.type === "container",
     children,
   };

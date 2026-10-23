@@ -30,6 +30,7 @@ export function ContainerRow({
   onOpen,
   onContext,
   onSetQty,
+  onEat,
 }: {
   item: InventoryItemVM;
   index: number;
@@ -46,6 +47,7 @@ export function ContainerRow({
   onOpen: (id: string) => void;
   onContext: OnContext;
   onSetQty: (id: string, value: number) => void;
+  onEat?: (id: string) => void;
 }) {
   const group = gkey(item.id);
   const count = item.children.length;
@@ -137,6 +139,7 @@ export function ContainerRow({
                 onOpen={onOpen}
                 onContext={onContext}
                 onSetQty={onSetQty}
+                onEat={onEat}
               />
             ) : null;
           })}

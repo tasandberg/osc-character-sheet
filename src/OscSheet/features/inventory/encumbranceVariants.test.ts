@@ -15,7 +15,7 @@ import type { OseItem } from "@domain/types";
 const mkVM = (o: Partial<InventoryItemVM> = {}): InventoryItemVM => ({
   id: "x", name: "X", img: "", category: "Gear", categoryRank: 2, damage: "",
   tags: [], monogram: "XX", weight: 0, slots: 0, cost: 0, armorClass: null,
-  sort: 0, equippedSort: 0, equipped: null, quantity: null, treasure: false, coinsOrGems: false,
+  sort: 0, equippedSort: 0, equipped: null, quantity: null, treasure: false, coinsOrGems: false, isRation: false,
   isContainer: false, children: [], ...o,
 });
 
