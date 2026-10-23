@@ -69,7 +69,7 @@ export function CampModal({ open, onClose }: Props) {
     if (t)
       toast({
         ...t,
-        icon: <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />,
+        icon: <i className="fa-solid fa-utensils" aria-hidden="true" />,
       });
   };
 
@@ -148,7 +148,7 @@ export function CampModal({ open, onClose }: Props) {
                 className={ACTION_BUTTON}
                 onClick={() => setPickerOpen(true)}
               >
-                <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />
+                <i className="fa-solid fa-utensils" aria-hidden="true" />
                 Eat Ration
               </Button>
             )}

@@ -113,7 +113,7 @@ function RowInner({
       aria-label={`Eat ${item.name}`}
       onClick={() => onEat(item.id)}
     >
-      <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />
+      <i className="fa-solid fa-utensils" aria-hidden="true" />
     </Button>
   );
   return (

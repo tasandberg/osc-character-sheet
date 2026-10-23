@@ -33,7 +33,7 @@ export function EatRationModal({ item, onClose }: Props) {
     if (t)
       toast({
         ...t,
-        icon: <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />,
+        icon: <i className="fa-solid fa-utensils" aria-hidden="true" />,
       });
   };
 
@@ -48,7 +48,7 @@ export function EatRationModal({ item, onClose }: Props) {
         disabled={!canEdit || count <= 0}
         onClick={onEat}
       >
-        <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />
+        <i className="fa-solid fa-utensils" aria-hidden="true" />
         Eat Ration
       </Button>
     </>
@@ -59,7 +59,7 @@ export function EatRationModal({ item, onClose }: Props) {
       open
       title={
         <>
-          <i className="fa-solid fa-drumstick-bite" />
+          <i className="fa-solid fa-utensils" />
           Eat a ration
         </>
       }
