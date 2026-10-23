@@ -4,7 +4,6 @@ import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
 import { UsesRow } from "@features/inventory/rows/UsesRow";
 import { Button } from "@ui/Button";
-import { IconButton } from "@ui/IconButton";
 import { countedLoad, loadText, EQUIPPED } from "@features/inventory/groups";
 import {
   INV_ROW,
@@ -103,15 +102,15 @@ function RowInner({
 }) {
   const stacked = !item.isContainer && item.quantity != null;
   const eat = canEdit && item.isRation && onEat && (
-    <IconButton
-      size="sm"
-      variant="accent"
+    <Button
+      variant="muted"
+      size="xs"
       title={`Eat ${item.name}`}
       aria-label={`Eat ${item.name}`}
       onClick={() => onEat(item.id)}
     >
       <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />
-    </IconButton>
+    </Button>
   );
   return (
     <>
