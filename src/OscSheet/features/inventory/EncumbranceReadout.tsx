@@ -7,6 +7,7 @@ import type { EncumbranceVM } from "@domain/vm-types";
 import { armorTierLabel, encTierClass, moveRatesLabel } from "@domain/format";
 import { cx } from "@ui/cx";
 import { MoveRates, MoveTooltip } from "@ui/MovePop";
+import { GuideLink } from "@features/guide/GuideLink";
 
 export function EncumbranceReadout({ e }: { e: EncumbranceVM }) {
   const tier = encTierClass(e.tier);
@@ -52,6 +53,7 @@ export function EncumbranceReadout({ e }: { e: EncumbranceVM }) {
       {/* -mx-1 halves the flex gap flanking the middot so it pulls in */}
       <i className="fa fa-dot u-text-muted tw:-mx-1" />
       {e.label && <span className="load u-text-dim">{e.label}</span>}
+      <GuideLink to="inventory#encumbrance" topic="Encumbrance" className="tw:self-center" />
     </span>
   );
 }

@@ -13,6 +13,7 @@ import {
 } from "@domain/migrations";
 import logger from "@src/util/logger";
 import { preloadSheetFonts } from "@src/OscSheet/styles/vellum/preloadFonts";
+import { openGuide } from "@features/guide/openGuide";
 
 export function initialize() {
   foundry.helpers.Hooks.once("init", () => {
@@ -48,6 +49,7 @@ export function initialize() {
     if (mod) {
       mod.api = {
         crashTest: () => window.dispatchEvent(new Event("osc-crash-test")),
+        openGuide,
       };
     }
 

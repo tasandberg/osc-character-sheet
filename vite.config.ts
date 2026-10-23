@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import foundryReact from "foundry-vtt-react/vite";
 import svgr from "vite-plugin-svgr";
 import tailwindcss from "@tailwindcss/vite";
+import { guidePlugin } from "./tools/vite/guide";
 import fs from "node:fs";
 import path from "path";
 import { execSync } from "node:child_process";
@@ -26,7 +27,13 @@ function buildStamp(): string {
 // foundryReact() owns the Foundry-specific config (base, root, server.proxy,
 // build input/output) — derived from module.json. Only app-specific config lives here.
 const config: UserConfig = {
-  plugins: [react(), foundryReact(), svgr(), tailwindcss()],
+  plugins: [
+    react(),
+    foundryReact(),
+    svgr(),
+    tailwindcss(),
+    guidePlugin(path.resolve(__dirname, "docs/guide")),
+  ],
   define: {
     "process.env": {},
     // Strip @sentry/browser's internal debug logging: smaller lazy chunk, and
