@@ -112,19 +112,6 @@
     }
   }
 
-  .osc-btn-muted {
-    --btn-face: color-mix(
-      in oklab,
-      var(--btn-face-hi) 25%,
-      var(--btn-ground, var(--bg))
-    );
-    color: var(--text-dim);
-
-    &:hover:not(:disabled) {
-      color: var(--text);
-    }
-  }
-
   .osc-btn-xs {
     height: auto;
     padding: 1px var(--spacer-2);

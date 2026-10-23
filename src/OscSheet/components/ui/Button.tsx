@@ -13,7 +13,7 @@ const VARIANT_CLASS = {
   danger: "vm-btn-danger vm-btn-sm",
   outline: "vm-btn-secondary",
   link: "vm-btn-link",
-  muted: "vm-btn-secondary osc-btn-muted",
+  muted: "vm-btn-secondary vm-btn-muted",
 } as const;
 
 /** @category Controls */
