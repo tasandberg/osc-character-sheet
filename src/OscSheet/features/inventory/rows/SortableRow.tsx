@@ -43,9 +43,12 @@ export function NameCell({
         >
           <span className="nm">{item.name}</span>
           {item.damage && <span className={INV_QTYTAG}>{item.damage}</span>}
-          {!item.isContainer && item.quantity && item.quantity.value > 1 && (
-            <span className={INV_QTYTAG}>×{item.quantity.value}</span>
-          )}
+          {!item.isContainer &&
+            !item.isRation &&
+            item.quantity &&
+            item.quantity.value > 1 && (
+              <span className={INV_QTYTAG}>×{item.quantity.value}</span>
+            )}
           {badge}
         </button>
         {action}
@@ -125,6 +128,9 @@ function RowInner({
               <InlineUse item={item} onSetQty={onSetQty} />
             )}
             {eat}
+            {item.isRation && item.quantity && item.quantity.value > 1 && (
+              <span className={INV_QTYTAG}>×{item.quantity.value}</span>
+            )}
           </>
         }
         below={
