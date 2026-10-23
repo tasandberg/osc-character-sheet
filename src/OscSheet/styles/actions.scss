@@ -476,3 +476,43 @@
   // topbar: the Rest / Level Up / Edit → ⋮ collapse is a pair of
   // `@max-md/app:` utilities on the two elements (Topbar.tsx).
 }
+
+.osc-attack-targets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.osc-attack-target {
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: left;
+  &:hover {
+    background: var(--bg-2);
+  }
+}
+.osc-sheet-app .modal-inset.osc-target-modal {
+  max-height: min(100%, calc(var(--fs-base) * 28));
+}
+.osc-attack-target-ic {
+  width: var(--spacer-8);
+  height: var(--spacer-8);
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  object-fit: cover;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.osc-attack-target-current > span {
+  text-box: trim-both cap alphabetic;
+}
+.icon-btn.osc-attack-target-btn {
+  display: inline-flex;
+  gap: var(--spacer-1);
+  width: auto;
+  padding: 0 var(--spacer-1);
+  font-family: var(--sans);
+  font-size: var(--fs-xs);
+}

@@ -38,6 +38,10 @@
   inset: 0;
   z-index: 60;
   padding: var(--spacer-4); // 16px
+  grid-template-rows: minmax(0, 1fr);
+}
+.osc-sheet-app .modal-inset {
+  max-height: 100%;
 }
 
 // Every scroller in the sheet. Any element with its own scrollbar must be listed
@@ -97,6 +101,13 @@
   font-size: var(--fs-xs);
   font-weight: 400;
   color: var(--text-dim);
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--spacer-5);
+  height: var(--spacer-5);
+  padding: 0 var(--spacer-1);
+  border-radius: 999px;
+  background: var(--surface-2);
 }
 .osc-tab:hover {
   color: var(--text-dim);
@@ -248,6 +259,13 @@
     font-size: var(--fs-xs);
     font-weight: 400;
     color: var(--text-dim);
+    display: inline-grid;
+    place-items: center;
+    min-width: var(--spacer-5);
+    height: var(--spacer-5);
+    padding: 0 var(--spacer-1);
+    border-radius: 999px;
+    background: var(--surface-2);
   }
   .osc-htab:hover {
     color: var(--text-dim);

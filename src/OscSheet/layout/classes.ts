@@ -26,18 +26,18 @@ const TB_BTN_UP =
   " tw:px-[11px] tw:pt-[6px] tw:pb-[5px] tw:text-(length:--fs-xs) tw:font-semibold";
 
 /** Text button on the topbar: a raised Vellum button. */
-export const TB_BTN = `${TB_BTN_BASE} vm-btn vm-btn-secondary tw:inline-flex`;
+export const TB_BTN = `${TB_BTN_BASE} vm-btn vm-btn-secondary vm-btn-muted tw:inline-flex`;
 
 /** Level Up — the one filled button on the bar. */
 export const TB_BTN_LEVEL_UP = `${TB_BTN_BASE} vm-btn ${TB_BTN_UP} tw:inline-flex`;
 
 /** Icon-only button (the settings cog): a raised Vellum icon button. */
-export const TB_BTN_ICON = `${TB_BTN_BASE} vm-bevel vm-bevel-icon icon tw:inline-flex`;
+export const TB_BTN_ICON = `${TB_BTN_BASE} vm-bevel vm-bevel-icon vm-btn-muted icon tw:inline-flex`;
 
 /** The XS ⋮ overflow toggle — the same text button, revealed only at XS. This is
  *  the ONE variant whose display is a base+variant pair rather than a flat
  *  `inline-flex`, which is why display is not in TB_BTN_BASE. */
-export const TB_BTN_OVERFLOW = `${TB_BTN_BASE} vm-btn vm-btn-secondary tw:hidden tw:@max-md/app:inline-flex`;
+export const TB_BTN_OVERFLOW = `${TB_BTN_BASE} vm-btn vm-btn-secondary vm-btn-muted tw:hidden tw:@max-md/app:inline-flex`;
 
 /** Leading glyph inside a topbar button. `leading-flush` stops the taller glyph
  *  line box from growing the button past its siblings. */

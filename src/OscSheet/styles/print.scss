@@ -18,19 +18,11 @@
   }
 
   .osc-topbar {
-    --btn-face: color-mix(in oklab, var(--btn-face-hi) 25%, var(--ink));
-  }
-
-  .osc-topbar :is(.vm-btn-secondary, .vm-bevel) {
-    color: var(--text-dim);
-
-    &:hover {
-      color: var(--text);
-    }
+    --btn-ground: var(--ink);
   }
 
   [data-theme="cream"] & .osc-topbar {
-    --btn-face: color-mix(in oklab, var(--btn-face-hi) 25%, var(--bg-2-solid));
+    --btn-ground: var(--bg-2-solid);
     --stamp-text: var(--text);
     --stamp-text-dim: var(--text-dim);
     border-bottom-color: var(--hairline);
