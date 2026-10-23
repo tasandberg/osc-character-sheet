@@ -117,14 +117,14 @@
 // three tiers of them. The one rail override that stays SCSS is the stamp's side
 // padding in shell.scss — see the clipped-MOVE note there; at (0,3,0) it still
 // out-ranks the base utilities.
-.osc-sheet-app .osc-substats .stamp.stamp {
+.osc-sheet-app :is(.osc-substats, .osc-abilities) .stamp.stamp {
   display: block;
   border: 1px solid transparent;
   padding: 4px 1px 2px;
   line-height: 1;
   white-space: nowrap;
 }
-.osc-sheet-app .osc-substats .stamp.osc-stat-button {
+.osc-sheet-app :is(.osc-substats, .osc-abilities) .stamp.osc-stat-button {
   --btn-face: color-mix(in oklab, var(--stamp-text) 10%, var(--ink));
   --btn-face-hi: color-mix(in oklab, var(--stamp-text) 18%, var(--ink));
   --btn-lit: color-mix(in oklab, var(--stamp-text) 26%, var(--ink));
@@ -172,11 +172,6 @@
 // source for its markup. Placement stays HoverPop's job: `position: fixed`
 // (inline) so it escapes any overflow-clipping ancestor — the character rail
 // self-scrolls — and `visibility: hidden` when closed.
-
-// --- abilities: 3-up (6-up wide) grid of ability plaques ---
-// The plaque box + stamp/value/mod styling lives in vellum as `.plaque-ability`
-// (StatPlaque variant="ability"). The grid container is in actions-features.scss
-// — AbilityPlaques.tsx is NOT converted. XS flattens the plaques (block below).
 
 // --- saves/exploration tab nav (rail, large view) ---
 // Nav + tabs are in actions-features.scss; SavesExploration.tsx is NOT converted.
@@ -314,7 +309,6 @@
 
 
 // --- rollable affordance (table rows wired to system rolls) ---
-// Ability-plaque rollable styling moved to vellum (.plaque-ability.rollable).
 // Stays SCSS: the hover tint is on the row's <td> children, which needs a
 // group-hover the <Tr>/<Td> primitives don't take a className for, and no
 // feature currently renders a rollable <Tr>.
@@ -443,35 +437,9 @@
     gap: var(--spacer-3);
     min-width: 128px;
   }
-  // abilities: 6-across in one compact row (drop the gold frame/brackets)
   .osc-abilities {
     grid-template-columns: repeat(6, 1fr);
     gap: var(--spacer-1);
-  }
-  .osc-sheet-app .plaque-ability {
-    min-height: 0;
-    padding: 5px 3px 6px;
-    align-items: stretch;
-  }
-  .osc-sheet-app .plaque-ability::before,
-  .osc-sheet-app .plaque-ability::after {
-    content: none;
-  }
-  .osc-sheet-app .plaque-ability .pk {
-    margin: 0;
-  }
-  .osc-sheet-app .plaque-ability .pv {
-    flex: 0 0 auto;
-    font-size: var(--fs-xl, 18px);
-    padding: 3px 0;
-  }
-  .osc-sheet-app .plaque-ability .pc {
-    position: static;
-    transform: none;
-    align-self: center;
-    min-width: 0;
-    font-size: var(--fs-3xs, 10px);
-    margin-top: 2px;
   }
   // topbar: the Rest / Level Up / Edit → ⋮ collapse is a pair of
   // `@max-md/app:` utilities on the two elements (Topbar.tsx).

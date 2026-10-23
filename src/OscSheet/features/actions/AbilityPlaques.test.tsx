@@ -16,8 +16,20 @@ import type { AbilityVM, IdentityVM } from "@domain/vm-types";
 };
 
 const abilities: AbilityVM[] = [
-  { key: "str", label: "STR", value: 9, mod: 0, modLabel: "+0" },
+  {
+    key: "str",
+    label: "STR",
+    nameKey: "OSE.scores.str.long",
+    value: 9,
+    mod: 0,
+    modLabel: "+0",
+    details: [{ labelKey: "OSE.exploration.od.long", value: "2 in 6" }],
+  },
 ];
+const strings: Record<string, string> = {
+  "OSE.scores.str.long": "Strength",
+  "OSE.exploration.od.long": "Open Doors",
+};
 const identity: IdentityVM = {
   name: "Kip",
   img: "",
@@ -33,6 +45,9 @@ let container: HTMLDivElement;
 let root: Root;
 
 beforeEach(() => {
+  (globalThis as { game?: unknown }).game = {
+    i18n: { localize: (k: string) => strings[k] ?? k },
+  };
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);
@@ -50,6 +65,26 @@ describe("AbilityPlaques", () => {
     act(() => root.render(<AbilityPlaques abilities={abilities} />));
     expect(abilityGrid().children.length).toBe(abilities.length);
     expect(container.querySelector('[data-testid="loyalty"]')).toBeNull();
+  });
+
+  it("rolls the check from the label and describes the mod's effects", () => {
+    const rolled: string[] = [];
+    act(() =>
+      root.render(
+        <AbilityPlaques
+          abilities={abilities}
+          onRoll={(key) => rolled.push(key)}
+        />,
+      ),
+    );
+    const roll = container.querySelector<HTMLElement>(
+      '[aria-label="Roll Strength check"]',
+    )!;
+    act(() => roll.click());
+    expect(rolled).toEqual(["str"]);
+    expect(container.querySelector('[role="tooltip"]')!.textContent).toContain(
+      "Open Doors2 in 6",
+    );
   });
 });
 

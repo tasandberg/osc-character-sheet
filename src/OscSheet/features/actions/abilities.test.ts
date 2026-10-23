@@ -24,4 +24,12 @@ describe("selectAbilities", () => {
     const str = vm.find((a) => a.key === "str")!;
     expect(str.modLabel).toBe("+0");
   });
+
+  it("lists what each score affects from OSE's derived values", () => {
+    const str = vm.find((a) => a.key === "str")!;
+    expect(str.details).toContainEqual({
+      labelKey: "OSE.exploration.od.long",
+      value: "2 in 6",
+    });
+  });
 });
