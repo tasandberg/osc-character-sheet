@@ -27,10 +27,17 @@ export function TargetDialog({
   onCancel,
   onConfirm,
 }: Props) {
-  const footer = rollType && (
-    <Button variant="primary" onClick={() => onConfirm(null)}>
-      Roll {rollType} without target
-    </Button>
+  const footer = (
+    <>
+      <Button variant="link" onClick={onCancel}>
+        Close
+      </Button>
+      {rollType && (
+        <Button variant="primary" onClick={() => onConfirm(null)}>
+          Roll {rollType} without target
+        </Button>
+      )}
+    </>
   );
 
   return (
