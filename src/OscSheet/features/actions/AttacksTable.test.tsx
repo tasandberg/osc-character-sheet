@@ -116,7 +116,7 @@ describe("AttacksTable", () => {
       );
 
     const targetOption = (name: string) =>
-      [...document.querySelectorAll<HTMLButtonElement>("button[aria-pressed]")].find(
+      [...document.querySelectorAll<HTMLButtonElement>("button")].find(
         (b) => b.textContent?.startsWith(name),
       );
 
@@ -148,20 +148,17 @@ describe("AttacksTable", () => {
       expect(container.textContent).toContain("No visible tokens");
     });
 
-    it("labels the CTA by whether a target is picked, and targets it", () => {
+    it("targets a token on click and closes", () => {
       const onTarget = vi.fn();
       act(() =>
         root.render(<AttacksTable attacks={[dagger]} targeting={targeting({ onTarget })} />),
       );
 
       click(buttonNamed("Target"));
-      expect(buttonNamed("Roll without target")).toBeDefined();
-
       click(targetOption("Goblin"));
-      click(buttonNamed("Attack Goblin"));
 
       expect(onTarget).toHaveBeenCalledWith("tok-goblin");
-      expect(buttonNamed("Attack Goblin")).toBeUndefined();
+      expect(targetOption("Goblin")).toBeUndefined();
     });
 
     it("shows the current target in the header, with a clear button", () => {
@@ -202,13 +199,12 @@ describe("AttacksTable", () => {
       expect(buttonNamed("Roll Dagger hit without target")).toBeDefined();
 
       click(targetOption("Goblin"));
-      click(buttonNamed("Attack Goblin"));
 
       expect(onTarget).toHaveBeenCalledWith("tok-goblin");
       expect(onRoll).toHaveBeenCalledWith(dagger.modes[0].hit);
     });
 
-    it("cancelling the prompt aborts the roll", () => {
+    it("closing the prompt aborts the roll", () => {
       const onRoll = vi.fn();
       act(() =>
         root.render(
@@ -221,7 +217,7 @@ describe("AttacksTable", () => {
       );
 
       click(hitButton());
-      click(buttonNamed("Cancel"));
+      click(buttonNamed("Close"));
 
       expect(onRoll).not.toHaveBeenCalled();
     });
@@ -237,7 +233,7 @@ describe("AttacksTable", () => {
       click(hitButton());
 
       expect(onRoll).toHaveBeenCalledTimes(2);
-      expect(buttonNamed("Roll without target")).toBeUndefined();
+      expect(container.textContent).not.toContain("Choose a target");
     });
   });
 });

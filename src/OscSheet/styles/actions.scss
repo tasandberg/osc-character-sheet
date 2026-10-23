@@ -490,9 +490,6 @@
   &:hover {
     background: var(--bg-2);
   }
-  &.is-selected {
-    background: color-mix(in srgb, var(--accent-alt) 18%, transparent);
-  }
 }
 .osc-sheet-app .modal-inset.osc-target-modal {
   max-height: min(100%, calc(var(--fs-base) * 28));

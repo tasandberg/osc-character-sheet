@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Modal } from "@ui/Modal";
 import { Monogram } from "@ui/Monogram";
 import { Button } from "@ui/Button";
@@ -28,22 +27,10 @@ export function TargetDialog({
   onCancel,
   onConfirm,
 }: Props) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const selected = targets.find((t) => t.id === selectedId) ?? null;
-
-  const footer = (
-    <>
-      <Button variant="link" onClick={onCancel}>
-        Cancel
-      </Button>
-      <Button variant="primary" onClick={() => onConfirm(selected)}>
-        {selected
-          ? `Attack ${selected.name}`
-          : rollType
-            ? `Roll ${rollType} without target`
-            : "Roll without target"}
-      </Button>
-    </>
+  const footer = rollType && (
+    <Button variant="primary" onClick={() => onConfirm(null)}>
+      Roll {rollType} without target
+    </Button>
   );
 
   return (
@@ -67,12 +54,8 @@ export function TargetDialog({
             <li key={t.id}>
               <button
                 type="button"
-                className={cx(
-                  "osc-attack-target u-row u-gap-3 u-px-2 u-py-1 u-fs-md u-text",
-                  selectedId === t.id && "is-selected",
-                )}
-                aria-pressed={selectedId === t.id}
-                onClick={() => setSelectedId(t.id)}
+                className="osc-attack-target u-row u-gap-3 u-px-2 u-py-1 u-fs-md u-text"
+                onClick={() => onConfirm(t)}
               >
                 <Monogram
                   img={t.img}

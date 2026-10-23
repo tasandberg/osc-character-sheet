@@ -304,7 +304,7 @@ export function AttacksTable({
                 title="Clear target"
                 onClick={targeting.onClearTarget}
               >
-                ×
+                <i className="fa-solid fa-xmark u-fs-2xs" aria-hidden="true" />
               </IconButton>
             </span>
           ) : (
