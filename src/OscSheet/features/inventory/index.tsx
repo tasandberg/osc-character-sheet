@@ -410,6 +410,7 @@ export function InventoryView({
                 onContext={openMenu}
                 onSetQty={onSetQty}
                 onEat={setEatingId}
+                onDelete={onDelete}
               />
             ) : (
               <SortableRow
@@ -427,6 +428,7 @@ export function InventoryView({
                 onContext={openMenu}
                 onSetQty={onSetQty}
                 onEat={setEatingId}
+                onDelete={onDelete}
               />
             );
           })}

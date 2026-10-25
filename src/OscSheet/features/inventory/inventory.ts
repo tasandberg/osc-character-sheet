@@ -95,7 +95,7 @@ function toVM(
   // Stackable (ammo/consumables carry a real max) keeps the qty control down to the
   // last unit; a plain multi still shows. True singletons (max 0/1) stay null.
   const stackable = !!q && (q.max ?? 0) > 1;
-  const hasQty = !!q && (q.value > 1 || stackable);
+  const hasQty = !!q && (q.value > 1 || stackable || isRation(item));
   const cat = categoryFor(item.type as string);
   const dmg =
     item.type === "weapon" ? ((s as { damage?: string }).damage ?? "") : "";

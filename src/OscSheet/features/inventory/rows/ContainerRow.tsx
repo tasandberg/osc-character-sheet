@@ -31,6 +31,7 @@ export function ContainerRow({
   onContext,
   onSetQty,
   onEat,
+  onDelete,
 }: {
   item: InventoryItemVM;
   index: number;
@@ -48,6 +49,7 @@ export function ContainerRow({
   onContext: OnContext;
   onSetQty: (id: string, value: number) => void;
   onEat?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }) {
   const group = gkey(item.id);
   const count = item.children.length;
@@ -140,6 +142,7 @@ export function ContainerRow({
                 onContext={onContext}
                 onSetQty={onSetQty}
                 onEat={onEat}
+                onDelete={onDelete}
               />
             ) : null;
           })}

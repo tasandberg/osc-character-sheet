@@ -34,25 +34,27 @@ const button = (label: string) =>
       b.getAttribute("aria-label") === label || b.textContent?.trim() === label,
   );
 
-function render() {
+const onDelete = vi.fn();
+
+function render(item = rations) {
   const noop = () => {};
   const ctx = {
     actor,
-    items: [rations],
+    items: [item],
     canEdit: true,
   } as unknown as OscSheetContextValue;
   act(() =>
     root.render(
       <OscSheetContext.Provider value={ctx}>
         <InventoryView
-          inventory={selectInventory([rations])}
+          inventory={selectInventory([item])}
           encumbrance={{ variant: "basic" } as EncumbranceVM}
           wealth={[]}
           onSetCoin={noop}
           onCreate={noop}
           onEquip={noop}
           onOpen={noop}
-          onDelete={noop}
+          onDelete={onDelete}
           onConsume={noop}
           onSetQty={noop}
           onReorder={noop}
@@ -113,5 +115,15 @@ describe("eating a ration from the inventory", () => {
     act(() => button("Cancel")!.click());
     expect(button("Eat Ration")).toBeUndefined();
     expect(actor.updateEmbeddedDocuments).not.toHaveBeenCalled();
+  });
+
+  it("an empty stack offers delete in place of eat", () => {
+    render({
+      ...rations,
+      system: { ...rations.system, quantity: { value: 0, max: 7 } },
+    } as OseItem);
+    expect(button("Eat Iron rations")).toBeUndefined();
+    act(() => button("Delete Iron rations")!.click());
+    expect(onDelete).toHaveBeenCalledWith("rations");
   });
 });
