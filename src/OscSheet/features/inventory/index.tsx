@@ -27,6 +27,7 @@ import { useDragReorder } from "@features/inventory/useDragReorder";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { WealthSection } from "@features/inventory/WealthSection";
 import { SendItemModal } from "@features/inventory/SendItemModal";
+import { EatRationModal } from "@features/camp/EatRationModal";
 import {
   selectSendTargets,
   isGmConnected,
@@ -99,6 +100,7 @@ export function InventoryView({
   const [menu, setMenu] = useState<MenuState | null>(null);
   // The item whose Send dialog is open (a full inventory VM node), null = closed.
   const [sending, setSending] = useState<InventoryItemVM | null>(null);
+  const [eatingId, setEatingId] = useState<string | null>(null);
 
   // Foundry items by id — source for the hotbar drag payload. Dragging a row onto
   // the macro bar creates an item macro (OSE's hotbarDrop hook), like the stock sheet.
@@ -407,6 +409,8 @@ export function InventoryView({
                 onOpen={onOpen}
                 onContext={openMenu}
                 onSetQty={onSetQty}
+                onEat={setEatingId}
+                onDelete={onDelete}
               />
             ) : (
               <SortableRow
@@ -423,6 +427,8 @@ export function InventoryView({
                 onOpen={onOpen}
                 onContext={openMenu}
                 onSetQty={onSetQty}
+                onEat={setEatingId}
+                onDelete={onDelete}
               />
             );
           })}
@@ -447,6 +453,11 @@ export function InventoryView({
           }
         />
       )}
+
+      <EatRationModal
+        item={(eatingId && itemsById.get(eatingId)) || null}
+        onClose={() => setEatingId(null)}
+      />
 
       {sending &&
         (() => {
