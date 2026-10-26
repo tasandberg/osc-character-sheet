@@ -136,6 +136,15 @@
   border-color: var(--btn-wall);
   color: var(--stamp-text);
 }
+[data-theme="cream"] .osc-sheet-app
+  :is(.osc-substats .stamp, .osc-abilities .osc-ability-roll).osc-stat-button {
+  --btn-face: color-mix(in oklab, var(--stamp-text) 24%, var(--ink));
+  --btn-face-hi: color-mix(in oklab, var(--stamp-text) 34%, var(--ink));
+  --btn-lit: color-mix(in oklab, var(--stamp-text) 48%, var(--ink));
+}
+[data-theme="cream"] .osc-sheet-app .osc-ability-score {
+  margin-inline: 0;
+}
 @container app (width >= #{bp.$md}) {
   @container sheet (width < 700px) {
     .osc-head > .osc-vitals {

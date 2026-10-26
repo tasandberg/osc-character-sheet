@@ -59,6 +59,16 @@
     white-space: nowrap;
   }
 
+  [data-theme="cream"]
+    &
+    :is(.vm-btn-secondary, .vm-icon-btn-raised, .icon-btn.raised):not(
+      .vm-btn-muted,
+      :disabled,
+      [aria-disabled="true"]
+    ) {
+    color: var(--btn-wall);
+  }
+
   @each $tone,
     $token
       in (

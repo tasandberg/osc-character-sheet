@@ -9,8 +9,7 @@ type Props = {
   onRoll?: (key: string, event: ActivateEvent) => void;
 };
 
-const COLUMN =
-  "tw:flex tw:min-w-0 tw:flex-col tw:items-stretch tw:gap-2 tw:text-center";
+const COLUMN = "tw:flex tw:min-w-0 tw:flex-col tw:items-stretch tw:text-center";
 
 const ROLL_BUTTON =
   "osc-stat-button osc-ability-roll vm-bevel vm-btn-muted vm-key tw:block tw:px-px tw:pt-1 tw:pb-[2px] tw:leading-none";
@@ -59,7 +58,7 @@ function AbilityColumn({
           {ability.label}
         </Stamp>
       )}
-      <div className="tw:flex tw:flex-col tw:items-center tw:gap-[2px]">
+      <div className="osc-ability-score tw:mx-px tw:flex tw:flex-col tw:items-center tw:gap-[2px] tw:border tw:border-t-0 tw:border-(--hair-soft) tw:bg-(--surface-solid) tw:shadow-(--well-shadow) tw:pt-2 tw:pb-2">
         <span className={VALUE}>{ability.value}</span>
         <span className="tw:relative">
           <button
