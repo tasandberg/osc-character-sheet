@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useOscSheetContext } from "@app/context";
 import {
+  eatRation,
   rationDaysLeft,
+  secondsSinceLastAte,
   selectRations,
   timeSinceInWords,
-  worldTimeNow,
 } from "@features/camp/rations";
-import { FLAGS, readFlag, setFlag } from "@domain/flags";
 import {
   countRestorableSpells,
   restoreAllSpells,
@@ -49,12 +49,7 @@ export function CampModal({ open, onClose }: Props) {
 
   const rations = selectRations(items);
   const daysLeft = rationDaysLeft(rations);
-  const lastAteAt = readFlag<number>(actor, FLAGS.lastAteAt);
-  const now = worldTimeNow();
-  const sinceAte =
-    lastAteAt !== undefined && now !== undefined && now >= lastAteAt
-      ? now - lastAteAt
-      : undefined;
+  const sinceAte = secondsSinceLastAte(actor);
   const { value: hp, max: hpMax } = actor.system.hp;
   const spellLevels = selectSpellLevels(actor, undefined, items);
   // OSE fills `spells.slots` with zeroed levels for everyone, so `enabled` alone
@@ -66,29 +61,15 @@ export function CampModal({ open, onClose }: Props) {
 
   const onEat = (id: string) => {
     const it = rations.find((r) => r._id === id);
-    if (!it) return;
-    const cur = it.system.quantity?.value ?? 0;
-    if (cur <= 0) return;
-    const next = cur - 1;
-    void (
-      actor as unknown as {
-        updateEmbeddedDocuments(
-          type: string,
-          updates: Record<string, unknown>[],
-        ): Promise<unknown>;
-      }
-    ).updateEmbeddedDocuments("Item", [
-      { _id: id, "system.quantity.value": next },
-    ]);
-    const now = worldTimeNow();
-    if (now !== undefined) void setFlag(actor, FLAGS.lastAteAt, now);
+    const eaten = it && eatRation(actor, it);
+    if (!eaten) return;
     setAteRation(true);
     setPickerOpen(false);
-    const t = consumeToast(it.name ?? "ration", cur, next);
+    const t = consumeToast(it.name ?? "ration", eaten.cur, eaten.next);
     if (t)
       toast({
         ...t,
-        icon: <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />,
+        icon: <i className="fa-solid fa-utensils" aria-hidden="true" />,
       });
   };
 
@@ -167,7 +148,7 @@ export function CampModal({ open, onClose }: Props) {
                 className={ACTION_BUTTON}
                 onClick={() => setPickerOpen(true)}
               >
-                <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />
+                <i className="fa-solid fa-utensils" aria-hidden="true" />
                 Eat Ration
               </Button>
             )}

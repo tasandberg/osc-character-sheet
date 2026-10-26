@@ -136,7 +136,7 @@ const item: InventoryItemVM = {
   equippedSort: 100,
   equipped: true,
   quantity: null,
-  treasure: false, coinsOrGems: false,
+  treasure: false, coinsOrGems: false, isRation: false,
   isContainer: false,
   children: [],
 };

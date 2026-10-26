@@ -25,7 +25,7 @@ const coin: CoinWealthRow = {
 const mkItem = (id: string): InventoryItemVM => ({
   id, name: id, img: "", category: "Gear", categoryRank: 2, damage: "", tags: [],
   monogram: id[0]!, weight: 1, slots: 1, cost: 0, armorClass: null, sort: 100, equippedSort: 100,
-  equipped: false, quantity: null, treasure: false, coinsOrGems: false, isContainer: false, children: [],
+  equipped: false, quantity: null, treasure: false, coinsOrGems: false, isRation: false, isContainer: false, children: [],
 });
 
 const noop = () => {};
