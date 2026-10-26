@@ -35,7 +35,7 @@ export function Frame({
           {topbar}
         </div>
       )}
-      <div className="osc-body tw:relative tw:flex tw:min-h-0 tw:flex-1 tw:bg-bg">
+      <div className="osc-body tw:relative tw:flex tw:min-h-0 tw:flex-1">
         <div className="osc-sheet-body">
           {minibar}
           <div className="osc-pad">
