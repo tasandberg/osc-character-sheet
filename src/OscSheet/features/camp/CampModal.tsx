@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useOscSheetContext } from "@app/context";
 import {
+  eatRation,
   rationDaysLeft,
+  secondsSinceLastAte,
   selectRations,
   timeSinceInWords,
-  worldTimeNow,
 } from "@features/camp/rations";
-import { FLAGS, readFlag, setFlag } from "@domain/flags";
 import {
   countRestorableSpells,
   restoreAllSpells,
@@ -26,7 +26,9 @@ const ACTION_BUTTON = "u-inline-flex u-items-center u-gap-2";
 /** Green check standing in for a section's action when there is nothing to do. */
 function ReadyStatus({ label }: { label: string }) {
   return (
-    <span className={`btn status ${ACTION_BUTTON} u-text-success`}>
+    <span
+      className={`vm-btn vm-btn-secondary osc-btn-status ${ACTION_BUTTON} u-text-success`}
+    >
       <i className="fa-solid fa-check" aria-hidden="true" />
       {label}
     </span>
@@ -47,12 +49,7 @@ export function CampModal({ open, onClose }: Props) {
 
   const rations = selectRations(items);
   const daysLeft = rationDaysLeft(rations);
-  const lastAteAt = readFlag<number>(actor, FLAGS.lastAteAt);
-  const now = worldTimeNow();
-  const sinceAte =
-    lastAteAt !== undefined && now !== undefined && now >= lastAteAt
-      ? now - lastAteAt
-      : undefined;
+  const sinceAte = secondsSinceLastAte(actor);
   const { value: hp, max: hpMax } = actor.system.hp;
   const spellLevels = selectSpellLevels(actor, undefined, items);
   // OSE fills `spells.slots` with zeroed levels for everyone, so `enabled` alone
@@ -64,29 +61,15 @@ export function CampModal({ open, onClose }: Props) {
 
   const onEat = (id: string) => {
     const it = rations.find((r) => r._id === id);
-    if (!it) return;
-    const cur = it.system.quantity?.value ?? 0;
-    if (cur <= 0) return;
-    const next = cur - 1;
-    void (
-      actor as unknown as {
-        updateEmbeddedDocuments(
-          type: string,
-          updates: Record<string, unknown>[],
-        ): Promise<unknown>;
-      }
-    ).updateEmbeddedDocuments("Item", [
-      { _id: id, "system.quantity.value": next },
-    ]);
-    const now = worldTimeNow();
-    if (now !== undefined) void setFlag(actor, FLAGS.lastAteAt, now);
+    const eaten = it && eatRation(actor, it);
+    if (!eaten) return;
     setAteRation(true);
     setPickerOpen(false);
-    const t = consumeToast(it.name ?? "ration", cur, next);
+    const t = consumeToast(it.name ?? "ration", eaten.cur, eaten.next);
     if (t)
       toast({
         ...t,
-        icon: <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />,
+        icon: <i className="fa-solid fa-utensils" aria-hidden="true" />,
       });
   };
 
@@ -165,12 +148,12 @@ export function CampModal({ open, onClose }: Props) {
                 className={ACTION_BUTTON}
                 onClick={() => setPickerOpen(true)}
               >
-                <i className="fa-solid fa-drumstick-bite" aria-hidden="true" />
+                <i className="fa-solid fa-utensils" aria-hidden="true" />
                 Eat Ration
               </Button>
             )}
           </div>
-          <span className="tw:font-sans u-fs-sm u-text-dim">
+          <span className="tw:font-sans u-fs-xs u-text-dim">
             <span className="mono u-fs-xs u-text">{daysLeft}</span>{" "}
             {daysLeft === 1 ? "day" : "days"} of rations left
             {sinceAte !== undefined && (
@@ -203,7 +186,7 @@ export function CampModal({ open, onClose }: Props) {
               </Button>
             )}
           </div>
-          <span className="tw:font-sans u-fs-sm u-text-dim">
+          <span className="tw:font-sans u-fs-xs u-text-dim">
             Recover <span className="mono u-fs-xs u-text">1d3</span> for a full
             day's rest
             <span className="u-text-muted">
@@ -233,7 +216,7 @@ export function CampModal({ open, onClose }: Props) {
                 </Button>
               )}
             </div>
-            <span className="tw:font-sans u-fs-sm u-text-dim">
+            <span className="tw:font-sans u-fs-xs u-text-dim">
               {spellsToRestore === 0 ? (
                 "Re-memorize spells from the book"
               ) : (
@@ -261,16 +244,14 @@ export function CampModal({ open, onClose }: Props) {
               <button
                 key={it._id}
                 type="button"
-                className="btn ghost u-row u-gap-3 u-items-center"
+                className="vm-btn vm-btn-secondary u-row u-gap-3 u-items-center tw:h-auto tw:py-1"
                 onClick={() => onEat(it._id!)}
               >
                 <ItemImage
                   img={it.img ?? ""}
                   monogram={monogram(it.name ?? "")}
                 />
-                <span className="u-flex-1 tw:text-left tw:normal-case tw:tracking-normal u-fs-sm">
-                  {it.name}
-                </span>
+                <span className="u-flex-1 tw:text-left u-fs-md">{it.name}</span>
                 <span className="mono u-fs-xs u-text-muted">
                   ×{it.system.quantity?.value ?? 0}
                 </span>

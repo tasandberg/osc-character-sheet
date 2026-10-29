@@ -7,9 +7,8 @@
 // edge. Fixed (no transformed ancestor — verified for the sheet shell; `container-type`
 // on the sheet body does NOT capture fixed descendants) renders in full instead.
 //
-// Closed = `visibility: hidden`, not `display: none`, so the card is measurable before
-// it is shown — that measurement is what lets `align="center"` and the viewport clamp
-// place it in one pass.
+// Closed = `display: none`, so a hidden card has no layout box for pop-out modules to
+// measure; `place` drops that inline display to measure it, keeping placement one pass.
 import {
   useEffect,
   useRef,
@@ -30,6 +29,7 @@ const HIDDEN: CSSProperties = {
   top: 0,
   left: 0,
   visibility: "hidden",
+  display: "none",
 };
 
 export type HoverPopAlign = "start" | "center";
@@ -57,6 +57,7 @@ export function HoverPop({
     let open = false;
     const place = () => {
       const r = trigger.getBoundingClientRect();
+      pop.style.display = "";
       const w = pop.offsetWidth;
       const wanted = align === "center" ? r.left + r.width / 2 - w / 2 : r.left;
       // stay inside the sheet window (fixed can leave it — it just isn't clipped)

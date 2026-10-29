@@ -35,12 +35,12 @@ export interface FeatureVM {
 }
 
 /** Symbol for the roll comparison (= / ≥ / ≤) from CONFIG.OSE. Falls back to "=". */
-function rollSymbol(rollType?: OseRollType): string {
+function rollSymbol(rollType?: OseRollType | ""): string {
   const map = CONFIG.OSE?.roll_type;
   return (rollType && map?.[rollType]) || "=";
 }
 
-export function composeTag(roll: string, rollType?: OseRollType, rollTarget?: number): string {
+export function composeTag(roll: string, rollType?: OseRollType | "", rollTarget?: number): string {
   // OSE only shows the target half when rollTarget is set (0/undefined ⇒ formula only).
   if (!rollTarget) return roll;
   return `${roll} ${rollSymbol(rollType)}${rollTarget}`;

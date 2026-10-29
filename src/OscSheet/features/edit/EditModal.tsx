@@ -200,9 +200,7 @@ export function EditModal({
           <SectionTitle>
             <HeaderPortrait key={actor.img} src={actor.img} />
             Identity &amp; Vitals:{" "}
-            {/* real serif italic — the display face is small-caps with no true
-                italic — slightly dimmed as an annotation */}
-            <em className="ed-id-class tw:font-serif tw:italic tw:text-text-dim">
+            <em className="ed-id-class tw:font-sans tw:not-italic tw:text-(length:--fs-xs) tw:text-text-dim">
               {sys.details.class.replace(/-/g, " ")}
             </em>
           </SectionTitle>
@@ -276,7 +274,7 @@ export function EditModal({
               <span className={LAB_ID}>Next Level</span>
               <NumberInput
                 className="input mono"
-                value={sys.details.xp.next}
+                value={sys.details.xp.next ?? 0}
                 min={0}
                 onCommit={(n) => set("system.details.xp.next", n)}
               />

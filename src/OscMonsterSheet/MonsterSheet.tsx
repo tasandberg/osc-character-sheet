@@ -39,7 +39,10 @@ function MonsterInventory() {
   return (
     <InventoryView
       inventory={selectInventory(owned)}
-      encumbrance={selectEncumbrance(actor as OSEActor, owned)}
+      encumbrance={{
+        ...selectEncumbrance(actor as OSEActor, owned),
+        variant: CONFIG.OSE?.encumbrance?.type ?? "",
+      }}
       wealth={selectWealth(owned)}
       {...actions}
     />

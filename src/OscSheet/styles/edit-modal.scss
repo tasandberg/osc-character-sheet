@@ -26,10 +26,9 @@
     margin: 0;
   }
 
-  // Overrides the unlayered `.section-title` base on margin + size.
+  // Overrides the unlayered `.section-title` base on margin.
   .ed-sec > .section-title {
     margin: 0;
-    font-size: var(--fs-2xl);
   }
 
   // Decorative avatar at the head of "Identity & Vitals". Sized in `em` so it
@@ -55,7 +54,7 @@
   // values, so the two agree either way.
   .ed-field .hint {
     font-family: var(--mono);
-    font-size: var(--fs-3xs);
+    font-size: var(--fs-xs);
     color: var(--text-mute);
     line-height: 1.4;
   }
@@ -63,7 +62,7 @@
   // Overrides `.check`'s own font-size + colour for the in-field checkbox.
   .ed-field .ed-movecalc {
     margin-top: 2px;
-    font-size: var(--fs-2xs);
+    font-size: var(--fs-xs);
     color: var(--text-dim);
   }
 }

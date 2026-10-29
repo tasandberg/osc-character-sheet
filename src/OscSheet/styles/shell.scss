@@ -1,3 +1,4 @@
+@use "breakpoints" as bp;
 // Shell layout — responsive app scaffold (P3).
 // Adapted from the Vellum prototype foundry-styles.css shell rules, re-prefixed
 // `osc-` and tokenised. Two container contexts:
@@ -17,6 +18,7 @@
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-gutter: stable;
   container-type: inline-size;
   container-name: sheet;
   // collapsed-minibar height — shared so sticky inventory heads can pin below it
@@ -36,6 +38,10 @@
   inset: 0;
   z-index: 60;
   padding: var(--spacer-4); // 16px
+  grid-template-rows: minmax(0, 1fr);
+}
+.osc-sheet-app .modal-inset {
+  max-height: 100%;
 }
 
 // Every scroller in the sheet. Any element with its own scrollbar must be listed
@@ -72,10 +78,8 @@
   cursor: pointer;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  font-family: var(--sans);
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-size: var(--fs-md);
+  font-weight: 600;
   padding: var(--spacer-2) 0;
   transition:
     color 0.12s,
@@ -90,12 +94,16 @@
 .osc-tab .osc-tab-ct {
   writing-mode: horizontal-tb;
   transform: rotate(180deg);
-  font-family: var(--mono);
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-xs);
+  font-weight: 400;
   color: var(--text-dim);
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--spacer-5);
+  height: var(--spacer-5);
+  padding: 0 var(--spacer-1);
+  border-radius: 999px;
   background: var(--surface-2);
-  border-radius: 99px;
-  padding: 1px 5px;
 }
 .osc-tab:hover {
   color: var(--text-dim);
@@ -126,8 +134,8 @@
   color: var(--text-mute);
   cursor: pointer;
   font-family: var(--sans);
-  font-size: var(--fs-3xs);
-  font-weight: 500;
+  font-size: var(--fs-xs);
+  font-weight: 600;
   letter-spacing: 0.03em;
   transition: color 0.12s;
 }
@@ -214,25 +222,14 @@
     justify-items: center;
     gap: var(--spacer-3);
   }
-  // 2px sides, not 8px: in the rail the three tiles are equal 1fr columns of a
-  // ~204px pane, and the tile stamp is `width: 100%`, so the stamp cannot
-  // grow to fit its label — "MOVE" overflowed its ink chip and read as a
-  // clipped word. The base ("MOVE grows to fit its label") only holds in the
-  // flex layouts; the grid here overrides it. Widening the column instead would
-  // break the tiles' uniformity, and shrinking the font undoes the deliberate
-  // size bump, so the padding is what gives. Verified at all three font scales
-  // — 8px and even 4px still clip at `large`.
-  //
-  // This one CAN stay: at (0,3,0) it out-ranks the tile stamp's base utilities.
-  .osc-twopane .osc-tile .stamp {
-    font-size: var(--fs-2xs);
-    padding: 5px 2px 3px;
+  .osc-twopane .osc-substats {
+    column-gap: var(--spacer-3);
   }
 }
 
 // Center tabs replace the right rail exactly when the two-pane engages.
 // sheet two-pane = 700; rail is 40px wide, so sheet 700 ⟺ app ≈ 740.
-@container app (min-width: 740px) {
+@container app (width >= #{bp.$lg}) {
   .osc-htab {
     display: inline-flex;
     align-items: center;
@@ -243,10 +240,8 @@
     margin-bottom: -2px;
     padding: 7px 13px 9px; // optical vertical padding: leave raw
     color: var(--text-mute);
-    font-family: var(--sans);
-    font-weight: 500;
-    font-size: var(--fs-sm);
-    letter-spacing: 0.02em;
+    font-weight: 600;
+    font-size: var(--fs-md);
     cursor: pointer;
     transition:
       color 0.12s,
@@ -254,15 +249,19 @@
   }
   .osc-htab .osc-htab-ic {
     color: var(--gold-dim, var(--gold));
-    font-size: var(--fs-sm);
+    font-size: var(--fs-md);
   }
   .osc-htab .osc-htab-ct {
-    font-family: var(--mono);
-    font-size: var(--fs-2xs);
+    font-size: var(--fs-xs);
+    font-weight: 400;
     color: var(--text-dim);
+    display: inline-grid;
+    place-items: center;
+    min-width: var(--spacer-5);
+    height: var(--spacer-5);
+    padding: 0 var(--spacer-1);
+    border-radius: 999px;
     background: var(--surface-2);
-    border-radius: 99px;
-    padding: 1px 6px;
   }
   .osc-htab:hover {
     color: var(--text-dim);
@@ -276,11 +275,11 @@
   }
 }
 
-// === XS tier (≤ 479c on app) ===
+// === XS tier (app < md) ===
 // Bottom bar replaces the rail; header reflows to compact single-column.
 // XS nav swap only — the header + topbar XS overrides live in actions.scss (after
 // the base rules) so they win the cascade; shell.scss loads first and would lose.
-@container app (max-width: 479px) {
+@container app (width < #{bp.$md}) {
   // content clears the bottom bar
   .osc-sheet-body {
     padding-bottom: var(--spacer-1);

@@ -231,6 +231,7 @@ describe("settings snapshot", () => {
       maxHitPointsAtFirstLevel: false,
       creationWizardNoticeShown: false,
       disableMemorization: false,
+      promptForTarget: false,
       fontScale: "medium",
       monsterTheme: "inherit",
       monsterFontScale: "inherit",

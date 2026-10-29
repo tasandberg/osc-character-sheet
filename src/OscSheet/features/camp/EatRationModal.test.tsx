@@ -1,0 +1,129 @@
+// @vitest-environment jsdom
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { act } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { OscSheetContext } from "@app/context";
+import { InventoryView } from "@features/inventory";
+import { selectInventory } from "@features/inventory/inventory";
+import { FLAGS, MODULE_ID } from "@domain/flags";
+import type { EncumbranceVM } from "@domain/vm-types";
+import type { OSEActor, OscSheetContextValue, OseItem } from "@domain/types";
+
+(
+  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
+
+const rations = {
+  _id: "rations",
+  name: "Iron rations",
+  img: "",
+  type: "item",
+  system: { weight: 1, quantity: { value: 3, max: 7 } },
+} as unknown as OseItem;
+
+let container: HTMLDivElement;
+let root: Root;
+let actor: OSEActor & {
+  updateEmbeddedDocuments: ReturnType<typeof vi.fn>;
+  setFlag: ReturnType<typeof vi.fn>;
+};
+
+const button = (label: string) =>
+  [...document.querySelectorAll<HTMLButtonElement>("button")].find(
+    (b) =>
+      b.getAttribute("aria-label") === label || b.textContent?.trim() === label,
+  );
+
+const onDelete = vi.fn();
+
+function render(item = rations) {
+  const noop = () => {};
+  const ctx = {
+    actor,
+    items: [item],
+    canEdit: true,
+  } as unknown as OscSheetContextValue;
+  act(() =>
+    root.render(
+      <OscSheetContext.Provider value={ctx}>
+        <InventoryView
+          inventory={selectInventory([item])}
+          encumbrance={{ variant: "basic" } as EncumbranceVM}
+          wealth={[]}
+          onSetCoin={noop}
+          onCreate={noop}
+          onEquip={noop}
+          onOpen={noop}
+          onDelete={onDelete}
+          onConsume={noop}
+          onSetQty={noop}
+          onReorder={noop}
+          onReorderEquipped={noop}
+          onNest={noop}
+          onSend={noop}
+        />
+      </OscSheetContext.Provider>,
+    ),
+  );
+}
+
+beforeEach(() => {
+  (globalThis as { game?: unknown }).game = { time: { worldTime: 90_000 } };
+  actor = {
+    flags: { [MODULE_ID]: { [FLAGS.lastAteAt]: 3_600 } },
+    system: {},
+    updateEmbeddedDocuments: vi.fn().mockResolvedValue([]),
+    setFlag: vi.fn().mockResolvedValue(undefined),
+  } as unknown as typeof actor;
+  container = document.createElement("div");
+  document.body.appendChild(container);
+  root = createRoot(container);
+  render();
+});
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+});
+
+describe("eating a ration from the inventory", () => {
+  it("rations have no use-one pips", () => {
+    expect(button("Use one Iron rations")).toBeUndefined();
+  });
+
+  it("the eat button opens the dialog with the time since the last meal", () => {
+    act(() => button("Eat Iron rations")!.click());
+    expect(button("Eat Ration")).toBeDefined();
+    expect(document.body.textContent).toContain("1 day since last ration");
+  });
+
+  it("Eat Ration consumes one and records the meal", () => {
+    act(() => button("Eat Iron rations")!.click());
+    act(() => button("Eat Ration")!.click());
+    expect(actor.updateEmbeddedDocuments).toHaveBeenCalledWith("Item", [
+      { _id: "rations", "system.quantity.value": 2 },
+    ]);
+    expect(actor.setFlag).toHaveBeenCalledWith(
+      MODULE_ID,
+      FLAGS.lastAteAt,
+      90_000,
+    );
+    expect(button("Eat Ration")).toBeUndefined();
+  });
+
+  it("Cancel closes without eating", () => {
+    act(() => button("Eat Iron rations")!.click());
+    act(() => button("Cancel")!.click());
+    expect(button("Eat Ration")).toBeUndefined();
+    expect(actor.updateEmbeddedDocuments).not.toHaveBeenCalled();
+  });
+
+  it("an empty stack offers delete in place of eat", () => {
+    render({
+      ...rations,
+      system: { ...rations.system, quantity: { value: 0, max: 7 } },
+    } as OseItem);
+    expect(button("Eat Iron rations")).toBeUndefined();
+    act(() => button("Delete Iron rations")!.click());
+    expect(onDelete).toHaveBeenCalledWith("rations");
+  });
+});

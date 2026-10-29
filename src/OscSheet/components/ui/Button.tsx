@@ -2,19 +2,32 @@ import { cx } from "./cx";
 import type { ButtonHTMLAttributes } from "react";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "outline" | "danger" | "ghost";
-  /** Color tone for the outline variant (no effect without variant="outline").
-   *  Names match the Vellum color vocabulary. Default is the plain outline accent. */
-  tone?: "accent" | "brass" | "danger" | "success" | "warn";
+  variant?: "primary" | "outline" | "danger" | "link" | "muted";
+  /** Colors only the leading icon; the label stays default ink. */
+  iconTone?: "accent" | "brass" | "danger" | "success" | "warn";
   size?: "sm" | "xs";
 };
 
+const VARIANT_CLASS = {
+  primary: "vm-btn-secondary",
+  danger: "vm-btn-danger vm-btn-sm",
+  outline: "vm-btn-secondary",
+  link: "vm-btn-link",
+  muted: "vm-btn-secondary vm-btn-muted",
+} as const;
+
 /** @category Controls */
-export function Button({ variant, tone, size, className, type = "button", ...rest }: Props) {
+export function Button({ variant, iconTone, size, className, type = "button", ...rest }: Props) {
   return (
     <button
       type={type}
-      className={cx("btn", variant, tone && `tone-${tone}`, size, className)}
+      className={cx(
+        "vm-btn",
+        VARIANT_CLASS[variant ?? "outline"],
+        iconTone && `osc-icon-tone-${iconTone}`,
+        size === "xs" && "osc-btn-xs",
+        className,
+      )}
       {...rest}
     />
   );

@@ -47,7 +47,7 @@ export function HitDiceField({
         onClick={rollHd}
       >
         <i
-          className="fa-solid fa-dice-d20 tw:text-[length:var(--fs-md)]"
+          className="fa-solid fa-dice-d20 tw:text-(length:--fs-md)"
           aria-hidden="true"
         />
       </InlineButton>

@@ -31,16 +31,16 @@ export function Identity({
   const nameRef = useFitText(identity.name);
   const standing = identity.title;
   return (
-    <div className="osc-ident tw:flex tw:min-w-0 tw:flex-col tw:gap-[2px] tw:@max-md/app:overflow-hidden tw:@twopane/sheet:w-full tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
+    <div className="osc-ident tw:flex tw:min-w-0 tw:flex-col tw:gap-[calc(var(--spacer-1)*1.5)] tw:@max-md/app:overflow-hidden tw:@twopane/sheet:w-full tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
       {/* padding + equal negative margin: layout unchanged, clip box grows so the display face's J survives */}
       <div
-        className="osc-name tw:overflow-hidden tw:p-[0.14em] tw:-m-[0.14em] tw:font-display tw:leading-[0.95] tw:tracking-[0.01em] tw:whitespace-nowrap tw:text-text tw:@max-md/app:text-ellipsis tw:@twopane/sheet:self-stretch tw:@twopane/sheet:text-center"
+        className="osc-name tw:overflow-hidden tw:p-[0.14em] tw:-mx-[0.14em] tw:-mb-[0.14em] tw:mt-[calc(var(--spacer-1)-0.26em)] tw:font-display tw:leading-[0.95] tw:tracking-[0.01em] tw:whitespace-nowrap tw:text-text tw:@max-md/app:text-ellipsis tw:@twopane/sheet:self-stretch tw:@twopane/sheet:text-center"
         ref={nameRef}
       >
         {identity.name}
       </div>
       {showClassLine && (
-        <div className="tw:font-display tw:text-[length:var(--fs-md)] tw:text-gold tw:@twopane/sheet:text-center">
+        <div className="tw:text-(length:--fs-md) tw:text-gold-dim tw:@twopane/sheet:text-center">
           {identity.classLabel} {identity.level}
           {standing ? ` · ${standing}` : ""} · {identity.alignment}
         </div>

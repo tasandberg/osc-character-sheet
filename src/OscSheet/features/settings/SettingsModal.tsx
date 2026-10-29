@@ -138,7 +138,7 @@ export function SettingsModal({
 }) {
   if (!open) return null;
   const footer = (
-    <button type="button" className="vm-btn vm-btn-primary" onClick={onClose}>
+    <button type="button" className="vm-btn vm-btn-secondary" onClick={onClose}>
       Close
     </button>
   );

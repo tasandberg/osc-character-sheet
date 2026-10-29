@@ -14,7 +14,6 @@ import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
 import { cx } from "@ui/cx";
 import {
-  cyclePattern,
   resetAttacks,
   rollMonsterDamage,
   rollMonsterHit,
@@ -41,6 +40,7 @@ function patternEntries(item: MonsterItem): ContextMenuEntry[] {
   return [...colours, { pattern: "transparent", label: "None" }].map(
     ({ pattern, label }) => ({
       label,
+      swatch: pattern,
       checked: (item.system.pattern ?? "transparent") === pattern,
       onSelect: () => void setPattern(item, pattern),
     }),
@@ -138,6 +138,16 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
     );
   };
 
+  const showPatternMenu = (item: MonsterItem, anchor: Anchor) => {
+    setMenuFor(null);
+    setMenu({
+      anchor,
+      placement: "bottom-start",
+      title: "Attack group",
+      entries: patternEntries(item),
+    });
+  };
+
   const openMenu = (item: MonsterItem, event: MouseEvent) => {
     event.preventDefault();
     showMenu(item, { x: event.clientX, y: event.clientY });
@@ -178,8 +188,14 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
             size="md"
             label="Attack pattern"
             pattern={attack.pattern}
-            onCycle={
-              canEdit && weapon ? () => void cyclePattern(weapon) : undefined
+            onSelect={
+              canEdit && weapon
+                ? (event) =>
+                    showPatternMenu(
+                      weapon,
+                      event.currentTarget.getBoundingClientRect(),
+                    )
+                : undefined
             }
           />
         </span>
@@ -220,7 +236,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
           {canEdit && weapon && (
             <IconButton
               variant="raised"
-              className="osc-monster-roll-button"
+              className="osc-roll-button"
               aria-label={`Attack with ${attack.name}`}
               title={`Attack with ${attack.name}`}
               disabled={attack.exhausted}
@@ -234,7 +250,7 @@ export function AttacksSection({ actor, groups, canEdit }: Props) {
           {canEdit && weapon && (
             <IconButton
               variant="raised"
-              className="osc-monster-roll-button"
+              className="osc-roll-button"
               aria-label={`Roll damage for ${attack.name}`}
               title={`Roll damage for ${attack.name}`}
               onClick={() => void rollMonsterDamage(actor, weapon)}

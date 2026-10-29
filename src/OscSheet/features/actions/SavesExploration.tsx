@@ -2,7 +2,6 @@ import { useState } from "react";
 import type { SaveVM, ExplorationVM, AbilityVM } from "@domain/vm-types";
 import type { OSESave } from "@domain/types";
 import { SectionTitle } from "@ui/SectionTitle";
-import { StatPlaque } from "@ui/StatPlaque";
 import { cx } from "@ui/cx";
 import { rollable, type ActivateEvent } from "@ui/rollable";
 import SavesModTag from "@src/OscSheet/components/ui/SavesModTag";
@@ -16,12 +15,7 @@ type Props = {
   onRollExploration?: (key: string, event: ActivateEvent) => void;
 };
 
-/** 1–2 char ink-stamp from the save label (Death → D, Paralysis → P). */
-function saveStamp(label: string): string {
-  return label.charAt(0).toUpperCase();
-}
-
-export function SavesGrid({
+export function SavesBand({
   saves,
   onRoll,
 }: {
@@ -29,18 +23,49 @@ export function SavesGrid({
   onRoll?: (key: OSESave, event: ActivateEvent) => void;
 }) {
   return (
-    <div className="fvtt-saves">
+    <div className="osc-saves-band">
       {saves.map((s) => (
-        <StatPlaque
+        <div
           key={s.key}
-          variant="save"
-          stampKey={saveStamp(s.label)}
-          value={s.target}
-          caption={s.label}
-          onActivate={onRoll && ((e) => onRoll(s.key, e))}
+          className={cx("osc-saves-band-cell", onRoll && "rollable")}
           title={onRoll ? `Roll ${s.label} save (≥ ${s.target})` : undefined}
           data-testid={`save-${s.key}`}
-        />
+          {...rollable(onRoll && ((e) => onRoll(s.key, e)))}
+        >
+          <span className="osc-saves-band-label">{s.label}</span>
+          <span className="osc-saves-band-value">{s.target}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function SavesList({
+  saves,
+  onRoll,
+}: {
+  saves: SaveVM[];
+  onRoll?: (key: OSESave, event: ActivateEvent) => void;
+}) {
+  return (
+    <div className="fvtt-explore">
+      {saves.map((s) => (
+        <div
+          key={s.key}
+          className={cx("fvtt-skill", onRoll && "rollable")}
+          title={onRoll ? `Roll ${s.label} save (≥ ${s.target})` : undefined}
+          data-testid={`save-${s.key}`}
+          {...rollable(onRoll && ((e) => onRoll(s.key, e)))}
+        >
+          <i className={cx("skic", s.icon)} aria-hidden="true" />
+          <span className="skn">{s.label}</span>
+          <span className="skv">
+            {s.target}
+            <span className="osc-roll-die" aria-hidden="true">
+              <i className="fa-solid fa-dice-d20 roll-label-die" />
+            </span>
+          </span>
+        </div>
       ))}
     </div>
   );
@@ -54,7 +79,7 @@ export function ExplorationGrid({
   onRoll?: (key: string, event: ActivateEvent) => void;
 }) {
   return (
-    <div className="fvtt-explore">
+    <div className="fvtt-explore osc-ruled-grid">
       {exploration.map((e) => (
         <div
           key={e.key}
@@ -66,7 +91,9 @@ export function ExplorationGrid({
           <span className="skn">{e.label}</span>
           <span className="skv">
             {e.inSix}-in-6
-            <i className="fa-solid fa-dice-d6" aria-hidden="true" />
+            <span className="osc-roll-die" aria-hidden="true">
+              <i className="fa-solid fa-dice-d6 roll-label-die" />
+            </span>
           </span>
         </div>
       ))}
@@ -94,7 +121,7 @@ export function SavesExploration({
     return (
       <section className="osc-section">
         <SectionTitle hint="roll-above d20">Saving Throws</SectionTitle>
-        <SavesGrid saves={saves} onRoll={onRollSave} />
+        <SavesBand saves={saves} onRoll={onRollSave} />
         <SectionTitle hint="1-in-6">Exploration</SectionTitle>
         <ExplorationGrid exploration={exploration} onRoll={onRollExploration} />
       </section>
@@ -131,7 +158,7 @@ export function SavesExploration({
       </div>
       {tab === "saves" ? (
         <div className="tw:space-y-1">
-          <SavesGrid saves={saves} onRoll={onRollSave} />
+          <SavesList saves={saves} onRoll={onRollSave} />
           <SavesModTag wisdomAbility={wisdomAbility} />
         </div>
       ) : (

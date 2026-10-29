@@ -57,11 +57,23 @@ function imagePathFromPayload(
   return src && isImagePath(src) ? src : null;
 }
 
+function isDocumentDrag(payload: string | null): boolean {
+  const text = payload?.trim();
+  if (!text?.startsWith("{")) return false;
+  try {
+    const data = JSON.parse(text) as { uuid?: unknown };
+    return typeof data?.uuid === "string";
+  } catch {
+    return false;
+  }
+}
+
 export function dragKind(
   types: readonly string[],
   cachedPayload: string | null,
   uploadReady: boolean,
 ): "file" | "path" | null {
+  if (isDocumentDrag(cachedPayload)) return null;
   const hasPath =
     types.includes("text/uri-list") ||
     (types.includes("text/plain") &&

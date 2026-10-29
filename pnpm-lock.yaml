@@ -12,8 +12,8 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
       '@old-school-chronicle/vellum':
-        specifier: 0.6.1
-        version: 0.6.1(react@19.2.7)
+        specifier: 0.6.3
+        version: 0.6.3(react@19.2.7)
       '@sentry/browser':
         specifier: ^10.63.0
         version: 10.63.0
@@ -34,8 +34,8 @@ importers:
         specifier: ^9.33.0
         version: 9.34.0
       '@ose-foundry-core/types':
-        specifier: github:tasandberg/ose-foundry-core#types-v0.1.0
-        version: https://codeload.github.com/tasandberg/ose-foundry-core/tar.gz/0ec7583b74f40cc7d343de59ae5991be34ed047c(@league-of-foundry-developers/foundry-vtt-types@13.346.0-beta.20251209192131(63ed09af4cea38bed3b96d997d05ee5d))
+        specifier: 0.0.2
+        version: 0.0.2(@league-of-foundry-developers/foundry-vtt-types@13.346.0-beta.20251209192131(63ed09af4cea38bed3b96d997d05ee5d))
       '@pixi/compressed-textures':
         specifier: github:foundry-vtt-types/pixi-compressed-textures#main
         version: https://codeload.github.com/foundry-vtt-types/pixi-compressed-textures/tar.gz/890bd5cf9f92d6e48103b733513ccb603e5d1a36(@pixi/assets@7.4.3(@pixi/core@https://codeload.github.com/foundry-vtt-types/pixi-core/tar.gz/b2554df0b43183980830a08d92a960ede78ad25e))(@pixi/core@https://codeload.github.com/foundry-vtt-types/pixi-core/tar.gz/b2554df0b43183980830a08d92a960ede78ad25e)
@@ -671,8 +671,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@old-school-chronicle/vellum@0.6.1':
-    resolution: {integrity: sha512-R7ESYE/o59n8ZHujkgkXevGTQMcfIYxTOrxZ4CGoKPc6nYZ+Z+1Wtt7RDeet5SO9eWjB2oK2yLf3/f12ycZv2Q==}
+  '@old-school-chronicle/vellum@0.6.3':
+    resolution: {integrity: sha512-pS1EQiq7gCZ+JTh1AVASXorBXbtFCLuM2gfF7xcBavLA2dkUxRAvYC+1cHfbDDs6aTTz3+u+9pFc4CnO4VmB0g==}
     peerDependencies:
       react: '>=18'
     peerDependenciesMeta:
@@ -691,9 +691,8 @@ packages:
   '@open-draft/until@2.1.0':
     resolution: {integrity: sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==}
 
-  '@ose-foundry-core/types@https://codeload.github.com/tasandberg/ose-foundry-core/tar.gz/0ec7583b74f40cc7d343de59ae5991be34ed047c':
-    resolution: {tarball: https://codeload.github.com/tasandberg/ose-foundry-core/tar.gz/0ec7583b74f40cc7d343de59ae5991be34ed047c}
-    version: 0.1.0
+  '@ose-foundry-core/types@0.0.2':
+    resolution: {integrity: sha512-jN6/8OFiZRJmPQowV74+LpP7S88yyfJQWIOtguojhda9C3ae4PCEZa76dO9Xb2+P9bUMSQxyigR2esHua2aLeg==}
     peerDependencies:
       '@league-of-foundry-developers/foundry-vtt-types': 13.346.0-beta.20251209192131
 
@@ -4242,7 +4241,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@old-school-chronicle/vellum@0.6.1(react@19.2.7)':
+  '@old-school-chronicle/vellum@0.6.3(react@19.2.7)':
     optionalDependencies:
       react: 19.2.7
 
@@ -4261,7 +4260,7 @@ snapshots:
   '@open-draft/until@2.1.0':
     optional: true
 
-  '@ose-foundry-core/types@https://codeload.github.com/tasandberg/ose-foundry-core/tar.gz/0ec7583b74f40cc7d343de59ae5991be34ed047c(@league-of-foundry-developers/foundry-vtt-types@13.346.0-beta.20251209192131(63ed09af4cea38bed3b96d997d05ee5d))':
+  '@ose-foundry-core/types@0.0.2(@league-of-foundry-developers/foundry-vtt-types@13.346.0-beta.20251209192131(63ed09af4cea38bed3b96d997d05ee5d))':
     dependencies:
       '@league-of-foundry-developers/foundry-vtt-types': 13.346.0-beta.20251209192131(63ed09af4cea38bed3b96d997d05ee5d)
 

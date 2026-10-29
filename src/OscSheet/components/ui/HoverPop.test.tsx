@@ -59,19 +59,18 @@ describe("HoverPop", () => {
     const trigger = container.querySelector(".trigger")!;
     const pop = container.querySelector<HTMLElement>(".pop")!;
 
-    // closed: laid out but invisible (measurable, so placement is a single pass)
-    expect(pop.style.position).toBe("fixed");
-    expect(pop.style.visibility).toBe("hidden");
+    // closed: no layout box, so nothing measuring the sheet sees it
+    expect(pop.style.display).toBe("none");
 
     stubRect(trigger, { left: 200, width: 50, bottom: 100 });
     hover(trigger, "pointerenter");
     expect(pop.style.position).toBe("fixed");
-    expect(pop.style.visibility).toBe("");
+    expect(pop.style.display).toBe("");
     expect(pop.style.top).toBe("111px"); // trigger bottom + 11 gap (clears the arrow)
     expect(pop.style.left).toBe("200px"); // align="start" → trigger's left edge
 
     hover(trigger, "pointerleave");
-    expect(pop.style.visibility).toBe("hidden");
+    expect(pop.style.display).toBe("none");
   });
 
   it("clamps a centred card to the sheet instead of letting it overhang", () => {
@@ -137,7 +136,7 @@ const item: InventoryItemVM = {
   equippedSort: 100,
   equipped: true,
   quantity: null,
-  treasure: false, coinsOrGems: false,
+  treasure: false, coinsOrGems: false, isRation: false,
   isContainer: false,
   children: [],
 };

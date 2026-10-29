@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
 #
-# Assembles a Foundry /data dir for the osc-character-sheet E2E run: the pinned OSE
-# system release, the freshly-built osc-character-sheet module, and a bare "e2e" world
+# Assembles a Foundry /data dir for the osc-character-sheet E2E run: an OSE system
+# release, the freshly-built osc-character-sheet module, and a bare "e2e" world
 # fixture. Foundry itself and the license are handled by the felddy container at
 # boot, not here.
 #
-# Usage: setup-data-dir.sh <data-dir> <repo-root>   (repo-root/dist must be built)
+# Usage: [OSE_VERSION=<tag>] [FOUNDRY_VERSION=<major>] setup-data-dir.sh <data-dir> <repo-root>
+#        (repo-root/dist must be built)
 set -euo pipefail
 
 DATA_DIR="${1:?usage: setup-data-dir.sh <data-dir> <repo-root>}"
 REPO="${2:?usage: setup-data-dir.sh <data-dir> <repo-root>}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Pinned NecroticGnome OSE release. No v14-verified OSE exists yet, so we rewrite
-# system.json compatibility.verified -> "14" below (CI-only) to clear v14 gating.
+# NecroticGnome OSE release tag, and the Foundry major the data dir is for.
 OSE_VERSION="${OSE_VERSION:-2.2.2}"
+FOUNDRY_VERSION="${FOUNDRY_VERSION:-14}"
 OSE_ZIP="https://github.com/NecroticGnome/ose-foundry-core/releases/download/${OSE_VERSION}/system.zip"
 
 SYS_DIR="$DATA_DIR/Data/systems/ose"
@@ -40,9 +41,12 @@ else
   [[ -n "$SUB" ]] || { echo "ERROR: system.json missing in OSE zip." >&2; exit 1; }
   cp -R "$(dirname "$SUB")/." "$SYS_DIR/"
 fi
-# v14 masquerade: bump verified so Foundry v14 won't gate the world on system compat.
-jq '.compatibility.verified = "14" | .compatibility.maximum = "14"' \
-  "$SYS_DIR/system.json" > "$SYS_DIR/system.json.tmp" && mv "$SYS_DIR/system.json.tmp" "$SYS_DIR/system.json"
+# Masquerade: an OSE release not yet verified on this Foundry major gets its verified
+# bumped (CI-only) so Foundry won't gate the world on system compat.
+if (( ${FOUNDRY_VERSION%%.*} > $(jq -r '.compatibility.verified | split(".")[0]' "$SYS_DIR/system.json") )); then
+  jq --arg v "$FOUNDRY_VERSION" '.compatibility.verified = $v | .compatibility.maximum = $v' \
+    "$SYS_DIR/system.json" > "$SYS_DIR/system.json.tmp" && mv "$SYS_DIR/system.json.tmp" "$SYS_DIR/system.json"
+fi
 [[ "$(jq -r '.id' "$SYS_DIR/system.json")" == "ose" ]] || { echo "ERROR: OSE system id is not 'ose'." >&2; exit 1; }
 
 # --- osc-character-sheet module (fresh build) ------------------------------------
@@ -56,9 +60,10 @@ cp -R "$REPO/dist" "$MOD_DIR/dist"
 
 # --- world fixture ----------------------------------------------------------
 echo "==> Installing minimal world fixture (e2e)"
-cp "$HERE/fixtures/world/world.json" "$WORLD_DIR/world.json"
+jq --arg v "$FOUNDRY_VERSION" '.coreVersion = $v | .compatibility.minimum = $v | .compatibility.verified = $v' \
+  "$HERE/fixtures/world/world.json" > "$WORLD_DIR/world.json"
 
 echo "==> Data dir ready:"
 echo "    system:  $SYS_DIR  ($(jq -r '.id + " " + .version + " (verified " + .compatibility.verified + ")"' "$SYS_DIR/system.json"))"
 echo "    module:  $MOD_DIR  ($(jq -r '.id + " " + .version' "$MOD_DIR/module.json"))"
-echo "    world:   $WORLD_DIR (system $(jq -r '.system' "$WORLD_DIR/world.json"))"
+echo "    world:   $WORLD_DIR (system $(jq -r '.system + ", core " + .coreVersion' "$WORLD_DIR/world.json"))"

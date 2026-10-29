@@ -29,12 +29,20 @@ export interface VitalsVM {
   moveBands: MoveBands;
 }
 
+export interface AbilityDetailVM {
+  labelKey: string;
+  value: string;
+  localizeValue?: boolean;
+}
+
 export interface AbilityVM {
   key: string;
   label: string;
+  nameKey: string;
   value: number;
   mod: number;
   modLabel: string;
+  details: AbilityDetailVM[];
 }
 
 export interface LoyaltyVM {
@@ -72,6 +80,10 @@ export interface AttackMode {
   dmg: RollSpec;
   /** Button text — always-signed mono, e.g. "1d6+0" / "1d10+2". */
   dmgDisplay: string;
+  /** The damage dice alone, e.g. "1d6". */
+  dmgDie: string;
+  /** The damage modifier alone, always signed, e.g. "+0". */
+  dmgModDisplay: string;
   /** Full damage formula with named mods for the popover, e.g. "1d6 + 1 (str)". */
   dmgTip: string;
 }
@@ -104,10 +116,10 @@ export interface ExplorationVM {
 
 export interface TopbarVM {
   level: number;
-  nextLevel: number;
+  nextLevel: number | null;
   /** `floor` is the class table's XP for the current level, `next` the actor's
    *  next-level XP — the two ends of the band the bar fills. */
-  xp: { value: number; floor: number; next: number };
+  xp: { value: number; floor: number; next: number | null };
   /** Progress through the current level's XP band, 0–100. */
   pct: number;
 }
@@ -151,6 +163,7 @@ export interface InventoryItemVM {
   /** The narrower subset the system buckets at 100 to a slot (`system.isCoinsOrGems`), so
    *  it carries no per-row slot figure. Other valuables count their slots normally. */
   coinsOrGems: boolean;
+  isRation: boolean;
   isContainer: boolean;
   children: InventoryItemVM[]; // [] unless container; nested by containerId
 }

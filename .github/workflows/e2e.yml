@@ -1,15 +1,16 @@
 name: E2E Test Suite
 
-# Runs the osc-character-sheet Playwright E2E specs headlessly against a real Foundry
-# v14 server (OSE system + osc-character-sheet module). Needs repo secrets
-# FOUNDRY_USERNAME / FOUNDRY_PASSWORD — see tools/e2e/README.md.
+# Runs the osc-character-sheet Playwright E2E specs headlessly against real Foundry
+# servers (OSE system + osc-character-sheet module), one leg per Foundry × OSE pair in
+# the matrix below. Needs repo secrets FOUNDRY_USERNAME / FOUNDRY_PASSWORD — see
+# tools/e2e/README.md.
 #
-# `e2e` is a REQUIRED check (main ruleset), so it must always report a status —
-# a `paths:` trigger filter would leave the check pending forever and block the
-# PR. Instead the job always starts, a cheap first step decides whether anything
-# E2E-relevant changed, and every heavy step is gated on it. No relevant change ⇒
-# the job goes green in seconds without spinning up Foundry. Detection uses gh/git
-# only, no third-party action, because this job runs with the license secrets present.
+# `e2e` is a REQUIRED check (main ruleset), so it must always report a status — a
+# `paths:` trigger filter would leave the check pending forever and block the PR.
+# Instead the plan job always starts and decides whether anything E2E-relevant changed,
+# the legs run only if it did, and the final `e2e` job rolls them up. No relevant
+# change ⇒ `e2e` goes green in seconds without spinning up Foundry. Detection uses
+# gh/git only, no third-party action.
 
 on:
   push:
@@ -18,24 +19,31 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
-# One license = one server: serialize, drop superseded runs. Keyed by event name as well
-# as PR, or the pull_request_target run cancels the pull_request run on a same-repo PR and
-# then skips itself, leaving the required check with no green status.
+# One license = one server: serialize, drop superseded runs. Legs share one run, so this
+# never cancels a leg for another; max-parallel: 1 keeps them off the license together.
+# Keyed by event name as well as PR, or the pull_request_target run cancels the
+# pull_request run on a same-repo PR and then skips itself, leaving the required check with no green status.
 concurrency:
   group: e2e-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-jobs:
-  e2e:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 40
-    env:
-      FOUNDRY_VERSION: "14"
-      FOUNDRY_PORT: 30000
-      WORLD_ID: e2e
-      DATA_DIR: ${{ github.workspace }}/.foundry-ci
-      FOUNDRY_URL: http://localhost:30000
+# The test matrix, one entry per line. Foundry entries are felddy image tags (majors).
+# OSE entries are a release tag or latest-release / latest-prerelease, resolved from
+# GitHub at run time; latest-prerelease is the newest release of any kind.
+env:
+  FOUNDRY_VERSIONS: |
+    13
+    14
+  OSE_VERSIONS: |
+    latest-release
+    latest-prerelease
 
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      relevant: ${{ steps.filter.outputs.relevant }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       # Decide whether anything the suite depends on changed. Runs before checkout
       # (no untrusted code, no secrets) via the GitHub API — an irrelevant PR never
@@ -67,8 +75,49 @@ jobs:
             echo "::notice::No E2E-relevant changes — skipping the suite (check reports green)."
           fi
 
-      - name: Fail early if Foundry credentials are missing
+      - name: Resolve the Foundry × OSE matrix
+        id: matrix
         if: steps.filter.outputs.relevant == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          releases=$(gh api --paginate repos/NecroticGnome/ose-foundry-core/releases \
+            -q '.[] | select(.draft | not) | [.published_at, .tag_name, .prerelease] | @tsv' | sort -r)
+          latest_release=$(echo "$releases" | awk -F'\t' '$3 == "false" { print $2; exit }')
+          latest_any=$(echo "$releases" | head -1 | cut -f2)
+          resolve() {
+            case "$1" in
+              latest-release) echo "$latest_release" ;;
+              latest-prerelease) echo "$latest_any" ;;
+              *) echo "$1" ;;
+            esac
+          }
+          include=$(for f in $FOUNDRY_VERSIONS; do for o in $OSE_VERSIONS; do
+            jq -nc --arg foundry "$f" --arg ose "$(resolve "$o")" '{foundry: $foundry, ose: $ose}'
+          done; done | jq -sc 'unique_by([.foundry, .ose])')
+          echo "Matrix: $include"
+          echo "matrix={\"include\":$include}" >> "$GITHUB_OUTPUT"
+
+  leg:
+    needs: plan
+    if: needs.plan.outputs.relevant == 'true'
+    name: e2e (v${{ matrix.foundry }}, OSE ${{ matrix.ose }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    env:
+      FOUNDRY_VERSION: ${{ matrix.foundry }}
+      OSE_VERSION: ${{ matrix.ose }}
+      FOUNDRY_PORT: 30000
+      WORLD_ID: e2e
+      DATA_DIR: ${{ github.workspace }}/.foundry-ci
+      FOUNDRY_URL: http://localhost:30000
+
+    steps:
+      - name: Fail early if Foundry credentials are missing
         env:
           FOUNDRY_USERNAME: ${{ secrets.FOUNDRY_USERNAME }}
           FOUNDRY_PASSWORD: ${{ secrets.FOUNDRY_PASSWORD }}
@@ -80,26 +129,22 @@ jobs:
           fi
 
       - name: Checkout
-        if: steps.filter.outputs.relevant == 'true'
         uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup pnpm
-        if: steps.filter.outputs.relevant == 'true'
         uses: pnpm/action-setup@v6
         with:
           version: 10.33.0
 
       - name: Setup Node.js 22
-        if: steps.filter.outputs.relevant == 'true'
         uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
 
       - name: Pull Foundry image and resolve version
-        if: steps.filter.outputs.relevant == 'true'
         run: |
           docker pull "felddy/foundryvtt:${FOUNDRY_VERSION}"
           # felddy labels the image with the exact build it installs — stabilizes the cache key.
@@ -111,22 +156,19 @@ jobs:
 
       # Caching the Foundry zip (felddy's CONTAINER_CACHE) is the biggest win: warm boot ~5-10s.
       - name: Cache Foundry distribution
-        if: steps.filter.outputs.relevant == 'true'
         uses: actions/cache@v6
         with:
           path: ${{ env.DATA_DIR }}/container_cache
           key: foundry-dist-${{ env.FOUNDRY_RESOLVED }}
           restore-keys: |
-            foundry-dist-
+            foundry-dist-${{ env.FOUNDRY_VERSION }}.
 
       - name: Build the osc-character-sheet module
-        if: steps.filter.outputs.relevant == 'true'
         run: |
           pnpm install --frozen-lockfile
           pnpm build
 
       - name: Assemble Foundry data directory (OSE + osc-character-sheet + world)
-        if: steps.filter.outputs.relevant == 'true'
         run: |
           mkdir -p "${DATA_DIR}"
           tools/e2e/setup-data-dir.sh "${DATA_DIR}" "${GITHUB_WORKSPACE}"
@@ -136,7 +178,6 @@ jobs:
 
       # Start the container first so it boots while the runner deps install below.
       - name: Start Foundry container
-        if: steps.filter.outputs.relevant == 'true'
         env:
           FOUNDRY_USERNAME: ${{ secrets.FOUNDRY_USERNAME }}
           FOUNDRY_PASSWORD: ${{ secrets.FOUNDRY_PASSWORD }}
@@ -153,14 +194,12 @@ jobs:
             "felddy/foundryvtt:${FOUNDRY_VERSION}"
 
       - name: Cache Playwright browsers
-        if: steps.filter.outputs.relevant == 'true'
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('tools/e2e/package.json') }}
 
       - name: Install E2E runner dependencies
-        if: steps.filter.outputs.relevant == 'true'
         working-directory: tools/e2e
         run: |
           npm install --no-package-lock --no-audit --no-fund
@@ -173,7 +212,6 @@ jobs:
           npx playwright install chromium --with-deps
 
       - name: Wait for Foundry to be healthy
-        if: steps.filter.outputs.relevant == 'true'
         run: |
           echo "Waiting for the Foundry container to become healthy..."
           for i in $(seq 1 60); do
@@ -196,7 +234,6 @@ jobs:
       # host-bound license signature, which can't be pre-committed), then restart so felddy's
       # FOUNDRY_WORLD auto-launches the world server-side. Clear the stale lock felddy leaves behind.
       - name: Accept EULA
-        if: steps.filter.outputs.relevant == 'true'
         working-directory: tools/e2e
         run: |
           node activate-world.mjs --phase eula \
@@ -204,7 +241,6 @@ jobs:
             --wait 240
 
       - name: Restart Foundry to auto-launch the world
-        if: steps.filter.outputs.relevant == 'true'
         run: |
           docker stop -t 30 foundry
           sudo rm -rf "${DATA_DIR}/Config/options.json.lock"
@@ -227,7 +263,6 @@ jobs:
           exit 1
 
       - name: Wait for world activation
-        if: steps.filter.outputs.relevant == 'true'
         working-directory: tools/e2e
         run: |
           node activate-world.mjs --phase await \
@@ -235,18 +270,28 @@ jobs:
             --wait 240
 
       - name: Run Playwright E2E suite
-        if: steps.filter.outputs.relevant == 'true'
         working-directory: tools/e2e
         run: npx playwright test --forbid-only
 
       - name: Upload Playwright report
-        if: always() && steps.filter.outputs.relevant == 'true'
+        if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-report
+          name: playwright-report-v${{ matrix.foundry }}-ose-${{ matrix.ose }}
           path: tools/e2e/playwright-report
           if-no-files-found: warn
 
       - name: Dump Foundry logs on failure
-        if: failure() && steps.filter.outputs.relevant == 'true'
+        if: failure()
         run: docker logs foundry || true
+
+  e2e:
+    needs: [plan, leg]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Roll up the matrix legs
+        run: |
+          echo "plan=${{ needs.plan.result }} legs=${{ needs.leg.result }}"
+          [ "${{ needs.plan.result }}" = "success" ] || exit 1
+          case "${{ needs.leg.result }}" in success|skipped) ;; *) exit 1 ;; esac

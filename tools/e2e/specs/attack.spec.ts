@@ -12,7 +12,7 @@ test.describe("weapon attacks", () => {
     const missile = sheet.locator(`[data-testid="attack-mode-missile-${dagger}"]`);
     if (await missile.isVisible().catch(() => false)) {
       await missile.click();
-      await expect(missile).toHaveAttribute("aria-pressed", "true");
+      await expect(missile.locator("input")).toBeChecked();
     }
 
     const before = await chatCount(gamePage);

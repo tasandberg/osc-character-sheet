@@ -3,20 +3,10 @@
 //
 // Layout, type and colour plumbing lives as `tw:` utilities on the markup
 // (SpellsView / SpellLevel / SpellRow / SpellLevelBadge). What survives here is
-// what a utility can't express: level-to-level adjacency, the headerless
-// quick-cast list's positional framing, the meta separator pseudo-element, and
-// the `.dmg` tint (that class is minted by the Actions tab too).
+// what a utility can't express: level-to-level adjacency, the meta separator
+// pseudo-element, and the `.dmg` tint (that class is minted by the Actions tab too).
 
 .osc-spelllevel + .osc-spelllevel { margin-top: var(--spacer-3); }
-
-// --- prepared cast rows ---
-// In the Spells tab `.osc-spellhead` supplies the top edge/radius; the Actions
-// quick-cast list (`.fvtt-castlist`) is headerless, so frame the rows here.
-// These out-specify the row's own border utilities (0,3,0 vs 0,2,0) — which is
-// what lets the first row take its top edge back.
-.fvtt-castlist .osc-spell:first-of-type { border-top: 1px solid var(--border-soft, #2c2823); border-radius: var(--r-md, 6px) var(--r-md, 6px) 0 0; }
-.fvtt-castlist .osc-spell:last-of-type { border-radius: 0 0 var(--r-md, 6px) var(--r-md, 6px); }
-.fvtt-castlist .osc-spell:only-of-type { border-radius: var(--r-md, 6px); }
 
 .osc-spell .spm span + span::before { content: " · "; }
 // `.dmg` is minted by both this tab and the Actions quick-cast list, so the
@@ -36,11 +26,10 @@
 // At the default the line is inert text, not a reset link — `.field-hint`'s sans
 // would otherwise resize it as it flips between the two states.
 .osc-sheet-app .osc-slot-modal .osc-slotdefault.hint {
-  font-family: var(--mono);
-  font-size: var(--fs-3xs);
-  color: var(--text-mute);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
   line-height: 1.4;
 }
 
 // --- free-casting rows (memorization disabled) ---
-.osc-spell-free.spent .spn-row .tag { opacity: 0.6; }
+.osc-spell-free.spent .spn-row .vm-tag { opacity: 0.6; }

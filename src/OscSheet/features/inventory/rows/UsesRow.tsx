@@ -55,8 +55,7 @@ export function UsesRow({
               "osc-inv-usebtn tw:flex tw:flex-1 tw:min-w-0 tw:items-center " +
               "tw:p-0 tw:bg-transparent tw:border-none tw:cursor-pointer " +
               "tw:disabled:cursor-default tw:focus-visible:outline-2 " +
-              "tw:focus-visible:outline-gold tw:focus-visible:outline-offset-2 " +
-              "tw:focus-visible:rounded-sm"
+              "tw:focus-visible:outline-gold tw:focus-visible:outline-offset-2"
             }
             onClick={() => set(value - 1)}
             disabled={value <= 0}
@@ -87,7 +86,6 @@ export function UsesRow({
         {canEdit ? (
           <Button
             variant="outline"
-            tone="brass"
             size="xs"
             className="osc-inv-use1"
             onClick={() => set(value - 1)}
@@ -99,7 +97,7 @@ export function UsesRow({
         ) : (
           // `display` stays in _rows.scss (it toggles with [data-overflow] and
           // has to beat the unlayered `.btn` sibling rules).
-          <span className="osc-inv-uses-count tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute">
+          <span className="osc-inv-uses-count tw:text-(length:--fs-xs) tw:text-text-dim">
             {value}/{total}
           </span>
         )}

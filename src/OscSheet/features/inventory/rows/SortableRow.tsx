@@ -43,9 +43,12 @@ export function NameCell({
         >
           <span className="nm">{item.name}</span>
           {item.damage && <span className={INV_QTYTAG}>{item.damage}</span>}
-          {!item.isContainer && item.quantity && item.quantity.value > 1 && (
-            <span className={INV_QTYTAG}>×{item.quantity.value}</span>
-          )}
+          {!item.isContainer &&
+            !item.isRation &&
+            item.quantity &&
+            item.quantity.value > 1 && (
+              <span className={INV_QTYTAG}>×{item.quantity.value}</span>
+            )}
           {badge}
         </button>
         {action}
@@ -69,7 +72,6 @@ function InlineUse({
   return (
     <Button
       variant="outline"
-      tone="brass"
       size="xs"
       className="osc-inv-useinline"
       onClick={() => onSetQty(item.id, Math.max(0, value - 1))}
@@ -91,6 +93,8 @@ function RowInner({
   onEquip,
   onOpen,
   onSetQty,
+  onEat,
+  onDelete,
 }: {
   item: InventoryItemVM;
   canEdit: boolean;
@@ -98,8 +102,35 @@ function RowInner({
   onEquip: (id: string) => void;
   onOpen: (id: string) => void;
   onSetQty: (id: string, value: number) => void;
+  onEat?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }) {
-  const stacked = !item.isContainer && item.quantity != null;
+  const empty = item.quantity?.value === 0;
+  const stacked = !item.isContainer && !item.isRation && item.quantity != null;
+  const remove = canEdit && empty && onDelete && (
+    <Button
+      variant="muted"
+      size="xs"
+      className="tw:self-stretch"
+      title={`Delete ${item.name}`}
+      aria-label={`Delete ${item.name}`}
+      onClick={() => onDelete(item.id)}
+    >
+      <i className="fa-solid fa-trash-can" aria-hidden="true" />
+    </Button>
+  );
+  const eat = canEdit && !empty && item.isRation && onEat && (
+    <Button
+      variant="muted"
+      size="xs"
+      className="tw:self-stretch"
+      title={`Eat ${item.name}`}
+      aria-label={`Eat ${item.name}`}
+      onClick={() => onEat(item.id)}
+    >
+      <i className="fa-solid fa-utensils" aria-hidden="true" />
+    </Button>
+  );
   return (
     <>
       <ItemImage img={item.img} monogram={item.monogram} />
@@ -107,9 +138,16 @@ function RowInner({
         item={item}
         onOpen={onOpen}
         action={
-          stacked && canEdit ? (
-            <InlineUse item={item} onSetQty={onSetQty} />
-          ) : undefined
+          <>
+            {stacked && canEdit && (
+              <InlineUse item={item} onSetQty={onSetQty} />
+            )}
+            {eat}
+            {remove}
+            {item.isRation && item.quantity && item.quantity.value > 1 && (
+              <span className={INV_QTYTAG}>×{item.quantity.value}</span>
+            )}
+          </>
         }
         below={
           stacked ? (
@@ -138,6 +176,8 @@ export function SortableRow({
   onOpen,
   onContext,
   onSetQty,
+  onEat,
+  onDelete,
 }: {
   item: InventoryItemVM;
   index: number;
@@ -154,6 +194,8 @@ export function SortableRow({
   onOpen: (id: string) => void;
   onContext: OnContext;
   onSetQty: (id: string, value: number) => void;
+  onEat?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }) {
   // The whole row is draggable (and stays a drop target). Clicks on the inner
   // buttons/inputs still fire — a click is a press without movement — so
@@ -189,6 +231,8 @@ export function SortableRow({
           onEquip={onEquip}
           onOpen={onOpen}
           onSetQty={onSetQty}
+          onEat={onEat}
+          onDelete={onDelete}
         />
       </div>
     </>

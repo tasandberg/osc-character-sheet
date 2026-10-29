@@ -4,7 +4,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import OscMonsterSheetApp from "@src/OscMonsterSheet";
 import { makeItem, makeMonster } from "./__fixtures__/dragonTurtle";
-import type { MonsterActor } from "./types";
+import type { MonsterActor, MonsterItem } from "./types";
 import { notifySettingChanged, type SettingKey } from "@src/OscSheet/settings";
 
 (
@@ -32,7 +32,10 @@ let settings: Record<string, unknown>;
   i18n: { localize: (key: string) => key },
 };
 (globalThis as { CONFIG?: unknown }).CONFIG = {
-  OSE: { colors: { green: "", red: "", yellow: "" }, roll_type: {} },
+  OSE: {
+    colors: { green: "Green", red: "Red", yellow: "Yellow" },
+    roll_type: {},
+  },
 };
 (globalThis as { fromUuidSync?: unknown }).fromUuidSync = () => null;
 (globalThis as { Roll?: unknown }).Roll = class {
@@ -269,6 +272,27 @@ describe("OscMonsterSheet", () => {
     ]);
   });
 
+  it("moves an attack to another group from its pip", async () => {
+    const bite = makeItem({ name: "Bite", system: { pattern: "red" } });
+    bite.update = vi.fn();
+    await mount(makeMonster({}, [bite]));
+
+    click(button("Attack pattern: red"));
+    const menu = container.querySelector(
+      "[role=menu][aria-label='Attack group']",
+    );
+    const green = [
+      ...(menu?.querySelectorAll("[role=menuitemradio]") ?? []),
+    ].find((item) => item.textContent?.startsWith("Green"));
+    act(() => {
+      green?.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      );
+    });
+
+    expect(bite.update).toHaveBeenCalledWith({ "system.pattern": "green" });
+  });
+
   it("refills every weapon's uses on a new round", async () => {
     const actor = makeMonster();
     actor.updateEmbeddedDocuments = vi.fn();
@@ -301,6 +325,29 @@ describe("OscMonsterSheet", () => {
     click(button("Inventory"));
 
     expect(text()).toContain("Black Pearl");
+  });
+
+  it("totals the monster's carried slots in an item-based world", async () => {
+    const config = (globalThis as { CONFIG?: unknown }).CONFIG as {
+      OSE: Record<string, unknown>;
+    };
+    config.OSE.encumbrance = { type: "itembased" };
+    try {
+      await mount(
+        makeMonster({ system: { config: { enableInventory: true } } }, [
+          makeItem({
+            name: "Chest",
+            type: "item",
+            system: { itemslots: 4 } as MonsterItem["system"],
+          }),
+        ]),
+      );
+      click(button("Inventory"));
+
+      expect(text()).toContain("1 item · 4 slots");
+    } finally {
+      delete config.OSE.encumbrance;
+    }
   });
 
   it("offers a Spells tab listing the monster's spells once it casts", async () => {

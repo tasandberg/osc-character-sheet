@@ -6,8 +6,6 @@ import { ContextMenu, type ContextMenuState } from "@ui/ContextMenu";
 import { IconButton } from "@ui/IconButton";
 import { SectionTitle } from "@ui/SectionTitle";
 import { Tag } from "@ui/Tag";
-import { cx } from "@ui/cx";
-import { useSetting } from "@src/OscSheet/settings";
 import { rollMonsterItem } from "./actions";
 import { itemMenu } from "./parts/itemMenu";
 import { RollLabel } from "@ui/RollLabel";
@@ -25,7 +23,6 @@ type AbilityProps = {
 
 function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
   const html = useEnrichedHtml(ability.description, actor);
-  const theme = useSetting("theme");
   const body = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [overflows, setOverflows] = useState(false);
@@ -88,10 +85,7 @@ function Ability({ actor, ability, item, onMenu, canEdit }: AbilityProps) {
           </Tag>
         )}
         <span
-          className={cx(
-            "osc-monster-ability-text themed",
-            theme === "cream" ? "theme-light" : "theme-dark",
-          )}
+          className="osc-monster-ability-text"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </BulletParagraph>

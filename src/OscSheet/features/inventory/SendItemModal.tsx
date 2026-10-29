@@ -57,7 +57,7 @@ export function SendItemModal({
 
   const footer = (
     <>
-      <Button variant="ghost" onClick={onClose}>
+      <Button variant="link" onClick={onClose}>
         Cancel
       </Button>
       <Button
@@ -88,13 +88,13 @@ export function SendItemModal({
         {stacked && (
           <div className="u-row u-gap-2">
             <Stepper value={qty} onValueChange={setQty} min={1} max={max} />
-            <span className="u-fs-sm u-text-muted">of {max}</span>
+            <span className="u-fs-xs u-text-dim">of {max}</span>
           </div>
         )}
       </div>
 
       {item.isContainer && contentCount > 0 && (
-        <p className="u-mt-2 u-fs-sm u-text-muted">
+        <p className="u-mt-2 u-fs-xs u-text-dim">
           Includes {contentCount} {contentCount === 1 ? "item" : "items"}{" "}
           inside.
         </p>
@@ -102,7 +102,7 @@ export function SendItemModal({
 
       {/* Target characters: visible, non-hostile scene tokens. */}
       {targets.length === 0 ? (
-        <p className="u-pt-3 u-fs-lg u-text-muted">
+        <p className="u-pt-3 u-fs-xs u-text-dim">
           No visible characters in this scene to send to.
         </p>
       ) : (

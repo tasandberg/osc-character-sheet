@@ -30,7 +30,7 @@ export function ConfirmDialog({
         <div className="ed-confirm-head">{title}</div>
         <div className="ed-confirm-body">{body}</div>
         <div className="ed-confirm-foot">
-          <Button variant="ghost" onClick={onCancel}>{cancelLabel}</Button>
+          <Button variant="link" onClick={onCancel}>{cancelLabel}</Button>
           <Button variant={variant} onClick={onConfirm}>{confirmLabel}</Button>
         </div>
       </div>

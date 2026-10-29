@@ -18,7 +18,7 @@ export function EncumbranceReadout({ e }: { e: EncumbranceVM }) {
         // lining its cn up with the section headers' totals below. At xs it drops
         // onto its own line under the title, left-aligned.
         "tw:grow tw:shrink tw:basis-auto tw:flex tw:items-baseline tw:justify-end tw:gap-2",
-        "tw:font-mono tw:text-[length:var(--fs-2xs)] tw:tracking-normal",
+        "tw:text-(length:--fs-xs) tw:tracking-normal",
         // Read the tint through the custom property `.enc-t*` sets, rather than
         // putting a colour utility under it. `.enc-t0` is (0,1,0) and a scoped
         // colour utility is (0,2,0) imported last, so the tier class could never

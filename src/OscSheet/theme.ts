@@ -40,4 +40,8 @@ export function watchFoundryColorScheme(onChange: () => void): () => void {
 export function applyTheme(root: HTMLElement, theme: Theme): void {
   if (theme === "dark") root.removeAttribute("data-theme");
   else root.setAttribute("data-theme", theme);
+  const content = root.querySelector(".window-content") ?? root;
+  content.classList.add("themed");
+  content.classList.toggle("theme-light", theme === "cream");
+  content.classList.toggle("theme-dark", theme === "dark");
 }

@@ -13,14 +13,14 @@ export async function joinAsUser(page: Page, label: string, { canvas = false } =
   await page.goto(`${URL}/join`, { waitUntil: "domcontentloaded" });
   // Foundry 14.366 replaced the user <select name="userid"> with <input name="username">.
   const userInput = page.locator('input[name="username"]');
-  const userSelect = page.locator('select[name="userid"]');
+  const userSelect = page.locator('select[name="userId"], select[name="userid"]');
   await userInput.or(userSelect).first().waitFor({ timeout: 30_000 });
   if (await userInput.count()) {
     await userInput.fill(label);
   } else {
     // Options for already-connected users are disabled client-side only; re-enable first.
     await page.evaluate(() => {
-      for (const o of document.querySelectorAll('select[name="userid"] option'))
+      for (const o of document.querySelectorAll('select[name="userId"] option, select[name="userid"] option'))
         (o as HTMLOptionElement).disabled = false;
     });
     await userSelect.selectOption({ label });
@@ -46,8 +46,12 @@ export async function joinAsGM(page: Page): Promise<void> {
  * `ose.OscSheet` with makeDefault, and the actor fixture pins the actor's
  * core.sheetClass flag, so render() shows the OSC sheet.
  */
-export async function openCharacterSheet(page: Page, actorName: string): Promise<Locator> {
-  const appId = await page.evaluate(async (name) => {
+export async function openCharacterSheet(
+  page: Page,
+  actorName: string,
+  { width = 920 }: { width?: number } = {},
+): Promise<Locator> {
+  const appId = await page.evaluate(async ({ name, width }) => {
     const g = globalThis as any;
     // Foundry parks a persistent #notifications overlay (min-resolution warning
     // under headless) over the sheet, intercepting clicks. Let pointer events
@@ -73,10 +77,10 @@ export async function openCharacterSheet(page: Page, actorName: string): Promise
     // attached, and setPosition() calls getComputedStyle() on it. Wait for it.
     for (let i = 0; i < 60 && !(actor.sheet.element instanceof HTMLElement); i++)
       await new Promise((r) => setTimeout(r, 50));
-    // Force the wide (large) layout tier so the horizontal tab bar renders.
-    actor.sheet.setPosition?.({ width: 920, height: 820 });
+    // Defaults to the wide (large) layout tier so the horizontal tab bar renders.
+    actor.sheet.setPosition?.({ width, height: 820 });
     return actor.sheet.element?.id as string;
-  }, actorName);
+  }, { name: actorName, width });
   // Address this actor's window by id: a page may briefly hold another sheet.
   const sheet = appId ? page.locator(`[id="${appId}"]`) : page.locator(".osc-sheet").first();
   await sheet.waitFor({ state: "visible", timeout: 30_000 });

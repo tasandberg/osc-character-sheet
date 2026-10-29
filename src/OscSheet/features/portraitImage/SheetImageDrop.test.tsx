@@ -147,12 +147,25 @@ it("accepts a FilePicker tile with uploads off, reading its payload at dragstart
   );
 });
 
-it.each([
-  ["an inventory reorder", "root:0"],
-  ["a Foundry Item", JSON.stringify({ type: "Item", uuid: "Actor.a.Item.b" })],
-])("stays out of the way of %s drag", (_, payload) => {
-  const transfer: Transfer = { data: { "text/plain": payload } };
-  fireDrag(row(), "dragstart", transfer);
+const itemPayload = JSON.stringify({ type: "Item", uuid: "Actor.a.Item.b" });
+
+it.each<[string, Transfer]>([
+  ["an inventory reorder", { data: { "text/plain": "root:0" } }],
+  ["a Foundry Item", { data: { "text/plain": itemPayload } }],
+  [
+    "a Foundry Item grabbed by its thumbnail",
+    {
+      files: [png],
+      data: {
+        "text/plain": itemPayload,
+        "text/uri-list": "http://localhost:30000/icons/svg/sword.svg",
+      },
+    },
+  ],
+])("stays out of the way of %s drag", (_, transfer) => {
+  const foundrySource = dom.container.appendChild(document.createElement("li"));
+  foundrySource.addEventListener("dragstart", (e) => e.stopPropagation());
+  fireDrag(foundrySource, "dragstart", transfer);
   const events = ["dragenter", "dragover", "drop"].map((type) =>
     fireDrag(row(), type, transfer),
   );

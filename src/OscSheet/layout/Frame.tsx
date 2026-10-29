@@ -31,11 +31,11 @@ export function Frame({
   return (
     <>
       {topbar && (
-        <div className="osc-topbar tw:border-b tw:border-border tw:bg-ink tw:px-2 tw:pt-1 tw:pb-2">
+        <div className="osc-topbar tw:border-b tw:border-border tw:bg-ink tw:px-2 tw:py-2">
           {topbar}
         </div>
       )}
-      <div className="osc-body tw:relative tw:flex tw:min-h-0 tw:flex-1 tw:bg-bg">
+      <div className="osc-body tw:relative tw:flex tw:min-h-0 tw:flex-1">
         <div className="osc-sheet-body">
           {minibar}
           <div className="osc-pad">

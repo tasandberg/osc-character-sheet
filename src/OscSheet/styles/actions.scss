@@ -1,4 +1,5 @@
 @use "mixins" as *;
+@use "breakpoints" as bp;
 // Display-layout helpers for the Actions tab + sheet furniture (pass 1).
 // Pure layout on top of the Vellum component classes; colors come from tokens.
 
@@ -15,14 +16,16 @@
 
 // --- header band ---
 // Grid areas let medium and rail arrange the same markup differently:
-// medium = portrait | (name over Init/HD/Move) | HP/AC right.
+// medium = portrait | (name over Init/HD/Move) | HP/AC right. The stat row
+// shrinks to its content and wraps, centred, when the name column is too narrow.
 .osc-head {
   display: grid;
   grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto 1fr;
   grid-template-areas:
     "portrait ident  vitals"
-    "portrait subs   vitals";
-  gap: var(--spacer-2) var(--spacer-4);
+    "portrait subs   subs";
+  gap: 0 var(--spacer-3);
   align-items: start;
 }
 // Only `grid-area` stays on the header's children: the areas are what let medium,
@@ -49,7 +52,7 @@
   grid-area: ident;
 }
 // The name's SIZE is the one header declaration that can't be a utility. It has
-// three values across TWO different containers (base, `sheet ≥470`, `app ≤479`),
+// three values across TWO different containers (base, `sheet ≥470`, `app < md`),
 // and the original cascade resolves an overlap by source order — XS last. As
 // utilities the two container variants would be ordered by Tailwind, not by this
 // file, so the ≥470 bump could silently win at XS. Everything else about
@@ -71,34 +74,16 @@
 .osc-vitals {
   grid-area: vitals;
 }
-// medium+: − / + steppers revealed on hover
-.osc-vital .vv-step {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border: 1px solid var(--border, #3a342c);
-  border-radius: var(--r-sm, 4px);
-  color: var(--text-dim, #b5ad97);
-  cursor: pointer;
-  font-family: var(--sans);
-  font-size: var(--fs-sm, 13px);
-  line-height: 1;
-  opacity: 0;
-  transition:
-    opacity 0.12s,
-    border-color 0.12s,
-    color 0.12s;
-}
-// Owner-only reveal: read-only sheets have no steppers, so don't surface them.
-.osc-sheet-app:not(.is-readonly) .osc-vital.hp:hover .vv-step,
-.osc-sheet-app:not(.is-readonly) .osc-vital.hp:focus-within .vv-step {
-  opacity: 1;
-}
-.osc-vital .vv-step:hover {
-  border-color: var(--gold);
-  color: var(--text, #e5dec8);
+.osc-sheet-app .osc-vital .vv-step {
+  min-width: 0;
+  padding-inline: 0;
+  color: var(--text-dim);
+  font-size: var(--fs-lg);
+
+  &:hover:not(:disabled) {
+    color: var(--text);
+    text-decoration: none;
+  }
 }
 // XS-only editable input (hidden by default; toggled in the XS block)
 .osc-vital .vv-input {
@@ -132,8 +117,73 @@
 // three tiers of them. The one rail override that stays SCSS is the stamp's side
 // padding in shell.scss — see the clipped-MOVE note there; at (0,3,0) it still
 // out-ranks the base utilities.
+.osc-sheet-app :is(.osc-substats, .osc-abilities) .stamp.stamp {
+  display: block;
+  border: 1px solid transparent;
+  padding: 4px 1px 2px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.osc-sheet-app
+  :is(.osc-substats .stamp, .osc-abilities .osc-ability-roll).osc-stat-button {
+  --btn-face: color-mix(in oklab, var(--stamp-text) 10%, var(--ink));
+  --btn-face-hi: color-mix(in oklab, var(--stamp-text) 18%, var(--ink));
+  --btn-lit: color-mix(in oklab, var(--stamp-text) 26%, var(--ink));
+  --btn-shade: var(--ink);
+  --btn-wall: var(--ink);
+  --btn-pressed: var(--ink);
+  --btn-press-shade: var(--ink);
+  border-color: var(--btn-wall);
+  color: var(--stamp-text);
+}
+[data-theme="cream"] .osc-sheet-app
+  :is(.osc-substats .stamp, .osc-abilities .osc-ability-roll).osc-stat-button {
+  --btn-face: color-mix(in oklab, var(--stamp-text) 24%, var(--ink));
+  --btn-face-hi: color-mix(in oklab, var(--stamp-text) 34%, var(--ink));
+  --btn-lit: color-mix(in oklab, var(--stamp-text) 48%, var(--ink));
+}
+.osc-sheet-app .osc-ability-score {
+  --well-cut: var(--ink);
+  --well-lip: var(--btn-lit);
+  border: 2px solid;
+  border-color: var(--well-cut) var(--well-lip) var(--well-lip) var(--well-cut);
+  background-color: var(--well);
+}
+[data-theme="cream"] .osc-sheet-app .osc-ability-score {
+  --well-cut: var(--stamp-wall);
+  background-color: var(--btn-pressed);
+}
+@container app (width >= #{bp.$md}) {
+  @container sheet (width < 700px) {
+    .osc-head > .osc-vitals {
+      grid-row: 1 / span 2;
+      grid-column: 3;
+    }
+    .osc-head > .osc-substats {
+      grid-row: 2;
+      grid-column: 2;
+      justify-self: start;
+    }
+  }
+}
+@container app (width < #{bp.$md}) {
+  .osc-sheet-app .osc-head .osc-substats > .osc-tile {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacer-2);
+  }
+  .osc-sheet-app .osc-head .osc-substats .stamp.stamp {
+    flex: none;
+    padding-inline: 7px;
+  }
+}
 .osc-substats {
   grid-area: subs;
+  margin-top: calc(var(--spacer-2) + 2px);
+}
+.osc-twopane .osc-substats {
+  justify-self: stretch;
 }
 // The movement popover — shared by the header MOVE tile and the inventory
 // encumbrance line — is wholly utilities in MovePop.tsx, which is also the single
@@ -141,38 +191,71 @@
 // (inline) so it escapes any overflow-clipping ancestor — the character rail
 // self-scrolls — and `visibility: hidden` when closed.
 
-// --- abilities: 3-up (6-up wide) grid of ability plaques ---
-// The plaque box + stamp/value/mod styling lives in vellum as `.plaque-ability`
-// (StatPlaque variant="ability"). The grid container is in actions-features.scss
-// — AbilityPlaques.tsx is NOT converted. XS flattens the plaques (block below).
-
 // --- saves/exploration tab nav (rail, large view) ---
 // Nav + tabs are in actions-features.scss; SavesExploration.tsx is NOT converted.
 
-// --- saves & exploration cards (rows → cards) ---
-// Saves: 5-up grid of ink-stamp · mono target · tiny label. The save-card box +
-// stamp/value/label styling (incl. the .stamp.sk 22px reconciliation) lives in
-// vellum as `.plaque-save` (StatPlaque variant="save"); `display:grid` and the
-// gap are utilities on the containers.
-//
-// NOT converted. The column templates are here; the grid itself, the cards and
-// the tab nav are in actions-features.scss — restored, because the deletion that
-// took them assumed a conversion of SavesExploration.tsx that never happened.
-//
-// The templates would stay here regardless: the rail variants below are
-// parent-context overrides (`.osc-rail-extra .fvtt-saves`), which no utility can
-// express, and at (0,2,0) they tie with a scoped utility that is imported last.
-.fvtt-saves {
-  grid-template-columns: repeat(5, 1fr);
+// --- saves band & exploration grid ---
+.osc-saves-band {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
-// In the narrow left rail (large view), 5-up overflows — drop to 3+2.
-.osc-rail-extra .fvtt-saves {
-  grid-template-columns: repeat(3, 1fr);
+.osc-saves-band-cell {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--spacer-2);
+  padding: var(--spacer-2) var(--spacer-1);
+  min-width: 0;
+  outline-offset: -2px;
+
+  & + & {
+    border-left: 1px solid var(--hair-soft);
+  }
+  &.rollable {
+    cursor: pointer;
+  }
+  &.rollable:hover .osc-saves-band-label {
+    color: var(--gold);
+  }
+  &.rollable:focus-visible {
+    outline: 2px solid var(--gold);
+  }
+}
+.osc-saves-band-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-dim);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.osc-saves-band-value {
+  font-family: var(--display);
+  font-size: var(--fs-2xl);
+  font-size-adjust: none;
+  line-height: 1;
+  color: var(--text);
+}
+@container (max-width: 500px) {
+  .osc-saves-band-cell {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacer-1);
+  }
+  .osc-saves-band-label {
+    max-width: 100%;
+  }
 }
 
-// Exploration: 2-up grid of gold glyph · label · N-in-6 ink pill.
+// Exploration: up to 2-up grid, dropping to one column under ~240px cells.
 .fvtt-explore {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(240px, calc((100% - var(--spacer-4)) / 2)), 1fr)
+  );
 }
 // In the narrow left rail (large view), 2-up is too tight — labels wrap to 3
 // lines. Stack to a single column there. (.osc-rail-extra only renders in two-pane.)
@@ -190,7 +273,7 @@
 // `tw:` utility on the element would lose to them regardless of specificity.
 .fvtt-skill.osc-fav-ability .skv,
 .fvtt-skill.osc-fav-ability .skv i {
-  font-size: var(--fs-sm, 13px);
+  font-size: var(--fs-md);
 }
 
 // --- memorized spells quick-cast ---
@@ -199,21 +282,19 @@
 // Spells-tab `.osc-spell` (see spells.scss).
 
 // --- attacks: woodcut weapon cards (ported from prototype .fvtt-weapon) ---
-// Card grid: Item (icon + name/tags) | Hit | Damage | tall brass Atk button.
+// Row grid: Item (icon + name/tags) | Hit | Damage | Attack, packed right on the name line.
 // AttacksTable is NOT converted — the card's box, info column, monogram, name,
 // tags and hit/dmg cells are in actions-features.scss.
 .osc-weapon {
   display: grid;
-  // fixed Hit/Damage/Atk columns so buttons are a consistent width per type and
-  // double-digit dice (1d10+2) don't shift the layout. Scaled off --fs-base so the
-  // tracks grow with the font-size setting (--fs-base = 16px at Medium).
-  grid-template-columns:
-    minmax(0, 1fr)
-    calc(var(--fs-base, 16px) * 3.875)
-    calc(var(--fs-base, 16px) * 5.125)
-    calc(var(--fs-base, 16px) * 6);
-  gap: var(--spacer-3);
-  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  column-gap: var(--spacer-3);
+  align-items: start;
+}
+@container app (width >= #{bp.$md}) {
+  .osc-weapon {
+    align-items: center;
+  }
 }
 // What's left of the weapon card below is the segmented kind switch's corner
 // maths, the segment colour states, and the `& + &` divider — none of which a
@@ -228,66 +309,16 @@
 }
 
 // quality / mode tags (icon-only chips + hover popover) now live in vellum as
-// `.tag.chip` (see styles/vellum/components.css) via the Tag `variant="chip"`.
+// `.tag-chip` (see styles/vellum/components.css) via the Tag `variant="chip"`.
 
-// kind switch — when a weapon has BOTH melee+missile, the two kinds become a
-// joined segmented control (unmistakably a switch, not a quality chip). The
-// selected segment fills SOLID with its accent; the other is a hoverable button.
-// The switch's own box is in actions-features.scss; only the end-cap radius
-// maths stays — a calc off --r-sm on `> :first-child` / `> :last-child`, which is
-// structural position, not a class the JSX can carry.
-.kind-switch {
-  // no overflow: hidden — it clipped the segs' .tag-pop hover tooltips; the
-  // end segments round their own outer corners instead
-  > :first-child {
-    border-radius: calc(var(--r-sm, 4px) - 1px) 0 0 calc(var(--r-sm, 4px) - 1px);
-  }
-  > :last-child {
-    border-radius: 0 calc(var(--r-sm, 4px) - 1px) calc(var(--r-sm, 4px) - 1px) 0;
-  }
-}
-// Segment layout is in actions-features.scss. The FILL states stay here: the
-// selected fill has to out-rank the hover fill, and both would be class-level
-// utilities at (0,2,0) / (0,3,0) whose relative order Tailwind decides — so
-// `hover:bg-surface-2` could paint over a selected segment. As SCSS the
-// (0,3,0) vs (0,2,0) split makes it explicit. `& + &` has no utility form
-// either. (`.osc-sheet-app` dropped: it only out-specified the button reset.)
-.kind-seg {
-  // no transition: the switch is purely presentational, so it should flip instantly
-  & + & {
-    border-left: 1px solid var(--border, #3a342c);
-  }
-  &:hover {
-    background: var(--surface-2, #2e2a23);
-  }
-  // idle icons carry the mode accent; selected flips to on-accent over a fill
-  &.melee i {
-    color: var(--gold);
-  }
-  &.missile i {
-    color: var(--teal-accent);
-  }
-  &.melee.selected {
-    background: var(--gold);
-    i {
-      color: var(--on-accent, #070605);
-    }
-  }
-  &.missile.selected {
-    background: var(--teal);
-    i {
-      color: var(--on-accent, #070605);
-    }
-  }
-}
 // hover popover (`.tag-pop`) + its reveal rules now live in vellum
 // (components.css) as a shared tooltip primitive — used by weapon tags,
 // kind-seg switches, and the hit/dmg (.wstat) buttons.
 
-// Hit / Damage — plain clickable cells: a small HIT/DMG label over the value
-// (hit = mode icon + modifier; dmg = full formula). In actions-features.scss.
+// Hit / Damage — single-line Vellum buttons, key + modifier; the damage dice sit
+// after the weapon name. In actions-features.scss.
 
-// The Attack button is the shared Vellum <Button variant="outline" tone="brass">
+// The Attack button is the shared Vellum <Button variant="outline" iconTone="brass">
 // with an icon + label — the same primitive as the "with icon" outline story.
 // The bespoke `.fvtt-atk` rules that used to sit here (appearance AND the XS
 // `grid-area: atk`) are gone: no markup has carried the class since before this
@@ -296,7 +327,6 @@
 
 
 // --- rollable affordance (table rows wired to system rolls) ---
-// Ability-plaque rollable styling moved to vellum (.plaque-ability.rollable).
 // Stays SCSS: the hover tint is on the row's <td> children, which needs a
 // group-hover the <Tr>/<Td> primitives don't take a className for, and no
 // feature currently renders a rollable <Tr>.
@@ -338,10 +368,10 @@
   justify-content: flex-start;
 }
 
-// === XS / mobile (≤479px app): compact header + topbar overflow ===
+// === XS / mobile (below md): compact header + topbar overflow ===
 // MUST live here (after the base .osc-head / .osc-tb-* rules) to win the cascade —
 // shell.scss loads earlier, so XS overrides placed there lose at equal specificity.
-@container app (max-width: 479px) {
+@container app (width < #{bp.$md}) {
   // Exploration and favorited abilities: 2-up leaves no room for the label, so
   // both stack. They share the .fvtt-explore grid.
   .fvtt-explore {
@@ -397,7 +427,6 @@
       "info dmg"
       "info atk";
     gap: var(--spacer-1) var(--spacer-3);
-    padding: 8px;
   }
   .osc-weapon .winfo {
     grid-area: info;
@@ -408,11 +437,6 @@
   .osc-weapon .wname {
     white-space: normal;
   } // size bump now lives on the base rule
-  .osc-weapon .wname .wkind {
-    display: block;
-    font-size: var(--fs-xs, 12px);
-    margin-top: 2px;
-  }
   .osc-weapon .wtags {
     margin-top: var(--spacer-1);
   }
@@ -422,55 +446,59 @@
   .osc-weapon .wstat.dmg {
     grid-area: dmg;
   }
-  // hit/dmg flip horizontal: label left, value/roll right, one row each
-  .osc-weapon .wstat {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  // hit/dmg: label left, value right, one row each
+  .osc-weapon .osc-roll-button {
     justify-self: stretch;
+  }
+  .osc-weapon .wstat {
+    justify-content: space-between;
     gap: var(--spacer-3);
     min-width: 128px;
-    padding: 2px var(--spacer-2);
   }
-  .osc-weapon .wstat .wv {
-    font-size: var(--fs-xs, 12px);
-  }
-  // abilities: 6-across in one compact row (flat — drop the md+ gold frame/brackets)
-  // The plaque base is now vellum `.plaque-ability` (0,2,0 once scoped); these XS
-  // overrides qualify with `.osc-sheet-app` (also 0,2,0) and load after vellum,
-  // so they still win at ≤479px. `.pk` only re-asserts margin:0 — its padding /
-  // font-size stay owned by `.stamp.sm` exactly as at wider widths (parity).
   .osc-abilities {
     grid-template-columns: repeat(6, 1fr);
     gap: var(--spacer-1);
   }
-  .osc-sheet-app .plaque-ability {
-    min-height: 0;
-    padding: 5px 3px 6px;
-    border-color: var(--border-soft);
-    align-items: stretch;
-  }
-  .osc-sheet-app .plaque-ability::before,
-  .osc-sheet-app .plaque-ability::after {
-    content: none;
-  }
-  .osc-sheet-app .plaque-ability .pk {
-    margin: 0;
-  }
-  .osc-sheet-app .plaque-ability .pv {
-    flex: 0 0 auto;
-    font-size: var(--fs-xl, 18px);
-    padding: 3px 0;
-  }
-  .osc-sheet-app .plaque-ability .pc {
-    position: static;
-    transform: none;
-    align-self: center;
-    min-width: 0;
-    font-size: var(--fs-3xs, 10px);
-    padding: 0 6px 1px;
-    margin-top: 2px;
-  }
   // topbar: the Rest / Level Up / Edit → ⋮ collapse is a pair of
   // `@max-md/app:` utilities on the two elements (Topbar.tsx).
+}
+
+.osc-attack-targets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.osc-attack-target {
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: left;
+  &:hover {
+    background: var(--bg-2);
+  }
+}
+.osc-sheet-app .modal-inset.osc-target-modal {
+  max-height: min(100%, calc(var(--fs-base) * 28));
+}
+.osc-attack-target-ic {
+  width: var(--spacer-8);
+  height: var(--spacer-8);
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  object-fit: cover;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.osc-attack-target-current > span {
+  text-box: trim-both cap alphabetic;
+}
+.icon-btn.osc-attack-target-btn {
+  display: inline-flex;
+  gap: var(--spacer-1);
+  width: auto;
+  padding: 0 var(--spacer-1);
+  font-family: var(--sans);
+  font-size: var(--fs-xs);
 }

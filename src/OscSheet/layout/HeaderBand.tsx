@@ -3,68 +3,49 @@ import { armorTierLabel, formatMod } from "@domain/format";
 import { Identity } from "@layout/Identity";
 import { Portrait } from "@layout/Portrait";
 import { Stamp } from "@ui/Stamp";
-import { cx } from "@ui/cx";
+import { Button } from "@ui/Button";
 import { rollable, type ActivateEvent } from "@ui/rollable";
 import { MoveTooltip } from "@ui/MovePop";
 import { useHpInput } from "@ui/useHpInput";
 
 // Tiers are container queries: `app` for the XS compact header, `sheet` for the
 // narrow left rail in the two-pane view. The two can never both match — `sheet`
-// lives inside `app`, so it cannot be ≥700 while `app` is <480 — so their
+// lives inside `app`, so it cannot be ≥700 while `app` is below md — so their
 // relative order never decides anything. Sizes go through `var(--fs-*)` rather
 // than the `tw:text-*` scale: the tokens are `calc(<rem> * var(--fs-scale))` and
 // follow the sheet's font-size setting, the Tailwind scale is the raw rem.
 
-// Init / HD / Move tile: borderless in the flex layouts so HP/AC stay the only
-// "boxes"; in the rail it gains a real box, because there it is a grid cell.
+// Init / HD / Move: key + value inline, hairline-divided.
 const TILE =
-  "osc-tile tw:flex tw:min-w-[52px] tw:flex-none tw:flex-col tw:items-center tw:gap-1 tw:pt-[2px] tw:text-center" +
-  " tw:@max-md/app:w-auto" +
-  " tw:@twopane/sheet:w-auto tw:@twopane/sheet:rounded-md tw:@twopane/sheet:border" +
-  " tw:@twopane/sheet:border-border-soft tw:@twopane/sheet:bg-surface" +
-  " tw:@twopane/sheet:px-[6px] tw:@twopane/sheet:pt-[5px] tw:@twopane/sheet:pb-1";
+  "osc-tile tw:relative tw:flex tw:min-w-0 tw:flex-col tw:items-stretch tw:gap-1 tw:text-center tw:whitespace-nowrap";
 
-// Smaller, snugger than the stamp's own `.sm`. The rail trims the sides further
-// still — see the clipped-MOVE note on `.osc-twopane .osc-tile .stamp` in
-// shell.scss, which stays SCSS: at (0,3,0) it out-ranks these utilities.
-const TILE_STAMP =
-  "tw:block tw:w-full tw:px-[4px] tw:pt-[3px] tw:pb-[2px] tw:text-center" +
-  " tw:text-[length:var(--fs-3xs)] tw:whitespace-nowrap";
+const STAT_BUTTON = "osc-stat-button vm-bevel rollable";
 
 const TILE_V =
-  "osc-tile-v tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text" +
-  " tw:@twopane/sheet:text-[length:var(--fs-xs)]";
+  "osc-tile-v tw:text-(length:--fs-md) tw:tabular-nums tw:text-text-dim";
 
-// HP/AC card. Carries NO border colour: hp and ac each supply their own, and two
-// class-level utilities for one property are ordered by Tailwind rather than by
-// the order they are written, so a shared base plus an override could come out
-// either way. At XS the card becomes a 52×76 narrow-tall box.
+// HP/AC column, hairline-divided. At XS it becomes a 52×76 narrow-tall column.
 const VITAL =
-  "osc-vital tw:relative tw:rounded-md tw:border tw:bg-surface tw:px-[10px] tw:pt-[6px] tw:pb-[8px] tw:text-center" +
+  "osc-vital tw:relative tw:px-[6px] tw:pt-[2px] tw:pb-[2px] tw:text-center" +
   " tw:@max-md/app:flex tw:@max-md/app:min-h-[76px] tw:@max-md/app:flex-col tw:@max-md/app:items-center" +
   " tw:@max-md/app:justify-start tw:@max-md/app:gap-[1px]" +
   " tw:@max-md/app:px-[4px] tw:@max-md/app:pt-[5px] tw:@max-md/app:pb-[6px]";
 
-// The <Stamp> label fills the box width (black bar) like the others.
-const VITAL_L =
-  "vv-l tw:mb-[2px] tw:block tw:w-full" +
-  " tw:@max-md/app:px-[6px] tw:@max-md/app:pt-[4px] tw:@max-md/app:pb-[3px]" +
-  " tw:@max-md/app:text-[length:var(--fs-2xs)]";
+const VITAL_L = "vv-l tw:flex";
 
 // The hero numeral. Colour is per-card, as above.
 const VITAL_BIG =
-  "vv-big tw:my-[1px] tw:font-display tw:text-[length:var(--fs-4xl)] tw:leading-[1.05]" +
-  " tw:@max-md/app:text-[length:var(--fs-3xl)]";
+  "vv-big tw:-mt-1 tw:font-display tw:text-(length:--fs-6xl) tw:leading-none" +
+  " tw:@max-md/app:text-(length:--fs-3xl)";
 
 const VITAL_SUB =
-  "vv-sub tw:font-mono tw:text-[length:var(--fs-2xs)] tw:text-text-mute" +
-  " tw:@max-md/app:text-[length:var(--fs-3xs)]";
+  "vv-sub tw:mt-3 tw:text-(length:--fs-xs) tw:text-text-dim tw:@max-md/app:text-(length:--fs-2xs)";
 
 /** Full label by default; the short form takes over at XS, where the card is 52px wide. */
 const SUB_FULL = "full tw:@max-md/app:hidden";
 const SUB_SHORT = "short tw:hidden tw:@max-md/app:inline";
 
-const VV_ROW = "vv-row tw:flex tw:items-center tw:justify-center tw:gap-2";
+const VV_ROW = "vv-row tw:flex tw:items-center tw:justify-center tw:gap-1";
 
 // Reserve width for the digits so the value's digit count never shifts the
 // flanking − / + steppers as HP changes; tabular-nums keeps digit widths uniform.
@@ -100,28 +81,28 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         onContextMenu={onPortraitContextMenu}
       />
       <Identity identity={identity} />
-      <div className="osc-substats tw:flex tw:gap-2 tw:self-start tw:@max-md/app:grid tw:@max-md/app:grid-cols-3 tw:@twopane/sheet:grid tw:@twopane/sheet:w-full tw:@twopane/sheet:grid-cols-3">
+      <div className="osc-substats tw:grid tw:grid-cols-[repeat(3,minmax(max-content,1fr))] tw:gap-2 tw:self-start">
         <div className={TILE}>
-          <Stamp className={TILE_STAMP}>INIT</Stamp>
-          <div className={TILE_V}>{formatMod(vitals.initMod)}</div>
+<Stamp ink>INIT</Stamp>
+          <span className={TILE_V}>{formatMod(vitals.initMod)}</span>
         </div>
         <div className={TILE}>
           <Stamp
-            className={cx(TILE_STAMP, rollHd && "rollable")}
+            className={rollHd ? STAT_BUTTON : "ink"}
             title={hdLabel}
             aria-label={hdLabel}
             {...rollable(rollHd)}
           >
             HD
           </Stamp>
-          <div className={TILE_V}>{vitals.hd}</div>
+          <span className={TILE_V}>{vitals.hd}</span>
         </div>
         <div className={`${TILE} tw:cursor-default`}>
-          <Stamp className={TILE_STAMP}>MOVE</Stamp>
+          <Stamp ink>MOVE</Stamp>
           {/* dotted underline hints at the hover breakdown (all three rates + enc) */}
-          <div className={`${TILE_V} tw:underline tw:decoration-(--hair) tw:decoration-dotted tw:underline-offset-[2px]`}>
+          <span className={`${TILE_V} tw:underline tw:decoration-(--text-dim) tw:decoration-dotted tw:underline-offset-[2px]`}>
             {vitals.move}ft
-          </div>
+          </span>
           <MoveTooltip
             bands={m}
             tier={encumbrance?.enabled ? encumbrance.tier : undefined}
@@ -136,13 +117,13 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
       </div>
       {/* minmax(0,…) so a wide value can't auto-expand a track past its share
           and shove the sibling card out of the container. */}
-      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*11.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:gap-2 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
-        <div className={`${VITAL} hp tw:border-[color-mix(in_srgb,var(--crimson)_55%,transparent)]`}>
-          <Stamp className={VITAL_L}>HP</Stamp>
+      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*10.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
+        <div className={`${VITAL} hp`}>
+          <Stamp ink className={VITAL_L}>HP</Stamp>
           <div className={VV_ROW}>
             {/* medium+: − / + steppers around the value; XS: an editable input (toggled in CSS) */}
             {onSetHp && (
-              <button type="button" className="vv-step" aria-label="Lose 1 HP" onClick={hp.dec}>−</button>
+              <Button variant="link" className="vv-step" aria-label="Lose 1 HP" onClick={hp.dec}>−</Button>
             )}
             <div className={`${VITAL_BIG} ${VV_VALUE} tw:text-crimson`}>{vitals.hp.value}</div>
             {onSetHp && (
@@ -154,7 +135,7 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
               />
             )}
             {onSetHp && (
-              <button type="button" className="vv-step" aria-label="Heal 1 HP" onClick={hp.inc}>+</button>
+              <Button variant="link" className="vv-step" aria-label="Heal 1 HP" onClick={hp.inc}>+</Button>
             )}
           </div>
           <div className={VITAL_SUB}>
@@ -162,8 +143,8 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
             <span className={SUB_SHORT}>/{vitals.hp.max}</span>
           </div>
         </div>
-        <div className={`${VITAL} ac tw:border-[color-mix(in_srgb,var(--teal)_50%,transparent)]`}>
-          <Stamp className={VITAL_L}>AC</Stamp>
+        <div className={`${VITAL} ac tw:border-l tw:border-(--hair-soft)`}>
+          <Stamp ink className={VITAL_L}>AC</Stamp>
           <div className={VV_ROW}>
             <div className={`${VITAL_BIG} tw:text-teal-accent`} data-testid="ac-value">{vitals.ac.value}</div>
           </div>

@@ -16,42 +16,29 @@
 // they are written on the element, so a shared base plus an override could come
 // out either way. The variants below are exclusive strings instead.
 const TB_BTN_BASE =
-  "osc-tb-btn tw:cursor-pointer tw:items-center tw:gap-2 tw:rounded-sm tw:border" +
-  " tw:font-sans tw:text-[length:var(--fs-3xs)] tw:font-medium" +
-  " tw:tracking-[0.08em] tw:whitespace-nowrap tw:uppercase" +
-  " tw:transition-[color,border-color,background] tw:duration-[120ms]" +
+  "osc-tb-btn tw:cursor-pointer tw:items-center tw:gap-2 tw:whitespace-nowrap" +
   // inert (display pass) — keep full fidelity, no dimming
   " tw:disabled:cursor-default";
 
-// Idle: a hairline on the always-dark bar. The stamp-* tokens are constant
-// across themes, so these read identically in dark and cream.
-const TB_BTN_IDLE =
-  "tw:border-[rgba(229,222,200,0.18)] tw:bg-transparent tw:text-stamp-text-dim" +
-  " tw:hover:not-disabled:border-[rgba(229,222,200,0.4)] tw:hover:not-disabled:text-stamp-text";
-
-// `up` — the Level Up call to action: solid gold rather than a hairline.
+// `up` — the Level Up call to action: solid gold.
 const TB_BTN_UP =
-  "up tw:border-gold tw:bg-gold tw:text-on-accent tw:hover:not-disabled:bg-gold-dim";
+  "up tw:border tw:border-gold tw:bg-gold tw:text-on-accent tw:hover:not-disabled:bg-gold-dim" +
+  " tw:px-[11px] tw:pt-[6px] tw:pb-[5px] tw:text-(length:--fs-xs) tw:font-semibold";
 
-const TB_BTN_PAD = "tw:px-[11px] tw:pt-[6px] tw:pb-[5px]";
-
-/** Text button on the topbar. */
-export const TB_BTN = `${TB_BTN_BASE} ${TB_BTN_IDLE} ${TB_BTN_PAD} tw:inline-flex`;
+/** Text button on the topbar: a raised Vellum button. */
+export const TB_BTN = `${TB_BTN_BASE} vm-btn vm-btn-secondary vm-btn-muted tw:inline-flex`;
 
 /** Level Up — the one filled button on the bar. */
-export const TB_BTN_LEVEL_UP = `${TB_BTN_BASE} ${TB_BTN_UP} ${TB_BTN_PAD} tw:inline-flex`;
+export const TB_BTN_LEVEL_UP = `${TB_BTN_BASE} vm-btn ${TB_BTN_UP} tw:inline-flex`;
 
-/** Icon-only button (the settings cog): a glyph with no label, so the label's
- *  side padding would read as slack. */
-export const TB_BTN_ICON =
-  `${TB_BTN_BASE} ${TB_BTN_IDLE} icon tw:inline-flex tw:px-2 tw:py-[6px]`;
+/** Icon-only button (the settings cog): a raised Vellum icon button. */
+export const TB_BTN_ICON = `${TB_BTN_BASE} vm-bevel vm-bevel-icon vm-btn-muted icon tw:inline-flex`;
 
 /** The XS ⋮ overflow toggle — the same text button, revealed only at XS. This is
  *  the ONE variant whose display is a base+variant pair rather than a flat
  *  `inline-flex`, which is why display is not in TB_BTN_BASE. */
-export const TB_BTN_OVERFLOW =
-  `${TB_BTN_BASE} ${TB_BTN_IDLE} ${TB_BTN_PAD} tw:hidden tw:@max-md/app:inline-flex`;
+export const TB_BTN_OVERFLOW = `${TB_BTN_BASE} vm-btn vm-btn-secondary vm-btn-muted tw:hidden tw:@max-md/app:inline-flex`;
 
 /** Leading glyph inside a topbar button. `leading-flush` stops the taller glyph
  *  line box from growing the button past its siblings. */
-export const TB_BTN_GLYPH = "i tw:text-[length:var(--fs-xs)] tw:leading-flush";
+export const TB_BTN_GLYPH = "i tw:text-(length:--fs-xs) tw:leading-flush";

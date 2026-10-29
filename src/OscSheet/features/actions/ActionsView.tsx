@@ -16,10 +16,17 @@ import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { AbilityPlaques } from "@features/actions/AbilityPlaques";
 import { RetainerRow } from "@features/actions/RetainerRow";
 import { AttacksTable } from "@features/actions/AttacksTable";
+import {
+  clearUserTarget,
+  selectAttackTargets,
+  targetToken,
+  useUserTarget,
+} from "@features/actions/attackTargets";
+import { useSetting } from "@src/OscSheet/settings";
 import { FavoriteAbilities } from "@features/actions/FavoriteAbilities";
 import { selectFavoriteAbilities } from "@features/abilities/features";
 import { MemorizedSpells } from "@features/actions/MemorizedSpells";
-import { SavesGrid, ExplorationGrid } from "@features/actions/SavesExploration";
+import { SavesBand, ExplorationGrid } from "@features/actions/SavesExploration";
 import { SectionTitle } from "@ui/SectionTitle";
 import type { ActivateEvent } from "@ui/rollable";
 import { useOscSheetContext } from "@app/context";
@@ -35,6 +42,8 @@ export function ActionsView({ actor }: Props) {
   // stay available even read-only; the composite Attack can write (missile ammo
   // decrement), so it's gated on the global edit permission.
   const { canEdit } = useOscSheetContext();
+  const promptForTarget = useSetting("promptForTarget");
+  const currentTarget = useUserTarget();
   const onAbility = (key: string, event: ActivateEvent) =>
     actor.rollCheck(key, { event });
   // Hit/Damage are custom formula rolls (OSE has no separate hit/damage roll). The
@@ -84,6 +93,13 @@ export function ActionsView({ actor }: Props) {
           onOpen={onOpenWeapon}
           dragData={dragData}
           canAttack={canEdit}
+          targeting={{
+            listTargets: () => selectAttackTargets(actor),
+            current: currentTarget,
+            onTarget: targetToken,
+            onClearTarget: clearUserTarget,
+            promptForTarget,
+          }}
         />
         <FavoriteAbilities
           features={selectFavoriteAbilities(actor)}
@@ -97,7 +113,7 @@ export function ActionsView({ actor }: Props) {
             <span className="hint">Roll d20 ≥ score</span>
             <SavesModTag wisdomAbility={abilities[2]} />
           </SectionTitle>
-          <SavesGrid saves={selectSaves(actor)} onRoll={onSave} />
+          <SavesBand saves={selectSaves(actor)} onRoll={onSave} />
         </section>
         <section className="u-foundry-lg-display-none">
           <SectionTitle hint="1-in-6">Exploration</SectionTitle>

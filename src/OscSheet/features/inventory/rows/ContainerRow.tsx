@@ -30,6 +30,8 @@ export function ContainerRow({
   onOpen,
   onContext,
   onSetQty,
+  onEat,
+  onDelete,
 }: {
   item: InventoryItemVM;
   index: number;
@@ -46,6 +48,8 @@ export function ContainerRow({
   onOpen: (id: string) => void;
   onContext: OnContext;
   onSetQty: (id: string, value: number) => void;
+  onEat?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }) {
   const group = gkey(item.id);
   const count = item.children.length;
@@ -72,7 +76,7 @@ export function ContainerRow({
         // it. The rotation itself stays in _rows.scss.
         "tw:relative tw:z-[var(--z-raised)] tw:inline-flex tw:items-center tw:justify-center",
         "tw:px-1 tw:py-0 tw:bg-transparent tw:border-none tw:cursor-pointer",
-        "tw:text-[length:var(--fs-sm)] tw:leading-flush tw:text-text-mute tw:hover:text-text",
+        "tw:text-(length:--fs-sm) tw:leading-flush tw:text-text-mute tw:hover:text-text",
         "tw:transition-[color] tw:duration-[120ms]",
         collapsed && "collapsed",
       )}
@@ -137,6 +141,8 @@ export function ContainerRow({
                 onOpen={onOpen}
                 onContext={onContext}
                 onSetQty={onSetQty}
+                onEat={onEat}
+                onDelete={onDelete}
               />
             ) : null;
           })}

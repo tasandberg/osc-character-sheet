@@ -64,7 +64,7 @@ export default function SheetShell() {
   const creationWizard = useSetting("creationWizard");
 
   // Layout-slot props built inline from the actor (HeaderBand + Minibar share the shape).
-  const { hp, aac, ac, scores, movement, initiative } = actor.system;
+  const { hp, aac, ac, movement, init } = actor.system;
   const identity = selectIdentity(actor);
   const isAscending = usesAscendingAC();
   const equippedArmor = invItems.filter(
@@ -73,7 +73,7 @@ export default function SheetShell() {
   const vitals: VitalsVM = {
     hp: { value: hp.value, max: hp.max },
     ac: selectAc(aac, ac, equippedArmor, isAscending),
-    initMod: scores.dex.init + (initiative?.mod ?? 0),
+    initMod: init,
     hd: hp.hd,
     move: Math.floor(movement.base),
     moveBands: {

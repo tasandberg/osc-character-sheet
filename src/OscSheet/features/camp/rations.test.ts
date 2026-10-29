@@ -27,6 +27,14 @@ describe("selectRations", () => {
     expect(selectRations(items).map((it) => it.name)).toEqual(["Iron Ration"]);
   });
 
+  it("matches items carrying OSR Helper's ration flag", () => {
+    const hardtack = {
+      ...item("Hardtack", 4),
+      flags: { "osr-helper": { itemType: "ration" } },
+    } as OseItem;
+    expect(selectRations([hardtack, item("Rope", 1)])).toEqual([hardtack]);
+  });
+
   it("excludes non-item types even when named like a ration", () => {
     expect(selectRations([item("Ration Blade", 1, "weapon")])).toEqual([]);
   });

@@ -47,15 +47,15 @@ function AbilityCard({
       <Monogram
         img={feature.img}
         monogram={feature.name.charAt(0).toUpperCase()}
-        className="skic tw:grid tw:size-5 tw:place-items-center tw:rounded-sm tw:bg-ink tw:font-display tw:text-[length:var(--fs-2xs)] tw:text-stamp-text"
+        className="skic tw:grid tw:size-5 tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-2xs) tw:text-stamp-text"
         imgClassName="tw:object-cover"
         data-testid={`fav-ability-img-${feature.id}`}
         {...macroDrag}
       />
-      <span className="skn tw:flex tw:min-w-0 tw:flex-wrap tw:items-baseline tw:gap-x-2">
+      <span className="skn tw:flex tw:min-w-0 tw:items-baseline tw:gap-x-2">
         <button
           type="button"
-          className="tw:min-w-0 tw:cursor-pointer tw:border-0 tw:bg-transparent tw:p-0 tw:text-left tw:text-inherit tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
+          className="tw:min-w-0 tw:truncate tw:cursor-pointer tw:border-0 tw:bg-transparent tw:p-0 tw:text-left tw:text-inherit tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
           data-testid={`fav-ability-name-${feature.id}`}
           title={`Open ${feature.name}`}
           onClick={(e) => {
@@ -67,7 +67,7 @@ function AbilityCard({
         </button>
         {feature.rollTargetTag && (
           <span
-            className="tw:font-mono tw:whitespace-nowrap tw:text-text-mute"
+            className="tw:flex-none tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:text-text-dim"
             data-testid={`fav-ability-target-${feature.id}`}
           >
             {feature.rollTargetTag}
@@ -76,10 +76,14 @@ function AbilityCard({
       </span>
       <span className="skv" data-testid={`fav-ability-roll-${feature.id}`}>
         {feature.rollFormula ?? "chat"}
-        <i
-          className={cx("fa-solid", feature.rollable ? "fa-dice-d20" : "fa-comment")}
-          aria-hidden="true"
-        />
+        <span className="osc-roll-die" aria-hidden="true">
+          <i
+            className={cx(
+              "fa-solid roll-label-die",
+              feature.rollable ? "fa-dice-d20" : "fa-comment",
+            )}
+          />
+        </span>
       </span>
     </div>
   );
@@ -93,7 +97,7 @@ export function FavoriteAbilities({ features, dragData }: Props) {
   return (
     <section className="osc-section">
       <SectionTitle hint="favorites — click to roll">Abilities</SectionTitle>
-      <div className="fvtt-explore">
+      <div className="fvtt-explore osc-ruled-grid">
         {features.map((feature) => (
           <AbilityCard key={feature.id} feature={feature} dragData={dragData} />
         ))}

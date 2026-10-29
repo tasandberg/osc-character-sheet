@@ -1,4 +1,17 @@
-import type { CharacterAC, CharacterEncumbrance, RollType, Save } from "@ose-foundry-core/types";
+import type {
+  AbilityItemData,
+  CharacterAC,
+  CharacterEncumbrance,
+  CharacterMove,
+  ContainerItemData,
+  ExplorationSkills,
+  MiscItemData,
+  PhysicalItemData,
+  RollType,
+  Save,
+  SpellItemData,
+  WeaponItemData,
+} from "@ose-foundry-core/types";
 import type OseDataModelCharacterScores from "@domain/data-model-character-scores";
 import type { TabIds } from "@app/tabs";
 import type { ContextConnector } from "foundry-vtt-react";
@@ -82,28 +95,19 @@ export type OSEActor = Actor & {
       xp: {
         bonus: number;
         value: number;
-        next: number;
+        next: number | null;
         share: number;
       };
     };
     encumbrance: CharacterEncumbrance;
-    exploration: Record<string, number | undefined> & {
-      ft: number;
-      ld: number;
-      od: number;
-      sd: number;
-    };
+    exploration: ExplorationSkills & Record<string, number | undefined>;
     languages: { value: string[] };
     retainer?: {
       enabled: boolean;
       loyalty: number | null;
       wage: string;
     };
-    movement: {
-      base: number;
-      encounter: number;
-      overland: number;
-    };
+    movement: CharacterMove;
     spells: {
       spellList: OseSpellList;
       slots: { [n: number]: { used: number; max: number } };
@@ -119,6 +123,7 @@ export type OSEActor = Actor & {
     };
     saves: Record<OSESave, { value: number }>;
     initiative: { value: number; mod: number };
+    init: number;
     /** To-hit: `value` = THAC0 (descending), `bba` = base attack bonus (ascending),
      *  `mod` = the Tweaks per-range attack bonuses. */
     thac0: { value: number; bba: number; mod?: { melee?: number; missile?: number } };
@@ -154,30 +159,10 @@ export type OSEActor = Actor & {
 
 export type OseItem = Omit<Item, "type"> & {
   type: string;
-  system: {
-    quantity: {
-      value: number;
-      max: number;
-    };
-    containerId: string;
-    contents: OseItem[];
-    cost: number;
-    cumulativeCost: number;
-    cumulativeWeight: number;
-    totalWeight?: number;
-    equipped?: boolean;
-    tags?: { label: string; value: string; icon: string }[];
-    treasure: boolean;
-    weight: number;
-    /** GM-authored item slots (Item-Based Encumbrance). Schema default 0 for `item`, 1 otherwise. */
-    itemslots?: number;
-    /** `item` type only — ceil(itemslots × quantity). Absent on weapon/armor/container. */
-    cumulativeItemslots?: number;
-    /** System-derived: treasure the system buckets at 100 to a slot, matched on a
-     *  coin/gem tag or a coin name. Read it off the item — the match list is the
-     *  system's to own, and it is localised. */
-    isCoinsOrGems?: boolean;
-  };
+  system: PhysicalItemData &
+    Pick<MiscItemData, "treasure" | "cumulativeCost" | "cumulativeWeight"> &
+    Partial<Pick<MiscItemData, "cumulativeItemslots" | "isCoinsOrGems">> &
+    Partial<Pick<ContainerItemData, "contents" | "totalWeight">>;
   rollWeapon: (options: { skipDialog: boolean }) => void;
   update: (updateData: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -185,54 +170,19 @@ export type OseItem = Omit<Item, "type"> & {
   }) => Promise<OSEActor>;
 };
 
-export type OseWeapon = OseItem & {
-  system: {
-    damage: string;
-    qualities: { label: string; value: string; icon: string }[];
-    description: string;
-    melee: boolean;
-    missile: boolean;
-    equipped: boolean;
-    /** Save the target may roll against this weapon's attack. */
-    save?: string;
-    /** Magic/quality plus, applied to the to-hit roll and (unless opted out) damage. */
-    bonus?: number;
-  };
-};
+export type OseWeapon = OseItem & { system: WeaponItemData };
 
 /** Roll-comparison key, sourced from the OSE system's CONFIG (`roll_type`). */
 export type OseRollType = RollType;
 
 export type OseAbility = OseItem & {
-  system: {
-    requirements?: string;
-    /** Enriched/raw HTML feature text. */
-    description?: string;
-    /** Roll formula, e.g. "1d6". Empty for passive features. */
-    roll?: string;
-    /** result | above | below → = / ≥ / ≤ (via CONFIG.OSE.roll_type). */
-    rollType?: OseRollType;
-    /** Target number for the success comparison. 0 = none. */
-    rollTarget?: number;
-    /** Associated saving throw, if any. */
-    save?: string;
-    blindroll?: boolean;
-  };
+  system: AbilityItemData;
   /** OSE item roll dispatcher — for abilities, rolls the formula + posts to chat. */
   roll: (options?: { event?: Event }) => void;
 };
 
 export type OseSpell = OseItem & {
-  system: {
-    lvl: number;
-    range: string;
-    duration: string;
-    save: string;
-    memorized: number;
-    cast: number;
-    /** Optional roll formula, e.g. "1d6+1" — attack spells only (OSE `system.roll`). */
-    roll?: string;
-  };
+  system: SpellItemData;
   spendSpell: ({ skipDialog }: { skipDialog: boolean }) => Promise<void>;
   /** Post the spell's chat card (with follow-up roll buttons). */
   show: () => Promise<unknown>;

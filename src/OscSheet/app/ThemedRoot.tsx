@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { useOscSheetContext } from "@app/context";
 import { cx } from "@ui/cx";
+import "../styles/print.scss";
 
 /** App root element. Theme is owned by the window (osc-sheet.js `_onRender`
  *  sets data-theme on this.element from the client setting), so this only stops
@@ -35,7 +36,7 @@ export function ThemedRoot({
   return (
     <div
       className={cx(
-        "osc-sheet-app",
+        "osc-sheet-app u-paper",
         !canEdit && "is-readonly",
         !canViewFullSheet && "is-limited",
         className,

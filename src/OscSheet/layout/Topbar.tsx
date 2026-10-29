@@ -17,10 +17,8 @@ import {
 // slack instead.
 const LV =
   "tw:flex tw:shrink-0 tw:flex-col tw:items-center tw:leading-[1.05] tw:whitespace-nowrap";
-const LV_N =
-  "tw:font-display tw:text-[length:var(--fs-sm)] tw:tracking-[0.05em]";
-const LV_XP =
-  "cur tw:mt-[1px] tw:font-mono tw:text-(length:--fs-2xs) tw:text-stamp-text-dim";
+const LV_N = "tw:font-semibold tw:text-(length:--fs-xs)";
+const LV_XP = "cur tw:mt-[1px] tw:text-(length:--fs-xs) tw:text-stamp-text-dim";
 
 type Props = {
   vm: TopbarVM;
@@ -102,21 +100,25 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
           className="tw:min-w-[44px] tw:flex-1"
           title={`${vm.xp.value.toLocaleString()} XP`}
         >
-          <span className="v tw:block tw:text-center tw:font-mono tw:text-(length:--fs-3xs) tw:text-stamp-text">
+          <span className="v tw:block tw:text-center tw:text-(length:--fs-xs) tw:text-stamp-text">
             {vm.xp.value.toLocaleString()} XP
           </span>
-          <div className="tw:relative tw:mt-[2px] tw:h-[6px] tw:overflow-hidden tw:rounded-[999px] tw:border tw:border-[rgba(229,222,200,0.22)] tw:bg-[rgba(0,0,0,0.35)]">
+          <div className="tw:relative tw:mt-[2px] tw:h-[6px] tw:overflow-hidden tw:border tw:border-(--hair-soft) tw:bg-(--well)">
             <i
-              className="tw:absolute tw:top-0 tw:bottom-0 tw:left-0 tw:rounded-[999px] tw:bg-gold"
+              className="tw:absolute tw:top-0 tw:bottom-0 tw:left-0 tw:bg-gold"
               style={{ width: `${pct}%` }}
             />
           </div>
         </div>
 
-        <div className={`${LV} next`}>
-          <b className={`${LV_N} tw:text-stamp-text-dim`}>Lv {vm.nextLevel}</b>
-          <span className={LV_XP}>{vm.xp.next.toLocaleString()}</span>
-        </div>
+        {vm.xp.next != null && (
+          <div className={`${LV} next`}>
+            <b className={`${LV_N} tw:text-stamp-text-dim`}>
+              Lv {vm.nextLevel}
+            </b>
+            <span className={LV_XP}>{vm.xp.next.toLocaleString()}</span>
+          </div>
+        )}
       </div>
 
       <div className="tw:ml-auto tw:flex tw:items-center tw:gap-1">

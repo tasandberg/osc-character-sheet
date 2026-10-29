@@ -20,6 +20,7 @@
 @use "@old-school-chronicle/vellum/scales.scss" as scales;
 @use "sass:map";
 @use "sass:list";
+@use "../breakpoints" as bp;
 
 /* ─── Token inventory (lists + maps) ────────────────────────────────────── */
 /* spacer steps → --spacer-N (`0` emits a literal 0 reset). Steps come from the
@@ -169,8 +170,8 @@ $space-family:
 $foundry-breakpoints: (
   "xs": 0,
   // "sm" reserved — deliberate gap, unused for now
-  "md": 480px,
-  "lg": 740px,
+  "md": bp.$md,
+  "lg": bp.$lg,
 );
 $foundry-display-values: none flex block grid inline-flex;
 @each $tier, $bp in $foundry-breakpoints {
