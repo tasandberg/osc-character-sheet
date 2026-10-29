@@ -67,7 +67,7 @@ const METHODS: {
 
 const QUESTION = "How will you roll ability scores?";
 
-const ROLL_GAP_MS = 500;
+const ROLL_GAP_MS = 200;
 
 const pause = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms));

@@ -370,7 +370,7 @@ describe("CreationWizard", () => {
     expect(next().getAttribute("aria-disabled")).toBe("false");
   });
 
-  it("lands a multi-roll half a second apart, keeping the buttons disabled until the last", async () => {
+  it("lands a multi-roll a fifth of a second apart, keeping the buttons disabled until the last", async () => {
     open();
     vi.useFakeTimers();
     await pressAsync("Roll all six");
@@ -380,7 +380,7 @@ describe("CreationWizard", () => {
       "true",
     );
 
-    await wait(499);
+    await wait(199);
     expect(host.textContent).not.toContain("7−1");
     await wait(1);
     expect(host.textContent).toContain("7−1");
@@ -396,7 +396,7 @@ describe("CreationWizard", () => {
     open();
     vi.useFakeTimers();
     await pressAsync("Roll all six");
-    await wait(500);
+    await wait(200);
     expect(rolls).toHaveLength(4);
 
     close();
