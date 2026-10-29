@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { CreationWizard } from "./CreationWizard";
@@ -198,7 +198,10 @@ function close() {
   host.remove();
 }
 
-afterEach(close);
+afterEach(() => {
+  close();
+  vi.useRealTimers();
+});
 
 const buttons = () => [...host.querySelectorAll("button")];
 const button = (name: string) =>
@@ -213,6 +216,15 @@ const pressAsync = (name: string) =>
   act(async () => {
     button(name)!.click();
   });
+const pressRolls = async (name: string) => {
+  vi.useFakeTimers();
+  await act(async () => {
+    button(name)!.click();
+    await vi.runAllTimersAsync();
+  });
+  vi.useRealTimers();
+};
+const wait = (ms: number) => act(() => vi.advanceTimersByTimeAsync(ms));
 const currentStep = () =>
   host.querySelector('[aria-current="step"]')?.textContent;
 const next = () => buttons().find((b) => b.textContent?.startsWith("Next"))!;
@@ -351,17 +363,52 @@ describe("CreationWizard", () => {
     expect(button("Roll remaining 5")).toBeDefined();
     expect(host.textContent).toContain("Roll five more to continue");
 
-    await pressAsync("Roll remaining 5");
+    await pressRolls("Roll remaining 5");
     expect(host.textContent).toContain("15+1");
     expect(host.textContent).toContain("7−1");
     expect(button("Roll remaining 0")).toBeUndefined();
     expect(next().getAttribute("aria-disabled")).toBe("false");
   });
 
+  it("lands a multi-roll a fifth of a second apart, keeping the buttons disabled until the last", async () => {
+    open();
+    vi.useFakeTimers();
+    await pressAsync("Roll all six");
+    expect(host.textContent).toContain("12+0");
+    expect(host.textContent).not.toContain("7−1");
+    expect(button("Roll remaining 5")!.getAttribute("aria-disabled")).toBe(
+      "true",
+    );
+
+    await wait(199);
+    expect(host.textContent).not.toContain("7−1");
+    await wait(1);
+    expect(host.textContent).toContain("7−1");
+    expect(host.textContent).not.toContain("10+0");
+
+    await wait(2000);
+    expect(host.textContent).toContain("11+0");
+    expect(button("Roll remaining 0")).toBeUndefined();
+    expect(button("Roll STR")).toBeUndefined();
+  });
+
+  it("stops rolling when the window closes mid-sequence", async () => {
+    open();
+    vi.useFakeTimers();
+    await pressAsync("Roll all six");
+    await wait(200);
+    expect(rolls).toHaveLength(4);
+
+    close();
+    await wait(3000);
+    expect(rolls).toHaveLength(4);
+    open();
+  });
+
   it("places rolled totals on abilities and returns them to the pool", async () => {
     open();
     press("Roll and arrange");
-    await pressAsync("Roll six totals");
+    await pressRolls("Roll six totals");
     expect(host.textContent).toContain("6 to place");
 
     press("15, rolled 13 1 1");
