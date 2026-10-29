@@ -348,6 +348,7 @@ export function GearStep(props: Props) {
   const catalog = useCompendiumDetail("gear", props.rules.loadGearCatalog);
   return (
     <div className="osc-creation-split osc-creation-gear-step">
+      <Pack {...props} />
       {catalog.status === "ready" && catalog.detail.length ? (
         <Shop
           catalog={catalog.detail}
@@ -364,7 +365,6 @@ export function GearStep(props: Props) {
           </p>
         </div>
       )}
-      <Pack {...props} />
     </div>
   );
 }

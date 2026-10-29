@@ -523,6 +523,22 @@
       border-top: 1px solid var(--hair);
       border-left: 0;
     }
+
+    .osc-creation-gear-step {
+      grid-template-columns: minmax(0, 1fr);
+
+      .osc-creation-pane {
+        padding-left: 0;
+      }
+
+      .osc-creation-aside {
+        margin: 0 0 var(--spacer-5);
+        padding: 0 0 var(--spacer-4);
+        border-top: 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--hair);
+      }
+    }
   }
 }
 
@@ -591,6 +607,24 @@
   .osc-creation-wizard-app * {
     scrollbar-width: thin;
     scrollbar-color: var(--surface-3) transparent;
+  }
+}
+
+.osc-creation-gear-step {
+  grid-template-columns: calc(var(--spacer-12) * 5 + var(--spacer-2)) minmax(
+      0,
+      1fr
+    );
+
+  .osc-creation-pane {
+    padding-right: 0;
+    padding-left: var(--spacer-6);
+  }
+
+  .osc-creation-aside {
+    padding: 0 var(--spacer-5) 0 var(--spacer-2);
+    border-left: 0;
+    border-right: 1px solid var(--hair);
   }
 }
 
