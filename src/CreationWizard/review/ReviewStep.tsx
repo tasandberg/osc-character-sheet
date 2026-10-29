@@ -169,7 +169,7 @@ function Inventory({
   const preview = useLoadPreview({ draft: gear, rules });
   const count = itemCount(gear);
   const load = preview?.enabled
-    ? `${preview.carried} cn${preview.tier ? `, ${preview.tier.toLowerCase()}` : ""}`
+    ? `${preview.label}${preview.tier ? `, ${preview.tier.toLowerCase()}` : ""}`
     : undefined;
   const hint = [
     `${goldLeft(gear)} gp left of ${gear.gold?.total ?? 0}`,

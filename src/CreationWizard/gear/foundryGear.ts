@@ -150,12 +150,15 @@ export const previewLoad: PreviewLoad = async (cart, catalog) => {
     type: "character",
     items,
   });
-  const { encumbrance, movement } = actor.system;
+  const load = selectEncumbrance(actor);
+  const { movement } = actor.system;
   return {
-    enabled: encumbrance.enabled,
-    carried: encumbrance.value,
-    max: encumbrance.enabled ? encumbrance.max : null,
-    tier: encumbrance.enabled ? selectEncumbrance(actor).status : null,
+    enabled: load.enabled,
+    value: load.value,
+    max: load.max,
+    pct: load.pct,
+    label: load.label,
+    tier: load.enabled ? load.status : null,
     movement: {
       base: movement.base,
       encounter: movement.encounter,

@@ -17,8 +17,10 @@ export interface CartLine {
 
 export interface LoadPreview {
   enabled: boolean;
-  carried: number;
-  max: number | null;
+  value: number;
+  max: number;
+  pct: number;
+  label: string;
   tier: string | null;
   movement: { base: number; encounter: number; overland: number };
 }

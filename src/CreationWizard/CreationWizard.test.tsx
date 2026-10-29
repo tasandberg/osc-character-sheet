@@ -161,8 +161,10 @@ const rules: CreationRules = {
     const heavy = carried > 400;
     return {
       enabled: true,
-      carried,
+      value: carried,
       max: 1600,
+      pct: carried / 1600,
+      label: `${carried} / 1600 cn`,
       tier: heavy ? "Lightly encumbered" : "Unencumbered",
       movement: { base: heavy ? 90 : 120, encounter: 40, overland: 24 },
     };
@@ -872,7 +874,7 @@ describe("CreationWizard gear", () => {
     ]);
     expect(
       host.querySelector('[role="meter"]')!.getAttribute("aria-label"),
-    ).toBe("Load 500 of 1600 coins");
+    ).toBe("Load 500 / 1600 cn");
     expect(footer()).toContain("Lightly encumbered");
     expect(footer()).toContain("Movement90′");
   });
