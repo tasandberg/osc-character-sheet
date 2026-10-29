@@ -293,14 +293,16 @@ export function ReviewStep({
             ))}
           </div>
         </section>
-        <section className="u-stack u-gap-1" aria-label="Advancement">
-          <h3 className="vm-heading vm-heading-sm u-fs-lg">Advancement</h3>
-          <RecordRows rows={advancement} />
-        </section>
-        <section className="u-stack u-gap-1" aria-label="Character">
-          <h3 className="vm-heading vm-heading-sm u-fs-lg">Character</h3>
-          <RecordRows rows={characterRows} />
-        </section>
+        <div className="osc-creation-review-pair u-grid u-grid-2 u-gap-6">
+          <section className="u-stack u-gap-1" aria-label="Advancement">
+            <h3 className="vm-heading vm-heading-sm u-fs-lg">Advancement</h3>
+            <RecordRows rows={advancement} />
+          </section>
+          <section className="u-stack u-gap-1" aria-label="Character">
+            <h3 className="vm-heading vm-heading-sm u-fs-lg">Character</h3>
+            <RecordRows rows={characterRows} />
+          </section>
+        </div>
         <section className="u-stack u-gap-1" aria-label="Saving throws">
           <h3 className="vm-heading vm-heading-sm u-fs-lg">Saving throws</h3>
           <RecordRows

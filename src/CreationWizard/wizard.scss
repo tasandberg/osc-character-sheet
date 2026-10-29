@@ -524,6 +524,10 @@
       border-left: 0;
     }
 
+    .osc-creation-review-pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .osc-creation-gear-step {
       grid-template-columns: minmax(0, 1fr);
 
