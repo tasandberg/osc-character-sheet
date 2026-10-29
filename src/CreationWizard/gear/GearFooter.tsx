@@ -1,30 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
 import { cx } from "@ui/cx";
 import type { CreationRules } from "../rules";
-import { useCompendiumDetail } from "../useCompendiumDetail";
-import { cartLines, type GearDraft } from "./gearDraft";
+import type { GearDraft } from "./gearDraft";
 import type { LoadPreview } from "./gearTypes";
+import { useLoadPreview } from "./useLoadPreview";
 
 type Props = { draft: GearDraft; rules: CreationRules };
-
-function useLoadPreview({ draft, rules }: Props) {
-  const catalog = useCompendiumDetail("gear", rules.loadGearCatalog);
-  const [preview, setPreview] = useState<LoadPreview>();
-  const { cart } = draft;
-  const lines = useMemo(() => cartLines(cart), [cart]);
-  useEffect(() => {
-    if (catalog.status !== "ready") return;
-    let live = true;
-    rules.previewLoad(lines, catalog.detail).then(
-      (next) => live && setPreview(next),
-      () => undefined,
-    );
-    return () => {
-      live = false;
-    };
-  }, [lines, catalog, rules]);
-  return preview;
-}
 
 function Load({ preview }: { preview?: LoadPreview }) {
   if (!preview?.enabled)

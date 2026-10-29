@@ -89,26 +89,27 @@ function AlignmentSection({
       ? loaded.detail[chosen.value]
       : undefined;
   return (
-    <section className="vm-field u-gap-2" aria-labelledby="osc-creation-al">
+    <section
+      className="osc-creation-alignment vm-field u-gap-2 u-pt-4"
+      aria-labelledby="osc-creation-al"
+    >
       <span className="vm-key" id="osc-creation-al">
         Alignment
       </span>
-      <div className="osc-creation-column">
-        <VellumSegmented
-          full
-          label="Alignment"
-          options={ALIGNMENTS}
-          value={draft.alignment as Alignment}
-          onChange={(alignment) => onChange((d) => ({ ...d, alignment }))}
-        />
-      </div>
+      <VellumSegmented
+        full
+        label="Alignment"
+        options={ALIGNMENTS}
+        value={draft.alignment as Alignment}
+        onChange={(alignment) => onChange((d) => ({ ...d, alignment }))}
+      />
       {!chosen ? (
-        <p className="vm-help u-text-muted">
+        <p className="vm-help u-text-muted osc-creation-measure">
           Choose Lawful, Neutral or Chaotic. Alignment sets your
           character&apos;s outlook and the alignment language they speak.
         </p>
       ) : text ? (
-        <p className="vm-flavor">{text}</p>
+        <p className="vm-flavor osc-creation-measure">{text}</p>
       ) : (
         loaded.status !== "loading" && (
           <p className="vm-help">
@@ -122,20 +123,13 @@ function AlignmentSection({
 
 function HitPointsSection({
   details,
-  cls,
   rules,
   onChange,
-}: Pick<Props, "details" | "cls" | "rules" | "onChange">) {
+}: Pick<Props, "details" | "rules" | "onChange">) {
   const [rolling, setRolling] = useState(false);
-  const { row, formula, conBonus, hitPoints } = details;
+  const { row, formula, hitPoints } = details;
   const text = hitPoints?.value ?? "";
   const invalid = text.trim() !== "" && parseHitPoints(text) === undefined;
-  const con = conBonus ? `, ${formatModifier(conBonus)} for Constitution` : "";
-  const help = hitPoints?.dice
-    ? `Rolled ${row.hd} for ${cls.name}${con}.`
-    : hitPoints?.maximum
-      ? `Maximum of ${row.hd} for ${cls.name}${con}, by house rule.`
-      : `${cls.name} hit dice ${row.hd}${con}.`;
 
   const roll = async () => {
     if (rolling) return;
@@ -155,11 +149,11 @@ function HitPointsSection({
   };
 
   return (
-    <section className="vm-field u-gap-2" aria-labelledby="osc-creation-hp">
+    <section className="vm-field u-gap-1" aria-labelledby="osc-creation-hp">
       <span className="vm-key" id="osc-creation-hp">
         Hit Points
       </span>
-      <div className="osc-creation-column u-flex u-gap-3">
+      <div className="u-flex u-items-center u-gap-3">
         <span
           className={cx(
             scoreFaceClass(invalid && "vm-score-face-invalid"),
@@ -182,18 +176,18 @@ function HitPointsSection({
             }
           />
         </span>
-        <div className="osc-creation-hp-dice u-flex u-flex-1 tw:flex-col u-justify-between u-items-start u-gap-2">
-          <button
-            type="button"
-            className={cx(
-              "vm-btn vm-btn-sm osc-creation-nowrap",
-              text ? "vm-btn-secondary" : "vm-btn-primary",
-            )}
-            aria-disabled={rolling || undefined}
-            onClick={roll}
-          >
-            {text ? `Reroll ${row.hd}` : `Roll ${row.hd}`}
-          </button>
+        <button
+          type="button"
+          className={cx(
+            "vm-btn vm-btn-sm osc-creation-nowrap",
+            text ? "vm-btn-secondary" : "vm-btn-primary",
+          )}
+          aria-disabled={rolling || undefined}
+          onClick={roll}
+        >
+          {text ? `Reroll ${row.hd}` : `Roll ${row.hd}`}
+        </button>
+        <span className="osc-creation-hp-dice">
           {hitPoints?.dice ? (
             <DiceRow dice={hitPoints.dice} />
           ) : (
@@ -205,14 +199,26 @@ function HitPointsSection({
               ))}
             </span>
           )}
-        </div>
+        </span>
       </div>
-      {invalid ? (
-        <p className="vm-field-error">Hit points start at 1</p>
-      ) : (
-        <p className="vm-help">{help}</p>
-      )}
     </section>
+  );
+}
+
+function HitPointsHelp({ details, cls }: Pick<Props, "details" | "cls">) {
+  const { row, conBonus, hitPoints } = details;
+  const text = hitPoints?.value ?? "";
+  const invalid = text.trim() !== "" && parseHitPoints(text) === undefined;
+  const con = conBonus ? `, ${formatModifier(conBonus)} for Constitution` : "";
+  const help = hitPoints?.dice
+    ? `Rolled ${row.hd} for ${cls.name}${con}.`
+    : hitPoints?.maximum
+      ? `Maximum of ${row.hd} for ${cls.name}${con}, by house rule.`
+      : `${cls.name} hit dice ${row.hd}${con}.`;
+  return invalid ? (
+    <p className="vm-field-error">Hit points start at 1</p>
+  ) : (
+    <p className="vm-help">{help}</p>
   );
 }
 
@@ -247,7 +253,7 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
   return (
     <aside
       ref={asideRef}
-      className="osc-creation-aside osc-creation-class-aside u-stack"
+      className="osc-creation-aside osc-creation-class-aside u-stack u-gap-3"
       aria-label={`${cls.name} at level ${details.level}`}
     >
       <div className="vm-sheet-head">
@@ -258,15 +264,18 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
           </span>
         </h2>
       </div>
-      <dl className="u-grid u-grid-3 u-gap-x-4 u-gap-y-3">
+      <dl className="osc-creation-record u-flex tw:flex-col">
         {stats.map(([label, value]) => (
-          <div key={label} className="u-flex tw:flex-col u-gap-1">
-            <dt className="vm-key">{label}</dt>
-            <dd>{value}</dd>
+          <div
+            key={label}
+            className="osc-creation-record-row u-flex u-items-baseline u-justify-between u-gap-3 u-fs-sm"
+          >
+            <dt className="vm-key u-flex-none">{label}</dt>
+            <dd className="tw:text-right">{value}</dd>
           </div>
         ))}
       </dl>
-      <h3 className="vm-heading vm-heading-sm">Saving throws</h3>
+      <h3 className="vm-heading vm-heading-sm u-mt-1">Saving throws</h3>
       <dl
         className="osc-creation-saves u-flex tw:flex-col"
         aria-label="Saving throws, roll d20 at or above target"
@@ -274,7 +283,7 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
         {rules.saveNames.map((name, i) => (
           <div
             key={name}
-            className="osc-creation-save u-flex u-items-baseline u-justify-between u-gap-3 u-py-1"
+            className="osc-creation-save u-flex u-items-center u-justify-between u-gap-3"
           >
             <dt className="vm-key">{name}</dt>
             <dd className="osc-creation-save-target u-fs-2xl">
@@ -301,39 +310,48 @@ export function DetailsStep(props: Props) {
         <div className="vm-sheet-head">
           <h2 className="vm-sheet-head-title">Character Details</h2>
         </div>
-        <div className="u-flex u-items-start u-gap-5">
-          <PortraitPicker
-            draft={draft.portrait}
-            onChange={(portrait) => onChange((d) => ({ ...d, portrait }))}
-          />
-          <label className="osc-creation-column vm-field u-flex-1 u-gap-1">
-            <span className="vm-key">Name</span>
-            <input
-              className="vm-input vm-input-underline vm-input-title"
-              type="text"
-              value={draft.name}
-              onChange={(event) =>
-                onChange((d) => ({ ...d, name: event.target.value }))
-              }
-            />
-          </label>
-          <div className="vm-field u-flex-none u-gap-1">
-            <span className="vm-key" aria-hidden="true">
-              Level
-            </span>
-            <LevelStepper
-              level={details.level}
-              cap={details.cap}
-              onLevel={(level) => onChange((d) => ({ ...d, level }))}
+        <div className="osc-creation-identity u-grid u-gap-5 u-items-start">
+          <div className="vm-field u-gap-1">
+            <span className="vm-key">Portrait</span>
+            <PortraitPicker
+              draft={draft.portrait}
+              onChange={(portrait) => onChange((d) => ({ ...d, portrait }))}
             />
           </div>
+          <div className="u-flex tw:flex-col u-gap-3 tw:min-w-0">
+            <label className="vm-field u-gap-1">
+              <span className="vm-key">Name</span>
+              <input
+                className="vm-input vm-input-underline vm-input-title"
+                type="text"
+                value={draft.name}
+                onChange={(event) =>
+                  onChange((d) => ({ ...d, name: event.target.value }))
+                }
+              />
+            </label>
+            <div className="osc-creation-identity-row u-grid u-gap-8">
+              <div className="vm-field u-gap-1">
+                <span className="vm-key" aria-hidden="true">
+                  Level
+                </span>
+                <div className="osc-creation-identity-control u-flex u-items-center">
+                  <LevelStepper
+                    level={details.level}
+                    cap={details.cap}
+                    onLevel={(level) => onChange((d) => ({ ...d, level }))}
+                  />
+                </div>
+              </div>
+              <HitPointsSection
+                details={details}
+                rules={rules}
+                onChange={onChange}
+              />
+            </div>
+            <HitPointsHelp details={details} cls={cls} />
+          </div>
         </div>
-        <HitPointsSection
-          details={details}
-          cls={cls}
-          rules={rules}
-          onChange={onChange}
-        />
         <AlignmentSection
           draft={draft}
           alignmentText={rules.alignmentText}

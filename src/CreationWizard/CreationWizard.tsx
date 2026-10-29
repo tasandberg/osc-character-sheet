@@ -139,6 +139,7 @@ export function CreationWizard({
             scores={classScores(draft)}
             gear={draft.gear}
             rules={rules}
+            onChangeGear={() => wizard.goTo("gear")}
           />
         )
       )}

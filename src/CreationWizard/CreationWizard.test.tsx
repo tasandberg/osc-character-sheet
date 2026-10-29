@@ -893,12 +893,13 @@ describe("CreationWizard review", () => {
     await toReview();
     expect(currentStep()).toBe("5Review");
     const text = host.textContent;
-    expect(text).toContain("WrenNeutral Thief · 1st level");
-    expect(text).toContain("Strength13 +1");
+    expect(text).toContain("WrenNeutral · +5% XP from DEX 15");
+    expect(text).toContain("Thief· level 1");
+    expect(text).toContain("STR13+1");
     expect(text).toContain("LanguagesAlignment, Common");
-    expect(text).toContain("Hit points3");
-    expect(text).toContain("Sword10 gp60 cn");
-    expect(text).toContain("Gold left15 gp");
+    expect(text).toContain("HP3");
+    expect(text).toContain("Sword10 gp · 60 cn");
+    expect(text).toContain("15 gp left of 25");
 
     await act(async () => createButton().click());
     expect(createdCharacters).toEqual([
@@ -1005,7 +1006,7 @@ describe("CreationWizard review", () => {
     await act(async () => createButton().click());
     expect(finished).toBe(false);
     expect(currentStep()).toBe("5Review");
-    expect(host.textContent).toContain("Sword10 gp60 cn");
+    expect(host.textContent).toContain("Sword10 gp · 60 cn");
     expect(createButton().getAttribute("aria-disabled")).toBe("false");
   });
 });
