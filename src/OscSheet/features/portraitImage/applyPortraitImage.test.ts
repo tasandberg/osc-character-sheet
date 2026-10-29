@@ -15,12 +15,22 @@ const upload = vi.fn();
 
 const scene = (name: string, fails = false) => ({
   name,
+  tokens: new Map<string, unknown>(),
   updateEmbeddedDocuments: vi.fn(() =>
     fails ? Promise.reject(new Error("nope")) : Promise.resolve([]),
   ),
 });
 
-const actorWith = (tokens: { id: string; parent: unknown }[] = []) => {
+type Scene = ReturnType<typeof scene>;
+type Token = { id: string | null; parent: Scene | null };
+
+const placed = (id: string, parent: Scene): Token => {
+  const token = { id, parent };
+  parent.tokens.set(id, token);
+  return token;
+};
+
+const actorWith = (tokens: Token[] = []) => {
   const actor = {
     name: "Sir Grüm the 'Bold'!",
     img: "a.png",
@@ -99,23 +109,22 @@ describe("applyPortraitImage", () => {
     expect(actor.update).not.toHaveBeenCalled();
   });
 
-  it("retextures linked placed tokens, counting only scenes that accepted the update", async () => {
+  it("retextures linked tokens saved on scenes, counting only scenes that accepted the update", async () => {
     const keep = scene("Keep");
     const actor = actorWith([
-      { id: "t1", parent: keep },
-      { id: "t2", parent: scene("Road", true) },
-      { id: "t3", parent: keep },
+      placed("t1", keep),
+      placed("t2", scene("Road", true)),
+      placed("t3", keep),
       { id: "t4", parent: null },
+      { id: null, parent: keep },
+      { id: "t1", parent: keep },
     ]);
     const result = await applyPortraitImage(
       actor,
       state(path("a.png"), path("c.png"), true),
     );
     expect(result.placedTokens).toBe(2);
-    expect(actor.getDependentTokens).toHaveBeenCalledWith({
-      linked: true,
-      concreteOnly: true,
-    });
+    expect(actor.getDependentTokens).toHaveBeenCalledWith({ linked: true });
     expect(keep.updateEmbeddedDocuments).toHaveBeenCalledWith("Token", [
       { _id: "t1", "texture.src": "c.png" },
       { _id: "t3", "texture.src": "c.png" },
@@ -127,7 +136,7 @@ describe("applyPortraitImage", () => {
     ["only the portrait changed", state(path("c.png"), path("b.png"), true)],
   ])("leaves placed tokens alone when %s", async (_, next) => {
     const keep = scene("Keep");
-    await applyPortraitImage(actorWith([{ id: "t1", parent: keep }]), next);
+    await applyPortraitImage(actorWith([placed("t1", keep)]), next);
     expect(keep.updateEmbeddedDocuments).not.toHaveBeenCalled();
   });
 
