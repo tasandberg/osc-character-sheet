@@ -284,6 +284,58 @@
   border: 1px dashed var(--hair-soft);
 }
 
+.osc-creation-draggable {
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+
+  &.is-dragging {
+    opacity: 0.35;
+  }
+}
+
+.osc-creation-roll-return {
+  border-color: var(--gold);
+  color: var(--gold);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+}
+
+.osc-creation-roll-pool.is-drop-over {
+  outline: 2px dashed var(--gold);
+  outline-offset: var(--spacer-2);
+}
+
+.osc-creation-drag-ghost {
+  position: fixed;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background-color: var(--surface);
+}
+
+.osc-creation-wizard-app {
+  .vm-score-face-sunk.vm-score-face-target.is-drop-over {
+    box-shadow: inset 0 0 0 2px var(--gold);
+  }
+
+  button.vm-score-face-sunk {
+    &:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    &[aria-pressed="true"] {
+      outline: 2px solid var(--gold);
+      outline-offset: 3px;
+    }
+  }
+}
+
 .osc-creation-class-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
