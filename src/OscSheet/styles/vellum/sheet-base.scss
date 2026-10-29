@@ -70,7 +70,7 @@
   --mustard-hover: #e6c87e;
   --teal-accent: var(--teal);
   --teal-accent-hover: var(--teal-bright);
-  --teal-accent-dim: var(--teal-dim);
+  --teal-accent-dim: color-mix(in srgb, var(--teal) 50%, var(--teal-bright));
   --teal-bright: #57c3c3;
   --gold-hover: var(--mustard-hover);
   --gold-disabled: color-mix(in srgb, var(--gold) 50%, var(--text-dim));
