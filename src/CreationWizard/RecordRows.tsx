@@ -14,7 +14,7 @@ export function RecordRows({
       {rows.map(([label, value]) => (
         <div
           key={label}
-          className="osc-creation-record-row u-flex u-items-baseline u-justify-between u-gap-3 u-fs-sm"
+          className="osc-creation-record-row u-flex u-items-baseline u-justify-between u-gap-3 u-fs-xs"
         >
           <dt className="vm-key u-flex-none">{label}</dt>
           <dd className="tw:text-right">{value}</dd>

@@ -83,7 +83,7 @@ function Blurb({
   const html = loaded.status === "ready" ? loaded.detail?.description : "";
   return (
     <section className="u-stack u-gap-1" aria-label={title}>
-      <h3 className="vm-heading vm-heading-sm">{title}</h3>
+      <h3 className="vm-heading vm-heading-sm u-fs-lg">{title}</h3>
       {html ? (
         <div
           className="osc-creation-review-blurb u-fs-sm u-text-dim"
@@ -161,7 +161,7 @@ function Inventory({
   return (
     <section className="u-stack u-gap-1" aria-label="Inventory">
       <div className="osc-creation-review-inventory-head u-row u-gap-2">
-        <span className="vm-heading vm-heading-sm">Inventory</span>
+        <span className="vm-heading vm-heading-sm u-fs-lg">Inventory</span>
         <span className="vm-tab-count">{count}</span>
         <span className="vm-sheet-head-hint u-fs-xs">{hint}</span>
         <span className="u-flex-1" />
@@ -281,23 +281,23 @@ export function ReviewStep({
           </div>
         </div>
         <section className="u-stack u-gap-1" aria-label="Character">
-          <h3 className="vm-heading vm-heading-sm">Character</h3>
+          <h3 className="vm-heading vm-heading-sm u-fs-lg">Character</h3>
           <RecordRows rows={characterRows} />
         </section>
         <div className="u-grid u-grid-2 u-gap-6">
           <section className="u-stack u-gap-1" aria-label="Advancement">
-            <h3 className="vm-heading vm-heading-sm">Advancement</h3>
+            <h3 className="vm-heading vm-heading-sm u-fs-lg">Advancement</h3>
             <RecordRows rows={advancement} />
           </section>
           <section className="u-stack u-gap-1" aria-label="Saving throws">
-            <h3 className="vm-heading vm-heading-sm">Saving throws</h3>
+            <h3 className="vm-heading vm-heading-sm u-fs-lg">Saving throws</h3>
             <RecordRows
               rows={rules.saveNames.map((save, i) => [save, row.saves[i]])}
             />
           </section>
         </div>
         <section className="u-stack u-gap-1" aria-label="Ability scores">
-          <h3 className="vm-heading vm-heading-sm">Ability scores</h3>
+          <h3 className="vm-heading vm-heading-sm u-fs-lg">Ability scores</h3>
           <div className="u-flex u-gap-2">
             {ABILITIES.map((a) => (
               <Tile

@@ -266,7 +266,7 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
         </h2>
       </div>
       <RecordRows rows={stats} />
-      <h3 className="vm-heading vm-heading-sm u-mt-1">Saving throws</h3>
+      <h3 className="vm-heading vm-heading-sm u-fs-lg u-mt-1">Saving throws</h3>
       <RecordRows
         rows={rules.saveNames.map((name, i) => [name, row.saves[i]])}
         aria-label="Saving throws, roll d20 at or above target"
