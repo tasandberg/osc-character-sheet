@@ -1,7 +1,7 @@
 # osc-character-sheet E2E suite
 
 Playwright user-click E2E tests that drive the osc-character-sheet character sheet in a
-real Foundry VTT **v14** server (OSE system + the built module). The GitHub Actions
+real Foundry VTT server (OSE system + the built module), once per Foundry × OSE pair. The GitHub Actions
 workflow at `.github/workflows/e2e.yml` boots Foundry and wires these together;
 everything here also runs locally against a scratch Foundry container.
 
@@ -16,14 +16,24 @@ license (Settings → Secrets and variables → Actions):
 | `FOUNDRY_PASSWORD` | account password |
 
 The job fails fast with a clear message if either is missing. One license = one
-concurrent server, so the workflow's `concurrency` group serializes runs. Same-repo
+concurrent server, so the workflow's `concurrency` group serializes runs and the matrix
+legs run one at a time.
+
+### Foundry / OSE versions
+
+The matrix is `FOUNDRY_VERSIONS` × `OSE_VERSIONS` at the top of
+`.github/workflows/e2e.yml`, one entry per line — add or delete a line to add or drop a
+version. Foundry entries are felddy image tags (`13`, `14`). OSE entries are a release
+tag (`3.0.1`) or `latest-release` / `latest-prerelease`, resolved from GitHub each run
+(`latest-prerelease` falls back to the stable release when nothing newer exists). Each
+leg reports as `e2e (v<foundry>, OSE <version>)`; the required `e2e` check rolls them up. Same-repo
 PRs run automatically; fork PRs need a maintainer's `safe-to-test` label.
 
 ## Pieces
 
 | File | Role |
 | --- | --- |
-| `setup-data-dir.sh` | Assembles a Foundry `/data` dir: the pinned OSE release (`OSE_VERSION`, default 2.2.2; `compatibility.verified` bumped to `14` for CI), the freshly-built osc-character-sheet module (`module.json` + `dist` + `lang`), and the minimal `e2e` world fixture. |
+| `setup-data-dir.sh` | Assembles a Foundry `/data` dir: the OSE release `OSE_VERSION` (default 2.2.2) for Foundry major `FOUNDRY_VERSION` (default 14; `compatibility.verified` bumped when the release predates it), the freshly-built osc-character-sheet module (`module.json` + `dist` + `lang`), and the minimal `e2e` world fixture. |
 | `activate-world.mjs` | First-boot activation: `--phase eula` accepts the EULA (generates the host-bound license signature), the caller restarts the container so felddy's `FOUNDRY_WORLD` auto-launches the world, `--phase await` polls `/api/status` until active. |
 | `global-setup.ts` | Joins as Gamemaster, enables the osc-character-sheet module + reloads, then seeds one passwordless GM (`E2E GM <slot>`) and one passwordless OBSERVER player (`E2E Observer <slot>`) per parallel slot. Runs once before the specs. |
 | `helpers.ts` | `joinAsUser` / `joinAsGM`, `openCharacterSheet` (wide layout unless given a `width`), chat/item readers, and the layout primitives `boxesOf` / `rowsOf`. |
@@ -79,7 +89,7 @@ pnpm install && pnpm build
 
 # 2. Assemble a scratch data dir.
 DATA=/tmp/osc-e2e-data
-tools/e2e/setup-data-dir.sh "$DATA" "$PWD"
+OSE_VERSION=3.0.1 FOUNDRY_VERSION=14 tools/e2e/setup-data-dir.sh "$DATA" "$PWD"
 
 # 3. Boot Foundry (felddy). Needs foundryvtt.com creds; pick a free port.
 docker run -d --name osc-e2e -p 30000:30000 -v "$DATA:/data" \

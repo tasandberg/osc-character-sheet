@@ -15,6 +15,7 @@ import {
 
 type SceneLike = {
   readonly name: string;
+  readonly tokens: { get(id: string): unknown };
   updateEmbeddedDocuments(
     type: "Token",
     updates: Record<string, unknown>[],
@@ -33,10 +34,7 @@ export type PortraitImageActor = {
     readonly texture: { readonly src: string | null };
   };
   update(data: Record<string, unknown>): Promise<unknown>;
-  getDependentTokens(options: {
-    linked: boolean;
-    concreteOnly: boolean;
-  }): Iterable<DependentToken>;
+  getDependentTokens(options: { linked: boolean }): Iterable<DependentToken>;
 };
 
 type PortraitImageResult = PortraitImageDirty & {
@@ -88,13 +86,14 @@ function portraitUploadFilename(
   return `${slug}-${id}.${imageExtension(fileName) ?? "png"}`;
 }
 
-function tokenUpdatesByScene<S>(
-  tokens: Iterable<{ readonly id: string | null; readonly parent: S | null }>,
+function tokenUpdatesByScene(
+  tokens: Iterable<DependentToken>,
   src: string,
-): Map<S, Record<string, unknown>[]> {
-  const grouped = new Map<S, Record<string, unknown>[]>();
+): Map<SceneLike, Record<string, unknown>[]> {
+  const grouped = new Map<SceneLike, Record<string, unknown>[]>();
   for (const token of tokens) {
-    if (!token.parent) continue;
+    if (!token.parent || !token.id) continue;
+    if (token.parent.tokens.get(token.id) !== token) continue;
     const updates = grouped.get(token.parent) ?? [];
     updates.push({ _id: token.id, "texture.src": src });
     grouped.set(token.parent, updates);
@@ -132,7 +131,7 @@ async function updateLinkedTokens(
   actor: PortraitImageActor,
   src: string,
 ): Promise<number> {
-  const tokens = actor.getDependentTokens({ linked: true, concreteOnly: true });
+  const tokens = actor.getDependentTokens({ linked: true });
   let updated = 0;
   for (const [scene, updates] of tokenUpdatesByScene(tokens, src)) {
     try {
