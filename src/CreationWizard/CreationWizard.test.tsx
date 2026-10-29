@@ -806,10 +806,13 @@ describe("CreationWizard gear", () => {
     await toGear(120);
     expect(currentStep()).toBe("4Gear");
     expect(host.textContent).toContain("Roll starting gold to continue");
+    expect(host.textContent).toContain("Roll starting gold to open the shop");
     expect(disabled("Add Sword")).toBe(true);
-    expect(host.textContent).toContain("Roll starting gold first");
+    await pressAsync("Add Sword");
+    expect(aside()).toContain("Pack0 items");
 
     await pressAsync("Roll starting gold");
+    expect(host.textContent).not.toContain("Roll starting gold to open the shop");
     expect(goldFormulas).toEqual(["3d6 * 10"]);
     expect(aside()).toContain("Gold left120 of 120 gp");
     expect(button("Roll starting gold")).toBeUndefined();

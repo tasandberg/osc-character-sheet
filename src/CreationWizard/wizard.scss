@@ -635,6 +635,10 @@
   contain: size;
 }
 
+.osc-creation-shop-locked {
+  opacity: 0.4;
+}
+
 .osc-creation-shop-search {
   flex: 1 1 calc(var(--spacer-12) * 2);
   max-width: calc(var(--spacer-12) * 3 + var(--spacer-2));
