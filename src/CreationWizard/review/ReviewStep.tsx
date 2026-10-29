@@ -280,22 +280,6 @@ export function ReviewStep({
             <Tile stamp="HP" figure={hitPoints} tone="hp" title={hpTitle} />
           </div>
         </div>
-        <section className="u-stack u-gap-1" aria-label="Character">
-          <h3 className="vm-heading vm-heading-sm u-fs-lg">Character</h3>
-          <RecordRows rows={characterRows} />
-        </section>
-        <div className="u-grid u-grid-2 u-gap-6">
-          <section className="u-stack u-gap-1" aria-label="Advancement">
-            <h3 className="vm-heading vm-heading-sm u-fs-lg">Advancement</h3>
-            <RecordRows rows={advancement} />
-          </section>
-          <section className="u-stack u-gap-1" aria-label="Saving throws">
-            <h3 className="vm-heading vm-heading-sm u-fs-lg">Saving throws</h3>
-            <RecordRows
-              rows={rules.saveNames.map((save, i) => [save, row.saves[i]])}
-            />
-          </section>
-        </div>
         <section className="u-stack u-gap-1" aria-label="Ability scores">
           <h3 className="vm-heading vm-heading-sm u-fs-lg">Ability scores</h3>
           <div className="u-flex u-gap-2">
@@ -308,6 +292,20 @@ export function ReviewStep({
               />
             ))}
           </div>
+        </section>
+        <section className="u-stack u-gap-1" aria-label="Advancement">
+          <h3 className="vm-heading vm-heading-sm u-fs-lg">Advancement</h3>
+          <RecordRows rows={advancement} />
+        </section>
+        <section className="u-stack u-gap-1" aria-label="Character">
+          <h3 className="vm-heading vm-heading-sm u-fs-lg">Character</h3>
+          <RecordRows rows={characterRows} />
+        </section>
+        <section className="u-stack u-gap-1" aria-label="Saving throws">
+          <h3 className="vm-heading vm-heading-sm u-fs-lg">Saving throws</h3>
+          <RecordRows
+            rows={rules.saveNames.map((save, i) => [save, row.saves[i]])}
+          />
         </section>
         <Inventory gear={gear} rules={rules} onChangeGear={onChangeGear} />
         <MoreBelow scroller={paneRef} contentKey={gear.cart.length} />
