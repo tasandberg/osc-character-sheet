@@ -153,7 +153,7 @@ function HitPointsSection({
       <span className="vm-key" id="osc-creation-hp">
         Hit Points
       </span>
-      <div className="u-flex u-items-center u-gap-3">
+      <div className="u-flex u-flex-1 u-items-center u-gap-3">
         <span
           className={cx(
             scoreFaceClass(invalid && "vm-score-face-invalid"),
@@ -277,18 +277,16 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
       </dl>
       <h3 className="vm-heading vm-heading-sm u-mt-1">Saving throws</h3>
       <dl
-        className="osc-creation-saves u-flex tw:flex-col"
+        className="osc-creation-record u-flex tw:flex-col"
         aria-label="Saving throws, roll d20 at or above target"
       >
         {rules.saveNames.map((name, i) => (
           <div
             key={name}
-            className="osc-creation-save u-flex u-items-center u-justify-between u-gap-3"
+            className="osc-creation-record-row u-flex u-items-baseline u-justify-between u-gap-3 u-fs-sm"
           >
-            <dt className="vm-key">{name}</dt>
-            <dd className="osc-creation-save-target u-fs-2xl">
-              {row.saves[i]}
-            </dd>
+            <dt className="vm-key u-flex-none">{name}</dt>
+            <dd className="tw:text-right">{row.saves[i]}</dd>
           </div>
         ))}
       </dl>
@@ -324,6 +322,7 @@ export function DetailsStep(props: Props) {
               <input
                 className="vm-input vm-input-underline vm-input-title"
                 type="text"
+                placeholder="Character name"
                 value={draft.name}
                 onChange={(event) =>
                   onChange((d) => ({ ...d, name: event.target.value }))
@@ -335,7 +334,7 @@ export function DetailsStep(props: Props) {
                 <span className="vm-key" aria-hidden="true">
                   Level
                 </span>
-                <div className="osc-creation-identity-control u-flex u-items-center">
+                <div className="osc-creation-identity-control u-flex u-flex-1 u-items-center">
                   <LevelStepper
                     level={details.level}
                     cap={details.cap}
