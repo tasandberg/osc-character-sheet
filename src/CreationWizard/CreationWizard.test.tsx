@@ -427,7 +427,7 @@ describe("CreationWizard", () => {
   it("swaps a picked-up score with another ability and announces it", async () => {
     open();
     press("Roll and arrange");
-    await pressAsync("Roll six totals");
+    await pressRolls("Roll six totals");
     press("Place the rest in order");
 
     press("DEX 15");
@@ -442,7 +442,7 @@ describe("CreationWizard", () => {
   it("drops a picked-up roll with Escape", async () => {
     open();
     press("Roll and arrange");
-    await pressAsync("Roll six totals");
+    await pressRolls("Roll six totals");
 
     press("15, rolled 13 1 1");
     expect(button("Place 15 on DEX")).toBeDefined();

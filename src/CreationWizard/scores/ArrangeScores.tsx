@@ -10,7 +10,7 @@ import {
 } from "./scoresDraft";
 import { ScoreFigure, ScoreGrid, ScoreTile } from "./ScoreTile";
 import { scoreFaceClass } from "./scoreFace";
-import { usePointerDrag } from "./usePointerDrag";
+import { useNativeDrag } from "./useNativeDrag";
 
 type Props = {
   draft: ScoresDraft;
@@ -107,7 +107,7 @@ export function ArrangeScores({
     say(`Returned ${total(item.slot)} to the rolls.`);
   };
 
-  const drag = usePointerDrag<Held>({
+  const drag = useNativeDrag<Held>({
     onStart: pickUp,
     onDrop: (item, target) =>
       target === POOL_TARGET
@@ -140,8 +140,6 @@ export function ArrangeScores({
     cancel();
   };
 
-  const ghostRoll = drag.dragging ? draft.pool[drag.dragging.slot] : null;
-
   return (
     <div className="tw:contents" onKeyDown={onKeyDown}>
       <p className="tw:sr-only" aria-live="polite">
@@ -163,7 +161,7 @@ export function ArrangeScores({
           )}
           role="group"
           aria-label="Rolls"
-          data-drop-target={POOL_TARGET}
+          {...drag.dropProps(POOL_TARGET)}
         >
           {draft.pool.map((roll, slot) => {
             if (!roll)
@@ -297,7 +295,7 @@ export function ArrangeScores({
                   )}
                   aria-pressed={isSource}
                   aria-label={targetLabel}
-                  data-drop-target={ability}
+                  {...drag.dropProps(ability)}
                   onClick={() =>
                     isSource
                       ? cancel()
@@ -319,7 +317,7 @@ export function ArrangeScores({
                     over && "is-drop-over",
                   )}
                   aria-label={`Place ${heldRoll.total} on ${label}`}
-                  data-drop-target={ability}
+                  {...drag.dropProps(ability)}
                   onClick={() => dropOn(holding, ability)}
                 >
                   <span className="vm-score-placeholder">
@@ -343,16 +341,6 @@ export function ArrangeScores({
           })}
         </ScoreGrid>
       </section>
-      {ghostRoll && drag.ghost && (
-        <span
-          className="osc-creation-roll-chip osc-creation-drag-ghost vm-bevel"
-          aria-hidden="true"
-          style={{ left: `${drag.ghost.x}px`, top: `${drag.ghost.y}px` }}
-        >
-          {ghostRoll.total}
-          <small>{ghostRoll.dice.join("·")}</small>
-        </span>
-      )}
     </div>
   );
 }

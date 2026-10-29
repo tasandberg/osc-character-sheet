@@ -284,9 +284,16 @@
   border: 1px dashed var(--hair-soft);
 }
 
+.osc-creation-drag-ghost {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 2;
+  pointer-events: none;
+  background-color: var(--surface);
+}
+
 .osc-creation-draggable {
-  touch-action: none;
-  user-select: none;
+  -webkit-user-drag: element;
   cursor: grab;
 
   &.is-dragging {
@@ -308,14 +315,6 @@
 .osc-creation-roll-pool.is-drop-over {
   outline: 2px dashed var(--gold);
   outline-offset: var(--spacer-2);
-}
-
-.osc-creation-drag-ghost {
-  position: fixed;
-  z-index: 2;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  background-color: var(--surface);
 }
 
 .osc-creation-wizard-app {

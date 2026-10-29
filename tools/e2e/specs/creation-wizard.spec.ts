@@ -59,13 +59,7 @@ test.describe("creation wizard", () => {
       const total = (await chip.getAttribute("aria-label"))!.split(",")[0];
       const dex = wizard.locator(".vm-score-face", { has: gamePage.locator('[aria-label="DEX empty"]') });
 
-      const from = (await chip.boundingBox())!;
-      const to = (await dex.boundingBox())!;
-      await gamePage.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
-      await gamePage.mouse.down();
-      await gamePage.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 10 });
-      await expect(wizard.getByRole("button", { name: `Place ${total} on DEX` })).toBeVisible();
-      await gamePage.mouse.up();
+      await chip.dragTo(dex);
 
       await expect(wizard.getByRole("button", { name: `DEX ${total}` })).toBeVisible();
       await expect(wizard.locator("[aria-live]")).toHaveText(`Placed ${total} on DEX.`);
