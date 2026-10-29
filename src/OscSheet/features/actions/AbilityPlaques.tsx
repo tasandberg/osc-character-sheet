@@ -15,7 +15,7 @@ const ROLL_BUTTON =
   "osc-stat-button osc-ability-roll vm-bevel vm-btn-muted vm-key tw:block tw:px-px tw:pt-1 tw:pb-[2px] tw:leading-none";
 
 const VALUE =
-  "tw:cursor-default tw:font-sans tw:text-(length:--fs-3xl) tw:leading-none tw:tabular-nums tw:text-text";
+  "tw:cursor-default tw:font-sans tw:font-medium tw:text-(length:--fs-3xl) tw:leading-none tw:tabular-nums tw:text-text";
 
 const MOD =
   "osc-ability-mod vm-btn vm-dotted tw:font-mono tw:text-(length:--fs-xs) tw:font-medium tw:leading-none tw:text-text-dim";
@@ -58,9 +58,9 @@ function AbilityColumn({
           {ability.label}
         </Stamp>
       )}
-      <div className="osc-ability-score tw:mx-px tw:flex tw:flex-col tw:items-center tw:gap-[2px] tw:border tw:border-t-0 tw:border-(--hair-soft) tw:bg-(--surface-solid) tw:shadow-(--well-shadow) tw:pt-2 tw:pb-2">
+      <div className="osc-ability-score tw:flex tw:flex-1 tw:flex-col tw:items-center tw:justify-center tw:gap-1 tw:pt-[calc(var(--spacer-1)+3px)] tw:pb-2">
         <span className={VALUE}>{ability.value}</span>
-        <span className="tw:relative">
+        <span className="tw:relative tw:flex">
           <button
             type="button"
             className={MOD}
