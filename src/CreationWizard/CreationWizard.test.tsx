@@ -895,8 +895,9 @@ describe("CreationWizard review", () => {
     await toReview();
     expect(currentStep()).toBe("5Review");
     const text = host.textContent;
-    expect(text).toContain("WrenNeutral · +5% XP from DEX 15");
-    expect(text).toContain("Thief· level 1");
+    expect(text).toContain("WrenThief · level 1");
+    expect(text).toContain("AlignmentNeutral");
+    expect(text).toContain("XP bonus+5% from DEX 15");
     expect(text).toContain("STR13+1");
     expect(text).toContain("LanguagesAlignment, Common");
     expect(text).toContain("HP3");

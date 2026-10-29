@@ -11,6 +11,7 @@ import { goldLeft, itemCount, type GearDraft } from "../gear/gearDraft";
 import { useLoadPreview } from "../gear/useLoadPreview";
 import { MoreBelow } from "../MoreBelow";
 import { PortraitPicker } from "../portrait/PortraitPicker";
+import { RecordRows, type RecordRow } from "../RecordRows";
 import { ordinal, raceLanguages, type CreationRace } from "../race/raceDraft";
 import type { CreationClass, CreationRules } from "../rules";
 import { nativeLanguages } from "../rules/classConstants";
@@ -33,28 +34,6 @@ type Props = {
   rules: CreationRules;
   onChangeGear: () => void;
 };
-
-function Fact({
-  label,
-  wide,
-  children,
-}: {
-  label: string;
-  wide?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className={cx(
-        "u-flex tw:flex-col u-gap-1 tw:min-w-0",
-        wide && "tw:col-span-full",
-      )}
-    >
-      <dt className="vm-key">{label}</dt>
-      <dd>{children}</dd>
-    </div>
-  );
-}
 
 function Tile({
   stamp,
@@ -255,6 +234,31 @@ export function ReviewStep({
       : row.hd;
   const slots = spellSlots(row);
   const name = details.name.trim();
+  const characterRows: RecordRow[] = [
+    ["Alignment", alignment?.label ?? "—"],
+    [
+      "XP bonus",
+      xp ? `${formatXpModifier(xp.modifier)} from ${xp.basis}` : "None",
+    ],
+    ["Languages", languages],
+  ];
+  const advancement: RecordRow[] = [
+    ["Experience", `${row.xp.toLocaleString()} xp`],
+    ["Next level", nextXp === null ? "—" : `${nextXp.toLocaleString()} xp`],
+    ["Max level", ordinal(character.cap)],
+    ["Hit dice", row.hd],
+    ["THAC0", `${row.thac0} [${formatModifier(19 - row.thac0)}]`],
+    ...(row.spells
+      ? ([
+          [
+            "Spell slots",
+            slots.length
+              ? slots.map((s) => `${s.level} ${s.count}`).join(" · ")
+              : "None yet",
+          ],
+        ] as RecordRow[])
+      : []),
+  ];
 
   return (
     <div className="osc-creation-split osc-creation-review-step">
@@ -269,53 +273,29 @@ export function ReviewStep({
               {name}
             </h2>
             <span className="vm-sheet-head-hint">
-              {[
-                alignment?.label,
-                xp && `${formatXpModifier(xp.modifier)} XP from ${xp.basis}`,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
+              {race ? `${race.name} ${cls.name}` : cls.name} · level {level}
             </span>
           </div>
           <div className="u-flex u-flex-none u-gap-2" aria-label="Combat">
             <Tile stamp="HP" figure={hitPoints} tone="hp" title={hpTitle} />
           </div>
         </div>
-        <section
-          className="u-stack u-gap-1"
-          aria-label={`${race ? `${race.name} ` : ""}${cls.name} at level ${level}`}
-        >
-          <div className="vm-sheet-head">
-            <h2 className="vm-sheet-head-title">
-              {race ? `${race.name} ${cls.name}` : cls.name}
-            </h2>
-            <span className="vm-sheet-head-hint">· level {level}</span>
-          </div>
-          <dl className="u-grid tw:grid-cols-6 u-gap-x-4 u-gap-y-3">
-            <Fact label="Experience">{row.xp.toLocaleString()} xp</Fact>
-            <Fact label="Next level">
-              {nextXp === null ? "—" : `${nextXp.toLocaleString()} xp`}
-            </Fact>
-            <Fact label="Max level">{ordinal(character.cap)}</Fact>
-            <Fact label="Hit dice">{row.hd}</Fact>
-            <Fact label="THAC0">
-              {row.thac0} [{formatModifier(19 - row.thac0)}]
-            </Fact>
-            <Fact label="XP bonus">
-              {xp ? formatXpModifier(xp.modifier) : "None"}
-            </Fact>
-            {row.spells && (
-              <Fact label="Spell slots">
-                {slots.length
-                  ? slots.map((s) => `${s.level} ${s.count}`).join(" · ")
-                  : "None yet"}
-              </Fact>
-            )}
-            <Fact label="Languages" wide>
-              {languages}
-            </Fact>
-          </dl>
+        <section className="u-stack u-gap-1" aria-label="Character">
+          <h3 className="vm-heading vm-heading-sm">Character</h3>
+          <RecordRows rows={characterRows} />
         </section>
+        <div className="u-grid u-grid-2 u-gap-6">
+          <section className="u-stack u-gap-1" aria-label="Advancement">
+            <h3 className="vm-heading vm-heading-sm">Advancement</h3>
+            <RecordRows rows={advancement} />
+          </section>
+          <section className="u-stack u-gap-1" aria-label="Saving throws">
+            <h3 className="vm-heading vm-heading-sm">Saving throws</h3>
+            <RecordRows
+              rows={rules.saveNames.map((save, i) => [save, row.saves[i]])}
+            />
+          </section>
+        </div>
         <section className="u-stack u-gap-1" aria-label="Ability scores">
           <h3 className="vm-heading vm-heading-sm">Ability scores</h3>
           <div className="u-flex u-gap-2">
@@ -328,22 +308,6 @@ export function ReviewStep({
               />
             ))}
           </div>
-        </section>
-        <section className="u-stack u-gap-1" aria-label="Saving throws">
-          <h3 className="vm-heading vm-heading-sm">Saving throws</h3>
-          <dl className="osc-creation-review-saves u-flex u-items-stretch">
-            {rules.saveNames.map((save, i) => (
-              <div
-                key={save}
-                className="osc-creation-review-save u-flex u-flex-1 tw:flex-col u-items-center u-justify-between u-gap-1 u-py-1 u-px-2"
-              >
-                <dt className="vm-key tw:whitespace-normal tw:text-center">
-                  {save}
-                </dt>
-                <dd className="u-fs-xl">{row.saves[i]}</dd>
-              </div>
-            ))}
-          </dl>
         </section>
         <Inventory gear={gear} rules={rules} onChangeGear={onChangeGear} />
         <MoreBelow scroller={paneRef} contentKey={gear.cart.length} />

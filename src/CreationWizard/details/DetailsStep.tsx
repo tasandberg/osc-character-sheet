@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { cx } from "@ui/cx";
 import { VellumSegmented } from "@features/settings/controls";
 import { MoreBelow } from "../MoreBelow";
+import { RecordRows, type RecordRow } from "../RecordRows";
 import { PortraitPicker } from "../portrait/PortraitPicker";
 import { ordinal, raceSaveBonus, type CreationRace } from "../race/raceDraft";
 import type {
@@ -232,7 +233,7 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
     ...(wis ? [`${formatModifier(wis)} vs magic (WIS ${scores.wis})`] : []),
     ...(racial?.bonus ? [`${racial.summary} (${racial.basis})`] : []),
   ];
-  const stats: [string, string][] = [
+  const stats: RecordRow[] = [
     ["Experience", `${row.xp.toLocaleString()} xp`],
     ["Next level", nextXp === null ? "—" : `${nextXp.toLocaleString()} xp`],
     ["Max level", ordinal(details.cap)],
@@ -246,7 +247,7 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
               ? slots.map((s) => `${s.level} ${s.count}`).join(" · ")
               : "None yet",
           ],
-        ] as [string, string][])
+        ] as RecordRow[])
       : []),
   ];
 
@@ -264,32 +265,12 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
           </span>
         </h2>
       </div>
-      <dl className="osc-creation-record u-flex tw:flex-col">
-        {stats.map(([label, value]) => (
-          <div
-            key={label}
-            className="osc-creation-record-row u-flex u-items-baseline u-justify-between u-gap-3 u-fs-sm"
-          >
-            <dt className="vm-key u-flex-none">{label}</dt>
-            <dd className="tw:text-right">{value}</dd>
-          </div>
-        ))}
-      </dl>
+      <RecordRows rows={stats} />
       <h3 className="vm-heading vm-heading-sm u-mt-1">Saving throws</h3>
-      <dl
-        className="osc-creation-record u-flex tw:flex-col"
+      <RecordRows
+        rows={rules.saveNames.map((name, i) => [name, row.saves[i]])}
         aria-label="Saving throws, roll d20 at or above target"
-      >
-        {rules.saveNames.map((name, i) => (
-          <div
-            key={name}
-            className="osc-creation-record-row u-flex u-items-baseline u-justify-between u-gap-3 u-fs-sm"
-          >
-            <dt className="vm-key u-flex-none">{name}</dt>
-            <dd className="tw:text-right">{row.saves[i]}</dd>
-          </div>
-        ))}
-      </dl>
+      />
       {notes.length > 0 && <p className="vm-help">{notes.join(" · ")}</p>}
       <MoreBelow scroller={asideRef} contentKey={details.level} />
     </aside>

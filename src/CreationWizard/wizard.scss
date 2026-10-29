@@ -850,36 +850,6 @@
   color: var(--crimson);
 }
 
-.osc-creation-review-saves {
-  border-top: 1px solid var(--hair);
-}
-
-.osc-creation-review-save {
-  min-width: 0;
-  text-align: center;
-
-  + .osc-creation-review-save {
-    border-left: 1px solid var(--hair-soft);
-  }
-
-  &:first-child {
-    padding-left: 0;
-  }
-
-  &:last-child {
-    padding-right: 0;
-  }
-
-  dt {
-    line-height: 1.15;
-  }
-
-  dd {
-    font-weight: 500;
-    line-height: 1;
-  }
-}
-
 .osc-creation-review-inventory-head {
   min-height: calc(var(--spacer-6) + var(--spacer-1));
   padding: 2px 0;
