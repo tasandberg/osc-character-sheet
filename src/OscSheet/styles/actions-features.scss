@@ -29,7 +29,13 @@
 }
 @container sheet (min-width: 470px) {
   .osc-abilities {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--spacer-4);
+    max-width: 600px;
+    margin-inline: auto;
+  }
+  .osc-abilities > * {
+    aspect-ratio: 1;
   }
 }
 .osc-ability-roll {

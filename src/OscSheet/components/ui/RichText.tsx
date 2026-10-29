@@ -1,12 +1,9 @@
-import { useSetting } from "@src/OscSheet/settings";
 import { cx } from "@ui/cx";
 
-// Renders enriched HTML in Foundry's theme scope so content colours resolve against our theme.
 export function RichText({ html, className }: { html: string; className?: string }) {
-  const fdTheme = useSetting("theme") === "cream" ? "theme-light" : "theme-dark";
   return (
     <div
-      className={cx("osc-rich-text-body", "themed", fdTheme, "tw:select-text", className)}
+      className={cx("osc-rich-text-body", "tw:select-text", className)}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

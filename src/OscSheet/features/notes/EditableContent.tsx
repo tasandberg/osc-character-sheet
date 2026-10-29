@@ -4,7 +4,6 @@ import { SectionTitle } from "@ui/SectionTitle";
 import { IconButton } from "@ui/IconButton";
 import { ProseMirrorEditor } from "@ui/ProseMirrorEditor";
 import { RichText } from "@ui/RichText";
-import { useSetting } from "@src/OscSheet/settings";
 
 export default function EditableContent({
   title,
@@ -18,13 +17,6 @@ export default function EditableContent({
   const { actor, updateActor, canEdit } = useOscSheetContext();
   const [enriched, setEnriched] = useState<string>("");
   const [editing, setEditing] = useState(false);
-
-  // Foundry's content-links/editor resolve colours from its OWN theme scope
-  // (`.themed.theme-{light,dark}`), independent of our sheet theme — so a cream
-  // sheet would otherwise get dark-on-dark links. Mirror our theme onto the
-  // container so they match.
-  const fdTheme =
-    useSetting("theme") === "cream" ? "theme-light" : "theme-dark";
 
   useEffect(() => {
     let live = true;
@@ -51,19 +43,17 @@ export default function EditableContent({
       {editing ? (
         // Edit on demand: an always-on ProseMirror that fills the same space.
         // Its Save persists and returns to the static view (no separate cancel).
-        <div className={`themed ${fdTheme}`}>
-          <ProseMirrorEditor
-            name={name}
-            value={value}
-            enriched={enriched}
-            toggled={false}
-            documentUUID={actor.uuid}
-            onSave={(next) => {
-              void updateActor({ [name]: next });
-              setEditing(false);
-            }}
-          />
-        </div>
+        <ProseMirrorEditor
+          name={name}
+          value={value}
+          enriched={enriched}
+          toggled={false}
+          documentUUID={actor.uuid}
+          onSave={(next) => {
+            void updateActor({ [name]: next });
+            setEditing(false);
+          }}
+        />
       ) : (
         // Static view card; max-w = a reading measure, not the full tab width.
         <div className="tw:max-w-[640px] tw:border tw:border-border-soft tw:bg-bg-2 tw:px-3 tw:py-2">
