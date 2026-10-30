@@ -147,11 +147,10 @@
   --well-lip: var(--btn-lit);
   border: 2px solid;
   border-color: var(--well-cut) var(--well-lip) var(--well-lip) var(--well-cut);
-  background-color: var(--well);
+  background-color: color-mix(in srgb, var(--surface-solid) 50%, transparent);
 }
 [data-theme="cream"] .osc-sheet-app .osc-ability-score {
   --well-cut: var(--stamp-wall);
-  background-color: var(--btn-pressed);
 }
 @container app (width >= #{bp.$md}) {
   @container sheet (width < 700px) {
@@ -194,62 +193,7 @@
 // --- saves/exploration tab nav (rail, large view) ---
 // Nav + tabs are in actions-features.scss; SavesExploration.tsx is NOT converted.
 
-// --- saves band & exploration grid ---
-.osc-saves-band {
-  container-type: inline-size;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-.osc-saves-band-cell {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: var(--spacer-2);
-  padding: var(--spacer-2) var(--spacer-1);
-  min-width: 0;
-  outline-offset: -2px;
-
-  & + & {
-    border-left: 1px solid var(--hair-soft);
-  }
-  &.rollable {
-    cursor: pointer;
-  }
-  &.rollable:hover .osc-saves-band-label {
-    color: var(--gold);
-  }
-  &.rollable:focus-visible {
-    outline: 2px solid var(--gold);
-  }
-}
-.osc-saves-band-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--text-dim);
-  font-size: var(--fs-2xs);
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-.osc-saves-band-value {
-  font-family: var(--display);
-  font-size: var(--fs-2xl);
-  font-size-adjust: none;
-  line-height: 1;
-  color: var(--text);
-}
-@container (max-width: 500px) {
-  .osc-saves-band-cell {
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacer-1);
-  }
-  .osc-saves-band-label {
-    max-width: 100%;
-  }
-}
-
+// --- saves & exploration grid ---
 // Exploration: up to 2-up grid, dropping to one column under ~240px cells.
 .fvtt-explore {
   grid-template-columns: repeat(
@@ -266,6 +210,11 @@
 // converted). Only the roll affordance stays here.
 .fvtt-skill {
   @include rollable-card;
+}
+.osc-sheet .fvtt-skill .icon-btn.raised {
+  width: var(--spacer-6);
+  height: var(--spacer-6);
+  font-size: var(--fs-xs);
 }
 
 // Favorited abilities reuse the exploration row but show name, target and

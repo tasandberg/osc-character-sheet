@@ -169,7 +169,7 @@ test.describe("tab feature surfaces", () => {
 });
 
 test.describe("narrower layouts", () => {
-  test("medium keeps the header, attack rows and saves band side by side", async ({
+  test("medium keeps the header, attack rows and save rows side by side", async ({
     gamePage,
     fighter,
   }) => {
@@ -189,7 +189,8 @@ test.describe("narrower layouts", () => {
 
     const saves = sheet.locator('[data-testid^="save-"]:visible');
     await expect(saves).toHaveCount(5);
-    expect(rowsOf(await boxesOf(saves))).toBe(1);
+    for (const save of await saves.all())
+      expect(rowsOf(await boxesOf(save.locator("> *")))).toBe(1);
   });
 
   test("narrow swaps the rail for a bottom bar and inlines the header stats", async ({

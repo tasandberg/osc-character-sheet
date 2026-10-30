@@ -3,7 +3,8 @@ import type { SaveVM, ExplorationVM, AbilityVM } from "@domain/vm-types";
 import type { OSESave } from "@domain/types";
 import { SectionTitle } from "@ui/SectionTitle";
 import { cx } from "@ui/cx";
-import { rollable, type ActivateEvent } from "@ui/rollable";
+import { IconButton } from "@ui/IconButton";
+import type { ActivateEvent } from "@ui/rollable";
 import SavesModTag from "@src/OscSheet/components/ui/SavesModTag";
 
 type Props = {
@@ -15,27 +16,39 @@ type Props = {
   onRollExploration?: (key: string, event: ActivateEvent) => void;
 };
 
-export function SavesBand({
-  saves,
+function RollRow({
+  icon,
+  label,
+  value,
+  die,
+  rollLabel,
   onRoll,
+  testId,
 }: {
-  saves: SaveVM[];
-  onRoll?: (key: OSESave, event: ActivateEvent) => void;
+  icon: string;
+  label: string;
+  value: string | number;
+  die: "d20" | "d6";
+  rollLabel: string;
+  onRoll?: (event: ActivateEvent) => void;
+  testId?: string;
 }) {
   return (
-    <div className="osc-saves-band">
-      {saves.map((s) => (
-        <div
-          key={s.key}
-          className={cx("osc-saves-band-cell", onRoll && "rollable")}
-          title={onRoll ? `Roll ${s.label} save (≥ ${s.target})` : undefined}
-          data-testid={`save-${s.key}`}
-          {...rollable(onRoll && ((e) => onRoll(s.key, e)))}
+    <div className="fvtt-skill" data-testid={testId}>
+      <i className={cx("skic", icon)} aria-hidden="true" />
+      <span className="skn">{label}</span>
+      <span className="skv">{value}</span>
+      {onRoll && (
+        <IconButton
+          variant="raised"
+          className="osc-icon-tone-brass"
+          title={rollLabel}
+          aria-label={rollLabel}
+          onClick={onRoll}
         >
-          <span className="osc-saves-band-label">{s.label}</span>
-          <span className="osc-saves-band-value">{s.target}</span>
-        </div>
-      ))}
+          <i className={`fa-solid fa-dice-${die}`} aria-hidden="true" />
+        </IconButton>
+      )}
     </div>
   );
 }
@@ -50,22 +63,16 @@ export function SavesList({
   return (
     <div className="fvtt-explore">
       {saves.map((s) => (
-        <div
+        <RollRow
           key={s.key}
-          className={cx("fvtt-skill", onRoll && "rollable")}
-          title={onRoll ? `Roll ${s.label} save (≥ ${s.target})` : undefined}
-          data-testid={`save-${s.key}`}
-          {...rollable(onRoll && ((e) => onRoll(s.key, e)))}
-        >
-          <i className={cx("skic", s.icon)} aria-hidden="true" />
-          <span className="skn">{s.label}</span>
-          <span className="skv">
-            {s.target}
-            <span className="osc-roll-die" aria-hidden="true">
-              <i className="fa-solid fa-dice-d20 roll-label-die" />
-            </span>
-          </span>
-        </div>
+          icon={s.icon}
+          label={s.label}
+          value={s.target}
+          die="d20"
+          rollLabel={`Roll ${s.label} save (≥ ${s.target})`}
+          onRoll={onRoll && ((e) => onRoll(s.key, e))}
+          testId={`save-${s.key}`}
+        />
       ))}
     </div>
   );
@@ -81,21 +88,15 @@ export function ExplorationGrid({
   return (
     <div className="fvtt-explore osc-ruled-grid">
       {exploration.map((e) => (
-        <div
+        <RollRow
           key={e.key}
-          className={cx("fvtt-skill", onRoll && "rollable")}
-          title={onRoll ? `Roll ${e.label} (${e.inSix}-in-6)` : undefined}
-          {...rollable(onRoll && ((ev) => onRoll(e.key, ev)))}
-        >
-          <i className={cx("skic", e.icon)} aria-hidden="true" />
-          <span className="skn">{e.label}</span>
-          <span className="skv">
-            {e.inSix}-in-6
-            <span className="osc-roll-die" aria-hidden="true">
-              <i className="fa-solid fa-dice-d6 roll-label-die" />
-            </span>
-          </span>
-        </div>
+          icon={e.icon}
+          label={e.label}
+          value={`${e.inSix}-in-6`}
+          die="d6"
+          rollLabel={`Roll ${e.label} (${e.inSix}-in-6)`}
+          onRoll={onRoll && ((ev) => onRoll(e.key, ev))}
+        />
       ))}
     </div>
   );
@@ -121,7 +122,7 @@ export function SavesExploration({
     return (
       <section className="osc-section">
         <SectionTitle hint="roll-above d20">Saving Throws</SectionTitle>
-        <SavesBand saves={saves} onRoll={onRollSave} />
+        <SavesList saves={saves} onRoll={onRollSave} />
         <SectionTitle hint="1-in-6">Exploration</SectionTitle>
         <ExplorationGrid exploration={exploration} onRoll={onRollExploration} />
       </section>

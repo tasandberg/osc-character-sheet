@@ -6,7 +6,11 @@ test.describe("saving throws", () => {
     const sheet = await openCharacterSheet(gamePage, fighter.name);
 
     const before = await chatCount(gamePage);
-    await sheet.locator('[data-testid="save-death"]:visible').first().click();
+    await sheet
+      .locator('[data-testid="save-death"]:visible')
+      .first()
+      .getByRole("button", { name: /Roll Death save/ })
+      .click();
     await confirmRollDialogIfPresent(gamePage);
 
     await expect.poll(() => chatCount(gamePage), { timeout: 15_000 }).toBeGreaterThan(before);

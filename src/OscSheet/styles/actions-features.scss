@@ -30,12 +30,9 @@
 @container sheet (min-width: 470px) {
   .osc-abilities {
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: var(--spacer-4);
+    gap: clamp(var(--spacer-2), calc((100% - 472px) / 8), var(--spacer-4));
     max-width: 600px;
     margin-inline: auto;
-  }
-  .osc-abilities > * {
-    aspect-ratio: 1;
   }
 }
 .osc-ability-roll {
@@ -51,15 +48,21 @@
 }
 .osc-ability-mod {
   position: relative;
-
-  &::after {
+}
+@media (pointer: coarse) {
+  .osc-ability-mod::after {
     content: "";
     position: absolute;
     top: 0;
-    left: 50%;
+    left: 0;
     width: 44px;
     height: 44px;
-    transform: translateX(-50%);
+  }
+  @container app (width < #{bp.$md}) {
+    .osc-ability-mod::after {
+      left: 50%;
+      transform: translateX(-50%);
+    }
   }
 }
 
@@ -120,11 +123,14 @@
     background 0.12s;
 }
 .fvtt-skill .skic {
-  color: var(--gold-dim);
+  align-self: center;
   font-size: var(--fs-md, 14px);
   width: 18px;
   text-align: center;
   flex: none;
+}
+.fvtt-skill i.skic {
+  color: var(--text-dim);
 }
 .fvtt-skill .skn {
   font-size: var(--fs-md);
@@ -136,12 +142,12 @@
   min-width: 0;
 }
 .fvtt-skill .skv {
-  // muted "N-in-6" with a trailing d6 glyph — no pill.
+  // value at the name's size — no pill.
   display: inline-flex;
   align-items: center;
   gap: var(--spacer-1);
-  font-size: var(--fs-xs);
-  color: var(--text-dim);
+  font-size: var(--fs-md);
+  color: var(--text);
   white-space: nowrap;
   flex: none;
   align-self: center;
