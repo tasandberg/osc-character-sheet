@@ -27,6 +27,7 @@ let hitPointRolls: string[];
 let goldRolls: { total: number; dice: number[] }[];
 let goldFormulas: string[];
 let previewedCarts: CartLine[][];
+let previewedScores: AbilityScores[];
 let openedSheets: string[];
 let titles: string[];
 let createdCharacters: NewCharacter[];
@@ -149,8 +150,9 @@ const rules: CreationRules = {
     return goldRolls.shift()!;
   },
   loadGearCatalog: async () => catalog,
-  previewLoad: async (cart, items) => {
+  previewLoad: async (cart, items, scores) => {
     previewedCarts.push(cart);
+    previewedScores.push(scores);
     const carried = cart.reduce(
       (sum, line) =>
         sum +
@@ -160,6 +162,7 @@ const rules: CreationRules = {
     );
     const heavy = carried > 400;
     return {
+      armourClass: 7,
       enabled: true,
       value: carried,
       max: 1600,
@@ -183,6 +186,7 @@ function open(wizardRules = rules) {
   goldRolls = [];
   goldFormulas = [];
   previewedCarts = [];
+  previewedScores = [];
   openedSheets = [];
   titles = [];
   createdCharacters = [];
@@ -812,7 +816,9 @@ describe("CreationWizard gear", () => {
     expect(aside()).toContain("Pack0 items");
 
     await pressAsync("Roll starting gold");
-    expect(host.textContent).not.toContain("Roll starting gold to open the shop");
+    expect(host.textContent).not.toContain(
+      "Roll starting gold to open the shop",
+    );
     expect(goldFormulas).toEqual(["3d6 * 10"]);
     expect(aside()).toContain("Gold left120 of 120 gp");
     expect(button("Roll starting gold")).toBeUndefined();
@@ -904,6 +910,8 @@ describe("CreationWizard review", () => {
     expect(text).toContain("STR13+1");
     expect(text).toContain("LanguagesAlignment, Common");
     expect(text).toContain("HP3");
+    expect(text).toContain("AC7");
+    expect(previewedScores.at(-1)).toMatchObject({ dex: 15 });
     expect(text).toContain("Sword10 gp · 60 cn");
     expect(text).toContain("15 gp left of 25");
 

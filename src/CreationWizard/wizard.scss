@@ -858,6 +858,16 @@
   color: var(--crimson);
 }
 
+.osc-creation-review-ac {
+  color: var(--teal);
+}
+
+.osc-creation-review-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--hair);
+}
+
 .osc-creation-review-inventory-head {
   min-height: calc(var(--spacer-6) + var(--spacer-1));
   padding: 2px 0;

@@ -2,9 +2,14 @@ import { cx } from "@ui/cx";
 import type { CreationRules } from "../rules";
 import type { GearDraft } from "./gearDraft";
 import type { LoadPreview } from "./gearTypes";
+import type { AbilityScores } from "../scores/scoresDraft";
 import { useLoadPreview } from "./useLoadPreview";
 
-type Props = { draft: GearDraft; rules: CreationRules };
+type Props = {
+  draft: GearDraft;
+  rules: CreationRules;
+  scores: AbilityScores;
+};
 
 function Load({ preview }: { preview?: LoadPreview }) {
   if (!preview?.enabled)

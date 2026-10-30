@@ -1,3 +1,5 @@
+import type { AbilityScores } from "../scores/scoresDraft";
+
 export type GearCategory = "weapons" | "armour" | "gear" | "ammunition";
 
 export interface GearItem {
@@ -16,6 +18,7 @@ export interface CartLine {
 }
 
 export interface LoadPreview {
+  armourClass: number;
   enabled: boolean;
   value: number;
   max: number;
@@ -30,4 +33,5 @@ export type LoadGearCatalog = () => Promise<GearItem[]>;
 export type PreviewLoad = (
   cart: CartLine[],
   catalog: GearItem[],
+  scores: AbilityScores,
 ) => Promise<LoadPreview>;

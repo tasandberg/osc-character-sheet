@@ -203,6 +203,8 @@ describe("previewLoad", () => {
             },
             movement: { base: 120, encounter: 40, overland: 24 },
             scores: {},
+            ac: { value: 5 },
+            aac: { value: 14 },
           };
         },
       },
@@ -219,8 +221,10 @@ describe("previewLoad", () => {
           weight: 400,
         },
       ],
+      { dex: 13 },
     );
     expect(preview).toMatchObject({
+      armourClass: 5,
       label: "8 / 16 items",
       pct: 0.5,
       tier: "Unencumbered",

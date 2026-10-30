@@ -45,7 +45,7 @@ function Tile({
   stamp: string;
   figure: ReactNode;
   mod?: number;
-  tone?: "hp";
+  tone?: "hp" | "ac";
   title?: string;
 }) {
   return (
@@ -61,6 +61,7 @@ function Tile({
           className={cx(
             "vm-score-figure",
             tone === "hp" && "osc-creation-review-hp",
+            tone === "ac" && "osc-creation-review-ac",
           )}
         >
           {figure}
@@ -143,9 +144,10 @@ function ClassBlurb({
 function Inventory({
   gear,
   rules,
+  scores,
   onChangeGear,
-}: Pick<Props, "gear" | "rules" | "onChangeGear">) {
-  const preview = useLoadPreview({ draft: gear, rules });
+}: Pick<Props, "gear" | "rules" | "scores" | "onChangeGear">) {
+  const preview = useLoadPreview({ draft: gear, rules, scores });
   const count = itemCount(gear);
   const load = preview?.enabled
     ? `${preview.label}${preview.tier ? `, ${preview.tier.toLowerCase()}` : ""}`
@@ -234,6 +236,7 @@ export function ReviewStep({
       : row.hd;
   const slots = spellSlots(row);
   const name = details.name.trim();
+  const preview = useLoadPreview({ draft: gear, rules, scores });
   const characterRows: RecordRow[] = [
     ["Alignment", alignment?.label ?? "—"],
     [
@@ -276,24 +279,31 @@ export function ReviewStep({
               {race ? `${race.name} ${cls.name}` : cls.name} · level {level}
             </span>
           </div>
-          <div className="u-flex u-flex-none u-gap-2" aria-label="Combat">
-            <Tile stamp="HP" figure={hitPoints} tone="hp" title={hpTitle} />
-          </div>
         </div>
-        <section className="u-stack u-gap-1" aria-label="Ability scores">
-          <h3 className="vm-heading vm-heading-sm u-fs-lg">Ability scores</h3>
+        <section className="u-stack u-gap-2" aria-label="Vital statistics">
+          <h3 className="vm-heading vm-heading-sm u-fs-lg">Vital statistics</h3>
           <div className="u-flex u-gap-2">
-            {ABILITIES.map((a) => (
-              <Tile
-                key={a}
-                stamp={abbreviation(a)}
-                figure={scores[a]}
-                mod={modifiers[a] ?? 0}
-              />
-            ))}
+            <div className="u-flex u-gap-2" aria-label="Ability scores">
+              {ABILITIES.map((a) => (
+                <Tile
+                  key={a}
+                  stamp={abbreviation(a)}
+                  figure={scores[a]}
+                  mod={modifiers[a] ?? 0}
+                />
+              ))}
+            </div>
+            <span
+              className="osc-creation-review-divider u-mx-2"
+              aria-hidden="true"
+            />
+            <div className="u-flex u-gap-2" aria-label="Combat">
+              <Tile stamp="HP" figure={hitPoints} tone="hp" title={hpTitle} />
+              <Tile stamp="AC" figure={preview?.armourClass ?? "—"} tone="ac" />
+            </div>
           </div>
         </section>
-        <div className="osc-creation-review-pair u-grid u-grid-2 u-gap-6">
+        <div className="osc-creation-review-pair u-grid u-grid-2 u-gap-8">
           <section className="u-stack u-gap-1" aria-label="Advancement">
             <h3 className="vm-heading vm-heading-sm u-fs-lg">Advancement</h3>
             <RecordRows rows={advancement} />
@@ -309,7 +319,12 @@ export function ReviewStep({
             rows={rules.saveNames.map((save, i) => [save, row.saves[i]])}
           />
         </section>
-        <Inventory gear={gear} rules={rules} onChangeGear={onChangeGear} />
+        <Inventory
+          gear={gear}
+          rules={rules}
+          scores={scores}
+          onChangeGear={onChangeGear}
+        />
         <MoreBelow scroller={paneRef} contentKey={gear.cart.length} />
       </div>
       <aside

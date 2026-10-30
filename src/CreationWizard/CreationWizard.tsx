@@ -73,7 +73,15 @@ export function CreationWizard({
       onBack={wizard.previous && wizard.goBack}
       onCreate={create}
       creating={creating}
-      stats={step === "gear" && <GearFooter draft={draft.gear} rules={rules} />}
+      stats={
+        step === "gear" && (
+          <GearFooter
+            draft={draft.gear}
+            rules={rules}
+            scores={classScores(draft)}
+          />
+        )
+      }
     >
       {step === "scores" ? (
         <ScoresStep

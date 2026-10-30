@@ -1,6 +1,7 @@
 import type { OSEActor } from "@domain/types";
 import { selectEncumbrance } from "@features/inventory/encumbrance";
 import { TOME, activeClassSet, squash } from "../class/foundryClasses";
+import { ABILITIES } from "../scores/scoresDraft";
 import type {
   GearCategory,
   GearItem,
@@ -118,7 +119,10 @@ export const loadGearCatalog: LoadGearCatalog = async () => {
   return [];
 };
 
-type ItemSource = { system?: { quantity?: { value?: number | null } } };
+type ItemSource = {
+  type?: string;
+  system?: { quantity?: { value?: number | null } };
+};
 
 export async function cartItemSource(uuid: string, quantity: number) {
   const doc = (await fromUuid(uuid)) as { toObject(): ItemSource } | null;
@@ -130,10 +134,12 @@ export async function cartItemSource(uuid: string, quantity: number) {
     "system.quantity.value",
     perUnit * quantity,
   );
+  if (source.type === "armor")
+    foundry.utils.setProperty(source, "system.equipped", true);
   return [source];
 }
 
-export const previewLoad: PreviewLoad = async (cart, catalog) => {
+export const previewLoad: PreviewLoad = async (cart, catalog, scores) => {
   const known = new Set(catalog.map((item) => item.uuid));
   const items = (
     await Promise.all(
@@ -148,11 +154,17 @@ export const previewLoad: PreviewLoad = async (cart, catalog) => {
   const actor = new ActorClass({
     name: "New character",
     type: "character",
+    system: {
+      scores: Object.fromEntries(
+        ABILITIES.map((a) => [a, { value: scores[a] ?? 0 }]),
+      ),
+    },
     items,
   });
   const load = selectEncumbrance(actor);
-  const { movement } = actor.system;
+  const { movement, ac, aac } = actor.system;
   return {
+    armourClass: (ascendingAC() ? aac : ac).value,
     enabled: load.enabled,
     value: load.value,
     max: load.max,
