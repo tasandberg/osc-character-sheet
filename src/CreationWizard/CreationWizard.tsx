@@ -148,6 +148,12 @@ export function CreationWizard({
             gear={draft.gear}
             rules={rules}
             onChangeGear={() => wizard.goTo("gear")}
+            onChangePortrait={(portrait) =>
+              wizard.setDraft((d) => ({
+                ...d,
+                details: { ...d.details, portrait },
+              }))
+            }
           />
         )
       )}

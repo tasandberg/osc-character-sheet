@@ -10,6 +10,7 @@ import {
 import { goldLeft, itemCount, type GearDraft } from "../gear/gearDraft";
 import { useLoadPreview } from "../gear/useLoadPreview";
 import { MoreBelow } from "../MoreBelow";
+import type { PortraitDraft } from "../portrait/portraitDraft";
 import { PortraitPicker } from "../portrait/PortraitPicker";
 import { RecordRows, type RecordRow } from "../RecordRows";
 import { ordinal, raceLanguages, type CreationRace } from "../race/raceDraft";
@@ -33,6 +34,7 @@ type Props = {
   gear: GearDraft;
   rules: CreationRules;
   onChangeGear: () => void;
+  onChangePortrait: (portrait: PortraitDraft) => void;
 };
 
 function Tile({
@@ -218,6 +220,7 @@ export function ReviewStep({
   gear,
   rules,
   onChangeGear,
+  onChangePortrait,
 }: Props) {
   const paneRef = useRef<HTMLDivElement>(null);
   const asideRef = useRef<HTMLElement>(null);
@@ -270,7 +273,12 @@ export function ReviewStep({
         className="osc-creation-pane osc-creation-review-pane u-gap-4"
       >
         <div className="osc-creation-review-head u-flex u-items-center u-gap-4 u-pb-3">
-          <PortraitPicker draft={details.portrait} size="sm" alt={name} />
+          <PortraitPicker
+            draft={details.portrait}
+            size="sm"
+            alt={name}
+            onChange={onChangePortrait}
+          />
           <div className="u-flex u-flex-1 tw:flex-col u-gap-1">
             <h2 className="vm-sheet-head-title u-fs-3xl tw:leading-none">
               {name}

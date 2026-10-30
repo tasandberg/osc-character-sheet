@@ -977,7 +977,7 @@ describe("CreationWizard review", () => {
     expect(languages.value).toContain("Dwarvish");
   });
 
-  it("creates the character with the portrait chosen on Details", async () => {
+  it("creates the character with the portrait chosen on Details or changed on Review", async () => {
     setWorld({ portraitUploads: false, portraitUploadPath: "" });
     vi.stubGlobal("foundry", {});
     const picked: ((path: string) => void)[] = [];
@@ -1004,8 +1004,12 @@ describe("CreationWizard review", () => {
     await act(async () => next().click());
     await pressAsync("Roll starting gold");
     await act(async () => next().click());
+    press("Choose portrait and token");
+    press("Browse for a portrait and token image");
+    act(() => picked[1]("heroes/wren-hooded.webp"));
+    await pressAsync("Save");
     await act(async () => createButton().click());
-    const chosen = { kind: "path", src: "heroes/wren.webp" };
+    const chosen = { kind: "path", src: "heroes/wren-hooded.webp" };
     expect(createdCharacters[0]).toMatchObject({
       portrait: chosen,
       token: chosen,
