@@ -1,27 +1,25 @@
 import type { ImageDrop } from "@features/portraitImage/parseImageDrop";
+import { characterLanguages } from "../class/classDraft";
 import { ALIGNMENTS, parseHitPoints } from "../details/detailsDraft";
 import { isChosen, livePortrait } from "../portrait/portraitDraft";
 import {
   chosenRace,
   classDetails,
-  classScores,
   type CreationDraft,
   type FlowRules,
 } from "../flow";
 import { cartLines, goldLeft } from "../gear/gearDraft";
 import type { CartLine } from "../gear/gearTypes";
-import { nativeLanguages } from "../rules/classConstants";
-import { xpAdjustment } from "../rules/xpAdjustment";
-import { raceLanguages } from "../race/raceDraft";
-import { ABILITIES } from "../scores/scoresDraft";
-
-const SAVE_KEYS = ["death", "wand", "paralysis", "breath", "spell"] as const;
+import type { CreationRace } from "../race/raceItems";
+import { ABILITIES, finalScores } from "../scores/scoresDraft";
 
 export type NewCharacter = {
   name: string;
   portrait?: ImageDrop;
   token?: ImageDrop;
+  class: { uuid: string; level: number; xp: number };
   system: Record<string, unknown>;
+  race?: CreationRace;
   gear: CartLine[];
   gold: number;
 };
@@ -35,48 +33,29 @@ export function newCharacter(
   const hp = parseHitPoints(details?.hitPoints?.value);
   if (!cls || !details || hp === undefined || !draft.details.alignment)
     return undefined;
-  const scores = classScores(draft);
-  const race = chosenRace(draft);
-  const { row, level, nextXp } = details;
-  const spells = row.spells?.length
-    ? {
-        enabled: true,
-        ...Object.fromEntries(
-          row.spells.map((max, i) => [String(i + 1), { max }]),
-        ),
-      }
-    : undefined;
+  const scores = finalScores(draft.scores);
+  const race = chosenRace(draft, rules);
+  const { stats, level } = details;
   const images = livePortrait(draft.details.portrait);
   return {
     name: draft.details.name.trim(),
     ...(images && isChosen(images.portrait) && { portrait: images.portrait }),
     ...(images && isChosen(images.token) && { token: images.token }),
+    class: { uuid: cls.uuid, level, xp: stats.xp },
     system: {
       scores: Object.fromEntries(
         ABILITIES.map((a) => [a, { value: scores[a] }]),
       ),
       details: {
-        class: cls.name,
-        ...(race && { race: race.name }),
-        level,
         alignment: ALIGNMENTS.find((a) => a.value === draft.details.alignment)!
           .label,
-        xp: {
-          value: row.xp,
-          ...(nextXp !== null && { next: nextXp }),
-          bonus: xpAdjustment(cls, scores)?.modifier ?? 0,
-        },
       },
-      hp: { hd: row.hd, value: hp, max: hp },
-      thac0: { value: row.thac0, bba: 19 - row.thac0 },
-      saves: Object.fromEntries(
-        SAVE_KEYS.map((key, i) => [key, { value: row.saves[i] }]),
-      ),
-      ...(spells && { spells }),
+      hp: { value: hp, max: hp },
       languages: {
-        value: race ? raceLanguages(race) : nativeLanguages(cls.name),
+        value: characterLanguages(cls, race?.languages ?? []),
       },
     },
+    ...(race && { race }),
     gear: cartLines(draft.gear.cart),
     gold: goldLeft(draft.gear),
   };

@@ -13,10 +13,13 @@ import { MoreBelow } from "../MoreBelow";
 import type { PortraitDraft } from "../portrait/portraitDraft";
 import { PortraitPicker } from "../portrait/PortraitPicker";
 import { RecordRows, type RecordRow } from "../RecordRows";
-import { ordinal, raceLanguages, type CreationRace } from "../race/raceDraft";
+import { ordinal, type CreationRace } from "../race/raceDraft";
 import type { CreationClass, CreationRules } from "../rules";
-import { nativeLanguages } from "../rules/classConstants";
-import { formatXpModifier, xpAdjustment } from "../rules/xpAdjustment";
+import {
+  characterLanguages,
+  formatXpModifier,
+  xpAdjustment,
+} from "../class/classDraft";
 import { formatModifier } from "../scores/scoreFace";
 import {
   ABILITIES,
@@ -128,7 +131,7 @@ function RaceBlurb({
   race: CreationRace;
   load: CreationRules["raceDetail"];
 }) {
-  const loaded = useCompendiumDetail(race.name, load);
+  const loaded = useCompendiumDetail(race.uuid, load);
   return <Blurb title={race.name} loaded={loaded} />;
 }
 
@@ -139,7 +142,7 @@ function ClassBlurb({
   cls: CreationClass;
   load: CreationRules["classDetail"];
 }) {
-  const loaded = useCompendiumDetail(cls.name, load);
+  const loaded = useCompendiumDetail(cls.uuid, load);
   return <Blurb title={cls.name} loaded={loaded} />;
 }
 
@@ -225,19 +228,17 @@ export function ReviewStep({
   const paneRef = useRef<HTMLDivElement>(null);
   const asideRef = useRef<HTMLElement>(null);
   const modifiers = rules.modifiers(scores);
-  const xp = xpAdjustment(cls, scores);
-  const { row, level, nextXp } = character;
+  const xp = xpAdjustment(cls, scores, rules.xpBonus);
+  const { stats, level } = character;
   const alignment = ALIGNMENTS.find((a) => a.value === details.alignment);
-  const languages = (
-    race ? raceLanguages(race) : nativeLanguages(cls.name)
-  ).join(", ");
+  const languages = characterLanguages(cls, race?.languages ?? []).join(", ");
   const hitPoints = parseHitPoints(character.hitPoints?.value) ?? "—";
   const hpTitle = character.hitPoints?.dice
-    ? `Rolled ${row.hd}`
+    ? `Rolled ${stats.hd}`
     : character.hitPoints?.maximum
-      ? `${row.hd}, max by house rule`
-      : row.hd;
-  const slots = spellSlots(row);
+      ? `${stats.hd}, max by house rule`
+      : stats.hd;
+  const slots = spellSlots(stats);
   const name = details.name.trim();
   const preview = useLoadPreview({ draft: gear, rules, scores });
   const characterRows: RecordRow[] = [
@@ -249,12 +250,15 @@ export function ReviewStep({
     ["Languages", languages],
   ];
   const advancement: RecordRow[] = [
-    ["Experience", `${row.xp.toLocaleString()} xp`],
-    ["Next level", nextXp === null ? "—" : `${nextXp.toLocaleString()} xp`],
+    ["Experience", `${stats.xp.toLocaleString()} xp`],
+    [
+      "Next level",
+      stats.nextXp === null ? "—" : `${stats.nextXp.toLocaleString()} xp`,
+    ],
     ["Max level", ordinal(character.cap)],
-    ["Hit dice", row.hd],
-    ["THAC0", `${row.thac0} [${formatModifier(19 - row.thac0)}]`],
-    ...(row.spells
+    ["Hit dice", stats.hd],
+    ["THAC0", `${stats.thac0} [${formatModifier(stats.bba)}]`],
+    ...(cls.casts
       ? ([
           [
             "Spell slots",
@@ -324,7 +328,7 @@ export function ReviewStep({
         <section className="u-stack u-gap-1" aria-label="Saving throws">
           <h3 className="vm-heading vm-heading-sm u-fs-lg">Saving throws</h3>
           <RecordRows
-            rows={rules.saveNames.map((save, i) => [save, row.saves[i]])}
+            rows={rules.saveNames.map((save, i) => [save, stats.saves[i]])}
           />
         </section>
         <Inventory
@@ -349,7 +353,7 @@ export function ReviewStep({
             load={rules.alignmentText}
           />
         )}
-        <MoreBelow scroller={asideRef} contentKey={cls.name} />
+        <MoreBelow scroller={asideRef} contentKey={cls.uuid} />
       </aside>
     </div>
   );

@@ -5,14 +5,16 @@ import { createRoot, type Root } from "react-dom/client";
 import { setWorld } from "@features/portraitImage/__fixtures__/dragWorld";
 import { CreationWizard } from "./CreationWizard";
 import type { CartLine, GearItem } from "./gear/gearTypes";
+import type { CreationRace } from "./race/raceItems";
 import type { NewCharacter } from "./review/newCharacter";
 import type {
   ClassDetail,
+  ClassStats,
   CreationClass,
   CreationRules,
   RaceDetail,
 } from "./rules";
-import type { AbilityScores } from "./scores/scoresDraft";
+import { ABILITIES, type AbilityScores } from "./scores/scoresDraft";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -34,61 +36,142 @@ let createdCharacters: NewCharacter[];
 let creationSucceeds: boolean;
 let finished: boolean;
 
-const levelTable = (die: string, count: number) =>
-  Array.from({ length: count }, (_, i) => ({
-    xp: i * 1200,
-    hd: `${i + 1}${die}`,
-    thac0: 19 - i,
-    saves: [13, 14, 13, 16, 15].map((save) => save - i),
-  }));
-
-const level1 = {
+const classItem = (
+  name: string,
+  cls: Partial<CreationClass> & { maxLevel: number },
+): CreationClass => ({
+  uuid: `Compendium.classes.${name}`,
+  key: name.toLowerCase(),
+  name,
+  requirements: {},
+  primeRequisites: [],
   hitDie: "1d8",
-  thac0: 19,
-  nextLevelXp: 2000,
-  skills: [],
-  levels: levelTable("d8", 1),
-};
+  languages: ["Alignment", "Common"],
+  demihuman: false,
+  casts: false,
+  tables: [],
+  ...cls,
+});
+
 const classes: CreationClass[] = [
-  {
-    name: "Dwarf",
+  classItem("Dwarf", {
     requirements: { con: 9 },
     primeRequisites: ["str"],
-    ...level1,
-  },
-  { name: "Fighter", requirements: {}, primeRequisites: ["str"], ...level1 },
-  {
-    name: "Halfling",
+    maxLevel: 1,
+    demihuman: true,
+    languages: ["Alignment", "Common", "Dwarvish"],
+  }),
+  classItem("Fighter", { primeRequisites: ["str"], maxLevel: 1 }),
+  classItem("Halfling", {
     requirements: { con: 9, dex: 9 },
     primeRequisites: ["dex", "str"],
-    xpModifiers: [{ modifier: 10, anyOf: [{ dex: 13, str: 13 }] }],
-    ...level1,
     hitDie: "1d6",
-    levels: levelTable("d6", 1),
-  },
-  {
-    name: "Thief",
-    requirements: {},
+    maxLevel: 1,
+    demihuman: true,
+  }),
+  classItem("Thief", {
     primeRequisites: ["dex"],
     hitDie: "1d4",
-    thac0: 19,
-    nextLevelXp: 1200,
-    skills: [
-      { key: "cs", chance: 87 },
-      { key: "hn", chance: 2 },
+    maxLevel: 10,
+    armour: "Leather, no shields",
+    weapons: "Any",
+    tables: [
+      {
+        key: "skills",
+        label: "Thief Skills",
+        columns: [
+          { key: "cs", name: "Climb sheer surfaces" },
+          { key: "hn", name: "Hear noise" },
+        ],
+        rows: [{ cs: 87, hn: "1-2" }],
+      },
     ],
-    levels: levelTable("d4", 10),
-  },
+  }),
 ];
+
+const race = (name: string, props: Partial<CreationRace>): CreationRace => ({
+  uuid: `Compendium.races.${name}`,
+  name,
+  key: name.toLowerCase(),
+  description: "",
+  requirements: {},
+  modifiers: {},
+  classLimits: [],
+  languages: [],
+  abilities: [],
+  source: { name, type: "race" },
+  ...props,
+});
+
+const races: CreationRace[] = [
+  race("Dwarf", {
+    requirements: { con: { min: 9, max: null } },
+    modifiers: { con: 1, cha: -1 },
+    classLimits: [
+      { classKey: "cleric", maxLevel: 8 },
+      { classKey: "fighter", maxLevel: 10 },
+      { classKey: "thief", maxLevel: 9 },
+    ],
+    languages: ["Common", "Dwarvish", "Gnomish"],
+    abilities: [{ uuid: "Compendium.abilities.infravision", level: 1 }],
+  }),
+  race("Half-Elf", {
+    requirements: { con: { min: 9, max: null }, cha: { min: 9, max: null } },
+  }),
+  race("Half-Orc", {
+    modifiers: { str: 1, con: 1, cha: -2 },
+    classLimits: [
+      { classKey: "fighter", maxLevel: 10 },
+      { classKey: "thief", maxLevel: 8 },
+    ],
+    languages: ["Common", "Orcish"],
+  }),
+  race("Human", {}),
+];
+
+const classStats = (cls: CreationClass, level: number): ClassStats => {
+  const die = cls.hitDie.slice(1);
+  const row = (i: number) => ({
+    xp: i * 1200,
+    thac0: 19 - i,
+    saves: [13, 14, 13, 16, 15].map((save) => save - i),
+  });
+  return {
+    xp: row(level - 1).xp,
+    nextXp: level < cls.maxLevel ? row(level).xp : null,
+    hd: `${level}${die}`,
+    thac0: row(level - 1).thac0,
+    bba: level - 1,
+    saves: row(level - 1).saves,
+    spellSlots: [],
+    conLevels: level,
+  };
+};
+
+const xpBonus = (cls: CreationClass, scores: AbilityScores) => {
+  if (cls.primeRequisites.length > 1)
+    return cls.primeRequisites.every((a) => scores[a]! >= 13) ? 10 : 0;
+  const score = scores[cls.primeRequisites[0]]!;
+  return score <= 5
+    ? -20
+    : score <= 8
+      ? -10
+      : score <= 12
+        ? 0
+        : score <= 15
+          ? 5
+          : 10;
+};
 
 const thiefDetail: ClassDetail = {
   description: "<p>Thieves live by their skills of deception and stealth.</p>",
-  armour: "Leather, no shields",
-  weapons: "Any",
   abilities: [
-    { name: "Back-stab", description: "<p>+4 to hit and double damage.</p>" },
+    {
+      name: "Back-stab",
+      description: "<p>+4 to hit and double damage.</p>",
+      level: 1,
+    },
   ],
-  skillLabels: { cs: "Climb sheer surfaces", hn: "Hear noise" },
 };
 
 const gear = (
@@ -117,10 +200,19 @@ const catalog: GearItem[] = [
 
 const rules: CreationRules = {
   classes,
-  classDetail: (name) => new Promise((resolve) => details.set(name, resolve)),
-  separateRaces: false,
-  raceDetail: (name) =>
-    new Promise((resolve) => raceDetails.set(name, resolve)),
+  classDetail: (uuid) => new Promise((resolve) => details.set(uuid, resolve)),
+  classStats,
+  xpBonus,
+  races: [],
+  raceDetail: (uuid) =>
+    new Promise((resolve) => raceDetails.set(uuid, resolve)),
+  raceScores: (scores, race) =>
+    Object.fromEntries(
+      ABILITIES.filter((a) => scores[a] !== undefined).map((a) => [
+        a,
+        Math.min(18, Math.max(3, scores[a]! + (race?.modifiers[a] ?? 0))),
+      ]),
+    ),
   modifiers: (scores) =>
     Object.fromEntries(
       Object.entries(scores).map(([key, value]) => [
@@ -291,7 +383,7 @@ const stepNames = () =>
   [...host.querySelectorAll('nav[aria-label="Creation steps"] li')].map(
     (li) => li.textContent,
   );
-const openSeparate = () => open({ ...rules, separateRaces: true });
+const openSeparate = () => open({ ...rules, races });
 
 function enterScores(values: string[]) {
   press("Enter manually");
@@ -507,7 +599,9 @@ describe("CreationWizard", () => {
     expect(panel().textContent).toContain("THAC019 [+0]");
     expect(panel().textContent).toContain("Next level1,200 xp");
 
-    await act(async () => details.get("Thief")!(thiefDetail));
+    await act(async () =>
+      details.get("Compendium.classes.Thief")!(thiefDetail),
+    );
     expect(panel().querySelector('[aria-busy="true"]')).toBeNull();
     expect(panel().textContent).toContain(
       "Thieves live by their skills of deception and stealth.",
@@ -523,11 +617,11 @@ describe("CreationWizard", () => {
     expect(backStab.getAttribute("aria-expanded")).toBe("true");
     expect(backStabText().hasAttribute("hidden")).toBe(false);
     expect(backStabText().textContent).toBe("+4 to hit and double damage.");
-    expect(panel().textContent).toContain("Climb sheer surfaces87%");
-    expect(panel().textContent).toContain("Hear noise2-in-6");
+    expect(panel().textContent).toContain("Climb sheer surfaces87");
+    expect(panel().textContent).toContain("Hear noise1-2");
   });
 
-  it("adds a Race step by default when the world separates race and class", () => {
+  it("adds a Race step by default when the world has race items", () => {
     open();
     expect(host.textContent).not.toContain("How race is chosen");
     close();
@@ -542,9 +636,9 @@ describe("CreationWizard", () => {
       "5Gear",
       "6Review",
     ]);
-    expect(aside()).toContain("2 of 10 open");
+    expect(aside()).toContain("2 of 4 open");
     expect(aside()).toContain("Half-Orc+1 CON, +1 STR, −2 CHA");
-    expect(aside()).toContain("DuergarCON 9, INT 9");
+    expect(aside()).toContain("Half-ElfCON 9");
 
     act(() => next().click());
     expect(currentStep()).toBe("2Race");
@@ -553,8 +647,8 @@ describe("CreationWizard", () => {
         .filter((r) => !r.disabled)
         .map((r) => r.text),
     ).toEqual([
-      "Human—Noneany class, no limit",
-      "Half-Orc—+1 CON, +1 STR, −2 CHA5 classes",
+      "Half-Orc—+1 CON, +1 STR, −2 CHA2 classes",
+      "Human—NoneAny class",
     ]);
     expect(rows().find((r) => r.text?.startsWith("Half-Elf"))!.text).toContain(
       "Needs CON 9",
@@ -579,31 +673,53 @@ describe("CreationWizard", () => {
       "FighterSTR1d810th+5% from STR 14",
       "ThiefDEX1d48th+5% from DEX 15",
     ]);
+    expect(host.textContent).not.toContain("can’t take");
     act(() => radio("Thief").click());
     await act(async () => next().click());
     expect(button("2RaceHalf-Orc")).toBeDefined();
     expect(button("3ClassThief · +5% XP")).toBeDefined();
   });
 
-  it("derives racial abilities and save bonuses from the adjusted scores", async () => {
+  it("offers every class but the race-as-class ones to a race without class limits", () => {
+    openSeparate();
+    enterScores(["13", "8", "7", "15", "10", "11"]);
+    act(() => next().click());
+    act(() => radio("Human").click());
+    act(() => next().click());
+    expect(rows().map((r) => r.text)).toEqual([
+      "FighterSTR1d8—+5% from STR 13",
+      "ThiefDEX1d4—+5% from DEX 15",
+    ]);
+  });
+
+  it("shows the race item's description, abilities, classes and languages", async () => {
     openSeparate();
     enterScores(["13", "8", "7", "15", "10", "11"]);
     act(() => next().click());
     act(() => radio("Dwarf").click());
 
     await act(async () =>
-      raceDetails.get("Dwarf")!({
+      raceDetails.get("Compendium.races.Dwarf")!({
         description: "<p>Dwarves are stout.</p>",
         abilities: [
-          { name: "Infravision", description: "<p>See in the dark.</p>" },
-          { name: "Resilience", description: "<p>Hardy folk.</p>" },
+          {
+            name: "Infravision",
+            description: "<p>See in the dark.</p>",
+            level: 1,
+          },
+          { name: "Resilience", description: "<p>Hardy folk.</p>", level: 3 },
         ],
       }),
     );
     const racePanel = () => host.querySelector("aside")!.textContent;
     expect(racePanel()).toContain("Dwarves are stout.");
+    expect(racePanel()).toContain("Your scoresCON 11 · CHA 10");
+    expect(racePanel()).toContain("cleric*8thFighter10thThief9th");
+    expect(racePanel()).toContain("referee may allow this class for NPCs only");
     expect(racePanel()).toContain("Infravision60′");
-    expect(racePanel()).toContain("Resilience+3 saves (CON 11)");
+    expect(racePanel()).toContain(
+      "Resilience+3 saves (CON 11), from 3rd level",
+    );
     const resilience = button("Resilience details")!;
     act(() => resilience.click());
     expect(
@@ -624,9 +740,8 @@ describe("CreationWizard", () => {
     expect(classPanel).toContain(
       "Saves+3 vs poison, spells, wands (Resilience, CON 11)",
     );
-    expect(classPanel).toContain(
-      "LanguagesAlignment, Common, Dwarvish, Gnomish, Goblin, Kobold",
-    );
+    expect(classPanel).toContain("Infravision60′");
+    expect(classPanel).toContain("LanguagesCommon, Dwarvish, Gnomish");
   });
 });
 
@@ -701,7 +816,7 @@ describe("CreationWizard details", () => {
     expect(button("Raise level")!.getAttribute("aria-disabled")).toBe("true");
   });
 
-  it("caps the level by race and adds the racial save bonus when race is separate", async () => {
+  it("caps the level by race when race is separate", async () => {
     openSeparate();
     enterScores(["13", "8", "7", "15", "10", "11"]);
     act(() => next().click());
@@ -714,9 +829,6 @@ describe("CreationWizard details", () => {
       [...host.querySelectorAll("h2")].map((h) => h.textContent),
     ).toContain("Dwarf Thief · level 1");
     expect(host.textContent).toContain("Max level9th");
-    expect(host.textContent).toContain(
-      "+3 vs poison, spells, wands (Resilience, CON 11)",
-    );
   });
 
   it("starts 1st-level characters at maximum hit points under the house rule", async () => {
@@ -872,6 +984,7 @@ describe("CreationWizard review", () => {
     expect(createdCharacters).toEqual([
       {
         name: "Wren",
+        class: { uuid: "Compendium.classes.Thief", level: 1, xp: 0 },
         system: {
           scores: {
             str: { value: 13 },
@@ -881,21 +994,8 @@ describe("CreationWizard review", () => {
             con: { value: 8 },
             cha: { value: 11 },
           },
-          details: {
-            class: "Thief",
-            level: 1,
-            alignment: "Neutral",
-            xp: { value: 0, next: 1200, bonus: 5 },
-          },
-          hp: { hd: "1d4", value: 3, max: 3 },
-          thac0: { value: 19, bba: 0 },
-          saves: {
-            death: { value: 13 },
-            wand: { value: 14 },
-            paralysis: { value: 13 },
-            breath: { value: 16 },
-            spell: { value: 15 },
-          },
+          details: { alignment: "Neutral" },
+          hp: { value: 3, max: 3 },
           languages: { value: ["Alignment", "Common"] },
         },
         gear: [{ uuid: "Compendium.gear.Sword", quantity: 1 }],
@@ -905,7 +1005,7 @@ describe("CreationWizard review", () => {
     expect(finished).toBe(true);
   });
 
-  it("records a separately chosen race and speaks its languages", async () => {
+  it("embeds the chosen race item with unmodified scores and speaks its languages", async () => {
     openSeparate();
     goldRolls = [{ total: 30, dice: [1, 1, 1] }];
     enterScores(["13", "8", "7", "15", "10", "11"]);
@@ -922,11 +1022,16 @@ describe("CreationWizard review", () => {
     await act(async () => next().click());
 
     await act(async () => createButton().click());
-    const { details, languages } = createdCharacters[0].system as {
-      details: { class: string; race: string };
+    const [created] = createdCharacters;
+    const { languages } = created.system as {
       languages: { value: string[] };
     };
-    expect(details).toMatchObject({ class: "Thief", race: "Dwarf" });
+    expect(created.class.uuid).toBe("Compendium.classes.Thief");
+    expect(created.race?.source).toEqual({ name: "Dwarf", type: "race" });
+    expect(created.system.scores).toMatchObject({
+      con: { value: 10 },
+      cha: { value: 11 },
+    });
     expect(languages.value).toContain("Dwarvish");
   });
 
