@@ -46,7 +46,7 @@ const classItem = (
   requirements: {},
   primeRequisites: [],
   hitDie: "1d8",
-  languages: ["Alignment", "Common"],
+  languages: [],
   demihuman: false,
   casts: false,
   tables: [],
@@ -108,6 +108,7 @@ const races: CreationRace[] = [
     requirements: { con: { min: 9, max: null } },
     modifiers: { con: 1, cha: -1 },
     classLimits: [
+      { classKey: "cleric", maxLevel: 8 },
       { classKey: "fighter", maxLevel: 10 },
       { classKey: "thief", maxLevel: 9 },
     ],
@@ -706,8 +707,12 @@ describe("CreationWizard", () => {
     const racePanel = () => host.querySelector("aside")!.textContent;
     expect(racePanel()).toContain("Dwarves are stout.");
     expect(racePanel()).toContain("Your scoresCON 11 · CHA 10");
-    expect(racePanel()).toContain("Fighter10thThief9th");
-    expect(racePanel()).toContain("Resiliencefrom 3rd level");
+    expect(racePanel()).toContain("cleric*8thFighter10thThief9th");
+    expect(racePanel()).toContain("referee may allow this class for NPCs only");
+    expect(racePanel()).toContain("Infravision60′");
+    expect(racePanel()).toContain(
+      "Resilience+3 saves (CON 11), from 3rd level",
+    );
     const resilience = button("Resilience details")!;
     act(() => resilience.click());
     expect(
@@ -725,6 +730,10 @@ describe("CreationWizard", () => {
       'aside[aria-label="Thief at first level"]',
     )!.textContent;
     expect(classPanel).toContain("Max level9th, as a dwarf");
+    expect(classPanel).toContain(
+      "Saves+3 vs poison, spells, wands (Resilience, CON 11)",
+    );
+    expect(classPanel).toContain("Infravision60′");
     expect(classPanel).toContain("LanguagesCommon, Dwarvish, Gnomish");
   });
 });
