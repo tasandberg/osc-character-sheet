@@ -5,16 +5,12 @@ import { sheetFontScale, sheetTheme } from "@src/OscSheet/appearance";
 import {
   getSetting,
   getSettingsSnapshot,
-  setSetting,
   subscribeToSetting,
   subscribeToSettings,
 } from "@src/OscSheet/settings";
 import { addNewCharacterButton } from "@src/applications/newCharacterButton";
 import { setCreationWizardOpener } from "@src/CreationWizard/opener";
-import {
-  creationWizardSupported,
-  UNSUPPORTED_NOTICE,
-} from "@src/CreationWizard/support";
+import { creationWizardSupported } from "@src/CreationWizard/support";
 
 import { ReactApplicationV2 } from "foundry-vtt-react";
 
@@ -63,6 +59,7 @@ class OscCreationWizard extends ReactApplicationV2 {
   }
 
   static register() {
+    if (!creationWizardSupported()) return;
     const openWizards = () =>
       [...foundry.applications.instances.values()].filter(
         (app) => app instanceof OscCreationWizard && app.element,
@@ -73,29 +70,12 @@ class OscCreationWizard extends ReactApplicationV2 {
     setCreationWizardOpener((actor) => OscCreationWizard.open(actor));
     subscribeToSettings(refresh);
     watchFoundryColorScheme(refresh);
-    const noticeUnsupported = () => {
-      if (
-        !game.user?.isGM ||
-        !getSetting("creationWizard") ||
-        creationWizardSupported() ||
-        getSetting("creationWizardNoticeShown")
-      )
-        return;
-      ui.notifications?.warn(UNSUPPORTED_NOTICE, { permanent: true });
-      setSetting("creationWizardNoticeShown", true);
-    };
-    subscribeToSetting("creationWizard", () => {
-      ui.actors?.render();
-      noticeUnsupported();
-    });
-    foundry.helpers.Hooks.once("ready", noticeUnsupported);
+    subscribeToSetting("creationWizard", () => ui.actors?.render());
 
     foundry.helpers.Hooks.on("renderActorDirectory", (_app, html) => {
       addNewCharacterButton(html, {
         enabled:
-          getSetting("creationWizard") &&
-          creationWizardSupported() &&
-          Actor.canUserCreate(game.user),
+          getSetting("creationWizard") && Actor.canUserCreate(game.user),
         onClick: () => OscCreationWizard.open(),
       });
     });
