@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
-import { creationClassFrom, type ClassItemDoc } from "./classItems";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  creationClassFrom,
+  loadClassItems,
+  type ClassItemDoc,
+} from "./classItems";
 
 const row = (xp: number, spellSlots: Record<string, number> = {}) => ({
   xp,
@@ -55,5 +59,51 @@ describe("creationClassFrom", () => {
       weapons: undefined,
       tables: [],
     });
+  });
+});
+
+const classDoc = (pack: string | null, name: string, key = name.toLowerCase()) =>
+  ({
+    uuid: `${pack ? `Compendium.${pack}.Item` : "Item"}.${name}`,
+    name,
+    type: "class",
+    pack,
+    system: { ...halfling.system, key },
+    toObject: () => ({}),
+  }) satisfies ClassItemDoc;
+
+const itemPack = (id: string, docs: ClassItemDoc[]) => ({
+  collection: id,
+  documentName: "Item",
+  getIndex: async () => docs.map((d) => ({ _id: d.uuid, type: "class" })),
+  getDocuments: async () => docs,
+});
+
+afterEach(() => vi.unstubAllGlobals());
+
+describe("loadClassItems", () => {
+  it("prefers world classes, then Advanced Fantasy, over Classic Fantasy duplicates", async () => {
+    const worldThief = classDoc(null, "Thief");
+    const tomeCleric = classDoc("ose-advancedfantasytome.classes", "Cleric");
+    const tomeThief = classDoc("ose-advancedfantasytome.classes", "Thief");
+    const classicCleric = classDoc("classicfantasycompendium.classes", "Cleric");
+    const classicFighter = classDoc("classicfantasycompendium.classes", "Fighter");
+    vi.stubGlobal("game", {
+      items: { filter: () => [worldThief] },
+      packs: {
+        contents: [
+          itemPack("classicfantasycompendium.classes", [
+            classicCleric,
+            classicFighter,
+          ]),
+          itemPack("ose-advancedfantasytome.classes", [tomeCleric, tomeThief]),
+        ],
+      },
+    });
+    expect((await loadClassItems()).map((d) => d.uuid)).toEqual([
+      tomeCleric.uuid,
+      classicFighter.uuid,
+      worldThief.uuid,
+    ]);
   });
 });
