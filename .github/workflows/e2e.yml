@@ -34,7 +34,7 @@ env:
   FOUNDRY_VERSIONS: |
     14
   OSE_VERSIONS: |
-    latest-release
+    latest-prerelease
 
 jobs:
   plan:
@@ -166,7 +166,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm build
 
-      - name: Assemble Foundry data directory (OSE + osc-character-sheet + world)
+      - name: Assemble Foundry data directory (OSE + compendium + osc-character-sheet + world)
         run: |
           mkdir -p "${DATA_DIR}"
           tools/e2e/setup-data-dir.sh "${DATA_DIR}" "${GITHUB_WORKSPACE}"
