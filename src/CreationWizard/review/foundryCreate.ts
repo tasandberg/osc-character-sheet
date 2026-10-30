@@ -1,5 +1,6 @@
 import type { OSEActor } from "@domain/types";
-import { TOME } from "../class/foundryClasses";
+import type { ClassItems, ItemSource } from "../class/classItems";
+import { TOME } from "../compendium";
 import {
   PortraitUploadReportedError,
   portraitImageUploader,
@@ -14,7 +15,6 @@ const COIN_PACKS = [
   `${TOME}.equipment`,
 ];
 
-type ItemSource = Record<string, unknown>;
 type CoinDocument = {
   name: string;
   system: { treasure?: boolean };
@@ -23,12 +23,21 @@ type CoinDocument = {
 type CoinPacks = {
   get(id: string): { getDocuments(): Promise<CoinDocument[]> } | undefined;
 };
-type WritableActor = OSEActor & {
+type EmbeddedItem = { id: string; type: string };
+type WritableActor = Omit<OSEActor, "items"> & {
   id: string;
-  items: { map<T>(fn: (item: { id: string }) => T): T[] };
+  items: {
+    map<T>(fn: (item: EmbeddedItem) => T): T[];
+    find(fn: (item: EmbeddedItem) => boolean): EmbeddedItem | undefined;
+  };
   update(data: object): Promise<unknown>;
   createEmbeddedDocuments(type: "Item", data: ItemSource[]): Promise<unknown>;
   deleteEmbeddedDocuments(type: "Item", ids: string[]): Promise<unknown>;
+  offerAbilities?(
+    item: EmbeddedItem,
+    level: number,
+    options: { upTo: boolean },
+  ): Promise<unknown>;
   sheet?: { render(force: boolean): unknown } | null;
 };
 type ActorDocumentClass = {
@@ -81,13 +90,21 @@ async function raceSources(race: CreationRace | undefined) {
   return [race.source, ...abilities.flat()];
 }
 
-async function itemSources({ gear, gold, race }: NewCharacter) {
+async function itemSources(
+  classItems: ClassItems,
+  { class: cls, gear, gold, race }: NewCharacter,
+) {
   const [items, coins, racial] = await Promise.all([
     Promise.all(gear.map((line) => cartItemSource(line.uuid, line.quantity))),
     coinSources(gold),
     raceSources(race),
   ]);
-  return [...racial, ...items.flat(), ...coins] as ItemSource[];
+  return [
+    classItems.source(cls),
+    ...racial,
+    ...items.flat(),
+    ...coins,
+  ] as ItemSource[];
 }
 
 async function imageData({ name, portrait, token }: NewCharacter) {
@@ -130,18 +147,34 @@ const create = (character: NewCharacter, items: ItemSource[], images: Images) =>
     items,
   });
 
-export function createCharacter(existing?: OSEActor) {
+async function offerClassAbilities(actor: WritableActor, level: number) {
+  const embedded = actor.items.find((item) => item.type === "class");
+  if (!embedded) return;
+  try {
+    await actor.offerAbilities?.(embedded, level, { upTo: true });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
   return async (character: NewCharacter) => {
     try {
       const [items, images] = await Promise.all([
-        itemSources(character),
+        itemSources(classItems, character),
         imageData(character),
       ]);
       const actor = existing
-        ? await fill(existing as WritableActor, character, items, images)
+        ? await fill(
+            existing as unknown as WritableActor,
+            character,
+            items,
+            images,
+          )
         : await create(character, items, images);
       if (!actor) throw new Error("Foundry didn’t create the actor.");
       actor.sheet?.render(true);
+      void offerClassAbilities(actor, character.class.level);
       return true;
     } catch (error) {
       console.error(error);

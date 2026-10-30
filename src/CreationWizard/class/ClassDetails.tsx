@@ -1,9 +1,18 @@
 import { useId, useState, type ReactNode } from "react";
 import { cx } from "@ui/cx";
 import { CompendiumDescription, Facts } from "../CompendiumText";
-import { formatMaxLevel, maxLevel, type CreationRace } from "../race/raceDraft";
-import type { ClassAbility, ClassDetail, CreationClass } from "../rules";
-import { IN_SIX_SKILLS } from "../rules/classConstants";
+import {
+  formatMaxLevel,
+  maxLevel,
+  ordinal,
+  type CreationRace,
+} from "../race/raceDraft";
+import type {
+  ClassAbility,
+  ClassTable,
+  CreationClass,
+  CreationRules,
+} from "../rules";
 import type { AbilityScores } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
 import { ChoiceIcon } from "../ChoiceIcon";
@@ -13,16 +22,13 @@ type Props = {
   cls: CreationClass;
   scores: AbilityScores;
   race?: CreationRace;
-  loadDetail: (name: string) => Promise<ClassDetail>;
+  rules: CreationRules;
 };
 
 const withArticle = (noun: string) =>
   `${/^[aeiou]/i.test(noun) ? "an" : "a"} ${noun}`;
 
 const signed = (n: number) => (n < 0 ? `−${-n}` : `+${n}`);
-
-const skillChance = (key: string, chance: number) =>
-  IN_SIX_SKILLS.includes(key) ? `${chance}-in-6` : `${chance}%`;
 
 const raceFacts = (race: CreationRace): [string, ReactNode][] => [
   ["Languages", race.languages.join(", ") || "None"],
@@ -48,6 +54,11 @@ function AbilityDisclosure({ ability }: { ability: ClassAbility }) {
           aria-hidden="true"
         />
         <span className="vm-heading vm-heading-sm">{ability.name}</span>
+        {(ability.level ?? 1) > 1 && (
+          <span className="vm-tag vm-tag-xs">
+            from {ordinal(ability.level!)}
+          </span>
+        )}
       </button>
       <div
         id={textId}
@@ -59,10 +70,35 @@ function AbilityDisclosure({ ability }: { ability: ClassAbility }) {
   );
 }
 
-export function ClassDetails({ cls, scores, race, loadDetail }: Props) {
-  const loaded = useCompendiumDetail(cls.name, loadDetail);
+function FirstLevelTable({ table }: { table: ClassTable }) {
+  const row = table.rows[0];
+  if (!row) return null;
+  return (
+    <section className="u-stack u-gap-2" aria-label={table.label}>
+      <h4 className="vm-key">{table.label}</h4>
+      <dl className="u-grid u-grid-2 u-gap-y-3 u-gap-x-4">
+        {table.columns.map(({ key, name }) => (
+          <div key={key} className="u-flex tw:flex-col u-gap-1">
+            <dt className="vm-key tw:whitespace-normal">
+              {name || key.toUpperCase()}
+            </dt>
+            <dd>{row[key] ?? "—"}</dd>
+          </div>
+        ))}
+      </dl>
+      {table.legend && table.legend.length > 0 && (
+        <p className="vm-help">
+          {table.legend.map((l) => `${l.value}: ${l.text}`).join(" ")}
+        </p>
+      )}
+    </section>
+  );
+}
+
+export function ClassDetails({ cls, scores, race, rules }: Props) {
+  const loaded = useCompendiumDetail(cls.uuid, rules.classDetail);
   const detail = loaded.status === "ready" ? loaded.detail : undefined;
-  const pending = loaded.status === "loading" ? "…" : "—";
+  const stats = rules.classStats(cls, 1);
 
   const facts: [string, ReactNode][] = [
     ...(race
@@ -74,13 +110,21 @@ export function ClassDetails({ cls, scores, race, loadDetail }: Props) {
         ] as [string, ReactNode][])
       : []),
     ["Hit die", cls.hitDie],
-    ["Prime req.", <XpAdjustmentText cls={cls} scores={scores} withBasis />],
-    ["Armour", detail?.armour ?? pending],
-    ["Weapons", detail?.weapons ?? pending],
-    ["THAC0", `${cls.thac0} [${signed(19 - cls.thac0)}]`],
+    [
+      "Prime req.",
+      <XpAdjustmentText
+        cls={cls}
+        scores={scores}
+        xpBonus={rules.xpBonus}
+        withBasis
+      />,
+    ],
+    ["Armour", cls.armour ?? "—"],
+    ["Weapons", cls.weapons ?? "—"],
+    ["THAC0", `${stats.thac0} [${signed(stats.bba)}]`],
     [
       "Next level",
-      cls.nextLevelXp === null ? "—" : `${cls.nextLevelXp.toLocaleString()} xp`,
+      stats.nextXp === null ? "—" : `${stats.nextXp.toLocaleString()} xp`,
     ],
   ];
 
@@ -90,6 +134,7 @@ export function ClassDetails({ cls, scores, race, loadDetail }: Props) {
         <h2 className="vm-sheet-head-title">
           <ChoiceIcon
             name={cls.name}
+            iconKey={cls.key}
             size={22}
             color="gold"
             className="osc-creation-heading-icon"
@@ -106,28 +151,19 @@ export function ClassDetails({ cls, scores, race, loadDetail }: Props) {
           <Facts facts={raceFacts(race)} />
         </section>
       )}
-      {detail && (detail.abilities.length > 0 || cls.skills.length > 0) && (
+      {((detail && detail.abilities.length > 0) || cls.tables.length > 0) && (
         <section className="u-stack u-gap-3" aria-label="Abilities">
           <h3 className="vm-section-title-hairline">Abilities</h3>
-          {detail.abilities.length > 0 && (
+          {detail && detail.abilities.length > 0 && (
             <ul className="u-flex tw:flex-col">
               {detail.abilities.map((ability) => (
                 <AbilityDisclosure key={ability.name} ability={ability} />
               ))}
             </ul>
           )}
-          {cls.skills.length > 0 && (
-            <dl className="u-grid u-grid-2 u-gap-y-3 u-gap-x-4">
-              {cls.skills.map(({ key, chance }) => (
-                <div key={key} className="u-flex tw:flex-col u-gap-1">
-                  <dt className="vm-key tw:whitespace-normal">
-                    {detail.skillLabels[key] ?? key.toUpperCase()}
-                  </dt>
-                  <dd>{skillChance(key, chance)}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
+          {cls.tables.map((table) => (
+            <FirstLevelTable key={table.key} table={table} />
+          ))}
         </section>
       )}
     </>

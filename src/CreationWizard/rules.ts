@@ -1,45 +1,55 @@
 import type { LoadGearCatalog, PreviewLoad } from "./gear/gearTypes";
 import type { NewCharacter } from "./review/newCharacter";
-import type { PrimeRequisiteRules } from "./rules/xpAdjustment";
 import type { CreationRace } from "./race/raceItems";
-import type { ClassRequirements } from "./scores/classStanding";
-import type { AbilityScores, RolledScore } from "./scores/scoresDraft";
+import type { Ability, AbilityScores, RolledScore } from "./scores/scoresDraft";
 
-export type ClassSkill = { key: string; chance: number };
-
-export type ClassLevel = {
-  xp: number;
-  hd: string;
-  thac0: number;
-  saves: number[];
-  spells?: number[];
+export type ClassTable = {
+  key: string;
+  label: string;
+  columns: { key: string; name?: string }[];
+  legend?: { value: string; text: string }[];
+  rows: Record<string, number | string>[];
 };
 
-export type CreationClass = ClassRequirements &
-  PrimeRequisiteRules & {
-    key?: string;
-    demihuman?: boolean;
-    hitDie: string;
-    thac0: number;
-    nextLevelXp: number | null;
-    skills: ClassSkill[];
-    levels: ClassLevel[];
-  };
+export type CreationClass = {
+  uuid: string;
+  key: string;
+  name: string;
+  requirements: Partial<Record<Ability, number>>;
+  primeRequisites: Ability[];
+  hitDie: string;
+  maxLevel: number;
+  languages: string[];
+  demihuman: boolean;
+  casts: boolean;
+  armour?: string;
+  weapons?: string;
+  tables: ClassTable[];
+};
+
+export type ClassStats = {
+  xp: number;
+  nextXp: number | null;
+  hd: string;
+  thac0: number;
+  bba: number;
+  saves: number[];
+  spellSlots: number[];
+  conLevels: number;
+};
 
 export type ClassRestrictions = {
   allowed?: (className: string) => boolean;
   maxLevel?: (className: string) => number | undefined;
 };
 
-export type ClassAbility = { name: string; description: string };
-
-export type ClassDetail = {
+export type ClassAbility = {
+  name: string;
   description: string;
-  armour?: string;
-  weapons?: string;
-  abilities: ClassAbility[];
-  skillLabels: Record<string, string>;
+  level?: number;
 };
+
+export type ClassDetail = { description: string; abilities: ClassAbility[] };
 
 export type RaceAbility = ClassAbility & { level: number };
 
@@ -51,7 +61,9 @@ export type AlignmentText = Partial<Record<Alignment, string>>;
 
 export type CreationRules = {
   classes: CreationClass[];
-  classDetail(name: string): Promise<ClassDetail>;
+  classDetail(uuid: string): Promise<ClassDetail>;
+  classStats(cls: CreationClass, level: number): ClassStats;
+  xpBonus(cls: CreationClass, scores: AbilityScores): number;
   races: CreationRace[];
   raceDetail(uuid: string): Promise<RaceDetail>;
   raceScores(scores: AbilityScores, race?: CreationRace): AbilityScores;

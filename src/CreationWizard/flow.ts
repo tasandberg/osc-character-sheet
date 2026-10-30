@@ -53,6 +53,8 @@ export type FlowRules = Pick<
   | "modifiers"
   | "maxHitPointsAtFirstLevel"
   | "maximumHitPoints"
+  | "classStats"
+  | "xpBonus"
 >;
 
 const CLASS_ONLY_STEPS = CREATION_STEPS.filter((step) => step !== "race");
@@ -73,17 +75,22 @@ export const classRestrictions = (draft: CreationDraft, rules: FlowRules) => {
   return race && raceRestrictions(race, rules.classes);
 };
 
-export const classDetails = (draft: CreationDraft, rules: FlowRules) =>
-  draft.class &&
-  characterDetails({
-    draft: draft.details,
-    cls: draft.class,
-    restrictions: classRestrictions(draft, rules),
-    conMod: rules.modifiers(classScores(draft, rules)).con ?? 0,
-    maximum: rules.maxHitPointsAtFirstLevel
-      ? rules.maximumHitPoints
-      : undefined,
-  });
+export function classDetails(draft: CreationDraft, rules: FlowRules) {
+  const cls = draft.class;
+  return (
+    cls &&
+    characterDetails({
+      draft: draft.details,
+      cls,
+      restrictions: classRestrictions(draft, rules),
+      conMod: rules.modifiers(classScores(draft, rules)).con ?? 0,
+      maximum: rules.maxHitPointsAtFirstLevel
+        ? rules.maximumHitPoints
+        : undefined,
+      statsAt: (level) => rules.classStats(cls, level),
+    })
+  );
+}
 
 const steps = (draft: CreationDraft, rules: FlowRules) =>
   separatesRace(draft, rules) ? CREATION_STEPS : CLASS_ONLY_STEPS;
@@ -153,6 +160,7 @@ export const creationFlow = (
               draft.class,
               classScores(draft, rules),
               classRestrictions(draft, rules),
+              rules.xpBonus,
             )
           : undefined;
   },
