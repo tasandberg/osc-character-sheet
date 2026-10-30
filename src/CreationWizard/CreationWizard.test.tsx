@@ -46,7 +46,7 @@ const classItem = (
   requirements: {},
   primeRequisites: [],
   hitDie: "1d8",
-  languages: [],
+  languages: ["Alignment", "Common"],
   demihuman: false,
   casts: false,
   tables: [],

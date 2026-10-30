@@ -12,8 +12,6 @@ export type RaceGaps = {
 
 export type SaveBonus = { bonus: number; summary: string; basis: string };
 
-export const BASELINE_LANGUAGES = ["Alignment", "Common"];
-
 const RESILIENCE = "poison, spells, wands";
 
 const RACE_GAPS: Record<string, RaceGaps> = {
