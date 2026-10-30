@@ -1,40 +1,58 @@
-import type { ClassRestrictions, CreationClass } from "../rules";
+import type { ClassRestrictions } from "../rules";
+import { BASELINE_LANGUAGES } from "../rules/classConstants";
 import {
+  CON_SAVE_BONUS,
+  RACE_RULE_CONSTANTS,
+  RACIAL_ABILITY_VALUES,
+  type RaceRuleConstants,
+} from "../rules/raceConstants";
+import {
+  ABILITIES,
+  MAX_SCORE,
+  MIN_SCORE,
   abbreviation,
   type Ability,
   type AbilityScores,
 } from "../scores/scoresDraft";
-import type { CreationRace, ScoreBound } from "./raceItems";
 
-export type { CreationRace } from "./raceItems";
+export type CreationRace = RaceRuleConstants;
 
 export type RaceMode = "asClass" | "separate";
 
-type ClassRef = Pick<CreationClass, "name" | "key">;
+const canon = (name: string) => name.toLowerCase().replace(/[^a-z]/g, "");
+const sameName = (a: string, b: string) => canon(a) === canon(b);
 
-export const classKeyOf = (cls: ClassRef) =>
-  cls.key ?? cls.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+export const RACES: CreationRace[] = RACE_RULE_CONSTANTS;
+
+export const isRaceClass = (className: string) =>
+  RACES.some((race) => race.name !== "Human" && sameName(race.name, className));
+
+export function adjustedScores(
+  scores: AbilityScores,
+  race?: CreationRace,
+): AbilityScores {
+  if (!race) return scores;
+  return Object.fromEntries(
+    ABILITIES.filter((a) => scores[a] !== undefined).map((a) => [
+      a,
+      Math.min(
+        MAX_SCORE,
+        Math.max(MIN_SCORE, scores[a]! + (race.modifiers[a] ?? 0)),
+      ),
+    ]),
+  ) as AbilityScores;
+}
 
 const requiredAbilities = (race: CreationRace) =>
   Object.keys(race.requirements) as Ability[];
 
-const describeBound = (ability: Ability, { min, max }: ScoreBound) =>
-  min !== null && max !== null
-    ? `${abbreviation(ability)} ${min}–${max}`
-    : min !== null
-      ? `${abbreviation(ability)} ${min}`
-      : `${abbreviation(ability)} ≤${max}`;
-
 const describeRequirement = (race: CreationRace, ability: Ability) =>
-  describeBound(ability, race.requirements[ability]!);
+  `${abbreviation(ability)} ${race.requirements[ability]}`;
 
 export const requirementText = (race: CreationRace) =>
   requiredAbilities(race)
     .map((a) => describeRequirement(race, a))
     .join(", ");
-
-const meets = (score: number, { min, max }: ScoreBound) =>
-  (min === null || score >= min) && (max === null || score <= max);
 
 export type RaceStanding = {
   status: "open" | "pending" | "failed";
@@ -47,7 +65,7 @@ export function raceStanding(
 ): RaceStanding {
   const required = requiredAbilities(race);
   const short = required.filter(
-    (a) => scores[a] !== undefined && !meets(scores[a]!, race.requirements[a]!),
+    (a) => scores[a] !== undefined && scores[a]! < race.requirements[a]!,
   );
   if (short.length)
     return {
@@ -58,7 +76,7 @@ export function raceStanding(
   if (unknown.length)
     return {
       status: "pending",
-      note: unknown.map((a) => describeRequirement(race, a)).join(", "),
+      note: unknown.map((a) => `${describeRequirement(race, a)}+`).join(", "),
     };
   return { status: "open", note: "" };
 }
@@ -79,30 +97,75 @@ export function formatModifiers(modifiers: AbilityScores): string {
     .join(", ");
 }
 
-export const maxLevel = (race: CreationRace, cls: ClassRef) =>
-  race.classLimits.find((limit) => limit.classKey === classKeyOf(cls))
-    ?.maxLevel;
-
-export function raceRestrictions(
+export function maxLevel(
   race: CreationRace,
-  classes: CreationClass[],
-): ClassRestrictions {
-  const byName = (name: string) => classes.find((cls) => cls.name === name);
-  const limit = (name: string) => {
-    const cls = byName(name);
-    return cls && maxLevel(race, cls);
-  };
-  return {
-    allowed: (name) => limit(name) !== undefined,
-    maxLevel: limit,
-  };
+  className: string,
+): number | null | undefined {
+  if (race.maxLevels === "anyHumanClass")
+    return isRaceClass(className) ? undefined : null;
+  const key = Object.keys(race.maxLevels).find((k) => sameName(k, className));
+  return key ? race.maxLevels[key] : undefined;
 }
+
+export const isNpcOnly = (race: CreationRace, className: string) =>
+  race.npcOnly.some((name) => sameName(name, className));
+
+export const raceRestrictions = (race: CreationRace): ClassRestrictions => ({
+  allowed: (className) => maxLevel(race, className) !== undefined,
+  maxLevel: (className) => maxLevel(race, className) ?? undefined,
+});
 
 export const ordinal = (n: number) =>
   `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : (["th", "st", "nd", "rd"][n % 10] ?? "th")}`;
 
-export const formatMaxLevel = (level: number | undefined) =>
-  level === undefined ? "—" : ordinal(level);
+export const formatMaxLevel = (level: number | null | undefined) =>
+  level === null ? "No limit" : level === undefined ? "—" : ordinal(level);
+
+export type SaveBonus = { bonus: number; summary: string; basis: string };
+
+export function raceSaveBonus(
+  race: CreationRace,
+  scores: AbilityScores,
+): SaveBonus | undefined {
+  const save = race.saveBonus;
+  if (!save) return undefined;
+  const con = scores.con;
+  if (save.bonus === undefined && con === undefined) return undefined;
+  const bonus =
+    save.bonus ??
+    CON_SAVE_BONUS.find(({ min, max }) => con! >= min && con! <= max)?.bonus ??
+    0;
+  return {
+    bonus,
+    summary: bonus ? `+${bonus} vs ${save.against}` : "No bonus",
+    basis:
+      save.bonus === undefined ? `${save.ability}, CON ${con}` : save.ability,
+  };
+}
+
+export function racialAbilityValue(
+  race: CreationRace,
+  abilityName: string,
+  scores: AbilityScores,
+): string | undefined {
+  if (sameName(abilityName, "Infravision") && race.infravision)
+    return `${race.infravision}′`;
+  if (race.saveBonus && sameName(abilityName, race.saveBonus.ability)) {
+    const save = raceSaveBonus(race, scores);
+    if (!save) return undefined;
+    if (race.saveBonus.bonus !== undefined) return save.summary;
+    return `${save.bonus ? `+${save.bonus}` : "No"} saves (CON ${scores.con})`;
+  }
+  const key = Object.keys(RACIAL_ABILITY_VALUES).find((k) =>
+    sameName(k, abilityName),
+  );
+  return key && RACIAL_ABILITY_VALUES[key];
+}
+
+export const raceLanguages = (race: CreationRace) => [
+  ...BASELINE_LANGUAGES,
+  ...race.languages,
+];
 
 export function raceBlockedReason(
   race: CreationRace | undefined,
