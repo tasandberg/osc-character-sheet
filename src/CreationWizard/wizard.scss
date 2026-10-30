@@ -523,6 +523,26 @@
       border-top: 1px solid var(--hair);
       border-left: 0;
     }
+
+    .osc-creation-review-pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .osc-creation-gear-step {
+      grid-template-columns: minmax(0, 1fr);
+
+      .osc-creation-pane {
+        padding-left: 0;
+      }
+
+      .osc-creation-aside {
+        margin: 0 0 var(--spacer-5);
+        padding: 0 0 var(--spacer-4);
+        border-top: 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--hair);
+      }
+    }
   }
 }
 
@@ -531,7 +551,6 @@
 }
 
 .osc-creation-level-stepper {
-  align-self: flex-start;
   gap: var(--spacer-1);
 
   .vm-stepper-btn {
@@ -560,24 +579,6 @@
 .osc-creation-hp-dice .vm-score-dice {
   flex-wrap: wrap;
   justify-content: flex-start;
-}
-
-.osc-creation-saves {
-  border-block: 1px solid var(--hair);
-}
-
-.osc-creation-save {
-  min-width: 0;
-  white-space: nowrap;
-
-  + .osc-creation-save {
-    border-top: 1px solid var(--hair-soft);
-  }
-}
-
-.osc-creation-save-target {
-  font-weight: 500;
-  line-height: 1;
 }
 
 .osc-creation-wizard-app {
@@ -613,11 +614,33 @@
   }
 }
 
+.osc-creation-gear-step {
+  grid-template-columns: calc(var(--spacer-12) * 5 + var(--spacer-2)) minmax(
+      0,
+      1fr
+    );
+
+  .osc-creation-pane {
+    padding-right: 0;
+    padding-left: var(--spacer-6);
+  }
+
+  .osc-creation-aside {
+    padding: 0 var(--spacer-5) 0 var(--spacer-2);
+    border-left: 0;
+    border-right: 1px solid var(--hair);
+  }
+}
+
 .osc-creation-gear-step .osc-creation-shop-pane {
   position: relative;
   overflow-y: auto;
   scrollbar-gutter: stable;
   contain: size;
+}
+
+.osc-creation-shop-locked {
+  opacity: 0.4;
 }
 
 .osc-creation-shop-search {
@@ -747,5 +770,138 @@
   .osc-creation-gear-footer {
     order: -1;
     flex-basis: 100%;
+  }
+}
+
+.osc-creation-portrait-lg {
+  .osc-creation-wizard-app & {
+    width: calc(var(--spacer-12) * 2 + var(--spacer-8));
+    height: calc(var(--spacer-12) * 2 + var(--spacer-8));
+  }
+}
+
+.osc-creation-portrait-sm {
+  .osc-creation-wizard-app & {
+    width: calc(var(--spacer-12) + var(--spacer-4));
+    height: calc(var(--spacer-12) + var(--spacer-4));
+  }
+}
+
+.osc-creation-identity {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.osc-creation-identity-row {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.osc-creation-alignment {
+  border-top: 1px solid var(--hair-soft);
+}
+
+.osc-creation-measure {
+  max-width: 60ch;
+}
+
+.osc-creation-record-row {
+  min-height: var(--spacer-6);
+  padding: var(--spacer-1) 0;
+  border-bottom: 1px dotted var(--hair-soft);
+  line-height: 1.3;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.osc-creation-review-step {
+  grid-template-columns: minmax(0, 1fr) calc(
+      var(--spacer-12) * 5 + var(--spacer-10)
+    );
+}
+
+.osc-creation-review-pane {
+  position: relative;
+  overflow-y: auto;
+  contain: size;
+  padding-right: var(--spacer-3);
+
+  > * {
+    flex: none;
+  }
+}
+
+.osc-creation-review-head {
+  border-bottom: 1px solid var(--hair);
+}
+
+.osc-creation-review-tile {
+  .osc-creation-wizard-app & {
+    width: calc(var(--spacer-12) + var(--spacer-2));
+  }
+
+  .vm-score-stamp-strip {
+    height: var(--spacer-5);
+  }
+
+  .vm-score-face {
+    height: calc(var(--spacer-10) + var(--spacer-1) + 2px);
+    gap: 2px;
+  }
+
+  .vm-score-figure {
+    font-size: var(--fs-xl);
+  }
+}
+
+.osc-creation-review-hp {
+  color: var(--crimson);
+}
+
+.osc-creation-review-ac {
+  color: var(--teal);
+}
+
+.osc-creation-review-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--hair);
+}
+
+.osc-creation-review-inventory-head {
+  min-height: calc(var(--spacer-6) + var(--spacer-1));
+  padding: 2px 0;
+  border-top: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair-soft);
+}
+
+.osc-creation-review-leaders {
+  column-gap: var(--spacer-6);
+  row-gap: 0;
+  margin-top: 2px;
+}
+
+.osc-creation-review-leader-line {
+  min-height: var(--spacer-5);
+  line-height: 1.3;
+  white-space: nowrap;
+
+  > :first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.osc-creation-review-leader {
+  min-width: var(--spacer-3);
+  border-bottom: 1px dotted var(--hair-soft);
+  transform: translateY(calc(-1 * var(--spacer-1)));
+}
+
+.osc-creation-review-blurb {
+  line-height: 1.4;
+
+  p + p {
+    margin-top: var(--spacer-2);
   }
 }

@@ -1,6 +1,7 @@
 import type { OSEActor } from "@domain/types";
 import { selectEncumbrance } from "@features/inventory/encumbrance";
 import { TOME, activeClassSet, squash } from "../class/foundryClasses";
+import { ABILITIES } from "../scores/scoresDraft";
 import type {
   GearCategory,
   GearItem,
@@ -118,9 +119,12 @@ export const loadGearCatalog: LoadGearCatalog = async () => {
   return [];
 };
 
-type ItemSource = { system?: { quantity?: { value?: number | null } } };
+type ItemSource = {
+  type?: string;
+  system?: { quantity?: { value?: number | null } };
+};
 
-async function cartItemSource(uuid: string, quantity: number) {
+export async function cartItemSource(uuid: string, quantity: number) {
   const doc = (await fromUuid(uuid)) as { toObject(): ItemSource } | null;
   if (!doc) return [];
   const source = doc.toObject();
@@ -130,10 +134,12 @@ async function cartItemSource(uuid: string, quantity: number) {
     "system.quantity.value",
     perUnit * quantity,
   );
+  if (source.type === "armor")
+    foundry.utils.setProperty(source, "system.equipped", true);
   return [source];
 }
 
-export const previewLoad: PreviewLoad = async (cart, catalog) => {
+export const previewLoad: PreviewLoad = async (cart, catalog, scores) => {
   const known = new Set(catalog.map((item) => item.uuid));
   const items = (
     await Promise.all(
@@ -148,14 +154,23 @@ export const previewLoad: PreviewLoad = async (cart, catalog) => {
   const actor = new ActorClass({
     name: "New character",
     type: "character",
+    system: {
+      scores: Object.fromEntries(
+        ABILITIES.map((a) => [a, { value: scores[a] ?? 0 }]),
+      ),
+    },
     items,
   });
-  const { encumbrance, movement } = actor.system;
+  const load = selectEncumbrance(actor);
+  const { movement, ac, aac } = actor.system;
   return {
-    enabled: encumbrance.enabled,
-    carried: encumbrance.value,
-    max: encumbrance.enabled ? encumbrance.max : null,
-    tier: encumbrance.enabled ? selectEncumbrance(actor).status : null,
+    armourClass: (ascendingAC() ? aac : ac).value,
+    enabled: load.enabled,
+    value: load.value,
+    max: load.max,
+    pct: load.pct,
+    label: load.label,
+    tier: load.enabled ? load.status : null,
     movement: {
       base: movement.base,
       encounter: movement.encounter,

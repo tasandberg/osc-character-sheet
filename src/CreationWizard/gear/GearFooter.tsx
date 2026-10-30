@@ -1,30 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
 import { cx } from "@ui/cx";
 import type { CreationRules } from "../rules";
-import { useCompendiumDetail } from "../useCompendiumDetail";
-import { cartLines, type GearDraft } from "./gearDraft";
+import type { GearDraft } from "./gearDraft";
 import type { LoadPreview } from "./gearTypes";
+import type { AbilityScores } from "../scores/scoresDraft";
+import { useLoadPreview } from "./useLoadPreview";
 
-type Props = { draft: GearDraft; rules: CreationRules };
-
-function useLoadPreview({ draft, rules }: Props) {
-  const catalog = useCompendiumDetail("gear", rules.loadGearCatalog);
-  const [preview, setPreview] = useState<LoadPreview>();
-  const { cart } = draft;
-  const lines = useMemo(() => cartLines(cart), [cart]);
-  useEffect(() => {
-    if (catalog.status !== "ready") return;
-    let live = true;
-    rules.previewLoad(lines, catalog.detail).then(
-      (next) => live && setPreview(next),
-      () => undefined,
-    );
-    return () => {
-      live = false;
-    };
-  }, [lines, catalog, rules]);
-  return preview;
-}
+type Props = {
+  draft: GearDraft;
+  rules: CreationRules;
+  scores: AbilityScores;
+};
 
 function Load({ preview }: { preview?: LoadPreview }) {
   if (!preview?.enabled)
@@ -36,11 +21,9 @@ function Load({ preview }: { preview?: LoadPreview }) {
         </span>
       </>
     );
-  const { carried, max, tier } = preview;
-  const limit = max ?? carried;
-  const percent = limit ? Math.min(100, (carried / limit) * 100) : 0;
+  const { value, max, pct, label, tier } = preview;
   return (
-    <div className={cx("vm-meter", carried > limit && "vm-meter-over")}>
+    <div className={cx("vm-meter", pct >= 1 && "vm-meter-over")}>
       <div className="vm-meter-head">
         <span className="vm-meter-label">Load</span>
         {tier && <span className="vm-meter-value">{tier}</span>}
@@ -48,14 +31,17 @@ function Load({ preview }: { preview?: LoadPreview }) {
       <div
         className="vm-meter-track"
         role="meter"
-        aria-label={`Load ${carried} of ${limit} coins`}
-        aria-valuenow={carried}
+        aria-label={`Load ${label}`}
+        aria-valuenow={value}
         aria-valuemin={0}
-        aria-valuemax={limit}
+        aria-valuemax={max}
       >
-        <span className="vm-meter-fill" style={{ width: `${percent}%` }} />
+        <span
+          className="vm-meter-fill"
+          style={{ width: `${Math.min(100, pct * 100)}%` }}
+        />
       </div>
-      <span className="vm-meter-caption">{carried} cn</span>
+      <span className="vm-meter-caption">{label}</span>
     </div>
   );
 }

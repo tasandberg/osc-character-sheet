@@ -54,8 +54,8 @@ test.describe("creation wizard", () => {
       await wizard.getByRole("button", { name: "Roll six totals" }).click();
 
       const rolls = wizard.getByRole("group", { name: "Rolls" });
+      await expect(rolls.getByRole("button", { name: /rolled/ })).toHaveCount(6);
       const chip = rolls.getByRole("button", { name: /rolled/ }).first();
-      await expect(chip).toBeVisible();
       const total = (await chip.getAttribute("aria-label"))!.split(",")[0];
       const dex = wizard.locator(".vm-score-face", { has: gamePage.locator('[aria-label="DEX empty"]') });
 
@@ -70,6 +70,90 @@ test.describe("creation wizard", () => {
         await g.foundry.applications.instances.get("osc-creation-wizard")?.close();
         await g.game.settings.set(mod, "creationWizard", false);
       }, MODULE_ID);
+    }
+  });
+
+  test("creates the reviewed character and opens its sheet", async ({ gamePage, slot }, testInfo) => {
+    const name = `E2E Wizard ${slot}-${testInfo.testId}-${testInfo.repeatEachIndex}`;
+    await gamePage.evaluate(async (mod) => {
+      const g = globalThis as any;
+      await g.game.settings.set(mod, "creationWizard", true);
+      g.ui.sidebar.expand();
+      g.ui.actors.activate();
+      await g.ui.actors.render();
+    }, MODULE_ID);
+
+    try {
+      await gamePage.locator("#actors").getByRole("button", { name: "New Character" }).click();
+      const wizard = gamePage.locator("#osc-creation-wizard");
+      const next = wizard.getByRole("button", { name: /^Next/ });
+
+      await wizard.getByRole("radio", { name: /^Enter manually/ }).click();
+      for (const [ability, value] of [
+        ["Strength", "13"],
+        ["Intelligence", "10"],
+        ["Wisdom", "10"],
+        ["Dexterity", "10"],
+        ["Constitution", "10"],
+        ["Charisma", "10"],
+      ])
+        await wizard.getByRole("textbox", { name: ability }).fill(value);
+      await next.click();
+
+      await wizard.getByRole("radio", { name: "Fighter" }).check({ force: true });
+      await next.click();
+
+      await wizard.getByRole("textbox", { name: "Name" }).fill(name);
+      await wizard.getByText("Neutral", { exact: true }).click();
+      await wizard.getByRole("button", { name: "Roll 1d8" }).click();
+      await expect(wizard.getByRole("textbox", { name: "Hit points" })).not.toHaveValue("");
+      await next.click();
+
+      await wizard.getByRole("button", { name: "Roll starting gold" }).click();
+      await next.click();
+      await wizard.getByRole("button", { name: "Create Character" }).click();
+
+      await expect(wizard).toBeHidden();
+      await expect
+        .poll(() =>
+          gamePage.evaluate((actorName) => {
+            const a = (globalThis as any).game.actors.getName(actorName);
+            return a?.sheet?.rendered ?? false;
+          }, name),
+        )
+        .toBe(true);
+
+      const actor = await gamePage.evaluate((actorName) => {
+        const a = (globalThis as any).game.actors.getName(actorName);
+        return {
+          sheetTitle: a.sheet.element.querySelector(".window-title")?.textContent,
+          className: a.system.details.class,
+          level: a.system.details.level,
+          alignment: a.system.details.alignment,
+          strength: a.system.scores.str.value,
+          deathSave: a.system.saves.death.value,
+          hitPoints: a.system.hp.max,
+        };
+      }, name);
+      expect(actor).toMatchObject({
+        className: "Fighter",
+        level: 1,
+        alignment: "Neutral",
+        strength: 13,
+        deathSave: 12,
+      });
+      expect(actor.hitPoints).toBeGreaterThan(0);
+      expect(actor.sheetTitle).toContain(name);
+    } finally {
+      await gamePage.evaluate(
+        async ([mod, actorName]) => {
+          const g = globalThis as any;
+          await g.foundry.applications.instances.get("osc-creation-wizard")?.close();
+          await g.game.settings.set(mod, "creationWizard", false);
+          await g.game.actors.getName(actorName)?.delete();
+        },
+        [MODULE_ID, name],
+      );
     }
   });
 });

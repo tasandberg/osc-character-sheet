@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from "react";
+import { cx } from "@ui/cx";
 import { MoreBelow } from "../MoreBelow";
 import type { CreationRules } from "../rules";
 import { useCompendiumDetail } from "../useCompendiumDetail";
@@ -192,63 +193,76 @@ function Shop({
     >
       <div className="vm-sheet-head">
         <h2 className="vm-sheet-head-title">Equip Your Character</h2>
-      </div>
-      <div className="u-row u-wrap u-gap-4">
-        <div className="vm-tabs" role="tablist" aria-label="Shop category">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              className="vm-tab"
-              aria-selected={t.id === tab}
-              onClick={() => setTab(t.id)}
-            >
-              {t.label}
-              <span className="vm-tab-count">{inTab(t.id).length}</span>
-            </button>
-          ))}
-        </div>
-        <label className="vm-search-wrap osc-creation-shop-search">
-          <i
-            className="vm-search-icon fa-solid fa-magnifying-glass"
-            aria-hidden="true"
-          />
-          <input
-            className="vm-search"
-            type="search"
-            aria-label="Search items"
-            placeholder="Search items"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </label>
-      </div>
-      <div role="tabpanel" aria-label={current.label}>
-        <table className="vm-table vm-table-dense osc-creation-shop-table">
-          <thead>
-            <tr>
-              <th>{current.column}</th>
-              <th className="vm-table-num">Cost</th>
-              <th className="vm-table-num">Weight</th>
-              <th>In pack</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shown.map((item) => (
-              <ShopRow
-                key={item.uuid}
-                item={item}
-                draft={draft}
-                onChange={onChange}
-                openSheet={openSheet}
-              />
-            ))}
-          </tbody>
-        </table>
-        {shown.length === 0 && needle && (
-          <p className="vm-help u-py-3">Nothing matches “{query.trim()}”.</p>
+        {!draft.gold && (
+          <span className="vm-sheet-head-hint">
+            Roll starting gold to open the shop
+          </span>
         )}
+      </div>
+      <div
+        className={cx(
+          "u-flex tw:flex-col u-gap-3",
+          !draft.gold && "osc-creation-shop-locked",
+        )}
+        inert={!draft.gold || undefined}
+      >
+        <div className="u-row u-wrap u-gap-4">
+          <div className="vm-tabs" role="tablist" aria-label="Shop category">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                className="vm-tab"
+                aria-selected={t.id === tab}
+                onClick={() => setTab(t.id)}
+              >
+                {t.label}
+                <span className="vm-tab-count">{inTab(t.id).length}</span>
+              </button>
+            ))}
+          </div>
+          <label className="vm-search-wrap osc-creation-shop-search">
+            <i
+              className="vm-search-icon fa-solid fa-magnifying-glass"
+              aria-hidden="true"
+            />
+            <input
+              className="vm-search"
+              type="search"
+              aria-label="Search items"
+              placeholder="Search items"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </label>
+        </div>
+        <div role="tabpanel" aria-label={current.label}>
+          <table className="vm-table vm-table-dense osc-creation-shop-table">
+            <thead>
+              <tr>
+                <th>{current.column}</th>
+                <th className="vm-table-num">Cost</th>
+                <th className="vm-table-num">Weight</th>
+                <th>In pack</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shown.map((item) => (
+                <ShopRow
+                  key={item.uuid}
+                  item={item}
+                  draft={draft}
+                  onChange={onChange}
+                  openSheet={openSheet}
+                />
+              ))}
+            </tbody>
+          </table>
+          {shown.length === 0 && needle && (
+            <p className="vm-help u-py-3">Nothing matches “{query.trim()}”.</p>
+          )}
+        </div>
       </div>
       <MoreBelow scroller={paneRef} contentKey={`${tab}:${needle}`} />
     </div>
@@ -299,6 +313,24 @@ function GoldRoll({ draft, rules, onChange }: Props) {
   );
 }
 
+export function PackLines({ cart }: { cart: GearDraft["cart"] }) {
+  return (
+    <ul className="osc-creation-pack-lines">
+      {cart.map(({ item, quantity }) => (
+        <li key={item.uuid} className="osc-creation-pack-line">
+          <ItemImage img={item.img} />
+          <span>
+            {item.name}
+            {quantity > 1 && ` ×${quantity}`}
+          </span>
+          <span className="vm-mono">{item.cost * quantity} gp</span>
+          <span className="vm-mono">{weightText(item.weight * quantity)}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function Pack(props: Props) {
   const { draft } = props;
   const asideRef = useRef<HTMLElement>(null);
@@ -317,21 +349,7 @@ function Pack(props: Props) {
       </div>
       <GoldRoll {...props} />
       {draft.cart.length ? (
-        <ul className="osc-creation-pack-lines">
-          {draft.cart.map(({ item, quantity }) => (
-            <li key={item.uuid} className="osc-creation-pack-line">
-              <ItemImage img={item.img} />
-              <span>
-                {item.name}
-                {quantity > 1 && ` ×${quantity}`}
-              </span>
-              <span className="vm-mono">{item.cost * quantity} gp</span>
-              <span className="vm-mono">
-                {weightText(item.weight * quantity)}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <PackLines cart={draft.cart} />
       ) : (
         <p className="vm-help">Nothing yet. Add items from the shop.</p>
       )}
@@ -344,6 +362,7 @@ export function GearStep(props: Props) {
   const catalog = useCompendiumDetail("gear", props.rules.loadGearCatalog);
   return (
     <div className="osc-creation-split osc-creation-gear-step">
+      <Pack {...props} />
       {catalog.status === "ready" && catalog.detail.length ? (
         <Shop
           catalog={catalog.detail}
@@ -360,7 +379,6 @@ export function GearStep(props: Props) {
           </p>
         </div>
       )}
-      <Pack {...props} />
     </div>
   );
 }

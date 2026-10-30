@@ -11,7 +11,9 @@ import {
   rollHitPoints,
 } from "./details/foundryDetails";
 import { loadGearCatalog, previewLoad } from "./gear/foundryGear";
+import { createCharacter } from "./review/foundryCreate";
 import type { CreationRules } from "./rules";
+import type { OSEActor } from "@domain/types";
 import {
   ABILITIES,
   type Ability,
@@ -68,7 +70,7 @@ function cachedGearCatalog() {
   };
 }
 
-export function foundryCreationRules(): CreationRules {
+export function foundryCreationRules(actor?: OSEActor): CreationRules {
   const set = activeClassSet();
   return {
     classes: foundryClasses(set),
@@ -90,5 +92,6 @@ export function foundryCreationRules(): CreationRules {
         (doc as Item | null)?.sheet?.render(true);
       });
     },
+    createCharacter: createCharacter(actor),
   };
 }

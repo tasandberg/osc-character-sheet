@@ -2,8 +2,10 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { setWorld } from "@features/portraitImage/__fixtures__/dragWorld";
 import { CreationWizard } from "./CreationWizard";
 import type { CartLine, GearItem } from "./gear/gearTypes";
+import type { NewCharacter } from "./review/newCharacter";
 import type {
   ClassDetail,
   CreationClass,
@@ -25,8 +27,12 @@ let hitPointRolls: string[];
 let goldRolls: { total: number; dice: number[] }[];
 let goldFormulas: string[];
 let previewedCarts: CartLine[][];
+let previewedScores: AbilityScores[];
 let openedSheets: string[];
 let titles: string[];
+let createdCharacters: NewCharacter[];
+let creationSucceeds: boolean;
+let finished: boolean;
 
 const levelTable = (die: string, count: number) =>
   Array.from({ length: count }, (_, i) => ({
@@ -144,8 +150,9 @@ const rules: CreationRules = {
     return goldRolls.shift()!;
   },
   loadGearCatalog: async () => catalog,
-  previewLoad: async (cart, items) => {
+  previewLoad: async (cart, items, scores) => {
     previewedCarts.push(cart);
+    previewedScores.push(scores);
     const carried = cart.reduce(
       (sum, line) =>
         sum +
@@ -155,14 +162,21 @@ const rules: CreationRules = {
     );
     const heavy = carried > 400;
     return {
+      armourClass: 7,
       enabled: true,
-      carried,
+      value: carried,
       max: 1600,
+      pct: carried / 1600,
+      label: `${carried} / 1600 cn`,
       tier: heavy ? "Lightly encumbered" : "Unencumbered",
       movement: { base: heavy ? 90 : 120, encounter: 40, overland: 24 },
     };
   },
   openItemSheet: (uuid) => openedSheets.push(uuid),
+  createCharacter: async (character) => {
+    createdCharacters.push(character);
+    return creationSucceeds;
+  },
 };
 
 function open(wizardRules = rules) {
@@ -172,8 +186,12 @@ function open(wizardRules = rules) {
   goldRolls = [];
   goldFormulas = [];
   previewedCarts = [];
+  previewedScores = [];
   openedSheets = [];
   titles = [];
+  createdCharacters = [];
+  creationSucceeds = true;
+  finished = false;
   rolls = [12, 7, 10, 15, 8, 11].map((total) => ({
     total,
     dice: [total - 2, 1, 1],
@@ -188,6 +206,7 @@ function open(wizardRules = rules) {
         houseRules={[]}
         rules={wizardRules}
         onTitle={(title) => titles.push(title)}
+        onCreated={() => (finished = true)}
       />,
     ),
   );
@@ -198,10 +217,7 @@ function close() {
   host.remove();
 }
 
-afterEach(() => {
-  close();
-  vi.useRealTimers();
-});
+afterEach(close);
 
 const buttons = () => [...host.querySelectorAll("button")];
 const button = (name: string) =>
@@ -216,15 +232,6 @@ const pressAsync = (name: string) =>
   act(async () => {
     button(name)!.click();
   });
-const pressRolls = async (name: string) => {
-  vi.useFakeTimers();
-  await act(async () => {
-    button(name)!.click();
-    await vi.runAllTimersAsync();
-  });
-  vi.useRealTimers();
-};
-const wait = (ms: number) => act(() => vi.advanceTimersByTimeAsync(ms));
 const currentStep = () =>
   host.querySelector('[aria-current="step"]')?.textContent;
 const next = () => buttons().find((b) => b.textContent?.startsWith("Next"))!;
@@ -363,52 +370,17 @@ describe("CreationWizard", () => {
     expect(button("Roll remaining 5")).toBeDefined();
     expect(host.textContent).toContain("Roll five more to continue");
 
-    await pressRolls("Roll remaining 5");
+    await pressAsync("Roll remaining 5");
     expect(host.textContent).toContain("15+1");
     expect(host.textContent).toContain("7−1");
     expect(button("Roll remaining 0")).toBeUndefined();
     expect(next().getAttribute("aria-disabled")).toBe("false");
   });
 
-  it("lands a multi-roll a fifth of a second apart, keeping the buttons disabled until the last", async () => {
-    open();
-    vi.useFakeTimers();
-    await pressAsync("Roll all six");
-    expect(host.textContent).toContain("12+0");
-    expect(host.textContent).not.toContain("7−1");
-    expect(button("Roll remaining 5")!.getAttribute("aria-disabled")).toBe(
-      "true",
-    );
-
-    await wait(199);
-    expect(host.textContent).not.toContain("7−1");
-    await wait(1);
-    expect(host.textContent).toContain("7−1");
-    expect(host.textContent).not.toContain("10+0");
-
-    await wait(2000);
-    expect(host.textContent).toContain("11+0");
-    expect(button("Roll remaining 0")).toBeUndefined();
-    expect(button("Roll STR")).toBeUndefined();
-  });
-
-  it("stops rolling when the window closes mid-sequence", async () => {
-    open();
-    vi.useFakeTimers();
-    await pressAsync("Roll all six");
-    await wait(200);
-    expect(rolls).toHaveLength(4);
-
-    close();
-    await wait(3000);
-    expect(rolls).toHaveLength(4);
-    open();
-  });
-
   it("places rolled totals on abilities and returns them to the pool", async () => {
     open();
     press("Roll and arrange");
-    await pressRolls("Roll six totals");
+    await pressAsync("Roll six totals");
     expect(host.textContent).toContain("6 to place");
 
     press("15, rolled 13 1 1");
@@ -427,7 +399,7 @@ describe("CreationWizard", () => {
   it("swaps a picked-up score with another ability and announces it", async () => {
     open();
     press("Roll and arrange");
-    await pressRolls("Roll six totals");
+    await pressAsync("Roll six totals");
     press("Place the rest in order");
 
     press("DEX 15");
@@ -442,7 +414,7 @@ describe("CreationWizard", () => {
   it("drops a picked-up roll with Escape", async () => {
     open();
     press("Roll and arrange");
-    await pressRolls("Roll six totals");
+    await pressAsync("Roll six totals");
 
     press("15, rolled 13 1 1");
     expect(button("Place 15 on DEX")).toBeDefined();
@@ -791,10 +763,15 @@ describe("CreationWizard gear", () => {
     await toGear(120);
     expect(currentStep()).toBe("4Gear");
     expect(host.textContent).toContain("Roll starting gold to continue");
+    expect(host.textContent).toContain("Roll starting gold to open the shop");
     expect(disabled("Add Sword")).toBe(true);
-    expect(host.textContent).toContain("Roll starting gold first");
+    await pressAsync("Add Sword");
+    expect(aside()).toContain("Pack0 items");
 
     await pressAsync("Roll starting gold");
+    expect(host.textContent).not.toContain(
+      "Roll starting gold to open the shop",
+    );
     expect(goldFormulas).toEqual(["3d6 * 10"]);
     expect(aside()).toContain("Gold left120 of 120 gp");
     expect(button("Roll starting gold")).toBeUndefined();
@@ -859,8 +836,148 @@ describe("CreationWizard gear", () => {
     ]);
     expect(
       host.querySelector('[role="meter"]')!.getAttribute("aria-label"),
-    ).toBe("Load 500 of 1600 coins");
+    ).toBe("Load 500 / 1600 cn");
     expect(footer()).toContain("Lightly encumbered");
     expect(footer()).toContain("Movement90′");
+  });
+});
+
+async function toReview() {
+  open();
+  await toGear(25);
+  await pressAsync("Roll starting gold");
+  await pressAsync("Add Sword");
+  await act(async () => next().click());
+}
+
+const createButton = () => button("Create Character")!;
+
+describe("CreationWizard review", () => {
+  it("reviews each step, then creates the character with its scores, class, gear and leftover gold", async () => {
+    await toReview();
+    expect(currentStep()).toBe("5Review");
+    const text = host.textContent;
+    expect(text).toContain("WrenThief · level 1");
+    expect(text).toContain("AlignmentNeutral");
+    expect(text).toContain("XP bonus+5% from DEX 15");
+    expect(text).toContain("STR13+1");
+    expect(text).toContain("LanguagesAlignment, Common");
+    expect(text).toContain("HP3");
+    expect(text).toContain("AC7");
+    expect(previewedScores.at(-1)).toMatchObject({ dex: 15 });
+    expect(text).toContain("Sword10 gp · 60 cn");
+    expect(text).toContain("15 gp left of 25");
+
+    await act(async () => createButton().click());
+    expect(createdCharacters).toEqual([
+      {
+        name: "Wren",
+        system: {
+          scores: {
+            str: { value: 13 },
+            int: { value: 8 },
+            wis: { value: 7 },
+            dex: { value: 15 },
+            con: { value: 8 },
+            cha: { value: 11 },
+          },
+          details: {
+            class: "Thief",
+            level: 1,
+            alignment: "Neutral",
+            xp: { value: 0, next: 1200, bonus: 5 },
+          },
+          hp: { hd: "1d4", value: 3, max: 3 },
+          thac0: { value: 19, bba: 0 },
+          saves: {
+            death: { value: 13 },
+            wand: { value: 14 },
+            paralysis: { value: 13 },
+            breath: { value: 16 },
+            spell: { value: 15 },
+          },
+          languages: { value: ["Alignment", "Common"] },
+        },
+        gear: [{ uuid: "Compendium.gear.Sword", quantity: 1 }],
+        gold: 15,
+      },
+    ]);
+    expect(finished).toBe(true);
+  });
+
+  it("records a separately chosen race and speaks its languages", async () => {
+    openSeparate();
+    goldRolls = [{ total: 30, dice: [1, 1, 1] }];
+    enterScores(["13", "8", "7", "15", "10", "11"]);
+    act(() => next().click());
+    act(() => radio("Dwarf").click());
+    act(() => next().click());
+    act(() => radio("Thief").click());
+    await act(async () => next().click());
+    typeField("Name", "Brom");
+    choose("Lawful");
+    await pressAsync("Roll 1d4");
+    await act(async () => next().click());
+    await pressAsync("Roll starting gold");
+    await act(async () => next().click());
+
+    await act(async () => createButton().click());
+    const { details, languages } = createdCharacters[0].system as {
+      details: { class: string; race: string };
+      languages: { value: string[] };
+    };
+    expect(details).toMatchObject({ class: "Thief", race: "Dwarf" });
+    expect(languages.value).toContain("Dwarvish");
+  });
+
+  it("creates the character with the portrait chosen on Details or changed on Review", async () => {
+    setWorld({ portraitUploads: false, portraitUploadPath: "" });
+    vi.stubGlobal("foundry", {});
+    const picked: ((path: string) => void)[] = [];
+    vi.stubGlobal(
+      "FilePicker",
+      class {
+        constructor({ callback }: { callback(path: string): void }) {
+          picked.push(callback);
+        }
+        render() {}
+      },
+    );
+    open();
+    await toGear(25);
+    await act(async () => button("Back")!.click());
+    press("Choose portrait and token");
+    press("Browse for a portrait and token image");
+    act(() => picked[0]("heroes/wren.webp"));
+    await pressAsync("Save");
+    expect(
+      button("Choose portrait and token")!.querySelector("img")!.src,
+    ).toContain("heroes/wren.webp");
+
+    await act(async () => next().click());
+    await pressAsync("Roll starting gold");
+    await act(async () => next().click());
+    press("Choose portrait and token");
+    press("Browse for a portrait and token image");
+    act(() => picked[1]("heroes/wren-hooded.webp"));
+    await pressAsync("Save");
+    await act(async () => createButton().click());
+    const chosen = { kind: "path", src: "heroes/wren-hooded.webp" };
+    expect(createdCharacters[0]).toMatchObject({
+      portrait: chosen,
+      token: chosen,
+    });
+    vi.unstubAllGlobals();
+  });
+
+  it("stays on Review with the draft intact when creating fails", async () => {
+    await toReview();
+    creationSucceeds = false;
+
+    await act(async () => createButton().click());
+    expect(finished).toBe(false);
+    expect(currentStep()).toBe("5Review");
+    expect(host.textContent).toContain("Sword10 gp · 60 cn");
+    expect(createButton().getAttribute("aria-disabled")).toBe("false");
   });
 });

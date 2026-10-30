@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadGearCatalog } from "./foundryGear";
+import { loadGearCatalog, previewLoad } from "./foundryGear";
 
 type Entry = {
   name: string;
@@ -165,5 +165,69 @@ describe("loadGearCatalog", () => {
       "Plate Mail:armour:60:500:AC 16",
       "Sword:weapons:10:60:1d8",
     ]);
+  });
+});
+
+describe("previewLoad", () => {
+  it("reports the load in OSE's own unit when the world counts items", async () => {
+    stubFoundry({});
+    vi.stubGlobal("fromUuid", async () => ({
+      toObject: () => ({ system: { quantity: { value: 1 } } }),
+    }));
+    vi.stubGlobal("foundry", {
+      utils: {
+        setProperty: (
+          source: { system: { quantity: { value: number } } },
+          _path: string,
+          value: number,
+        ) => {
+          source.system.quantity.value = value;
+        },
+      },
+    });
+    vi.stubGlobal("CONFIG", {
+      Actor: {
+        documentClass: class {
+          system = {
+            encumbrance: {
+              enabled: true,
+              variant: "itembased",
+              value: 8,
+              max: 16,
+              steps: [],
+              encumbered: false,
+              usingEquippedEncumbrance: false,
+              packedPct: 50,
+              packedLabel: "8/16",
+              equippedLabel: "3/9",
+            },
+            movement: { base: 120, encounter: 40, overland: 24 },
+            scores: {},
+            ac: { value: 5 },
+            aac: { value: 14 },
+          };
+        },
+      },
+    });
+    const preview = await previewLoad(
+      [{ uuid: "Compendium.gear.Item.Chainmail", quantity: 1 }],
+      [
+        {
+          uuid: "Compendium.gear.Item.Chainmail",
+          name: "Chainmail",
+          img: "",
+          category: "armour",
+          cost: 40,
+          weight: 400,
+        },
+      ],
+      { dex: 13 },
+    );
+    expect(preview).toMatchObject({
+      armourClass: 5,
+      label: "8 / 16 items",
+      pct: 0.5,
+      tier: "Unencumbered",
+    });
   });
 });
