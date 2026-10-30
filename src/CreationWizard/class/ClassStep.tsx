@@ -34,7 +34,9 @@ export function ClassStep({
   const asideRef = useRef<HTMLElement>(null);
   const allowed = (cls: CreationClass) =>
     !restrictions?.allowed || restrictions.allowed(cls.name);
-  const shown = race ? classes.filter(allowed) : classes;
+  const shown = race
+    ? classes.filter((cls) => allowed(cls) && !cls.demihuman)
+    : classes;
   const closed = race
     ? classes
         .filter((cls) => !allowed(cls) && !cls.demihuman)

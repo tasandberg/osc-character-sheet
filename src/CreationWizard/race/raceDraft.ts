@@ -93,7 +93,7 @@ export function raceRestrictions(
     return cls && maxLevel(race, cls);
   };
   return {
-    allowed: (name) => limit(name) !== undefined,
+    allowed: (name) => !race.classLimits.length || limit(name) !== undefined,
     maxLevel: limit,
   };
 }

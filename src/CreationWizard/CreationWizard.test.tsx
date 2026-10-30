@@ -126,12 +126,7 @@ const races: CreationRace[] = [
     ],
     languages: ["Common", "Orcish"],
   }),
-  race("Human", {
-    classLimits: [
-      { classKey: "fighter", maxLevel: 14 },
-      { classKey: "thief", maxLevel: 14 },
-    ],
-  }),
+  race("Human", {}),
 ];
 
 const classStats = (cls: CreationClass, level: number): ClassStats => {
@@ -653,7 +648,7 @@ describe("CreationWizard", () => {
         .map((r) => r.text),
     ).toEqual([
       "Half-Orc—+1 CON, +1 STR, −2 CHA2 classes",
-      "Human—None2 classes",
+      "Human—NoneAny class",
     ]);
     expect(rows().find((r) => r.text?.startsWith("Half-Elf"))!.text).toContain(
       "Needs CON 9",
@@ -683,6 +678,18 @@ describe("CreationWizard", () => {
     await act(async () => next().click());
     expect(button("2RaceHalf-Orc")).toBeDefined();
     expect(button("3ClassThief · +5% XP")).toBeDefined();
+  });
+
+  it("offers every class but the race-as-class ones to a race without class limits", () => {
+    openSeparate();
+    enterScores(["13", "8", "7", "15", "10", "11"]);
+    act(() => next().click());
+    act(() => radio("Human").click());
+    act(() => next().click());
+    expect(rows().map((r) => r.text)).toEqual([
+      "FighterSTR1d8—+5% from STR 13",
+      "ThiefDEX1d4—+5% from DEX 15",
+    ]);
   });
 
   it("shows the race item's description, abilities, classes and languages", async () => {

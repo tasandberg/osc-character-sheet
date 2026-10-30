@@ -137,7 +137,7 @@ export function RaceDetails({ race, classes, scores, rules }: Props) {
             ))}
           </dl>
         ) : (
-          <p className="vm-help">No classes listed.</p>
+          <p className="vm-help">Any class, with no level limit.</p>
         )}
         {race.classLimits.some(({ classKey }) => npcOnly(classKey)) && (
           <p className="vm-help">
