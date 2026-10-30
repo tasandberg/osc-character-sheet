@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { VellumSegmented } from "@features/settings/controls";
 import { RACES, type RaceMode } from "../race/raceDraft";
 import type { CreationRules } from "../rules";
@@ -67,11 +67,6 @@ const METHODS: {
 
 const QUESTION = "How will you roll ability scores?";
 
-const ROLL_GAP_MS = 200;
-
-const pause = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms));
-
 const RACE_MODES: { value: RaceMode; label: string }[] = [
   { value: "separate", label: "Separate" },
   { value: "asClass", label: "As class" },
@@ -113,16 +108,8 @@ export function ScoresStep({
   onChange,
 }: Props) {
   const [rolling, setRolling] = useState(false);
-  const mounted = useRef(true);
   const scores = useMemo(() => finalScores(draft), [draft]);
   const mods = useMemo(() => rules.modifiers(scores), [rules, scores]);
-
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
 
   const rollEach = async <K,>(
     keys: K[],
@@ -131,15 +118,12 @@ export function ScoresStep({
   ) => {
     setRolling(true);
     try {
-      for (const [index, key] of keys.entries()) {
-        if (index) await pause(ROLL_GAP_MS);
-        if (!mounted.current) return;
+      for (const key of keys) {
         const roll = await rules.rollScore(label(key));
-        if (!mounted.current) return;
         onChange((d) => apply(d, key, roll));
       }
     } finally {
-      if (mounted.current) setRolling(false);
+      setRolling(false);
     }
   };
 
