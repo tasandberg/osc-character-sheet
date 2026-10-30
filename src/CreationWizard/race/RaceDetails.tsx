@@ -2,7 +2,7 @@ import { useId, useState, type ReactNode } from "react";
 import { cx } from "@ui/cx";
 import { ChoiceIcon } from "../ChoiceIcon";
 import { CompendiumDescription, Facts } from "../CompendiumText";
-import type { ClassAbility, RaceDetail } from "../rules";
+import type { CreationClass, CreationRules, RaceAbility } from "../rules";
 import {
   ABILITIES,
   abbreviation,
@@ -10,24 +10,27 @@ import {
 } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
 import {
-  adjustedScores,
+  classKeyOf,
   formatMaxLevel,
   formatModifiers,
-  raceLanguages,
+  ordinal,
   raceStanding,
-  racialAbilityValue,
   requirementText,
   type CreationRace,
 } from "./raceDraft";
 
 type Props = {
   race: CreationRace;
+  classes: CreationClass[];
   scores: AbilityScores;
-  loadDetail: (name: string) => Promise<RaceDetail>;
+  rules: Pick<CreationRules, "raceDetail" | "raceScores">;
 };
 
-function changedScores(race: CreationRace, scores: AbilityScores) {
-  const adjusted = adjustedScores(scores, race);
+function changedScores(
+  race: CreationRace,
+  scores: AbilityScores,
+  adjusted: AbilityScores,
+) {
   const changed = ABILITIES.filter(
     (a) => race.modifiers[a] && scores[a] !== undefined,
   );
@@ -36,19 +39,15 @@ function changedScores(race: CreationRace, scores: AbilityScores) {
     : "unchanged";
 }
 
-function RacialAbility({
-  ability,
-  value,
-}: {
-  ability: ClassAbility;
-  value?: string;
-}) {
+function RacialAbility({ ability }: { ability: RaceAbility }) {
   const [open, setOpen] = useState(false);
   const textId = useId();
   return (
     <>
       <dt className="vm-key tw:whitespace-normal">{ability.name}</dt>
-      <dd className="vm-mono">{value}</dd>
+      <dd className="vm-mono">
+        {ability.level > 1 ? `from ${ordinal(ability.level)} level` : ""}
+      </dd>
       <dd>
         <button
           type="button"
@@ -77,21 +76,19 @@ function RacialAbility({
   );
 }
 
-export function RaceDetails({ race, scores, loadDetail }: Props) {
-  const loaded = useCompendiumDetail(race.name, loadDetail);
+export function RaceDetails({ race, classes, scores, rules }: Props) {
+  const loaded = useCompendiumDetail(race.uuid, rules.raceDetail);
   const standing = raceStanding(race, scores);
-  const adjusted = adjustedScores(scores, race);
+  const adjusted = rules.raceScores(scores, race);
+  const className = (key: string) =>
+    classes.find((cls) => classKeyOf(cls) === key)?.name ?? key;
 
   const facts: [string, ReactNode][] = [
     ["Requires", requirementText(race) || "None"],
     ["Ability mods", formatModifiers(race.modifiers)],
-    ["Your scores", changedScores(race, scores)],
-    ["Languages", raceLanguages(race).join(", ")],
+    ["Your scores", changedScores(race, scores, adjusted)],
+    ["Languages", race.languages.join(", ") || "None"],
   ];
-  const classes =
-    race.maxLevels === "anyHumanClass"
-      ? [["All non-demihuman classes", null] as const]
-      : Object.entries(race.maxLevels);
 
   return (
     <>
@@ -116,21 +113,17 @@ export function RaceDetails({ race, scores, loadDetail }: Props) {
       <Facts facts={facts} />
       <section className="u-stack u-gap-3" aria-label="Classes and max level">
         <h3 className="vm-section-title-hairline">Classes and max level</h3>
-        <dl className="u-grid tw:grid-cols-[repeat(2,max-content_minmax(0,1fr))] u-gap-x-4 u-gap-y-2 u-items-baseline">
-          {classes.map(([name, level]) => (
-            <div key={name} className="tw:contents">
-              <dt className="vm-key">
-                {name}
-                {race.npcOnly.includes(name) && "*"}
-              </dt>
-              <dd>{formatMaxLevel(level)}</dd>
-            </div>
-          ))}
-        </dl>
-        {race.npcOnly.length > 0 && (
-          <p className="vm-help">
-            * The referee may allow this class for NPCs only.
-          </p>
+        {race.classLimits.length ? (
+          <dl className="u-grid tw:grid-cols-[repeat(2,max-content_minmax(0,1fr))] u-gap-x-4 u-gap-y-2 u-items-baseline">
+            {race.classLimits.map(({ classKey, maxLevel }) => (
+              <div key={classKey} className="tw:contents">
+                <dt className="vm-key">{className(classKey)}</dt>
+                <dd>{formatMaxLevel(maxLevel)}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : (
+          <p className="vm-help">No classes listed.</p>
         )}
       </section>
       <section className="u-stack u-gap-3" aria-label="Racial abilities">
@@ -142,11 +135,7 @@ export function RaceDetails({ race, scores, loadDetail }: Props) {
         ) : loaded.detail.abilities.length ? (
           <dl className="u-grid tw:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_var(--spacer-6)] u-gap-x-3 u-gap-y-2 u-items-center">
             {loaded.detail.abilities.map((ability) => (
-              <RacialAbility
-                key={ability.name}
-                ability={ability}
-                value={racialAbilityValue(race, ability.name, adjusted)}
-              />
+              <RacialAbility key={ability.name} ability={ability} />
             ))}
           </dl>
         ) : (

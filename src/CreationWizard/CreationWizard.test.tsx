@@ -5,6 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { setWorld } from "@features/portraitImage/__fixtures__/dragWorld";
 import { CreationWizard } from "./CreationWizard";
 import type { CartLine, GearItem } from "./gear/gearTypes";
+import type { CreationRace } from "./race/raceItems";
 import type { NewCharacter } from "./review/newCharacter";
 import type {
   ClassDetail,
@@ -12,7 +13,7 @@ import type {
   CreationRules,
   RaceDetail,
 } from "./rules";
-import type { AbilityScores } from "./scores/scoresDraft";
+import { ABILITIES, type AbilityScores } from "./scores/scoresDraft";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -52,6 +53,7 @@ const level1 = {
 const classes: CreationClass[] = [
   {
     name: "Dwarf",
+    demihuman: true,
     requirements: { con: 9 },
     primeRequisites: ["str"],
     ...level1,
@@ -59,6 +61,7 @@ const classes: CreationClass[] = [
   { name: "Fighter", requirements: {}, primeRequisites: ["str"], ...level1 },
   {
     name: "Halfling",
+    demihuman: true,
     requirements: { con: 9, dex: 9 },
     primeRequisites: ["dex", "str"],
     xpModifiers: [{ modifier: 10, anyOf: [{ dex: 13, str: 13 }] }],
@@ -79,6 +82,50 @@ const classes: CreationClass[] = [
     ],
     levels: levelTable("d4", 10),
   },
+];
+
+const race = (name: string, props: Partial<CreationRace>): CreationRace => ({
+  uuid: `Compendium.races.${name}`,
+  name,
+  key: name.toLowerCase(),
+  description: "",
+  requirements: {},
+  modifiers: {},
+  classLimits: [],
+  languages: [],
+  abilities: [],
+  source: { name, type: "race" },
+  ...props,
+});
+
+const races: CreationRace[] = [
+  race("Dwarf", {
+    requirements: { con: { min: 9, max: null } },
+    modifiers: { con: 1, cha: -1 },
+    classLimits: [
+      { classKey: "fighter", maxLevel: 10 },
+      { classKey: "thief", maxLevel: 9 },
+    ],
+    languages: ["Common", "Dwarvish", "Gnomish"],
+    abilities: [{ uuid: "Compendium.abilities.infravision", level: 1 }],
+  }),
+  race("Half-Elf", {
+    requirements: { con: { min: 9, max: null }, cha: { min: 9, max: null } },
+  }),
+  race("Half-Orc", {
+    modifiers: { str: 1, con: 1, cha: -2 },
+    classLimits: [
+      { classKey: "fighter", maxLevel: 10 },
+      { classKey: "thief", maxLevel: 8 },
+    ],
+    languages: ["Common", "Orcish"],
+  }),
+  race("Human", {
+    classLimits: [
+      { classKey: "fighter", maxLevel: 14 },
+      { classKey: "thief", maxLevel: 14 },
+    ],
+  }),
 ];
 
 const thiefDetail: ClassDetail = {
@@ -118,9 +165,16 @@ const catalog: GearItem[] = [
 const rules: CreationRules = {
   classes,
   classDetail: (name) => new Promise((resolve) => details.set(name, resolve)),
-  separateRaces: false,
-  raceDetail: (name) =>
-    new Promise((resolve) => raceDetails.set(name, resolve)),
+  races: [],
+  raceDetail: (uuid) =>
+    new Promise((resolve) => raceDetails.set(uuid, resolve)),
+  raceScores: (scores, race) =>
+    Object.fromEntries(
+      ABILITIES.filter((a) => scores[a] !== undefined).map((a) => [
+        a,
+        Math.min(18, Math.max(3, scores[a]! + (race?.modifiers[a] ?? 0))),
+      ]),
+    ),
   modifiers: (scores) =>
     Object.fromEntries(
       Object.entries(scores).map(([key, value]) => [
@@ -291,7 +345,7 @@ const stepNames = () =>
   [...host.querySelectorAll('nav[aria-label="Creation steps"] li')].map(
     (li) => li.textContent,
   );
-const openSeparate = () => open({ ...rules, separateRaces: true });
+const openSeparate = () => open({ ...rules, races });
 
 function enterScores(values: string[]) {
   press("Enter manually");
@@ -527,7 +581,7 @@ describe("CreationWizard", () => {
     expect(panel().textContent).toContain("Hear noise2-in-6");
   });
 
-  it("adds a Race step by default when the world separates race and class", () => {
+  it("adds a Race step by default when the world has race items", () => {
     open();
     expect(host.textContent).not.toContain("How race is chosen");
     close();
@@ -542,9 +596,9 @@ describe("CreationWizard", () => {
       "5Gear",
       "6Review",
     ]);
-    expect(aside()).toContain("2 of 10 open");
+    expect(aside()).toContain("2 of 4 open");
     expect(aside()).toContain("Half-Orc+1 CON, +1 STR, −2 CHA");
-    expect(aside()).toContain("DuergarCON 9, INT 9");
+    expect(aside()).toContain("Half-ElfCON 9");
 
     act(() => next().click());
     expect(currentStep()).toBe("2Race");
@@ -553,8 +607,8 @@ describe("CreationWizard", () => {
         .filter((r) => !r.disabled)
         .map((r) => r.text),
     ).toEqual([
-      "Human—Noneany class, no limit",
-      "Half-Orc—+1 CON, +1 STR, −2 CHA5 classes",
+      "Half-Orc—+1 CON, +1 STR, −2 CHA2 classes",
+      "Human—None2 classes",
     ]);
     expect(rows().find((r) => r.text?.startsWith("Half-Elf"))!.text).toContain(
       "Needs CON 9",
@@ -579,31 +633,37 @@ describe("CreationWizard", () => {
       "FighterSTR1d810th+5% from STR 14",
       "ThiefDEX1d48th+5% from DEX 15",
     ]);
+    expect(host.textContent).not.toContain("can’t take");
     act(() => radio("Thief").click());
     await act(async () => next().click());
     expect(button("2RaceHalf-Orc")).toBeDefined();
     expect(button("3ClassThief · +5% XP")).toBeDefined();
   });
 
-  it("derives racial abilities and save bonuses from the adjusted scores", async () => {
+  it("shows the race item's description, abilities, classes and languages", async () => {
     openSeparate();
     enterScores(["13", "8", "7", "15", "10", "11"]);
     act(() => next().click());
     act(() => radio("Dwarf").click());
 
     await act(async () =>
-      raceDetails.get("Dwarf")!({
+      raceDetails.get("Compendium.races.Dwarf")!({
         description: "<p>Dwarves are stout.</p>",
         abilities: [
-          { name: "Infravision", description: "<p>See in the dark.</p>" },
-          { name: "Resilience", description: "<p>Hardy folk.</p>" },
+          {
+            name: "Infravision",
+            description: "<p>See in the dark.</p>",
+            level: 1,
+          },
+          { name: "Resilience", description: "<p>Hardy folk.</p>", level: 3 },
         ],
       }),
     );
     const racePanel = () => host.querySelector("aside")!.textContent;
     expect(racePanel()).toContain("Dwarves are stout.");
-    expect(racePanel()).toContain("Infravision60′");
-    expect(racePanel()).toContain("Resilience+3 saves (CON 11)");
+    expect(racePanel()).toContain("Your scoresCON 11 · CHA 10");
+    expect(racePanel()).toContain("Fighter10thThief9th");
+    expect(racePanel()).toContain("Resiliencefrom 3rd level");
     const resilience = button("Resilience details")!;
     act(() => resilience.click());
     expect(
@@ -621,12 +681,7 @@ describe("CreationWizard", () => {
       'aside[aria-label="Thief at first level"]',
     )!.textContent;
     expect(classPanel).toContain("Max level9th, as a dwarf");
-    expect(classPanel).toContain(
-      "Saves+3 vs poison, spells, wands (Resilience, CON 11)",
-    );
-    expect(classPanel).toContain(
-      "LanguagesAlignment, Common, Dwarvish, Gnomish, Goblin, Kobold",
-    );
+    expect(classPanel).toContain("LanguagesCommon, Dwarvish, Gnomish");
   });
 });
 
@@ -701,7 +756,7 @@ describe("CreationWizard details", () => {
     expect(button("Raise level")!.getAttribute("aria-disabled")).toBe("true");
   });
 
-  it("caps the level by race and adds the racial save bonus when race is separate", async () => {
+  it("caps the level by race when race is separate", async () => {
     openSeparate();
     enterScores(["13", "8", "7", "15", "10", "11"]);
     act(() => next().click());
@@ -714,9 +769,6 @@ describe("CreationWizard details", () => {
       [...host.querySelectorAll("h2")].map((h) => h.textContent),
     ).toContain("Dwarf Thief · level 1");
     expect(host.textContent).toContain("Max level9th");
-    expect(host.textContent).toContain(
-      "+3 vs poison, spells, wands (Resilience, CON 11)",
-    );
   });
 
   it("starts 1st-level characters at maximum hit points under the house rule", async () => {
@@ -905,7 +957,7 @@ describe("CreationWizard review", () => {
     expect(finished).toBe(true);
   });
 
-  it("records a separately chosen race and speaks its languages", async () => {
+  it("embeds the chosen race item and speaks its languages", async () => {
     openSeparate();
     goldRolls = [{ total: 30, dice: [1, 1, 1] }];
     enterScores(["13", "8", "7", "15", "10", "11"]);
@@ -922,11 +974,14 @@ describe("CreationWizard review", () => {
     await act(async () => next().click());
 
     await act(async () => createButton().click());
-    const { details, languages } = createdCharacters[0].system as {
-      details: { class: string; race: string };
+    const [created] = createdCharacters;
+    const { details, languages } = created.system as {
+      details: { class: string; race?: string };
       languages: { value: string[] };
     };
-    expect(details).toMatchObject({ class: "Thief", race: "Dwarf" });
+    expect(details).toMatchObject({ class: "Thief" });
+    expect(details.race).toBeUndefined();
+    expect(created.race?.source).toEqual({ name: "Dwarf", type: "race" });
     expect(languages.value).toContain("Dwarvish");
   });
 

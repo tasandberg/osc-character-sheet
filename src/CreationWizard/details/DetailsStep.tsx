@@ -4,7 +4,7 @@ import { VellumSegmented } from "@features/settings/controls";
 import { MoreBelow } from "../MoreBelow";
 import { RecordRows, type RecordRow } from "../RecordRows";
 import { PortraitPicker } from "../portrait/PortraitPicker";
-import { ordinal, raceSaveBonus, type CreationRace } from "../race/raceDraft";
+import { ordinal, type CreationRace } from "../race/raceDraft";
 import type {
   Alignment,
   AlignmentText,
@@ -228,11 +228,9 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
   const { row, nextXp } = details;
   const slots = spellSlots(row);
   const wis = rules.modifiers(scores).wis;
-  const racial = race && raceSaveBonus(race, scores);
-  const notes = [
-    ...(wis ? [`${formatModifier(wis)} vs magic (WIS ${scores.wis})`] : []),
-    ...(racial?.bonus ? [`${racial.summary} (${racial.basis})`] : []),
-  ];
+  const notes = wis
+    ? [`${formatModifier(wis)} vs magic (WIS ${scores.wis})`]
+    : [];
   const stats: RecordRow[] = [
     ["Experience", `${row.xp.toLocaleString()} xp`],
     ["Next level", nextXp === null ? "—" : `${nextXp.toLocaleString()} xp`],
