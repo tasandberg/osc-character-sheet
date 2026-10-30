@@ -9,6 +9,7 @@ import { ClassDetails } from "./ClassDetails";
 import { ChoiceIcon } from "../ChoiceIcon";
 import { ineligibleReason, isEligible, requirementList } from "./classDraft";
 import { XpAdjustmentText } from "./XpAdjustmentText";
+import { isNpcOnly } from "../upstreamGaps";
 
 type Props = {
   classes: CreationClass[];
@@ -39,6 +40,7 @@ export function ClassStep({
         .filter((cls) => !allowed(cls) && !cls.demihuman)
         .map((cls) => cls.name)
     : [];
+  const anyNpcOnly = race && shown.some((cls) => isNpcOnly(race, cls));
   return (
     <div className="osc-creation-split osc-creation-class-step">
       <div
@@ -114,6 +116,14 @@ export function ClassStep({
                             }
                           />
                           {cls.name}
+                          {race && isNpcOnly(race, cls) && (
+                            <span
+                              className="vm-tag vm-tag-xs"
+                              title="The referee may allow this class for NPCs only"
+                            >
+                              NPC only*
+                            </span>
+                          )}
                         </span>
                       </td>
                       <td className="vm-mono">
@@ -151,6 +161,11 @@ export function ClassStep({
               </tbody>
             </table>
           </fieldset>
+        )}
+        {anyNpcOnly && (
+          <p className="vm-help">
+            * The referee may allow this class for NPCs only.
+          </p>
         )}
         {race && (
           <p className="vm-help">

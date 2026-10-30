@@ -9,6 +9,7 @@ import {
   type AbilityScores,
 } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
+import { isNpcOnly, racialAbilityValue } from "../upstreamGaps";
 import {
   classKeyOf,
   formatMaxLevel,
@@ -39,14 +40,22 @@ function changedScores(
     : "unchanged";
 }
 
-function RacialAbility({ ability }: { ability: RaceAbility }) {
+function RacialAbility({
+  ability,
+  value,
+}: {
+  ability: RaceAbility;
+  value?: string;
+}) {
   const [open, setOpen] = useState(false);
   const textId = useId();
   return (
     <>
       <dt className="vm-key tw:whitespace-normal">{ability.name}</dt>
       <dd className="vm-mono">
-        {ability.level > 1 ? `from ${ordinal(ability.level)} level` : ""}
+        {[value, ability.level > 1 && `from ${ordinal(ability.level)} level`]
+          .filter(Boolean)
+          .join(", ")}
       </dd>
       <dd>
         <button
@@ -82,6 +91,8 @@ export function RaceDetails({ race, classes, scores, rules }: Props) {
   const adjusted = rules.raceScores(scores, race);
   const className = (key: string) =>
     classes.find((cls) => classKeyOf(cls) === key)?.name ?? key;
+  const npcOnly = (classKey: string) =>
+    isNpcOnly(race, { key: classKey, name: classKey });
 
   const facts: [string, ReactNode][] = [
     ["Requires", requirementText(race) || "None"],
@@ -117,13 +128,21 @@ export function RaceDetails({ race, classes, scores, rules }: Props) {
           <dl className="u-grid tw:grid-cols-[repeat(2,max-content_minmax(0,1fr))] u-gap-x-4 u-gap-y-2 u-items-baseline">
             {race.classLimits.map(({ classKey, maxLevel }) => (
               <div key={classKey} className="tw:contents">
-                <dt className="vm-key">{className(classKey)}</dt>
+                <dt className="vm-key">
+                  {className(classKey)}
+                  {npcOnly(classKey) && "*"}
+                </dt>
                 <dd>{formatMaxLevel(maxLevel)}</dd>
               </div>
             ))}
           </dl>
         ) : (
           <p className="vm-help">No classes listed.</p>
+        )}
+        {race.classLimits.some(({ classKey }) => npcOnly(classKey)) && (
+          <p className="vm-help">
+            * The referee may allow this class for NPCs only.
+          </p>
         )}
       </section>
       <section className="u-stack u-gap-3" aria-label="Racial abilities">
@@ -135,7 +154,11 @@ export function RaceDetails({ race, classes, scores, rules }: Props) {
         ) : loaded.detail.abilities.length ? (
           <dl className="u-grid tw:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_var(--spacer-6)] u-gap-x-3 u-gap-y-2 u-items-center">
             {loaded.detail.abilities.map((ability) => (
-              <RacialAbility key={ability.name} ability={ability} />
+              <RacialAbility
+                key={ability.name}
+                ability={ability}
+                value={racialAbilityValue(race, ability.name, adjusted)}
+              />
             ))}
           </dl>
         ) : (
