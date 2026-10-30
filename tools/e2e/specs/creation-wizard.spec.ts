@@ -145,11 +145,15 @@ test.describe("creation wizard", () => {
       expect(actor.hitPoints).toBeGreaterThan(0);
       expect(actor.sheetTitle).toContain(name);
     } finally {
-      await gamePage.evaluate(async (mod) => {
-        const g = globalThis as any;
-        await g.foundry.applications.instances.get("osc-creation-wizard")?.close();
-        await g.game.settings.set(mod, "creationWizard", false);
-      }, MODULE_ID);
+      await gamePage.evaluate(
+        async ([mod, actorName]) => {
+          const g = globalThis as any;
+          await g.foundry.applications.instances.get("osc-creation-wizard")?.close();
+          await g.game.settings.set(mod, "creationWizard", false);
+          await g.game.actors.getName(actorName)?.delete();
+        },
+        [MODULE_ID, name],
+      );
     }
   });
 });
