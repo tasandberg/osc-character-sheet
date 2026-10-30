@@ -218,7 +218,7 @@ export function ScoresStep({
           </p>
         </RaceAside>
       ) : (
-        <ClassAside classes={rules.classes} scores={scores}>
+        <ClassAside rules={rules} scores={scores}>
           {rules.races.length > 0 && (
             <RaceModeSwitch value={raceMode} onChange={onRaceMode} />
           )}

@@ -1,5 +1,4 @@
-import type { ClassRestrictions, CreationClass } from "../rules";
-import { formatXpModifier, xpAdjustment } from "../rules/xpAdjustment";
+import type { ClassRestrictions, CreationClass, CreationRules } from "../rules";
 import { classStanding } from "../scores/classStanding";
 import {
   abbreviation,
@@ -48,12 +47,42 @@ export function classBlockedReason(
   return undefined;
 }
 
+export type XpAdjustment = { modifier: number; basis: string };
+
+export function xpAdjustment(
+  cls: CreationClass,
+  scores: AbilityScores,
+  xpBonus: CreationRules["xpBonus"],
+): XpAdjustment | undefined {
+  if (!cls.primeRequisites.length) return undefined;
+  if (cls.primeRequisites.some((a) => scores[a] === undefined))
+    return undefined;
+  return {
+    modifier: xpBonus(cls, scores),
+    basis: cls.primeRequisites
+      .map((a) => `${abbreviation(a)} ${scores[a]}`)
+      .join(", "),
+  };
+}
+
+export const formatXpModifier = (modifier: number) =>
+  modifier > 0 ? `+${modifier}%` : modifier < 0 ? `−${-modifier}%` : "±0%";
+
+export const xpTone = (modifier: number) =>
+  modifier > 0 ? "up" : modifier < 0 ? "down" : "flat";
+
 export function classSummary(
   cls: CreationClass | undefined,
   scores: AbilityScores,
-  restrictions?: ClassRestrictions,
+  restrictions: ClassRestrictions | undefined,
+  xpBonus: CreationRules["xpBonus"],
 ): string | undefined {
   if (!cls || classBlockedReason(cls, scores, restrictions)) return undefined;
-  const xp = xpAdjustment(cls, scores);
+  const xp = xpAdjustment(cls, scores, xpBonus);
   return xp ? `${cls.name} · ${formatXpModifier(xp.modifier)} XP` : cls.name;
 }
+
+export const characterLanguages = (
+  cls: CreationClass,
+  extra: string[] = [],
+) => [...new Set([...cls.languages, ...extra])];

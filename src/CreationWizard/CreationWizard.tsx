@@ -113,7 +113,7 @@ export function CreationWizard({
           chosen={draft.class}
           race={race}
           restrictions={classRestrictions(draft, rules)}
-          loadDetail={rules.classDetail}
+          rules={rules}
           onChoose={(cls) => wizard.setDraft((d) => ({ ...d, class: cls }))}
         />
       ) : step === "details" && draft.class && details ? (

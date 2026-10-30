@@ -1,4 +1,4 @@
-import { enrich } from "../class/foundryClasses";
+import { enrich } from "../compendium";
 import type { RaceDetail } from "../rules";
 import {
   raceFromItem,
