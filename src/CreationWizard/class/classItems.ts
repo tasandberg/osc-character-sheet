@@ -1,4 +1,4 @@
-import { enrich, packs } from "../compendium";
+import { enrich, packs, TOME } from "../compendium";
 import type {
   ClassDetail,
   ClassStats,
@@ -153,15 +153,17 @@ export async function loadClassItems(): Promise<ClassItemDoc[]> {
           : [];
       }),
   );
-  const seen = new Set<string>();
-  return [...world, ...fromPacks.flat()]
-    .filter((doc) => {
-      const key = doc.system.key || doc.name;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const tome = (doc: ClassItemDoc) => doc.pack?.startsWith(`${TOME}.`);
+  const byKey = new Map<string, ClassItemDoc>();
+  for (const doc of [
+    ...world,
+    ...fromPacks.flat().filter(tome),
+    ...fromPacks.flat().filter((doc) => !tome(doc)),
+  ]) {
+    const key = doc.system.key || doc.name;
+    if (!byKey.has(key)) byKey.set(key, doc);
+  }
+  return [...byKey.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 const withProgress = (source: ItemSource, level: number): ItemSource => {
