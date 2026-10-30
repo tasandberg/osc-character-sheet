@@ -128,7 +128,7 @@ function HitPointsSection({
   onChange,
 }: Pick<Props, "details" | "rules" | "onChange">) {
   const [rolling, setRolling] = useState(false);
-  const { row, formula, hitPoints } = details;
+  const { stats, formula, hitPoints } = details;
   const text = hitPoints?.value ?? "";
   const invalid = text.trim() !== "" && parseHitPoints(text) === undefined;
 
@@ -138,7 +138,7 @@ function HitPointsSection({
     try {
       const result = await rules.rollHitPoints(
         formula,
-        `Hit points (${row.hd})`,
+        `Hit points (${stats.hd})`,
       );
       onChange((d) => ({
         ...d,
@@ -186,14 +186,14 @@ function HitPointsSection({
           aria-disabled={rolling || undefined}
           onClick={roll}
         >
-          {text ? `Reroll ${row.hd}` : `Roll ${row.hd}`}
+          {text ? `Reroll ${stats.hd}` : `Roll ${stats.hd}`}
         </button>
         <span className="osc-creation-hp-dice">
           {hitPoints?.dice ? (
             <DiceRow dice={hitPoints.dice} />
           ) : (
             <span className="vm-score-dice" aria-hidden="true">
-              {Array.from({ length: parseInt(row.hd) }, (_, i) => (
+              {Array.from({ length: parseInt(stats.hd) || 1 }, (_, i) => (
                 <span key={i} className="vm-score-die u-text-muted">
                   —
                 </span>
@@ -207,15 +207,15 @@ function HitPointsSection({
 }
 
 function HitPointsHelp({ details, cls }: Pick<Props, "details" | "cls">) {
-  const { row, conBonus, hitPoints } = details;
+  const { stats, conBonus, hitPoints } = details;
   const text = hitPoints?.value ?? "";
   const invalid = text.trim() !== "" && parseHitPoints(text) === undefined;
   const con = conBonus ? `, ${formatModifier(conBonus)} for Constitution` : "";
   const help = hitPoints?.dice
-    ? `Rolled ${row.hd} for ${cls.name}${con}.`
+    ? `Rolled ${stats.hd} for ${cls.name}${con}.`
     : hitPoints?.maximum
-      ? `Maximum of ${row.hd} for ${cls.name}${con}, by house rule.`
-      : `${cls.name} hit dice ${row.hd}${con}.`;
+      ? `Maximum of ${stats.hd} for ${cls.name}${con}, by house rule.`
+      : `${cls.name} hit dice ${stats.hd}${con}.`;
   return invalid ? (
     <p className="vm-field-error">Hit points start at 1</p>
   ) : (
@@ -225,19 +225,22 @@ function HitPointsHelp({ details, cls }: Pick<Props, "details" | "cls">) {
 
 function ClassStats({ details, cls, race, scores, rules }: Props) {
   const asideRef = useRef<HTMLElement>(null);
-  const { row, nextXp } = details;
-  const slots = spellSlots(row);
+  const { stats } = details;
+  const slots = spellSlots(stats);
   const wis = rules.modifiers(scores).wis;
   const notes = wis
     ? [`${formatModifier(wis)} vs magic (WIS ${scores.wis})`]
     : [];
-  const stats: RecordRow[] = [
-    ["Experience", `${row.xp.toLocaleString()} xp`],
-    ["Next level", nextXp === null ? "—" : `${nextXp.toLocaleString()} xp`],
+  const rows: RecordRow[] = [
+    ["Experience", `${stats.xp.toLocaleString()} xp`],
+    [
+      "Next level",
+      stats.nextXp === null ? "—" : `${stats.nextXp.toLocaleString()} xp`,
+    ],
     ["Max level", ordinal(details.cap)],
-    ["Hit dice", row.hd],
-    ["THAC0", `${row.thac0} [${formatModifier(19 - row.thac0)}]`],
-    ...(row.spells
+    ["Hit dice", stats.hd],
+    ["THAC0", `${stats.thac0} [${formatModifier(stats.bba)}]`],
+    ...(cls.casts
       ? ([
           [
             "Spell slots",
@@ -263,10 +266,10 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
           </span>
         </h2>
       </div>
-      <RecordRows rows={stats} />
+      <RecordRows rows={rows} />
       <h3 className="vm-heading vm-heading-sm u-fs-lg u-mt-1">Saving throws</h3>
       <RecordRows
-        rows={rules.saveNames.map((name, i) => [name, row.saves[i]])}
+        rows={rules.saveNames.map((name, i) => [name, stats.saves[i]])}
         aria-label="Saving throws, roll d20 at or above target"
       />
       {notes.length > 0 && <p className="vm-help">{notes.join(" · ")}</p>}

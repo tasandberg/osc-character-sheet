@@ -1,17 +1,19 @@
-import type { CreationClass } from "../rules";
-import { formatXpModifier, xpAdjustment, xpTone } from "../rules/xpAdjustment";
+import type { CreationClass, CreationRules } from "../rules";
 import type { AbilityScores } from "../scores/scoresDraft";
+import { formatXpModifier, xpAdjustment, xpTone } from "./classDraft";
 
 export function XpAdjustmentText({
   cls,
   scores,
+  xpBonus,
   withBasis,
 }: {
   cls: CreationClass;
   scores: AbilityScores;
+  xpBonus: CreationRules["xpBonus"];
   withBasis?: boolean;
 }) {
-  const xp = xpAdjustment(cls, scores);
+  const xp = xpAdjustment(cls, scores, xpBonus);
   if (!xp) return <>—</>;
   return (
     <span

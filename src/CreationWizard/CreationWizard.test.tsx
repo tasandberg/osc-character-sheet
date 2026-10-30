@@ -9,6 +9,7 @@ import type { CreationRace } from "./race/raceItems";
 import type { NewCharacter } from "./review/newCharacter";
 import type {
   ClassDetail,
+  ClassStats,
   CreationClass,
   CreationRules,
   RaceDetail,
@@ -35,53 +36,57 @@ let createdCharacters: NewCharacter[];
 let creationSucceeds: boolean;
 let finished: boolean;
 
-const levelTable = (die: string, count: number) =>
-  Array.from({ length: count }, (_, i) => ({
-    xp: i * 1200,
-    hd: `${i + 1}${die}`,
-    thac0: 19 - i,
-    saves: [13, 14, 13, 16, 15].map((save) => save - i),
-  }));
-
-const level1 = {
+const classItem = (
+  name: string,
+  cls: Partial<CreationClass> & { maxLevel: number },
+): CreationClass => ({
+  uuid: `Compendium.classes.${name}`,
+  key: name.toLowerCase(),
+  name,
+  requirements: {},
+  primeRequisites: [],
   hitDie: "1d8",
-  thac0: 19,
-  nextLevelXp: 2000,
-  skills: [],
-  levels: levelTable("d8", 1),
-};
+  languages: ["Alignment", "Common"],
+  demihuman: false,
+  casts: false,
+  tables: [],
+  ...cls,
+});
+
 const classes: CreationClass[] = [
-  {
-    name: "Dwarf",
-    demihuman: true,
+  classItem("Dwarf", {
     requirements: { con: 9 },
     primeRequisites: ["str"],
-    ...level1,
-  },
-  { name: "Fighter", requirements: {}, primeRequisites: ["str"], ...level1 },
-  {
-    name: "Halfling",
+    maxLevel: 1,
     demihuman: true,
+    languages: ["Alignment", "Common", "Dwarvish"],
+  }),
+  classItem("Fighter", { primeRequisites: ["str"], maxLevel: 1 }),
+  classItem("Halfling", {
     requirements: { con: 9, dex: 9 },
     primeRequisites: ["dex", "str"],
-    xpModifiers: [{ modifier: 10, anyOf: [{ dex: 13, str: 13 }] }],
-    ...level1,
     hitDie: "1d6",
-    levels: levelTable("d6", 1),
-  },
-  {
-    name: "Thief",
-    requirements: {},
+    maxLevel: 1,
+    demihuman: true,
+  }),
+  classItem("Thief", {
     primeRequisites: ["dex"],
     hitDie: "1d4",
-    thac0: 19,
-    nextLevelXp: 1200,
-    skills: [
-      { key: "cs", chance: 87 },
-      { key: "hn", chance: 2 },
+    maxLevel: 10,
+    armour: "Leather, no shields",
+    weapons: "Any",
+    tables: [
+      {
+        key: "skills",
+        label: "Thief Skills",
+        columns: [
+          { key: "cs", name: "Climb sheer surfaces" },
+          { key: "hn", name: "Hear noise" },
+        ],
+        rows: [{ cs: 87, hn: "1-2" }],
+      },
     ],
-    levels: levelTable("d4", 10),
-  },
+  }),
 ];
 
 const race = (name: string, props: Partial<CreationRace>): CreationRace => ({
@@ -128,14 +133,49 @@ const races: CreationRace[] = [
   }),
 ];
 
+const classStats = (cls: CreationClass, level: number): ClassStats => {
+  const die = cls.hitDie.slice(1);
+  const row = (i: number) => ({
+    xp: i * 1200,
+    thac0: 19 - i,
+    saves: [13, 14, 13, 16, 15].map((save) => save - i),
+  });
+  return {
+    xp: row(level - 1).xp,
+    nextXp: level < cls.maxLevel ? row(level).xp : null,
+    hd: `${level}${die}`,
+    thac0: row(level - 1).thac0,
+    bba: level - 1,
+    saves: row(level - 1).saves,
+    spellSlots: [],
+    conLevels: level,
+  };
+};
+
+const xpBonus = (cls: CreationClass, scores: AbilityScores) => {
+  if (cls.primeRequisites.length > 1)
+    return cls.primeRequisites.every((a) => scores[a]! >= 13) ? 10 : 0;
+  const score = scores[cls.primeRequisites[0]]!;
+  return score <= 5
+    ? -20
+    : score <= 8
+      ? -10
+      : score <= 12
+        ? 0
+        : score <= 15
+          ? 5
+          : 10;
+};
+
 const thiefDetail: ClassDetail = {
   description: "<p>Thieves live by their skills of deception and stealth.</p>",
-  armour: "Leather, no shields",
-  weapons: "Any",
   abilities: [
-    { name: "Back-stab", description: "<p>+4 to hit and double damage.</p>" },
+    {
+      name: "Back-stab",
+      description: "<p>+4 to hit and double damage.</p>",
+      level: 1,
+    },
   ],
-  skillLabels: { cs: "Climb sheer surfaces", hn: "Hear noise" },
 };
 
 const gear = (
@@ -164,7 +204,9 @@ const catalog: GearItem[] = [
 
 const rules: CreationRules = {
   classes,
-  classDetail: (name) => new Promise((resolve) => details.set(name, resolve)),
+  classDetail: (uuid) => new Promise((resolve) => details.set(uuid, resolve)),
+  classStats,
+  xpBonus,
   races: [],
   raceDetail: (uuid) =>
     new Promise((resolve) => raceDetails.set(uuid, resolve)),
@@ -561,7 +603,9 @@ describe("CreationWizard", () => {
     expect(panel().textContent).toContain("THAC019 [+0]");
     expect(panel().textContent).toContain("Next level1,200 xp");
 
-    await act(async () => details.get("Thief")!(thiefDetail));
+    await act(async () =>
+      details.get("Compendium.classes.Thief")!(thiefDetail),
+    );
     expect(panel().querySelector('[aria-busy="true"]')).toBeNull();
     expect(panel().textContent).toContain(
       "Thieves live by their skills of deception and stealth.",
@@ -577,8 +621,8 @@ describe("CreationWizard", () => {
     expect(backStab.getAttribute("aria-expanded")).toBe("true");
     expect(backStabText().hasAttribute("hidden")).toBe(false);
     expect(backStabText().textContent).toBe("+4 to hit and double damage.");
-    expect(panel().textContent).toContain("Climb sheer surfaces87%");
-    expect(panel().textContent).toContain("Hear noise2-in-6");
+    expect(panel().textContent).toContain("Climb sheer surfaces87");
+    expect(panel().textContent).toContain("Hear noise1-2");
   });
 
   it("adds a Race step by default when the world has race items", () => {
@@ -924,6 +968,7 @@ describe("CreationWizard review", () => {
     expect(createdCharacters).toEqual([
       {
         name: "Wren",
+        class: { uuid: "Compendium.classes.Thief", level: 1, xp: 0 },
         system: {
           scores: {
             str: { value: 13 },
@@ -933,21 +978,8 @@ describe("CreationWizard review", () => {
             con: { value: 8 },
             cha: { value: 11 },
           },
-          details: {
-            class: "Thief",
-            level: 1,
-            alignment: "Neutral",
-            xp: { value: 0, next: 1200, bonus: 5 },
-          },
-          hp: { hd: "1d4", value: 3, max: 3 },
-          thac0: { value: 19, bba: 0 },
-          saves: {
-            death: { value: 13 },
-            wand: { value: 14 },
-            paralysis: { value: 13 },
-            breath: { value: 16 },
-            spell: { value: 15 },
-          },
+          details: { alignment: "Neutral" },
+          hp: { value: 3, max: 3 },
           languages: { value: ["Alignment", "Common"] },
         },
         gear: [{ uuid: "Compendium.gear.Sword", quantity: 1 }],
@@ -975,12 +1007,10 @@ describe("CreationWizard review", () => {
 
     await act(async () => createButton().click());
     const [created] = createdCharacters;
-    const { details, languages } = created.system as {
-      details: { class: string; race?: string };
+    const { languages } = created.system as {
       languages: { value: string[] };
     };
-    expect(details).toMatchObject({ class: "Thief" });
-    expect(details.race).toBeUndefined();
+    expect(created.class.uuid).toBe("Compendium.classes.Thief");
     expect(created.race?.source).toEqual({ name: "Dwarf", type: "race" });
     expect(languages.value).toContain("Dwarvish");
   });

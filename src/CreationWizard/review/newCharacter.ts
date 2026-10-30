@@ -1,4 +1,5 @@
 import type { ImageDrop } from "@features/portraitImage/parseImageDrop";
+import { characterLanguages } from "../class/classDraft";
 import { ALIGNMENTS, parseHitPoints } from "../details/detailsDraft";
 import { isChosen, livePortrait } from "../portrait/portraitDraft";
 import {
@@ -10,17 +11,14 @@ import {
 } from "../flow";
 import { cartLines, goldLeft } from "../gear/gearDraft";
 import type { CartLine } from "../gear/gearTypes";
-import { nativeLanguages } from "../rules/classConstants";
-import { xpAdjustment } from "../rules/xpAdjustment";
 import type { CreationRace } from "../race/raceItems";
 import { ABILITIES } from "../scores/scoresDraft";
-
-const SAVE_KEYS = ["death", "wand", "paralysis", "breath", "spell"] as const;
 
 export type NewCharacter = {
   name: string;
   portrait?: ImageDrop;
   token?: ImageDrop;
+  class: { uuid: string; level: number; xp: number };
   system: Record<string, unknown>;
   race?: CreationRace;
   gear: CartLine[];
@@ -38,48 +36,24 @@ export function newCharacter(
     return undefined;
   const scores = classScores(draft, rules);
   const race = chosenRace(draft, rules);
-  const { row, level, nextXp } = details;
-  const spells = row.spells?.length
-    ? {
-        enabled: true,
-        ...Object.fromEntries(
-          row.spells.map((max, i) => [String(i + 1), { max }]),
-        ),
-      }
-    : undefined;
+  const { stats, level } = details;
   const images = livePortrait(draft.details.portrait);
   return {
     name: draft.details.name.trim(),
     ...(images && isChosen(images.portrait) && { portrait: images.portrait }),
     ...(images && isChosen(images.token) && { token: images.token }),
+    class: { uuid: cls.uuid, level, xp: stats.xp },
     system: {
       scores: Object.fromEntries(
         ABILITIES.map((a) => [a, { value: scores[a] }]),
       ),
       details: {
-        class: cls.name,
-        level,
         alignment: ALIGNMENTS.find((a) => a.value === draft.details.alignment)!
           .label,
-        xp: {
-          value: row.xp,
-          ...(nextXp !== null && { next: nextXp }),
-          bonus: xpAdjustment(cls, scores)?.modifier ?? 0,
-        },
       },
-      hp: { hd: row.hd, value: hp, max: hp },
-      thac0: { value: row.thac0, bba: 19 - row.thac0 },
-      saves: Object.fromEntries(
-        SAVE_KEYS.map((key, i) => [key, { value: row.saves[i] }]),
-      ),
-      ...(spells && { spells }),
+      hp: { value: hp, max: hp },
       languages: {
-        value: [
-          ...new Set([
-            ...nativeLanguages(cls.name),
-            ...(race?.languages ?? []),
-          ]),
-        ],
+        value: characterLanguages(cls, race?.languages ?? []),
       },
     },
     ...(race && { race }),

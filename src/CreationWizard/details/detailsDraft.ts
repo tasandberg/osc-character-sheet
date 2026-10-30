@@ -1,7 +1,7 @@
 import type {
   Alignment,
-  ClassLevel,
   ClassRestrictions,
+  ClassStats,
   CreationClass,
 } from "../rules";
 import type { PortraitDraft } from "../portrait/portraitDraft";
@@ -35,17 +35,16 @@ export const emptyDetailsDraft = (): DetailsDraft => ({
 
 export function levelCap(cls: CreationClass, restrictions?: ClassRestrictions) {
   const raceMax = restrictions?.maxLevel?.(cls.name) ?? Infinity;
-  return Math.max(1, Math.min(cls.levels.length, raceMax));
+  return Math.max(1, Math.min(cls.maxLevel, raceMax));
 }
 
-export const hitPointFormula = (hd: string, conMod: number, level: number) =>
-  `max(${hd} + ${conMod * level}, ${hd[0]})`;
+export const hitPointFormula = (hd: string, conBonus: number) =>
+  `max(${hd} + ${conBonus}, ${parseInt(hd) || 1})`;
 
 export type CharacterDetails = {
   level: number;
   cap: number;
-  row: ClassLevel;
-  nextXp: number | null;
+  stats: ClassStats;
   conBonus: number;
   formula: string;
   hitPoints?: HitPoints;
@@ -57,6 +56,7 @@ type DetailsInput = {
   restrictions?: ClassRestrictions;
   conMod: number;
   maximum?: (formula: string) => number;
+  statsAt: (level: number) => ClassStats;
 };
 
 export function characterDetails({
@@ -65,11 +65,13 @@ export function characterDetails({
   restrictions,
   conMod,
   maximum,
+  statsAt,
 }: DetailsInput): CharacterDetails {
   const cap = levelCap(cls, restrictions);
   const level = Math.min(Math.max(1, draft.level), cap);
-  const row = cls.levels[level - 1];
-  const formula = hitPointFormula(row.hd, conMod, level);
+  const stats = statsAt(level);
+  const conBonus = conMod * stats.conLevels;
+  const formula = hitPointFormula(stats.hd, conBonus);
   const kept =
     draft.hitPoints?.formula === formula ? draft.hitPoints : undefined;
   const maxed =
@@ -79,9 +81,8 @@ export function characterDetails({
   return {
     level,
     cap,
-    row,
-    nextXp: cls.levels[level]?.xp ?? null,
-    conBonus: conMod * level,
+    stats,
+    conBonus,
     formula,
     hitPoints: kept ?? maxed,
   };
@@ -112,7 +113,7 @@ export const detailsSummary = (
     ? undefined
     : `${ordinal(details.level)} level · ${parseHitPoints(details.hitPoints?.value)} hp`;
 
-export const spellSlots = (row: ClassLevel) =>
-  (row.spells ?? [])
+export const spellSlots = (stats: ClassStats) =>
+  stats.spellSlots
     .map((count, i) => ({ level: ordinal(i + 1), count }))
     .filter(({ count }) => count > 0);
