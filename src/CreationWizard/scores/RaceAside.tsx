@@ -15,7 +15,6 @@ type Props = {
 };
 
 const openNote = (race: CreationRace) => {
-  if (race.maxLevels === "anyHumanClass") return "any class";
   const mods = formatModifiers(race.modifiers);
   return mods === "None" ? "no modifiers" : mods;
 };
@@ -45,7 +44,7 @@ export function RaceAside({ races, scores, children }: Props) {
       <ul className="osc-creation-class-list">
         {standings.map(({ race, status, note }) => (
           <li
-            key={race.name}
+            key={race.uuid}
             className={cx(
               "osc-creation-class-row",
               `osc-creation-class-${status}`,

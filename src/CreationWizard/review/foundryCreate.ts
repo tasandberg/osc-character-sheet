@@ -5,6 +5,8 @@ import {
   portraitImageUploader,
 } from "@features/portraitImage/applyPortraitImage";
 import { cartItemSource } from "../gear/foundryGear";
+import { embeddable } from "../race/foundryRaces";
+import type { CreationRace } from "../race/raceItems";
 import type { NewCharacter } from "./newCharacter";
 
 const COIN_PACKS = [
@@ -61,12 +63,31 @@ async function coinSources(gold: number) {
   });
 }
 
-async function itemSources({ gear, gold }: NewCharacter) {
-  const [items, coins] = await Promise.all([
+async function raceSources(race: CreationRace | undefined) {
+  if (!race) return [];
+  const grantedBy = { type: "race", key: race.key };
+  const abilities = await Promise.all(
+    race.abilities
+      .filter((ability) => ability.level <= 1)
+      .map(async ({ uuid }) => {
+        const doc = (await fromUuid(uuid)) as { toObject(): object } | null;
+        return doc
+          ? foundry.utils.mergeObject(embeddable(doc), {
+              flags: { [game.system.id]: { grantedBy } },
+            })
+          : [];
+      }),
+  );
+  return [race.source, ...abilities.flat()];
+}
+
+async function itemSources({ gear, gold, race }: NewCharacter) {
+  const [items, coins, racial] = await Promise.all([
     Promise.all(gear.map((line) => cartItemSource(line.uuid, line.quantity))),
     coinSources(gold),
+    raceSources(race),
   ]);
-  return [...items.flat(), ...coins] as ItemSource[];
+  return [...racial, ...items.flat(), ...coins] as ItemSource[];
 }
 
 async function imageData({ name, portrait, token }: NewCharacter) {
