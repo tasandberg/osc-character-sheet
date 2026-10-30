@@ -1,58 +1,93 @@
-import {
-  TOME,
-  enrich,
-  journalPageHtml,
-  packs,
-  squash,
-} from "../class/foundryClasses";
-import { parseClassPage } from "../class/classPage";
+import { enrich } from "../class/foundryClasses";
 import type { RaceDetail } from "../rules";
+import {
+  raceFromItem,
+  type CreationRace,
+  type ItemSource,
+  type RaceItemSource,
+} from "./raceItems";
 
-const RACE_ABILITIES = `${TOME}.race-abilities`;
-const NOT_AN_ABILITY = /^(available classes|racial abilities)/i;
+type RaceDocument = {
+  uuid: string;
+  type: string;
+  toObject(): RaceItemSource;
+};
+type ItemPack = {
+  documentName: string;
+  getIndex(): Promise<Iterable<{ _id: string; type?: string }>>;
+  getDocuments(query: object): Promise<RaceDocument[]>;
+};
+type AbilityDocument = {
+  name: string;
+  system?: { description?: string };
+};
 
-async function racialAbilities(race: string) {
-  const pack = packs().get(RACE_ABILITIES);
-  if (!pack) return [];
-  const folder = pack.folders.contents.find(
-    (f) => squash(f.name) === squash(race),
+const worldItems = () =>
+  game.items as unknown as {
+    filter(fn: (item: RaceDocument) => boolean): RaceDocument[];
+    fromCompendium(doc: object): ItemSource;
+  };
+
+async function packRaces() {
+  const packs = (game.packs as unknown as { contents: ItemPack[] }).contents;
+  const docs = await Promise.all(
+    packs
+      .filter((pack) => pack.documentName === "Item")
+      .map(async (pack) => {
+        const ids = [...(await pack.getIndex())]
+          .filter((entry) => entry.type === "race")
+          .map((entry) => entry._id);
+        return ids.length ? pack.getDocuments({ _id__in: ids }) : [];
+      }),
   );
-  if (!folder) return [];
-  const index = await pack.getIndex({
-    fields: ["system.description", "folder"],
-  });
-  return [...index]
-    .filter((e) => e.folder === folder.id && !NOT_AN_ABILITY.test(e.name))
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((e) => ({ name: e.name, description: e.system?.description ?? "" }));
+  return docs.flat();
 }
 
-async function loadRaceDetail(race: string): Promise<RaceDetail> {
-  const [html, abilities] = await Promise.all([
-    journalPageHtml(`${TOME}.rules`, /races/i, race),
-    racialAbilities(race),
-  ]);
+export const embeddable = (doc: { toObject(): object }) =>
+  worldItems().fromCompendium(doc);
+
+export async function loadRaces(): Promise<CreationRace[]> {
+  const docs = [
+    ...worldItems().filter((item) => item.type === "race"),
+    ...(await packRaces()),
+  ];
+  return docs
+    .map((doc) => ({
+      ...raceFromItem(doc.uuid, doc.toObject(), game.system.id),
+      source: embeddable(doc),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+async function loadRaceDetail(race: CreationRace): Promise<RaceDetail> {
+  const abilities = await Promise.all(
+    race.abilities.map(async ({ uuid, level }) => {
+      const doc = (await fromUuid(uuid)) as AbilityDocument | null;
+      return (
+        doc && {
+          name: doc.name,
+          description: await enrich(doc.system?.description ?? ""),
+          level,
+        }
+      );
+    }),
+  );
   return {
-    description: await enrich(parseClassPage(html ?? "").description),
-    abilities: await Promise.all(
-      abilities.map(async (a) => ({
-        name: a.name,
-        description: await enrich(a.description),
-      })),
-    ),
+    description: await enrich(race.description),
+    abilities: abilities.filter((a) => a !== null),
   };
 }
 
-export const tomeActive = () => !!game.modules?.get(TOME)?.active;
-
-export function foundryRaceDetail() {
+export function foundryRaceDetail(races: CreationRace[]) {
   const cache = new Map<string, Promise<RaceDetail>>();
-  return (race: string) => {
-    if (!cache.has(race)) {
+  return (uuid: string) => {
+    const race = races.find((r) => r.uuid === uuid);
+    if (!race) return Promise.reject(new Error(`Unknown race ${uuid}`));
+    if (!cache.has(uuid)) {
       const load = loadRaceDetail(race);
-      load.catch(() => cache.delete(race));
-      cache.set(race, load);
+      load.catch(() => cache.delete(uuid));
+      cache.set(uuid, load);
     }
-    return cache.get(race)!;
+    return cache.get(uuid)!;
   };
 }

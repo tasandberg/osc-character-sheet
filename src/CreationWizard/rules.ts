@@ -1,6 +1,7 @@
 import type { LoadGearCatalog, PreviewLoad } from "./gear/gearTypes";
 import type { NewCharacter } from "./review/newCharacter";
 import type { PrimeRequisiteRules } from "./rules/xpAdjustment";
+import type { CreationRace } from "./race/raceItems";
 import type { ClassRequirements } from "./scores/classStanding";
 import type { AbilityScores, RolledScore } from "./scores/scoresDraft";
 
@@ -16,6 +17,8 @@ export type ClassLevel = {
 
 export type CreationClass = ClassRequirements &
   PrimeRequisiteRules & {
+    key?: string;
+    demihuman?: boolean;
     hitDie: string;
     thac0: number;
     nextLevelXp: number | null;
@@ -38,7 +41,9 @@ export type ClassDetail = {
   skillLabels: Record<string, string>;
 };
 
-export type RaceDetail = { description: string; abilities: ClassAbility[] };
+export type RaceAbility = ClassAbility & { level: number };
+
+export type RaceDetail = { description: string; abilities: RaceAbility[] };
 
 export type Alignment = "lawful" | "neutral" | "chaotic";
 
@@ -47,8 +52,9 @@ export type AlignmentText = Partial<Record<Alignment, string>>;
 export type CreationRules = {
   classes: CreationClass[];
   classDetail(name: string): Promise<ClassDetail>;
-  separateRaces: boolean;
-  raceDetail(name: string): Promise<RaceDetail>;
+  races: CreationRace[];
+  raceDetail(uuid: string): Promise<RaceDetail>;
+  raceScores(scores: AbilityScores, race?: CreationRace): AbilityScores;
   modifiers(scores: AbilityScores): AbilityScores;
   rollScore(label: string): Promise<RolledScore>;
   maxHitPointsAtFirstLevel: boolean;

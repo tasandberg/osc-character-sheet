@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { cx } from "@ui/cx";
 import { ChoiceIcon } from "../ChoiceIcon";
 import { MoreBelow } from "../MoreBelow";
-import type { RaceDetail } from "../rules";
+import type { CreationClass, CreationRules } from "../rules";
 import { ScoreLine } from "../scores/ScoreLine";
 import type { AbilityScores } from "../scores/scoresDraft";
 import {
@@ -15,22 +15,22 @@ import { RaceDetails } from "./RaceDetails";
 
 type Props = {
   races: CreationRace[];
+  classes: CreationClass[];
   scores: AbilityScores;
   chosen?: CreationRace;
-  loadDetail: (name: string) => Promise<RaceDetail>;
+  rules: Pick<CreationRules, "raceDetail" | "raceScores">;
   onChoose: (race: CreationRace) => void;
 };
 
 const classCount = (race: CreationRace) =>
-  race.maxLevels === "anyHumanClass"
-    ? "any class, no limit"
-    : `${Object.keys(race.maxLevels).length} classes`;
+  `${race.classLimits.length} ${race.classLimits.length === 1 ? "class" : "classes"}`;
 
 export function RaceStep({
   races,
+  classes,
   scores,
   chosen,
-  loadDetail,
+  rules,
   onChoose,
 }: Props) {
   const paneRef = useRef<HTMLDivElement>(null);
@@ -63,10 +63,10 @@ export function RaceStep({
               {races.map((race) => {
                 const standing = raceStanding(race, scores);
                 const eligible = standing.status === "open";
-                const selected = chosen?.name === race.name;
+                const selected = chosen?.uuid === race.uuid;
                 return (
                   <tr
-                    key={race.name}
+                    key={race.uuid}
                     className={cx(selected && "osc-creation-class-selected")}
                     aria-disabled={!eligible || undefined}
                     onClick={eligible ? () => onChoose(race) : undefined}
@@ -129,10 +129,11 @@ export function RaceStep({
       >
         {chosen ? (
           <RaceDetails
-            key={chosen.name}
+            key={chosen.uuid}
             race={chosen}
+            classes={classes}
             scores={scores}
-            loadDetail={loadDetail}
+            rules={rules}
           />
         ) : (
           <>
@@ -144,7 +145,7 @@ export function RaceStep({
             </p>
           </>
         )}
-        <MoreBelow scroller={asideRef} contentKey={chosen?.name} />
+        <MoreBelow scroller={asideRef} contentKey={chosen?.uuid} />
       </aside>
     </div>
   );

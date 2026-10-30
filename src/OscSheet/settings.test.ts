@@ -113,22 +113,6 @@ describe("settingRegistrations", () => {
     );
   });
 
-  it("offers separate race and class only while Advanced Fantasy is active", () => {
-    const separateRaceAndClass = () =>
-      settingRegistrations(onChange).find(
-        (r) => r.key === "separateRaceAndClass",
-      )!.data;
-    expect(separateRaceAndClass()).toMatchObject({
-      scope: "world",
-      default: false,
-      config: false,
-    });
-    (globalThis as { game?: unknown }).game = {
-      modules: new Map([["ose-advancedfantasytome", { active: true }]]),
-    };
-    expect(separateRaceAndClass().config).toBe(true);
-  });
-
   it("keeps the scopes, types and defaults Foundry registers with", () => {
     expect(byKey.theme).toMatchObject({
       scope: "user",
@@ -227,7 +211,6 @@ describe("settings snapshot", () => {
     expect(getSettingsSnapshot()).toEqual({
       theme: "system",
       creationWizard: false,
-      separateRaceAndClass: false,
       maxHitPointsAtFirstLevel: false,
       disableMemorization: false,
       promptForTarget: false,

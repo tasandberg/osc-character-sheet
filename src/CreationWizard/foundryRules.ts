@@ -4,7 +4,8 @@ import {
   foundryClasses,
 } from "./class/foundryClasses";
 import { getSetting } from "@src/OscSheet/settings";
-import { foundryRaceDetail, tomeActive } from "./race/foundryRaces";
+import { foundryRaceDetail, loadRaces } from "./race/foundryRaces";
+import type { CreationRace, ItemSource } from "./race/raceItems";
 import {
   foundryAlignmentText,
   maximumHitPoints,
@@ -20,15 +21,15 @@ import {
   type AbilityScores,
 } from "./scores/scoresDraft";
 
-type ScoredActor = { system: { scores: Record<Ability, { mod: number }> } };
+type ScoredActor = {
+  system: { scores: Record<Ability, { value: number; mod: number }> };
+};
 
-function modifiers(scores: AbilityScores): AbilityScores {
-  const known = ABILITIES.filter((a) => scores[a] !== undefined);
-  if (!known.length) return {};
+function transientActor(scores: AbilityScores, items: ItemSource[] = []) {
   const ActorClass = CONFIG.Actor.documentClass as unknown as new (
     data: object,
   ) => ScoredActor;
-  const actor = new ActorClass({
+  return new ActorClass({
     name: "New character",
     type: "character",
     system: {
@@ -36,9 +37,28 @@ function modifiers(scores: AbilityScores): AbilityScores {
         ABILITIES.map((a) => [a, { value: scores[a] ?? 0, bonus: 0 }]),
       ),
     },
+    items,
   });
+}
+
+const known = (scores: AbilityScores) =>
+  ABILITIES.filter((a) => scores[a] !== undefined);
+
+function modifiers(scores: AbilityScores): AbilityScores {
+  const abilities = known(scores);
+  if (!abilities.length) return {};
+  const actor = transientActor(scores);
   return Object.fromEntries(
-    known.map((a) => [a, actor.system.scores[a].mod]),
+    abilities.map((a) => [a, actor.system.scores[a].mod]),
+  ) as AbilityScores;
+}
+
+function raceScores(scores: AbilityScores, race?: CreationRace): AbilityScores {
+  const abilities = known(scores);
+  if (!race || !abilities.length) return scores;
+  const actor = transientActor(scores, [race.source]);
+  return Object.fromEntries(
+    abilities.map((a) => [a, actor.system.scores[a].value]),
   ) as AbilityScores;
 }
 
@@ -70,13 +90,17 @@ function cachedGearCatalog() {
   };
 }
 
-export function foundryCreationRules(actor?: OSEActor): CreationRules {
+export async function foundryCreationRules(
+  actor?: OSEActor,
+): Promise<CreationRules> {
   const set = activeClassSet();
+  const races = await loadRaces();
   return {
     classes: foundryClasses(set),
     classDetail: foundryClassDetail(set),
-    separateRaces: tomeActive() && getSetting("separateRaceAndClass"),
-    raceDetail: foundryRaceDetail(),
+    races,
+    raceDetail: foundryRaceDetail(races),
+    raceScores,
     modifiers,
     rollScore,
     maxHitPointsAtFirstLevel: getSetting("maxHitPointsAtFirstLevel"),
