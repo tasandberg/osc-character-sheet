@@ -6,8 +6,6 @@ import {
   portraitImageUploader,
 } from "@features/portraitImage/applyPortraitImage";
 import { cartItemSource } from "../gear/foundryGear";
-import { embeddable } from "../race/foundryRaces";
-import type { CreationRace } from "../race/raceItems";
 import type { NewCharacter } from "./newCharacter";
 
 const COIN_PACKS = [
@@ -23,23 +21,27 @@ type CoinDocument = {
 type CoinPacks = {
   get(id: string): { getDocuments(): Promise<CoinDocument[]> } | undefined;
 };
-type EmbeddedItem = { id: string; type: string };
+type EmbeddedItem = { id: string };
 type WritableActor = Omit<OSEActor, "items"> & {
   id: string;
-  items: {
-    map<T>(fn: (item: EmbeddedItem) => T): T[];
-    find(fn: (item: EmbeddedItem) => boolean): EmbeddedItem | undefined;
-  };
+  items: { map<T>(fn: (item: EmbeddedItem) => T): T[] };
   update(data: object): Promise<unknown>;
   createEmbeddedDocuments(type: "Item", data: ItemSource[]): Promise<unknown>;
   deleteEmbeddedDocuments(type: "Item", ids: string[]): Promise<unknown>;
-  offerAbilities?(
-    item: EmbeddedItem,
-    level: number,
-    options: { upTo: boolean },
-  ): Promise<unknown>;
   sheet?: { render(force: boolean): unknown } | null;
 };
+type AbilityDocument = {
+  name: string;
+  pack?: string | null;
+  system?: { requirements?: string; targetFrom?: string };
+  toObject(): ItemSource;
+};
+type AbilityLink = { uuid: string; level: number; target?: string };
+type GrantingSource = {
+  type: string;
+  system: { key?: string; abilities?: AbilityLink[] };
+};
+type OwnedAbility = { name: string; requirements: string; source: string };
 type ActorDocumentClass = {
   create(data: object): Promise<WritableActor | undefined>;
 };
@@ -72,39 +74,78 @@ async function coinSources(gold: number) {
   });
 }
 
-async function raceSources(race: CreationRace | undefined) {
-  if (!race) return [];
-  const grantedBy = { type: "race", key: race.key };
-  const abilities = await Promise.all(
-    race.abilities
-      .filter((ability) => ability.level <= 1)
-      .map(async ({ uuid }) => {
-        const doc = (await fromUuid(uuid)) as { toObject(): object } | null;
-        return doc
-          ? foundry.utils.mergeObject(embeddable(doc), {
-              flags: { [game.system.id]: { grantedBy } },
-            })
-          : [];
-      }),
+const abilityKey = (name: string, requirements: string) =>
+  `${name}|${requirements}`.toLocaleLowerCase().trim();
+
+const isAbilityOwned = (
+  owned: OwnedAbility[],
+  candidate: { name: string; requirements: string; uuid: string },
+) =>
+  owned.some(
+    (o) =>
+      (o.source && o.source === candidate.uuid) ||
+      abilityKey(o.name, o.requirements) ===
+        abilityKey(candidate.name, candidate.requirements),
   );
-  return [race.source, ...abilities.flat()];
+
+const embeddable = (doc: AbilityDocument) =>
+  doc.pack
+    ? (
+        game.items as unknown as { fromCompendium(d: object): ItemSource }
+      ).fromCompendium(doc)
+    : doc.toObject();
+
+async function grantedAbilities(
+  item: ItemSource,
+  level: number,
+  owned: OwnedAbility[],
+) {
+  const { type, system } = item as unknown as GrantingSource;
+  const scope = game.system.id;
+  const grantedBy = { type, key: system.key };
+  const sources: ItemSource[] = [];
+  for (const entry of (system.abilities ?? []).filter(
+    (a) => a.level <= level,
+  )) {
+    const doc = (await fromUuid(entry.uuid)) as AbilityDocument | null;
+    if (!doc) continue;
+    const requirements = doc.system?.requirements ?? "";
+    if (isAbilityOwned(owned, { name: doc.name, requirements, uuid: entry.uuid }))
+      continue;
+    owned.push({ name: doc.name, requirements, source: entry.uuid });
+    const target = type === "class" ? entry.target || doc.system?.targetFrom : "";
+    const flags = {
+      grantedBy,
+      ...(target && { classTarget: { classKey: system.key, target } }),
+    };
+    sources.push(
+      foundry.utils.mergeObject(embeddable(doc), { flags: { [scope]: flags } }),
+    );
+  }
+  return sources;
+}
+
+async function grantedSources(
+  classSource: ItemSource,
+  level: number,
+  race: ItemSource | undefined,
+) {
+  const owned: OwnedAbility[] = [];
+  const fromClass = await grantedAbilities(classSource, level, owned);
+  const fromRace = race ? await grantedAbilities(race, 1, owned) : [];
+  return [classSource, ...fromClass, ...(race ? [race] : []), ...fromRace];
 }
 
 async function itemSources(
   classItems: ClassItems,
   { class: cls, gear, gold, race }: NewCharacter,
 ) {
-  const [items, coins, racial] = await Promise.all([
+  const [granted, items, coins] = await Promise.all([
+    grantedSources(classItems.source(cls), cls.level, race?.source),
     Promise.all(gear.map((line) => cartItemSource(line.uuid, line.quantity))),
     coinSources(gold),
-    raceSources(race),
   ]);
-  return [
-    classItems.source(cls),
-    ...racial,
-    ...items.flat(),
-    ...coins,
-  ] as ItemSource[];
+  return [...granted, ...items.flat(), ...coins] as ItemSource[];
 }
 
 async function imageData({ name, portrait, token }: NewCharacter) {
@@ -147,16 +188,6 @@ const create = (character: NewCharacter, items: ItemSource[], images: Images) =>
     items,
   });
 
-async function offerClassAbilities(actor: WritableActor, level: number) {
-  const embedded = actor.items.find((item) => item.type === "class");
-  if (!embedded) return;
-  try {
-    await actor.offerAbilities?.(embedded, level, { upTo: true });
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
   return async (character: NewCharacter) => {
     try {
@@ -174,7 +205,6 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
         : await create(character, items, images);
       if (!actor) throw new Error("Foundry didn’t create the actor.");
       actor.sheet?.render(true);
-      void offerClassAbilities(actor, character.class.level);
       return true;
     } catch (error) {
       console.error(error);
