@@ -13,6 +13,7 @@ import {
   resolveMonsterTheme,
   SAME_AS_CHARACTER_SHEET,
 } from "@src/OscSheet/appearance";
+import { creationWizardSupported } from "@src/CreationWizard/support";
 
 type SettingScope = "world" | "user";
 
@@ -24,6 +25,7 @@ type SettingDefinition<T> = {
   readonly type: typeof String | typeof Boolean;
   readonly choices?: Readonly<Record<string, string>>;
   readonly filePicker?: "folder";
+  readonly requires?: () => boolean;
   readonly default: T;
   readonly resolve: (value: unknown) => T;
 };
@@ -123,6 +125,7 @@ export const SETTINGS = {
     config: true,
     type: Boolean,
     default: false,
+    requires: creationWizardSupported,
     resolve: resolveBoolean(false),
   },
   maxHitPointsAtFirstLevel: {
@@ -132,15 +135,7 @@ export const SETTINGS = {
     config: true,
     type: Boolean,
     default: false,
-    resolve: resolveBoolean(false),
-  },
-  creationWizardNoticeShown: {
-    name: "Creation wizard update notice shown",
-    hint: "Set once the GM has been told the wizard needs a newer OSE system.",
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: false,
+    requires: creationWizardSupported,
     resolve: resolveBoolean(false),
   },
   portraitUploads: {
@@ -288,14 +283,15 @@ export function settingRegistrations(
 ): { key: SettingKey; data: SettingRegistration }[] {
   const defs: Record<SettingKey, SettingDefinition<unknown>> = SETTINGS;
   return (Object.keys(defs) as SettingKey[]).map((key) => {
-    const { name, hint, scope, config, type, choices, filePicker } = defs[key];
+    const { name, hint, scope, config, type, choices, filePicker, requires } =
+      defs[key];
     return {
       key,
       data: {
         name,
         hint,
         scope,
-        config,
+        config: config && (requires?.() ?? true),
         type,
         default: registrationDefault(key),
         onChange: () => {
