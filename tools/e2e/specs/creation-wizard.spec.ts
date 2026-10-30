@@ -37,4 +37,45 @@ test.describe("creation wizard", () => {
       }, MODULE_ID);
     }
   });
+
+  test("drags a roll onto an ability and announces the placement", async ({ gamePage }) => {
+    await gamePage.evaluate(async (mod) => {
+      const g = globalThis as any;
+      await g.game.settings.set(mod, "creationWizard", true);
+      g.ui.sidebar.expand();
+      g.ui.actors.activate();
+      await g.ui.actors.render();
+    }, MODULE_ID);
+
+    try {
+      await gamePage.locator("#actors").getByRole("button", { name: "New Character" }).click();
+      const wizard = gamePage.locator("#osc-creation-wizard");
+      await wizard.getByRole("radio", { name: /Roll and arrange/ }).click();
+      await wizard.getByRole("button", { name: "Roll six totals" }).click();
+
+      const rolls = wizard.getByRole("group", { name: "Rolls" });
+      const chip = rolls.getByRole("button", { name: /rolled/ }).first();
+      await expect(chip).toBeVisible();
+      const total = (await chip.getAttribute("aria-label"))!.split(",")[0];
+      const dex = wizard.locator(".vm-score-face", { has: gamePage.locator('[aria-label="DEX empty"]') });
+
+      const from = (await chip.boundingBox())!;
+      const to = (await dex.boundingBox())!;
+      await gamePage.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+      await gamePage.mouse.down();
+      await gamePage.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 10 });
+      await expect(wizard.getByRole("button", { name: `Place ${total} on DEX` })).toBeVisible();
+      await gamePage.mouse.up();
+
+      await expect(wizard.getByRole("button", { name: `DEX ${total}` })).toBeVisible();
+      await expect(wizard.locator("[aria-live]")).toHaveText(`Placed ${total} on DEX.`);
+      await expect(wizard.getByText("5 to place")).toBeVisible();
+    } finally {
+      await gamePage.evaluate(async (mod) => {
+        const g = globalThis as any;
+        await g.foundry.applications.instances.get("osc-creation-wizard")?.close();
+        await g.game.settings.set(mod, "creationWizard", false);
+      }, MODULE_ID);
+    }
+  });
 });

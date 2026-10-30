@@ -416,11 +416,45 @@ describe("CreationWizard", () => {
     expect(host.textContent).toContain("5 to place");
     expect(host.textContent).toContain("Place 5 more rolls to continue");
 
-    press("DEX 15, return to the rolls");
+    press("DEX 15");
+    press("Return 15 to the rolls");
     expect(host.textContent).toContain("6 to place");
 
     press("Place the rest in order");
     expect(next().getAttribute("aria-disabled")).toBe("false");
+  });
+
+  it("swaps a picked-up score with another ability and announces it", async () => {
+    open();
+    press("Roll and arrange");
+    await pressAsync("Roll six totals");
+    press("Place the rest in order");
+
+    press("DEX 15");
+    press("Swap 15 with STR 12");
+    expect(button("STR 15")).toBeDefined();
+    expect(button("DEX 12")).toBeDefined();
+    expect(host.querySelector("[aria-live]")!.textContent).toBe(
+      "Swapped: 15 on STR, 12 on DEX.",
+    );
+  });
+
+  it("drops a picked-up roll with Escape", async () => {
+    open();
+    press("Roll and arrange");
+    await pressAsync("Roll six totals");
+
+    press("15, rolled 13 1 1");
+    expect(button("Place 15 on DEX")).toBeDefined();
+    act(() => {
+      button("15, rolled 13 1 1")!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+    });
+    expect(button("Place 15 on DEX")).toBeUndefined();
+    expect(button("15, rolled 13 1 1")!.getAttribute("aria-pressed")).toBe(
+      "false",
+    );
   });
 
   it("flags manual scores outside 3 to 18 and names what blocks Next", () => {
