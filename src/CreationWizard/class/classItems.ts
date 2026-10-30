@@ -10,6 +10,7 @@ import {
   type Ability,
   type AbilityScores,
 } from "../scores/scoresDraft";
+import { classRequirementGaps } from "../upstreamGaps";
 
 const SAVE_KEYS = ["death", "wand", "paralysis", "breath", "spell"];
 const SPELL_LEVELS = ["1", "2", "3", "4", "5", "6"];
@@ -93,7 +94,10 @@ export function creationClassFrom(doc: ClassItemDoc): CreationClass {
     uuid: doc.uuid,
     key: s.key || doc.name,
     name: doc.name,
-    requirements: parseRequirements(s.requirements ?? ""),
+    requirements: {
+      ...classRequirementGaps({ key: s.key, name: doc.name }),
+      ...parseRequirements(s.requirements ?? ""),
+    },
     primeRequisites: [
       ...new Set(s.primeReqs.map((r) => r.ability.toLowerCase())),
     ].filter(isAbility),

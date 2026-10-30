@@ -5,6 +5,7 @@ import {
   type Ability,
   type AbilityScores,
 } from "../scores/scoresDraft";
+import { BASELINE_LANGUAGES } from "../upstreamGaps";
 
 const listed = (items: string[]) =>
   items.length > 1
@@ -85,4 +86,4 @@ export function classSummary(
 export const characterLanguages = (
   cls: CreationClass,
   extra: string[] = [],
-) => [...new Set([...cls.languages, ...extra])];
+) => [...new Set([...BASELINE_LANGUAGES, ...cls.languages, ...extra])];

@@ -17,6 +17,7 @@ import type { AbilityScores } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
 import { ChoiceIcon } from "../ChoiceIcon";
 import { XpAdjustmentText } from "./XpAdjustmentText";
+import { infravision, raceSaveBonus } from "../upstreamGaps";
 
 type Props = {
   cls: CreationClass;
@@ -30,9 +31,27 @@ const withArticle = (noun: string) =>
 
 const signed = (n: number) => (n < 0 ? `−${-n}` : `+${n}`);
 
-const raceFacts = (race: CreationRace): [string, ReactNode][] => [
-  ["Languages", race.languages.join(", ") || "None"],
-];
+function raceFacts(
+  race: CreationRace,
+  scores: AbilityScores,
+): [string, ReactNode][] {
+  const save = raceSaveBonus(race, scores);
+  const sight = infravision(race);
+  return [
+    [
+      "Saves",
+      save ? (
+        <>
+          {save.summary} <span className="vm-help">({save.basis})</span>
+        </>
+      ) : (
+        "No racial bonus"
+      ),
+    ],
+    ["Infravision", sight ? `${sight}′` : "None"],
+    ["Languages", race.languages.join(", ") || "None"],
+  ];
+}
 
 function AbilityDisclosure({ ability }: { ability: ClassAbility }) {
   const [open, setOpen] = useState(false);
@@ -148,7 +167,7 @@ export function ClassDetails({ cls, scores, race, rules }: Props) {
       {race && (
         <section className="u-stack u-gap-3" aria-label="From race">
           <h3 className="vm-section-title-hairline">From race</h3>
-          <Facts facts={raceFacts(race)} />
+          <Facts facts={raceFacts(race, scores)} />
         </section>
       )}
       {((detail && detail.abilities.length > 0) || cls.tables.length > 0) && (

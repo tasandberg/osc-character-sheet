@@ -15,6 +15,7 @@ import { formatModifier, scoreFaceClass } from "../scores/scoreFace";
 import { DiceRow } from "../scores/ScoreTile";
 import type { AbilityScores } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
+import { raceSaveBonus } from "../upstreamGaps";
 import {
   ALIGNMENTS,
   parseHitPoints,
@@ -228,9 +229,11 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
   const { stats } = details;
   const slots = spellSlots(stats);
   const wis = rules.modifiers(scores).wis;
-  const notes = wis
-    ? [`${formatModifier(wis)} vs magic (WIS ${scores.wis})`]
-    : [];
+  const racial = race && raceSaveBonus(race, scores);
+  const notes = [
+    ...(wis ? [`${formatModifier(wis)} vs magic (WIS ${scores.wis})`] : []),
+    ...(racial?.bonus ? [`${racial.summary} (${racial.basis})`] : []),
+  ];
   const rows: RecordRow[] = [
     ["Experience", `${stats.xp.toLocaleString()} xp`],
     [
