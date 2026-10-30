@@ -23,7 +23,9 @@ type Props = {
 };
 
 const classCount = (race: CreationRace) =>
-  `${race.classLimits.length} ${race.classLimits.length === 1 ? "class" : "classes"}`;
+  race.classLimits.length
+    ? `${race.classLimits.length} ${race.classLimits.length === 1 ? "class" : "classes"}`
+    : "Any class";
 
 export function RaceStep({
   races,
