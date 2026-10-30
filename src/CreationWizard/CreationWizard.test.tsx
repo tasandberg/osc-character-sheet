@@ -998,7 +998,7 @@ describe("CreationWizard review", () => {
     expect(finished).toBe(true);
   });
 
-  it("embeds the chosen race item and speaks its languages", async () => {
+  it("embeds the chosen race item with unmodified scores and speaks its languages", async () => {
     openSeparate();
     goldRolls = [{ total: 30, dice: [1, 1, 1] }];
     enterScores(["13", "8", "7", "15", "10", "11"]);
@@ -1021,6 +1021,10 @@ describe("CreationWizard review", () => {
     };
     expect(created.class.uuid).toBe("Compendium.classes.Thief");
     expect(created.race?.source).toEqual({ name: "Dwarf", type: "race" });
+    expect(created.system.scores).toMatchObject({
+      con: { value: 10 },
+      cha: { value: 11 },
+    });
     expect(languages.value).toContain("Dwarvish");
   });
 
