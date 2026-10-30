@@ -147,7 +147,7 @@
   --well-lip: var(--btn-lit);
   border: 2px solid;
   border-color: var(--well-cut) var(--well-lip) var(--well-lip) var(--well-cut);
-  background-color: var(--surface-solid);
+  background-color: color-mix(in srgb, var(--surface-solid) 50%, transparent);
 }
 [data-theme="cream"] .osc-sheet-app .osc-ability-score {
   --well-cut: var(--stamp-wall);

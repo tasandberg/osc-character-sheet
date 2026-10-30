@@ -54,13 +54,12 @@
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    left: 0;
     width: 44px;
     height: 44px;
   }
   @container app (width < #{bp.$md}) {
     .osc-ability-mod::after {
-      right: auto;
       left: 50%;
       transform: translateX(-50%);
     }

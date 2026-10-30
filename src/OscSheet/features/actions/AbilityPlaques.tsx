@@ -59,33 +59,35 @@ function AbilityColumn({
           {ability.label}
         </Stamp>
       )}
-      <div className="osc-ability-score tw:relative tw:grid tw:min-h-0 tw:flex-1 tw:place-items-center tw:@max-md/app:flex tw:@max-md/app:flex-col tw:@max-md/app:items-center tw:@max-md/app:gap-1 tw:@max-md/app:py-2">
-        <span className={VALUE}>{ability.value}</span>
-        <span className="tw:absolute tw:top-1 tw:right-1 tw:flex tw:@max-md/app:static">
-          <button
-            type="button"
-            className={MOD}
-            aria-label={`${name} ${ability.modLabel}`}
-            aria-describedby={popId}
-          >
-            {ability.modLabel.slice(0, 1)}
-            <span className="vm-dotted">{ability.modLabel.slice(1)}</span>
-          </button>
-          <HoverPop id={popId} align="center" className={POP}>
-            <span className={POP_HEAD}>
-              {name} {ability.value}
-            </span>
-            {ability.details.map((d) => (
-              <span key={d.labelKey} className="tw:contents">
-                <span className={POP_KEY}>
-                  {game.i18n.localize(d.labelKey)}
-                </span>
-                <span className={POP_VALUE}>
-                  {d.localizeValue ? game.i18n.localize(d.value) : d.value}
-                </span>
+      <div className="osc-ability-score tw:grid tw:min-h-0 tw:flex-1 tw:place-items-center tw:@max-md/app:py-2">
+        <span className="tw:relative tw:flex tw:flex-col tw:items-center tw:gap-1">
+          <span className={VALUE}>{ability.value}</span>
+          <span className="tw:absolute tw:-top-2 tw:left-full tw:ml-[2px] tw:flex tw:@max-md/app:static tw:@max-md/app:ml-0">
+            <button
+              type="button"
+              className={MOD}
+              aria-label={`${name} ${ability.modLabel}`}
+              aria-describedby={popId}
+            >
+              {ability.modLabel.slice(0, 1)}
+              <span className="vm-dotted">{ability.modLabel.slice(1)}</span>
+            </button>
+            <HoverPop id={popId} align="center" className={POP}>
+              <span className={POP_HEAD}>
+                {name} {ability.value}
               </span>
-            ))}
-          </HoverPop>
+              {ability.details.map((d) => (
+                <span key={d.labelKey} className="tw:contents">
+                  <span className={POP_KEY}>
+                    {game.i18n.localize(d.labelKey)}
+                  </span>
+                  <span className={POP_VALUE}>
+                    {d.localizeValue ? game.i18n.localize(d.value) : d.value}
+                  </span>
+                </span>
+              ))}
+            </HoverPop>
+          </span>
         </span>
       </div>
     </div>
