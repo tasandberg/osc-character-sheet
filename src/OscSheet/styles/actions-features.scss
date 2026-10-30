@@ -30,12 +30,9 @@
 @container sheet (min-width: 470px) {
   .osc-abilities {
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: var(--spacer-4);
+    gap: clamp(var(--spacer-2), calc((100% - 472px) / 8), var(--spacer-4));
     max-width: 600px;
     margin-inline: auto;
-  }
-  .osc-abilities > * {
-    aspect-ratio: 1;
   }
 }
 .osc-ability-roll {
@@ -51,15 +48,22 @@
 }
 .osc-ability-mod {
   position: relative;
-
-  &::after {
+}
+@media (pointer: coarse) {
+  .osc-ability-mod::after {
     content: "";
     position: absolute;
     top: 0;
-    left: 50%;
+    right: 0;
     width: 44px;
     height: 44px;
-    transform: translateX(-50%);
+  }
+  @container app (width < #{bp.$md}) {
+    .osc-ability-mod::after {
+      right: auto;
+      left: 50%;
+      transform: translateX(-50%);
+    }
   }
 }
 

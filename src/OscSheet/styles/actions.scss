@@ -147,11 +147,10 @@
   --well-lip: var(--btn-lit);
   border: 2px solid;
   border-color: var(--well-cut) var(--well-lip) var(--well-lip) var(--well-cut);
-  background-color: var(--well);
+  background-color: var(--surface-solid);
 }
 [data-theme="cream"] .osc-sheet-app .osc-ability-score {
   --well-cut: var(--stamp-wall);
-  background-color: var(--btn-pressed);
 }
 @container app (width >= #{bp.$md}) {
   @container sheet (width < 700px) {

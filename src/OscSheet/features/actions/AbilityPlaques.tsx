@@ -9,16 +9,17 @@ type Props = {
   onRoll?: (key: string, event: ActivateEvent) => void;
 };
 
-const COLUMN = "tw:flex tw:min-w-0 tw:flex-col tw:items-stretch tw:text-center";
+const COLUMN =
+  "tw:flex tw:aspect-square tw:@max-md/app:aspect-auto tw:min-w-0 tw:flex-col tw:items-stretch tw:text-center";
 
 const ROLL_BUTTON =
   "osc-stat-button osc-ability-roll vm-bevel vm-btn-muted vm-key tw:block tw:px-px tw:pt-1 tw:pb-[2px] tw:leading-none";
 
 const VALUE =
-  "tw:cursor-default tw:font-sans tw:font-medium tw:text-(length:--fs-3xl) tw:leading-none tw:tabular-nums tw:text-text";
+  "tw:cursor-default tw:font-sans tw:font-medium tw:text-(length:--fs-4xl) tw:leading-none tw:tabular-nums tw:text-text-dim";
 
 const MOD =
-  "osc-ability-mod vm-btn vm-dotted tw:font-mono tw:text-(length:--fs-xs) tw:font-medium tw:leading-none tw:text-text-dim";
+  "osc-ability-mod vm-btn tw:font-mono tw:text-(length:--fs-xs) tw:font-medium tw:leading-none tw:text-text-dim";
 
 const POP =
   "tw:grid tw:min-w-[170px] tw:grid-cols-[minmax(max-content,1fr)_max-content] tw:gap-x-3 tw:gap-y-[3px] tw:text-left";
@@ -58,16 +59,17 @@ function AbilityColumn({
           {ability.label}
         </Stamp>
       )}
-      <div className="osc-ability-score tw:flex tw:flex-1 tw:flex-col tw:items-center tw:justify-center tw:gap-1 tw:pt-[calc(var(--spacer-1)+3px)] tw:pb-2">
+      <div className="osc-ability-score tw:relative tw:grid tw:min-h-0 tw:flex-1 tw:place-items-center tw:@max-md/app:flex tw:@max-md/app:flex-col tw:@max-md/app:items-center tw:@max-md/app:gap-1 tw:@max-md/app:py-2">
         <span className={VALUE}>{ability.value}</span>
-        <span className="tw:relative tw:flex">
+        <span className="tw:absolute tw:top-1 tw:right-1 tw:flex tw:@max-md/app:static">
           <button
             type="button"
             className={MOD}
             aria-label={`${name} ${ability.modLabel}`}
             aria-describedby={popId}
           >
-            {ability.modLabel}
+            {ability.modLabel.slice(0, 1)}
+            <span className="vm-dotted">{ability.modLabel.slice(1)}</span>
           </button>
           <HoverPop id={popId} align="center" className={POP}>
             <span className={POP_HEAD}>
