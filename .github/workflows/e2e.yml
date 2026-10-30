@@ -33,11 +33,9 @@ concurrency:
 # GitHub at run time; latest-prerelease is the newest release of any kind.
 env:
   FOUNDRY_VERSIONS: |
-    13
     14
   OSE_VERSIONS: |
     latest-release
-    latest-prerelease
 
 jobs:
   plan:
