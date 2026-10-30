@@ -1,7 +1,13 @@
 import { useId, useState, type ReactNode } from "react";
 import { cx } from "@ui/cx";
 import { CompendiumDescription, Facts } from "../CompendiumText";
-import { formatMaxLevel, maxLevel, type CreationRace } from "../race/raceDraft";
+import {
+  formatMaxLevel,
+  maxLevel,
+  raceLanguages,
+  raceSaveBonus,
+  type CreationRace,
+} from "../race/raceDraft";
 import type { ClassAbility, ClassDetail, CreationClass } from "../rules";
 import { IN_SIX_SKILLS } from "../rules/classConstants";
 import type { AbilityScores } from "../scores/scoresDraft";
@@ -24,9 +30,26 @@ const signed = (n: number) => (n < 0 ? `−${-n}` : `+${n}`);
 const skillChance = (key: string, chance: number) =>
   IN_SIX_SKILLS.includes(key) ? `${chance}-in-6` : `${chance}%`;
 
-const raceFacts = (race: CreationRace): [string, ReactNode][] => [
-  ["Languages", race.languages.join(", ") || "None"],
-];
+function raceFacts(
+  race: CreationRace,
+  scores: AbilityScores,
+): [string, ReactNode][] {
+  const save = raceSaveBonus(race, scores);
+  return [
+    [
+      "Saves",
+      save ? (
+        <>
+          {save.summary} <span className="vm-help">({save.basis})</span>
+        </>
+      ) : (
+        "No racial bonus"
+      ),
+    ],
+    ["Infravision", race.infravision ? `${race.infravision}′` : "None"],
+    ["Languages", raceLanguages(race).join(", ")],
+  ];
+}
 
 function AbilityDisclosure({ ability }: { ability: ClassAbility }) {
   const [open, setOpen] = useState(false);
@@ -69,7 +92,7 @@ export function ClassDetails({ cls, scores, race, loadDetail }: Props) {
       ? ([
           [
             "Max level",
-            `${formatMaxLevel(maxLevel(race, cls))}, as ${withArticle(race.name.toLowerCase())}`,
+            `${formatMaxLevel(maxLevel(race, cls.name))}, as ${withArticle(race.name.toLowerCase())}`,
           ],
         ] as [string, ReactNode][])
       : []),
@@ -103,7 +126,7 @@ export function ClassDetails({ cls, scores, race, loadDetail }: Props) {
       {race && (
         <section className="u-stack u-gap-3" aria-label="From race">
           <h3 className="vm-section-title-hairline">From race</h3>
-          <Facts facts={raceFacts(race)} />
+          <Facts facts={raceFacts(race, scores)} />
         </section>
       )}
       {detail && (detail.abilities.length > 0 || cls.skills.length > 0) && (

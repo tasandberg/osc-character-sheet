@@ -4,7 +4,13 @@ import { MoreBelow } from "../MoreBelow";
 import type { ClassDetail, ClassRestrictions, CreationClass } from "../rules";
 import { ScoreLine } from "../scores/ScoreLine";
 import { abbreviation, type AbilityScores } from "../scores/scoresDraft";
-import { formatMaxLevel, maxLevel, type CreationRace } from "../race/raceDraft";
+import {
+  formatMaxLevel,
+  isNpcOnly,
+  isRaceClass,
+  maxLevel,
+  type CreationRace,
+} from "../race/raceDraft";
 import { ClassDetails } from "./ClassDetails";
 import { ChoiceIcon } from "../ChoiceIcon";
 import { ineligibleReason, isEligible, requirementList } from "./classDraft";
@@ -36,9 +42,10 @@ export function ClassStep({
   const shown = race ? classes.filter(allowed) : classes;
   const closed = race
     ? classes
-        .filter((cls) => !allowed(cls) && !cls.demihuman)
+        .filter((cls) => !allowed(cls) && !isRaceClass(cls.name))
         .map((cls) => cls.name)
     : [];
+  const anyNpcOnly = race && shown.some((cls) => isNpcOnly(race, cls.name));
   return (
     <div className="osc-creation-split osc-creation-class-step">
       <div
@@ -104,6 +111,14 @@ export function ClassStep({
                           color={!eligible ? "mute" : selected ? "gold" : "dim"}
                         />
                         {cls.name}
+                        {race && isNpcOnly(race, cls.name) && (
+                          <span
+                            className="vm-tag vm-tag-xs"
+                            title="The referee may allow this class for NPCs only"
+                          >
+                            NPC only*
+                          </span>
+                        )}
                       </span>
                     </td>
                     <td className="vm-mono">
@@ -117,7 +132,7 @@ export function ClassStep({
                     <td className="vm-mono">{cls.hitDie}</td>
                     {race && (
                       <td className="vm-mono">
-                        {formatMaxLevel(maxLevel(race, cls))}
+                        {formatMaxLevel(maxLevel(race, cls.name))}
                       </td>
                     )}
                     <td className={eligible ? "vm-mono" : undefined}>
@@ -135,6 +150,11 @@ export function ClassStep({
             </tbody>
           </table>
         </fieldset>
+        {anyNpcOnly && (
+          <p className="vm-help">
+            * The referee may allow this class for NPCs only.
+          </p>
+        )}
         {race && (
           <p className="vm-help">
             {closed.length > 0 &&

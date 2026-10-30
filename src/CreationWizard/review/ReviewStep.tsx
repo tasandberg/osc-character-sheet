@@ -13,7 +13,7 @@ import { MoreBelow } from "../MoreBelow";
 import type { PortraitDraft } from "../portrait/portraitDraft";
 import { PortraitPicker } from "../portrait/PortraitPicker";
 import { RecordRows, type RecordRow } from "../RecordRows";
-import { ordinal, type CreationRace } from "../race/raceDraft";
+import { ordinal, raceLanguages, type CreationRace } from "../race/raceDraft";
 import type { CreationClass, CreationRules } from "../rules";
 import { nativeLanguages } from "../rules/classConstants";
 import { formatXpModifier, xpAdjustment } from "../rules/xpAdjustment";
@@ -128,7 +128,7 @@ function RaceBlurb({
   race: CreationRace;
   load: CreationRules["raceDetail"];
 }) {
-  const loaded = useCompendiumDetail(race.uuid, load);
+  const loaded = useCompendiumDetail(race.name, load);
   return <Blurb title={race.name} loaded={loaded} />;
 }
 
@@ -228,9 +228,9 @@ export function ReviewStep({
   const xp = xpAdjustment(cls, scores);
   const { row, level, nextXp } = character;
   const alignment = ALIGNMENTS.find((a) => a.value === details.alignment);
-  const languages = [
-    ...new Set([...nativeLanguages(cls.name), ...(race?.languages ?? [])]),
-  ].join(", ");
+  const languages = (
+    race ? raceLanguages(race) : nativeLanguages(cls.name)
+  ).join(", ");
   const hitPoints = parseHitPoints(character.hitPoints?.value) ?? "—";
   const hpTitle = character.hitPoints?.dice
     ? `Rolled ${row.hd}`

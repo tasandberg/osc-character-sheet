@@ -1,10 +1,9 @@
 import "./wizard.scss";
 import "./vellum-candidates.scss";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { foundryCreationRules } from "./foundryRules";
 import { houseRules, readHouseRuleSettings } from "./houseRuleSettings";
 import { CreationWizard } from "./CreationWizard";
-import type { CreationRules } from "./rules";
 import type { OSEActor } from "@domain/types";
 
 export default function CreationWizardApp({
@@ -17,17 +16,7 @@ export default function CreationWizardApp({
   onCreated?: () => void;
 }) {
   const rules = useMemo(() => houseRules(readHouseRuleSettings()), []);
-  const [creationRules, setCreationRules] = useState<CreationRules>();
-  useEffect(() => {
-    let live = true;
-    void foundryCreationRules(actor).then(
-      (loaded) => live && setCreationRules(loaded),
-    );
-    return () => {
-      live = false;
-    };
-  }, [actor]);
-  if (!creationRules) return null;
+  const creationRules = useMemo(() => foundryCreationRules(actor), [actor]);
   return (
     <CreationWizard
       worldName={game.world?.title ?? ""}

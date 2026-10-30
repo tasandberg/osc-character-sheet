@@ -12,7 +12,7 @@ import { cartLines, goldLeft } from "../gear/gearDraft";
 import type { CartLine } from "../gear/gearTypes";
 import { nativeLanguages } from "../rules/classConstants";
 import { xpAdjustment } from "../rules/xpAdjustment";
-import type { CreationRace } from "../race/raceItems";
+import { raceLanguages } from "../race/raceDraft";
 import { ABILITIES } from "../scores/scoresDraft";
 
 const SAVE_KEYS = ["death", "wand", "paralysis", "breath", "spell"] as const;
@@ -22,7 +22,6 @@ export type NewCharacter = {
   portrait?: ImageDrop;
   token?: ImageDrop;
   system: Record<string, unknown>;
-  race?: CreationRace;
   gear: CartLine[];
   gold: number;
 };
@@ -36,8 +35,8 @@ export function newCharacter(
   const hp = parseHitPoints(details?.hitPoints?.value);
   if (!cls || !details || hp === undefined || !draft.details.alignment)
     return undefined;
-  const scores = classScores(draft, rules);
-  const race = chosenRace(draft, rules);
+  const scores = classScores(draft);
+  const race = chosenRace(draft);
   const { row, level, nextXp } = details;
   const spells = row.spells?.length
     ? {
@@ -58,6 +57,7 @@ export function newCharacter(
       ),
       details: {
         class: cls.name,
+        ...(race && { race: race.name }),
         level,
         alignment: ALIGNMENTS.find((a) => a.value === draft.details.alignment)!
           .label,
@@ -74,15 +74,9 @@ export function newCharacter(
       ),
       ...(spells && { spells }),
       languages: {
-        value: [
-          ...new Set([
-            ...nativeLanguages(cls.name),
-            ...(race?.languages ?? []),
-          ]),
-        ],
+        value: race ? raceLanguages(race) : nativeLanguages(cls.name),
       },
     },
-    ...(race && { race }),
     gear: cartLines(draft.gear.cart),
     gold: goldLeft(draft.gear),
   };

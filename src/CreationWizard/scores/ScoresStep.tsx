@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { VellumSegmented } from "@features/settings/controls";
-import type { RaceMode } from "../race/raceDraft";
+import { RACES, type RaceMode } from "../race/raceDraft";
 import type { CreationRules } from "../rules";
 import { ArrangeScores } from "./ArrangeScores";
 import { ClassAside } from "./ClassAside";
@@ -209,17 +209,17 @@ export function ScoresStep({
           />
         )}
       </div>
-      {rules.races.length > 0 && raceMode === "separate" ? (
-        <RaceAside races={rules.races} scores={scores}>
+      {rules.separateRaces && raceMode === "separate" ? (
+        <RaceAside races={RACES} scores={scores}>
           <RaceModeSwitch value={raceMode} onChange={onRaceMode} />
           <p className="vm-help">
-            {worldName} offers races. Pick a race in its own step, then a class
-            it allows.
+            {worldName} allows Advanced Fantasy races. Pick a race in its own
+            step, then a class it allows.
           </p>
         </RaceAside>
       ) : (
         <ClassAside classes={rules.classes} scores={scores}>
-          {rules.races.length > 0 && (
+          {rules.separateRaces && (
             <RaceModeSwitch value={raceMode} onChange={onRaceMode} />
           )}
         </ClassAside>
