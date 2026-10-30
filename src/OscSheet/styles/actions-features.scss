@@ -120,11 +120,14 @@
     background 0.12s;
 }
 .fvtt-skill .skic {
-  color: var(--gold-dim);
+  align-self: center;
   font-size: var(--fs-md, 14px);
   width: 18px;
   text-align: center;
   flex: none;
+}
+.fvtt-skill i.skic {
+  color: var(--text-dim);
 }
 .fvtt-skill .skn {
   font-size: var(--fs-md);
@@ -136,12 +139,12 @@
   min-width: 0;
 }
 .fvtt-skill .skv {
-  // muted "N-in-6" with a trailing d6 glyph — no pill.
+  // value at the name's size — no pill.
   display: inline-flex;
   align-items: center;
   gap: var(--spacer-1);
-  font-size: var(--fs-xs);
-  color: var(--text-dim);
+  font-size: var(--fs-md);
+  color: var(--text);
   white-space: nowrap;
   flex: none;
   align-self: center;
