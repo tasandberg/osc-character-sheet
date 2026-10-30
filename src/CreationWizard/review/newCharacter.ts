@@ -5,14 +5,13 @@ import { isChosen, livePortrait } from "../portrait/portraitDraft";
 import {
   chosenRace,
   classDetails,
-  classScores,
   type CreationDraft,
   type FlowRules,
 } from "../flow";
 import { cartLines, goldLeft } from "../gear/gearDraft";
 import type { CartLine } from "../gear/gearTypes";
 import type { CreationRace } from "../race/raceItems";
-import { ABILITIES } from "../scores/scoresDraft";
+import { ABILITIES, finalScores } from "../scores/scoresDraft";
 
 export type NewCharacter = {
   name: string;
@@ -34,7 +33,7 @@ export function newCharacter(
   const hp = parseHitPoints(details?.hitPoints?.value);
   if (!cls || !details || hp === undefined || !draft.details.alignment)
     return undefined;
-  const scores = classScores(draft, rules);
+  const scores = finalScores(draft.scores);
   const race = chosenRace(draft, rules);
   const { stats, level } = details;
   const images = livePortrait(draft.details.portrait);
