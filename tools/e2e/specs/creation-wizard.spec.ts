@@ -54,8 +54,8 @@ test.describe("creation wizard", () => {
       await wizard.getByRole("button", { name: "Roll six totals" }).click();
 
       const rolls = wizard.getByRole("group", { name: "Rolls" });
+      await expect(rolls.getByRole("button", { name: /rolled/ })).toHaveCount(6);
       const chip = rolls.getByRole("button", { name: /rolled/ }).first();
-      await expect(chip).toBeVisible();
       const total = (await chip.getAttribute("aria-label"))!.split(",")[0];
       const dex = wizard.locator(".vm-score-face", { has: gamePage.locator('[aria-label="DEX empty"]') });
 
