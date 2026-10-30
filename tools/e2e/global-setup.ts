@@ -2,7 +2,7 @@ import { chromium, type FullConfig } from "@playwright/test";
 import { joinAsGM, gmUserName, observerUserName } from "./helpers";
 
 const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/, "");
-const MODULE_ID = "osc-character-sheet";
+const MODULE_IDS = ["osc-character-sheet", "classicfantasycompendium"];
 
 /**
  * Before any spec runs: enable the osc-character-sheet module (the world fixture ships
@@ -20,20 +20,20 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
   try {
     await joinAsGM(page);
 
-    // Enable the module + reload so its `ready` hook registers the sheet class.
+    // Enable the modules + reload so the sheet's `ready` hook registers the sheet class.
     const active = await page.evaluate(
-      (m) => !!(globalThis as any).game?.modules?.get(m)?.active,
-      MODULE_ID,
+      (ids) => ids.every((m) => !!(globalThis as any).game?.modules?.get(m)?.active),
+      MODULE_IDS,
     );
     if (!active) {
-      await page.evaluate(async (mod) => {
+      await page.evaluate(async (ids) => {
         const g = globalThis as any;
         const cfg = g.foundry.utils.deepClone(
           g.game.settings.get("core", "moduleConfiguration") || {},
         );
-        cfg[mod] = true;
+        for (const mod of ids) cfg[mod] = true;
         await g.game.settings.set("core", "moduleConfiguration", cfg);
-      }, MODULE_ID);
+      }, MODULE_IDS);
       await page.reload({ waitUntil: "domcontentloaded" });
       await page.waitForFunction(() => (globalThis as any).game?.ready === true, null, {
         timeout: 120_000,
@@ -62,17 +62,17 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
     }, names);
 
     const ok = await page.evaluate(
-      ({ users, mod }) => {
+      ({ users, mods }) => {
         const g = globalThis as any;
         return (
-          !!g.game.modules.get(mod)?.active &&
+          mods.every((m: string) => !!g.game.modules.get(m)?.active) &&
           users.every((u: any) => g.game.users.getName(u.gm) && g.game.users.getName(u.observer))
         );
       },
-      { users: names, mod: MODULE_ID },
+      { users: names, mods: MODULE_IDS },
     );
-    if (!ok) throw new Error("Module not active, or slot users were not created");
-    console.log(`[global-setup] ${MODULE_ID} enabled, ${slots} user slot(s) seeded at ${URL}`);
+    if (!ok) throw new Error("Modules not active, or slot users were not created");
+    console.log(`[global-setup] ${MODULE_IDS.join(", ")} enabled, ${slots} user slot(s) seeded at ${URL}`);
   } finally {
     await page.close();
     await browser.close();
