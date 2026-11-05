@@ -51,7 +51,15 @@ type ActorOpts = {
   scaledBase?: number;
   retainer?: Partial<Retainer>;
   flags?: Record<string, unknown>;
+  classes?: unknown[];
+  derivedFromClasses?: boolean;
 };
+
+const classItem = (name: string, level: number, xp: number) => ({
+  name,
+  system: { level, xp },
+  update: vi.fn(async () => undefined),
+});
 
 function makeActor({
   movementAuto = false,
@@ -59,6 +67,8 @@ function makeActor({
   scaledBase = DERIVED_BASE,
   retainer,
   flags,
+  classes,
+  derivedFromClasses,
 }: ActorOpts = {}): OSEActor {
   const movement = { encounter: 30, overland: 18 };
   // Mirror OSE's getter: scaled by encumbrance when auto, raw #moveBase when manual.
@@ -104,6 +114,8 @@ function makeActor({
       exploration: { ld: 1, od: 2, sd: 1, ft: 1 },
       initiative: { mod: 0 },
       retainer: { enabled: false, loyalty: 0, wage: "", ...retainer },
+      classes,
+      derivedFromClasses,
     },
     _source: { system: { movement: { base: rawBase } } },
     items: { contents: [] },
@@ -299,6 +311,59 @@ describe("EditModal identity fields", () => {
     expect(updateOf(actor)).toHaveBeenCalledWith({
       "system.details.level": 20,
     });
+  });
+});
+
+describe("EditModal with OSE class items", () => {
+  const updateOfItem = (item: { update: unknown }) =>
+    item.update as ReturnType<typeof vi.fn>;
+
+  it("locks the class picker to the class item's name", async () => {
+    await renderModal(makeActor({ classes: [classItem("Fighter", 1, 0)] }));
+
+    expect(inputByLabel("Class").disabled).toBe(true);
+    expect(fieldByLabel("Class")!.textContent).toContain("class item");
+  });
+
+  it("writes Level to the sole class item, not the actor", async () => {
+    const fighter = classItem("Fighter", 1, 0);
+    const actor = makeActor({ classes: [fighter] });
+    await renderModal(actor);
+
+    await commit(inputByLabel("Level"), "3");
+
+    expect(updateOfItem(fighter)).toHaveBeenCalledWith({ "system.level": 3 });
+    expect(updateOf(actor)).not.toHaveBeenCalled();
+  });
+
+  it("disables Level when several class items each carry their own", async () => {
+    await renderModal(
+      makeActor({
+        classes: [classItem("Fighter", 2, 0), classItem("Magic-User", 1, 0)],
+      }),
+    );
+
+    expect(inputByLabel("Level").disabled).toBe(true);
+  });
+
+  it("writes Current XP to the first class item", async () => {
+    const fighter = classItem("Fighter", 1, 0);
+    const mage = classItem("Magic-User", 1, 0);
+    const actor = makeActor({ classes: [fighter, mage] });
+    await renderModal(actor);
+
+    await commit(inputByLabel("Current XP"), "1200");
+
+    expect(updateOfItem(fighter)).toHaveBeenCalledWith({ "system.xp": 1200 });
+    expect(updateOfItem(mage)).not.toHaveBeenCalled();
+    expect(updateOf(actor)).not.toHaveBeenCalled();
+  });
+
+  it("shows Next Level read-only with no class-table reset", async () => {
+    await renderModal(makeActor({ classes: [classItem("Fighter", 1, 0)] }));
+
+    expect(inputByLabel("Next Level").disabled).toBe(true);
+    expect(resetLink("Next Level")).toBeNull();
   });
 });
 

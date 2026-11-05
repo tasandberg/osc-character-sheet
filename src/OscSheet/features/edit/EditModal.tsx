@@ -21,6 +21,7 @@ import {
   classSource,
 } from "@domain/classRules";
 import { usesAscendingAC } from "@domain/chat/targeting";
+import { classItems } from "@domain/classItems";
 import type { OSESave } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
 import { HitDiceField } from "./HitDiceField";
@@ -61,6 +62,10 @@ function classFace(name: string): ReactNode {
     </>
   );
 }
+
+const plainFace = (name: string): ReactNode => (
+  <span className="combobox-optlabel">{name}</span>
+);
 
 function employerFace({ name, img }: EmployerOption): ReactNode {
   return (
@@ -147,6 +152,10 @@ export function EditModal({
         : { [flagDeletePath(FLAGS.employer)]: null },
     );
   const classNames = availableClassNames();
+  // OSE ≥ 3.2 derives class, level and XP from class items; edits go to the item.
+  const classes = classItems(actor);
+  const byClassItems = classes.length > 0;
+  const soleClass = classes.length === 1 ? classes[0] : null;
   const level = sys.details.level;
   const dexInit = sys.scores.dex.init;
   const initMod = sys.initiative?.mod ?? 0;
@@ -216,10 +225,13 @@ export function EditModal({
             </label>
             <label className={`${ED_FIELD} ${SPAN_COMBO}`}>
               <span className={LAB_ID}>
-                Class <span className={ED_HINT}>GM</span>
+                Class{" "}
+                <span className={ED_HINT}>
+                  {byClassItems ? "class item" : "GM"}
+                </span>
               </span>
               <Combobox
-                disabled={!isGM}
+                disabled={!isGM || byClassItems}
                 value={sys.details.class}
                 options={(classNames ?? []).map((c) => ({
                   value: c,
@@ -227,7 +239,7 @@ export function EditModal({
                   node: classFace(c),
                 }))}
                 onCommit={(v) => set("system.details.class", v)}
-                renderValue={classFace}
+                renderValue={byClassItems ? plainFace : classFace}
                 createHint="Type to set a custom class"
                 newOptionLabel={(q) => `Custom: “${q}”`}
               />
@@ -238,7 +250,12 @@ export function EditModal({
                 className="input mono"
                 value={level}
                 min={1}
-                onCommit={(n) => set("system.details.level", n)}
+                disabled={byClassItems && !soleClass}
+                onCommit={(n) =>
+                  soleClass
+                    ? void soleClass.update({ "system.level": n })
+                    : set("system.details.level", n)
+                }
               />
             </label>
             <label className={`${ED_FIELD} ${SPAN_3}`}>
@@ -267,7 +284,11 @@ export function EditModal({
                 className="input mono"
                 value={sys.details.xp.value}
                 min={0}
-                onCommit={(n) => set("system.details.xp.value", n)}
+                onCommit={(n) =>
+                  byClassItems
+                    ? void classes[0].update({ "system.xp": n })
+                    : set("system.details.xp.value", n)
+                }
               />
             </label>
             <label className={`${ED_FIELD} ${SPAN_4}`}>
@@ -276,9 +297,10 @@ export function EditModal({
                 className="input mono"
                 value={sys.details.xp.next ?? 0}
                 min={0}
+                disabled={byClassItems}
                 onCommit={(n) => set("system.details.xp.next", n)}
               />
-              {nextXp != null && (
+              {!byClassItems && nextXp != null && (
                 <OverrideValue
                   overridden={sys.details.xp.next !== nextXp}
                   defaultText={`default · ${nextXp.toLocaleString()}`}
