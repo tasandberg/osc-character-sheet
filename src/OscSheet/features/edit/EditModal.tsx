@@ -21,7 +21,7 @@ import {
   classSource,
 } from "@domain/classRules";
 import { usesAscendingAC } from "@domain/chat/targeting";
-import { classItems } from "@domain/classItems";
+import { classItems, isDerivedFromClasses } from "@domain/classItems";
 import type { OSESave } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
 import { HitDiceField } from "./HitDiceField";
@@ -162,9 +162,12 @@ export function EditModal({
   const initEff = dexInit + initMod;
   const nextXp = defaults.nextXp;
 
+  // Saves, THAC0, HD and slots come from class tables; OSE overwrites writes to them.
+  const derived = isDerivedFromClasses(actor);
+
   // --- Hit Dice (freeform formula string, e.g. "4d8+1") ---
-  const hdVal = sys.hp.hd || defaults.hd || `${level}d8`;
-  const hdDefault = defaults.hd;
+  const hdVal = derived ? sys.hp.hd : sys.hp.hd || defaults.hd || `${level}d8`;
+  const hdDefault = derived ? null : defaults.hd;
   const hdOverridden = !!hdDefault && hdVal !== hdDefault;
 
   // --- Attack (THAC0 descending / Attack Bonus ascending) ---
@@ -173,7 +176,7 @@ export function EditModal({
   const atkKey = ascendingAC ? "system.thac0.bba" : "system.thac0.value";
   const atkVal = ascendingAC ? sys.thac0.bba : sys.thac0.value;
   const atkDefault =
-    defaults.thac0 == null
+    derived || defaults.thac0 == null
       ? null
       : ascendingAC
         ? 19 - defaults.thac0
@@ -320,6 +323,7 @@ export function EditModal({
               hdVal={hdVal}
               hdDefault={hdDefault}
               hdOverridden={hdOverridden}
+              derived={derived}
               onCommit={(v) => set("system.hp.hd", v)}
               onResetRequest={() =>
                 requestConfirm(
@@ -374,8 +378,10 @@ export function EditModal({
               <NumberInput
                 className="input mono"
                 value={atkVal}
+                disabled={derived}
                 onCommit={(n) => set(atkKey, n)}
               />
+              {derived && <span className="hint">from class</span>}
               {atkDefault != null && (
                 <OverrideValue
                   overridden={atkOverridden}
@@ -531,7 +537,7 @@ export function EditModal({
           </SectionTitle>
           <div className="ed-cells ed-save tw:grid tw:gap-2 tw:grid-cols-5">
             {SAVE_DEFS.map(({ k, n }) => {
-              const def = defaults.saves?.[k] ?? null;
+              const def = derived ? null : (defaults.saves?.[k] ?? null);
               const value = sys.saves[k].value;
               const overridden = def != null && value !== def;
               return (
@@ -543,7 +549,10 @@ export function EditModal({
                   onChange={(v) => set(`system.saves.${k}.value`, v)}
                   min={1}
                   max={20}
-                  caption={def != null ? `default ${def}` : ""}
+                  disabled={derived}
+                  caption={
+                    derived ? "from class" : def != null ? `default ${def}` : ""
+                  }
                   overridden={overridden}
                   onResetRequest={
                     def != null

@@ -367,6 +367,51 @@ describe("EditModal with OSE class items", () => {
   });
 });
 
+describe("EditModal fields OSE derives from class tables", () => {
+  const derivedActor = () =>
+    makeActor({
+      classes: [classItem("Fighter", 1, 0)],
+      derivedFromClasses: true,
+    });
+
+  it("shows THAC0 read-only with no class-default reset", async () => {
+    await renderModal(derivedActor());
+
+    expect(inputByLabel("THAC0").disabled).toBe(true);
+    expect(fieldByLabel("THAC0")!.textContent).toContain("from class");
+    expect(resetLink("THAC0")).toBeNull();
+  });
+
+  it("shows Hit Dice read-only", async () => {
+    await renderModal(derivedActor());
+
+    expect(inputByLabel("Hit Dice").disabled).toBe(true);
+    expect(fieldByLabel("Hit Dice")!.textContent).toContain("from class");
+  });
+
+  it("shows every saving throw read-only", async () => {
+    await renderModal(derivedActor());
+
+    const saves = container.querySelectorAll<HTMLInputElement>(
+      ".ed-save input",
+    );
+    expect(saves).toHaveLength(5);
+    for (const input of saves) expect(input.disabled).toBe(true);
+    expect(container.querySelector(".ed-save")!.textContent).toContain(
+      "from class",
+    );
+  });
+
+  it("keeps them editable for a class item with no table", async () => {
+    await renderModal(
+      makeActor({ classes: [classItem("Hangman", 1, 0)] }),
+    );
+
+    expect(inputByLabel("THAC0").disabled).toBe(false);
+    expect(inputByLabel("Hit Dice").disabled).toBe(false);
+  });
+});
+
 describe("EditModal base movement", () => {
   it("auto OFF shows the editable raw base (getter returns it unscaled)", async () => {
     await renderModal(makeActor());
