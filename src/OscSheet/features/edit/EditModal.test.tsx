@@ -412,6 +412,59 @@ describe("EditModal fields OSE derives from class tables", () => {
   });
 });
 
+describe("EditModal initiative modifier", () => {
+  // Prepared mod = stored mod + Active Effect deltas (e.g. OSE 3.2's migrated Tweaks).
+  const withInit = (dexInit: number, stored: number, prepared: number) => {
+    const actor = makeActor();
+    const sys = actor.system as unknown as {
+      scores: { dex: { init: number } };
+      initiative: { mod: number };
+    };
+    sys.scores.dex.init = dexInit;
+    sys.initiative.mod = prepared;
+    (actor._source.system as unknown as Record<string, unknown>).initiative = {
+      mod: stored,
+    };
+    return actor;
+  };
+
+  it("commits the stored mod net of DEX and effects", async () => {
+    const actor = withInit(1, 0, 2);
+    await renderModal(actor);
+
+    expect(inputByLabel("Initiative Mod").value).toBe("3");
+    await commit(inputByLabel("Initiative Mod"), "4");
+
+    expect(updateOf(actor)).toHaveBeenCalledWith({
+      "system.initiative.mod": 1,
+    });
+  });
+
+  it("counts an effect-only modifier as the default, not an override", async () => {
+    await renderModal(withInit(1, 0, 2));
+
+    expect(resetLink("Initiative Mod")).toBeNull();
+    expect(fieldByLabel("Initiative Mod")!.textContent).toContain(
+      "DEX +1, effects +2",
+    );
+  });
+
+  it("offers a reset that clears only the stored mod", async () => {
+    const actor = withInit(0, 3, 5);
+    await renderModal(actor);
+
+    await click(resetLink("Initiative Mod") as HTMLButtonElement);
+    const confirm = Array.from(document.querySelectorAll("button")).find(
+      (b) => b.textContent === "Reset",
+    )!;
+    await click(confirm);
+
+    expect(updateOf(actor)).toHaveBeenCalledWith({
+      "system.initiative.mod": 0,
+    });
+  });
+});
+
 describe("EditModal base movement", () => {
   it("auto OFF shows the editable raw base (getter returns it unscaled)", async () => {
     await renderModal(makeActor());

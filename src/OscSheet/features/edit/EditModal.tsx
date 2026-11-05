@@ -159,7 +159,14 @@ export function EditModal({
   const level = sys.details.level;
   const dexInit = sys.scores.dex.init;
   const initMod = sys.initiative?.mod ?? 0;
-  const initEff = dexInit + initMod;
+  // Active Effects (incl. OSE 3.2's migrated Tweaks) add on top of the stored mod.
+  const storedInitMod = actor._source?.system?.initiative?.mod ?? initMod;
+  const effectInit = initMod - storedInitMod;
+  const initBase = dexInit + effectInit;
+  const initEff = initBase + storedInitMod;
+  const initBaseText =
+    `DEX ${fmtMod(dexInit)}` +
+    (effectInit ? `, effects ${fmtMod(effectInit)}` : "");
   const nextXp = defaults.nextXp;
 
   // Saves, THAC0, HD and slots come from class tables; OSE overwrites writes to them.
@@ -358,15 +365,15 @@ export function EditModal({
               <NumberInput
                 className="input mono"
                 value={initEff}
-                onCommit={(n) => set("system.initiative.mod", n - dexInit)}
+                onCommit={(n) => set("system.initiative.mod", n - initBase)}
               />
               <OverrideValue
-                overridden={initMod !== 0}
-                defaultText={`DEX ${fmtMod(dexInit)}`}
+                overridden={storedInitMod !== 0}
+                defaultText={initBaseText}
                 onResetRequest={() =>
                   requestConfirm(
                     "Reset Initiative?",
-                    `Revert to the rule default of DEX ${fmtMod(dexInit)}.`,
+                    `Revert to the rule default of ${initBaseText}.`,
                     () => set("system.initiative.mod", 0),
                   )
                 }
