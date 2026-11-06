@@ -1,3 +1,4 @@
+import type { OseClass } from "@ose-foundry-core/types";
 import type {
   OSEActor,
   OseClassItem,
@@ -7,18 +8,7 @@ import type {
 
 const SAVE_ORDER: OSESave[] = ["death", "wand", "paralysis", "breath", "spell"];
 
-type ClassDef = {
-  levels: {
-    xp: number;
-    hd: string;
-    thac0: number;
-    saves: number[];
-    /** Slot maxima by spell level, index 0 = spell level 1. Casters only. */
-    spells?: number[];
-  }[];
-  /** Minimum ability scores required by the class, e.g. { cha: 9 }. */
-  requirements?: Record<string, number>;
-};
+type ClassDef = Pick<OseClass, "levels" | "requirements">;
 
 export type ClassDefaults = {
   matched: boolean;
