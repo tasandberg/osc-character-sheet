@@ -158,7 +158,6 @@ class OscSheet extends ReactActorSheetV2 {
     requestAnimationFrame(() => attempt(frames));
   }
 
-  // OSE 3.2 class/race need addClass/setRace (level, HP, languages, abilities), not a raw create.
   async _onDropItem(event, item) {
     const handler =
       isGrantingDrop(this.actor, item) &&

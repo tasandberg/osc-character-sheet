@@ -26,12 +26,10 @@ export function HitDiceField({
   hdOverridden: boolean;
   onCommit: (v: string) => void;
   onResetRequest: () => void;
-  /** Read-only: OSE derives the formula from the actor's class items. */
   derived?: boolean;
   /** Grid placement in the caller's identity grid (see edit/classes.ts). */
   className?: string;
 }) {
-  // Multi-class HD reads "1d8 / 1d4"; like OSE's rollHP, roll only the first.
   const rollFormula = derived ? hdVal.split("/")[0].trim() : hdVal;
   const rollHd = () => {
     const speaker = ChatMessage.getSpeaker({ actor });

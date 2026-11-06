@@ -14,13 +14,11 @@ interface DropItem {
 
 export type DropHandler = (event: DragEvent, item: unknown) => unknown;
 
-/** A new OSE 3.2+ class or race dropped on a character. */
 export function isGrantingDrop(actor: DropActor, item: DropItem): boolean {
   if (actor.type !== "character" || !GRANTING_TYPES.has(item.type ?? "")) return false;
   return !(item.id && actor.items.get(item.id));
 }
 
-/** The system character sheet's `_onDropItem`, which runs OSE's addClass/setRace flow. */
 export function findSystemDropHandler(
   entries: SheetClassEntry[],
   systemId: string,

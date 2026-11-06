@@ -202,6 +202,18 @@ describe("SpellLevel head", () => {
     } as OSEActor);
     expect(q('[data-testid="slot-edit"]')).toBeNull();
   });
+
+  it("counts slots from OSE's class-derived maximum, not a stale stored one", () => {
+    render({
+      system: {
+        details: { class: "Cleric", level: 3 },
+        derivedFromClasses: true,
+        spells: { spellList: { 1: [cure] }, slots: { 1: { used: 0, max: 3 } }, enabled: true },
+      },
+      _source: { system: { spells: { 1: { max: 0 } } } },
+    } as unknown as OSEActor);
+    expect(text(".osc-spellhead")).toContain("0 / 3");
+  });
 });
 
 describe("slot maximum dialog", () => {

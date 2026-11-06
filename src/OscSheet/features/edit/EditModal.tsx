@@ -152,14 +152,12 @@ export function EditModal({
         : { [flagDeletePath(FLAGS.employer)]: null },
     );
   const classNames = availableClassNames();
-  // OSE ≥ 3.2 derives class, level and XP from class items; edits go to the item.
   const classes = classItems(actor);
   const byClassItems = classes.length > 0;
   const soleClass = classes.length === 1 ? classes[0] : null;
   const level = sys.details.level;
   const dexInit = sys.scores.dex.init;
   const initMod = sys.initiative?.mod ?? 0;
-  // Active Effects (incl. OSE 3.2's migrated Tweaks) add on top of the stored mod.
   const storedInitMod = actor._source?.system?.initiative?.mod ?? initMod;
   const effectInit = initMod - storedInitMod;
   const initBase = dexInit + effectInit;
@@ -169,7 +167,6 @@ export function EditModal({
     (effectInit ? `, effects ${fmtMod(effectInit)}` : "");
   const nextXp = defaults.nextXp;
 
-  // Saves, THAC0, HD and slots come from class tables; OSE overwrites writes to them.
   const derived = isDerivedFromClasses(actor);
 
   // --- Hit Dice (freeform formula string, e.g. "4d8+1") ---

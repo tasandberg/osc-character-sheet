@@ -129,9 +129,7 @@ export type OSEActor = Actor & {
     thac0: { value: number; bba: number; mod?: { melee?: number; missile?: number } };
     updatedAt?: string;
     weapons: OseWeapon[];
-    /** OSE ≥ 3.2: embedded class items, sorted. Absent on older systems. */
     classes?: OseClassItem[];
-    /** OSE ≥ 3.2: true when saves, THAC0, HD and slot maxima come from class items. */
     derivedFromClasses?: boolean;
   };
   _source: OSEActor;
@@ -176,7 +174,6 @@ export type OseItem = Omit<Item, "type"> & {
 
 export type OseWeapon = OseItem & { system: WeaponItemData };
 
-/** OSE ≥ 3.2 `class` item; only the progress fields the sheet writes. */
 export type OseClassItem = OseItem & {
   system: OseItem["system"] & { level: number; xp: number };
 };
