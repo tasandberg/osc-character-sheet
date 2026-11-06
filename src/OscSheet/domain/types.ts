@@ -129,6 +129,8 @@ export type OSEActor = Actor & {
     thac0: { value: number; bba: number; mod?: { melee?: number; missile?: number } };
     updatedAt?: string;
     weapons: OseWeapon[];
+    classes?: OseClassItem[];
+    derivedFromClasses?: boolean;
   };
   _source: OSEActor;
   targetAttack: (
@@ -171,6 +173,10 @@ export type OseItem = Omit<Item, "type"> & {
 };
 
 export type OseWeapon = OseItem & { system: WeaponItemData };
+
+export type OseClassItem = OseItem & {
+  system: OseItem["system"] & { level: number; xp: number };
+};
 
 /** Roll-comparison key, sourced from the OSE system's CONFIG (`roll_type`). */
 export type OseRollType = RollType;

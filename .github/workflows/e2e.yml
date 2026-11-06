@@ -36,6 +36,7 @@ env:
     14
   OSE_VERSIONS: |
     latest-release
+    3.0.1
 
 jobs:
   plan:

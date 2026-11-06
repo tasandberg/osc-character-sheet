@@ -14,6 +14,7 @@ import {
 } from "@src/applications/header-controls";
 import { canUserViewFullSheet } from "@src/OscSheet/domain/ownership";
 import { droppedItemData, folderEntries } from "@src/applications/dropFolder";
+import { findSystemDropHandler, isGrantingDrop } from "@src/applications/classDrop";
 
 import { ReactActorSheetV2 } from "foundry-vtt-react";
 
@@ -155,6 +156,17 @@ class OscSheet extends ReactActorSheetV2 {
       menu.style.left = `${left}px`;
     };
     requestAnimationFrame(() => attempt(frames));
+  }
+
+  async _onDropItem(event, item) {
+    const handler =
+      isGrantingDrop(this.actor, item) &&
+      findSystemDropHandler(
+        Object.values(CONFIG.Actor?.sheetClasses?.[this.actor.type] ?? {}),
+        game.system.id
+      );
+    if (handler) return handler.call(this, event, item);
+    return super._onDropItem(event, item);
   }
 
   async _onDropFolder(_event, folder) {

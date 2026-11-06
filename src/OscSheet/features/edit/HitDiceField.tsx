@@ -17,6 +17,7 @@ export function HitDiceField({
   hdOverridden,
   onCommit,
   onResetRequest,
+  derived = false,
   className,
 }: {
   actor: OSEActor;
@@ -25,14 +26,16 @@ export function HitDiceField({
   hdOverridden: boolean;
   onCommit: (v: string) => void;
   onResetRequest: () => void;
+  derived?: boolean;
   /** Grid placement in the caller's identity grid (see edit/classes.ts). */
   className?: string;
 }) {
+  const rollFormula = derived ? hdVal.split("/")[0].trim() : hdVal;
   const rollHd = () => {
     const speaker = ChatMessage.getSpeaker({ actor });
-    void new Roll(hdVal).toMessage(
+    void new Roll(rollFormula).toMessage(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { speaker, flavor: `Hit Dice — ${hdVal}` } as any,
+      { speaker, flavor: `Hit Dice — ${rollFormula}` } as any,
     );
   };
 
@@ -43,7 +46,7 @@ export function HitDiceField({
           the look; where it sits is this consumer's job. */}
       <InlineButton
         className="ed-rollbtn tw:absolute tw:top-[-2px] tw:right-0 tw:w-[18px] tw:h-[18px] tw:leading-[0] tw:z-3"
-        title={`Roll ${hdVal} hit points`}
+        title={`Roll ${rollFormula} hit points`}
         onClick={rollHd}
       >
         <i
@@ -57,8 +60,11 @@ export function HitDiceField({
         validate={validateHd}
         onCommit={onCommit}
         spellCheck={false}
+        disabled={derived}
         hint={
-          hdDefault && hdDefault !== hdVal ? (
+          derived ? (
+            <span className="hint">from class</span>
+          ) : hdDefault && hdDefault !== hdVal ? (
             <OverrideValue
               overridden={hdOverridden}
               defaultText={`${hdDefault}`}
