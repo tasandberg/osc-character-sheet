@@ -17,11 +17,11 @@ import {
 import { useOscSheetContext } from "@app/context";
 import {
   selectClassDefaults,
+  selectProgression,
   availableClassNames,
   classSource,
 } from "@domain/classRules";
 import { usesAscendingAC } from "@domain/chat/targeting";
-import { classItems, isDerivedFromClasses } from "@domain/classItems";
 import type { OSESave } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
 import { HitDiceField } from "./HitDiceField";
@@ -152,7 +152,7 @@ export function EditModal({
         : { [flagDeletePath(FLAGS.employer)]: null },
     );
   const classNames = availableClassNames();
-  const classes = classItems(actor);
+  const { classes, derived } = selectProgression(actor);
   const byClassItems = classes.length > 0;
   const soleClass = classes.length === 1 ? classes[0] : null;
   const level = sys.details.level;
@@ -166,8 +166,6 @@ export function EditModal({
     `DEX ${fmtMod(dexInit)}` +
     (effectInit ? `, effects ${fmtMod(effectInit)}` : "");
   const nextXp = defaults.nextXp;
-
-  const derived = isDerivedFromClasses(actor);
 
   // --- Hit Dice (freeform formula string, e.g. "4d8+1") ---
   const hdVal = derived ? sys.hp.hd : sys.hp.hd || defaults.hd || `${level}d8`;

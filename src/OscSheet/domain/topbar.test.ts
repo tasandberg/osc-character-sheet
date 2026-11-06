@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { selectTopbar } from "@domain/topbar";
 import { raistlin } from "@src/OscSheet/__fixtures__/raistlin";
+import { classItem, levelRow } from "@src/OscSheet/__fixtures__/classItem";
 
 // Magic-User XP table (floors per level) so the floor-relative progress resolves.
 const MAGIC_USER = {
@@ -54,6 +55,29 @@ describe("selectTopbar", () => {
     const vm = selectTopbar(atLevel(4, 20000));
     expect(vm.xp.floor).toBe(10000);
     expect(vm.pct).toBe(0);
+  });
+
+  it("reads the XP band from the class item, ending it at the table's last level", () => {
+    const mage = classItem("Magic-User", 2, 2600, [
+      levelRow(0, "1d4", 19, [13, 14, 13, 16, 15]),
+      levelRow(2500, "2d4", 19, [13, 14, 13, 16, 14]),
+    ]);
+    const actor = {
+      ...raistlin,
+      system: {
+        ...raistlin.system,
+        classes: [mage],
+        details: {
+          ...raistlin.system.details,
+          class: "Magic-User / Necromancer",
+          level: 2,
+          xp: { ...raistlin.system.details.xp, value: 2600, next: 2600 },
+        },
+      },
+    } as typeof raistlin;
+    const vm = selectTopbar(actor);
+    expect(vm.nextLevel).toBeNull();
+    expect(vm.xp).toEqual({ value: 2600, floor: 2500, next: null });
   });
 
   it("falls back to a zero floor past the end of the class table", () => {
