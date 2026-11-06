@@ -21,6 +21,7 @@ import {
   classSource,
 } from "@domain/classRules";
 import { usesAscendingAC } from "@domain/chat/targeting";
+import { classItems, isDerivedFromClasses } from "@domain/classItems";
 import type { OSESave } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
 import { HitDiceField } from "./HitDiceField";
@@ -61,6 +62,10 @@ function classFace(name: string): ReactNode {
     </>
   );
 }
+
+const plainFace = (name: string): ReactNode => (
+  <span className="combobox-optlabel">{name}</span>
+);
 
 function employerFace({ name, img }: EmployerOption): ReactNode {
   return (
@@ -147,15 +152,29 @@ export function EditModal({
         : { [flagDeletePath(FLAGS.employer)]: null },
     );
   const classNames = availableClassNames();
+  // OSE ≥ 3.2 derives class, level and XP from class items; edits go to the item.
+  const classes = classItems(actor);
+  const byClassItems = classes.length > 0;
+  const soleClass = classes.length === 1 ? classes[0] : null;
   const level = sys.details.level;
   const dexInit = sys.scores.dex.init;
   const initMod = sys.initiative?.mod ?? 0;
-  const initEff = dexInit + initMod;
+  // Active Effects (incl. OSE 3.2's migrated Tweaks) add on top of the stored mod.
+  const storedInitMod = actor._source?.system?.initiative?.mod ?? initMod;
+  const effectInit = initMod - storedInitMod;
+  const initBase = dexInit + effectInit;
+  const initEff = initBase + storedInitMod;
+  const initBaseText =
+    `DEX ${fmtMod(dexInit)}` +
+    (effectInit ? `, effects ${fmtMod(effectInit)}` : "");
   const nextXp = defaults.nextXp;
 
+  // Saves, THAC0, HD and slots come from class tables; OSE overwrites writes to them.
+  const derived = isDerivedFromClasses(actor);
+
   // --- Hit Dice (freeform formula string, e.g. "4d8+1") ---
-  const hdVal = sys.hp.hd || defaults.hd || `${level}d8`;
-  const hdDefault = defaults.hd;
+  const hdVal = derived ? sys.hp.hd : sys.hp.hd || defaults.hd || `${level}d8`;
+  const hdDefault = derived ? null : defaults.hd;
   const hdOverridden = !!hdDefault && hdVal !== hdDefault;
 
   // --- Attack (THAC0 descending / Attack Bonus ascending) ---
@@ -164,7 +183,7 @@ export function EditModal({
   const atkKey = ascendingAC ? "system.thac0.bba" : "system.thac0.value";
   const atkVal = ascendingAC ? sys.thac0.bba : sys.thac0.value;
   const atkDefault =
-    defaults.thac0 == null
+    derived || defaults.thac0 == null
       ? null
       : ascendingAC
         ? 19 - defaults.thac0
@@ -216,10 +235,13 @@ export function EditModal({
             </label>
             <label className={`${ED_FIELD} ${SPAN_COMBO}`}>
               <span className={LAB_ID}>
-                Class <span className={ED_HINT}>GM</span>
+                Class{" "}
+                <span className={ED_HINT}>
+                  {byClassItems ? "class item" : "GM"}
+                </span>
               </span>
               <Combobox
-                disabled={!isGM}
+                disabled={!isGM || byClassItems}
                 value={sys.details.class}
                 options={(classNames ?? []).map((c) => ({
                   value: c,
@@ -227,7 +249,7 @@ export function EditModal({
                   node: classFace(c),
                 }))}
                 onCommit={(v) => set("system.details.class", v)}
-                renderValue={classFace}
+                renderValue={byClassItems ? plainFace : classFace}
                 createHint="Type to set a custom class"
                 newOptionLabel={(q) => `Custom: “${q}”`}
               />
@@ -238,7 +260,12 @@ export function EditModal({
                 className="input mono"
                 value={level}
                 min={1}
-                onCommit={(n) => set("system.details.level", n)}
+                disabled={byClassItems && !soleClass}
+                onCommit={(n) =>
+                  soleClass
+                    ? void soleClass.update({ "system.level": n })
+                    : set("system.details.level", n)
+                }
               />
             </label>
             <label className={`${ED_FIELD} ${SPAN_3}`}>
@@ -267,7 +294,11 @@ export function EditModal({
                 className="input mono"
                 value={sys.details.xp.value}
                 min={0}
-                onCommit={(n) => set("system.details.xp.value", n)}
+                onCommit={(n) =>
+                  byClassItems
+                    ? void classes[0].update({ "system.xp": n })
+                    : set("system.details.xp.value", n)
+                }
               />
             </label>
             <label className={`${ED_FIELD} ${SPAN_4}`}>
@@ -276,9 +307,10 @@ export function EditModal({
                 className="input mono"
                 value={sys.details.xp.next ?? 0}
                 min={0}
+                disabled={byClassItems}
                 onCommit={(n) => set("system.details.xp.next", n)}
               />
-              {nextXp != null && (
+              {!byClassItems && nextXp != null && (
                 <OverrideValue
                   overridden={sys.details.xp.next !== nextXp}
                   defaultText={`default · ${nextXp.toLocaleString()}`}
@@ -298,6 +330,7 @@ export function EditModal({
               hdVal={hdVal}
               hdDefault={hdDefault}
               hdOverridden={hdOverridden}
+              derived={derived}
               onCommit={(v) => set("system.hp.hd", v)}
               onResetRequest={() =>
                 requestConfirm(
@@ -332,15 +365,15 @@ export function EditModal({
               <NumberInput
                 className="input mono"
                 value={initEff}
-                onCommit={(n) => set("system.initiative.mod", n - dexInit)}
+                onCommit={(n) => set("system.initiative.mod", n - initBase)}
               />
               <OverrideValue
-                overridden={initMod !== 0}
-                defaultText={`DEX ${fmtMod(dexInit)}`}
+                overridden={storedInitMod !== 0}
+                defaultText={initBaseText}
                 onResetRequest={() =>
                   requestConfirm(
                     "Reset Initiative?",
-                    `Revert to the rule default of DEX ${fmtMod(dexInit)}.`,
+                    `Revert to the rule default of ${initBaseText}.`,
                     () => set("system.initiative.mod", 0),
                   )
                 }
@@ -352,8 +385,10 @@ export function EditModal({
               <NumberInput
                 className="input mono"
                 value={atkVal}
+                disabled={derived}
                 onCommit={(n) => set(atkKey, n)}
               />
+              {derived && <span className="hint">from class</span>}
               {atkDefault != null && (
                 <OverrideValue
                   overridden={atkOverridden}
@@ -509,7 +544,7 @@ export function EditModal({
           </SectionTitle>
           <div className="ed-cells ed-save tw:grid tw:gap-2 tw:grid-cols-5">
             {SAVE_DEFS.map(({ k, n }) => {
-              const def = defaults.saves?.[k] ?? null;
+              const def = derived ? null : (defaults.saves?.[k] ?? null);
               const value = sys.saves[k].value;
               const overridden = def != null && value !== def;
               return (
@@ -521,7 +556,10 @@ export function EditModal({
                   onChange={(v) => set(`system.saves.${k}.value`, v)}
                   min={1}
                   max={20}
-                  caption={def != null ? `default ${def}` : ""}
+                  disabled={derived}
+                  caption={
+                    derived ? "from class" : def != null ? `default ${def}` : ""
+                  }
                   overridden={overridden}
                   onResetRequest={
                     def != null

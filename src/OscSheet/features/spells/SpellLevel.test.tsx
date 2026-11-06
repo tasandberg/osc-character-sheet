@@ -194,6 +194,14 @@ describe("SpellLevel head", () => {
     expect(q('[data-testid="slot-edit"]')).toBeNull();
     expect(text(".osc-spellhead")).toContain("0 / 2");
   });
+
+  it("has no pencil when OSE derives slot maxima from class items", () => {
+    render({
+      ...cleric,
+      system: { ...cleric.system, derivedFromClasses: true },
+    } as OSEActor);
+    expect(q('[data-testid="slot-edit"]')).toBeNull();
+  });
 });
 
 describe("slot maximum dialog", () => {
