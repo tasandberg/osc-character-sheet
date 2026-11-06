@@ -534,7 +534,9 @@ export function EditModal({
 
         {/* Saving Throws */}
         <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
-          <SectionTitle hint="roll ≥ target · default shown">
+          <SectionTitle
+            hint={derived ? "roll ≥ target" : "roll ≥ target · default shown"}
+          >
             Saving Throws
           </SectionTitle>
           <div className="ed-cells ed-save tw:grid tw:gap-2 tw:grid-cols-5">

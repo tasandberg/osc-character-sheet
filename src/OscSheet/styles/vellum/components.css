@@ -691,6 +691,13 @@ button.pattern-pip.triangle:focus-visible {
   pointer-events: none;
   transition: color 120ms ease;
 }
+.combobox:has(.combobox-input:disabled) .combobox-chip,
+.combobox:has(.combobox-input:disabled) .combobox-caret {
+  opacity: 0.5;
+}
+.combobox-input:disabled {
+  cursor: not-allowed;
+}
 .combobox.is-open .combobox-caret {
   color: var(--text-dim);
 }
@@ -1428,6 +1435,10 @@ button.pip:hover {
 .ed-cell .num:focus {
   border-color: var(--teal);
   background: var(--bg);
+}
+.ed-cell .num:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .ed-cell .cm {
   font-family: var(--mono);

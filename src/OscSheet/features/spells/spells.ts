@@ -212,7 +212,7 @@ function storedSlotMax(actor: OSEActor, level: number): number | undefined {
   )?.spells;
   if (source) {
     const max = source[String(level)]?.max;
-    return typeof max === "number" ? max : undefined;
+    return typeof max === "number" && max > 0 ? max : undefined;
   }
   const prepared = actor.system.spells.slots[level]?.max ?? 0;
   return prepared > 0 ? prepared : undefined;
