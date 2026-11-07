@@ -14,7 +14,7 @@ const fieldOf = (scope: Locator, label: string) =>
   scope.getByText(label, { exact: true }).locator("xpath=..");
 
 test.describe("character with an OSE class item", () => {
-  test("level edits the class item and class-derived values are read-only", async ({
+  test("the Identity section levels the class item and class-derived values are read-only", async ({
     gamePage,
     slot,
   }, testInfo) => {
@@ -72,12 +72,9 @@ test.describe("character with an OSE class item", () => {
 
     try {
       const sheet = await openCharacterSheet(gamePage, name);
-      await sheet
-        .locator('[data-testid="topbar-actions"]')
-        .getByRole("button", { name: "Edit", exact: true })
-        .click();
+      await sheet.locator('[data-testid="tab-abilities"]').click();
 
-      const level = sheet.getByLabel("Level", { exact: true });
+      const level = sheet.getByLabel(`${className} level`, { exact: true });
       await expect(level).toHaveValue("1");
       await level.fill("3");
       await level.press("Enter");
@@ -86,6 +83,11 @@ test.describe("character with an OSE class item", () => {
         .poll(() => itemGet(gamePage, name, className, "system.level"), { timeout: 15_000 })
         .toBe(3);
       await expect(level).toHaveValue("3");
+
+      await sheet
+        .locator('[data-testid="topbar-actions"]')
+        .getByRole("button", { name: "Edit", exact: true })
+        .click();
 
       const attack = fieldOf(sheet, ascending ? "Attack Bonus" : "THAC0");
       await expect(attack.getByRole("spinbutton")).toHaveValue(ascending ? "2" : "17");

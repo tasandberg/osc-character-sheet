@@ -23,14 +23,12 @@ export const LAB_ID = "lab vm-key tw:overflow-hidden tw:text-ellipsis";
 /** Exploration label — skill names read as prose, not as stamped keys. */
 export const LAB_SKILL = "lab tw:text-(length:--fs-xs) tw:text-text-dim";
 
-/** Inline annotation inside a label (the GM-only marker on Class). */
+/** Inline annotation inside a label (the optional marker on Employer). */
 export const ED_HINT =
   "hint tw:text-(length:--fs-xs) tw:leading-[1.4] tw:text-text-dim";
 
 /** Identity-grid span: half-width fields at the wide tier, and at the narrow
  *  tier the 12-col grid stays but every field goes half-row. */
-export const SPAN_2 = "tw:col-span-2 tw:@max-[560px]/fwin:col-span-6";
-export const SPAN_3 = "tw:col-span-3 tw:@max-[560px]/fwin:col-span-6";
 export const SPAN_4 = "tw:col-span-4 tw:@max-[560px]/fwin:col-span-6";
 
 /** Comboboxes need the whole row once the modal is narrow — their popup list

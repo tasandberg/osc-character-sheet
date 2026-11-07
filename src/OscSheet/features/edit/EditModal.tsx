@@ -10,17 +10,11 @@ import {
   NumberInput,
   ValidatedInput,
   Combobox,
-  Tag,
   Check,
   Monogram,
 } from "@src/OscSheet/components/ui";
 import { useOscSheetContext } from "@app/context";
-import {
-  selectClassDefaults,
-  selectProgression,
-  availableClassNames,
-  classSource,
-} from "@domain/classRules";
+import { selectClassDefaults, selectProgression } from "@domain/classRules";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import type { OSESave } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
@@ -36,36 +30,11 @@ import {
   ED_FIELD,
   ED_HINT,
   LAB_ID,
-  SPAN_2,
-  SPAN_3,
   SPAN_4,
   SPAN_6,
   SPAN_COMBO,
   SPAN_FULL,
 } from "./classes";
-
-const SOURCE_TAG = {
-  advanced: ["ADV", "teal", "Advanced Fantasy"],
-  classic: ["SRD", "brass", "Classic Fantasy SRD"],
-  custom: ["CUS", "mustard", "Custom"],
-} as const;
-
-// One face for both dropdown rows and the at-rest chip, so they stay identical.
-function classFace(name: string): ReactNode {
-  const [text, intent, title] = SOURCE_TAG[classSource(name)];
-  return (
-    <>
-      <span className="combobox-optlabel">{name.replace(/-/g, " ")}</span>
-      <Tag intent={intent} size="xs" title={title}>
-        {text}
-      </Tag>
-    </>
-  );
-}
-
-const plainFace = (name: string): ReactNode => (
-  <span className="combobox-optlabel">{name}</span>
-);
 
 function employerFace({ name, img }: EmployerOption): ReactNode {
   return (
@@ -132,8 +101,6 @@ export function EditModal({
     void updateActor({ [key]: value });
 
   // --- Identity / progression ---
-  // GMs can re-class a character; players see the class as static header text.
-  const isGM = game.user?.isGM ?? false;
   const isRetainer = sys.retainer?.enabled === true;
   const loyalty = sys.retainer?.loyalty ?? 0;
   const allActors = isRetainer ? worldActors() : [];
@@ -151,10 +118,7 @@ export function EditModal({
         ? { [flagPath(FLAGS.employer)]: id }
         : { [flagDeletePath(FLAGS.employer)]: null },
     );
-  const classNames = availableClassNames();
-  const { classes, derived } = selectProgression(actor);
-  const byClassItems = classes.length > 0;
-  const soleClass = classes.length === 1 ? classes[0] : null;
+  const { derived } = selectProgression(actor);
   const level = sys.details.level;
   const dexInit = sys.scores.dex.init;
   const initMod = sys.initiative?.mod ?? 0;
@@ -165,7 +129,6 @@ export function EditModal({
   const initBaseText =
     `DEX ${fmtMod(dexInit)}` +
     (effectInit ? `, effects ${fmtMod(effectInit)}` : "");
-  const nextXp = defaults.nextXp;
 
   // --- Hit Dice (freeform formula string, e.g. "4d8+1") ---
   const hdVal = derived ? sys.hp.hd : sys.hp.hd || defaults.hd || `${level}d8`;
@@ -219,78 +182,13 @@ export function EditModal({
             </em>
           </SectionTitle>
           <div className="ed-id-grid tw:flex-auto tw:min-w-0 tw:grid tw:grid-cols-12 tw:gap-[14px] tw:content-start">
-            <label className={`${ED_FIELD} ${SPAN_3}`}>
+            <label className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>Name</span>
               <ValidatedInput
                 className="input"
                 value={actor.name}
                 validate={(v) => (v ? null : "name can’t be empty")}
                 onCommit={(v) => set("name", v)}
-              />
-            </label>
-            <label className={`${ED_FIELD} ${SPAN_COMBO}`}>
-              <span className={LAB_ID}>
-                Class{" "}
-                <span className={ED_HINT}>
-                  {byClassItems ? "from items" : "GM"}
-                </span>
-              </span>
-              <Combobox
-                disabled={!isGM || byClassItems}
-                value={sys.details.class}
-                options={(classNames ?? []).map((c) => ({
-                  value: c,
-                  label: c.replace(/-/g, " "),
-                  node: classFace(c),
-                }))}
-                onCommit={(v) => set("system.details.class", v)}
-                renderValue={byClassItems ? plainFace : classFace}
-                createHint="Type to set a custom class"
-                newOptionLabel={(q) => `Custom: “${q}”`}
-              />
-            </label>
-            {classes.length > 1 ? (
-              <div className={`${ED_FIELD} ${SPAN_4}`}>
-                <span className={LAB_ID}>Level</span>
-                <div className="u-row u-gap-3">
-                  {classes.map((c) => (
-                    <label
-                      key={c.id ?? c.name}
-                      className="u-row u-gap-1 u-flex-1"
-                    >
-                      <span className="u-fs-xs u-text-dim">{c.name}</span>
-                      <NumberInput
-                        className="input mono u-flex-1"
-                        value={c.system.level}
-                        min={1}
-                        onCommit={(n) => void c.update({ "system.level": n })}
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <label className={`${ED_FIELD} ${SPAN_2}`}>
-                <span className={LAB_ID}>Level</span>
-                <NumberInput
-                  className="input mono"
-                  value={level}
-                  min={1}
-                  onCommit={(n) =>
-                    soleClass
-                      ? void soleClass.update({ "system.level": n })
-                      : set("system.details.level", n)
-                  }
-                />
-              </label>
-            )}
-            <label className={`${ED_FIELD} ${SPAN_3}`}>
-              <span className={LAB_ID}>Title</span>
-              <ValidatedInput
-                className="input"
-                value={sys.details.title}
-                validate={() => null}
-                onCommit={(v) => set("system.details.title", v)}
               />
             </label>
             <label className={`${ED_FIELD} ${SPAN_COMBO}`}>
@@ -304,42 +202,6 @@ export function EditModal({
               />
             </label>
 
-            <label className={`${ED_FIELD} ${SPAN_4}`}>
-              <span className={LAB_ID}>Current XP</span>
-              <NumberInput
-                className="input mono"
-                value={sys.details.xp.value}
-                min={0}
-                onCommit={(n) =>
-                  byClassItems
-                    ? void classes[0].update({ "system.xp": n })
-                    : set("system.details.xp.value", n)
-                }
-              />
-            </label>
-            <label className={`${ED_FIELD} ${SPAN_4}`}>
-              <span className={LAB_ID}>Next Level</span>
-              <NumberInput
-                className="input mono"
-                value={sys.details.xp.next ?? 0}
-                min={0}
-                disabled={byClassItems}
-                onCommit={(n) => set("system.details.xp.next", n)}
-              />
-              {!byClassItems && nextXp != null && (
-                <OverrideValue
-                  overridden={sys.details.xp.next !== nextXp}
-                  defaultText={`default · ${nextXp.toLocaleString()}`}
-                  onResetRequest={() =>
-                    requestConfirm(
-                      "Reset Next Level?",
-                      `Revert to the class default of ${nextXp.toLocaleString()} XP.`,
-                      () => set("system.details.xp.next", nextXp),
-                    )
-                  }
-                />
-              )}
-            </label>
             <HitDiceField
               className={SPAN_4}
               actor={actor}

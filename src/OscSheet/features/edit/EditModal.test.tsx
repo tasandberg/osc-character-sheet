@@ -220,23 +220,7 @@ async function pickOption(match: (text: string) => boolean) {
   });
 }
 
-describe("EditModal class and alignment", () => {
-  it("reflects the selected class after commit", async () => {
-    const actor = makeActor();
-    await renderModal(actor);
-
-    expect(inputByLabel("Class").value).toBe("fighter");
-
-    act(() => inputByLabel("Class").focus());
-    await pickOption((t) => t.includes("cleric"));
-
-    expect(updateOf(actor)).toHaveBeenCalledWith({
-      "system.details.class": "cleric",
-    });
-    expect(actor.system.details.class).toBe("cleric");
-    expect(inputByLabel("Class").value).toBe("cleric");
-  });
-
+describe("EditModal alignment", () => {
   it("commits a preset B/X alignment on selection", async () => {
     const actor = makeActor();
     await renderModal(actor);
@@ -299,81 +283,6 @@ describe("EditModal identity fields", () => {
 
     expect(fieldByLabel("Hit Dice")!.textContent).not.toContain("null");
     expect(resetLink("Hit Dice")).toBeNull();
-  });
-
-  it("puts no ceiling on Level, so a level past the class table is typable", async () => {
-    const actor = makeActor();
-    await renderModal(actor);
-
-    expect(inputByLabel("Level").hasAttribute("max")).toBe(false);
-    await commit(inputByLabel("Level"), "20");
-
-    expect(updateOf(actor)).toHaveBeenCalledWith({
-      "system.details.level": 20,
-    });
-  });
-});
-
-describe("EditModal with OSE class items", () => {
-  const updateOfItem = (item: { update: unknown }) =>
-    item.update as ReturnType<typeof vi.fn>;
-
-  it("locks the class picker to the class item's name", async () => {
-    await renderModal(makeActor({ classes: [classItem("Fighter", 1, 0)] }));
-
-    expect(inputByLabel("Class").disabled).toBe(true);
-    expect(fieldByLabel("Class")!.textContent).toContain("from items");
-  });
-
-  it("writes Level to the sole class item, not the actor", async () => {
-    const fighter = classItem("Fighter", 1, 0);
-    const actor = makeActor({ classes: [fighter] });
-    await renderModal(actor);
-
-    await commit(inputByLabel("Level"), "3");
-
-    expect(updateOfItem(fighter)).toHaveBeenCalledWith({ "system.level": 3 });
-    expect(updateOf(actor)).not.toHaveBeenCalled();
-  });
-
-  it("gives each of several class items its own Level input", async () => {
-    const fighter = classItem("Fighter", 2, 0);
-    const mage = classItem("Magic-User", 1, 0);
-    const actor = makeActor({ classes: [fighter, mage] });
-    await renderModal(actor);
-
-    const levelFor = (name: string) =>
-      Array.from(fieldByLabel("Level")!.querySelectorAll("label"))
-        .find((l) => l.textContent === name)!
-        .querySelector("input")!;
-    expect(levelFor("Fighter").value).toBe("2");
-    expect(levelFor("Magic-User").value).toBe("1");
-
-    await commit(levelFor("Magic-User"), "3");
-
-    expect(updateOfItem(mage)).toHaveBeenCalledWith({ "system.level": 3 });
-    expect(updateOfItem(fighter)).not.toHaveBeenCalled();
-    expect(updateOf(actor)).not.toHaveBeenCalled();
-  });
-
-  it("writes Current XP to the first class item", async () => {
-    const fighter = classItem("Fighter", 1, 0);
-    const mage = classItem("Magic-User", 1, 0);
-    const actor = makeActor({ classes: [fighter, mage] });
-    await renderModal(actor);
-
-    await commit(inputByLabel("Current XP"), "1200");
-
-    expect(updateOfItem(fighter)).toHaveBeenCalledWith({ "system.xp": 1200 });
-    expect(updateOfItem(mage)).not.toHaveBeenCalled();
-    expect(updateOf(actor)).not.toHaveBeenCalled();
-  });
-
-  it("shows Next Level read-only with no class-table reset", async () => {
-    await renderModal(makeActor({ classes: [classItem("Fighter", 1, 0)] }));
-
-    expect(inputByLabel("Next Level").disabled).toBe(true);
-    expect(resetLink("Next Level")).toBeNull();
   });
 });
 
