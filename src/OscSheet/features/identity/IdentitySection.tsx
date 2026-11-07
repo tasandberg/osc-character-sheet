@@ -94,17 +94,20 @@ function FitValue({
   label,
   value,
   editValue = value,
+  inline = false,
   onCommit,
 }: {
   label: string;
   value: string;
   editValue?: string;
+  inline?: boolean;
   onCommit?: (next: string) => void;
 }) {
-  const chars = Math.max(2, value.length, editValue.length) + 1;
+  const longest = Math.max(value.length, editValue.length);
+  const chars = inline ? Math.max(1, longest) : Math.max(2, longest) + 1;
   return (
     <span
-      className="tw:inline-block tw:text-right tw:whitespace-nowrap"
+      className={`tw:inline-block tw:whitespace-nowrap ${inline ? "tw:text-left" : "tw:text-right"}`}
       style={{ width: `${chars}ch` }}
     >
       <InlineEditValue
@@ -123,11 +126,13 @@ function IntValue({
   value,
   min,
   canEdit,
+  inline,
   onCommit,
 }: {
   label: string;
   value: number;
   min: number;
+  inline?: boolean;
   canEdit: boolean;
   onCommit: (n: number) => void;
 }) {
@@ -136,6 +141,7 @@ function IntValue({
       label={label}
       value={fmtNum(value)}
       editValue={String(value)}
+      inline={inline}
       onCommit={
         canEdit
           ? (next) => {
@@ -188,11 +194,7 @@ function LevelUpButton({
 }
 
 function LevelText({ children }: { children: ReactNode }) {
-  return (
-    <span className="u-inline-flex u-items-baseline u-gap-1 u-nowrap u-fs-md u-text-dim">
-      Level {children}
-    </span>
-  );
+  return <span className="u-nowrap u-fs-md u-text-dim">Level {children}</span>;
 }
 
 function ClassRow({
@@ -218,6 +220,7 @@ function ClassRow({
             <LevelText>
               <IntValue
                 label={`${item.name} level`}
+                inline
                 value={level}
                 min={1}
                 canEdit={canEdit}
@@ -316,6 +319,7 @@ function ActorClassRow({
         <LevelText>
           <IntValue
             label="Level"
+            inline
             value={details.level}
             min={1}
             canEdit={canEdit}
