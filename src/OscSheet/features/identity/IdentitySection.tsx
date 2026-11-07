@@ -1,12 +1,11 @@
 import { useState, type ReactNode } from "react";
 import { useOscSheetContext } from "@app/context";
-import { SectionHeader } from "@ui/SectionHeader";
-import { Table, Th, Td, Tr } from "@ui/Table";
+import { SectionTitle } from "@ui/SectionTitle";
 import { IconButton } from "@ui/IconButton";
-import { InlineButton } from "@ui/InlineButton";
-import { NumberInput } from "@ui/NumberInput";
-import { ValidatedInput } from "@ui/ValidatedInput";
+import { InlineEditValue } from "@ui/InlineEditValue";
 import { Combobox } from "@ui/Combobox";
+import { Monogram } from "@ui/Monogram";
+import { Tag } from "@ui/Tag";
 import { OverrideValue } from "@ui/OverrideValue";
 import { ConfirmDialog } from "@ui/ConfirmDialog";
 import {
@@ -18,34 +17,79 @@ import type { OSEActor, OseClassItem, OseRaceItem } from "@domain/types";
 import { classFace } from "./classFace";
 
 const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${n}%`;
+const fmtNum = (n: number) => n.toLocaleString();
 
-const openSheet = (item: OseClassItem | OseRaceItem) =>
-  void item.sheet?.render(true);
+const ROW =
+  "u-row u-wrap u-gap-x-3 u-gap-y-1 u-py-2 tw:not-first:border-t tw:border-t-border-soft";
+const ICON =
+  "tw:grid tw:size-8 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text";
+const NAME =
+  "tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold";
+const PLAQUE = "icon-btn raised osc-roll-button u-nowrap";
 
-function LabeledField({
-  label,
-  className,
-  children,
-}: {
-  label: string;
-  className?: string;
-  children: ReactNode;
-}) {
+type Item = OseClassItem | OseRaceItem;
+
+const monogram = (name: string) => (name.trim().charAt(0) || "?").toUpperCase();
+
+function ItemInfo({ item, aside }: { item: Item; aside?: ReactNode }) {
   return (
-    <label className={`field u-flex-1 ${className ?? ""}`}>
-      <span className="field-label">{label}</span>
-      {children}
-    </label>
+    <div className="u-row u-gap-3 u-flex-1 tw:min-w-[calc(var(--spacer-12)*3)]">
+      <Monogram
+        img={item.img}
+        monogram={monogram(item.name ?? "")}
+        className={ICON}
+        imgClassName="tw:object-cover"
+      />
+      <div className="u-row u-gap-2 u-flex-1">
+        <button
+          type="button"
+          className={NAME}
+          title={`Open ${item.name}`}
+          onClick={() => void item.sheet?.render(true)}
+        >
+          {item.name}
+        </button>
+        {aside && <span className="u-fs-md u-text-dim u-nowrap">{aside}</span>}
+      </div>
+    </div>
   );
 }
 
-function DeleteButton({
-  item,
-  actor,
+function Plaque({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <span className={PLAQUE}>
+      <span className="u-text-dim">{label}</span>
+      {children}
+    </span>
+  );
+}
+
+function IntValue({
+  label,
+  value,
+  min,
+  canEdit,
+  onCommit,
 }: {
-  item: OseClassItem | OseRaceItem;
-  actor: OSEActor;
+  label: string;
+  value: number;
+  min: number;
+  canEdit: boolean;
+  onCommit: (n: number) => void;
 }) {
+  return (
+    <InlineEditValue
+      label={label}
+      parse="int"
+      value={fmtNum(value)}
+      editValue={String(value)}
+      className="tw:tabular-nums"
+      onCommit={canEdit ? (n) => onCommit(Math.max(min, n)) : undefined}
+    />
+  );
+}
+
+function DeleteButton({ item, actor }: { item: Item; actor: OSEActor }) {
   return (
     <IconButton
       variant="danger"
@@ -54,103 +98,101 @@ function DeleteButton({
       aria-label={`Remove ${item.name}`}
       onClick={() => void actor.removeGrantingItem(item)}
     >
-      <i className="fas fa-trash" aria-hidden="true" />
+      <i className="fa-solid fa-trash-can" aria-hidden="true" />
     </IconButton>
   );
 }
 
-function ClassItemTable({
-  actor,
-  classes,
-  canEdit,
-}: {
-  actor: OSEActor;
-  classes: OseClassItem[];
-  canEdit: boolean;
-}) {
-  const effectBonus = actor.system.xpBonusFromEffects ?? 0;
+function Controls({ children }: { children: ReactNode }) {
   return (
-    <Table>
-      <thead>
-        <Tr>
-          <Th>Class</Th>
-          <Th num>Level</Th>
-          <Th num>XP</Th>
-          {canEdit && <Th aria-label="Controls" />}
-        </Tr>
-      </thead>
-      <tbody>
-        {classes.map((c) => {
-          const next = c.system.nextRow?.xp ?? null;
-          const bonus = (actor.system.classXpBonus?.(c) ?? 0) + effectBonus;
-          return (
-            <Tr key={c.id ?? c.name}>
-              <Td>
-                <InlineButton variant="link" onClick={() => openSheet(c)}>
-                  {c.name}
-                </InlineButton>
-              </Td>
-              <Td num>
-                <NumberInput
-                  className="input mono u-fs-sm tw:w-[calc(var(--spacer-12)*1.25)]"
-                  aria-label={`${c.name} level`}
-                  value={c.system.level}
-                  min={1}
-                  disabled={!canEdit}
-                  onCommit={(n) => void c.update({ "system.level": n })}
-                />
-              </Td>
-              <Td num>
-                <div className="u-row u-gap-1 u-justify-end u-nowrap">
-                  <NumberInput
-                    className="input mono u-fs-sm tw:w-[calc(var(--spacer-12)*2)]"
-                    aria-label={`${c.name} XP`}
-                    value={c.system.xp}
-                    min={0}
-                    disabled={!canEdit}
-                    onCommit={(n) => void c.update({ "system.xp": n })}
-                  />
-                  {next != null && (
-                    <span className="u-fs-xs u-text-dim">
-                      / {next.toLocaleString()}
-                    </span>
-                  )}
-                  {bonus !== 0 && (
-                    <span className="u-fs-xs u-text-brass" title="XP bonus">
-                      {fmtPct(bonus)}
-                    </span>
-                  )}
-                </div>
-              </Td>
-              {canEdit && (
-                <Td>
-                  <div className="u-row u-gap-1 u-justify-end u-nowrap">
-                    {c.system.canLevelUp && (
-                      <InlineButton
-                        variant="link"
-                        size="xs"
-                        className="u-text-brass"
-                        onClick={() => void actor.levelUp(c)}
-                      >
-                        <i className="fas fa-circle-up" aria-hidden="true" />{" "}
-                        Level up {c.name}
-                      </InlineButton>
-                    )}
-                    <DeleteButton item={c} actor={actor} />
-                  </div>
-                </Td>
-              )}
-            </Tr>
-          );
-        })}
-      </tbody>
-    </Table>
+    <div className="u-row u-gap-2 u-ml-auto u-justify-end u-wrap">
+      {children}
+    </div>
   );
 }
 
-type ResetRequest = { next: number } | null;
+function ClassRow({
+  actor,
+  item,
+  canEdit,
+}: {
+  actor: OSEActor;
+  item: OseClassItem;
+  canEdit: boolean;
+}) {
+  const { level, xp, nextRow, canLevelUp } = item.system;
+  const next = nextRow?.xp ?? null;
+  const bonus =
+    (actor.system.classXpBonus?.(item) ?? 0) +
+    (actor.system.xpBonusFromEffects ?? 0);
+  return (
+    <div className={ROW}>
+      <ItemInfo item={item} aside={level} />
+      <Controls>
+        <Plaque label="LV">
+          <IntValue
+            label={`${item.name} level`}
+            value={level}
+            min={1}
+            canEdit={canEdit}
+            onCommit={(n) => void item.update({ "system.level": n })}
+          />
+        </Plaque>
+        <Plaque label="XP">
+          <IntValue
+            label={`${item.name} XP`}
+            value={xp}
+            min={0}
+            canEdit={canEdit}
+            onCommit={(n) => void item.update({ "system.xp": n })}
+          />
+          {next != null && <span className="u-text-dim">/ {fmtNum(next)}</span>}
+        </Plaque>
+        {bonus !== 0 && (
+          <Tag intent="brass" size="xs" title="XP bonus">
+            {fmtPct(bonus)}
+          </Tag>
+        )}
+        {canEdit && canLevelUp && (
+          <IconButton
+            variant="raised"
+            className="osc-roll-button osc-icon-tone-brass"
+            aria-label={`Level up ${item.name}`}
+            title={`Level up ${item.name}`}
+            onClick={() => void actor.levelUp(item)}
+          >
+            <i className="fa-solid fa-circle-up" aria-hidden="true" />
+            <span>Level up</span>
+          </IconButton>
+        )}
+        {canEdit && <DeleteButton item={item} actor={actor} />}
+      </Controls>
+    </div>
+  );
+}
 
-function ActorClassFields({
+function RaceRow({
+  actor,
+  race,
+  canEdit,
+}: {
+  actor: OSEActor;
+  race: OseRaceItem;
+  canEdit: boolean;
+}) {
+  return (
+    <div className={ROW}>
+      <ItemInfo item={race} aside="Race" />
+      {canEdit && (
+        <Controls>
+          <DeleteButton item={race} actor={actor} />
+        </Controls>
+      )}
+    </div>
+  );
+}
+
+function ActorClassRow({
   actor,
   canEdit,
   set,
@@ -159,76 +201,84 @@ function ActorClassFields({
   canEdit: boolean;
   set: (key: string, value: string | number) => void;
 }) {
-  const [reset, setReset] = useState<ResetRequest>(null);
+  const [resetTo, setResetTo] = useState<number | null>(null);
   const { details } = actor.system;
   const isGM = game.user?.isGM ?? false;
   const defaultNext = selectClassDefaults(actor).nextXp;
+  const next = details.xp.next ?? 0;
   return (
-    <div className="u-row u-wrap u-gap-3 u-items-start">
-      <LabeledField label="Class">
-        <Combobox
-          disabled={!canEdit || !isGM}
-          value={details.class}
-          options={availableClassNames().map((c) => ({
-            value: c,
-            label: c.replace(/-/g, " "),
-            node: classFace(c),
-          }))}
-          onCommit={(v) => set("system.details.class", v)}
-          renderValue={classFace}
-          createHint="Type to set a custom class"
-          newOptionLabel={(q) => `Custom: “${q}”`}
-        />
-      </LabeledField>
-      <LabeledField label="Level">
-        <NumberInput
-          className="input mono"
-          value={details.level}
-          min={1}
-          disabled={!canEdit}
-          onCommit={(n) => set("system.details.level", n)}
-        />
-      </LabeledField>
-      <LabeledField label="XP">
-        <NumberInput
-          className="input mono"
-          value={details.xp.value}
-          min={0}
-          disabled={!canEdit}
-          onCommit={(n) => set("system.details.xp.value", n)}
-        />
+    <div className={ROW}>
+      <div className="u-row u-gap-3 u-flex-1 tw:min-w-[calc(var(--spacer-12)*3)]">
+        <span className={ICON} aria-hidden="true">
+          {monogram(details.class)}
+        </span>
+        <label className="u-flex-1 tw:min-w-0">
+          <span className="tw:sr-only">Class</span>
+          <Combobox
+            disabled={!canEdit || !isGM}
+            value={details.class}
+            options={availableClassNames().map((c) => ({
+              value: c,
+              label: c.replace(/-/g, " "),
+              node: classFace(c),
+            }))}
+            onCommit={(v) => set("system.details.class", v)}
+            renderValue={classFace}
+            createHint="Type to set a custom class"
+            newOptionLabel={(q) => `Custom: “${q}”`}
+          />
+        </label>
+      </div>
+      <Controls>
+        <Plaque label="LV">
+          <IntValue
+            label="Level"
+            value={details.level}
+            min={1}
+            canEdit={canEdit}
+            onCommit={(n) => set("system.details.level", n)}
+          />
+        </Plaque>
+        <Plaque label="XP">
+          <IntValue
+            label="XP"
+            value={details.xp.value}
+            min={0}
+            canEdit={canEdit}
+            onCommit={(n) => set("system.details.xp.value", n)}
+          />
+          <span className="u-text-dim">/</span>
+          <IntValue
+            label="Next level XP"
+            value={next}
+            min={0}
+            canEdit={canEdit}
+            onCommit={(n) => set("system.details.xp.next", n)}
+          />
+        </Plaque>
         {details.xp.bonus ? (
-          <span className="field-hint">
-            XP bonus {fmtPct(details.xp.bonus)}
-          </span>
+          <Tag intent="brass" size="xs" title="XP bonus">
+            {fmtPct(details.xp.bonus)}
+          </Tag>
         ) : null}
-      </LabeledField>
-      <LabeledField label="Next level">
-        <NumberInput
-          className="input mono"
-          value={details.xp.next ?? 0}
-          min={0}
-          disabled={!canEdit}
-          onCommit={(n) => set("system.details.xp.next", n)}
-        />
-        {canEdit && defaultNext != null && (
+        {canEdit && defaultNext != null && details.xp.next !== defaultNext && (
           <OverrideValue
-            overridden={details.xp.next !== defaultNext}
-            defaultText={`default · ${defaultNext.toLocaleString()}`}
-            onResetRequest={() => setReset({ next: defaultNext })}
+            overridden
+            defaultText={`default · ${fmtNum(defaultNext)}`}
+            onResetRequest={() => setResetTo(defaultNext)}
           />
         )}
-      </LabeledField>
+      </Controls>
       <ConfirmDialog
-        open={reset != null}
+        open={resetTo != null}
         title="Reset Next Level?"
-        body={`Revert to the class default of ${reset?.next.toLocaleString()} XP.`}
+        body={`Revert to the class default of ${fmtNum(resetTo ?? 0)} XP.`}
         confirmLabel="Reset"
         onConfirm={() => {
-          if (reset) set("system.details.xp.next", reset.next);
-          setReset(null);
+          if (resetTo != null) set("system.details.xp.next", resetTo);
+          setResetTo(null);
         }}
-        onCancel={() => setReset(null)}
+        onCancel={() => setResetTo(null)}
       />
     </div>
   );
@@ -243,35 +293,37 @@ export function IdentitySection() {
     actor._source?.system?.details?.title ?? actor.system.details.title;
 
   return (
-    <section className="osc-section u-stack" aria-label="Identity">
-      <SectionHeader title="Identity" />
-      {source === "item" ? (
-        <ClassItemTable actor={actor} classes={classes} canEdit={canEdit} />
-      ) : (
-        <ActorClassFields actor={actor} canEdit={canEdit} set={set} />
-      )}
-      <div className="u-row u-wrap u-gap-3 u-items-end">
-        {race && (
-          <div className="field">
-            <span className="field-label">Race</span>
-            <div className="u-row u-gap-1">
-              <InlineButton variant="link" onClick={() => openSheet(race)}>
-                {race.name}
-              </InlineButton>
-              {canEdit && <DeleteButton item={race} actor={actor} />}
-            </div>
-          </div>
+    <section className="osc-section" aria-label="Identity">
+      <SectionTitle hint={canEdit ? "click a value to edit" : undefined}>
+        Identity
+      </SectionTitle>
+      <div className="tw:flex tw:flex-col">
+        {source === "item" ? (
+          classes.map((c) => (
+            <ClassRow
+              key={c.id ?? c.name}
+              actor={actor}
+              item={c}
+              canEdit={canEdit}
+            />
+          ))
+        ) : (
+          <ActorClassRow actor={actor} canEdit={canEdit} set={set} />
         )}
-        <LabeledField label="Title">
-          <ValidatedInput
-            className="input"
+        {race && <RaceRow actor={actor} race={race} canEdit={canEdit} />}
+        <div className={ROW}>
+          <span className="u-fs-xs u-text-dim tw:uppercase tw:tracking-[0.09em] tw:font-semibold">
+            Title
+          </span>
+          <InlineEditValue
+            label="Title"
             value={storedTitle}
-            placeholder={actor.system.details.title}
-            disabled={!canEdit}
-            validate={() => null}
-            onCommit={(v) => set("system.details.title", v)}
+            placeholder={actor.system.details.title || "—"}
+            onCommit={
+              canEdit ? (v) => set("system.details.title", v) : undefined
+            }
           />
-        </LabeledField>
+        </div>
       </div>
     </section>
   );

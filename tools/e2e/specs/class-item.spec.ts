@@ -74,15 +74,17 @@ test.describe("character with an OSE class item", () => {
       const sheet = await openCharacterSheet(gamePage, name);
       await sheet.locator('[data-testid="tab-abilities"]').click();
 
-      const level = sheet.getByLabel(`${className} level`, { exact: true });
-      await expect(level).toHaveValue("1");
-      await level.fill("3");
-      await level.press("Enter");
+      const level = sheet.getByRole("button", { name: `Edit ${className} level`, exact: true });
+      await expect(level).toHaveText("1");
+      await level.click();
+      const levelBox = sheet.getByRole("textbox", { name: `${className} level`, exact: true });
+      await levelBox.fill("3");
+      await levelBox.press("Enter");
 
       await expect
         .poll(() => itemGet(gamePage, name, className, "system.level"), { timeout: 15_000 })
         .toBe(3);
-      await expect(level).toHaveValue("3");
+      await expect(level).toHaveText("3");
 
       await sheet
         .locator('[data-testid="topbar-actions"]')

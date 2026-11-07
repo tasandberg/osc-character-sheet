@@ -97,31 +97,20 @@ const render = (actor: ReturnType<typeof makeActor>, canEdit = true) =>
     ),
   );
 
-const byLabel = (label: string) =>
-  container.querySelector<HTMLInputElement>(`[aria-label="${label}"]`)!;
-
-const fieldInput = (label: string) =>
-  [...container.querySelectorAll("label")]
-    .find((l) => l.firstElementChild?.textContent === label)!
-    .querySelector("input")!;
-
 const button = (name: string) =>
-  [...container.querySelectorAll("button")].find(
+  [...container.querySelectorAll("button, [role=button]")].find(
     (b) =>
       b.getAttribute("aria-label") === name || b.textContent?.trim() === name,
-  );
+  ) as HTMLElement | undefined;
 
-async function commit(input: HTMLInputElement, value: string) {
-  const setter = Object.getOwnPropertyDescriptor(
-    HTMLInputElement.prototype,
-    "value",
-  )!.set!;
-  await act(async () => {
-    input.focus();
-    setter.call(input, value);
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.blur();
-    await Promise.resolve();
+function edit(label: string, typed: string) {
+  act(() => button(`Edit ${label}`)!.click());
+  const field = container.querySelector<HTMLElement>("[role=textbox]")!;
+  act(() => {
+    field.textContent = typed;
+    field.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
   });
 }
 
@@ -131,8 +120,8 @@ describe("IdentitySection with class items", () => {
     const actor = makeActor({ classes: [cls] });
     await render(actor);
 
-    await commit(byLabel("Fighter level"), "2");
-    await commit(byLabel("Fighter XP"), "1500");
+    edit("Fighter level", "2");
+    edit("Fighter XP", "1500");
 
     expect(cls.update).toHaveBeenCalledWith({ "system.level": 2 });
     expect(cls.update).toHaveBeenCalledWith({ "system.xp": 1500 });
@@ -184,9 +173,9 @@ describe("IdentitySection without class items", () => {
     const actor = makeActor();
     await render(actor);
 
-    await commit(fieldInput("Level"), "3");
-    await commit(fieldInput("XP"), "4000");
-    await commit(fieldInput("Title"), "Swordmaster");
+    edit("Level", "3");
+    edit("XP", "4000");
+    edit("Title", "Swordmaster");
 
     expect(actor.update).toHaveBeenCalledWith({ "system.details.level": 3 });
     expect(actor.update).toHaveBeenCalledWith({
@@ -201,15 +190,17 @@ describe("IdentitySection without class items", () => {
     g.game = { user: { isGM: false } };
     await render(makeActor());
 
-    expect(fieldInput("Class").disabled).toBe(true);
+    expect(
+      container.querySelector<HTMLInputElement>("[role=combobox]")!.disabled,
+    ).toBe(true);
   });
 });
 
 it("is read-only without edit permission", async () => {
   await render(makeActor({ classes: [fighter()], race: elf() }), false);
 
-  expect(byLabel("Fighter level").disabled).toBe(true);
-  expect(fieldInput("Title").disabled).toBe(true);
+  expect(button("Edit Fighter level")).toBeUndefined();
+  expect(button("Edit Title")).toBeUndefined();
   expect(button("Remove Fighter")).toBeUndefined();
   expect(button("Remove Elf")).toBeUndefined();
 });
