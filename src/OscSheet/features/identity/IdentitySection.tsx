@@ -5,7 +5,6 @@ import { IconButton } from "@ui/IconButton";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import { Combobox } from "@ui/Combobox";
 import { Monogram } from "@ui/Monogram";
-import { Tag } from "@ui/Tag";
 import { OverrideValue } from "@ui/OverrideValue";
 import { ConfirmDialog } from "@ui/ConfirmDialog";
 import {
@@ -25,7 +24,7 @@ const ICON =
   "tw:grid tw:size-8 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text";
 const NAME =
   "tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold";
-const PLAQUE = "icon-btn raised osc-roll-button u-nowrap";
+const PLAQUE = "u-inline-flex u-items-baseline u-gap-1 u-nowrap u-fs-md";
 
 type Item = OseClassItem | OseRaceItem;
 
@@ -55,10 +54,10 @@ function ItemInfo({ item, aside }: { item: Item; aside?: ReactNode }) {
   );
 }
 
-function Plaque({ label, children }: { label: string; children: ReactNode }) {
+function Stat({ label, children }: { label: string; children: ReactNode }) {
   return (
     <span className={PLAQUE}>
-      <span className="u-text-dim">{label}</span>
+      <span className="u-fs-xs u-text-dim tw:font-semibold">{label}</span>
       {children}
     </span>
   );
@@ -107,7 +106,7 @@ function DeleteButton({ item, actor }: { item: Item; actor: OSEActor }) {
 
 function Controls({ children }: { children: ReactNode }) {
   return (
-    <div className="u-row u-gap-2 u-ml-auto u-justify-end u-wrap">
+    <div className="u-row u-gap-3 u-ml-auto u-justify-end u-wrap">
       {children}
     </div>
   );
@@ -131,7 +130,7 @@ function ClassRow({
     <div className={ROW}>
       <ItemInfo item={item} aside={level} />
       <Controls>
-        <Plaque label="LV">
+        <Stat label="LV">
           <IntValue
             label={`${item.name} level`}
             value={level}
@@ -139,8 +138,8 @@ function ClassRow({
             canEdit={canEdit}
             onCommit={(n) => void item.update({ "system.level": n })}
           />
-        </Plaque>
-        <Plaque label="XP">
+        </Stat>
+        <Stat label="XP">
           <IntValue
             label={`${item.name} XP`}
             value={xp}
@@ -149,11 +148,11 @@ function ClassRow({
             onCommit={(n) => void item.update({ "system.xp": n })}
           />
           {next != null && <span className="u-text-dim">/ {fmtNum(next)}</span>}
-        </Plaque>
+        </Stat>
         {bonus !== 0 && (
-          <Tag intent="brass" size="xs" title="XP bonus">
+          <span className="u-fs-xs u-text-brass" title="XP bonus">
             {fmtPct(bonus)}
-          </Tag>
+          </span>
         )}
         {canEdit && canLevelUp && (
           <IconButton
@@ -234,7 +233,7 @@ function ActorClassRow({
         </label>
       </div>
       <Controls>
-        <Plaque label="LV">
+        <Stat label="LV">
           <IntValue
             label="Level"
             value={details.level}
@@ -242,8 +241,8 @@ function ActorClassRow({
             canEdit={canEdit}
             onCommit={(n) => set("system.details.level", n)}
           />
-        </Plaque>
-        <Plaque label="XP">
+        </Stat>
+        <Stat label="XP">
           <IntValue
             label="XP"
             value={details.xp.value}
@@ -259,8 +258,8 @@ function ActorClassRow({
             canEdit={canEdit}
             onCommit={(n) => set("system.details.xp.next", n)}
           />
-        </Plaque>
-        <Plaque label="HD">
+        </Stat>
+        <Stat label="HD">
           <InlineEditValue
             label="Hit Dice"
             value={hitDice}
@@ -273,11 +272,11 @@ function ActorClassRow({
                 : undefined
             }
           />
-        </Plaque>
+        </Stat>
         {details.xp.bonus ? (
-          <Tag intent="brass" size="xs" title="XP bonus">
+          <span className="u-fs-xs u-text-brass" title="XP bonus">
             {fmtPct(details.xp.bonus)}
-          </Tag>
+          </span>
         ) : null}
         {canEdit && defaultNext != null && details.xp.next !== defaultNext && (
           <OverrideValue
