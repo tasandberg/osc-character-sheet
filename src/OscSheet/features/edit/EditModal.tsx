@@ -232,7 +232,7 @@ export function EditModal({
               <span className={LAB_ID}>
                 Class{" "}
                 <span className={ED_HINT}>
-                  {byClassItems ? "class item" : "GM"}
+                  {byClassItems ? "from items" : "GM"}
                 </span>
               </span>
               <Combobox
@@ -249,20 +249,41 @@ export function EditModal({
                 newOptionLabel={(q) => `Custom: “${q}”`}
               />
             </label>
-            <label className={`${ED_FIELD} ${SPAN_2}`}>
-              <span className={LAB_ID}>Level</span>
-              <NumberInput
-                className="input mono"
-                value={level}
-                min={1}
-                disabled={byClassItems && !soleClass}
-                onCommit={(n) =>
-                  soleClass
-                    ? void soleClass.update({ "system.level": n })
-                    : set("system.details.level", n)
-                }
-              />
-            </label>
+            {classes.length > 1 ? (
+              <div className={`${ED_FIELD} ${SPAN_4}`}>
+                <span className={LAB_ID}>Level</span>
+                <div className="u-row u-gap-3">
+                  {classes.map((c) => (
+                    <label
+                      key={c.id ?? c.name}
+                      className="u-row u-gap-1 u-flex-1"
+                    >
+                      <span className="u-fs-xs u-text-dim">{c.name}</span>
+                      <NumberInput
+                        className="input mono u-flex-1"
+                        value={c.system.level}
+                        min={1}
+                        onCommit={(n) => void c.update({ "system.level": n })}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <label className={`${ED_FIELD} ${SPAN_2}`}>
+                <span className={LAB_ID}>Level</span>
+                <NumberInput
+                  className="input mono"
+                  value={level}
+                  min={1}
+                  onCommit={(n) =>
+                    soleClass
+                      ? void soleClass.update({ "system.level": n })
+                      : set("system.details.level", n)
+                  }
+                />
+              </label>
+            )}
             <label className={`${ED_FIELD} ${SPAN_3}`}>
               <span className={LAB_ID}>Title</span>
               <ValidatedInput

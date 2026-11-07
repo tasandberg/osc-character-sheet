@@ -6,6 +6,7 @@ import OscSheetProvider from "@app/OscSheetProvider";
 import { EditModal } from "./EditModal";
 import type { OSEActor } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath } from "@domain/flags";
+import { classItem as fixtureClassItem } from "@src/OscSheet/__fixtures__/classItem";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -55,11 +56,10 @@ type ActorOpts = {
   derivedFromClasses?: boolean;
 };
 
-const classItem = (name: string, level: number, xp: number) => ({
-  name,
-  system: { level, xp },
-  update: vi.fn(async () => undefined),
-});
+const classItem = (name: string, level: number, xp: number) =>
+  Object.assign(fixtureClassItem(name, level, xp, []), {
+    update: vi.fn(async () => undefined),
+  });
 
 function makeActor({
   movementAuto = false,
@@ -322,7 +322,7 @@ describe("EditModal with OSE class items", () => {
     await renderModal(makeActor({ classes: [classItem("Fighter", 1, 0)] }));
 
     expect(inputByLabel("Class").disabled).toBe(true);
-    expect(fieldByLabel("Class")!.textContent).toContain("class item");
+    expect(fieldByLabel("Class")!.textContent).toContain("from items");
   });
 
   it("writes Level to the sole class item, not the actor", async () => {
@@ -336,14 +336,24 @@ describe("EditModal with OSE class items", () => {
     expect(updateOf(actor)).not.toHaveBeenCalled();
   });
 
-  it("disables Level when several class items each carry their own", async () => {
-    await renderModal(
-      makeActor({
-        classes: [classItem("Fighter", 2, 0), classItem("Magic-User", 1, 0)],
-      }),
-    );
+  it("gives each of several class items its own Level input", async () => {
+    const fighter = classItem("Fighter", 2, 0);
+    const mage = classItem("Magic-User", 1, 0);
+    const actor = makeActor({ classes: [fighter, mage] });
+    await renderModal(actor);
 
-    expect(inputByLabel("Level").disabled).toBe(true);
+    const levelFor = (name: string) =>
+      Array.from(fieldByLabel("Level")!.querySelectorAll("label"))
+        .find((l) => l.textContent === name)!
+        .querySelector("input")!;
+    expect(levelFor("Fighter").value).toBe("2");
+    expect(levelFor("Magic-User").value).toBe("1");
+
+    await commit(levelFor("Magic-User"), "3");
+
+    expect(updateOfItem(mage)).toHaveBeenCalledWith({ "system.level": 3 });
+    expect(updateOfItem(fighter)).not.toHaveBeenCalled();
+    expect(updateOf(actor)).not.toHaveBeenCalled();
   });
 
   it("writes Current XP to the first class item", async () => {
