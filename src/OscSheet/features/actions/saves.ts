@@ -2,11 +2,11 @@ import type { OSEActor, OSESave } from "@domain/types";
 import type { SaveVM } from "@domain/vm-types";
 
 const SAVE_META: { key: OSESave; label: string; icon: string }[] = [
-  { key: "death", label: "Death", icon: "fas fa-skull-crossbones" },
-  { key: "wand", label: "Wand", icon: "fas fa-magic" },
-  { key: "paralysis", label: "Paralysis", icon: "fas fa-bolt" },
-  { key: "breath", label: "Breath", icon: "fas fa-wind" },
-  { key: "spell", label: "Spell", icon: "fas fa-hat-wizard" },
+  { key: "death", label: "Death / Poison", icon: "fas fa-skull-crossbones" },
+  { key: "wand", label: "Magic Wands", icon: "fas fa-magic" },
+  { key: "paralysis", label: "Paralysis / Petrify", icon: "fas fa-bolt" },
+  { key: "breath", label: "Breath Attacks", icon: "fas fa-wind" },
+  { key: "spell", label: "Spells / Rods / Staves", icon: "fas fa-hat-wizard" },
 ];
 
 export function selectSaves(actor: OSEActor): SaveVM[] {

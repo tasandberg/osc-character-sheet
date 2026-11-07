@@ -3,10 +3,12 @@ import type {
   CharacterAC,
   CharacterEncumbrance,
   CharacterMove,
+  ClassItemData,
   ContainerItemData,
   ExplorationSkills,
   MiscItemData,
   PhysicalItemData,
+  RaceItemData,
   RollType,
   Save,
   SpellItemData,
@@ -130,6 +132,7 @@ export type OSEActor = Actor & {
     updatedAt?: string;
     weapons: OseWeapon[];
     classes?: OseClassItem[];
+    race?: OseRaceItem | null;
     derivedFromClasses?: boolean;
   };
   _source: OSEActor;
@@ -174,9 +177,9 @@ export type OseItem = Omit<Item, "type"> & {
 
 export type OseWeapon = OseItem & { system: WeaponItemData };
 
-export type OseClassItem = OseItem & {
-  system: OseItem["system"] & { level: number; xp: number };
-};
+export type OseClassItem = OseItem & { system: ClassItemData };
+
+export type OseRaceItem = OseItem & { system: RaceItemData };
 
 /** Roll-comparison key, sourced from the OSE system's CONFIG (`roll_type`). */
 export type OseRollType = RollType;

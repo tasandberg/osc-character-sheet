@@ -12,8 +12,10 @@ import {
   setFlag,
   unsetFlag,
 } from "@domain/flags";
-import { selectSpellSlotDefaults } from "@domain/classRules";
-import { isDerivedFromClasses } from "@domain/classItems";
+import {
+  selectProgression,
+  selectSpellSlotDefaults,
+} from "@domain/classRules";
 import { isFavorite } from "@domain/favorites";
 import { createOwnedItem } from "@domain/createOwnedItem";
 import { getSetting } from "@src/OscSheet/settings";
@@ -201,7 +203,7 @@ export function slotMaxPath(level: number): string {
 /** The level's stored maximum, or undefined if never set. Read from `_source`:
  *  prepared `spells.slots` fills every level with `max: 0` and can't say which. */
 function storedSlotMax(actor: OSEActor, level: number): number | undefined {
-  if (isDerivedFromClasses(actor))
+  if (selectProgression(actor).derived)
     return actor.system.spells.slots[level]?.max ?? 0;
   const source = (
     actor._source?.system as unknown as
@@ -210,7 +212,7 @@ function storedSlotMax(actor: OSEActor, level: number): number | undefined {
   )?.spells;
   if (source) {
     const max = source[String(level)]?.max;
-    return typeof max === "number" ? max : undefined;
+    return typeof max === "number" && max > 0 ? max : undefined;
   }
   const prepared = actor.system.spells.slots[level]?.max ?? 0;
   return prepared > 0 ? prepared : undefined;

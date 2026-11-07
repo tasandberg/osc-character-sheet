@@ -7,8 +7,7 @@ import { OverrideValue } from "@ui/OverrideValue";
 import { HoverPop } from "@ui/HoverPop";
 import { Modal } from "@ui/Modal";
 import { NumberInput } from "@ui/NumberInput";
-import { normalizeClassName } from "@domain/classRules";
-import { isDerivedFromClasses } from "@domain/classItems";
+import { normalizeClassName, selectProgression } from "@domain/classRules";
 import { slotMaxPath } from "@features/spells/spells";
 
 type Props = {
@@ -21,7 +20,7 @@ export function SlotMaxDialog({ level, max, defaultMax }: Props) {
   const { actor, canEdit, updateActor } = useOscSheetContext();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(max);
-  if (!canEdit || isDerivedFromClasses(actor)) return null;
+  if (!canEdit || selectProgression(actor).derived) return null;
 
   const label = `Edit Level ${level} slots`;
   const { class: rawClass, level: charLevel } = actor.system.details;

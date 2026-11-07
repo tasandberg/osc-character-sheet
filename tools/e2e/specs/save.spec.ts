@@ -9,7 +9,7 @@ test.describe("saving throws", () => {
     await sheet
       .locator('[data-testid="save-death"]:visible')
       .first()
-      .getByRole("button", { name: /Roll Death save/ })
+      .getByRole("button", { name: /Roll Death \/ Poison save/ })
       .click();
     await confirmRollDialogIfPresent(gamePage);
 

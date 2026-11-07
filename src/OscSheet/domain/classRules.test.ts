@@ -1,10 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   selectClassDefaults,
+  selectProgression,
+  selectSpellSlotDefaults,
   normalizeClassName,
   classSource,
 } from "@domain/classRules";
-import type { OSEActor } from "@domain/types";
+import type { OSEActor, OseClassItem } from "@domain/types";
+import { classItem, levelRow } from "@src/OscSheet/__fixtures__/classItem";
 
 const FIGHTER = {
   name: "Fighter",
@@ -41,6 +44,91 @@ afterEach(() => {
 
 const actorAt = (cls: string, level: number) =>
   ({ system: { details: { class: cls, level } } }) as unknown as OSEActor;
+
+const withClassItems = (cls: string, classes: OseClassItem[]) =>
+  ({
+    system: { details: { class: cls, level: 1 }, classes },
+  }) as unknown as OSEActor;
+
+const FIGHTER_ITEM_LEVELS = [
+  levelRow(0, "1d8", 19, [12, 13, 14, 15, 16]),
+  levelRow(2000, "2d8", 17, [11, 12, 14, 14, 15]),
+];
+const THIEF_ITEM_LEVELS = [
+  levelRow(0, "1d4", 19, [13, 14, 13, 16, 15]),
+  levelRow(1200, "2d4", 19, [12, 14, 13, 16, 14]),
+];
+const CLERIC_ITEM_LEVELS = [
+  levelRow(0, "1d6", 19, [11, 12, 14, 16, 15]),
+  levelRow(1500, "2d6", 19, [11, 12, 14, 16, 15], { 1: 1 }),
+];
+const MAGE_ITEM_LEVELS = [
+  levelRow(0, "1d4", 19, [13, 14, 13, 16, 15], { 1: 1 }),
+  levelRow(2500, "2d4", 19, [13, 14, 13, 16, 15], { 1: 2 }),
+];
+
+describe("selectProgression", () => {
+  it("reads progression from class items when the character has them", () => {
+    const fighter = classItem("Fighter", 1, 0, FIGHTER_ITEM_LEVELS);
+    const p = selectProgression(withClassItems("Fighter", [fighter]));
+    expect(p.source).toBe("item");
+    expect(p.classes).toEqual([fighter]);
+  });
+  it("falls back to CONFIG for a class name it lists", () => {
+    expect(selectProgression(actorAt("magic user", 1)).source).toBe("config");
+  });
+  it("is custom when neither class items nor CONFIG describe the class", () => {
+    expect(selectProgression(actorAt("Hangman", 1)).source).toBe("custom");
+  });
+});
+
+describe("selectClassDefaults — class items", () => {
+  it("takes the best of each class's row for a multi-class character", () => {
+    const d = selectClassDefaults(
+      withClassItems("Fighter / Thief", [
+        classItem("Fighter", 2, 2100, FIGHTER_ITEM_LEVELS),
+        classItem("Thief", 1, 1100, THIEF_ITEM_LEVELS),
+      ]),
+    );
+    expect(d.matched).toBe(true);
+    expect(d.hd).toBe("2d8 / 1d4");
+    expect(d.thac0).toBe(17);
+    expect(d.saves).toEqual({
+      death: 11,
+      wand: 12,
+      paralysis: 13,
+      breath: 14,
+      spell: 15,
+    });
+  });
+  it("reads the XP band from the first class's table", () => {
+    const d = selectClassDefaults(
+      withClassItems("Thief / Fighter", [
+        classItem("Thief", 1, 600, THIEF_ITEM_LEVELS),
+        classItem("Fighter", 1, 600, FIGHTER_ITEM_LEVELS),
+      ]),
+    );
+    expect(d.levelXp).toBe(0);
+    expect(d.nextXp).toBe(1200);
+  });
+  it("ignores CONFIG for a class item whose name CONFIG also lists", () => {
+    const d = selectClassDefaults(
+      withClassItems("Fighter", [classItem("Fighter", 1, 0, [])]),
+    );
+    expect(d.matched).toBe(false);
+    expect(d.nextXp).toBeNull();
+  });
+});
+
+describe("selectSpellSlotDefaults", () => {
+  it("totals each casting class's slots", () => {
+    const actor = withClassItems("Cleric / Magic-User", [
+      classItem("Cleric", 2, 1500, CLERIC_ITEM_LEVELS),
+      classItem("Magic-User", 2, 2500, MAGE_ITEM_LEVELS),
+    ]);
+    expect(selectSpellSlotDefaults(actor)).toEqual({ 1: 3 });
+  });
+});
 
 describe("normalizeClassName", () => {
   it("matches case-insensitively", () => {

@@ -11,6 +11,6 @@ describe("selectSaves", () => {
 
   it("reads the target value (handling the {value} runtime shape)", () => {
     expect(vm.map((s) => s.target)).toEqual([13, 14, 13, 16, 15]);
-    expect(vm[0].label).toBe("Death");
+    expect(vm[0].label).toBe("Death / Poison");
   });
 });

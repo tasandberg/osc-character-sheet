@@ -17,11 +17,11 @@ import {
 import { useOscSheetContext } from "@app/context";
 import {
   selectClassDefaults,
+  selectProgression,
   availableClassNames,
   classSource,
 } from "@domain/classRules";
 import { usesAscendingAC } from "@domain/chat/targeting";
-import { classItems, isDerivedFromClasses } from "@domain/classItems";
 import type { OSESave } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
 import { HitDiceField } from "./HitDiceField";
@@ -152,7 +152,7 @@ export function EditModal({
         : { [flagDeletePath(FLAGS.employer)]: null },
     );
   const classNames = availableClassNames();
-  const classes = classItems(actor);
+  const { classes, derived } = selectProgression(actor);
   const byClassItems = classes.length > 0;
   const soleClass = classes.length === 1 ? classes[0] : null;
   const level = sys.details.level;
@@ -166,8 +166,6 @@ export function EditModal({
     `DEX ${fmtMod(dexInit)}` +
     (effectInit ? `, effects ${fmtMod(effectInit)}` : "");
   const nextXp = defaults.nextXp;
-
-  const derived = isDerivedFromClasses(actor);
 
   // --- Hit Dice (freeform formula string, e.g. "4d8+1") ---
   const hdVal = derived ? sys.hp.hd : sys.hp.hd || defaults.hd || `${level}d8`;
@@ -234,7 +232,7 @@ export function EditModal({
               <span className={LAB_ID}>
                 Class{" "}
                 <span className={ED_HINT}>
-                  {byClassItems ? "class item" : "GM"}
+                  {byClassItems ? "from items" : "GM"}
                 </span>
               </span>
               <Combobox
@@ -251,20 +249,41 @@ export function EditModal({
                 newOptionLabel={(q) => `Custom: “${q}”`}
               />
             </label>
-            <label className={`${ED_FIELD} ${SPAN_2}`}>
-              <span className={LAB_ID}>Level</span>
-              <NumberInput
-                className="input mono"
-                value={level}
-                min={1}
-                disabled={byClassItems && !soleClass}
-                onCommit={(n) =>
-                  soleClass
-                    ? void soleClass.update({ "system.level": n })
-                    : set("system.details.level", n)
-                }
-              />
-            </label>
+            {classes.length > 1 ? (
+              <div className={`${ED_FIELD} ${SPAN_4}`}>
+                <span className={LAB_ID}>Level</span>
+                <div className="u-row u-gap-3">
+                  {classes.map((c) => (
+                    <label
+                      key={c.id ?? c.name}
+                      className="u-row u-gap-1 u-flex-1"
+                    >
+                      <span className="u-fs-xs u-text-dim">{c.name}</span>
+                      <NumberInput
+                        className="input mono u-flex-1"
+                        value={c.system.level}
+                        min={1}
+                        onCommit={(n) => void c.update({ "system.level": n })}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <label className={`${ED_FIELD} ${SPAN_2}`}>
+                <span className={LAB_ID}>Level</span>
+                <NumberInput
+                  className="input mono"
+                  value={level}
+                  min={1}
+                  onCommit={(n) =>
+                    soleClass
+                      ? void soleClass.update({ "system.level": n })
+                      : set("system.details.level", n)
+                  }
+                />
+              </label>
+            )}
             <label className={`${ED_FIELD} ${SPAN_3}`}>
               <span className={LAB_ID}>Title</span>
               <ValidatedInput
@@ -536,7 +555,9 @@ export function EditModal({
 
         {/* Saving Throws */}
         <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
-          <SectionTitle hint="roll ≥ target · default shown">
+          <SectionTitle
+            hint={derived ? "roll ≥ target" : "roll ≥ target · default shown"}
+          >
             Saving Throws
           </SectionTitle>
           <div className="ed-cells ed-save tw:grid tw:gap-2 tw:grid-cols-5">
