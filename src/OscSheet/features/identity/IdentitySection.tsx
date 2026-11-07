@@ -396,10 +396,8 @@ export function IdentitySection() {
     void updateActor({ [key]: value });
 
   return (
-    <section className="osc-section" aria-label="Identity">
-      <SectionTitle hint={canEdit ? "click a value to edit" : undefined}>
-        Identity
-      </SectionTitle>
+    <section className="osc-section" aria-label="Class">
+      <SectionTitle>Class</SectionTitle>
       <div className={LIST}>
         {source === "item" ? (
           classes.map((c) => (
