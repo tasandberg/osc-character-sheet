@@ -9,6 +9,7 @@ export interface IdentityVM {
   name: string;
   img: string;
   classLabel: string;
+  race?: string;
   level: number;
   alignment: string;
   title: string;

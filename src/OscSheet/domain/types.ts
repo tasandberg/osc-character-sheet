@@ -134,6 +134,8 @@ export type OSEActor = Actor & {
     classes?: OseClassItem[];
     race?: OseRaceItem | null;
     derivedFromClasses?: boolean;
+    classXpBonus?: (classItem: OseClassItem) => number;
+    xpBonusFromEffects?: number;
   };
   _source: OSEActor;
   targetAttack: (
@@ -160,6 +162,7 @@ export type OSEActor = Actor & {
   rollLoyalty: (options: { event?: RollEvent }) => void;
   rollHitDice: (options: { event?: RollEvent }) => void;
   levelUp: (classItem: OseClassItem) => Promise<void>;
+  removeGrantingItem: (item: OseClassItem | OseRaceItem) => Promise<void>;
   update: (updateData: Record<string, unknown>) => Promise<OSEActor>;
 };
 

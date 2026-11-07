@@ -6,6 +6,7 @@ import { createAbility } from "@features/abilities/createAbility";
 import { FeatureCard } from "@features/abilities/FeatureCard";
 import { LanguagesSection } from "@features/abilities/LanguagesSection";
 import { FLAVOUR } from "@features/abilities/classes";
+import { IdentitySection } from "@features/identity/IdentitySection";
 
 export default function Abilities() {
   const { actor, canEdit } = useOscSheetContext();
@@ -17,6 +18,7 @@ export default function Abilities() {
 
   return (
     <div data-testid="abilities-tab">
+      <IdentitySection />
       <section className="osc-section">
         <SectionHeader
           title="Abilities"

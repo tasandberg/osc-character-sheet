@@ -41,6 +41,7 @@ export function Identity({
       </div>
       {showClassLine && (
         <div className="tw:text-(length:--fs-md) tw:text-gold-dim tw:@twopane/sheet:text-center">
+          {identity.race ? `${identity.race} · ` : ""}
           {identity.classLabel} {identity.level}
           {standing ? ` · ${standing}` : ""} · {identity.alignment}
         </div>

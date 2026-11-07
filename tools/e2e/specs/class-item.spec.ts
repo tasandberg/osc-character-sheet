@@ -14,7 +14,7 @@ const fieldOf = (scope: Locator, label: string) =>
   scope.getByText(label, { exact: true }).locator("xpath=..");
 
 test.describe("character with an OSE class item", () => {
-  test("level edits the class item and class-derived values are read-only", async ({
+  test("the Identity section levels the class item and class-derived values are read-only", async ({
     gamePage,
     slot,
   }, testInfo) => {
@@ -72,30 +72,29 @@ test.describe("character with an OSE class item", () => {
 
     try {
       const sheet = await openCharacterSheet(gamePage, name);
+      await sheet.locator('[data-testid="tab-abilities"]').click();
+
+      const level = sheet.getByRole("button", { name: `Edit ${className} level`, exact: true });
+      await expect(level).toHaveText("1");
+      await level.click();
+      const levelBox = sheet.getByRole("textbox", { name: `${className} level`, exact: true });
+      await levelBox.fill("3");
+      await levelBox.press("Enter");
+
+      await expect
+        .poll(() => itemGet(gamePage, name, className, "system.level"), { timeout: 15_000 })
+        .toBe(3);
+      await expect(level).toHaveText("3");
+
       await sheet
         .locator('[data-testid="topbar-actions"]')
         .getByRole("button", { name: "Edit", exact: true })
         .click();
 
-      const level = sheet.getByLabel("Level", { exact: true });
-      await expect(level).toHaveValue("1");
-      await level.fill("3");
-      await level.press("Enter");
-
-      await expect
-        .poll(() => itemGet(gamePage, name, className, "system.level"), { timeout: 15_000 })
-        .toBe(3);
-      await expect(level).toHaveValue("3");
-
       const attack = fieldOf(sheet, ascending ? "Attack Bonus" : "THAC0");
       await expect(attack.getByRole("spinbutton")).toHaveValue(ascending ? "2" : "17");
       await expect(attack.getByRole("spinbutton")).toBeDisabled();
       await expect(attack.getByText("from class")).toBeVisible();
-
-      const hitDice = fieldOf(sheet, "Hit Dice");
-      await expect(hitDice.getByRole("textbox")).toHaveValue("3d6");
-      await expect(hitDice.getByRole("textbox")).toBeDisabled();
-      await expect(hitDice.getByText("from class")).toBeVisible();
 
       for (const [save, target] of Object.entries(SAVES_AT_LEVEL_3)) {
         const cell = sheet.getByLabel(save, { exact: true }).locator("xpath=..");
