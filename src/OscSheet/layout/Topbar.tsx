@@ -3,14 +3,12 @@ import type { TopbarVM } from "@domain/vm-types";
 import { SettingsModal } from "@features/settings/SettingsModal";
 import { CampModal } from "@features/camp/CampModal";
 import { useDismiss } from "@ui/useDismiss";
-import { FEATURES } from "@app/features";
 import { InlineButton } from "@ui/InlineButton";
 import type { OseClassItem } from "@domain/types";
 import {
   TB_BTN,
   TB_BTN_GLYPH,
   TB_BTN_ICON,
-  TB_BTN_LEVEL_UP,
   TB_BTN_OVERFLOW,
 } from "@layout/classes";
 
@@ -25,24 +23,15 @@ const LV_XP = "cur tw:mt-[1px] tw:text-(length:--fs-xs) tw:text-stamp-text-dim";
 type Props = {
   vm: TopbarVM;
   onEdit: () => void;
-  onLevelUp: () => void;
   onLevelUpClass?: (classItem: OseClassItem) => void;
   /** When false (read-only sheet) the character-editing actions are omitted. */
   canEdit?: boolean;
 };
 
 /** Persistent topbar: level, XP, and sheet controls. The bar stays dark in both
- *  themes (--ink). Level Up is gated behind FEATURES until implemented; Camp
- *  opens the Camp modal; Edit opens the Edit Character modal; the cog opens
- *  per-user sheet settings
- *  (theme + font size). At XS the action buttons collapse into a ⋮ overflow menu. */
-export function Topbar({
-  vm,
-  onEdit,
-  onLevelUp,
-  onLevelUpClass,
-  canEdit = true,
-}: Props) {
+ *  themes (--ink). Camp opens the Camp modal; Edit opens the Edit Character
+ *  modal; the cog opens per-user sheet settings (theme + font size). At XS the action buttons collapse into a ⋮ overflow menu. */
+export function Topbar({ vm, onEdit, onLevelUpClass, canEdit = true }: Props) {
   const pct = vm.pct;
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -52,7 +41,7 @@ export function Topbar({
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   useDismiss(menuRef, closeMenu, { active: menuOpen });
 
-  // Character-editing actions (Camp/Level Up/Edit) are owner-only; the theme
+  // Character-editing actions (Camp/Edit) are owner-only; the theme
   // toggle below stays available to everyone (client-side setting).
   const actionButtons = canEdit ? (
     <>
@@ -67,21 +56,6 @@ export function Topbar({
         <i className="fa fa-campground" />
         <span className="lbl">Rest</span>
       </button>
-      {FEATURES.levelUp && (
-        <button
-          type="button"
-          className={TB_BTN_LEVEL_UP}
-          onClick={() => {
-            setMenuOpen(false);
-            onLevelUp();
-          }}
-        >
-          <span className={TB_BTN_GLYPH} aria-hidden="true">
-            ▲
-          </span>
-          <span className="lbl">Level Up</span>
-        </button>
-      )}
       <button
         type="button"
         className={TB_BTN}
