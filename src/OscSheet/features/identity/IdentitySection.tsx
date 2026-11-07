@@ -18,35 +18,33 @@ import { classFace } from "./classFace";
 const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${n}%`;
 const fmtNum = (n: number) => n.toLocaleString();
 
-const LIST =
-  "tw:grid tw:items-center tw:@max-md/app:flex tw:@max-md/app:flex-col";
-const LIST_COLUMNS =
-  "tw:grid-cols-[minmax(0,1fr)_repeat(4,auto)_minmax(calc(var(--spacer-12)*2),auto)_auto]";
-const LIST_COLUMNS_READONLY = "tw:grid-cols-[minmax(0,1fr)_repeat(6,auto)]";
+const LIST = "tw:grid tw:grid-cols-[minmax(0,1fr)_repeat(6,auto)]";
 const ROW =
-  "tw:col-span-full tw:grid tw:grid-cols-subgrid tw:items-center u-gap-y-1 u-py-2 tw:not-first:border-t tw:border-t-border-soft tw:@max-md/app:flex tw:@max-md/app:flex-wrap tw:@max-md/app:justify-end tw:@max-md/app:gap-x-3";
-const CELL = "tw:pl-3 tw:@max-md/app:pl-0";
+  "tw:col-span-full tw:grid tw:grid-cols-subgrid tw:items-center u-gap-y-1 u-py-2 tw:not-first:border-t tw:border-t-border-soft";
+const CELL = "tw:pl-3 tw:@max-md/app:pl-2 tw:@max-md/app:row-start-2";
 const COL = {
-  lv: `${CELL} tw:col-start-2`,
-  xp: `${CELL} tw:col-start-3`,
-  bonus: `${CELL} tw:col-start-4 tw:text-right`,
-  hd: `${CELL} tw:col-start-5`,
-  action: `${CELL} tw:col-start-6 tw:justify-self-end`,
-  remove: `${CELL} tw:col-start-7 tw:justify-self-end`,
+  action:
+    "tw:pl-3 tw:col-start-2 tw:@max-md/app:row-start-2 tw:@max-md/app:pl-0",
+  lv: `${CELL} tw:col-start-3 tw:justify-self-end`,
+  xp: `${CELL} tw:col-start-4 tw:justify-self-end`,
+  bonus: `${CELL} tw:col-start-5 tw:justify-self-end`,
+  hd: `${CELL} tw:col-start-6 tw:justify-self-end`,
+  reset: `${CELL} tw:col-start-7 tw:justify-self-end`,
+  remove:
+    "tw:pl-3 tw:col-start-7 tw:justify-self-end tw:@max-md/app:row-start-1",
 };
 const ICON =
   "tw:grid tw:size-8 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text";
 const NAME =
   "tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold";
-const STAT =
-  "u-flex u-items-baseline u-justify-between u-gap-1 u-nowrap u-fs-md";
+const STAT = "u-inline-flex u-items-baseline u-gap-1 u-nowrap u-fs-md";
 
 type Item = OseClassItem | OseRaceItem;
 
 const monogram = (name: string) => (name.trim().charAt(0) || "?").toUpperCase();
 
 const INFO =
-  "u-row u-gap-3 tw:col-start-1 tw:min-w-0 tw:@max-md/app:basis-full";
+  "u-row u-gap-3 tw:col-start-1 tw:min-w-0 tw:@max-md/app:col-end-7 tw:@max-md/app:row-start-1";
 
 function ItemInfo({ item, aside }: { item: Item; aside?: ReactNode }) {
   return (
@@ -84,7 +82,7 @@ function Stat({
   return (
     <span className={`${STAT} ${className}`}>
       <span className="u-fs-xs u-text-dim tw:font-semibold">{label}</span>
-      <span className="u-inline-flex u-items-baseline u-gap-1">{children}</span>
+      {children}
     </span>
   );
 }
@@ -132,6 +130,30 @@ function DeleteButton({ item, actor }: { item: Item; actor: OSEActor }) {
   );
 }
 
+function LevelUpButton({
+  item,
+  onLevelUp,
+}: {
+  item: OseClassItem;
+  onLevelUp?: () => void;
+}) {
+  const hidden = !onLevelUp;
+  return (
+    <IconButton
+      variant="raised"
+      className={`osc-roll-button osc-icon-tone-brass ${hidden ? "tw:invisible" : ""}`}
+      aria-label={hidden ? undefined : `Level up ${item.name}`}
+      aria-hidden={hidden || undefined}
+      title={hidden ? undefined : `Level up ${item.name}`}
+      tabIndex={hidden ? -1 : undefined}
+      onClick={onLevelUp}
+    >
+      <i className="fa-solid fa-circle-up" aria-hidden="true" />
+      <span className="tw:@max-md/app:hidden">Level up</span>
+    </IconButton>
+  );
+}
+
 function ClassRow({
   actor,
   item,
@@ -149,6 +171,14 @@ function ClassRow({
   return (
     <div className={ROW}>
       <ItemInfo item={item} />
+      {canEdit && (
+        <span className={COL.action}>
+          <LevelUpButton
+            item={item}
+            onLevelUp={canLevelUp ? () => void actor.levelUp(item) : undefined}
+          />
+        </span>
+      )}
       <Stat label="LV" className={COL.lv}>
         <IntValue
           label={`${item.name} level`}
@@ -173,20 +203,6 @@ function ClassRow({
       {bonus !== 0 && (
         <span className={`${COL.bonus} u-fs-xs u-text-brass`} title="XP bonus">
           {fmtPct(bonus)}
-        </span>
-      )}
-      {canEdit && canLevelUp && (
-        <span className={COL.action}>
-          <IconButton
-            variant="raised"
-            className="osc-roll-button osc-icon-tone-brass"
-            aria-label={`Level up ${item.name}`}
-            title={`Level up ${item.name}`}
-            onClick={() => void actor.levelUp(item)}
-          >
-            <i className="fa-solid fa-circle-up" aria-hidden="true" />
-            <span>Level up</span>
-          </IconButton>
         </span>
       )}
       {canEdit && <DeleteButton item={item} actor={actor} />}
@@ -297,7 +313,7 @@ function ActorClassRow({
       ) : null}
       {canEdit && defaultNext != null && details.xp.next !== defaultNext && (
         <OverrideValue
-          className={COL.action}
+          className={COL.reset}
           overridden
           defaultText={`default · ${fmtNum(defaultNext)}`}
           onResetRequest={() => setResetTo(defaultNext)}
@@ -329,9 +345,7 @@ export function IdentitySection() {
       <SectionTitle hint={canEdit ? "click a value to edit" : undefined}>
         Identity
       </SectionTitle>
-      <div
-        className={`${LIST} ${canEdit ? LIST_COLUMNS : LIST_COLUMNS_READONLY}`}
-      >
+      <div className={LIST}>
         {source === "item" ? (
           classes.map((c) => (
             <ClassRow
