@@ -23,9 +23,9 @@ const ROW =
   "tw:col-span-full tw:grid tw:grid-cols-subgrid tw:items-center u-gap-y-1 u-py-2 tw:not-first:border-t tw:border-t-border-soft";
 const CELL = "tw:pl-3 tw:@max-md/app:pl-2 tw:@max-md/app:row-start-2";
 const COL = {
-  xp: `${CELL} tw:col-start-2`,
+  xp: `${CELL} tw:col-start-2 tw:justify-self-end`,
   bonus: `${CELL} tw:col-start-3 tw:justify-self-end`,
-  hd: `${CELL} tw:col-start-4`,
+  hd: `${CELL} tw:col-start-4 tw:justify-self-end`,
   reset: `${CELL} tw:col-start-5 tw:justify-self-end`,
   remove:
     "tw:pl-3 tw:col-start-5 tw:justify-self-end tw:@max-md/app:row-start-1",
@@ -34,8 +34,9 @@ const ICON =
   "tw:grid tw:size-8 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text";
 const NAME =
   "tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold";
-const STAT =
-  "u-flex u-items-baseline u-justify-between u-gap-2 u-nowrap u-fs-md";
+const STAT = "u-inline-flex u-items-baseline u-gap-1 u-nowrap u-fs-md";
+const STACKED = "tw:col-start-1 tw:row-start-1";
+const SIZER = `${STACKED} tw:invisible`;
 
 type Item = OseClassItem | OseRaceItem;
 
@@ -103,18 +104,21 @@ function FitValue({
   inline?: boolean;
   onCommit?: (next: string) => void;
 }) {
-  const longest = Math.max(value.length, editValue.length);
-  const chars = inline ? Math.max(1, longest) : Math.max(2, longest) + 1;
   return (
     <span
-      className={`tw:inline-block tw:whitespace-nowrap ${inline ? "tw:text-left" : "tw:text-right"}`}
-      style={{ width: `${chars}ch` }}
+      className={`tw:inline-grid tw:whitespace-nowrap ${inline ? "tw:justify-items-start" : "tw:justify-items-end"}`}
     >
+      <span className={SIZER} aria-hidden="true">
+        {value}
+      </span>
+      <span className={SIZER} aria-hidden="true">
+        {editValue}
+      </span>
       <InlineEditValue
         label={label}
         value={value}
         editValue={editValue}
-        className={EDIT_TEXT}
+        className={`${EDIT_TEXT} ${STACKED}`}
         onCommit={onCommit}
       />
     </span>
