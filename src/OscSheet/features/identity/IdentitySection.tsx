@@ -292,7 +292,7 @@ function ActorClassRow({
   const isGM = game.user?.isGM ?? false;
   const defaults = selectClassDefaults(actor);
   const hitDice = actor.system.hp.hd || defaults.hd || `${details.level}d8`;
-  const next = defaults.matched ? defaults.nextXp : details.xp.next;
+  const next = defaults.nextXp;
   return (
     <div className={ROW}>
       <div className={INFO}>
@@ -340,8 +340,21 @@ function ActorClassRow({
           canEdit={canEdit}
           onCommit={(n) => set("system.details.xp.value", n)}
         />
-        {next != null && (
-          <span className="u-text-dim tw:tabular-nums">/ {fmtNum(next)}</span>
+        {defaults.matched ? (
+          next != null && (
+            <span className="u-text-dim tw:tabular-nums">/ {fmtNum(next)}</span>
+          )
+        ) : (
+          <>
+            <span className="u-text-dim">/</span>
+            <IntValue
+              label="Next level XP"
+              value={details.xp.next ?? 0}
+              min={0}
+              canEdit={canEdit}
+              onCommit={(n) => set("system.details.xp.next", n)}
+            />
+          </>
         )}
       </Stat>
       <Stat label="HD" className={COL.hd}>

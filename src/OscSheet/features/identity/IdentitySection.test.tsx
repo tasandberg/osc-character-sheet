@@ -220,6 +220,17 @@ describe("IdentitySection without class items", () => {
     }
   });
 
+  it("lets a custom class edit its next-level XP", async () => {
+    const actor = makeActor();
+    await render(actor);
+
+    edit("Next level XP", "3000");
+
+    expect(actor.update).toHaveBeenCalledWith({
+      "system.details.xp.next": 3000,
+    });
+  });
+
   it("lets only the GM change the class", async () => {
     g.game = { user: { isGM: false } };
     await render(makeActor());
