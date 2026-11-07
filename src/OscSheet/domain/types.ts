@@ -136,6 +136,8 @@ export type OSEActor = Actor & {
     derivedFromClasses?: boolean;
     classXpBonus?: (classItem: OseClassItem) => number;
     xpBonusFromEffects?: number;
+    warnings?: OseWarning[];
+    warningContext?: string;
   };
   _source: OSEActor;
   targetAttack: (
@@ -166,6 +168,13 @@ export type OSEActor = Actor & {
   update: (updateData: Record<string, unknown>) => Promise<OSEActor>;
 };
 
+export type OseWarning = {
+  key: string;
+  itemId: string;
+  message: string;
+  data: Record<string, string | number>;
+};
+
 export type OseItem = Omit<Item, "type"> & {
   type: string;
   system: PhysicalItemData &
@@ -173,6 +182,7 @@ export type OseItem = Omit<Item, "type"> & {
     Partial<Pick<MiscItemData, "cumulativeItemslots" | "isCoinsOrGems">> &
     Partial<Pick<ContainerItemData, "contents" | "totalWeight">>;
   rollWeapon: (options: { skipDialog: boolean }) => void;
+  dismissWarning?: (key: string, context: string) => Promise<unknown>;
   update: (updateData: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: string | number | Record<any, any>;

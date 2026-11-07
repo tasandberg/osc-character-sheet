@@ -252,5 +252,13 @@ it("names the race in the sheet header", () => {
   const actor = makeActor({ race: elf() }) as unknown as OSEActor;
   act(() => root.render(<Identity identity={selectIdentity(actor)} />));
 
-  expect(container.textContent).toContain("Elf · Fighter 1");
+  expect(container.textContent).toContain("Elf Fighter 1");
+});
+
+it("gives each class its own level in the sheet header", () => {
+  const thief = ownedItem(classItem("Thief", 2, 0, ROWS) as object);
+  const actor = makeActor({ classes: [fighter(), thief] }) as unknown as OSEActor;
+  act(() => root.render(<Identity identity={selectIdentity(actor)} />));
+
+  expect(container.textContent).toContain("Fighter 1 / Thief 2Veteran");
 });

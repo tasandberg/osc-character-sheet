@@ -9,6 +9,7 @@ export interface IdentityVM {
   name: string;
   img: string;
   classLabel: string;
+  classLevels: string;
   race?: string;
   level: number;
   alignment: string;
@@ -30,6 +31,7 @@ export interface VitalsVM {
   ac: { value: number; ascending: boolean };
   initMod: number;
   hd: string;
+  hdParts?: { name: string; hd: string }[];
   move: number;
   /** Movement bands for the MOVE pill popover (per-round / per-turn / per-day). */
   moveBands: MoveBands;
@@ -111,6 +113,7 @@ export interface SaveVM {
   label: string;
   icon: string;
   target: number;
+  breakdown?: string;
 }
 
 export interface ExplorationVM {
@@ -129,6 +132,15 @@ export interface TopbarVM {
   /** Progress through the current level's XP band, 0–100. */
   pct: number;
   levelUps: { label: string; classItem: OseClassItem }[];
+  classTracks: XpTrackVM[];
+}
+
+export interface XpTrackVM {
+  name: string;
+  level: number;
+  nextLevel: number | null;
+  xp: { value: number; floor: number; next: number | null };
+  pct: number;
 }
 
 export interface WealthMovementVM {

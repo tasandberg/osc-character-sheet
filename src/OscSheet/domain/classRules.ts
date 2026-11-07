@@ -188,3 +188,35 @@ export function selectClassDefaults(actor: OSEActor): ClassDefaults {
     requirements: def.requirements ?? {},
   };
 }
+
+type DescribeDerivation = (
+  classes: OseClassItem[],
+  finals: { saves: Record<string, number>; thac0: number; bba: number },
+) => Record<string, string>;
+
+export function selectDerivation(actor: OSEActor): Record<string, string> {
+  if (!actor.system.derivedFromClasses) return {};
+  const describe = (
+    game as unknown as { ose?: { describeDerivation?: DescribeDerivation } }
+  ).ose?.describeDerivation;
+  if (!describe) return {};
+  const { saves, thac0, classes = [] } = actor.system;
+  return describe(classes, {
+    saves: Object.fromEntries(
+      Object.entries(saves).map(([key, save]) => [key, save.value]),
+    ),
+    thac0: thac0.value,
+    bba: thac0.bba,
+  });
+}
+
+export function selectHdParts(
+  actor: OSEActor,
+): { name: string; hd: string }[] | undefined {
+  const parts = (actor.system.classes ?? []).flatMap((c) =>
+    c.system.currentRow?.hd
+      ? [{ name: c.name as string, hd: c.system.currentRow.hd }]
+      : [],
+  );
+  return parts.length > 1 ? parts : undefined;
+}

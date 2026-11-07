@@ -14,7 +14,12 @@ import {
   Monogram,
 } from "@src/OscSheet/components/ui";
 import { useOscSheetContext } from "@app/context";
-import { selectClassDefaults, selectProgression } from "@domain/classRules";
+import {
+  selectClassDefaults,
+  selectDerivation,
+  selectProgression,
+} from "@domain/classRules";
+import { DerivedHint } from "./DerivedHint";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import type { OSESave } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
@@ -118,6 +123,7 @@ export function EditModal({
         : { [flagDeletePath(FLAGS.employer)]: null },
     );
   const { derived } = selectProgression(actor);
+  const breakdown = selectDerivation(actor);
   const dexInit = sys.scores.dex.init;
   const initMod = sys.initiative?.mod ?? 0;
   const storedInitMod = actor._source?.system?.initiative?.mod ?? initMod;
@@ -252,7 +258,12 @@ export function EditModal({
                 disabled={derived}
                 onCommit={(n) => set(atkKey, n)}
               />
-              {derived && <span className="hint">from class</span>}
+              {derived && (
+                <DerivedHint
+                  className="hint"
+                  breakdown={breakdown[ascendingAC ? "bba" : "thac0"]}
+                />
+              )}
               {atkDefault != null && (
                 <OverrideValue
                   overridden={atkOverridden}
@@ -424,7 +435,13 @@ export function EditModal({
                   max={20}
                   disabled={derived}
                   caption={
-                    derived ? "from class" : def != null ? `default ${def}` : ""
+                    derived ? (
+                      <DerivedHint breakdown={breakdown[`saves.${k}`]} />
+                    ) : def != null ? (
+                      `default ${def}`
+                    ) : (
+                      ""
+                    )
                   }
                   overridden={overridden}
                   onResetRequest={

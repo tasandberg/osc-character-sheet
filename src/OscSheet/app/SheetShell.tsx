@@ -13,6 +13,7 @@ import {
 import type { PortraitImageDrop } from "@features/portraitImage/portraitImageState";
 import { tabs, TabIds } from "@app/tabs";
 import { selectTabCounts } from "@app/tabCounts";
+import { WarningsStrip } from "@features/warnings/WarningsStrip";
 import getLabel from "@src/util/getLabel";
 import { ActionsView, SavesExploration } from "@features/actions";
 import { InventoryView } from "@features/inventory";
@@ -30,6 +31,7 @@ import {
 import { useInventoryActions } from "@features/inventory/useInventoryActions";
 import { showTokenVariantsPortraitPicker } from "@domain/tokenVariants";
 import { selectAc } from "@domain/vitals";
+import { selectHdParts } from "@domain/classRules";
 import { selectIdentity } from "@domain/identity";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import { useToast } from "@ui/toastContext";
@@ -70,6 +72,7 @@ export default function SheetShell() {
     ac: selectAc(aac, ac, equippedArmor, isAscending),
     initMod: init,
     hd: hp.hd,
+    hdParts: selectHdParts(actor),
     move: Math.floor(movement.base),
     moveBands: {
       encounter: Math.floor(movement.encounter),
@@ -139,6 +142,7 @@ export default function SheetShell() {
               if (next) setCurrentTab(next.id);
             },
           }}
+          banner={<WarningsStrip />}
           topbar={
             <Topbar
               vm={selectTopbar(actor)}

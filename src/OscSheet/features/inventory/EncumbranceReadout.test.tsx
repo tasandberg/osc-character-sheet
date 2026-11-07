@@ -95,6 +95,7 @@ const IDENTITY = {
   name: "Eldra Vey",
   img: "",
   classLabel: "Magic-User",
+  classLevels: "Magic-User 3",
   level: 3,
   alignment: "Neutral",
   title: "Conjurer",
