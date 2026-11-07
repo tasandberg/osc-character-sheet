@@ -87,6 +87,37 @@ function Stat({
   );
 }
 
+const EDIT_TEXT =
+  "tw:inline-block tw:p-0 tw:m-0 tw:border-0 tw:whitespace-nowrap tw:overflow-visible tw:[font:inherit] tw:tabular-nums";
+
+function FitValue({
+  label,
+  value,
+  editValue = value,
+  onCommit,
+}: {
+  label: string;
+  value: string;
+  editValue?: string;
+  onCommit?: (next: string) => void;
+}) {
+  const chars = Math.max(2, value.length, editValue.length) + 1;
+  return (
+    <span
+      className="tw:inline-block tw:text-right tw:whitespace-nowrap"
+      style={{ width: `${chars}ch` }}
+    >
+      <InlineEditValue
+        label={label}
+        value={value}
+        editValue={editValue}
+        className={EDIT_TEXT}
+        onCommit={onCommit}
+      />
+    </span>
+  );
+}
+
 function IntValue({
   label,
   value,
@@ -101,12 +132,18 @@ function IntValue({
   onCommit: (n: number) => void;
 }) {
   return (
-    <InlineEditValue
+    <FitValue
       label={label}
-      parse="int"
       value={fmtNum(value)}
       editValue={String(value)}
-      onCommit={canEdit ? (n) => onCommit(Math.max(min, n)) : undefined}
+      onCommit={
+        canEdit
+          ? (next) => {
+              const n = Number.parseInt(next, 10);
+              if (Number.isFinite(n)) onCommit(Math.max(min, n));
+            }
+          : undefined
+      }
     />
   );
 }
@@ -304,10 +341,9 @@ function ActorClassRow({
         />
       </Stat>
       <Stat label="HD" className={COL.hd}>
-        <InlineEditValue
+        <FitValue
           label="Hit Dice"
           value={hitDice}
-          className="tw:tabular-nums"
           onCommit={
             canEdit
               ? (v) => {
