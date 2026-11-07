@@ -7,6 +7,7 @@ export function selectIdentity(actor: OSEActor): IdentityVM {
     name: actor.name,
     img: actor.img,
     classLabel: details.class,
+    race: actor.system.race?.name,
     level: details.level,
     alignment: details.alignment,
     title: details.title,
