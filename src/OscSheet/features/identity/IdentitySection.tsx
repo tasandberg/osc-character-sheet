@@ -289,8 +289,6 @@ export function IdentitySection() {
   const { source, classes, race } = selectProgression(actor);
   const set = (key: string, value: string | number) =>
     void updateActor({ [key]: value });
-  const storedTitle =
-    actor._source?.system?.details?.title ?? actor.system.details.title;
 
   return (
     <section className="osc-section" aria-label="Identity">
@@ -311,19 +309,6 @@ export function IdentitySection() {
           <ActorClassRow actor={actor} canEdit={canEdit} set={set} />
         )}
         {race && <RaceRow actor={actor} race={race} canEdit={canEdit} />}
-        <div className={ROW}>
-          <span className="u-fs-xs u-text-dim tw:uppercase tw:tracking-[0.09em] tw:font-semibold">
-            Title
-          </span>
-          <InlineEditValue
-            label="Title"
-            value={storedTitle}
-            placeholder={actor.system.details.title || "—"}
-            onCommit={
-              canEdit ? (v) => set("system.details.title", v) : undefined
-            }
-          />
-        </div>
       </div>
     </section>
   );

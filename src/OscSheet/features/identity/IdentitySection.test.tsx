@@ -59,7 +59,6 @@ function makeActor({ classes = [], race = null }: ActorOpts = {}) {
       xpBonusFromEffects: 0,
       retainer: { enabled: false },
     },
-    _source: { system: { details: { title: "" } } },
     items: { contents: [] },
     update: vi.fn(async () => undefined),
     levelUp: vi.fn(async () => undefined),
@@ -169,20 +168,16 @@ describe("IdentitySection with class items", () => {
 });
 
 describe("IdentitySection without class items", () => {
-  it("writes level, XP and title to the actor", async () => {
+  it("writes level and XP to the actor", async () => {
     const actor = makeActor();
     await render(actor);
 
     edit("Level", "3");
     edit("XP", "4000");
-    edit("Title", "Swordmaster");
 
     expect(actor.update).toHaveBeenCalledWith({ "system.details.level": 3 });
     expect(actor.update).toHaveBeenCalledWith({
       "system.details.xp.value": 4000,
-    });
-    expect(actor.update).toHaveBeenCalledWith({
-      "system.details.title": "Swordmaster",
     });
   });
 
@@ -200,7 +195,6 @@ it("is read-only without edit permission", async () => {
   await render(makeActor({ classes: [fighter()], race: elf() }), false);
 
   expect(button("Edit Fighter level")).toBeUndefined();
-  expect(button("Edit Title")).toBeUndefined();
   expect(button("Remove Fighter")).toBeUndefined();
   expect(button("Remove Elf")).toBeUndefined();
 });

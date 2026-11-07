@@ -191,6 +191,15 @@ export function EditModal({
                 onCommit={(v) => set("name", v)}
               />
             </label>
+            <label className={`${ED_FIELD} ${SPAN_4}`}>
+              <span className={LAB_ID}>Title</span>
+              <ValidatedInput
+                className="input"
+                value={sys.details.title}
+                validate={() => null}
+                onCommit={(v) => set("system.details.title", v)}
+              />
+            </label>
             <label className={`${ED_FIELD} ${SPAN_COMBO}`}>
               <span className={LAB_ID}>Alignment</span>
               <Combobox
