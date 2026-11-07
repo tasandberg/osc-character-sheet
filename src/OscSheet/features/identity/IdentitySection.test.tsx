@@ -198,9 +198,8 @@ describe("IdentitySection without class items", () => {
     g.game = { user: { isGM: false } };
     await render(makeActor());
 
-    expect(
-      container.querySelector<HTMLInputElement>("[role=combobox]")!.disabled,
-    ).toBe(true);
+    expect(container.querySelector("[role=combobox]")).toBeNull();
+    expect(container.textContent).toContain("Fighter");
   });
 });
 

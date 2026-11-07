@@ -701,6 +701,28 @@ button.pattern-pip.triangle:focus-visible {
 .combobox.is-open .combobox-caret {
   color: var(--text-dim);
 }
+.combobox.inline .combobox-input,
+.combobox.inline .combobox-input:focus {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  font-weight: 600;
+}
+.combobox.inline .combobox-input:focus-visible {
+  outline: 1px dotted var(--text-dim);
+  outline-offset: 2px;
+}
+.combobox.inline .combobox-chip {
+  left: 0;
+  font-weight: 600;
+}
+.combobox.inline .combobox-caret {
+  opacity: 0;
+}
+.combobox.inline:hover .combobox-caret,
+.combobox.inline.is-open .combobox-caret {
+  opacity: 1;
+}
 .combobox-opt.combobox-hint {
   color: var(--text-mute);
   cursor: default;

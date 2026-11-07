@@ -26,7 +26,6 @@ const COL = {
   xp: `${CELL} tw:col-start-2 tw:justify-self-end`,
   bonus: `${CELL} tw:col-start-3 tw:justify-self-end`,
   hd: `${CELL} tw:col-start-4 tw:justify-self-end`,
-  reset: `${CELL} tw:col-start-5 tw:justify-self-end`,
   remove:
     "tw:pl-3 tw:col-start-5 tw:justify-self-end tw:@max-md/app:row-start-1",
 };
@@ -304,22 +303,28 @@ function ActorClassRow({
         <span className={ICON} aria-hidden="true">
           {monogram(details.class)}
         </span>
-        <label className="u-flex-1 tw:min-w-0">
-          <span className="tw:sr-only">Class</span>
-          <Combobox
-            disabled={!canEdit || !isGM}
-            value={details.class}
-            options={availableClassNames().map((c) => ({
-              value: c,
-              label: c.replace(/-/g, " "),
-              node: classFace(c),
-            }))}
-            onCommit={(v) => set("system.details.class", v)}
-            renderValue={classFace}
-            createHint="Type to set a custom class"
-            newOptionLabel={(q) => `Custom: “${q}”`}
-          />
-        </label>
+        {canEdit && isGM ? (
+          <label className="u-flex-1 tw:min-w-0">
+            <span className="tw:sr-only">Class</span>
+            <Combobox
+              variant="inline"
+              value={details.class}
+              options={availableClassNames().map((c) => ({
+                value: c,
+                label: c.replace(/-/g, " "),
+                node: classFace(c),
+              }))}
+              onCommit={(v) => set("system.details.class", v)}
+              renderValue={classFace}
+              createHint="Type to set a custom class"
+              newOptionLabel={(q) => `Custom: “${q}”`}
+            />
+          </label>
+        ) : (
+          <span className="u-row u-gap-2 tw:min-w-0 tw:font-semibold u-fs-md u-text">
+            {classFace(details.class)}
+          </span>
+        )}
         <LevelText>
           <IntValue
             label="Level"
@@ -347,6 +352,15 @@ function ActorClassRow({
           canEdit={canEdit}
           onCommit={(n) => set("system.details.xp.next", n)}
         />
+        {canEdit && defaultNext != null && details.xp.next !== defaultNext && (
+          <OverrideValue
+            align="center"
+            className="u-ml-2 u-text-brass"
+            overridden
+            defaultText={`default · ${fmtNum(defaultNext)}`}
+            onResetRequest={() => setResetTo(defaultNext)}
+          />
+        )}
       </Stat>
       <Stat label="HD" className={COL.hd}>
         <FitValue
@@ -366,14 +380,6 @@ function ActorClassRow({
           {fmtPct(details.xp.bonus)}
         </span>
       ) : null}
-      {canEdit && defaultNext != null && details.xp.next !== defaultNext && (
-        <OverrideValue
-          className={COL.reset}
-          overridden
-          defaultText={`default · ${fmtNum(defaultNext)}`}
-          onResetRequest={() => setResetTo(defaultNext)}
-        />
-      )}
       <ConfirmDialog
         open={resetTo != null}
         title="Reset Next Level?"
