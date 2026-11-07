@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useOscSheetContext } from "@app/context";
-import { SectionTitle } from "@ui/SectionTitle";
 import { IconButton } from "@ui/IconButton";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import { Combobox } from "@ui/Combobox";
@@ -387,7 +386,6 @@ export function IdentitySection() {
 
   return (
     <section className="osc-section" aria-label="Class">
-      <SectionTitle>Class</SectionTitle>
       <div className={LIST}>
         {source === "item" ? (
           classes.map((c) => (
