@@ -33,12 +33,12 @@ PRs run automatically; fork PRs need a maintainer's `safe-to-test` label.
 
 | File | Role |
 | --- | --- |
-| `setup-data-dir.sh` | Assembles a Foundry `/data` dir: the OSE release `OSE_VERSION` (default 2.2.2) for Foundry major `FOUNDRY_VERSION` (default 14; `compatibility.verified` bumped when the release predates it), the freshly-built osc-character-sheet module (`module.json` + `dist` + `lang`), and the minimal `e2e` world fixture. |
+| `setup-data-dir.sh` | Assembles a Foundry `/data` dir: the OSE release `OSE_VERSION` (default 3.2.0) for Foundry major `FOUNDRY_VERSION` (default 14; `compatibility.verified` bumped when the release predates it), the freshly-built osc-character-sheet module (`module.json` + `dist` + `lang`), and the minimal `e2e` world fixture. |
 | `activate-world.mjs` | First-boot activation: `--phase eula` accepts the EULA (generates the host-bound license signature), the caller restarts the container so felddy's `FOUNDRY_WORLD` auto-launches the world, `--phase await` polls `/api/status` until active. |
 | `global-setup.ts` | Joins as Gamemaster, enables the osc-character-sheet module + reloads, then seeds one passwordless GM (`E2E GM <slot>`) and one passwordless OBSERVER player (`E2E Observer <slot>`) per parallel slot. Runs once before the specs. |
 | `helpers.ts` | `joinAsUser` / `joinAsGM`, `openCharacterSheet` (wide layout unless given a `width`), chat/item readers, and the layout primitives `boxesOf` / `rowsOf`. |
 | `fixtures.ts` | Worker-scoped `gamePage` / `observerPage` (this slot's GM and view-only player, each its own browser context), plus the test-scoped `fighter` actor. |
-| `specs/*.spec.ts` | One spec per core flow: smoke, tabs, ability, save, attack, equip, coin, `readonly` (non-owner view-only sheet), and `surfaces` (per-tab feature surfaces + layout invariants). |
+| `specs/*.spec.ts` | One spec per core flow: smoke, tabs, ability, save, attack, equip, coin, `readonly` (non-owner view-only sheet), `class-item` (OSE class-item character; skips on OSE without class items), and `surfaces` (per-tab feature surfaces + layout invariants). |
 
 ### Parallel isolation
 
@@ -89,7 +89,7 @@ pnpm install && pnpm build
 
 # 2. Assemble a scratch data dir.
 DATA=/tmp/osc-e2e-data
-OSE_VERSION=3.0.1 FOUNDRY_VERSION=14 tools/e2e/setup-data-dir.sh "$DATA" "$PWD"
+OSE_VERSION=3.2.0 FOUNDRY_VERSION=14 tools/e2e/setup-data-dir.sh "$DATA" "$PWD"
 
 # 3. Boot Foundry (felddy). Needs foundryvtt.com creds; pick a free port.
 docker run -d --name osc-e2e -p 30000:30000 -v "$DATA:/data" \
