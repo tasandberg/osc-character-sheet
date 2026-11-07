@@ -144,6 +144,7 @@ export default function SheetShell() {
               vm={selectTopbar(actor)}
               canEdit={canEdit}
               onEdit={() => setEditOpen(true)}
+              onLevelUpClass={(classItem) => actor.levelUp(classItem)}
               onLevelUp={() =>
                 toast({
                   intent: "warning",

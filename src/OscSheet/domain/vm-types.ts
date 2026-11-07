@@ -1,4 +1,9 @@
-import type { AttackKind, OSESave, OseSpell } from "@domain/types";
+import type {
+  AttackKind,
+  OSESave,
+  OseClassItem,
+  OseSpell,
+} from "@domain/types";
 
 export interface IdentityVM {
   name: string;
@@ -122,6 +127,7 @@ export interface TopbarVM {
   xp: { value: number; floor: number; next: number | null };
   /** Progress through the current level's XP band, 0–100. */
   pct: number;
+  levelUps: { label: string; classItem: OseClassItem }[];
 }
 
 export interface WealthMovementVM {

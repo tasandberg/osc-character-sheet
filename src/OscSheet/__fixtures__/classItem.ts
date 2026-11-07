@@ -37,5 +37,6 @@ export const classItem = (
       hasTable: levels.length > 0,
       currentRow: levels[level - 1] ?? null,
       nextRow: levels[level] ?? null,
+      canLevelUp: !!levels[level] && xp >= levels[level].xp,
     },
   }) as unknown as OseClassItem;
