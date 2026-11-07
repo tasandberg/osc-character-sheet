@@ -34,6 +34,7 @@ const identity: IdentityVM = {
   name: "Kip",
   img: "",
   classLabel: "Fighter",
+  classLevels: "Fighter 1",
   level: 1,
   alignment: "Lawful",
   title: "Veteran",
@@ -91,7 +92,7 @@ describe("AbilityPlaques", () => {
 describe("Identity standing line", () => {
   it("shows the title for a normal character", () => {
     act(() => root.render(<Identity identity={identity} />));
-    expect(container.textContent).toContain("Fighter 1 · Veteran · Lawful");
+    expect(container.textContent).toContain("Veteran · Lawful");
   });
 
   it("keeps the title, not the wage, for a retainer", () => {
@@ -102,12 +103,12 @@ describe("Identity standing line", () => {
         />,
       ),
     );
-    expect(container.textContent).toContain("Fighter 1 · Veteran · Lawful");
+    expect(container.textContent).toContain("Veteran · Lawful");
     expect(container.textContent).not.toContain("Wage");
   });
 
   it("drops the slot entirely when there is no title", () => {
     act(() => root.render(<Identity identity={{ ...identity, title: "" }} />));
-    expect(container.textContent).toContain("Fighter 1 · Lawful");
+    expect(container.textContent).toContain("Fighter 1Lawful");
   });
 });

@@ -4,6 +4,7 @@ import type { OSESave } from "@domain/types";
 import { SectionTitle } from "@ui/SectionTitle";
 import { cx } from "@ui/cx";
 import { IconButton } from "@ui/IconButton";
+import { HoverTip } from "@ui/HoverTip";
 import type { ActivateEvent } from "@ui/rollable";
 import SavesModTag from "@src/OscSheet/components/ui/SavesModTag";
 
@@ -24,10 +25,12 @@ function RollRow({
   rollLabel,
   onRoll,
   testId,
+  hint,
 }: {
   icon: string;
   label: string;
   value: string | number;
+  hint?: string;
   die: "d20" | "d6";
   rollLabel: string;
   onRoll?: (event: ActivateEvent) => void;
@@ -37,7 +40,17 @@ function RollRow({
     <div className="fvtt-skill" data-testid={testId}>
       <i className={cx("skic", icon)} aria-hidden="true" />
       <span className="skn">{label}</span>
-      <span className="skv">{value}</span>
+      {hint ? (
+        <span
+          tabIndex={0}
+          className="skv tw:cursor-help tw:underline tw:decoration-(--text-dim) tw:decoration-dotted tw:underline-offset-[2px]"
+        >
+          {value}
+          <HoverTip className="tw:tabular-nums">{hint}</HoverTip>
+        </span>
+      ) : (
+        <span className="skv">{value}</span>
+      )}
       {onRoll && (
         <IconButton
           variant="raised"
@@ -68,6 +81,7 @@ export function SavesList({
           icon={s.icon}
           label={s.label}
           value={s.target}
+          hint={s.breakdown}
           die="d20"
           rollLabel={`Roll ${s.label} save (≥ ${s.target})`}
           onRoll={onRoll && ((e) => onRoll(s.key, e))}

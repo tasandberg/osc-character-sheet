@@ -40,10 +40,24 @@ export function Identity({
         {identity.name}
       </div>
       {showClassLine && (
-        <div className="tw:text-(length:--fs-md) tw:text-gold-dim tw:@twopane/sheet:text-center">
-          {identity.race ? `${identity.race} · ` : ""}
-          {identity.classLabel} {identity.level}
-          {standing ? ` · ${standing}` : ""} · {identity.alignment}
+        <div className="tw:flex tw:flex-col tw:gap-[calc(var(--spacer-1)/2)] tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
+          <div className="tw:text-(length:--fs-md) tw:text-gold-dim">
+            {identity.race && <>{identity.race} </>}
+            <span className="tw:font-medium">{identity.classLevels}</span>
+          </div>
+          {(standing || identity.alignment) && (
+            <div className="u-text-dim tw:text-(length:--fs-sm)">
+              {standing && (
+                <span className="tw:font-serif tw:not-italic">{standing}</span>
+              )}
+              {standing && identity.alignment && " · "}
+              {identity.alignment && (
+                <span className="tw:font-sans tw:text-(length:--fs-xs)">
+                  {identity.alignment}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

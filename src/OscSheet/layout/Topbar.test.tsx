@@ -17,6 +17,7 @@ const vm: TopbarVM = {
   xp: { value: 6420, floor: 5000, next: 10000 },
   pct: 28.4,
   levelUps: [],
+  classTracks: [],
 };
 
 // Map-backed game.settings so getThemeSetting/getFontScaleSetting read a real
@@ -145,5 +146,34 @@ describe("Topbar level up", () => {
   it("offers no level up before the class reaches its next level's XP", () => {
     renderFor(actorWith(fighterAt(1500)));
     expect(levelUpLink()).toBeUndefined();
+  });
+});
+
+describe("Topbar multiclass XP", () => {
+  const rows = (...xp: number[]) => xp.map((x) => levelRow(x, "1d8", 19, [12, 13, 14, 15, 16]));
+  const actorWith = (classes: OseClassItem[]) =>
+    ({ ...raistlin, system: { ...raistlin.system, classes } }) as unknown as OSEActor;
+  const renderFor = (classes: OseClassItem[]) =>
+    act(() => root.render(<Topbar vm={selectTopbar(actorWith(classes))} onEdit={() => {}} />));
+  const switcher = () => container.querySelector<HTMLButtonElement>('button[aria-label^="XP for"]');
+
+  it("switches the bar between each class's own XP track", () => {
+    renderFor([
+      classItem("Fighter", 2, 2500, rows(0, 2000, 4000)),
+      classItem("Magic-User", 1, 2500, rows(0, 2500)),
+    ]);
+    expect(switcher()!.getAttribute("aria-label")).toBe("XP for Fighter. Show Magic-User");
+    expect(byText(".next b", "Lv 3")).toBeTruthy();
+    expect(byText(".next span", "4,000")).toBeTruthy();
+
+    act(() => switcher()!.click());
+    expect(switcher()!.getAttribute("aria-label")).toBe("XP for Magic-User. Show Fighter");
+    expect(byText(".next b", "Lv 2")).toBeTruthy();
+    expect(byText(".next span", "2,500")).toBeTruthy();
+  });
+
+  it("offers no class switch for a single class", () => {
+    renderFor([classItem("Fighter", 1, 0, rows(0, 2000))]);
+    expect(switcher()).toBeNull();
   });
 });

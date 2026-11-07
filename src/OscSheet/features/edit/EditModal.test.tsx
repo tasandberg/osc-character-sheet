@@ -303,6 +303,40 @@ describe("EditModal fields OSE derives from class tables", () => {
     );
   });
 
+  it("explains THAC0 and each save with OSE's derivation breakdown", async () => {
+    (g.game as Record<string, unknown>).ose = {
+      describeDerivation: (
+        _classes: unknown,
+        finals: { thac0: number; saves: Record<string, number> },
+      ) => ({
+        thac0: `Fighter 1: 19 → ${finals.thac0}`,
+        bba: "",
+        ...Object.fromEntries(
+          Object.entries(finals.saves).map(([k, v]) => [
+            `saves.${k}`,
+            `Fighter 1: ${v} → ${v}`,
+          ]),
+        ),
+      }),
+    };
+    try {
+      await renderModal(derivedActor());
+      const tips = [
+        ...container.querySelectorAll('[role="tooltip"]'),
+      ].map((t) => t.textContent);
+      expect(tips).toEqual([
+        "Fighter 1: 19 → 17",
+        "Fighter 1: 12 → 12",
+        "Fighter 1: 13 → 13",
+        "Fighter 1: 14 → 14",
+        "Fighter 1: 15 → 15",
+        "Fighter 1: 16 → 16",
+      ]);
+    } finally {
+      delete (g.game as Record<string, unknown>).ose;
+    }
+  });
+
   it("keeps THAC0 editable for a class item with no table", async () => {
     await renderModal(
       makeActor({ classes: [classItem("Hangman", 1, 0)] }),

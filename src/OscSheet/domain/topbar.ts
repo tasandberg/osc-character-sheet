@@ -1,6 +1,12 @@
-import type { OSEActor } from "@domain/types";
-import type { TopbarVM } from "@domain/vm-types";
+import type { OSEActor, OseClassItem } from "@domain/types";
+import type { TopbarVM, XpTrackVM } from "@domain/vm-types";
 import { selectClassDefaults, selectProgression, type Progression } from "@domain/classRules";
+
+const bandPct = (value: number, floor: number, next: number | null) => {
+  if (next == null) return 100;
+  const span = next - floor;
+  return span > 0 ? Math.min(100, Math.max(0, ((value - floor) / span) * 100)) : 0;
+};
 
 export function selectTopbar(actor: OSEActor): TopbarVM {
   const { level, xp } = actor.system.details;
@@ -11,10 +17,28 @@ export function selectTopbar(actor: OSEActor): TopbarVM {
   const progression = selectProgression(actor);
   const next = progression.source === "item" ? defaults.nextXp : xp.next;
   const levelUps = selectLevelUps(progression);
-  if (next == null) return { level, nextLevel: null, xp: { value: xp.value, floor, next: null }, pct: 100, levelUps };
-  const span = next - floor;
-  const pct = span > 0 ? Math.min(100, Math.max(0, ((xp.value - floor) / span) * 100)) : 0;
-  return { level, nextLevel: level + 1, xp: { value: xp.value, floor, next }, pct, levelUps };
+  const classTracks = progression.classes.length > 1 ? progression.classes.map(classTrack) : [];
+  return {
+    level,
+    nextLevel: next == null ? null : level + 1,
+    xp: { value: xp.value, floor, next },
+    pct: bandPct(xp.value, floor, next),
+    levelUps,
+    classTracks,
+  };
+}
+
+function classTrack(classItem: OseClassItem): XpTrackVM {
+  const { level, xp, currentRow, nextRow } = classItem.system;
+  const floor = currentRow?.xp ?? 0;
+  const next = nextRow?.xp ?? null;
+  return {
+    name: classItem.name as string,
+    level,
+    nextLevel: next == null ? null : level + 1,
+    xp: { value: xp, floor, next },
+    pct: bandPct(xp, floor, next),
+  };
 }
 
 function selectLevelUps({ source, classes }: Progression): TopbarVM["levelUps"] {

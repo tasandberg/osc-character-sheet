@@ -6,6 +6,8 @@ import { Stamp } from "@ui/Stamp";
 import { Button } from "@ui/Button";
 import { rollable, type ActivateEvent } from "@ui/rollable";
 import { MoveTooltip } from "@ui/MovePop";
+import { HoverTip } from "@ui/HoverTip";
+import { Fragment } from "react";
 import { useHpInput } from "@ui/useHpInput";
 
 // Tiers are container queries: `app` for the XS compact header, `sheet` for the
@@ -95,7 +97,25 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
           >
             HD
           </Stamp>
-          <span className={TILE_V}>{vitals.hd}</span>
+          <span className={TILE_V}>
+            {vitals.hdParts
+              ? vitals.hdParts.map((part, i) => (
+                  <Fragment key={part.name}>
+                    {i > 0 && " / "}
+                    <span
+                      tabIndex={0}
+                      aria-label={`${part.name}: ${part.hd}`}
+                      className="tw:cursor-default tw:underline tw:decoration-(--text-dim) tw:decoration-dotted tw:underline-offset-[2px]"
+                    >
+                      {part.hd}
+                      <HoverTip>
+                        {part.name}
+                      </HoverTip>
+                    </span>
+                  </Fragment>
+                ))
+              : vitals.hd}
+          </span>
         </div>
         <div className={`${TILE} tw:cursor-default`}>
           <Stamp ink>MOVE</Stamp>
