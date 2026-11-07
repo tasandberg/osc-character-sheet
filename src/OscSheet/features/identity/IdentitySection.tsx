@@ -1,12 +1,10 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useOscSheetContext } from "@app/context";
 import { SectionTitle } from "@ui/SectionTitle";
 import { IconButton } from "@ui/IconButton";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import { Combobox } from "@ui/Combobox";
 import { Monogram } from "@ui/Monogram";
-import { OverrideValue } from "@ui/OverrideValue";
-import { ConfirmDialog } from "@ui/ConfirmDialog";
 import {
   availableClassNames,
   selectClassDefaults,
@@ -290,13 +288,11 @@ function ActorClassRow({
   canEdit: boolean;
   set: (key: string, value: string | number) => void;
 }) {
-  const [resetTo, setResetTo] = useState<number | null>(null);
   const { details } = actor.system;
   const isGM = game.user?.isGM ?? false;
   const defaults = selectClassDefaults(actor);
-  const defaultNext = defaults.nextXp;
   const hitDice = actor.system.hp.hd || defaults.hd || `${details.level}d8`;
-  const next = details.xp.next ?? 0;
+  const next = defaults.matched ? defaults.nextXp : details.xp.next;
   return (
     <div className={ROW}>
       <div className={INFO}>
@@ -344,22 +340,8 @@ function ActorClassRow({
           canEdit={canEdit}
           onCommit={(n) => set("system.details.xp.value", n)}
         />
-        <span className="u-text-dim">/</span>
-        <IntValue
-          label="Next level XP"
-          value={next}
-          min={0}
-          canEdit={canEdit}
-          onCommit={(n) => set("system.details.xp.next", n)}
-        />
-        {canEdit && defaultNext != null && details.xp.next !== defaultNext && (
-          <OverrideValue
-            align="center"
-            className="u-ml-2 u-text-brass"
-            overridden
-            defaultText={`default · ${fmtNum(defaultNext)}`}
-            onResetRequest={() => setResetTo(defaultNext)}
-          />
+        {next != null && (
+          <span className="u-text-dim tw:tabular-nums">/ {fmtNum(next)}</span>
         )}
       </Stat>
       <Stat label="HD" className={COL.hd}>
@@ -380,17 +362,6 @@ function ActorClassRow({
           {fmtPct(details.xp.bonus)}
         </span>
       ) : null}
-      <ConfirmDialog
-        open={resetTo != null}
-        title="Reset Next Level?"
-        body={`Revert to the class default of ${fmtNum(resetTo ?? 0)} XP.`}
-        confirmLabel="Reset"
-        onConfirm={() => {
-          if (resetTo != null) set("system.details.xp.next", resetTo);
-          setResetTo(null);
-        }}
-        onCancel={() => setResetTo(null)}
-      />
     </div>
   );
 }

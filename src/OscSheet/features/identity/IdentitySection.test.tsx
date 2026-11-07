@@ -194,6 +194,32 @@ describe("IdentitySection without class items", () => {
     expect(actor.update).toHaveBeenCalledWith({ "system.hp.hd": "2d8" });
   });
 
+  it("reads next-level XP from the class table, not the stored value", async () => {
+    g.CONFIG = {
+      OSE: {
+        classes: {
+          classic: {
+            Fighter: {
+              levels: [
+                { xp: 0, hd: "1d8", thac0: 19, saves: [12, 13, 14, 15, 16] },
+                { xp: 2000, hd: "2d8", thac0: 19, saves: [12, 13, 14, 15, 16] },
+              ],
+            },
+          },
+        },
+      },
+    };
+    const actor = makeActor();
+    actor.system.details.xp.next = 999;
+    try {
+      await render(actor);
+      expect(container.textContent).toContain("/ 2,000");
+      expect(container.textContent).not.toContain("999");
+    } finally {
+      g.CONFIG = { OSE: { classes: { classic: {} } } };
+    }
+  });
+
   it("lets only the GM change the class", async () => {
     g.game = { user: { isGM: false } };
     await render(makeActor());
