@@ -145,13 +145,6 @@ export default function SheetShell() {
               canEdit={canEdit}
               onEdit={() => setEditOpen(true)}
               onLevelUpClass={(classItem) => actor.levelUp(classItem)}
-              onLevelUp={() =>
-                toast({
-                  intent: "warning",
-                  title: "Level Up",
-                  message: "Coming soon ;)",
-                })
-              }
             />
           }
           header={

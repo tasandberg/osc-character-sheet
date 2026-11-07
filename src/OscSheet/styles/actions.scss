@@ -408,7 +408,7 @@
     grid-template-columns: repeat(6, 1fr);
     gap: var(--spacer-1);
   }
-  // topbar: the Rest / Level Up / Edit → ⋮ collapse is a pair of
+  // topbar: the Rest / Edit → ⋮ collapse is a pair of
   // `@max-md/app:` utilities on the two elements (Topbar.tsx).
 }
 

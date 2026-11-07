@@ -51,13 +51,13 @@ const byText = (sel: string, text: string) =>
 
 describe("Topbar XP band", () => {
   it("shows the current level's XP floor beside the level", () => {
-    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
+    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} />));
     expect(byText("span", "5,000")).toBeTruthy();
   });
 
   it("renders without a next level when the actor has no next-level XP", () => {
     const maxed: TopbarVM = { ...vm, nextLevel: null, xp: { ...vm.xp, next: null }, pct: 100 };
-    act(() => root.render(<Topbar vm={maxed} onEdit={() => {}} onLevelUp={() => {}} />));
+    act(() => root.render(<Topbar vm={maxed} onEdit={() => {}} />));
     expect(byText("span", "6,420 XP")).toBeTruthy();
     expect(container.textContent).not.toContain("Lv 4");
   });
@@ -65,13 +65,13 @@ describe("Topbar XP band", () => {
 
 describe("Topbar settings", () => {
   it("renders a cog trigger and no theme/font controls until opened", () => {
-    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
+    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} />));
     expect(q('[aria-label="Settings"] .fa-gear')).toBeTruthy();
     expect(q(".modal")).toBeNull();
   });
 
   it("opens the settings modal on cog click", () => {
-    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
+    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
     expect(q(".modal-head .ttl")?.textContent).toBe("Preferences");
     // both settings groups present
@@ -80,7 +80,7 @@ describe("Topbar settings", () => {
   });
 
   it("closes the modal via the Close footer button", () => {
-    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
+    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
     expect(q(".modal")).toBeTruthy();
     act(() => byText(".modal-foot button", "Close")!.click());
@@ -88,7 +88,7 @@ describe("Topbar settings", () => {
   });
 
   it("writes the theme and font-size settings from the modal controls", () => {
-    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
+    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
 
     act(() => byText('[role="radiogroup"][aria-label="Theme"] label', "Light")!.click());
@@ -99,7 +99,7 @@ describe("Topbar settings", () => {
   });
 
   it("defaults spell images on and writes the checkbox", () => {
-    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} onLevelUp={() => {}} />));
+    act(() => root.render(<Topbar vm={vm} onEdit={() => {}} />));
     act(() => q('[aria-label="Settings"]')!.click());
 
     const checkbox = container.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
@@ -127,7 +127,6 @@ describe("Topbar level up", () => {
         <Topbar
           vm={selectTopbar(actor)}
           onEdit={() => {}}
-          onLevelUp={() => {}}
           onLevelUpClass={(c) => actor.levelUp(c)}
         />,
       ),
