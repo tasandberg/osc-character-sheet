@@ -18,28 +18,46 @@ import { classFace } from "./classFace";
 const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${n}%`;
 const fmtNum = (n: number) => n.toLocaleString();
 
+const LIST =
+  "tw:grid tw:items-center tw:@max-md/app:flex tw:@max-md/app:flex-col";
+const LIST_COLUMNS =
+  "tw:grid-cols-[minmax(0,1fr)_repeat(4,auto)_minmax(calc(var(--spacer-12)*2),auto)_auto]";
+const LIST_COLUMNS_READONLY = "tw:grid-cols-[minmax(0,1fr)_repeat(6,auto)]";
 const ROW =
-  "u-row u-wrap u-gap-x-3 u-gap-y-1 u-py-2 tw:not-first:border-t tw:border-t-border-soft";
+  "tw:col-span-full tw:grid tw:grid-cols-subgrid tw:items-center u-gap-y-1 u-py-2 tw:not-first:border-t tw:border-t-border-soft tw:@max-md/app:flex tw:@max-md/app:flex-wrap tw:@max-md/app:justify-end tw:@max-md/app:gap-x-3";
+const CELL = "tw:pl-3 tw:@max-md/app:pl-0";
+const COL = {
+  lv: `${CELL} tw:col-start-2`,
+  xp: `${CELL} tw:col-start-3`,
+  bonus: `${CELL} tw:col-start-4 tw:text-right`,
+  hd: `${CELL} tw:col-start-5`,
+  action: `${CELL} tw:col-start-6 tw:justify-self-end`,
+  remove: `${CELL} tw:col-start-7 tw:justify-self-end`,
+};
 const ICON =
   "tw:grid tw:size-8 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text";
 const NAME =
   "tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold";
-const PLAQUE = "u-inline-flex u-items-baseline u-gap-1 u-nowrap u-fs-md";
+const STAT =
+  "u-flex u-items-baseline u-justify-between u-gap-1 u-nowrap u-fs-md";
 
 type Item = OseClassItem | OseRaceItem;
 
 const monogram = (name: string) => (name.trim().charAt(0) || "?").toUpperCase();
 
+const INFO =
+  "u-row u-gap-3 tw:col-start-1 tw:min-w-0 tw:@max-md/app:basis-full";
+
 function ItemInfo({ item, aside }: { item: Item; aside?: ReactNode }) {
   return (
-    <div className="u-row u-gap-3 u-flex-1 tw:min-w-[calc(var(--spacer-12)*3)]">
+    <div className={INFO}>
       <Monogram
         img={item.img}
         monogram={monogram(item.name ?? "")}
         className={ICON}
         imgClassName="tw:object-cover"
       />
-      <div className="u-row u-gap-2 u-flex-1">
+      <div className="u-row u-gap-2 u-flex-1 tw:min-w-0">
         <button
           type="button"
           className={NAME}
@@ -54,11 +72,19 @@ function ItemInfo({ item, aside }: { item: Item; aside?: ReactNode }) {
   );
 }
 
-function Stat({ label, children }: { label: string; children: ReactNode }) {
+function Stat({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className: string;
+  children: ReactNode;
+}) {
   return (
-    <span className={PLAQUE}>
+    <span className={`${STAT} ${className}`}>
       <span className="u-fs-xs u-text-dim tw:font-semibold">{label}</span>
-      {children}
+      <span className="u-inline-flex u-items-baseline u-gap-1">{children}</span>
     </span>
   );
 }
@@ -82,7 +108,7 @@ function IntValue({
       parse="int"
       value={fmtNum(value)}
       editValue={String(value)}
-      className="tw:tabular-nums"
+      className="tw:tabular-nums tw:text-right"
       onCommit={canEdit ? (n) => onCommit(Math.max(min, n)) : undefined}
     />
   );
@@ -92,23 +118,17 @@ const validHitDice = (v: string) => /d\d/i.test(v) && Roll.validate(v);
 
 function DeleteButton({ item, actor }: { item: Item; actor: OSEActor }) {
   return (
-    <IconButton
-      variant="danger"
-      size="sm"
-      title={`Remove ${item.name}`}
-      aria-label={`Remove ${item.name}`}
-      onClick={() => void actor.removeGrantingItem(item)}
-    >
-      <i className="fa-solid fa-trash-can" aria-hidden="true" />
-    </IconButton>
-  );
-}
-
-function Controls({ children }: { children: ReactNode }) {
-  return (
-    <div className="u-row u-gap-3 u-ml-auto u-justify-end u-wrap">
-      {children}
-    </div>
+    <span className={COL.remove}>
+      <IconButton
+        variant="danger"
+        size="sm"
+        title={`Remove ${item.name}`}
+        aria-label={`Remove ${item.name}`}
+        onClick={() => void actor.removeGrantingItem(item)}
+      >
+        <i className="fa-solid fa-trash-can" aria-hidden="true" />
+      </IconButton>
+    </span>
   );
 }
 
@@ -128,33 +148,35 @@ function ClassRow({
     (actor.system.xpBonusFromEffects ?? 0);
   return (
     <div className={ROW}>
-      <ItemInfo item={item} aside={level} />
-      <Controls>
-        <Stat label="LV">
-          <IntValue
-            label={`${item.name} level`}
-            value={level}
-            min={1}
-            canEdit={canEdit}
-            onCommit={(n) => void item.update({ "system.level": n })}
-          />
-        </Stat>
-        <Stat label="XP">
-          <IntValue
-            label={`${item.name} XP`}
-            value={xp}
-            min={0}
-            canEdit={canEdit}
-            onCommit={(n) => void item.update({ "system.xp": n })}
-          />
-          {next != null && <span className="u-text-dim">/ {fmtNum(next)}</span>}
-        </Stat>
-        {bonus !== 0 && (
-          <span className="u-fs-xs u-text-brass" title="XP bonus">
-            {fmtPct(bonus)}
-          </span>
+      <ItemInfo item={item} />
+      <Stat label="LV" className={COL.lv}>
+        <IntValue
+          label={`${item.name} level`}
+          value={level}
+          min={1}
+          canEdit={canEdit}
+          onCommit={(n) => void item.update({ "system.level": n })}
+        />
+      </Stat>
+      <Stat label="XP" className={COL.xp}>
+        <IntValue
+          label={`${item.name} XP`}
+          value={xp}
+          min={0}
+          canEdit={canEdit}
+          onCommit={(n) => void item.update({ "system.xp": n })}
+        />
+        {next != null && (
+          <span className="u-text-dim tw:tabular-nums">/ {fmtNum(next)}</span>
         )}
-        {canEdit && canLevelUp && (
+      </Stat>
+      {bonus !== 0 && (
+        <span className={`${COL.bonus} u-fs-xs u-text-brass`} title="XP bonus">
+          {fmtPct(bonus)}
+        </span>
+      )}
+      {canEdit && canLevelUp && (
+        <span className={COL.action}>
           <IconButton
             variant="raised"
             className="osc-roll-button osc-icon-tone-brass"
@@ -165,9 +187,9 @@ function ClassRow({
             <i className="fa-solid fa-circle-up" aria-hidden="true" />
             <span>Level up</span>
           </IconButton>
-        )}
-        {canEdit && <DeleteButton item={item} actor={actor} />}
-      </Controls>
+        </span>
+      )}
+      {canEdit && <DeleteButton item={item} actor={actor} />}
     </div>
   );
 }
@@ -184,11 +206,7 @@ function RaceRow({
   return (
     <div className={ROW}>
       <ItemInfo item={race} aside="Race" />
-      {canEdit && (
-        <Controls>
-          <DeleteButton item={race} actor={actor} />
-        </Controls>
-      )}
+      {canEdit && <DeleteButton item={race} actor={actor} />}
     </div>
   );
 }
@@ -211,7 +229,7 @@ function ActorClassRow({
   const next = details.xp.next ?? 0;
   return (
     <div className={ROW}>
-      <div className="u-row u-gap-3 u-flex-1 tw:min-w-[calc(var(--spacer-12)*3)]">
+      <div className={INFO}>
         <span className={ICON} aria-hidden="true">
           {monogram(details.class)}
         </span>
@@ -232,60 +250,59 @@ function ActorClassRow({
           />
         </label>
       </div>
-      <Controls>
-        <Stat label="LV">
-          <IntValue
-            label="Level"
-            value={details.level}
-            min={1}
-            canEdit={canEdit}
-            onCommit={(n) => set("system.details.level", n)}
-          />
-        </Stat>
-        <Stat label="XP">
-          <IntValue
-            label="XP"
-            value={details.xp.value}
-            min={0}
-            canEdit={canEdit}
-            onCommit={(n) => set("system.details.xp.value", n)}
-          />
-          <span className="u-text-dim">/</span>
-          <IntValue
-            label="Next level XP"
-            value={next}
-            min={0}
-            canEdit={canEdit}
-            onCommit={(n) => set("system.details.xp.next", n)}
-          />
-        </Stat>
-        <Stat label="HD">
-          <InlineEditValue
-            label="Hit Dice"
-            value={hitDice}
-            className="tw:tabular-nums"
-            onCommit={
-              canEdit
-                ? (v) => {
-                    if (validHitDice(v)) set("system.hp.hd", v);
-                  }
-                : undefined
-            }
-          />
-        </Stat>
-        {details.xp.bonus ? (
-          <span className="u-fs-xs u-text-brass" title="XP bonus">
-            {fmtPct(details.xp.bonus)}
-          </span>
-        ) : null}
-        {canEdit && defaultNext != null && details.xp.next !== defaultNext && (
-          <OverrideValue
-            overridden
-            defaultText={`default · ${fmtNum(defaultNext)}`}
-            onResetRequest={() => setResetTo(defaultNext)}
-          />
-        )}
-      </Controls>
+      <Stat label="LV" className={COL.lv}>
+        <IntValue
+          label="Level"
+          value={details.level}
+          min={1}
+          canEdit={canEdit}
+          onCommit={(n) => set("system.details.level", n)}
+        />
+      </Stat>
+      <Stat label="XP" className={COL.xp}>
+        <IntValue
+          label="XP"
+          value={details.xp.value}
+          min={0}
+          canEdit={canEdit}
+          onCommit={(n) => set("system.details.xp.value", n)}
+        />
+        <span className="u-text-dim">/</span>
+        <IntValue
+          label="Next level XP"
+          value={next}
+          min={0}
+          canEdit={canEdit}
+          onCommit={(n) => set("system.details.xp.next", n)}
+        />
+      </Stat>
+      <Stat label="HD" className={COL.hd}>
+        <InlineEditValue
+          label="Hit Dice"
+          value={hitDice}
+          className="tw:tabular-nums"
+          onCommit={
+            canEdit
+              ? (v) => {
+                  if (validHitDice(v)) set("system.hp.hd", v);
+                }
+              : undefined
+          }
+        />
+      </Stat>
+      {details.xp.bonus ? (
+        <span className={`${COL.bonus} u-fs-xs u-text-brass`} title="XP bonus">
+          {fmtPct(details.xp.bonus)}
+        </span>
+      ) : null}
+      {canEdit && defaultNext != null && details.xp.next !== defaultNext && (
+        <OverrideValue
+          className={COL.action}
+          overridden
+          defaultText={`default · ${fmtNum(defaultNext)}`}
+          onResetRequest={() => setResetTo(defaultNext)}
+        />
+      )}
       <ConfirmDialog
         open={resetTo != null}
         title="Reset Next Level?"
@@ -312,7 +329,9 @@ export function IdentitySection() {
       <SectionTitle hint={canEdit ? "click a value to edit" : undefined}>
         Identity
       </SectionTitle>
-      <div className="tw:flex tw:flex-col">
+      <div
+        className={`${LIST} ${canEdit ? LIST_COLUMNS : LIST_COLUMNS_READONLY}`}
+      >
         {source === "item" ? (
           classes.map((c) => (
             <ClassRow
