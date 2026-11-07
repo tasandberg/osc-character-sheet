@@ -96,11 +96,6 @@ test.describe("character with an OSE class item", () => {
       await expect(attack.getByRole("spinbutton")).toBeDisabled();
       await expect(attack.getByText("from class")).toBeVisible();
 
-      const hitDice = fieldOf(sheet, "Hit Dice");
-      await expect(hitDice.getByRole("textbox")).toHaveValue("3d6");
-      await expect(hitDice.getByRole("textbox")).toBeDisabled();
-      await expect(hitDice.getByText("from class")).toBeVisible();
-
       for (const [save, target] of Object.entries(SAVES_AT_LEVEL_3)) {
         const cell = sheet.getByLabel(save, { exact: true }).locator("xpath=..");
         await expect(cell.getByRole("spinbutton")).toHaveValue(String(target));

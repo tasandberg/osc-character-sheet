@@ -18,7 +18,6 @@ import { selectClassDefaults, selectProgression } from "@domain/classRules";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import type { OSESave } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
-import { HitDiceField } from "./HitDiceField";
 import { ExplorationSection } from "./ExplorationSection";
 import {
   type EmployerOption,
@@ -119,7 +118,6 @@ export function EditModal({
         : { [flagDeletePath(FLAGS.employer)]: null },
     );
   const { derived } = selectProgression(actor);
-  const level = sys.details.level;
   const dexInit = sys.scores.dex.init;
   const initMod = sys.initiative?.mod ?? 0;
   const storedInitMod = actor._source?.system?.initiative?.mod ?? initMod;
@@ -129,11 +127,6 @@ export function EditModal({
   const initBaseText =
     `DEX ${fmtMod(dexInit)}` +
     (effectInit ? `, effects ${fmtMod(effectInit)}` : "");
-
-  // --- Hit Dice (freeform formula string, e.g. "4d8+1") ---
-  const hdVal = derived ? sys.hp.hd : sys.hp.hd || defaults.hd || `${level}d8`;
-  const hdDefault = derived ? null : defaults.hd;
-  const hdOverridden = !!hdDefault && hdVal !== hdDefault;
 
   // --- Attack (THAC0 descending / Attack Bonus ascending) ---
   const ascendingAC = usesAscendingAC();
@@ -211,22 +204,6 @@ export function EditModal({
               />
             </label>
 
-            <HitDiceField
-              className={SPAN_4}
-              actor={actor}
-              hdVal={hdVal}
-              hdDefault={hdDefault}
-              hdOverridden={hdOverridden}
-              derived={derived}
-              onCommit={(v) => set("system.hp.hd", v)}
-              onResetRequest={() =>
-                requestConfirm(
-                  "Reset Hit Dice?",
-                  `Revert to the class default of ${hdDefault}.`,
-                  () => set("system.hp.hd", hdDefault!),
-                )
-              }
-            />
             <label className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>Current HP</span>
               <NumberInput

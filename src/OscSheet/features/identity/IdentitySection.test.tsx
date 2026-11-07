@@ -15,6 +15,7 @@ import { classItem, levelRow } from "@src/OscSheet/__fixtures__/classItem";
 
 const g = globalThis as Record<string, unknown>;
 g.foundry = { utils: { debounce: (fn: unknown) => fn } };
+g.Roll = { validate: (formula: string) => /^\d*d\d+$/.test(formula) };
 g.CONFIG = { OSE: { classes: { classic: {} } } };
 g.ResizeObserver = class {
   observe() {}
@@ -57,6 +58,7 @@ function makeActor({ classes = [], race = null }: ActorOpts = {}) {
       race,
       classXpBonus: () => 10,
       xpBonusFromEffects: 0,
+      hp: { hd: "1d8" },
       retainer: { enabled: false },
     },
     items: { contents: [] },
@@ -179,6 +181,17 @@ describe("IdentitySection without class items", () => {
     expect(actor.update).toHaveBeenCalledWith({
       "system.details.xp.value": 4000,
     });
+  });
+
+  it("writes a valid Hit Dice formula to the actor and ignores an invalid one", async () => {
+    const actor = makeActor();
+    await render(actor);
+
+    edit("Hit Dice", "nonsense");
+    edit("Hit Dice", "2d8");
+
+    expect(actor.update).toHaveBeenCalledTimes(1);
+    expect(actor.update).toHaveBeenCalledWith({ "system.hp.hd": "2d8" });
   });
 
   it("lets only the GM change the class", async () => {

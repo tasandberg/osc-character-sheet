@@ -89,6 +89,8 @@ function IntValue({
   );
 }
 
+const validHitDice = (v: string) => /d\d/i.test(v) && Roll.validate(v);
+
 function DeleteButton({ item, actor }: { item: Item; actor: OSEActor }) {
   return (
     <IconButton
@@ -204,7 +206,9 @@ function ActorClassRow({
   const [resetTo, setResetTo] = useState<number | null>(null);
   const { details } = actor.system;
   const isGM = game.user?.isGM ?? false;
-  const defaultNext = selectClassDefaults(actor).nextXp;
+  const defaults = selectClassDefaults(actor);
+  const defaultNext = defaults.nextXp;
+  const hitDice = actor.system.hp.hd || defaults.hd || `${details.level}d8`;
   const next = details.xp.next ?? 0;
   return (
     <div className={ROW}>
@@ -254,6 +258,20 @@ function ActorClassRow({
             min={0}
             canEdit={canEdit}
             onCommit={(n) => set("system.details.xp.next", n)}
+          />
+        </Plaque>
+        <Plaque label="HD">
+          <InlineEditValue
+            label="Hit Dice"
+            value={hitDice}
+            className="tw:tabular-nums"
+            onCommit={
+              canEdit
+                ? (v) => {
+                    if (validHitDice(v)) set("system.hp.hd", v);
+                  }
+                : undefined
+            }
           />
         </Plaque>
         {details.xp.bonus ? (

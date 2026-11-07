@@ -275,17 +275,6 @@ describe("EditModal THAC0 / Attack Bonus", () => {
   });
 });
 
-describe("EditModal identity fields", () => {
-  it("leaves the Hit Dice hint empty when the class has no default", async () => {
-    const actor = makeActor();
-    actor.system.details.class = "homebrew";
-    await renderModal(actor);
-
-    expect(fieldByLabel("Hit Dice")!.textContent).not.toContain("null");
-    expect(resetLink("Hit Dice")).toBeNull();
-  });
-});
-
 describe("EditModal fields OSE derives from class tables", () => {
   const derivedActor = () =>
     makeActor({
@@ -301,13 +290,6 @@ describe("EditModal fields OSE derives from class tables", () => {
     expect(resetLink("THAC0")).toBeNull();
   });
 
-  it("shows Hit Dice read-only", async () => {
-    await renderModal(derivedActor());
-
-    expect(inputByLabel("Hit Dice").disabled).toBe(true);
-    expect(fieldByLabel("Hit Dice")!.textContent).toContain("from class");
-  });
-
   it("shows every saving throw read-only", async () => {
     await renderModal(derivedActor());
 
@@ -321,13 +303,12 @@ describe("EditModal fields OSE derives from class tables", () => {
     );
   });
 
-  it("keeps them editable for a class item with no table", async () => {
+  it("keeps THAC0 editable for a class item with no table", async () => {
     await renderModal(
       makeActor({ classes: [classItem("Hangman", 1, 0)] }),
     );
 
     expect(inputByLabel("THAC0").disabled).toBe(false);
-    expect(inputByLabel("Hit Dice").disabled).toBe(false);
   });
 });
 

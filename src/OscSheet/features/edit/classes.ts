@@ -12,7 +12,7 @@
 // are `calc(<rem> * var(--fs-scale))` and follow the sheet's font-size setting,
 // the Tailwind scale is the raw rem.
 
-/** Field wrapper. `relative` is the positioning context for `.ed-rollbtn`. */
+/** Field wrapper. */
 export const ED_FIELD =
   "ed-field tw:relative tw:flex tw:flex-col tw:gap-[5px] tw:min-w-0";
 
