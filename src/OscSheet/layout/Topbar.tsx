@@ -4,6 +4,8 @@ import { SettingsModal } from "@features/settings/SettingsModal";
 import { CampModal } from "@features/camp/CampModal";
 import { useDismiss } from "@ui/useDismiss";
 import { FEATURES } from "@app/features";
+import { InlineButton } from "@ui/InlineButton";
+import type { OseClassItem } from "@domain/types";
 import {
   TB_BTN,
   TB_BTN_GLYPH,
@@ -24,6 +26,7 @@ type Props = {
   vm: TopbarVM;
   onEdit: () => void;
   onLevelUp: () => void;
+  onLevelUpClass?: (classItem: OseClassItem) => void;
   /** When false (read-only sheet) the character-editing actions are omitted. */
   canEdit?: boolean;
 };
@@ -33,7 +36,13 @@ type Props = {
  *  opens the Camp modal; Edit opens the Edit Character modal; the cog opens
  *  per-user sheet settings
  *  (theme + font size). At XS the action buttons collapse into a ⋮ overflow menu. */
-export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
+export function Topbar({
+  vm,
+  onEdit,
+  onLevelUp,
+  onLevelUpClass,
+  canEdit = true,
+}: Props) {
   const pct = vm.pct;
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -119,6 +128,19 @@ export function Topbar({ vm, onEdit, onLevelUp, canEdit = true }: Props) {
             <span className={LV_XP}>{vm.xp.next.toLocaleString()}</span>
           </div>
         )}
+        {canEdit &&
+          onLevelUpClass &&
+          vm.levelUps.map(({ label, classItem }) => (
+            <InlineButton
+              key={label}
+              variant="link"
+              size="xs"
+              className="u-nowrap"
+              onClick={() => onLevelUpClass(classItem)}
+            >
+              <i className="fas fa-circle-up" aria-hidden="true" /> {label}
+            </InlineButton>
+          ))}
       </div>
 
       <div className="tw:ml-auto tw:flex tw:items-center tw:gap-1">
