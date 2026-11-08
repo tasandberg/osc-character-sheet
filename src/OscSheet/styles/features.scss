@@ -31,3 +31,8 @@
   transition: color 0.12s;
   &:hover { color: var(--crimson, #c75044); }
 }
+
+.osc-sheet-app .osc-class-progression-table tbody tr[aria-current="true"] td {
+  background: color-mix(in oklab, var(--accent-alt) 18%, var(--surface));
+  font-weight: 600;
+}

@@ -6,6 +6,12 @@
   "TYPES.Actor.monster": "Monster",
   "OSE.category.actions": "Actions",
   "OSC": {
+    "classes": {
+      "TabProgression": "Progression",
+      "XpShort": "XP",
+      "HdConHint": "Constitution modifier applies to hit points gained at this level.",
+      "SpellSlots": "Spell slots of this spell level"
+    },
     "category": {
       "effects": "Effects"
     },
