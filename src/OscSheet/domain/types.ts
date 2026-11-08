@@ -199,7 +199,7 @@ export type OseRaceItem = OseItem & { system: RaceItemData };
 export type OseRollType = RollType;
 
 export type OseAbility = OseItem & {
-  system: AbilityItemData;
+  system: AbilityItemData & { readonly effectiveTarget?: number | null };
   /** OSE item roll dispatcher — for abilities, rolls the formula + posts to chat. */
   roll: (options?: { event?: Event }) => void;
 };

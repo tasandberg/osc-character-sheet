@@ -54,6 +54,15 @@ describe("selectExploration", () => {
     expect(selectExploration(actor).find((e) => e.key === "fg")!.inSix).toBe(3);
   });
 
+  it("uses OSE's value over a stored target for a character with class items", () => {
+    const actor = withSkills([{ key: "fg", inSix: 4 }], {
+      ...raistlin.system.exploration,
+      fg: 2,
+    });
+    actor.system.classes = [{ name: "Ranger" } as never];
+    expect(selectExploration(actor).find((e) => e.key === "fg")!.inSix).toBe(2);
+  });
+
   it("ignores a stored entry for a key outside the six skills", () => {
     const vm = selectExploration(withSkills([{ key: "open-locks", inSix: 2 }]));
     expect(vm.map((e) => e.key)).toEqual(["ld", "od", "sd", "ft", "fg", "hn"]);
