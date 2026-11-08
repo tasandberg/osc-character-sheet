@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Frame, Topbar, HeaderBand, Minibar, type TabItem } from "@layout";
 import { useOscSheetContext } from "@app/context";
 import { EditModal } from "@features/edit/EditModal";
+import { EffectsModal } from "@features/effects/EffectsModal";
 import { PortraitImageDialog } from "@features/portraitImage/PortraitImageDialog";
 import { SheetImageDrop } from "@features/portraitImage/SheetImageDrop";
 import { usePortraitDrop } from "@features/portraitImage/usePortraitDrop";
@@ -55,6 +56,7 @@ export default function SheetShell() {
   } = useOscSheetContext();
   const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
+  const [effectsOpen, setEffectsOpen] = useState(false);
   const [portraitImage, setPortraitImage] = useState<{
     drop?: PortraitImageDrop;
   } | null>(null);
@@ -115,6 +117,10 @@ export default function SheetShell() {
         open={editOpen && canEdit}
         onClose={() => setEditOpen(false)}
       />
+      <EffectsModal
+        open={effectsOpen}
+        onClose={() => setEffectsOpen(false)}
+      />
       {portraitImage && canEdit && (
         <PortraitImageDialog
           current={actorPortraitImages(actor)}
@@ -173,6 +179,7 @@ export default function SheetShell() {
               onRollHd={
                 canEdit ? (event) => actor.rollHitDice({ event }) : undefined
               }
+              onOpenEffects={() => setEffectsOpen(true)}
             />
           }
           minibar={
