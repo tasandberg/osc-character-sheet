@@ -7,7 +7,7 @@ import type { IdentityVM, VitalsVM } from "@domain/vm-types";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 (globalThis as { game?: unknown }).game = {
-  i18n: { localize: (k: string) => k },
+  i18n: { localize: (k: string) => k, has: () => true },
 };
 (globalThis as { ResizeObserver?: unknown }).ResizeObserver = class {
   observe() {}

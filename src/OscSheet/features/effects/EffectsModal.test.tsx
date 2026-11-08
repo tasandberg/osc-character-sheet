@@ -5,6 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import OscSheetProvider from "@app/OscSheetProvider";
 import { EffectsModal } from "./EffectsModal";
 import type { OSEActor, OscContext } from "@domain/types";
+import moduleStrings from "@src/../lang/en.json";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -32,6 +33,7 @@ const g = globalThis as Record<string, unknown>;
 g.foundry = { utils: { debounce: (fn: unknown) => fn } };
 g.game = {
   i18n: {
+    has: (k: string) => k in STRINGS,
     localize: (k: string) => STRINGS[k] ?? k,
     format: (k: string, data: Record<string, string>) =>
       (STRINGS[k] ?? k).replace(/\{(\w+)\}/g, (_, n) => data[n]),
@@ -188,5 +190,31 @@ describe("EffectsModal", () => {
       } as unknown as OscContext),
     );
     expect(rowTexts("Passive Effects")).toEqual([["Shield", "Actor", ""]]);
+  });
+
+  it("falls back to the module's own labels on an OSE without effects strings", () => {
+    const i18n = (game as { i18n: unknown }).i18n;
+    const moduleString = (k: string) =>
+      k
+        .split(".")
+        .reduce<unknown>(
+          (node, part) => (node as Record<string, unknown>)?.[part],
+          moduleStrings,
+        );
+    (game as { i18n: unknown }).i18n = {
+      has: (k: string) => typeof moduleString(k) === "string",
+      localize: (k: string) => {
+        const value = moduleString(k);
+        return typeof value === "string" ? value : k;
+      },
+    };
+    try {
+      renderModal(makeActor([]));
+      expect(group("Passive Effects").textContent).toMatch(
+        /Source.*Duration.*None/,
+      );
+    } finally {
+      (game as { i18n: unknown }).i18n = i18n;
+    }
   });
 });

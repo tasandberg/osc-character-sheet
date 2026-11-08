@@ -1,5 +1,10 @@
 import type { OSEActor, OseClassItem } from "@domain/types";
 
+export const effectsLabel = (key: string, data?: Record<string, string>) => {
+  const resolved = game.i18n.has(key) ? key : key.replace(/^OSE\./, "OSC.");
+  return data ? game.i18n.format(resolved, data) : game.i18n.localize(resolved);
+};
+
 export interface EffectRow {
   uuid: string;
   name: string;
@@ -94,7 +99,7 @@ export function selectEffectGroups(actor: OSEActor): EffectGroup[] {
     if (!bonus) continue;
     rows.push({
       uuid: classItem.uuid,
-      name: game.i18n.format("OSE.effects.ClassXp", {
+      name: effectsLabel("OSE.effects.ClassXp", {
         bonus: bonus > 0 ? `+${bonus}` : `${bonus}`,
       }),
       img: classItem.img,
@@ -129,7 +134,7 @@ const resolve = (uuid: string) =>
 
 export async function createEffect(actor: OSEActor) {
   const data = {
-    name: game.i18n.localize("OSE.effects.New"),
+    name: effectsLabel("OSE.effects.New"),
     img: "icons/svg/aura.svg",
   };
   const [effect] = (await actor.createEmbeddedDocuments("ActiveEffect", [
@@ -151,8 +156,8 @@ export async function deleteEffect(actor: OSEActor, uuid: string) {
   const effect = resolve(uuid);
   if (effect?.parent !== actor) return;
   const ok = await foundry.applications.api.DialogV2.confirm({
-    window: { title: game.i18n.localize("OSE.effects.Delete") },
-    content: `<p>${game.i18n.format("OSE.effects.DeleteConfirm", { name: foundry.utils.escapeHTML(effect.name) })}</p>`,
+    window: { title: effectsLabel("OSE.effects.Delete") },
+    content: `<p>${effectsLabel("OSE.effects.DeleteConfirm", { name: foundry.utils.escapeHTML(effect.name) })}</p>`,
     rejectClose: false,
   });
   if (ok) return effect.delete();

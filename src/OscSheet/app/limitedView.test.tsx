@@ -16,7 +16,7 @@ import type { OSEActor, OscContext } from "@domain/types";
   },
 };
 (globalThis as { game?: unknown }).game = {
-  i18n: { localize: (k: string) => k },
+  i18n: { localize: (k: string) => k, has: () => true },
 };
 (globalThis as { CONFIG?: unknown }).CONFIG = { OSE: { classes: {} } };
 (globalThis as { ResizeObserver?: unknown }).ResizeObserver = class {

@@ -10,12 +10,11 @@ import {
   createEffect,
   deleteEffect,
   editEffect,
+  effectsLabel,
   selectEffectGroups,
   toggleEffect,
   type EffectRow,
 } from "./effects";
-
-const localize = (key: string) => game.i18n.localize(key);
 
 const EFFECTS_GRID = "tw:grid tw:grid-cols-[minmax(0,1fr)_repeat(3,auto)]";
 const SUBGRID = "tw:col-span-full tw:grid tw:grid-cols-subgrid";
@@ -33,14 +32,14 @@ function EffectControls({ effect }: { effect: EffectRow }) {
       <span
         className="u-inline-flex u-text-dim"
         role="img"
-        aria-label={localize("OSE.effects.Fixed")}
-        title={localize("OSE.effects.Fixed")}
+        aria-label={effectsLabel("OSE.effects.Fixed")}
+        title={effectsLabel("OSE.effects.Fixed")}
       >
         <i className="fas fa-lock" aria-hidden="true" />
       </span>
     );
   if (!canEdit) return null;
-  const toggleLabel = localize(
+  const toggleLabel = effectsLabel(
     effect.disabled ? "OSE.effects.Enable" : "OSE.effects.Disable",
   );
   return (
@@ -60,8 +59,8 @@ function EffectControls({ effect }: { effect: EffectRow }) {
       <IconButton
         size="sm"
         variant="accent"
-        aria-label={localize("OSE.effects.Edit")}
-        title={localize("OSE.effects.Edit")}
+        aria-label={effectsLabel("OSE.effects.Edit")}
+        title={effectsLabel("OSE.effects.Edit")}
         onClick={() => editEffect(effect.uuid)}
       >
         <i className="fas fa-edit" aria-hidden="true" />
@@ -70,8 +69,8 @@ function EffectControls({ effect }: { effect: EffectRow }) {
         <IconButton
           size="sm"
           disabled
-          aria-label={localize("OSE.effects.FromItem")}
-          title={localize("OSE.effects.FromItem")}
+          aria-label={effectsLabel("OSE.effects.FromItem")}
+          title={effectsLabel("OSE.effects.FromItem")}
         >
           <i className="fas fa-trash" aria-hidden="true" />
         </IconButton>
@@ -79,8 +78,8 @@ function EffectControls({ effect }: { effect: EffectRow }) {
         <IconButton
           size="sm"
           variant="danger"
-          aria-label={localize("OSE.Delete")}
-          title={localize("OSE.Delete")}
+          aria-label={effectsLabel("OSE.Delete")}
+          title={effectsLabel("OSE.Delete")}
           onClick={() => void deleteEffect(actor, effect.uuid)}
         >
           <i className="fas fa-trash" aria-hidden="true" />
@@ -105,7 +104,7 @@ export function EffectsModal({
   return (
     <Modal
       open
-      title={localize("OSE.category.effects")}
+      title={effectsLabel("OSE.category.effects")}
       onClose={onClose}
       className="modal-inset"
       footer={
@@ -116,7 +115,7 @@ export function EffectsModal({
             onClick={() => void createEffect(actor)}
           >
             <i className="fas fa-plus" aria-hidden="true" />{" "}
-            {localize("OSE.effects.Create")}
+            {effectsLabel("OSE.effects.Create")}
           </InlineButton>
         ) : undefined
       }
@@ -125,20 +124,20 @@ export function EffectsModal({
         {groups.map((group) => (
           <section
             key={group.key}
-            aria-label={localize(group.label)}
+            aria-label={effectsLabel(group.label)}
             className={`${SUBGRID} tw:not-first:mt-(--spacer-3)`}
           >
             <ColumnHeaderRow
-              title={localize(group.label)}
+              title={effectsLabel(group.label)}
               columns={[
-                localize("OSE.effects.Source"),
-                localize("OSE.effects.Duration"),
+                effectsLabel("OSE.effects.Source"),
+                effectsLabel("OSE.effects.Duration"),
               ]}
             />
             <ul className={`${SUBGRID} tw:m-0 tw:list-none tw:p-0`}>
               {group.effects.length === 0 ? (
                 <li className="tw:col-span-full u-py-2 u-fs-sm u-text-dim">
-                  {localize("OSE.effects.None")}
+                  {effectsLabel("OSE.effects.None")}
                 </li>
               ) : (
                 group.effects.map((effect) => (
@@ -164,7 +163,7 @@ export function EffectsModal({
                       </button>
                     </span>
                     <span className={CELL}>
-                      {effect.source ?? localize("OSE.effects.Actor")}
+                      {effect.source ?? effectsLabel("OSE.effects.Actor")}
                     </span>
                     <span className={CELL}>{effect.duration}</span>
                     <span className="tw:justify-self-end tw:pl-3">

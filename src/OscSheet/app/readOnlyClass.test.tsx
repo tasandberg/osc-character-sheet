@@ -19,7 +19,7 @@ import type { OSEActor, OscContext } from "@domain/types";
   utils: { debounce: (fn: unknown) => fn },
 };
 (globalThis as { game?: unknown }).game = {
-  i18n: { localize: (k: string) => k },
+  i18n: { localize: (k: string) => k, has: () => true },
 };
 (globalThis as { CONFIG?: unknown }).CONFIG = { OSE: { classes: {} } };
 // jsdom has no ResizeObserver; the layout components observe their containers.
