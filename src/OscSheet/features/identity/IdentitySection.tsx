@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useOscSheetContext } from "@app/context";
 import { IconButton } from "@ui/IconButton";
+import { InlineButton } from "@ui/InlineButton";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import { Combobox } from "@ui/Combobox";
 import { Monogram } from "@ui/Monogram";
@@ -245,6 +246,46 @@ function LevelUpButton({
   );
 }
 
+const promptsForAbilities = () => {
+  try {
+    const settings = game.settings as {
+      get(ns: string, key: string): unknown;
+    };
+    return settings.get(game.system.id, "promptAddClassAbilities") !== false;
+  } catch {
+    return true;
+  }
+};
+
+function AddAbilitiesButton({
+  actor,
+  item,
+}: {
+  actor: OSEActor;
+  item: OseClassItem;
+}) {
+  const { offerAbilities } = actor;
+  const { abilities = [], level } = item.system;
+  if (!offerAbilities || !abilities.some((a) => a.level <= level)) return null;
+  return (
+    <InlineButton
+      variant="link"
+      size="sm"
+      className="u-nowrap u-flex-none"
+      aria-label={`Add missing abilities for ${item.name}`}
+      title={`Add missing abilities for ${item.name}`}
+      onClick={() =>
+        void offerAbilities.call(actor, item, level, {
+          upTo: true,
+          confirm: promptsForAbilities(),
+        })
+      }
+    >
+      Add missing abilities
+    </InlineButton>
+  );
+}
+
 function LevelText({ children }: { children: ReactNode }) {
   return <span className="u-nowrap u-fs-md u-text-dim">Level {children}</span>;
 }
@@ -291,6 +332,7 @@ function ClassRow({
                 onLevelUp={() => void actor.levelUp(item)}
               />
             )}
+            {canEdit && <AddAbilitiesButton actor={actor} item={item} />}
           </>
         }
       />

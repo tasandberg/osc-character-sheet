@@ -165,6 +165,11 @@ export type OSEActor = Actor & {
   rollHitDice: (options: { event?: RollEvent }) => void;
   levelUp: (classItem: OseClassItem) => Promise<void>;
   removeGrantingItem: (item: OseClassItem | OseRaceItem) => Promise<void>;
+  offerAbilities?: (
+    item: OseClassItem | OseRaceItem,
+    level: number,
+    options?: { upTo?: boolean; confirm?: boolean }
+  ) => Promise<void>;
   update: (updateData: Record<string, unknown>) => Promise<OSEActor>;
 };
 

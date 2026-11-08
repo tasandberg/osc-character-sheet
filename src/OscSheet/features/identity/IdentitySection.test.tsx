@@ -37,6 +37,12 @@ const ownedItem = <T extends object>(item: T) =>
 const fighter = (xp = 0) =>
   ownedItem(classItem("Fighter", 1, xp, ROWS) as object);
 
+const withAbilities = () => {
+  const cls = classItem("Fighter", 1, 0, ROWS);
+  Object.assign(cls.system, { abilities: [{ uuid: "Item.a", level: 1 }] });
+  return ownedItem(cls as object);
+};
+
 const elf = () => ownedItem({ name: "Elf", system: {} });
 
 type ActorOpts = { classes?: object[]; race?: object | null };
@@ -159,6 +165,28 @@ describe("IdentitySection with class items", () => {
       "system.details.xp.next": 3000,
     });
     expect(actor.update).toHaveBeenCalledWith({ "system.hp.hd": "2d6" });
+  });
+
+  it("offers the class's missing abilities through OSE", async () => {
+    const cls = withAbilities();
+    const actor = Object.assign(makeActor({ classes: [cls] }), {
+      offerAbilities: vi.fn(async () => undefined),
+    });
+    await render(actor);
+
+    await act(async () => button("Add missing abilities for Fighter")!.click());
+
+    expect(actor.offerAbilities).toHaveBeenCalledWith(cls, 1, {
+      upTo: true,
+      confirm: true,
+    });
+  });
+
+  it("hides the add-abilities action when OSE cannot offer abilities", async () => {
+    const cls = withAbilities();
+    await render(makeActor({ classes: [cls] }));
+
+    expect(button("Add missing abilities for Fighter")).toBeUndefined();
   });
 
   it("opens the class item sheet from its name", async () => {
