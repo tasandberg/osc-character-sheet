@@ -16,6 +16,8 @@ const STRINGS: Record<string, string> = {
   "OSE.effects.passive": "Passive Effects",
   "OSE.effects.inactive": "Inactive Effects",
   "OSE.effects.Actor": "Actor",
+  "OSE.effects.Source": "Source",
+  "OSE.effects.Duration": "Duration",
   "OSE.effects.None": "None",
   "OSE.effects.Create": "Create effect",
   "OSE.effects.Fixed": "Worked out from the class and ability scores.",
@@ -142,7 +144,8 @@ describe("EffectsModal", () => {
     expect(group("Passive Effects").querySelector("li")?.textContent).toBe(
       "None",
     );
-    expect(container.textContent).toContain("Source");
+    for (const label of ["Passive Effects", "Inactive Effects"])
+      expect(group(label).textContent).toMatch(/Source.*Duration/);
   });
 
   it("locks deletion of an effect granted by an item", () => {

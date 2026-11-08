@@ -1,5 +1,11 @@
 import { useOscSheetContext } from "@app/context";
-import { Modal, IconButton, InlineButton, Monogram, SectionTitle } from "@ui";
+import {
+  Modal,
+  IconButton,
+  InlineButton,
+  Monogram,
+  ColumnHeaderRow,
+} from "@ui";
 import {
   createEffect,
   deleteEffect,
@@ -15,7 +21,6 @@ const EFFECTS_GRID = "tw:grid tw:grid-cols-[minmax(0,1fr)_repeat(3,auto)]";
 const SUBGRID = "tw:col-span-full tw:grid tw:grid-cols-subgrid";
 const EFFECT_ROW = `${SUBGRID} tw:items-center u-py-2 tw:not-first:border-t tw:border-t-border-soft`;
 const CELL = "tw:pl-3 u-fs-sm u-text-dim u-nowrap";
-const COLUMN_LABEL = "tw:pl-3 u-fs-xs u-text-dim tw:font-semibold";
 const EFFECT_ICON =
   "tw:grid tw:size-8 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text";
 const EFFECT_NAME =
@@ -117,23 +122,19 @@ export function EffectsModal({
       }
     >
       <div className={EFFECTS_GRID}>
-        <div className={`${SUBGRID} u-pb-1`} aria-hidden="true">
-          <span className={`${COLUMN_LABEL} tw:col-start-2`}>
-            {localize("OSE.effects.Source")}
-          </span>
-          <span className={`${COLUMN_LABEL} tw:col-start-3`}>
-            {localize("OSE.effects.Duration")}
-          </span>
-        </div>
         {groups.map((group) => (
           <section
             key={group.key}
             aria-label={localize(group.label)}
-            className={`${SUBGRID} u-mt-3`}
+            className={`${SUBGRID} tw:not-first:mt-(--spacer-3)`}
           >
-            <SectionTitle className="tw:col-span-full">
-              {localize(group.label)}
-            </SectionTitle>
+            <ColumnHeaderRow
+              title={localize(group.label)}
+              columns={[
+                localize("OSE.effects.Source"),
+                localize("OSE.effects.Duration"),
+              ]}
+            />
             <ul className={`${SUBGRID} tw:m-0 tw:list-none tw:p-0`}>
               {group.effects.length === 0 ? (
                 <li className="tw:col-span-full u-py-2 u-fs-sm u-text-dim">
