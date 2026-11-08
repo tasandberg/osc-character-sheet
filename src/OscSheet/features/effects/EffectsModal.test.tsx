@@ -134,18 +134,17 @@ describe("EffectsModal", () => {
     expect(rowTexts("Inactive Effects")).toEqual([["Curse", "Actor", ""]]);
   });
 
-  it("hides an empty Temporary group and shows None for other empty groups", () => {
+  it("hides empty Temporary and Inactive groups and shows None for an empty Passive group", () => {
     renderModal(makeActor([]));
     expect(
       [...container.querySelectorAll("section")].map((s) =>
         s.getAttribute("aria-label"),
       ),
-    ).toEqual(["Passive Effects", "Inactive Effects"]);
+    ).toEqual(["Passive Effects"]);
     expect(group("Passive Effects").querySelector("li")?.textContent).toBe(
       "None",
     );
-    for (const label of ["Passive Effects", "Inactive Effects"])
-      expect(group(label).textContent).toMatch(/Source.*Duration/);
+    expect(group("Passive Effects").textContent).toMatch(/Source.*Duration/);
   });
 
   it("locks deletion of an effect granted by an item", () => {

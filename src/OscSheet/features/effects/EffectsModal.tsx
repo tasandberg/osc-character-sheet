@@ -100,7 +100,7 @@ export function EffectsModal({
   const { actor, canEdit } = useOscSheetContext();
   if (!open) return null;
   const groups = selectEffectGroups(actor).filter(
-    (group) => group.key !== "temporary" || group.effects.length > 0,
+    (group) => group.key === "passive" || group.effects.length > 0,
   );
   return (
     <Modal
