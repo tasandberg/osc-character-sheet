@@ -98,10 +98,10 @@ const renderModal = (actor: OSEActor, canEdit = true) =>
   );
 
 const group = (label: string) =>
-  container.querySelector<HTMLTableElement>(`table[aria-label="${label}"]`)!;
+  container.querySelector<HTMLElement>(`section[aria-label="${label}"]`)!;
 const rowTexts = (label: string) =>
-  [...group(label).querySelectorAll("tbody tr")].map((tr) =>
-    [...tr.querySelectorAll("td")].slice(0, 3).map((td) => td.textContent),
+  [...group(label).querySelectorAll("li")].map((row) =>
+    [...row.children].slice(0, 3).map((cell) => cell.textContent),
   );
 const button = (label: string) =>
   container.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`);
@@ -118,7 +118,7 @@ describe("EffectsModal", () => {
     );
 
     expect(
-      [...container.querySelectorAll("table")].map((t) =>
+      [...container.querySelectorAll("section")].map((t) =>
         t.getAttribute("aria-label"),
       ),
     ).toEqual(["Temporary Effects", "Passive Effects", "Inactive Effects"]);
@@ -134,7 +134,9 @@ describe("EffectsModal", () => {
 
   it("shows None for a group with no effects", () => {
     renderModal(makeActor([]));
-    expect(rowTexts("Passive Effects")).toEqual([["None"]]);
+    expect(group("Passive Effects").querySelector("li")?.textContent).toBe(
+      "None",
+    );
   });
 
   it("locks deletion of an effect granted by an item", () => {

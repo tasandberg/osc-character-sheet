@@ -11,13 +11,13 @@ test.describe("effects modal", () => {
     const sheet = await openCharacterSheet(gamePage, fighter.name);
     await sheet.getByRole("button", { name: "Effects", exact: true }).click();
 
-    const passive = sheet.getByRole("table", { name: "Passive Effects" });
-    const inactive = sheet.getByRole("table", { name: "Inactive Effects" });
-    await expect(passive.getByRole("row", { name: /E2E Shield/ })).toBeVisible();
+    const passive = sheet.getByRole("region", { name: "Passive Effects" });
+    const inactive = sheet.getByRole("region", { name: "Inactive Effects" });
+    await expect(passive.getByRole("listitem").filter({ hasText: "E2E Shield" })).toBeVisible();
 
     await passive.getByRole("button", { name: "Disable effect" }).click();
 
-    await expect(inactive.getByRole("row", { name: /E2E Shield/ })).toBeVisible({ timeout: 15_000 });
-    await expect(passive.getByRole("row", { name: /E2E Shield/ })).toHaveCount(0);
+    await expect(inactive.getByRole("listitem").filter({ hasText: "E2E Shield" })).toBeVisible({ timeout: 15_000 });
+    await expect(passive.getByRole("listitem").filter({ hasText: "E2E Shield" })).toHaveCount(0);
   });
 });

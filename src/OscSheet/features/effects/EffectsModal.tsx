@@ -1,5 +1,5 @@
 import { useOscSheetContext } from "@app/context";
-import { Modal, IconButton, InlineButton, Table, Th, Td, Tr } from "@ui";
+import { Modal, IconButton, InlineButton, Monogram, SectionTitle } from "@ui";
 import {
   createEffect,
   deleteEffect,
@@ -10,6 +10,16 @@ import {
 } from "./effects";
 
 const localize = (key: string) => game.i18n.localize(key);
+
+const EFFECTS_GRID = "tw:grid tw:grid-cols-[minmax(0,1fr)_repeat(3,auto)]";
+const SUBGRID = "tw:col-span-full tw:grid tw:grid-cols-subgrid";
+const EFFECT_ROW = `${SUBGRID} tw:items-center u-py-2 tw:not-first:border-t tw:border-t-border-soft`;
+const CELL = "tw:pl-3 u-fs-sm u-text-dim u-nowrap";
+const COLUMN_LABEL = "tw:pl-3 u-fs-xs u-text-dim tw:font-semibold";
+const EFFECT_ICON =
+  "tw:grid tw:size-8 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text";
+const EFFECT_NAME =
+  "tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold";
 
 function EffectControls({ effect }: { effect: EffectRow }) {
   const { actor, canEdit } = useOscSheetContext();
@@ -104,55 +114,64 @@ export function EffectsModal({
         ) : undefined
       }
     >
-      <div className="u-stack u-gap-4">
+      <div className={EFFECTS_GRID}>
+        <div className={`${SUBGRID} u-pb-1`} aria-hidden="true">
+          <span className={`${COLUMN_LABEL} tw:col-start-2`}>
+            {localize("OSE.effects.Source")}
+          </span>
+          <span className={`${COLUMN_LABEL} tw:col-start-3`}>
+            {localize("OSE.effects.Duration")}
+          </span>
+        </div>
         {groups.map((group) => (
-          <Table key={group.key} aria-label={localize(group.label)}>
-            <thead>
-              <Tr>
-                <Th>{localize(group.label)}</Th>
-                <Th>{localize("OSE.effects.Source")}</Th>
-                <Th>{localize("OSE.effects.Duration")}</Th>
-                <Th />
-              </Tr>
-            </thead>
-            <tbody>
+          <section
+            key={group.key}
+            aria-label={localize(group.label)}
+            className={`${SUBGRID} u-mt-3`}
+          >
+            <SectionTitle className="tw:col-span-full">
+              {localize(group.label)}
+            </SectionTitle>
+            <ul className={`${SUBGRID} tw:m-0 tw:list-none tw:p-0`}>
               {group.effects.length === 0 ? (
-                <Tr>
-                  <Td colSpan={4} className="dim">
-                    {localize("OSE.effects.None")}
-                  </Td>
-                </Tr>
+                <li className="tw:col-span-full u-py-2 u-fs-sm u-text-dim">
+                  {localize("OSE.effects.None")}
+                </li>
               ) : (
                 group.effects.map((effect) => (
-                  <Tr
+                  <li
                     key={effect.uuid + effect.name}
-                    className={effect.disabled ? "tw:opacity-60" : undefined}
+                    className={`${EFFECT_ROW} ${effect.disabled ? "tw:opacity-60" : ""}`}
                   >
-                    <Td>
-                      <span className="u-row">
-                        <img
-                          src={effect.img}
-                          alt=""
-                          className="tw:size-6 tw:flex-none u-r-sm"
-                        />
-                        <InlineButton
-                          variant="link"
-                          onClick={() => editEffect(effect.uuid)}
-                        >
-                          {effect.name}
-                        </InlineButton>
-                      </span>
-                    </Td>
-                    <Td>{effect.source ?? localize("OSE.effects.Actor")}</Td>
-                    <Td>{effect.duration}</Td>
-                    <Td className="tw:text-right">
+                    <span className="u-row u-gap-3 tw:min-w-0">
+                      <Monogram
+                        img={effect.img}
+                        monogram={(
+                          effect.name.trim().charAt(0) || "?"
+                        ).toUpperCase()}
+                        className={EFFECT_ICON}
+                        imgClassName="tw:object-cover"
+                      />
+                      <button
+                        type="button"
+                        className={EFFECT_NAME}
+                        onClick={() => editEffect(effect.uuid)}
+                      >
+                        {effect.name}
+                      </button>
+                    </span>
+                    <span className={CELL}>
+                      {effect.source ?? localize("OSE.effects.Actor")}
+                    </span>
+                    <span className={CELL}>{effect.duration}</span>
+                    <span className="tw:justify-self-end tw:pl-3">
                       <EffectControls effect={effect} />
-                    </Td>
-                  </Tr>
+                    </span>
+                  </li>
                 ))
               )}
-            </tbody>
-          </Table>
+            </ul>
+          </section>
         ))}
       </div>
     </Modal>
