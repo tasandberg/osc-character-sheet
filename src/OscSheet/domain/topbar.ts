@@ -3,7 +3,7 @@ import type { TopbarVM, XpTrackVM } from "@domain/vm-types";
 import { selectClassDefaults, selectProgression, type Progression } from "@domain/classRules";
 
 const bandPct = (value: number, floor: number, next: number | null) => {
-  if (next == null) return 100;
+  if (next == null) return 0;
   const span = next - floor;
   return span > 0 ? Math.min(100, Math.max(0, ((value - floor) / span) * 100)) : 0;
 };

@@ -20,6 +20,7 @@ const STRINGS: Record<string, string> = {
 const g = globalThis as Record<string, unknown>;
 g.foundry = { utils: { debounce: (fn: unknown) => fn } };
 g.game = {
+  system: { id: "ose" },
   user: { isGM: true },
   i18n: {
     localize: (k: string) => STRINGS[k] ?? k,
@@ -36,12 +37,21 @@ const plate = {
   dismissWarning: vi.fn(async () => undefined),
 };
 
-const makeActor = (warnings: unknown[]) => ({
+const migrationEffect = {
+  flags: { ose: { migration: true } },
+  sheet: { render: vi.fn() },
+};
+
+const makeActor = (
+  warnings: unknown[],
+  { effects = [] as unknown[], classes = [] as unknown[] } = {},
+) => ({
   id: "self",
   name: "Test",
   img: "",
-  system: { warnings, warningContext: "fighter,halfling" },
+  system: { warnings, warningContext: "fighter,halfling", classes },
   items: { contents: [plate] },
+  effects,
 });
 
 const WARNINGS = [
@@ -111,6 +121,24 @@ describe("WarningsStrip", () => {
       "armour",
       "fighter,halfling",
     );
+  });
+
+  it("flags migration adjustments and opens the effect for review", () => {
+    render(makeActor([], { effects: [migrationEffect], classes: [{}] }));
+    expect(container.textContent).toContain(
+      "bakes this character's old stored saves",
+    );
+    act(() =>
+      [...container.querySelectorAll("button")]
+        .find((b) => b.textContent === "Open Migration Adjustments")!
+        .click(),
+    );
+    expect(migrationEffect.sheet.render).toHaveBeenCalledWith(true);
+  });
+
+  it("warns that migration adjustments apply twice without a class item", () => {
+    render(makeActor([], { effects: [migrationEffect] }));
+    expect(container.textContent).toContain("they now apply twice");
   });
 
   it("renders nothing without warnings", () => {

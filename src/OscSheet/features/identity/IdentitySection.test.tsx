@@ -146,6 +146,21 @@ describe("IdentitySection with class items", () => {
     expect(actor.levelUp).toHaveBeenCalledWith(cls);
   });
 
+  it("lets a class without a level table edit next-level XP and Hit Dice on the actor", async () => {
+    const actor = makeActor({
+      classes: [ownedItem(classItem("Witch", 1, 0, []) as object)],
+    });
+    await render(actor);
+
+    edit("Next level XP", "3000");
+    edit("Hit Dice", "2d6");
+
+    expect(actor.update).toHaveBeenCalledWith({
+      "system.details.xp.next": 3000,
+    });
+    expect(actor.update).toHaveBeenCalledWith({ "system.hp.hd": "2d6" });
+  });
+
   it("opens the class item sheet from its name", async () => {
     const cls = fighter();
     await render(makeActor({ classes: [cls] }));

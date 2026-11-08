@@ -1,11 +1,41 @@
+import type { ReactNode } from "react";
 import { useOscSheetContext } from "@app/context";
 import { IconButton } from "@ui/IconButton";
-import { dismissWarning, selectWarnings } from "@domain/warnings";
+import { InlineButton } from "@ui/InlineButton";
+import {
+  dismissWarning,
+  selectMigrationWarning,
+  selectWarnings,
+} from "@domain/warnings";
+
+const SLOT = "u-inline-flex u-items-center u-flex-none tw:h-[1lh]";
+
+function WarningLine({
+  children,
+  action,
+}: {
+  children: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <li className="u-flex u-items-start u-gap-2 u-py-1 u-fs-sm u-text tw:font-sans tw:leading-snug">
+      <span className={SLOT}>
+        <i
+          className="fas fa-triangle-exclamation u-text-warn"
+          aria-hidden="true"
+        />
+      </span>
+      <span className="u-flex-1">{children}</span>
+      {action && <span className={SLOT}>{action}</span>}
+    </li>
+  );
+}
 
 export function WarningsStrip() {
   const { actor, items, canEdit } = useOscSheetContext();
   const warnings = selectWarnings(actor);
-  if (!warnings.length) return null;
+  const migration = selectMigrationWarning(actor);
+  if (!warnings.length && !migration) return null;
   const dismissLabel = game.i18n.localize("OSE.warnings.Dismiss");
 
   return (
@@ -14,20 +44,19 @@ export function WarningsStrip() {
       className="osc-warnings-strip u-px-4 u-py-1"
     >
       <ul className="tw:m-0 tw:list-none tw:p-0">
+        {migration && (
+          <WarningLine>
+            {migration.text}{" "}
+            <InlineButton variant="link" onClick={migration.open}>
+              Open Migration Adjustments
+            </InlineButton>
+          </WarningLine>
+        )}
         {warnings.map((w) => (
-          <li
+          <WarningLine
             key={`${w.itemId}.${w.key}`}
-            className="u-flex u-items-start u-gap-2 u-py-1 u-fs-sm u-text tw:font-sans tw:leading-snug"
-          >
-            <span className="u-inline-flex u-items-center u-flex-none tw:h-[1lh]">
-              <i
-                className="fas fa-triangle-exclamation u-text-warn"
-                aria-hidden="true"
-              />
-            </span>
-            <span className="u-flex-1">{w.text}</span>
-            {canEdit && (
-              <span className="u-inline-flex u-items-center u-flex-none tw:h-[1lh]">
+            action={
+              canEdit && (
                 <IconButton
                   size="sm"
                   aria-label={dismissLabel}
@@ -36,9 +65,11 @@ export function WarningsStrip() {
                 >
                   <i className="fas fa-eye-slash" aria-hidden="true" />
                 </IconButton>
-              </span>
-            )}
-          </li>
+              )
+            }
+          >
+            {w.text}
+          </WarningLine>
         ))}
       </ul>
     </section>

@@ -78,6 +78,19 @@ describe("selectTopbar", () => {
     const vm = selectTopbar(actor);
     expect(vm.nextLevel).toBeNull();
     expect(vm.xp).toEqual({ value: 2600, floor: 2500, next: null });
+    expect(vm.pct).toBe(0);
+  });
+
+  it("ends the band at the stored next-level XP for a class without a level table", () => {
+    const actor = {
+      ...atLevel(2, 1500),
+      _source: { system: { details: { xp: { next: 3000 } } } },
+    } as unknown as typeof raistlin;
+    actor.system.classes = [classItem("Witch", 2, 1500, [])];
+    actor.system.details.xp.value = 1500;
+    const vm = selectTopbar(actor);
+    expect(vm.xp).toEqual({ value: 1500, floor: 0, next: 3000 });
+    expect(vm.pct).toBe(50);
   });
 
   it("falls back to a zero floor past the end of the class table", () => {

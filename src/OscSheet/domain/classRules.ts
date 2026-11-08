@@ -127,7 +127,16 @@ export function selectSpellSlotDefaults(
   return Object.fromEntries(spells.map((max, i) => [i + 1, max ?? 0]));
 }
 
-function classItemDefaults(classes: OseClassItem[]): ClassDefaults {
+export function selectUntabledNextXp(actor: OSEActor): number | null {
+  const first = actor.system.classes?.[0];
+  if (!first || first.system.levels?.length) return null;
+  return actor._source?.system?.details?.xp?.next ?? 0;
+}
+
+function classItemDefaults(
+  classes: OseClassItem[],
+  untabledNextXp: number | null,
+): ClassDefaults {
   const rows = currentRows(classes);
   const first = classes[0].system;
   const requirements: Record<string, number> = {};
@@ -141,7 +150,7 @@ function classItemDefaults(classes: OseClassItem[]): ClassDefaults {
     maxLevel: first.maxLevel ?? 14,
     hd: tabled ? rows.map((row) => row.hd).join(" / ") : null,
     levelXp: first.currentRow?.xp ?? null,
-    nextXp: first.nextRow?.xp ?? null,
+    nextXp: first.nextRow?.xp ?? (untabledNextXp || null),
     saves: tabled
       ? (Object.fromEntries(
           SAVE_ORDER.map((k) => [k, Math.min(...rows.map((r) => r.saves[k]))]),
@@ -155,7 +164,7 @@ function classItemDefaults(classes: OseClassItem[]): ClassDefaults {
 export function selectClassDefaults(actor: OSEActor): ClassDefaults {
   const progression = selectProgression(actor);
   if (progression.source === "item")
-    return classItemDefaults(progression.classes);
+    return classItemDefaults(progression.classes, selectUntabledNextXp(actor));
   const { class: cls, level } = actor.system.details;
   const def = findClass(cls)?.def;
   if (!def)
