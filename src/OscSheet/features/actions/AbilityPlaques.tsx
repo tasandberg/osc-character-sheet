@@ -7,6 +7,7 @@ import { rollable, type ActivateEvent } from "@ui/rollable";
 type Props = {
   abilities: AbilityVM[];
   onRoll?: (key: string, event: ActivateEvent) => void;
+  onOpen?: (key: string) => void;
 };
 
 const COLUMN =
@@ -15,8 +16,12 @@ const COLUMN =
 const ROLL_BUTTON =
   "osc-stat-button osc-ability-roll vm-bevel vm-btn-muted vm-key tw:block tw:px-px tw:pt-1 tw:pb-[2px] tw:leading-none";
 
-const VALUE =
-  "tw:cursor-default tw:font-sans tw:font-medium tw:text-(length:--fs-4xl) tw:leading-none tw:tabular-nums tw:text-text-dim";
+const VALUE_TEXT =
+  "tw:font-sans tw:font-medium tw:text-(length:--fs-4xl) tw:leading-none tw:tabular-nums tw:text-text-dim";
+
+const VALUE = `${VALUE_TEXT} tw:cursor-default`;
+
+const VALUE_BUTTON = `${VALUE_TEXT} tw:cursor-pointer tw:p-0 tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold`;
 
 const MOD =
   "osc-ability-mod vm-btn tw:font-mono tw:text-(length:--fs-xs) tw:font-medium tw:leading-none tw:text-text-dim";
@@ -35,9 +40,11 @@ const POP_VALUE =
 function AbilityColumn({
   ability,
   onRoll,
+  onOpen,
 }: {
   ability: AbilityVM;
   onRoll?: (key: string, event: ActivateEvent) => void;
+  onOpen?: (key: string) => void;
 }) {
   const popId = useId();
   const name = game.i18n.localize(ability.nameKey);
@@ -61,7 +68,18 @@ function AbilityColumn({
       )}
       <div className="osc-ability-score tw:grid tw:min-h-0 tw:flex-1 tw:place-items-center tw:@max-md/app:py-2">
         <span className="tw:relative tw:flex tw:flex-col tw:items-center tw:gap-1">
-          <span className={VALUE}>{ability.value}</span>
+          {onOpen ? (
+            <button
+              type="button"
+              className={VALUE_BUTTON}
+              aria-label={`${name} breakdown`}
+              onClick={() => onOpen(ability.key)}
+            >
+              {ability.value}
+            </button>
+          ) : (
+            <span className={VALUE}>{ability.value}</span>
+          )}
           <span className="tw:absolute tw:-top-2 tw:left-full tw:ml-[2px] tw:flex tw:@max-md/app:static tw:@max-md/app:ml-0">
             <button
               type="button"
@@ -94,12 +112,17 @@ function AbilityColumn({
   );
 }
 
-export function AbilityPlaques({ abilities, onRoll }: Props) {
+export function AbilityPlaques({ abilities, onRoll, onOpen }: Props) {
   return (
     <section className="osc-section">
       <div className="osc-abilities">
         {abilities.map((a) => (
-          <AbilityColumn key={a.key} ability={a} onRoll={onRoll} />
+          <AbilityColumn
+            key={a.key}
+            ability={a}
+            onRoll={onRoll}
+            onOpen={onOpen}
+          />
         ))}
       </div>
     </section>

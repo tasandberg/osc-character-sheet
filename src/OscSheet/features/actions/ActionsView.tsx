@@ -1,4 +1,4 @@
-import type { MouseEvent } from "react";
+import { useState, type MouseEvent } from "react";
 import type { AttackKind, OSEActor, OSESave, OseItem } from "@domain/types";
 import { skipRollDialog } from "@domain/rolls/skipRollDialog";
 import { buildWeaponAttack } from "@domain/rolls/weaponAttack";
@@ -31,6 +31,8 @@ import { SectionTitle } from "@ui/SectionTitle";
 import type { ActivateEvent } from "@ui/rollable";
 import { useOscSheetContext } from "@app/context";
 import SavesModTag from "@src/OscSheet/components/ui/SavesModTag";
+import { ScoreDialog } from "@features/scores/ScoreDialog";
+import type { ScoreKey } from "@features/scores/scoreBreakdown";
 
 type Props = { actor: OSEActor };
 
@@ -42,6 +44,7 @@ export function ActionsView({ actor }: Props) {
   // stay available even read-only; the composite Attack can write (missile ammo
   // decrement), so it's gated on the global edit permission.
   const { canEdit } = useOscSheetContext();
+  const [openScore, setOpenScore] = useState<ScoreKey | null>(null);
   const promptForTarget = useSetting("promptForTarget");
   const currentTarget = useUserTarget();
   const onAbility = (key: string, event: ActivateEvent) =>
@@ -84,7 +87,11 @@ export function ActionsView({ actor }: Props) {
             retainer={selectLoyalty(actor)}
             onRollLoyalty={onLoyalty}
           />
-          <AbilityPlaques abilities={abilities} onRoll={onAbility} />
+          <AbilityPlaques
+            abilities={abilities}
+            onRoll={onAbility}
+            onOpen={(key) => setOpenScore(key as ScoreKey)}
+          />
         </div>
         <AttacksTable
           attacks={attacks}
@@ -123,6 +130,7 @@ export function ActionsView({ actor }: Props) {
           />
         </section>
       </div>
+      <ScoreDialog scoreKey={openScore} onClose={() => setOpenScore(null)} />
     </>
   );
 }
