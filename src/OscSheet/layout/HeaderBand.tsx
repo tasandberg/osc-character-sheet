@@ -4,6 +4,9 @@ import { Identity } from "@layout/Identity";
 import { Portrait } from "@layout/Portrait";
 import { Stamp } from "@ui/Stamp";
 import { Button } from "@ui/Button";
+import { InlineButton } from "@ui/InlineButton";
+import { Tag } from "@ui/Tag";
+import { effectsLabel } from "@features/effects/effects";
 import { rollable, type ActivateEvent } from "@ui/rollable";
 import { MoveTooltip } from "@ui/MovePop";
 import { HoverTip } from "@ui/HoverTip";
@@ -65,11 +68,13 @@ type Props = {
   onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
   canEditPortrait?: boolean;
   onRollHd?: (event: ActivateEvent) => void;
+  onOpenEffects?: () => void;
+  activeTemporaryEffectCount?: number;
 };
 
 /** Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
  *  · HP/AC in medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, onRollHd }: Props) {
+export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, onRollHd, onOpenEffects, activeTemporaryEffectCount = 0 }: Props) {
   const m = vitals.moveBands;
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   const rollHd = vitals.hd ? onRollHd : undefined;
@@ -173,6 +178,24 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
             <span className={SUB_SHORT}>{vitals.ac.ascending ? "asc" : "desc"}</span>
           </div>
         </div>
+        {onOpenEffects && (
+          <div className="tw:col-span-2 u-row u-gap-1 u-justify-center u-pt-1">
+            <InlineButton variant="link" size="xs" onClick={onOpenEffects}>
+              {effectsLabel("OSE.category.effects")}
+            </InlineButton>
+            {activeTemporaryEffectCount > 0 && (
+              <Tag
+                intent="count"
+                size="xs"
+                role="status"
+                aria-label={`${activeTemporaryEffectCount} ${effectsLabel("OSE.effects.temporary")}`}
+                title={effectsLabel("OSE.effects.temporary")}
+              >
+                {activeTemporaryEffectCount}
+              </Tag>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

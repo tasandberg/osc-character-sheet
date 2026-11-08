@@ -7,7 +7,7 @@ import type { IdentityVM, VitalsVM } from "@domain/vm-types";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 (globalThis as { game?: unknown }).game = {
-  i18n: { localize: (k: string) => k },
+  i18n: { localize: (k: string) => k, has: () => true },
 };
 (globalThis as { ResizeObserver?: unknown }).ResizeObserver = class {
   observe() {}
@@ -66,5 +66,27 @@ describe("HeaderBand multiclass vitals", () => {
     expect(container.querySelector('[aria-label="Fighter: 2d8"]')).toBeTruthy();
     expect(container.querySelector('[aria-label="Magic-User: 1d4"]')).toBeTruthy();
     expect(tooltips()).toEqual(expect.arrayContaining(["Fighter", "Magic-User"]));
+  });
+});
+
+describe("HeaderBand effects link", () => {
+  const badge = () => container.querySelector('[role="status"]');
+  const renderWithCount = (count: number) =>
+    act(() =>
+      root.render(
+        <HeaderBand
+          identity={identity}
+          vitals={vitals()}
+          onOpenEffects={() => {}}
+          activeTemporaryEffectCount={count}
+        />,
+      ),
+    );
+
+  it("badges the Effects link with the active temporary effect count, hidden at zero", () => {
+    renderWithCount(2);
+    expect(badge()?.textContent).toBe("2");
+    renderWithCount(0);
+    expect(badge()).toBeNull();
   });
 });
