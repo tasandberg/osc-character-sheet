@@ -8,6 +8,7 @@ import {
   availableClassNames,
   selectClassDefaults,
   selectProgression,
+  selectUntabledNextXp,
 } from "@domain/classRules";
 import type { OSEActor, OseClassItem, OseRaceItem } from "@domain/types";
 import { classFace } from "./classFace";
@@ -91,12 +92,14 @@ function FitValue({
   label,
   value,
   editValue = value,
+  placeholder,
   inline = false,
   onCommit,
 }: {
   label: string;
   value: string;
   editValue?: string;
+  placeholder?: string;
   inline?: boolean;
   onCommit?: (next: string) => void;
 }) {
@@ -108,12 +111,13 @@ function FitValue({
         {value}
       </span>
       <span className={SIZER} aria-hidden="true">
-        {editValue}
+        {editValue || placeholder}
       </span>
       <InlineEditValue
         label={label}
         value={value}
         editValue={editValue}
+        placeholder={placeholder}
         className={`${EDIT_TEXT} ${STACKED}`}
         onCommit={onCommit}
       />
@@ -155,6 +159,54 @@ function IntValue({
 }
 
 const validHitDice = (v: string) => /d\d/i.test(v) && Roll.validate(v);
+
+function HitDiceValue({
+  value,
+  canEdit,
+  onCommit,
+}: {
+  value: string;
+  canEdit: boolean;
+  onCommit: (hd: string) => void;
+}) {
+  return (
+    <FitValue
+      label="Hit Dice"
+      value={value}
+      placeholder="—"
+      onCommit={
+        canEdit
+          ? (v) => {
+              if (validHitDice(v)) onCommit(v);
+            }
+          : undefined
+      }
+    />
+  );
+}
+
+function NextXpValue({
+  value,
+  canEdit,
+  onCommit,
+}: {
+  value: number;
+  canEdit: boolean;
+  onCommit: (n: number) => void;
+}) {
+  return (
+    <>
+      <span className="u-text-dim">/</span>
+      <IntValue
+        label="Next level XP"
+        value={value}
+        min={0}
+        canEdit={canEdit}
+        onCommit={onCommit}
+      />
+    </>
+  );
+}
 
 function DeleteButton({ item, actor }: { item: Item; actor: OSEActor }) {
   return (
@@ -201,13 +253,19 @@ function ClassRow({
   actor,
   item,
   canEdit,
+  set,
 }: {
   actor: OSEActor;
   item: OseClassItem;
   canEdit: boolean;
+  set: (key: string, value: string | number) => void;
 }) {
   const { level, xp, nextRow, canLevelUp } = item.system;
   const next = nextRow?.xp ?? null;
+  const untabledNext =
+    actor.system.classes?.[0] === item ? selectUntabledNextXp(actor) : null;
+  const ownsHitDice =
+    !item.system.levels?.length && !actor.system.derivedFromClasses;
   const bonus =
     (actor.system.classXpBonus?.(item) ?? 0) +
     (actor.system.xpBonusFromEffects ?? 0);
@@ -244,10 +302,27 @@ function ClassRow({
           canEdit={canEdit}
           onCommit={(n) => void item.update({ "system.xp": n })}
         />
-        {next != null && (
-          <span className="u-text-dim tw:tabular-nums">/ {fmtNum(next)}</span>
+        {untabledNext != null ? (
+          <NextXpValue
+            value={untabledNext}
+            canEdit={canEdit}
+            onCommit={(n) => set("system.details.xp.next", n)}
+          />
+        ) : (
+          next != null && (
+            <span className="u-text-dim tw:tabular-nums">/ {fmtNum(next)}</span>
+          )
         )}
       </Stat>
+      {ownsHitDice && (
+        <Stat label="HD" className={COL.hd}>
+          <HitDiceValue
+            value={actor.system.hp.hd}
+            canEdit={canEdit}
+            onCommit={(v) => set("system.hp.hd", v)}
+          />
+        </Stat>
+      )}
       {bonus !== 0 && (
         <span className={`${COL.bonus} u-fs-xs u-text-brass`} title="XP bonus">
           {fmtPct(bonus)}
@@ -344,29 +419,18 @@ function ActorClassRow({
             <span className="u-text-dim tw:tabular-nums">/ {fmtNum(next)}</span>
           )
         ) : (
-          <>
-            <span className="u-text-dim">/</span>
-            <IntValue
-              label="Next level XP"
-              value={details.xp.next ?? 0}
-              min={0}
-              canEdit={canEdit}
-              onCommit={(n) => set("system.details.xp.next", n)}
-            />
-          </>
+          <NextXpValue
+            value={details.xp.next ?? 0}
+            canEdit={canEdit}
+            onCommit={(n) => set("system.details.xp.next", n)}
+          />
         )}
       </Stat>
       <Stat label="HD" className={COL.hd}>
-        <FitValue
-          label="Hit Dice"
+        <HitDiceValue
           value={hitDice}
-          onCommit={
-            canEdit
-              ? (v) => {
-                  if (validHitDice(v)) set("system.hp.hd", v);
-                }
-              : undefined
-          }
+          canEdit={canEdit}
+          onCommit={(v) => set("system.hp.hd", v)}
         />
       </Stat>
       {details.xp.bonus ? (
@@ -394,6 +458,7 @@ export function IdentitySection() {
               actor={actor}
               item={c}
               canEdit={canEdit}
+              set={set}
             />
           ))
         ) : (
