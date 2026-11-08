@@ -79,7 +79,7 @@ type ApplicableEffect = {
 export function selectEffectGroups(actor: OSEActor): EffectGroup[] {
   const localize = (key: string) => game.i18n.localize(key);
   const rows: EffectRow[] = [
-    ...(actor.allApplicableEffects() as unknown as Iterable<ApplicableEffect>),
+    ...((actor.allApplicableEffects?.() ?? []) as Iterable<ApplicableEffect>),
   ].map((e) => ({
     uuid: e.uuid,
     name: e.name,
@@ -110,6 +110,10 @@ export function selectEffectGroups(actor: OSEActor): EffectGroup[] {
     label: `OSE.effects.${g.key}`,
   }));
 }
+
+export const countActiveTemporaryEffects = (actor: OSEActor) =>
+  selectEffectGroups(actor).find((group) => group.key === "temporary")?.effects
+    .length ?? 0;
 
 type EffectDocument = {
   name: string;

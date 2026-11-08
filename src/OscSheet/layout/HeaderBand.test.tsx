@@ -68,3 +68,25 @@ describe("HeaderBand multiclass vitals", () => {
     expect(tooltips()).toEqual(expect.arrayContaining(["Fighter", "Magic-User"]));
   });
 });
+
+describe("HeaderBand effects link", () => {
+  const badge = () => container.querySelector('[role="status"]');
+  const renderWithCount = (count: number) =>
+    act(() =>
+      root.render(
+        <HeaderBand
+          identity={identity}
+          vitals={vitals()}
+          onOpenEffects={() => {}}
+          activeTemporaryEffectCount={count}
+        />,
+      ),
+    );
+
+  it("badges the Effects link with the active temporary effect count, hidden at zero", () => {
+    renderWithCount(2);
+    expect(badge()?.textContent).toBe("2");
+    renderWithCount(0);
+    expect(badge()).toBeNull();
+  });
+});

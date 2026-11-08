@@ -3,6 +3,7 @@ import { Frame, Topbar, HeaderBand, Minibar, type TabItem } from "@layout";
 import { useOscSheetContext } from "@app/context";
 import { EditModal } from "@features/edit/EditModal";
 import { EffectsModal } from "@features/effects/EffectsModal";
+import { countActiveTemporaryEffects } from "@features/effects/effects";
 import { PortraitImageDialog } from "@features/portraitImage/PortraitImageDialog";
 import { SheetImageDrop } from "@features/portraitImage/SheetImageDrop";
 import { usePortraitDrop } from "@features/portraitImage/usePortraitDrop";
@@ -180,6 +181,7 @@ export default function SheetShell() {
                 canEdit ? (event) => actor.rollHitDice({ event }) : undefined
               }
               onOpenEffects={() => setEffectsOpen(true)}
+              activeTemporaryEffectCount={countActiveTemporaryEffects(actor)}
             />
           }
           minibar={
