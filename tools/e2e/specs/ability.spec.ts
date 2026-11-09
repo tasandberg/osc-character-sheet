@@ -35,9 +35,9 @@ test.describe("ability score breakdown", () => {
     await expect(adjustment.filter({ hasText: "E2E Toughness" })).toContainText("+1", { timeout: 15_000 });
 
     const next = base === 10 ? 11 : 10;
-    await sheet.getByRole("button", { name: "Edit Constitution Base score" }).click();
-    await sheet.getByRole("textbox", { name: "Constitution Base score" }).fill(String(next));
-    await sheet.getByRole("textbox", { name: "Constitution Base score" }).press("Enter");
+    const baseScore = sheet.getByRole("spinbutton", { name: "Base score" });
+    await baseScore.fill(String(next));
+    await baseScore.press("Enter");
 
     await expect
       .poll(() =>

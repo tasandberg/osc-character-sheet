@@ -40,7 +40,8 @@
         "upgrade": "At least {value}",
         "downgrade": "At most {value}",
         "custom": "Custom {value}"
-      }
+      },
+      "Close": "Close"
     }
   }
 }

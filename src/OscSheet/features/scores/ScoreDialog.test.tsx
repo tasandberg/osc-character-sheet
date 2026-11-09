@@ -121,10 +121,7 @@ const adjustments = () =>
       ? [...row.children].map((cell) => cell.textContent)
       : [row.textContent],
   );
-const editBase = () =>
-  container.querySelector<HTMLElement>(
-    '[aria-label="Edit Constitution Base score"]',
-  );
+const baseInput = () => container.querySelector<HTMLInputElement>("input")!;
 
 describe("ScoreDialog", () => {
   it("lists each effect change on the score with its source, then OSE's score and modifier", () => {
@@ -207,21 +204,28 @@ describe("ScoreDialog", () => {
     expect(container.textContent).not.toContain("Race adjustments");
   });
 
-  it("saves an edited base score to the actor", async () => {
+  it("saves an edited base score to the actor, kept within 1 to 20", async () => {
     renderDialog(makeActor({ base: 12, total: 13, mod: 1, effects: [] }));
-    act(() => editBase()!.click());
-    const field = container.querySelector<HTMLElement>('[role="textbox"]')!;
-    field.textContent = "25";
-    await act(async () => field.blur());
+    const input = baseInput();
+    expect(input.labels?.[0]?.textContent).toBe("Base score");
+    act(() => input.focus());
+    act(() => {
+      Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        "value",
+      )!.set!.call(input, "25");
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await act(async () => input.blur());
     expect(updates).toEqual([{ "system.scores.con.value": 20 }]);
   });
 
-  it("shows the base score as plain text on a read-only sheet", () => {
+  it("disables the base score on a read-only sheet", () => {
     renderDialog(
       makeActor({ base: 12, total: 13, mod: 1, effects: [] }),
       false,
     );
-    expect(editBase()).toBeNull();
-    expect(container.textContent).toContain("Base score12");
+    expect(baseInput().disabled).toBe(true);
+    expect(baseInput().value).toBe("12");
   });
 });
