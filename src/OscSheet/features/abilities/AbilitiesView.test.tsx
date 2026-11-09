@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import OscSheetProvider from "@app/OscSheetProvider";
@@ -283,6 +283,40 @@ describe("Abilities tab with class items", () => {
 
     const headers = rowText(container.querySelector("thead tr")!);
     expect(headers.slice(-2)).toEqual(["S", "1"]);
+  });
+});
+
+describe("Add missing abilities", () => {
+  const offering = (abilities: object[]) =>
+    Object.assign(actor([thief()], abilities), {
+      offerAbilities: vi.fn(async () => undefined),
+    });
+  const addLink = () =>
+    container.querySelector('[aria-label="Add missing abilities for Thief"]');
+
+  it("offers the class's missing abilities through OSE", async () => {
+    const a = offering([ability("Back-stab", { requirements: "Thief" })]);
+    await render(a);
+
+    await act(async () => (addLink() as HTMLButtonElement).click());
+
+    expect(a.offerAbilities).toHaveBeenCalledWith(a.system.classes![0], 1, {
+      upTo: true,
+      confirm: true,
+    });
+  });
+
+  it("hides the link when the character already has every ability up to its level", async () => {
+    await render(
+      offering([
+        ability("Back-stab", { requirements: "Thief" }),
+        ability("Wall Climbing", {
+          source: "Compendium.ose.abilities.Item.climb",
+        }),
+      ]),
+    );
+
+    expect(addLink()).toBeNull();
   });
 });
 

@@ -267,8 +267,8 @@ function AddAbilitiesButton({
   item: OseClassItem;
 }) {
   const { offerAbilities } = actor;
-  const { abilities = [], level } = item.system;
-  if (!offerAbilities || !abilities.some((a) => a.level <= level)) return null;
+  const { level } = item.system;
+  if (!offerAbilities) return null;
   return (
     <InlineButton
       variant="link"
@@ -304,11 +304,13 @@ function ClassRow({
   actor,
   item,
   canEdit,
+  missingAbilities,
   set,
 }: {
   actor: OSEActor;
   item: OseClassItem;
   canEdit: boolean;
+  missingAbilities: boolean;
   set: (key: string, value: string | number) => void;
 }) {
   const { level, xp, nextRow, canLevelUp } = item.system;
@@ -343,7 +345,9 @@ function ClassRow({
                 onLevelUp={() => void actor.levelUp(item)}
               />
             )}
-            {canEdit && <AddAbilitiesButton actor={actor} item={item} />}
+            {canEdit && missingAbilities && (
+              <AddAbilitiesButton actor={actor} item={item} />
+            )}
           </>
         }
       />
@@ -497,8 +501,10 @@ function ActorClassRow({
 
 export function GrantingItemHeader({
   item,
+  missingAbilities = false,
 }: {
   item: OseClassItem | OseRaceItem;
+  missingAbilities?: boolean;
 }) {
   const { actor, updateActor, canEdit } = useOscSheetContext();
   const set = (key: string, value: string | number) =>
@@ -512,6 +518,7 @@ export function GrantingItemHeader({
           actor={actor}
           item={item as OseClassItem}
           canEdit={canEdit}
+          missingAbilities={missingAbilities}
           set={set}
         />
       )}

@@ -15,9 +15,11 @@ import { classTable } from "@features/abilities/classProgression";
 import {
   grantingItems,
   groupAbilities,
+  hasMissingAbilities,
   itemKey,
   useGrantLinks,
   type GrantingItem,
+  type GrantLinks,
 } from "@features/abilities/grantedAbilities";
 import type { FeatureVM } from "@features/abilities/features";
 import type { ReactNode } from "react";
@@ -55,15 +57,21 @@ function AbilitySection({
 function GrantingSection({
   item,
   features,
+  links,
 }: {
   item: GrantingItem;
   features: FeatureVM[];
+  links: GrantLinks;
 }) {
+  const { actor } = useOscSheetContext();
   const cls = item.type === "class" ? (item as OseClassItem) : null;
   const table = cls && classTable(cls);
   return (
     <section className="osc-section" aria-label={item.name}>
-      <GrantingItemHeader item={item} />
+      <GrantingItemHeader
+        item={item}
+        missingAbilities={!!cls && hasMissingAbilities(actor, cls, links)}
+      />
       {table && <ProgressionToggle table={table} />}
       <FeatureList features={features} />
     </section>
@@ -101,6 +109,7 @@ export default function Abilities() {
         <GrantingSection
           key={itemKey(item)}
           item={item}
+          links={links}
           features={pick(byItem[itemKey(item)])}
         />
       ))}
