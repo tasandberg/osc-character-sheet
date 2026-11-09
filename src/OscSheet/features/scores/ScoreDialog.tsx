@@ -95,7 +95,10 @@ export function ScoreDialog({
           <span className="u-fs-xl tw:font-semibold u-text">
             {game.i18n.format("OSC.scores.Total", {
               score: localize(`OSE.scores.${scoreKey}.short`),
-            })}
+            })}{" "}
+            <span className="u-fs-md u-text-dim tw:font-normal">
+              {localize("OSE.Modifier")} {breakdown.mod}
+            </span>
           </span>
           <span className="tw:justify-self-end tw:pl-3 u-fs-xl tw:font-semibold u-nowrap tw:tabular-nums u-text">
             {breakdown.total}

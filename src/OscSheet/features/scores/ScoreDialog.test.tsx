@@ -14,6 +14,7 @@ import moduleStrings from "@src/../lang/en.json";
 const OSE_STRINGS: Record<string, string> = {
   "OSE.scores.con.long": "Constitution",
   "OSE.scores.con.short": "CON",
+  "OSE.Modifier": "Modifier",
 };
 const moduleString = (k: string) =>
   k
@@ -118,7 +119,7 @@ const adjustments = () =>
 const baseInput = () => container.querySelector<HTMLInputElement>("input")!;
 
 describe("ScoreDialog", () => {
-  it("lists each effect change on the score, then OSE's total", () => {
+  it("lists each effect change on the score, then OSE's total and modifier", () => {
     renderDialog(
       makeActor({
         base: 12,
@@ -148,7 +149,7 @@ describe("ScoreDialog", () => {
       ["Dwarf", "+1"],
       ["Ring of Vigour", "+0"],
     ]);
-    expect(container.textContent).toContain("Total CON13");
+    expect(container.textContent).toContain("Total CON Modifier +113");
   });
 
   it("labels a non-additive change by its mode and keeps OSE's score", () => {
@@ -166,7 +167,7 @@ describe("ScoreDialog", () => {
       }),
     );
     expect(adjustments()).toEqual([["Gauntlets of Ogre Power", "Set to 18"]]);
-    expect(container.textContent).toContain("Total CON18");
+    expect(container.textContent).toContain("Total CON Modifier +318");
   });
 
   it("explains when OSE limits a race adjustment", () => {
