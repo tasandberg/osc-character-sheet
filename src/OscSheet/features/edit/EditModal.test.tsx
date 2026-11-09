@@ -399,28 +399,6 @@ describe("EditModal initiative modifier", () => {
   });
 });
 
-describe("EditModal ability scores", () => {
-  it("shows and saves the base score, not the effect-boosted one", async () => {
-    const actor = makeActor();
-    (actor.system.scores.con as { value: number }).value = 13;
-    (actor._source.system as unknown as Record<string, unknown>).scores = {
-      con: { value: 12 },
-    };
-    await renderModal(actor);
-
-    const con = Array.from(container.querySelectorAll(".ed-cell"))
-      .find((c) => c.textContent?.startsWith("CON"))!
-      .querySelector("input")!;
-    expect(con.value).toBe("12");
-
-    await commit(con, "14");
-
-    expect(updateOf(actor)).toHaveBeenCalledWith({
-      "system.scores.con.value": 14,
-    });
-  });
-});
-
 describe("EditModal base movement", () => {
   it("auto OFF shows the editable raw base (getter returns it unscaled)", async () => {
     await renderModal(makeActor());

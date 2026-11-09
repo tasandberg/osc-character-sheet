@@ -57,9 +57,6 @@ const fmtMod = (n: number) => (n >= 0 ? "+" : "") + n;
 const clamp = (n: number, lo: number, hi: number) =>
   Math.max(lo, Math.min(hi, n));
 
-// Mirrors the sheet's plaque order (features/actions/abilities.ts) — editing scores in a
-// different order than they're displayed invites typing a value into the wrong field.
-const ABIL_ORDER = ["str", "int", "wis", "dex", "con", "cha"] as const;
 const ALIGNMENTS = ["Lawful", "Neutral", "Chaotic"];
 const SAVE_DEFS: { k: OSESave; n: string }[] = [
   { k: "death", n: "Death / Poison" },
@@ -382,39 +379,6 @@ export function EditModal({
                 </label>
               </>
             )}
-          </div>
-        </div>
-
-        {/* Ability Scores */}
-        <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
-          <SectionTitle hint="raw scores">Ability Scores</SectionTitle>
-          <div className="ed-cells ed-abil tw:grid tw:gap-2 tw:grid-cols-6 tw:@max-[520px]/fwin:grid-cols-3">
-            {ABIL_ORDER.map((k) => {
-              const base = stored?.scores?.[k]?.value ?? sys.scores[k].value;
-              const req = defaults.requirements[k];
-              const below = req != null && base < req;
-              return (
-                <StampCell
-                  key={k}
-                  stampKey={k.toUpperCase()}
-                  value={base}
-                  onChange={(n) =>
-                    set(`system.scores.${k}.value`, clamp(n, 1, 20))
-                  }
-                  min={1}
-                  max={20}
-                  warn={below}
-                  warnTitle={
-                    below
-                      ? `${sys.details.class} requires ${k.toUpperCase()} ${req}+`
-                      : undefined
-                  }
-                  caption={
-                    below ? `needs ${req}+` : `mod ${fmtMod(sys.scores[k].mod)}`
-                  }
-                />
-              );
-            })}
           </div>
         </div>
 
