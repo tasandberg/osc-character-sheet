@@ -1,23 +1,20 @@
 import { useId } from "react";
 import { useOscSheetContext } from "@app/context";
-import { ColumnHeaderRow, Modal } from "@ui";
+import { Modal } from "@ui";
 import { Button } from "@ui/Button";
 import { NumberInput } from "@ui/NumberInput";
-import { effectsLabel } from "@features/effects/effects";
 import {
   selectScoreBreakdown,
   type ScoreContribution,
   type ScoreKey,
 } from "./scoreBreakdown";
 
-const SCORE_GRID = "tw:grid tw:grid-cols-[minmax(0,1fr)_repeat(2,auto)]";
+const SCORE_GRID = "tw:grid tw:grid-cols-[minmax(0,1fr)_auto]";
 const SUBGRID = "tw:col-span-full tw:grid tw:grid-cols-subgrid";
 const SCORE_ROW = `${SUBGRID} tw:items-baseline u-py-2`;
-const ADJUSTMENT_ROW = `${SCORE_ROW} tw:not-first:border-t tw:border-t-border-soft`;
-const ROW_LABEL = "tw:col-span-2 u-fs-md tw:font-semibold u-text";
+const ROW_LABEL = "u-fs-md tw:font-semibold u-text";
 const ROW_VALUE =
-  "tw:col-start-3 tw:justify-self-end tw:pl-3 u-fs-md tw:tabular-nums u-text";
-const CELL = "tw:pl-3 u-fs-sm u-text-dim u-nowrap";
+  "tw:justify-self-end tw:pl-3 u-fs-md u-nowrap tw:tabular-nums u-text";
 
 const localize = (key: string) => game.i18n.localize(key);
 
@@ -78,33 +75,19 @@ export function ScoreDialog({
           </span>
         </div>
         {breakdown.contributions.length > 0 && (
-          <section
+          <ul
             aria-label={localize("OSC.scores.Adjustments")}
-            className={`${SUBGRID} tw:mt-(--spacer-3)`}
+            className={`${SUBGRID} tw:m-0 tw:list-none tw:p-0`}
           >
-            <ColumnHeaderRow
-              title={localize("OSC.scores.Adjustments")}
-              columns={[
-                effectsLabel("OSE.effects.Source"),
-                localize("OSC.scores.Amount"),
-              ]}
-            />
-            <ul className={`${SUBGRID} tw:m-0 tw:list-none tw:p-0`}>
-              {breakdown.contributions.map((contribution) => (
-                <li key={contribution.id} className={ADJUSTMENT_ROW}>
-                  <span className="tw:min-w-0 tw:truncate u-fs-md u-text">
-                    {contribution.name}
-                  </span>
-                  <span className={CELL}>
-                    {contribution.source ?? effectsLabel("OSE.effects.Actor")}
-                  </span>
-                  <span className="tw:justify-self-end tw:pl-3 u-fs-md u-nowrap tw:tabular-nums u-text">
-                    {amountText(contribution)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
+            {breakdown.contributions.map((contribution) => (
+              <li key={contribution.id} className={SCORE_ROW}>
+                <span className="tw:min-w-0 tw:truncate u-fs-md u-text">
+                  {contribution.name}
+                </span>
+                <span className={ROW_VALUE}>{amountText(contribution)}</span>
+              </li>
+            ))}
+          </ul>
         )}
         <div
           className={`${SCORE_ROW} tw:mt-(--spacer-3) tw:border-t tw:border-(--hairline)`}

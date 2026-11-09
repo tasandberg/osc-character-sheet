@@ -41,7 +41,6 @@ g.game = {
 
 type FakeEffect = {
   name: string;
-  parent?: { name: string };
   changes?: { key: string; mode: number; value: string }[];
   system?: { changes: { key: string; type: string; value: number }[] };
 };
@@ -67,7 +66,6 @@ function makeActor({
     get appliedEffects() {
       return effects.map((e, i) => ({
         uuid: `Effect.${i}`,
-        parent: actor,
         ...e,
       }));
     },
@@ -115,13 +113,13 @@ const renderDialog = (actor: OSEActor, canEdit = true) =>
 const adjustments = () =>
   [
     ...container.querySelectorAll<HTMLElement>(
-      'section[aria-label="Adjustments"] li',
+      'ul[aria-label="Adjustments"] li',
     ),
   ].map((row) => [...row.children].map((cell) => cell.textContent));
 const baseInput = () => container.querySelector<HTMLInputElement>("input")!;
 
 describe("ScoreDialog", () => {
-  it("lists each effect change on the score with its source, then OSE's score and modifier", () => {
+  it("lists each effect change on the score, then OSE's score and modifier", () => {
     renderDialog(
       makeActor({
         base: 12,
@@ -130,7 +128,6 @@ describe("ScoreDialog", () => {
         effects: [
           {
             name: "Dwarf",
-            parent: { name: "Dwarf" },
             changes: [
               { key: "system.scores.con.value", mode: 2, value: "1" },
               { key: "system.scores.cha.value", mode: 2, value: "-1" },
@@ -149,8 +146,8 @@ describe("ScoreDialog", () => {
     );
     expect(baseInput().value).toBe("12");
     expect(adjustments()).toEqual([
-      ["Dwarf", "Dwarf", "+1"],
-      ["Ring of Vigour", "Actor", "+0"],
+      ["Dwarf", "+1"],
+      ["Ring of Vigour", "+0"],
     ]);
     expect(container.textContent).toContain("Effective total CON13");
     expect(container.textContent).toContain("Modifier+1");
@@ -170,9 +167,7 @@ describe("ScoreDialog", () => {
         ],
       }),
     );
-    expect(adjustments()).toEqual([
-      ["Gauntlets of Ogre Power", "Actor", "Set to 18"],
-    ]);
+    expect(adjustments()).toEqual([["Gauntlets of Ogre Power", "Set to 18"]]);
     expect(container.textContent).toContain("Effective total CON18");
   });
 

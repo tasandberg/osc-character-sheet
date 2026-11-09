@@ -31,7 +31,7 @@ test.describe("ability score breakdown", () => {
     await sheet.locator('[data-testid="tab-actions"]').click();
     await sheet.getByRole("button", { name: "Constitution breakdown" }).click();
 
-    const adjustment = sheet.getByRole("region", { name: "Adjustments" }).getByRole("listitem");
+    const adjustment = sheet.getByRole("list", { name: "Adjustments" }).getByRole("listitem");
     await expect(adjustment.filter({ hasText: "E2E Toughness" })).toContainText("+1", { timeout: 15_000 });
 
     const next = base === 10 ? 11 : 10;

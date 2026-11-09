@@ -8,7 +8,6 @@ type RawChange = { key: string; mode?: number; type?: string; value: unknown };
 type AppliedEffect = {
   uuid: string;
   name: string;
-  parent: { name?: string } | null;
   changes?: RawChange[];
   system?: { changes?: RawChange[] };
 };
@@ -32,7 +31,6 @@ const readChanges = (effect: AppliedEffect) =>
 export interface ScoreContribution {
   id: string;
   name: string;
-  source: string | null;
   type: string;
   amount: string;
 }
@@ -63,10 +61,6 @@ export function selectScoreBreakdown(
         return {
           id: `${effect.uuid}.${index}`,
           name: effect.name,
-          source:
-            effect.parent === (actor as unknown)
-              ? null
-              : (effect.parent?.name ?? null),
           type: change.type,
           amount:
             change.type === "add" && Number.isFinite(value)
