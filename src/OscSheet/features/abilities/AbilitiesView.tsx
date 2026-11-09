@@ -6,7 +6,10 @@ import { createAbility } from "@features/abilities/createAbility";
 import { FeatureCard } from "@features/abilities/FeatureCard";
 import { LanguagesSection } from "@features/abilities/LanguagesSection";
 import { FLAVOUR } from "@features/abilities/classes";
-import { IdentitySection } from "@features/identity/IdentitySection";
+import {
+  GrantingItemHeader,
+  IdentitySection,
+} from "@features/identity/IdentitySection";
 import { ProgressionToggle } from "@features/abilities/ClassProgressionTable";
 import { classTable } from "@features/abilities/classProgression";
 import {
@@ -34,18 +37,16 @@ function FeatureList({ features }: { features: FeatureVM[] }) {
 
 function AbilitySection({
   title,
-  hint,
   controls,
   children,
 }: {
   title: string;
-  hint?: ReactNode;
   controls?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="osc-section" aria-label={title}>
-      <SectionHeader title={title} hint={hint} controls={controls} />
+      <SectionHeader title={title} controls={controls} />
       {children}
     </section>
   );
@@ -58,15 +59,14 @@ function GrantingSection({
   item: GrantingItem;
   features: FeatureVM[];
 }) {
-  const table = item.type === "class" ? classTable(item as OseClassItem) : null;
+  const cls = item.type === "class" ? (item as OseClassItem) : null;
+  const table = cls && classTable(cls);
   return (
-    <AbilitySection
-      title={item.name}
-      hint={item.type === "race" ? "Race" : undefined}
-    >
+    <section className="osc-section" aria-label={item.name}>
+      <GrantingItemHeader item={item} />
       {table && <ProgressionToggle table={table} />}
       <FeatureList features={features} />
-    </AbilitySection>
+    </section>
   );
 }
 
@@ -96,7 +96,7 @@ export default function Abilities() {
 
   return (
     <div data-testid="abilities-tab">
-      <IdentitySection />
+      {!items.length && <IdentitySection />}
       {items.map((item) => (
         <GrantingSection
           key={itemKey(item)}

@@ -14,6 +14,7 @@ import Abilities from "./AbilitiesView";
 
 const OSE_301: Record<string, string> = {
   "OSE.details.level": "Level",
+  "OSE.details.class": "Class",
   "OSE.HitDice": "Hit Dice",
   "OSE.scores.con.short": "CON",
   "OSE.Thac0": "THAC0",
@@ -206,7 +207,9 @@ describe("Abilities tab with class items", () => {
       ),
     );
 
+    expect(sectionText("Thief")).toContain("ClassLevel 1");
     expect(sectionText("Thief")).toContain("Wall Climbing");
+    expect(sectionText("Elf")).toContain("Race");
     expect(sectionText("Elf")).toContain("Infravision");
     expect(sectionText("Other abilities")).toContain("Lucky Charm");
     expect(sectionText("Other abilities")).not.toContain("Infravision");

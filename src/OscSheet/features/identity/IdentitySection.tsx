@@ -5,6 +5,8 @@ import { InlineButton } from "@ui/InlineButton";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import { Combobox } from "@ui/Combobox";
 import { Monogram } from "@ui/Monogram";
+import { Tag } from "@ui/Tag";
+import { effectsLabel } from "@features/effects/effects";
 import {
   availableClassNames,
   selectClassDefaults,
@@ -286,6 +288,14 @@ function AddAbilitiesButton({
   );
 }
 
+function KindTag({ children }: { children: ReactNode }) {
+  return (
+    <Tag size="xs" className="u-flex-none">
+      {children}
+    </Tag>
+  );
+}
+
 function LevelText({ children }: { children: ReactNode }) {
   return <span className="u-nowrap u-fs-md u-text-dim">Level {children}</span>;
 }
@@ -316,6 +326,7 @@ function ClassRow({
         item={item}
         aside={
           <>
+            <KindTag>{effectsLabel("OSE.details.class")}</KindTag>
             <LevelText>
               <IntValue
                 label={`${item.name} level`}
@@ -388,7 +399,7 @@ function RaceRow({
     <div className={ROW}>
       <ItemInfo
         item={race}
-        aside={<span className="u-fs-md u-text-dim u-nowrap">Race</span>}
+        aside={<KindTag>{game.i18n.localize("OSC.details.race")}</KindTag>}
       />
       {canEdit && <DeleteButton item={race} actor={actor} />}
     </div>
@@ -484,28 +495,40 @@ function ActorClassRow({
   );
 }
 
+export function GrantingItemHeader({
+  item,
+}: {
+  item: OseClassItem | OseRaceItem;
+}) {
+  const { actor, updateActor, canEdit } = useOscSheetContext();
+  const set = (key: string, value: string | number) =>
+    void updateActor({ [key]: value });
+  return (
+    <div className={LIST}>
+      {item.type === "race" ? (
+        <RaceRow actor={actor} race={item as OseRaceItem} canEdit={canEdit} />
+      ) : (
+        <ClassRow
+          actor={actor}
+          item={item as OseClassItem}
+          canEdit={canEdit}
+          set={set}
+        />
+      )}
+    </div>
+  );
+}
+
 export function IdentitySection() {
   const { actor, updateActor, canEdit } = useOscSheetContext();
-  const { source, classes, race } = selectProgression(actor);
+  const { race } = selectProgression(actor);
   const set = (key: string, value: string | number) =>
     void updateActor({ [key]: value });
 
   return (
     <section className="osc-section" aria-label="Class">
       <div className={LIST}>
-        {source === "item" ? (
-          classes.map((c) => (
-            <ClassRow
-              key={c.id ?? c.name}
-              actor={actor}
-              item={c}
-              canEdit={canEdit}
-              set={set}
-            />
-          ))
-        ) : (
-          <ActorClassRow actor={actor} canEdit={canEdit} set={set} />
-        )}
+        <ActorClassRow actor={actor} canEdit={canEdit} set={set} />
         {race && <RaceRow actor={actor} race={race} canEdit={canEdit} />}
       </div>
     </section>
