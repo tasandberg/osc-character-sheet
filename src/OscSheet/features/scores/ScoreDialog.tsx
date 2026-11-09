@@ -107,7 +107,11 @@ export function ScoreDialog({
           <div
             className={`${SCORE_ROW} tw:mt-(--spacer-3) tw:border-t tw:border-(--hairline)`}
           >
-            <span className={ROW_LABEL}>{localize("OSC.scores.Total")}</span>
+            <span className={ROW_LABEL}>
+              {game.i18n.format("OSC.scores.Total", {
+                score: localize(`OSE.scores.${scoreKey}.short`),
+              })}
+            </span>
             <span className={`${ROW_VALUE} tw:font-semibold`}>
               {breakdown.total}
             </span>

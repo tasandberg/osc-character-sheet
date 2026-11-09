@@ -32,7 +32,7 @@
       "Base": "Base score",
       "Adjustments": "Adjustments",
       "Amount": "Amount",
-      "Total": "Score",
+      "Total": "Effective total {score}",
       "Limited": "Race adjustments can't take a score past 3 or 18.",
       "types": {
         "override": "Set to {value}",

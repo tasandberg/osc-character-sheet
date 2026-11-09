@@ -13,6 +13,7 @@ import moduleStrings from "@src/../lang/en.json";
 
 const OSE_STRINGS: Record<string, string> = {
   "OSE.scores.con.long": "Constitution",
+  "OSE.scores.con.short": "CON",
   "OSE.Modifier": "Modifier",
 };
 const moduleString = (k: string) =>
@@ -151,7 +152,7 @@ describe("ScoreDialog", () => {
       ["Dwarf", "Dwarf", "+1"],
       ["Ring of Vigour", "Actor", "+0"],
     ]);
-    expect(container.textContent).toContain("Score13");
+    expect(container.textContent).toContain("Effective total CON13");
     expect(container.textContent).toContain("Modifier+1");
   });
 
@@ -172,7 +173,7 @@ describe("ScoreDialog", () => {
     expect(adjustments()).toEqual([
       ["Gauntlets of Ogre Power", "Actor", "Set to 18"],
     ]);
-    expect(container.textContent).toContain("Score18");
+    expect(container.textContent).toContain("Effective total CON18");
   });
 
   it("explains when OSE limits a race adjustment", () => {
