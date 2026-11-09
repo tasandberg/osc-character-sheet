@@ -92,18 +92,15 @@ export function ScoreDialog({
         <div
           className={`${SCORE_ROW} tw:mt-(--spacer-3) tw:border-t tw:border-(--hairline)`}
         >
-          <span className={ROW_LABEL}>
+          <span className="u-fs-xl tw:font-semibold u-text">
             {game.i18n.format("OSC.scores.Total", {
               score: localize(`OSE.scores.${scoreKey}.short`),
             })}
           </span>
-          <span className={`${ROW_VALUE} tw:font-semibold`}>
-            {breakdown.total}
+          <span className="tw:justify-self-end tw:pl-3 u-fs-xl tw:font-semibold u-nowrap tw:tabular-nums u-text">
+            {breakdown.total}{" "}
+            <span className="u-text-dim tw:font-normal">({breakdown.mod})</span>
           </span>
-        </div>
-        <div className={SCORE_ROW}>
-          <span className={ROW_LABEL}>{localize("OSE.Modifier")}</span>
-          <span className={ROW_VALUE}>{breakdown.mod}</span>
         </div>
         {breakdown.limited && (
           <p className="tw:col-span-full u-m-0 u-pt-2 u-fs-sm u-text-dim">
