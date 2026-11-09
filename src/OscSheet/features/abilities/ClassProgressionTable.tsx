@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { useOscSheetContext } from "@app/context";
-import { SectionHeader } from "@ui/SectionHeader";
-import { IconButton } from "@ui/IconButton";
+import { InlineButton } from "@ui/InlineButton";
 import { Table, Th, Td, Tr } from "@ui/Table";
 import { effectsLabel as label } from "@features/effects/effects";
-import { selectClassTables, type ClassTable } from "./classProgression";
+import type { ClassTable } from "./classProgression";
 
 function ProgressionTable({ table }: { table: ClassTable }) {
   const conHint = label("OSE.classes.HdConHint");
@@ -68,33 +66,23 @@ function ProgressionTable({ table }: { table: ClassTable }) {
   );
 }
 
-function ClassTableSection({ table }: { table: ClassTable }) {
+export function ProgressionToggle({ table }: { table: ClassTable }) {
   const [open, setOpen] = useState(false);
-  const title = `${table.name} ${label("OSE.classes.TabProgression")}`;
   return (
-    <section className="osc-section" aria-label={title}>
-      <SectionHeader
-        title={title}
-        controls={
-          <IconButton
-            className="ft-chev"
-            aria-expanded={open}
-            aria-label={open ? `Hide ${title}` : `Show ${title}`}
-            title={open ? `Hide ${title}` : `Show ${title}`}
-            onClick={() => setOpen((o) => !o)}
-          >
-            <i className="fa-solid fa-chevron-right" aria-hidden="true" />
-          </IconButton>
-        }
-      />
+    <div className="u-stack u-mb-3">
+      <InlineButton
+        variant="link"
+        size="sm"
+        className="ft-chev tw:self-start"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span className="u-row u-gap-1">
+          <i className="fa-solid fa-chevron-right" aria-hidden="true" />
+          {label("OSE.classes.TabProgression")}
+        </span>
+      </InlineButton>
       {open && <ProgressionTable table={table} />}
-    </section>
+    </div>
   );
-}
-
-export function ClassTables() {
-  const { actor } = useOscSheetContext();
-  return selectClassTables(actor).map((table) => (
-    <ClassTableSection key={table.id} table={table} />
-  ));
 }

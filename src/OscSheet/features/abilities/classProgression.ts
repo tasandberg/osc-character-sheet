@@ -1,5 +1,4 @@
-import { selectProgression } from "@domain/classRules";
-import type { OSEActor, OseClassItem } from "@domain/types";
+import type { OseClassItem } from "@domain/types";
 
 const SAVE_KEYS = ["death", "wand", "paralysis", "breath", "spell"] as const;
 const SPELL_LEVELS = ["1", "2", "3", "4", "5", "6"];
@@ -24,7 +23,8 @@ export interface ClassTable {
   rows: ClassTableRow[];
 }
 
-const classTable = (item: OseClassItem): ClassTable => {
+export const classTable = (item: OseClassItem): ClassTable | null => {
+  if (!item.system.levels?.length) return null;
   const { levels, currentRow } = item.system;
   const spellLevels = SPELL_LEVELS.filter((lvl) =>
     levels.some((row) => row.spellSlots?.[lvl] > 0),
@@ -47,9 +47,3 @@ const classTable = (item: OseClassItem): ClassTable => {
     })),
   };
 };
-
-export function selectClassTables(actor: OSEActor): ClassTable[] {
-  const { source, classes } = selectProgression(actor);
-  if (source !== "item") return [];
-  return classes.filter((c) => c.system.levels?.length).map(classTable);
-}
