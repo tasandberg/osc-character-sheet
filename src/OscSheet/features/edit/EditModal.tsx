@@ -57,9 +57,6 @@ const fmtMod = (n: number) => (n >= 0 ? "+" : "") + n;
 const clamp = (n: number, lo: number, hi: number) =>
   Math.max(lo, Math.min(hi, n));
 
-// Mirrors the sheet's plaque order (features/actions/abilities.ts) — editing scores in a
-// different order than they're displayed invites typing a value into the wrong field.
-const ABIL_ORDER = ["str", "int", "wis", "dex", "con", "cha"] as const;
 const ALIGNMENTS = ["Lawful", "Neutral", "Chaotic"];
 const SAVE_DEFS: { k: OSESave; n: string }[] = [
   { k: "death", n: "Death / Poison" },
@@ -100,6 +97,7 @@ export function EditModal({
   if (!open) return null;
 
   const sys = actor.system;
+  const stored = actor._source?.system;
   const defaults = selectClassDefaults(actor);
   const set = (key: string, value: string | number | boolean) =>
     void updateActor({ [key]: value });
@@ -138,7 +136,9 @@ export function EditModal({
   const ascendingAC = usesAscendingAC();
   const atkLabel = ascendingAC ? "Attack Bonus" : "THAC0";
   const atkKey = ascendingAC ? "system.thac0.bba" : "system.thac0.value";
-  const atkVal = ascendingAC ? sys.thac0.bba : sys.thac0.value;
+  const atkShown = ascendingAC ? sys.thac0.bba : sys.thac0.value;
+  const atkStored = ascendingAC ? stored?.thac0?.bba : stored?.thac0?.value;
+  const atkVal = derived ? atkShown : (atkStored ?? atkShown);
   const atkDefault =
     derived || defaults.thac0 == null
       ? null
@@ -154,7 +154,9 @@ export function EditModal({
   // render as e.g. 82.5; editing (auto off) writes the raw base.
   const movementAuto = sys.config?.movementAuto ?? true;
   const rawMoveBase = actor._source?.system?.movement?.base ?? 120;
-  const moveShown = Math.floor(sys.movement?.base ?? rawMoveBase);
+  const moveShown = movementAuto
+    ? Math.floor(sys.movement?.base ?? rawMoveBase)
+    : rawMoveBase;
 
   const footer = (
     <Button variant="primary" onClick={onClose}>
@@ -224,7 +226,7 @@ export function EditModal({
               <span className={LAB_ID}>Max HP</span>
               <NumberInput
                 className="input mono"
-                value={sys.hp.max}
+                value={stored?.hp?.max ?? sys.hp.max}
                 min={1}
                 onCommit={(n) => set("system.hp.max", n)}
               />
@@ -380,38 +382,6 @@ export function EditModal({
           </div>
         </div>
 
-        {/* Ability Scores */}
-        <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
-          <SectionTitle hint="raw scores">Ability Scores</SectionTitle>
-          <div className="ed-cells ed-abil tw:grid tw:gap-2 tw:grid-cols-6 tw:@max-[520px]/fwin:grid-cols-3">
-            {ABIL_ORDER.map((k) => {
-              const req = defaults.requirements[k];
-              const below = req != null && sys.scores[k].value < req;
-              return (
-                <StampCell
-                  key={k}
-                  stampKey={k.toUpperCase()}
-                  value={sys.scores[k].value}
-                  onChange={(n) =>
-                    set(`system.scores.${k}.value`, clamp(n, 1, 20))
-                  }
-                  min={1}
-                  max={20}
-                  warn={below}
-                  warnTitle={
-                    below
-                      ? `${sys.details.class} requires ${k.toUpperCase()} ${req}+`
-                      : undefined
-                  }
-                  caption={
-                    below ? `needs ${req}+` : `mod ${fmtMod(sys.scores[k].mod)}`
-                  }
-                />
-              );
-            })}
-          </div>
-        </div>
-
         {/* Saving Throws */}
         <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
           <SectionTitle
@@ -422,7 +392,9 @@ export function EditModal({
           <div className="ed-cells ed-save tw:grid tw:gap-2 tw:grid-cols-5">
             {SAVE_DEFS.map(({ k, n }) => {
               const def = derived ? null : (defaults.saves?.[k] ?? null);
-              const value = sys.saves[k].value;
+              const value = derived
+                ? sys.saves[k].value
+                : (stored?.saves?.[k]?.value ?? sys.saves[k].value);
               const overridden = def != null && value !== def;
               return (
                 <StampCell
