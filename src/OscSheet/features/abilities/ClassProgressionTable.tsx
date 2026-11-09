@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { InlineButton } from "@ui/InlineButton";
+import { Modal } from "@ui/Modal";
 import { Table, Th, Td, Tr } from "@ui/Table";
 import { effectsLabel as label } from "@features/effects/effects";
 import type { ClassTable } from "./classProgression";
@@ -66,23 +67,29 @@ function ProgressionTable({ table }: { table: ClassTable }) {
   );
 }
 
-export function ProgressionToggle({ table }: { table: ClassTable }) {
+export function ProgressionLink({ table }: { table: ClassTable }) {
   const [open, setOpen] = useState(false);
+  const title = label("OSE.classes.TabProgression");
   return (
-    <div className="u-stack u-mb-3">
+    <>
       <InlineButton
         variant="link"
         size="sm"
-        className="ft-chev tw:self-start"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
+        className="u-nowrap u-flex-none"
+        aria-haspopup="dialog"
+        aria-label={`${table.name} ${title}`}
+        onClick={() => setOpen(true)}
       >
-        <span className="u-row u-gap-1">
-          <i className="fa-solid fa-chevron-right" aria-hidden="true" />
-          {label("OSE.classes.TabProgression")}
-        </span>
+        {title}
       </InlineButton>
-      {open && <ProgressionTable table={table} />}
-    </div>
+      <Modal
+        open={open}
+        title={table.name}
+        onClose={() => setOpen(false)}
+        className="modal-inset"
+      >
+        <ProgressionTable table={table} />
+      </Modal>
+    </>
   );
 }

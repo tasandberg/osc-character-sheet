@@ -7,6 +7,8 @@ import { Combobox } from "@ui/Combobox";
 import { Monogram } from "@ui/Monogram";
 import { Tag } from "@ui/Tag";
 import { effectsLabel } from "@features/effects/effects";
+import { classTable } from "@features/abilities/classProgression";
+import { ProgressionLink } from "@features/abilities/ClassProgressionTable";
 import {
   availableClassNames,
   selectClassDefaults,
@@ -45,9 +47,18 @@ const monogram = (name: string) => (name.trim().charAt(0) || "?").toUpperCase();
 const INFO =
   "u-row u-gap-3 tw:col-start-1 tw:min-w-0 tw:@max-md/app:col-end-5 tw:@max-md/app:row-start-1";
 
-function ItemInfo({ item, aside }: { item: Item; aside?: ReactNode }) {
+function ItemInfo({
+  item,
+  lead,
+  aside,
+}: {
+  item: Item;
+  lead?: ReactNode;
+  aside?: ReactNode;
+}) {
   return (
     <div className={INFO}>
+      {lead}
       <Monogram
         img={item.img}
         monogram={monogram(item.name ?? "")}
@@ -305,14 +316,17 @@ function ClassRow({
   item,
   canEdit,
   missingAbilities,
+  lead,
   set,
 }: {
   actor: OSEActor;
   item: OseClassItem;
   canEdit: boolean;
   missingAbilities: boolean;
+  lead?: ReactNode;
   set: (key: string, value: string | number) => void;
 }) {
+  const table = classTable(item);
   const { level, xp, nextRow, canLevelUp } = item.system;
   const next = nextRow?.xp ?? null;
   const untabledNext =
@@ -326,6 +340,7 @@ function ClassRow({
     <div className={ROW}>
       <ItemInfo
         item={item}
+        lead={lead}
         aside={
           <>
             <KindTag>{effectsLabel("OSE.details.class")}</KindTag>
@@ -345,6 +360,7 @@ function ClassRow({
                 onLevelUp={() => void actor.levelUp(item)}
               />
             )}
+            {table && <ProgressionLink table={table} />}
             {canEdit && missingAbilities && (
               <AddAbilitiesButton actor={actor} item={item} />
             )}
@@ -394,15 +410,18 @@ function RaceRow({
   actor,
   race,
   canEdit,
+  lead,
 }: {
   actor: OSEActor;
   race: OseRaceItem;
   canEdit: boolean;
+  lead?: ReactNode;
 }) {
   return (
     <div className={ROW}>
       <ItemInfo
         item={race}
+        lead={lead}
         aside={<KindTag>{game.i18n.localize("OSC.details.race")}</KindTag>}
       />
       {canEdit && <DeleteButton item={race} actor={actor} />}
@@ -499,26 +518,63 @@ function ActorClassRow({
   );
 }
 
+function CollapseChevron({
+  name,
+  expanded,
+  onToggle,
+}: {
+  name: string;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const label = `${expanded ? "Collapse" : "Expand"} ${name} abilities`;
+  return (
+    <IconButton
+      size="sm"
+      className="ft-chev u-flex-none"
+      aria-expanded={expanded}
+      aria-label={label}
+      title={label}
+      onClick={onToggle}
+    >
+      <i className="fa-solid fa-chevron-right" aria-hidden="true" />
+    </IconButton>
+  );
+}
+
 export function GrantingItemHeader({
   item,
   missingAbilities = false,
+  expanded,
+  onToggle,
 }: {
   item: OseClassItem | OseRaceItem;
   missingAbilities?: boolean;
+  expanded: boolean;
+  onToggle: () => void;
 }) {
   const { actor, updateActor, canEdit } = useOscSheetContext();
   const set = (key: string, value: string | number) =>
     void updateActor({ [key]: value });
+  const lead = (
+    <CollapseChevron name={item.name} expanded={expanded} onToggle={onToggle} />
+  );
   return (
     <div className={LIST}>
       {item.type === "race" ? (
-        <RaceRow actor={actor} race={item as OseRaceItem} canEdit={canEdit} />
+        <RaceRow
+          actor={actor}
+          race={item as OseRaceItem}
+          canEdit={canEdit}
+          lead={lead}
+        />
       ) : (
         <ClassRow
           actor={actor}
           item={item as OseClassItem}
           canEdit={canEdit}
           missingAbilities={missingAbilities}
+          lead={lead}
           set={set}
         />
       )}

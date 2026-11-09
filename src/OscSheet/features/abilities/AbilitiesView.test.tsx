@@ -183,8 +183,8 @@ const section = (title: string) =>
 
 const sectionText = (title: string) => section(title)?.textContent ?? "";
 
-const progressionToggles = () =>
-  [...container.querySelectorAll("button[aria-expanded]")].filter(
+const progressionLinks = () =>
+  [...container.querySelectorAll("button")].filter(
     (b) => b.textContent === "Progression",
   ) as HTMLButtonElement[];
 
@@ -241,14 +241,14 @@ describe("Abilities tab with class items", () => {
     expect(sectionText("Other abilities")).toContain("Back-stab");
   });
 
-  it("collapses each class's progression table and marks the current level when expanded", async () => {
+  it("opens a class's progression table in a dialog with the current level marked", async () => {
     await render(actor([fighter(), thief()]));
-    expect(progressionToggles()).toHaveLength(1);
+    expect(progressionLinks()).toHaveLength(1);
     expect(container.querySelector("table")).toBeNull();
 
-    await act(async () => progressionToggles()[0].click());
+    await act(async () => progressionLinks()[0].click());
 
-    const table = section("Fighter")!.querySelector("table")!;
+    const table = container.querySelector("table")!;
     expect(rowText(table.querySelector("thead tr")!)).toEqual([
       "Level",
       "XP",
@@ -279,10 +279,34 @@ describe("Abilities tab with class items", () => {
 
   it("adds a column for each spell level the class ever gets slots for", async () => {
     await render(actor([cleric()]));
-    await act(async () => progressionToggles()[0].click());
+    await act(async () => progressionLinks()[0].click());
 
     const headers = rowText(container.querySelector("thead tr")!);
     expect(headers.slice(-2)).toEqual(["S", "1"]);
+  });
+});
+
+describe("Collapsing a section", () => {
+  it("hides and shows the item's abilities from the chevron on its row", async () => {
+    await render(
+      actor([thief()], [ability("Back-stab", { requirements: "Thief" })]),
+    );
+    const chevron = () =>
+      section("Thief")!.querySelector<HTMLButtonElement>(
+        "button[aria-expanded]",
+      )!;
+    expect(chevron().getAttribute("aria-label")).toBe(
+      "Collapse Thief abilities",
+    );
+
+    await act(async () => chevron().click());
+
+    expect(chevron().getAttribute("aria-expanded")).toBe("false");
+    expect(sectionText("Thief")).not.toContain("Back-stab");
+
+    await act(async () => chevron().click());
+
+    expect(sectionText("Thief")).toContain("Back-stab");
   });
 });
 
@@ -328,6 +352,6 @@ describe("Abilities tab without class items", () => {
 
     expect(sectionText("Abilities")).toContain("Turn Undead");
     expect(section("Other abilities")).toBeNull();
-    expect(progressionToggles()).toHaveLength(0);
+    expect(progressionLinks()).toHaveLength(0);
   });
 });

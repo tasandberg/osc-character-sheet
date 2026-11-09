@@ -104,6 +104,8 @@ const render = (actor: ReturnType<typeof makeActor>, canEdit = true) =>
                 key={(item as { name: string }).name}
                 item={item as never}
                 missingAbilities
+                expanded
+                onToggle={() => {}}
               />
             ))
         ) : (

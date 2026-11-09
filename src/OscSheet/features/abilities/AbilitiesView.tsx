@@ -10,8 +10,6 @@ import {
   GrantingItemHeader,
   IdentitySection,
 } from "@features/identity/IdentitySection";
-import { ProgressionToggle } from "@features/abilities/ClassProgressionTable";
-import { classTable } from "@features/abilities/classProgression";
 import {
   grantingItems,
   groupAbilities,
@@ -22,7 +20,7 @@ import {
   type GrantLinks,
 } from "@features/abilities/grantedAbilities";
 import type { FeatureVM } from "@features/abilities/features";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { OseClassItem } from "@domain/types";
 
 function FeatureList({ features }: { features: FeatureVM[] }) {
@@ -64,16 +62,17 @@ function GrantingSection({
   links: GrantLinks;
 }) {
   const { actor } = useOscSheetContext();
+  const [expanded, setExpanded] = useState(true);
   const cls = item.type === "class" ? (item as OseClassItem) : null;
-  const table = cls && classTable(cls);
   return (
     <section className="osc-section" aria-label={item.name}>
       <GrantingItemHeader
         item={item}
         missingAbilities={!!cls && hasMissingAbilities(actor, cls, links)}
+        expanded={expanded}
+        onToggle={() => setExpanded((e) => !e)}
       />
-      {table && <ProgressionToggle table={table} />}
-      <FeatureList features={features} />
+      {expanded && <FeatureList features={features} />}
     </section>
   );
 }
