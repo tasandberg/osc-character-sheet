@@ -10,6 +10,7 @@ type Props = {
   children: ReactNode;
   footer?: ReactNode;
   className?: string;
+  size?: "fit";
 };
 
 const openModals = new Set<HTMLElement>();
@@ -26,7 +27,7 @@ function isTopmost(box: HTMLElement): boolean {
 }
 
 /** @category Overlays */
-export function Modal({ open, title, onClose, children, footer, className }: Props) {
+export function Modal({ open, title, onClose, children, footer, className, size }: Props) {
   // A click dispatches on the nearest common ancestor of press and release, so a
   // text-selection drag ending outside lands on the scrim. Backdrop dismissal
   // needs BOTH ends on the scrim.
@@ -74,7 +75,11 @@ export function Modal({ open, title, onClose, children, footer, className }: Pro
         if (dismiss) onClose();
       }}
     >
-      <div className={cx("modal", className)} ref={boxRef} tabIndex={-1}>
+      <div
+        className={cx("modal", size && `modal-${size}`, className)}
+        ref={boxRef}
+        tabIndex={-1}
+      >
         <div className="modal-head">
           <SectionTitle variant="bare" className="ttl">{title}</SectionTitle>
           <button type="button" className="x" aria-label="Close" onClick={onClose}>

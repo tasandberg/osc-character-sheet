@@ -86,6 +86,7 @@ export function ProgressionLink({ table }: { table: ClassTable }) {
         open={open}
         title={table.name}
         onClose={() => setOpen(false)}
+        size="fit"
         className="modal-inset"
       >
         <ProgressionTable table={table} />
