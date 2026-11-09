@@ -75,24 +75,20 @@ export function ScoreDialog({
             <span className={ROW_LABEL}>{baseLabel}</span>
             <span className={ROW_VALUE}>{breakdown.base}</span>
           </div>
-          <section
-            aria-label={localize("OSC.scores.Adjustments")}
-            className={`${SUBGRID} tw:mt-(--spacer-3)`}
-          >
-            <ColumnHeaderRow
-              title={localize("OSC.scores.Adjustments")}
-              columns={[
-                effectsLabel("OSE.effects.Source"),
-                localize("OSC.scores.Amount"),
-              ]}
-            />
-            <ul className={`${SUBGRID} tw:m-0 tw:list-none tw:p-0`}>
-              {breakdown.contributions.length === 0 ? (
-                <li className="tw:col-span-full u-py-2 u-fs-sm u-text-dim">
-                  {effectsLabel("OSE.effects.None")}
-                </li>
-              ) : (
-                breakdown.contributions.map((contribution) => (
+          {breakdown.contributions.length > 0 && (
+            <section
+              aria-label={localize("OSC.scores.Adjustments")}
+              className={`${SUBGRID} tw:mt-(--spacer-3)`}
+            >
+              <ColumnHeaderRow
+                title={localize("OSC.scores.Adjustments")}
+                columns={[
+                  effectsLabel("OSE.effects.Source"),
+                  localize("OSC.scores.Amount"),
+                ]}
+              />
+              <ul className={`${SUBGRID} tw:m-0 tw:list-none tw:p-0`}>
+                {breakdown.contributions.map((contribution) => (
                   <li key={contribution.id} className={ADJUSTMENT_ROW}>
                     <span className="tw:min-w-0 tw:truncate u-fs-md u-text">
                       {contribution.name}
@@ -104,10 +100,10 @@ export function ScoreDialog({
                       {amountText(contribution)}
                     </span>
                   </li>
-                ))
-              )}
-            </ul>
-          </section>
+                ))}
+              </ul>
+            </section>
+          )}
           <div
             className={`${SCORE_ROW} tw:mt-(--spacer-3) tw:border-t tw:border-(--hairline)`}
           >

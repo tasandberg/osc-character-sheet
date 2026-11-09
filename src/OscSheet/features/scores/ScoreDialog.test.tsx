@@ -116,11 +116,7 @@ const adjustments = () =>
     ...container.querySelectorAll<HTMLElement>(
       'section[aria-label="Adjustments"] li',
     ),
-  ].map((row) =>
-    row.children.length
-      ? [...row.children].map((cell) => cell.textContent)
-      : [row.textContent],
-  );
+  ].map((row) => [...row.children].map((cell) => cell.textContent));
 const baseInput = () => container.querySelector<HTMLInputElement>("input")!;
 
 describe("ScoreDialog", () => {
@@ -198,9 +194,9 @@ describe("ScoreDialog", () => {
     );
   });
 
-  it("shows None when nothing adjusts the score", () => {
+  it("hides the adjustments when nothing adjusts the score", () => {
     renderDialog(makeActor({ base: 10, total: 10, mod: 0, effects: [] }));
-    expect(adjustments()).toEqual([["None"]]);
+    expect(container.textContent).not.toContain("Adjustments");
     expect(container.textContent).not.toContain("Race adjustments");
   });
 
