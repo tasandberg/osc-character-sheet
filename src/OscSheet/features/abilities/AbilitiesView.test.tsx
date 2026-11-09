@@ -4,7 +4,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import OscSheetProvider from "@app/OscSheetProvider";
 import type { OSEActor } from "@domain/types";
-import { classItem, levelRow } from "@src/OscSheet/__fixtures__/classItem";
+import { classItem } from "@src/OscSheet/__fixtures__/classItem";
 import en from "../../../../lang/en.json";
 import Abilities from "./AbilitiesView";
 
@@ -13,17 +13,7 @@ import Abilities from "./AbilitiesView";
 ).IS_REACT_ACT_ENVIRONMENT = true;
 
 const OSE_301: Record<string, string> = {
-  "OSE.details.level": "Level",
   "OSE.details.class": "Class",
-  "OSE.HitDice": "Hit Dice",
-  "OSE.scores.con.short": "CON",
-  "OSE.Thac0": "THAC0",
-  "OSE.AB": "Attack Bonus",
-  "OSE.saves.death.short": "D",
-  "OSE.saves.wand.short": "W",
-  "OSE.saves.paralysis.short": "P",
-  "OSE.saves.breath.short": "B",
-  "OSE.saves.spell.short": "S",
 };
 const lookup = (key: string) =>
   OSE_301[key] ??
@@ -66,8 +56,6 @@ g.game = {
   },
 };
 
-const SAVES: [number, number, number, number, number] = [12, 13, 14, 15, 16];
-
 const owned = <T extends object>(item: T, type: string, extra: object = {}) =>
   Object.assign(item, { id: (item as { name: string }).name, type }, extra);
 
@@ -78,25 +66,6 @@ const withLinks = <T extends { system: object }>(item: T, uuids: string[]) => {
   });
   return item;
 };
-
-const fighter = () =>
-  owned(
-    classItem("Fighter", 2, 2500, [
-      levelRow(0, "1d8", 19, SAVES),
-      levelRow(2000, "2d8", 19, SAVES),
-      levelRow(4000, "3d8", 17, SAVES),
-    ]),
-    "class",
-  );
-
-const cleric = () =>
-  owned(
-    classItem("Cleric", 1, 0, [
-      levelRow(0, "1d6", 19, SAVES),
-      levelRow(1500, "2d6", 19, SAVES, { "1": 1 }),
-    ]),
-    "class",
-  );
 
 const thief = () =>
   owned(
@@ -183,14 +152,6 @@ const section = (title: string) =>
 
 const sectionText = (title: string) => section(title)?.textContent ?? "";
 
-const progressionLinks = () =>
-  [...container.querySelectorAll("button")].filter(
-    (b) => b.textContent === "Progression",
-  ) as HTMLButtonElement[];
-
-const rowText = (row: Element) =>
-  [...row.querySelectorAll("th, td")].map((c) => c.textContent);
-
 describe("Abilities tab with class items", () => {
   it("nests granted abilities under their class or race and the rest under Other abilities", async () => {
     await render(
@@ -239,50 +200,6 @@ describe("Abilities tab with class items", () => {
 
     expect(sectionText("Thief")).not.toContain("Back-stab");
     expect(sectionText("Other abilities")).toContain("Back-stab");
-  });
-
-  it("opens a class's progression table in a dialog with the current level marked", async () => {
-    await render(actor([fighter(), thief()]));
-    expect(progressionLinks()).toHaveLength(1);
-    expect(container.querySelector("table")).toBeNull();
-
-    await act(async () => progressionLinks()[0].click());
-
-    const table = container.querySelector("table")!;
-    expect(rowText(table.querySelector("thead tr")!)).toEqual([
-      "Level",
-      "XP",
-      "Hit Dice",
-      "CON",
-      "THAC0",
-      "Attack Bonus",
-      "D",
-      "W",
-      "P",
-      "B",
-      "S",
-    ]);
-    expect(rowText(table.querySelector('tr[aria-current="true"]')!)).toEqual([
-      "2",
-      "2,000",
-      "2d8",
-      "",
-      "19",
-      "0",
-      "12",
-      "13",
-      "14",
-      "15",
-      "16",
-    ]);
-  });
-
-  it("adds a column for each spell level the class ever gets slots for", async () => {
-    await render(actor([cleric()]));
-    await act(async () => progressionLinks()[0].click());
-
-    const headers = rowText(container.querySelector("thead tr")!);
-    expect(headers.slice(-2)).toEqual(["S", "1"]);
   });
 });
 
@@ -353,6 +270,5 @@ describe("Abilities tab without class items", () => {
 
     expect(sectionText("Abilities")).toContain("Turn Undead");
     expect(section("Other abilities")).toBeNull();
-    expect(progressionLinks()).toHaveLength(0);
   });
 });

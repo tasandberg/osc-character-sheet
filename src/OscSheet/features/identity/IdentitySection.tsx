@@ -7,8 +7,6 @@ import { Combobox } from "@ui/Combobox";
 import { Monogram } from "@ui/Monogram";
 import { Tag } from "@ui/Tag";
 import { effectsLabel } from "@features/effects/effects";
-import { classTable } from "@features/abilities/classProgression";
-import { ProgressionLink } from "@features/abilities/ClassProgressionTable";
 import {
   availableClassNames,
   selectClassDefaults,
@@ -315,7 +313,6 @@ function ClassRow({
   missingAbilities: boolean;
   set: (key: string, value: string | number) => void;
 }) {
-  const table = classTable(item);
   const { level, xp, nextRow, canLevelUp } = item.system;
   const next = nextRow?.xp ?? null;
   const untabledNext =
@@ -348,7 +345,6 @@ function ClassRow({
                 onLevelUp={() => void actor.levelUp(item)}
               />
             )}
-            {table && <ProgressionLink table={table} />}
             {canEdit && missingAbilities && (
               <AddAbilitiesButton actor={actor} item={item} />
             )}

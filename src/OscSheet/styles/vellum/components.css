@@ -1062,10 +1062,6 @@ button.pip:hover {
   flex-direction: column;
   overflow: hidden;
 }
-.modal.modal-fit {
-  width: auto;
-  max-width: 100%;
-}
 .modal-head {
   padding: 18px 22px 14px;
   border-bottom: 1px solid var(--border-soft);
