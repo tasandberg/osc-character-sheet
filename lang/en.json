@@ -27,6 +27,20 @@
       "ClassXp": "Prime requisite XP {bonus}%",
       "Fixed": "Worked out from the class and ability scores.",
       "FromItem": "Granted by an item. Remove the item instead."
+    },
+    "scores": {
+      "Base": "Base score",
+      "Adjustments": "Adjustments",
+      "Total": "Total {score}",
+      "Limited": "Race adjustments can't take a score past 3 or 18.",
+      "types": {
+        "override": "Set to {value}",
+        "multiply": "× {value}",
+        "upgrade": "At least {value}",
+        "downgrade": "At most {value}",
+        "custom": "Custom {value}"
+      },
+      "Close": "Close"
     }
   }
 }

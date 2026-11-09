@@ -87,6 +87,24 @@ describe("AbilityPlaques", () => {
       "Open Doors2 in 6",
     );
   });
+
+  it("opens the score's breakdown from its value", () => {
+    const opened: string[] = [];
+    act(() =>
+      root.render(
+        <AbilityPlaques
+          abilities={abilities}
+          onOpen={(key) => opened.push(key)}
+        />,
+      ),
+    );
+    const value = container.querySelector<HTMLButtonElement>(
+      'button[aria-label="Strength breakdown"]',
+    )!;
+    expect(value.textContent).toBe("9");
+    act(() => value.click());
+    expect(opened).toEqual(["str"]);
+  });
 });
 
 describe("Identity standing line", () => {
