@@ -2,7 +2,6 @@ import { useId } from "react";
 import { useOscSheetContext } from "@app/context";
 import { ColumnHeaderRow, Modal } from "@ui";
 import { Button } from "@ui/Button";
-import { Field } from "@ui/Field";
 import { NumberInput } from "@ui/NumberInput";
 import { effectsLabel } from "@features/effects/effects";
 import {
@@ -19,7 +18,6 @@ const ROW_LABEL = "tw:col-span-2 u-fs-md tw:font-semibold u-text";
 const ROW_VALUE =
   "tw:col-start-3 tw:justify-self-end tw:pl-3 u-fs-md tw:tabular-nums u-text";
 const CELL = "tw:pl-3 u-fs-sm u-text-dim u-nowrap";
-const SCORE_LAYOUT = "u-stack u-gap-6";
 
 const localize = (key: string) => game.i18n.localize(key);
 
@@ -55,76 +53,80 @@ export function ScoreDialog({
         </Button>
       }
     >
-      <div className={SCORE_LAYOUT}>
-        <Field label={baseLabel} htmlFor={baseInputId}>
-          <NumberInput
-            id={baseInputId}
-            className="input mono tw:w-[8ch]"
-            value={breakdown.base}
-            min={1}
-            max={20}
-            disabled={!canEdit}
-            onCommit={(n) =>
-              void updateActor({ [`system.scores.${scoreKey}.value`]: n })
-            }
-          />
-        </Field>
-        <div className={SCORE_GRID}>
-          <div className={SCORE_ROW}>
-            <span className={ROW_LABEL}>{baseLabel}</span>
-            <span className={ROW_VALUE}>{breakdown.base}</span>
-          </div>
-          {breakdown.contributions.length > 0 && (
-            <section
-              aria-label={localize("OSC.scores.Adjustments")}
-              className={`${SUBGRID} tw:mt-(--spacer-3)`}
-            >
-              <ColumnHeaderRow
-                title={localize("OSC.scores.Adjustments")}
-                columns={[
-                  effectsLabel("OSE.effects.Source"),
-                  localize("OSC.scores.Amount"),
-                ]}
+      <div className={SCORE_GRID}>
+        <div className={`${SCORE_ROW} tw:items-center`}>
+          <label htmlFor={baseInputId} className={ROW_LABEL}>
+            {baseLabel}
+          </label>
+          <span className={ROW_VALUE}>
+            {canEdit ? (
+              <NumberInput
+                id={baseInputId}
+                className="input mono tw:w-[6ch] tw:text-right"
+                value={breakdown.base}
+                min={1}
+                max={20}
+                onCommit={(n) =>
+                  void updateActor({
+                    [`system.scores.${scoreKey}.value`]: n,
+                  })
+                }
               />
-              <ul className={`${SUBGRID} tw:m-0 tw:list-none tw:p-0`}>
-                {breakdown.contributions.map((contribution) => (
-                  <li key={contribution.id} className={ADJUSTMENT_ROW}>
-                    <span className="tw:min-w-0 tw:truncate u-fs-md u-text">
-                      {contribution.name}
-                    </span>
-                    <span className={CELL}>
-                      {contribution.source ?? effectsLabel("OSE.effects.Actor")}
-                    </span>
-                    <span className="tw:justify-self-end tw:pl-3 u-fs-md u-nowrap tw:tabular-nums u-text">
-                      {amountText(contribution)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-          <div
-            className={`${SCORE_ROW} tw:mt-(--spacer-3) tw:border-t tw:border-(--hairline)`}
-          >
-            <span className={ROW_LABEL}>
-              {game.i18n.format("OSC.scores.Total", {
-                score: localize(`OSE.scores.${scoreKey}.short`),
-              })}
-            </span>
-            <span className={`${ROW_VALUE} tw:font-semibold`}>
-              {breakdown.total}
-            </span>
-          </div>
-          <div className={SCORE_ROW}>
-            <span className={ROW_LABEL}>{localize("OSE.Modifier")}</span>
-            <span className={ROW_VALUE}>{breakdown.mod}</span>
-          </div>
-          {breakdown.limited && (
-            <p className="tw:col-span-full u-m-0 u-pt-2 u-fs-sm u-text-dim">
-              {localize("OSC.scores.Limited")}
-            </p>
-          )}
+            ) : (
+              breakdown.base
+            )}
+          </span>
         </div>
+        {breakdown.contributions.length > 0 && (
+          <section
+            aria-label={localize("OSC.scores.Adjustments")}
+            className={`${SUBGRID} tw:mt-(--spacer-3)`}
+          >
+            <ColumnHeaderRow
+              title={localize("OSC.scores.Adjustments")}
+              columns={[
+                effectsLabel("OSE.effects.Source"),
+                localize("OSC.scores.Amount"),
+              ]}
+            />
+            <ul className={`${SUBGRID} tw:m-0 tw:list-none tw:p-0`}>
+              {breakdown.contributions.map((contribution) => (
+                <li key={contribution.id} className={ADJUSTMENT_ROW}>
+                  <span className="tw:min-w-0 tw:truncate u-fs-md u-text">
+                    {contribution.name}
+                  </span>
+                  <span className={CELL}>
+                    {contribution.source ?? effectsLabel("OSE.effects.Actor")}
+                  </span>
+                  <span className="tw:justify-self-end tw:pl-3 u-fs-md u-nowrap tw:tabular-nums u-text">
+                    {amountText(contribution)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        <div
+          className={`${SCORE_ROW} tw:mt-(--spacer-3) tw:border-t tw:border-(--hairline)`}
+        >
+          <span className={ROW_LABEL}>
+            {game.i18n.format("OSC.scores.Total", {
+              score: localize(`OSE.scores.${scoreKey}.short`),
+            })}
+          </span>
+          <span className={`${ROW_VALUE} tw:font-semibold`}>
+            {breakdown.total}
+          </span>
+        </div>
+        <div className={SCORE_ROW}>
+          <span className={ROW_LABEL}>{localize("OSE.Modifier")}</span>
+          <span className={ROW_VALUE}>{breakdown.mod}</span>
+        </div>
+        {breakdown.limited && (
+          <p className="tw:col-span-full u-m-0 u-pt-2 u-fs-sm u-text-dim">
+            {localize("OSC.scores.Limited")}
+          </p>
+        )}
       </div>
     </Modal>
   );

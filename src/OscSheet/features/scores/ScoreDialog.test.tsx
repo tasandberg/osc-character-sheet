@@ -147,7 +147,7 @@ describe("ScoreDialog", () => {
         ],
       }),
     );
-    expect(container.textContent).toContain("Base score12");
+    expect(baseInput().value).toBe("12");
     expect(adjustments()).toEqual([
       ["Dwarf", "Dwarf", "+1"],
       ["Ring of Vigour", "Actor", "+0"],
@@ -217,12 +217,12 @@ describe("ScoreDialog", () => {
     expect(updates).toEqual([{ "system.scores.con.value": 20 }]);
   });
 
-  it("disables the base score on a read-only sheet", () => {
+  it("shows the base score as plain text on a read-only sheet", () => {
     renderDialog(
       makeActor({ base: 12, total: 13, mod: 1, effects: [] }),
       false,
     );
-    expect(baseInput().disabled).toBe(true);
-    expect(baseInput().value).toBe("12");
+    expect(container.querySelector("input")).toBeNull();
+    expect(container.textContent).toContain("Base score12");
   });
 });
