@@ -19,8 +19,7 @@ const ROW_LABEL = "tw:col-span-2 u-fs-md tw:font-semibold u-text";
 const ROW_VALUE =
   "tw:col-start-3 tw:justify-self-end tw:pl-3 u-fs-md tw:tabular-nums u-text";
 const CELL = "tw:pl-3 u-fs-sm u-text-dim u-nowrap";
-const SCORE_COLUMNS =
-  "tw:grid tw:grid-cols-2 tw:items-start u-gap-6 tw:@max-md/app:grid-cols-1";
+const SCORE_LAYOUT = "u-stack u-gap-6";
 
 const localize = (key: string) => game.i18n.localize(key);
 
@@ -49,14 +48,14 @@ export function ScoreDialog({
       open
       title={name}
       onClose={onClose}
-      className="modal-inset"
+      className="modal-inset osc-score-modal"
       footer={
         <Button variant="primary" onClick={onClose}>
           {localize("OSC.scores.Close")}
         </Button>
       }
     >
-      <div className={SCORE_COLUMNS}>
+      <div className={SCORE_LAYOUT}>
         <Field label={baseLabel} htmlFor={baseInputId}>
           <NumberInput
             id={baseInputId}

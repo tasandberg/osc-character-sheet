@@ -451,3 +451,9 @@
   font-family: var(--sans);
   font-size: var(--fs-xs);
 }
+
+.osc-sheet-app .osc-score-modal {
+  max-width: 400px;
+  max-height: 100%;
+  margin: 0;
+}
