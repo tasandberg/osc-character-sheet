@@ -98,8 +98,7 @@ export function ScoreDialog({
             })}
           </span>
           <span className="tw:justify-self-end tw:pl-3 u-fs-xl tw:font-semibold u-nowrap tw:tabular-nums u-text">
-            {breakdown.total}{" "}
-            <span className="u-text-dim tw:font-normal">({breakdown.mod})</span>
+            {breakdown.total}
           </span>
         </div>
         {breakdown.limited && (

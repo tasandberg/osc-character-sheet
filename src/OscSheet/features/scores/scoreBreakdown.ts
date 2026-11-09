@@ -38,7 +38,6 @@ export interface ScoreContribution {
 export interface ScoreBreakdown {
   base: number;
   total: number;
-  mod: string;
   contributions: ScoreContribution[];
   limited: boolean;
 }
@@ -77,7 +76,6 @@ export function selectScoreBreakdown(
   return {
     base,
     total: score.value,
-    mod: formatMod(score.mod),
     contributions,
     limited: additive && sum !== score.value,
   };
