@@ -51,14 +51,13 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
         className="ft-head tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-3 tw:py-2"
         onClick={toggle}
       >
-        {/* 40px ink stamp — image or monogram fallback. */}
         <Monogram
           img={feature.img}
           monogram={monogram}
-          className="ft-ic tw:grid tw:size-10 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-lg) tw:text-stamp-text"
+          className="ft-ic tw:grid tw:size-8 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text"
           imgClassName="tw:object-cover"
         />
-        <div className="ft-main tw:flex tw:min-w-0 tw:flex-1 tw:flex-col tw:items-start tw:gap-[3px]">
+        <div className="ft-main tw:flex tw:min-w-0 tw:flex-1 tw:flex-col tw:items-start tw:gap-[3px] tw:@md/app:flex-row tw:@md/app:flex-wrap tw:@md/app:items-center tw:@md/app:gap-x-2">
           <button
             type="button"
             className="ft-title tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
@@ -112,8 +111,7 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
         </IconButton>
       </div>
       {open && (
-        // Body indented under the title (past the 40px stamp + gap).
-        <div className="ft-body tw:pt-0 tw:pb-3 tw:pl-[52px]">
+        <div className="ft-body tw:pt-0 tw:pb-3 tw:pl-[calc(var(--spacer-8)+var(--spacer-3))]">
           <RichText html={desc} />
           {canEdit && (
             <div className="ft-actions tw:mt-2 tw:flex tw:items-center tw:justify-end tw:gap-3">
