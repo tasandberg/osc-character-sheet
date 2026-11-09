@@ -72,7 +72,11 @@ function GrantingSection({
         expanded={expanded}
         onToggle={() => setExpanded((e) => !e)}
       />
-      {expanded && <FeatureList features={features} />}
+      {expanded && (
+        <div className="tw:pl-[calc(var(--spacer-6)+var(--spacer-2)+var(--spacer-8)+var(--spacer-3))]">
+          <FeatureList features={features} />
+        </div>
+      )}
     </section>
   );
 }

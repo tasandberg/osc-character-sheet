@@ -287,7 +287,7 @@ describe("Abilities tab with class items", () => {
 });
 
 describe("Collapsing a section", () => {
-  it("hides and shows the item's abilities from the chevron on its row", async () => {
+  it("leads the item's row with a chevron that hides and shows its abilities", async () => {
     await render(
       actor([thief()], [ability("Back-stab", { requirements: "Thief" })]),
     );
@@ -295,6 +295,7 @@ describe("Collapsing a section", () => {
       section("Thief")!.querySelector<HTMLButtonElement>(
         "button[aria-expanded]",
       )!;
+    expect(section("Thief")!.querySelector("button")).toBe(chevron());
     expect(chevron().getAttribute("aria-label")).toBe(
       "Collapse Thief abilities",
     );

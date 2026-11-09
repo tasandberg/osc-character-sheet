@@ -47,18 +47,9 @@ const monogram = (name: string) => (name.trim().charAt(0) || "?").toUpperCase();
 const INFO =
   "u-row u-gap-3 tw:col-start-1 tw:min-w-0 tw:@max-md/app:col-end-5 tw:@max-md/app:row-start-1";
 
-function ItemInfo({
-  item,
-  lead,
-  aside,
-}: {
-  item: Item;
-  lead?: ReactNode;
-  aside?: ReactNode;
-}) {
+function ItemInfo({ item, aside }: { item: Item; aside?: ReactNode }) {
   return (
     <div className={INFO}>
-      {lead}
       <Monogram
         img={item.img}
         monogram={monogram(item.name ?? "")}
@@ -316,14 +307,12 @@ function ClassRow({
   item,
   canEdit,
   missingAbilities,
-  lead,
   set,
 }: {
   actor: OSEActor;
   item: OseClassItem;
   canEdit: boolean;
   missingAbilities: boolean;
-  lead?: ReactNode;
   set: (key: string, value: string | number) => void;
 }) {
   const table = classTable(item);
@@ -340,7 +329,6 @@ function ClassRow({
     <div className={ROW}>
       <ItemInfo
         item={item}
-        lead={lead}
         aside={
           <>
             <KindTag>{effectsLabel("OSE.details.class")}</KindTag>
@@ -410,18 +398,15 @@ function RaceRow({
   actor,
   race,
   canEdit,
-  lead,
 }: {
   actor: OSEActor;
   race: OseRaceItem;
   canEdit: boolean;
-  lead?: ReactNode;
 }) {
   return (
     <div className={ROW}>
       <ItemInfo
         item={race}
-        lead={lead}
         aside={<KindTag>{game.i18n.localize("OSC.details.race")}</KindTag>}
       />
       {canEdit && <DeleteButton item={race} actor={actor} />}
@@ -530,8 +515,7 @@ function CollapseChevron({
   const label = `${expanded ? "Collapse" : "Expand"} ${name} abilities`;
   return (
     <IconButton
-      size="sm"
-      className="ft-chev u-flex-none"
+      className="ft-chev tw:text-(length:--fs-md)"
       aria-expanded={expanded}
       aria-label={label}
       title={label}
@@ -556,28 +540,28 @@ export function GrantingItemHeader({
   const { actor, updateActor, canEdit } = useOscSheetContext();
   const set = (key: string, value: string | number) =>
     void updateActor({ [key]: value });
-  const lead = (
-    <CollapseChevron name={item.name} expanded={expanded} onToggle={onToggle} />
-  );
   return (
-    <div className={LIST}>
-      {item.type === "race" ? (
-        <RaceRow
-          actor={actor}
-          race={item as OseRaceItem}
-          canEdit={canEdit}
-          lead={lead}
+    <div className="u-flex u-items-start u-gap-2">
+      <span className="u-flex-none u-pt-3">
+        <CollapseChevron
+          name={item.name}
+          expanded={expanded}
+          onToggle={onToggle}
         />
-      ) : (
-        <ClassRow
-          actor={actor}
-          item={item as OseClassItem}
-          canEdit={canEdit}
-          missingAbilities={missingAbilities}
-          lead={lead}
-          set={set}
-        />
-      )}
+      </span>
+      <div className={`${LIST} u-flex-1`}>
+        {item.type === "race" ? (
+          <RaceRow actor={actor} race={item as OseRaceItem} canEdit={canEdit} />
+        ) : (
+          <ClassRow
+            actor={actor}
+            item={item as OseClassItem}
+            canEdit={canEdit}
+            missingAbilities={missingAbilities}
+            set={set}
+          />
+        )}
+      </div>
     </div>
   );
 }
