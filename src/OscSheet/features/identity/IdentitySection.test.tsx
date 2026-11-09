@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import OscSheetProvider from "@app/OscSheetProvider";
-import { IdentitySection } from "./IdentitySection";
+import { GrantingItemHeader, IdentitySection } from "./IdentitySection";
 import { Identity } from "@layout/Identity";
 import { selectIdentity } from "@domain/identity";
 import type { OSEActor } from "@domain/types";
@@ -37,7 +37,7 @@ const ownedItem = <T extends object>(item: T) =>
 const fighter = (xp = 0) =>
   ownedItem(classItem("Fighter", 1, xp, ROWS) as object);
 
-const elf = () => ownedItem({ name: "Elf", system: {} });
+const elf = () => ownedItem({ name: "Elf", type: "race", system: {} });
 
 type ActorOpts = { classes?: object[]; race?: object | null };
 
@@ -73,7 +73,10 @@ let root: Root;
 const connector = { onUpdate: vi.fn(), tearDown: vi.fn() } as never;
 
 beforeEach(() => {
-  g.game = { user: { isGM: true } };
+  g.game = {
+    user: { isGM: true },
+    i18n: { has: () => false, localize: (key: string) => key },
+  };
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);
@@ -93,7 +96,21 @@ const render = (actor: ReturnType<typeof makeActor>, canEdit = true) =>
         canEdit={canEdit}
         canViewFullSheet
       >
-        <IdentitySection />
+        {actor.system.classes.length ? (
+          [...actor.system.classes, actor.system.race]
+            .filter(Boolean)
+            .map((item) => (
+              <GrantingItemHeader
+                key={(item as { name: string }).name}
+                item={item as never}
+                missingAbilities
+                expanded
+                onToggle={() => {}}
+              />
+            ))
+        ) : (
+          <IdentitySection />
+        )}
       </OscSheetProvider>,
     ),
   );
@@ -115,7 +132,7 @@ function edit(label: string, typed: string) {
   });
 }
 
-describe("IdentitySection with class items", () => {
+describe("Class and race headers", () => {
   it("writes level and XP to the class item", async () => {
     const cls = fighter();
     const actor = makeActor({ classes: [cls] });
@@ -159,6 +176,12 @@ describe("IdentitySection with class items", () => {
       "system.details.xp.next": 3000,
     });
     expect(actor.update).toHaveBeenCalledWith({ "system.hp.hd": "2d6" });
+  });
+
+  it("hides the add-abilities action when OSE cannot offer abilities", async () => {
+    await render(makeActor({ classes: [fighter()] }));
+
+    expect(button("Add missing abilities for Fighter")).toBeUndefined();
   });
 
   it("opens the class item sheet from its name", async () => {

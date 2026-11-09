@@ -50,6 +50,18 @@ describe("selectFeatures", () => {
     expect(vm.onRoll).toBeTypeOf("function");
   });
 
+  it("shows OSE's effective target for a character with class items", () => {
+    const hide = ability({
+      _id: "a1",
+      name: "Hide in Shadows",
+      system: { roll: "1d100", rollType: "below", rollTarget: 10, effectiveTarget: 20 },
+    });
+    const actor = {
+      system: { abilities: { a1: hide }, classes: [{ name: "Thief", system: {} }] },
+    } as unknown as OSEActor;
+    expect(selectFeatures(actor)[0].rollTag).toBe("1d100 ≤20");
+  });
+
   it("omits the target half when rollTarget is 0/unset", () => {
     const actor = actorWith([
       ability({ _id: "a1", name: "Listen", system: { roll: "1d6", rollType: "result", rollTarget: 0 } }),

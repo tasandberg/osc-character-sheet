@@ -1,9 +1,12 @@
 import type { ReactNode } from "react";
 import { useOscSheetContext } from "@app/context";
 import { IconButton } from "@ui/IconButton";
+import { InlineButton } from "@ui/InlineButton";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import { Combobox } from "@ui/Combobox";
 import { Monogram } from "@ui/Monogram";
+import { Tag } from "@ui/Tag";
+import { effectsLabel } from "@features/effects/effects";
 import {
   availableClassNames,
   selectClassDefaults,
@@ -245,6 +248,54 @@ function LevelUpButton({
   );
 }
 
+const promptsForAbilities = () => {
+  try {
+    const settings = game.settings as {
+      get(ns: string, key: string): unknown;
+    };
+    return settings.get(game.system.id, "promptAddClassAbilities") !== false;
+  } catch {
+    return true;
+  }
+};
+
+function AddAbilitiesButton({
+  actor,
+  item,
+}: {
+  actor: OSEActor;
+  item: OseClassItem;
+}) {
+  const { offerAbilities } = actor;
+  const { level } = item.system;
+  if (!offerAbilities) return null;
+  return (
+    <InlineButton
+      variant="link"
+      size="sm"
+      className="u-nowrap u-flex-none"
+      aria-label={`Add missing abilities for ${item.name}`}
+      title={`Add missing abilities for ${item.name}`}
+      onClick={() =>
+        void offerAbilities.call(actor, item, level, {
+          upTo: true,
+          confirm: promptsForAbilities(),
+        })
+      }
+    >
+      Add missing abilities
+    </InlineButton>
+  );
+}
+
+function KindTag({ children }: { children: ReactNode }) {
+  return (
+    <Tag size="xs" className="u-flex-none">
+      {children}
+    </Tag>
+  );
+}
+
 function LevelText({ children }: { children: ReactNode }) {
   return <span className="u-nowrap u-fs-md u-text-dim">Level {children}</span>;
 }
@@ -253,11 +304,13 @@ function ClassRow({
   actor,
   item,
   canEdit,
+  missingAbilities,
   set,
 }: {
   actor: OSEActor;
   item: OseClassItem;
   canEdit: boolean;
+  missingAbilities: boolean;
   set: (key: string, value: string | number) => void;
 }) {
   const { level, xp, nextRow, canLevelUp } = item.system;
@@ -275,6 +328,7 @@ function ClassRow({
         item={item}
         aside={
           <>
+            <KindTag>{effectsLabel("OSE.details.class")}</KindTag>
             <LevelText>
               <IntValue
                 label={`${item.name} level`}
@@ -290,6 +344,9 @@ function ClassRow({
                 item={item}
                 onLevelUp={() => void actor.levelUp(item)}
               />
+            )}
+            {canEdit && missingAbilities && (
+              <AddAbilitiesButton actor={actor} item={item} />
             )}
           </>
         }
@@ -346,7 +403,7 @@ function RaceRow({
     <div className={ROW}>
       <ItemInfo
         item={race}
-        aside={<span className="u-fs-md u-text-dim u-nowrap">Race</span>}
+        aside={<KindTag>{game.i18n.localize("OSC.details.race")}</KindTag>}
       />
       {canEdit && <DeleteButton item={race} actor={actor} />}
     </div>
@@ -442,28 +499,79 @@ function ActorClassRow({
   );
 }
 
+function CollapseChevron({
+  name,
+  expanded,
+  onToggle,
+}: {
+  name: string;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const label = `${expanded ? "Collapse" : "Expand"} ${name} abilities`;
+  return (
+    <IconButton
+      className="ft-chev tw:text-(length:--fs-md)"
+      aria-expanded={expanded}
+      aria-label={label}
+      title={label}
+      onClick={onToggle}
+    >
+      <i className="fa-solid fa-chevron-right" aria-hidden="true" />
+    </IconButton>
+  );
+}
+
+export function GrantingItemHeader({
+  item,
+  missingAbilities = false,
+  expanded,
+  onToggle,
+}: {
+  item: OseClassItem | OseRaceItem;
+  missingAbilities?: boolean;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const { actor, updateActor, canEdit } = useOscSheetContext();
+  const set = (key: string, value: string | number) =>
+    void updateActor({ [key]: value });
+  return (
+    <div className="u-flex u-items-start u-gap-2">
+      <span className="u-flex-none u-pt-3">
+        <CollapseChevron
+          name={item.name}
+          expanded={expanded}
+          onToggle={onToggle}
+        />
+      </span>
+      <div className={`${LIST} u-flex-1`}>
+        {item.type === "race" ? (
+          <RaceRow actor={actor} race={item as OseRaceItem} canEdit={canEdit} />
+        ) : (
+          <ClassRow
+            actor={actor}
+            item={item as OseClassItem}
+            canEdit={canEdit}
+            missingAbilities={missingAbilities}
+            set={set}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function IdentitySection() {
   const { actor, updateActor, canEdit } = useOscSheetContext();
-  const { source, classes, race } = selectProgression(actor);
+  const { race } = selectProgression(actor);
   const set = (key: string, value: string | number) =>
     void updateActor({ [key]: value });
 
   return (
     <section className="osc-section" aria-label="Class">
       <div className={LIST}>
-        {source === "item" ? (
-          classes.map((c) => (
-            <ClassRow
-              key={c.id ?? c.name}
-              actor={actor}
-              item={c}
-              canEdit={canEdit}
-              set={set}
-            />
-          ))
-        ) : (
-          <ActorClassRow actor={actor} canEdit={canEdit} set={set} />
-        )}
+        <ActorClassRow actor={actor} canEdit={canEdit} set={set} />
         {race && <RaceRow actor={actor} race={race} canEdit={canEdit} />}
       </div>
     </section>

@@ -6,6 +6,9 @@
   "TYPES.Actor.monster": "Monster",
   "OSE.category.actions": "Actions",
   "OSC": {
+    "details": {
+      "race": "Race"
+    },
     "category": {
       "effects": "Effects"
     },

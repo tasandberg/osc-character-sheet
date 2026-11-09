@@ -69,8 +69,11 @@ function requiresLabel(value?: string): string | undefined {
  */
 export function selectFeatures(actor: OSEActor): FeatureVM[] {
   const abilities = Object.values(actor.system.abilities ?? {}) as OseAbility[];
+  const fromClassItems = !!actor.system.classes?.length;
   const vms: FeatureVM[] = abilities.map((item) => {
     const s = item.system;
+    const rollTarget =
+      (fromClassItems && "effectiveTarget" in s ? s.effectiveTarget : s.rollTarget) ?? undefined;
     const rollable = !!s.roll;
     const activate = () => item.roll();
     return {
@@ -81,10 +84,10 @@ export function selectFeatures(actor: OSEActor): FeatureVM[] {
       requirements: s.requirements || undefined,
       requiresLabel: requiresLabel(s.requirements),
       rollable,
-      rollTag: rollable ? composeTag(s.roll!, s.rollType, s.rollTarget) : undefined,
+      rollTag: rollable ? composeTag(s.roll!, s.rollType, rollTarget) : undefined,
       rollFormula: rollable ? s.roll! : undefined,
       rollTargetTag:
-        rollable && s.rollTarget ? `${rollSymbol(s.rollType)}${s.rollTarget}` : undefined,
+        rollable && rollTarget ? `${rollSymbol(s.rollType)}${rollTarget}` : undefined,
       favorite: isFavorite(item),
       onRoll: rollable ? activate : undefined,
       onActivate: activate,
