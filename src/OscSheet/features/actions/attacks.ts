@@ -25,7 +25,7 @@ export function selectAttacks(
   actor: OSEActor,
   settings: AttackSettings = readAttackSettings(),
 ): AttackVM[] {
-  const { weapons, scores, thac0, config, damage } = actor.system;
+  const { weapons, scores, thac0, config } = actor.system;
   const out: AttackVM[] = [];
   for (const w of weapons) {
     if (!w.system.equipped) continue;
@@ -47,7 +47,6 @@ export function selectAttacks(
           dexMod: scores.dex.mod,
           thac0,
           ignoreBonusDamage: !!config?.ignoreBonusDamage,
-          damageMod: damage?.mod,
         },
         settings,
       );
