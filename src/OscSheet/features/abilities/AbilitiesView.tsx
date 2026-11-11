@@ -2,9 +2,12 @@ import { useOscSheetContext } from "@app/context";
 import { selectFeatures } from "@features/abilities/features";
 import { SectionHeader } from "@ui/SectionHeader";
 import { IconButton } from "@ui/IconButton";
+import { DISCLOSURE_INDENT } from "@ui/DisclosureRow";
 import { createAbility } from "@features/abilities/createAbility";
 import { FeatureCard } from "@features/abilities/FeatureCard";
 import { LanguagesSection } from "@features/abilities/LanguagesSection";
+import { DetailsBlock } from "@features/abilities/DetailsBlock";
+import { selectHdParts } from "@domain/classRules";
 import { FLAVOUR } from "@features/abilities/classes";
 import {
   GrantingItemHeader,
@@ -73,7 +76,7 @@ function GrantingSection({
         onToggle={() => setExpanded((e) => !e)}
       />
       {expanded && (
-        <div className="tw:pl-[calc(var(--spacer-6)+var(--spacer-2)+var(--spacer-8)+var(--spacer-3))]">
+        <div className={DISCLOSURE_INDENT}>
           <FeatureList features={features} />
         </div>
       )}
@@ -89,6 +92,10 @@ export default function Abilities() {
   // with the rest; the create flow opens the sheet to fill in the details.
   const onAdd = () => createAbility(actor, actor.system.details.class || "");
 
+  const hitDice =
+    selectHdParts(actor)
+      ?.map((part) => part.hd)
+      .join(" / ") ?? actor.system.hp.hd;
   const links = useGrantLinks(actor);
   const items = grantingItems(actor);
   const { byItem, ungranted } = groupAbilities(actor, links);
@@ -107,6 +114,13 @@ export default function Abilities() {
 
   return (
     <div data-testid="abilities-tab">
+      <DetailsBlock
+        initMod={actor.system.init}
+        hitDice={hitDice}
+        onRollHitDice={
+          canEdit ? (event) => actor.rollHitDice({ event }) : undefined
+        }
+      />
       {!items.length && <IdentitySection />}
       {items.map((item) => (
         <GrantingSection

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { FeatureVM } from "@features/abilities/features";
 import { useOscSheetContext } from "@app/context";
 import { IconButton } from "@ui/IconButton";
-import { Monogram } from "@ui/Monogram";
+import { DisclosureRow, RowIcon, DISCLOSURE_INDENT } from "@ui/DisclosureRow";
 import { FavoriteStar } from "@features/abilities/FavoriteStar";
 import { RichText } from "@ui/RichText";
 
@@ -29,35 +29,25 @@ function useEnriched(html: string): string {
   return enriched;
 }
 
-/** Muted chip under the name. */
 const FT_TAG = "ft-tag vm-tag vm-tag-xs";
 
-/**
- * Collapsible ability: ink-stamp · (name link + requires/roll tags) · chevron.
- * The name opens the ability's own sheet; the roll tag rolls; the chevron (or a
- * click anywhere else on the header) expands the description.
- */
 export function FeatureCard({ feature }: { feature: FeatureVM }) {
   const { canEdit } = useOscSheetContext();
   const [open, setOpen] = useState(false);
   const desc = useEnriched(feature.description);
-  const monogram = feature.name.charAt(0).toUpperCase();
   const toggle = () => setOpen((o) => !o);
 
   return (
     <div className="fvtt-feat osc-ruled-row">
-      {/* header row: clickable to expand (mouse); name/roll/chevron are their own controls */}
-      <div
-        className="ft-head tw:flex tw:w-full tw:cursor-pointer tw:items-center tw:gap-3 tw:py-2"
+      <DisclosureRow
+        label={open ? "Collapse" : "Expand"}
+        expanded={open}
+        onToggle={toggle}
         onClick={toggle}
+        className="tw:cursor-pointer"
       >
-        <Monogram
-          img={feature.img}
-          monogram={monogram}
-          className="ft-ic tw:grid tw:size-8 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text"
-          imgClassName="tw:object-cover"
-        />
-        <div className="ft-main tw:flex tw:min-w-0 tw:flex-1 tw:flex-col tw:items-start tw:gap-[3px] tw:@md/app:flex-row tw:@md/app:flex-wrap tw:@md/app:items-center tw:@md/app:gap-x-2">
+        <RowIcon img={feature.img} name={feature.name} />
+        <div className="ft-main tw:flex tw:min-w-0 tw:flex-1 tw:flex-col tw:items-start u-gap-1 tw:@md/app:flex-row tw:@md/app:flex-wrap tw:@md/app:items-center tw:@md/app:gap-x-2">
           <button
             type="button"
             className="ft-title tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
@@ -98,23 +88,12 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
             onToggle={feature.onToggleFavorite}
           />
         )}
-        <IconButton
-          className="ft-chev tw:text-(length:--fs-md)"
-          aria-expanded={open}
-          aria-label={open ? "Collapse" : "Expand"}
-          onClick={(e) => {
-            e.stopPropagation();
-            toggle();
-          }}
-        >
-          <i className="fa-solid fa-chevron-right" aria-hidden="true" />
-        </IconButton>
-      </div>
+      </DisclosureRow>
       {open && (
-        <div className="ft-body tw:pt-0 tw:pb-3 tw:pl-[calc(var(--spacer-8)+var(--spacer-3))]">
+        <div className={`ft-body u-pb-2 ${DISCLOSURE_INDENT}`}>
           <RichText html={desc} />
           {canEdit && (
-            <div className="ft-actions tw:mt-2 tw:flex tw:items-center tw:justify-end tw:gap-3">
+            <div className="ft-actions u-mt-2 u-flex u-items-center u-justify-end u-gap-3">
               <IconButton
                 variant="danger"
                 title="Delete ability"

@@ -1,5 +1,6 @@
 import type { OSEActor } from "@domain/types";
 import { formatMod } from "@domain/format";
+import type { ScoreContribution } from "@domain/vm-types";
 
 export type ScoreKey = "str" | "int" | "wis" | "dex" | "con" | "cha";
 
@@ -28,12 +29,14 @@ const readChanges = (effect: AppliedEffect) =>
     value: c.value,
   }));
 
-export interface ScoreContribution {
-  id: string;
-  name: string;
-  type: string;
-  amount: string;
-}
+export type { ScoreContribution };
+
+export const contributionAmount = (contribution: ScoreContribution) =>
+  contribution.type === "add"
+    ? contribution.amount
+    : game.i18n.format(`OSC.scores.types.${contribution.type}`, {
+        value: contribution.amount,
+      });
 
 export interface ScoreBreakdown {
   base: number;

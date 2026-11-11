@@ -1,8 +1,9 @@
 import { useId } from "react";
 import type { AbilityVM } from "@domain/vm-types";
 import { HoverPop } from "@ui/HoverPop";
-import { Stamp } from "@ui/Stamp";
-import { rollable, type ActivateEvent } from "@ui/rollable";
+import { RollLabel } from "@ui/RollLabel";
+import { contributionAmount } from "@features/scores/scoreBreakdown";
+import type { ActivateEvent } from "@ui/rollable";
 
 type Props = {
   abilities: AbilityVM[];
@@ -10,14 +11,11 @@ type Props = {
   onOpen?: (key: string) => void;
 };
 
-const COLUMN =
-  "tw:flex tw:aspect-square tw:@max-md/app:aspect-auto tw:min-w-0 tw:flex-col tw:items-stretch tw:text-center";
-
-const ROLL_BUTTON =
-  "osc-stat-button osc-ability-roll vm-bevel vm-btn-muted vm-key tw:block tw:px-px tw:pt-1 tw:pb-[2px] tw:leading-none";
+const CELL =
+  "tw:flex tw:h-full tw:flex-col tw:items-center tw:gap-1 tw:px-1 tw:py-2 tw:text-center";
 
 const VALUE_TEXT =
-  "tw:font-sans tw:font-medium tw:text-(length:--fs-4xl) tw:leading-none tw:tabular-nums tw:text-text-dim";
+  "tw:font-mono tw:font-medium tw:text-(length:--fs-3xl) tw:leading-none tw:tabular-nums tw:text-text";
 
 const VALUE = `${VALUE_TEXT} tw:cursor-default`;
 
@@ -29,6 +27,9 @@ const MOD =
 const POP =
   "tw:grid tw:min-w-[170px] tw:grid-cols-[minmax(max-content,1fr)_max-content] tw:gap-x-3 tw:gap-y-[3px] tw:text-left";
 
+const POP_RULE =
+  "tw:col-span-full tw:my-[2px] tw:border-t tw:border-border-soft";
+
 const POP_HEAD =
   "vm-key tw:col-span-full tw:mb-[2px] tw:border-b tw:border-border-soft tw:pb-[3px]";
 
@@ -37,7 +38,7 @@ const POP_KEY = "tw:text-(length:--fs-xs) tw:text-text-dim";
 const POP_VALUE =
   "tw:text-right tw:text-(length:--fs-xs) tw:whitespace-nowrap tw:text-text";
 
-function AbilityColumn({
+function AbilityCell({
   ability,
   onRoll,
   onOpen,
@@ -47,77 +48,92 @@ function AbilityColumn({
   onOpen?: (key: string) => void;
 }) {
   const popId = useId();
+  const derivation = ability.breakdown?.contributions ?? [];
   const name = game.i18n.localize(ability.nameKey);
-  const rollLabel = onRoll ? `Roll ${name} check` : undefined;
+  const rollLabel = `Roll ${name} check`;
   return (
-    <div className={COLUMN}>
+    <div className={`osc-ability tw:min-w-0 ${CELL}`}>
       {onRoll ? (
-        <span
-          className={ROLL_BUTTON}
+        <RollLabel
+          className="vm-key"
+          glyph={false}
           title={rollLabel}
           aria-label={rollLabel}
           data-testid={`ability-${ability.key}`}
-          {...rollable((e) => onRoll(ability.key, e))}
+          onRoll={(event) => onRoll(ability.key, event)}
         >
           {ability.label}
-        </span>
+        </RollLabel>
       ) : (
-        <Stamp ink data-testid={`ability-${ability.key}`}>
+        <span className="vm-key" data-testid={`ability-${ability.key}`}>
           {ability.label}
-        </Stamp>
-      )}
-      <div className="osc-ability-score tw:grid tw:min-h-0 tw:flex-1 tw:place-items-center tw:@max-md/app:py-2">
-        <span className="tw:relative tw:flex tw:flex-col tw:items-center tw:gap-1">
-          {onOpen ? (
-            <button
-              type="button"
-              className={VALUE_BUTTON}
-              aria-label={`${name} breakdown`}
-              onClick={() => onOpen(ability.key)}
-            >
-              {ability.value}
-            </button>
-          ) : (
-            <span className={VALUE}>{ability.value}</span>
-          )}
-          <span className="tw:absolute tw:-top-2 tw:left-full tw:ml-[2px] tw:flex tw:@max-md/app:static tw:@max-md/app:ml-0">
-            <button
-              type="button"
-              className={MOD}
-              aria-label={`${name} ${ability.modLabel}`}
-              aria-describedby={popId}
-            >
-              {ability.modLabel.slice(0, 1)}
-              <span className="vm-dotted">{ability.modLabel.slice(1)}</span>
-            </button>
-            <HoverPop id={popId} align="center" className={POP}>
-              <span className={POP_HEAD}>
-                {name} {ability.value}
-              </span>
-              {ability.details.map((d) => (
-                <span key={d.labelKey} className="tw:contents">
-                  <span className={POP_KEY}>
-                    {game.i18n.localize(d.labelKey)}
-                  </span>
-                  <span className={POP_VALUE}>
-                    {d.localizeValue ? game.i18n.localize(d.value) : d.value}
-                  </span>
-                </span>
-              ))}
-            </HoverPop>
-          </span>
         </span>
-      </div>
+      )}
+      <span className="tw:relative tw:flex tw:flex-col tw:items-center tw:gap-1">
+        {onOpen ? (
+          <button
+            type="button"
+            className={VALUE_BUTTON}
+            aria-label={`${name} breakdown`}
+            onClick={() => onOpen(ability.key)}
+          >
+            {ability.value}
+          </button>
+        ) : (
+          <span className={VALUE}>{ability.value}</span>
+        )}
+        <span className="tw:absolute tw:top-0 tw:left-full tw:ml-1 tw:flex tw:@max-md/app:static tw:@max-md/app:ml-0">
+          <button
+            type="button"
+            className={MOD}
+            aria-label={`${name} ${ability.modLabel}`}
+            aria-describedby={popId}
+          >
+            {ability.modLabel.slice(0, 1)}
+            <span className="vm-dotted">{ability.modLabel.slice(1)}</span>
+          </button>
+          <HoverPop id={popId} align="center" className={POP}>
+            <span className={POP_HEAD}>
+              {name} {ability.value}
+            </span>
+            {derivation.length > 0 && (
+              <>
+                <span className={POP_KEY}>
+                  {game.i18n.localize("OSC.scores.Base")}
+                </span>
+                <span className={POP_VALUE}>{ability.breakdown?.base}</span>
+                {derivation.map((c) => (
+                  <span key={c.id} className="tw:contents">
+                    <span className={POP_KEY}>{c.name}</span>
+                    <span className={POP_VALUE}>{contributionAmount(c)}</span>
+                  </span>
+                ))}
+                <span className={POP_RULE} aria-hidden="true" />
+              </>
+            )}
+            {ability.details.map((d) => (
+              <span key={d.labelKey} className="tw:contents">
+                <span className={POP_KEY}>
+                  {game.i18n.localize(d.labelKey)}
+                </span>
+                <span className={POP_VALUE}>
+                  {d.localizeValue ? game.i18n.localize(d.value) : d.value}
+                </span>
+              </span>
+            ))}
+          </HoverPop>
+        </span>
+      </span>
     </div>
   );
 }
 
 export function AbilityPlaques({ abilities, onRoll, onOpen }: Props) {
   return (
-    <section className="osc-section">
+    <section aria-label="Ability scores" className="osc-section">
       <div className="osc-abilities">
         {abilities.map((a) => (
-          <AbilityColumn
+          <AbilityCell
             key={a.key}
             ability={a}
             onRoll={onRoll}

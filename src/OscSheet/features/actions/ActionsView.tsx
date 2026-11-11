@@ -5,7 +5,6 @@ import { buildWeaponAttack } from "@domain/rolls/weaponAttack";
 import type { RollSpec } from "@domain/vm-types";
 import { selectAbilities } from "@features/actions/abilities";
 import { selectAttacks } from "@features/actions/attacks";
-import { selectLoyalty, rollLoyalty } from "@features/actions/loyalty";
 import { selectSaves } from "@features/actions/saves";
 import {
   selectExploration,
@@ -14,7 +13,6 @@ import {
 import { postRollCard } from "@domain/chat/attackCard";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { AbilityPlaques } from "@features/actions/AbilityPlaques";
-import { RetainerRow } from "@features/actions/RetainerRow";
 import { AttacksTable } from "@features/actions/AttacksTable";
 import {
   clearUserTarget,
@@ -69,7 +67,6 @@ export function ActionsView({ actor }: Props) {
     actor.rollSave(key, { event });
   const onExploration = (key: string, event: ActivateEvent) =>
     rollExploration(actor, key, event);
-  const onLoyalty = (event: ActivateEvent) => rollLoyalty(actor, event);
   // Drag a weapon card onto the macro hotbar → OSE's hotbarDrop creates an attack
   // macro, same as dragging the item's inventory row.
   const dragData = (itemId: string) => {
@@ -83,10 +80,6 @@ export function ActionsView({ actor }: Props) {
     <>
       <div className="tw:space-y-8 tw:mb-8">
         <div className="tw:space-y-2">
-          <RetainerRow
-            retainer={selectLoyalty(actor)}
-            onRollLoyalty={onLoyalty}
-          />
           <AbilityPlaques
             abilities={abilities}
             onRoll={onAbility}

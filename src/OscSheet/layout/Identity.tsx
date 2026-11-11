@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import type { IdentityVM } from "@domain/vm-types";
+import { Tag } from "@ui/Tag";
 
 function useFitText(text: string, min = 0.6) {
   const ref = useRef<HTMLDivElement>(null);
@@ -45,7 +46,7 @@ export function Identity({
             {identity.race && <>{identity.race} </>}
             <span className="tw:font-medium">{identity.classLevels}</span>
           </div>
-          {(standing || identity.alignment) && (
+          {(standing || identity.alignment || identity.isRetainer) && (
             <div className="u-text-dim tw:text-(length:--fs-sm)">
               {standing && (
                 <span className="tw:font-serif tw:not-italic">{standing}</span>
@@ -55,6 +56,11 @@ export function Identity({
                 <span className="tw:font-sans tw:text-(length:--fs-xs)">
                   {identity.alignment}
                 </span>
+              )}
+              {identity.isRetainer && (
+                <Tag intent="teal" size="xs" className="osc-retainer-tag tw:ml-2">
+                  Retainer
+                </Tag>
               )}
             </div>
           )}

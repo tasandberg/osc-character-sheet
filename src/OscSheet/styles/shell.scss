@@ -20,6 +20,8 @@
 // .osc-body is utilities in Frame.tsx.
 
 .osc-sheet-body {
+  background-image: var(--vellum-grain);
+  background-attachment: local;
   flex: 1;
   min-width: 0;
   overflow-y: auto;
@@ -62,7 +64,6 @@
 
 .osc-twopane > .osc-left {
   padding-bottom: 15px; // intentional: 15px optical offset, leave raw
-  border-bottom: 1px solid var(--border-soft);
   margin-bottom: 3px;
 }
 // .osc-right's min-width: 0 is a utility in Frame.tsx.
@@ -204,6 +205,9 @@
   }
   // the whole right panel (tabs + content) is the ONLY scroller; the rail stays put.
   .osc-twopane > .osc-right {
+    background-color: var(--bg);
+    background-image: var(--vellum-grain);
+    background-attachment: local;
     align-self: stretch;
     min-height: 0;
     overflow-y: auto;
@@ -216,7 +220,7 @@
     display: none;
   }
 
-  // header band reflow in the narrow left rail — stack: portrait, name, HP/AC, Init/HD/Move.
+  // header band reflow in the narrow left rail — stack: portrait, name, HP/AC.
   // Only the grid itself is left here. Every per-element rail override moved onto
   // HeaderBand.tsx as `@twopane/sheet:` utilities, and had to: the base rules are
   // utilities now, and a (0,2,0) `.osc-twopane .osc-x` in this file would LOSE to
@@ -224,12 +228,9 @@
   // base is still SCSS — grid areas have no utility form.
   .osc-twopane .osc-head {
     grid-template-columns: 1fr;
-    grid-template-areas: "portrait" "ident" "vitals" "subs";
+    grid-template-areas: "portrait" "ident" "vitals";
     justify-items: center;
     gap: var(--spacer-3);
-  }
-  .osc-twopane .osc-substats {
-    column-gap: var(--spacer-3);
   }
 }
 

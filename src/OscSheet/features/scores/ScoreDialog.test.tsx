@@ -149,7 +149,7 @@ describe("ScoreDialog", () => {
       ["Dwarf", "+1"],
       ["Ring of Vigour", "+0"],
     ]);
-    expect(container.textContent).toContain("Total CON Modifier +113");
+    expect(container.textContent).toContain("Total CON13Modifier +1");
   });
 
   it("labels a non-additive change by its mode and keeps OSE's score", () => {
@@ -167,7 +167,7 @@ describe("ScoreDialog", () => {
       }),
     );
     expect(adjustments()).toEqual([["Gauntlets of Ogre Power", "Set to 18"]]);
-    expect(container.textContent).toContain("Total CON Modifier +318");
+    expect(container.textContent).toContain("Total CON18Modifier +3");
   });
 
   it("explains when OSE limits a race adjustment", () => {

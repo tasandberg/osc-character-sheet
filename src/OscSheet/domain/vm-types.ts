@@ -28,7 +28,7 @@ export interface MoveBands {
 export interface VitalsVM {
   hp: { value: number; max: number };
   /** Resolved AC for display: value matching the ascendingAC setting + the mode. */
-  ac: { value: number; ascending: boolean };
+  ac: { value: number; ascending: boolean; parts?: AcPart[] };
   initMod: number;
   hd: string;
   hdParts?: { name: string; hd: string }[];
@@ -43,6 +43,18 @@ export interface AbilityDetailVM {
   localizeValue?: boolean;
 }
 
+export interface AcPart {
+  label: string;
+  value: string;
+}
+
+export interface ScoreContribution {
+  id: string;
+  name: string;
+  type: string;
+  amount: string;
+}
+
 export interface AbilityVM {
   key: string;
   label: string;
@@ -51,6 +63,7 @@ export interface AbilityVM {
   mod: number;
   modLabel: string;
   details: AbilityDetailVM[];
+  breakdown?: { base: number; contributions: ScoreContribution[] };
 }
 
 export interface LoyaltyVM {

@@ -21,29 +21,25 @@
 // existed only to beat `:is(button,…) { all: unset }`, and that reset now sits in
 // `@layer base`, which any unlayered rule out-ranks.
 
-// --- abilities: 3-up (6-up wide) grid of ability columns ---
+// --- abilities: each score in its own double-hairline box ---
 .osc-abilities {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacer-2);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: calc(var(--spacer-1) * 1.5);
+}
+.osc-ability {
+  border: 1px solid var(--hairline);
+  outline: 1px solid var(--hair-soft);
+  outline-offset: -4px;
 }
 @container sheet (min-width: 470px) {
   .osc-abilities {
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: clamp(var(--spacer-2), calc((100% - 472px) / 8), var(--spacer-4));
-    max-width: 600px;
-    margin-inline: auto;
   }
 }
-.osc-ability-roll {
-  position: relative;
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    top: -17px;
-    bottom: -9px;
+@container app (width < #{bp.$md}) {
+  .osc-abilities {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 .osc-ability-mod {

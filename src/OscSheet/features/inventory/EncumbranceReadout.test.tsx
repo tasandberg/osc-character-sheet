@@ -3,8 +3,8 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { EncumbranceReadout } from "@features/inventory/EncumbranceReadout";
-import { HeaderBand } from "@layout/HeaderBand";
-import type { EncumbranceVM, VitalsVM } from "@domain/vm-types";
+import { StatsTable } from "@features/actions/StatsTable";
+import type { EncumbranceVM } from "@domain/vm-types";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -26,15 +26,6 @@ const enc: EncumbranceVM = {
   label: "700 / 1600 cn",
   moveBands: { encounter: 30, explore: 90, travel: 18 },
   bands: [25, 37.5, 50],
-};
-
-const vitals: VitalsVM = {
-  hp: { value: 8, max: 9 },
-  ac: { value: 12, ascending: true },
-  initMod: 1,
-  hd: "3d4",
-  move: 90,
-  moveBands: enc.moveBands,
 };
 
 let container: HTMLDivElement;
@@ -73,11 +64,11 @@ describe("EncumbranceReadout", () => {
     expect(rates).toEqual(["30ft", "90ft", "18mi"]);
   });
 
-  it("renders the SAME tooltip rows as the header MOVE hover", () => {
+  it("renders the SAME tooltip rows as the header Move hover", () => {
     act(() => root.render(<EncumbranceReadout e={enc} />));
     const encRows = tooltipRows(container);
 
-    act(() => root.render(<HeaderBand identity={IDENTITY} vitals={vitals} encumbrance={enc} />));
+    act(() => root.render(<StatsTable moveBands={enc.moveBands} encumbrance={enc} />));
     const moveRows = tooltipRows(container);
 
     // one shared component ⇒ byte-identical rows in both places
@@ -91,14 +82,3 @@ describe("EncumbranceReadout", () => {
   });
 });
 
-const IDENTITY = {
-  name: "Eldra Vey",
-  img: "",
-  classLabel: "Magic-User",
-  classLevels: "Magic-User 3",
-  level: 3,
-  alignment: "Neutral",
-  title: "Conjurer",
-  isRetainer: false,
-  wage: "",
-};

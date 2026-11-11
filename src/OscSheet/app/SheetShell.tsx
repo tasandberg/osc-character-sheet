@@ -3,7 +3,6 @@ import { Frame, Topbar, HeaderBand, Minibar, type TabItem } from "@layout";
 import { useOscSheetContext } from "@app/context";
 import { EditModal } from "@features/edit/EditModal";
 import { EffectsModal } from "@features/effects/EffectsModal";
-import { countActiveTemporaryEffects } from "@features/effects/effects";
 import { PortraitImageDialog } from "@features/portraitImage/PortraitImageDialog";
 import { SheetImageDrop } from "@features/portraitImage/SheetImageDrop";
 import { usePortraitDrop } from "@features/portraitImage/usePortraitDrop";
@@ -83,7 +82,7 @@ export default function SheetShell() {
       travel: Math.floor(movement.overland),
     },
   };
-  // One encumbrance VM for both consumers — the header MOVE hover and the inventory
+  // One encumbrance VM for both consumers — the header Move hover and the inventory
   // rates line must never disagree about the tier.
   const encumbrance = selectEncumbrance(actor, invItems as OseItem[]);
   // Read-only sheets get no HP stepper/input (undefined onSetHp → static value).
@@ -93,6 +92,15 @@ export default function SheetShell() {
         const next = Math.max(0, Math.min(vitals.hp.max, value));
         if (next === vitals.hp.value) return;
         const update = { "system.hp.value": next };
+        if (optimisticUpdate)
+          optimisticUpdate("actor", update, () => updateActor(update));
+        else void updateActor(update);
+      };
+
+  const onSetMaxHp = !canEdit
+    ? undefined
+    : (value: number) => {
+        const update = { "system.hp.max": Math.max(1, value) };
         if (optimisticUpdate)
           optimisticUpdate("actor", update, () => updateActor(update));
         else void updateActor(update);
@@ -162,8 +170,9 @@ export default function SheetShell() {
             <HeaderBand
               identity={identity}
               vitals={vitals}
-              encumbrance={encumbrance}
               onSetHp={onSetHp}
+              baseMaxHp={actor._source?.system?.hp?.max}
+              onSetMaxHp={onSetMaxHp}
               // Intentionally gated on canEdit (= Foundry `sheet.isEditable`), not
               // raw actor.isOwner: a locked/compendium sheet legitimately shouldn't
               // expose write affordances even to an owner. Same rationale for the
@@ -177,11 +186,6 @@ export default function SheetShell() {
                   : undefined
               }
               canEditPortrait={canEdit}
-              onRollHd={
-                canEdit ? (event) => actor.rollHitDice({ event }) : undefined
-              }
-              onOpenEffects={() => setEffectsOpen(true)}
-              activeTemporaryEffectCount={countActiveTemporaryEffects(actor)}
             />
           }
           minibar={

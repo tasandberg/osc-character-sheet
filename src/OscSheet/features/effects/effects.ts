@@ -116,9 +116,11 @@ export function selectEffectGroups(actor: OSEActor): EffectGroup[] {
   }));
 }
 
-export const countActiveTemporaryEffects = (actor: OSEActor) =>
-  selectEffectGroups(actor).find((group) => group.key === "temporary")?.effects
-    .length ?? 0;
+export const countEffects = (actor: OSEActor) =>
+  selectEffectGroups(actor).reduce(
+    (total, group) => total + group.effects.length,
+    0,
+  );
 
 type EffectDocument = {
   name: string;
