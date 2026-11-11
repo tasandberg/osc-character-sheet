@@ -2,7 +2,7 @@ import { useState, type MouseEvent } from "react";
 import type { AttackKind, OSEActor, OSESave, OseItem } from "@domain/types";
 import { skipRollDialog } from "@domain/rolls/skipRollDialog";
 import { buildWeaponAttack } from "@domain/rolls/weaponAttack";
-import type { RollSpec } from "@domain/vm-types";
+import type { RollSpec, EncumbranceVM } from "@domain/vm-types";
 import { selectAbilities } from "@features/actions/abilities";
 import { selectAttacks } from "@features/actions/attacks";
 import { selectSaves } from "@features/actions/saves";
@@ -13,6 +13,9 @@ import {
 import { postRollCard } from "@domain/chat/attackCard";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { AbilityPlaques } from "@features/actions/AbilityPlaques";
+import { MetaEyebrow } from "@features/actions/MetaEyebrow";
+import { selectHdParts } from "@domain/classRules";
+import { selectLoyalty, rollLoyalty } from "@features/actions/loyalty";
 import { AttacksTable } from "@features/actions/AttacksTable";
 import {
   clearUserTarget,
@@ -32,12 +35,22 @@ import SavesModTag from "@src/OscSheet/components/ui/SavesModTag";
 import { ScoreDialog } from "@features/scores/ScoreDialog";
 import type { ScoreKey } from "@features/scores/scoreBreakdown";
 
-type Props = { actor: OSEActor };
+type Props = {
+  actor: OSEActor;
+  encumbrance?: EncumbranceVM;
+  onOpenEffects?: () => void;
+  effectCount?: number;
+};
 
 /** Actions tab body — all sections stack (Abilities, Attacks, Spells, and at xs +
  *  md Saves/Exploration). At lg, Saves/Exploration live in the left rail instead,
  *  so they carry .actions-only (hidden at lg — see SheetShell/shell.scss). */
-export function ActionsView({ actor }: Props) {
+export function ActionsView({
+  actor,
+  encumbrance,
+  onOpenEffects,
+  effectCount,
+}: Props) {
   // Chat-only rolls (ability/save/exploration/hit/dmg post a card, no actor write)
   // stay available even read-only; the composite Attack can write (missile ammo
   // decrement), so it's gated on the global edit permission.
@@ -80,6 +93,31 @@ export function ActionsView({ actor }: Props) {
     <>
       <div className="tw:space-y-8 tw:mb-8">
         <div className="tw:space-y-2">
+          <MetaEyebrow
+            moveBands={{
+              encounter: Math.floor(actor.system.movement.encounter),
+              explore: Math.floor(actor.system.movement.base),
+              travel: Math.floor(actor.system.movement.overland),
+            }}
+            hitDice={
+              selectHdParts(actor)
+                ?.map((part) => part.hd)
+                .join(" / ") ?? actor.system.hp.hd
+            }
+            onRollHitDice={
+              canEdit ? (event) => actor.rollHitDice({ event }) : undefined
+            }
+            encumbrance={encumbrance}
+            retainer={selectLoyalty(actor)}
+            onRollLoyalty={(event) => rollLoyalty(actor, event)}
+            onSetWage={
+              canEdit
+                ? (wage) => void actor.update({ "system.retainer.wage": wage })
+                : undefined
+            }
+            onOpenEffects={onOpenEffects}
+            effectCount={effectCount}
+          />
           <AbilityPlaques
             abilities={abilities}
             onRoll={onAbility}

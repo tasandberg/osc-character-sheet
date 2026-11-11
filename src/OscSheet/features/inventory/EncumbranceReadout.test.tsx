@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { EncumbranceReadout } from "@features/inventory/EncumbranceReadout";
-import { StatsTable } from "@features/actions/StatsTable";
+import { MetaEyebrow } from "@features/actions/MetaEyebrow";
 import type { EncumbranceVM } from "@domain/vm-types";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -68,7 +68,7 @@ describe("EncumbranceReadout", () => {
     act(() => root.render(<EncumbranceReadout e={enc} />));
     const encRows = tooltipRows(container);
 
-    act(() => root.render(<StatsTable moveBands={enc.moveBands} encumbrance={enc} />));
+    act(() => root.render(<MetaEyebrow moveBands={enc.moveBands} encumbrance={enc} />));
     const moveRows = tooltipRows(container);
 
     // one shared component ⇒ byte-identical rows in both places

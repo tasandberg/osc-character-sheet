@@ -155,7 +155,7 @@ describe("Identity standing line", () => {
     act(() =>
       root.render(<Identity identity={{ ...identity, isRetainer: true }} />),
     );
-    expect(container.textContent).toContain("Veteran · LawfulRetainer");
+    expect(container.textContent).toContain("Veteran · Lawful · Retainer");
   });
 
   it("drops the slot entirely when there is no title", () => {

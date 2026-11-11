@@ -42,12 +42,12 @@ export function Identity({
       </div>
       {showClassLine && (
         <div className="tw:flex tw:flex-col tw:gap-[calc(var(--spacer-1)/2)] tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
-          <div className="tw:text-(length:--fs-md) tw:text-gold-dim">
+          <div className="tw:text-(length:--fs-md) tw:text-gold-dim tw:@max-md/app:text-(length:--fs-sm)">
             {identity.race && <>{identity.race} </>}
             <span className="tw:font-medium">{identity.classLevels}</span>
           </div>
           {(standing || identity.alignment || identity.isRetainer) && (
-            <div className="u-text-dim tw:text-(length:--fs-sm)">
+            <div className="u-text-dim tw:text-(length:--fs-sm) tw:@max-md/app:text-(length:--fs-xs)">
               {standing && (
                 <span className="tw:font-serif tw:not-italic">{standing}</span>
               )}
@@ -57,8 +57,9 @@ export function Identity({
                   {identity.alignment}
                 </span>
               )}
+              {identity.isRetainer && (standing || identity.alignment) && " · "}
               {identity.isRetainer && (
-                <Tag intent="teal" size="xs" className="osc-retainer-tag tw:ml-2">
+                <Tag intent="teal" size="xs" className="osc-retainer-tag">
                   Retainer
                 </Tag>
               )}

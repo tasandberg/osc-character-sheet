@@ -3,6 +3,7 @@ import { Frame, Topbar, HeaderBand, Minibar, type TabItem } from "@layout";
 import { useOscSheetContext } from "@app/context";
 import { EditModal } from "@features/edit/EditModal";
 import { EffectsModal } from "@features/effects/EffectsModal";
+import { countEffects } from "@features/effects/effects";
 import { PortraitImageDialog } from "@features/portraitImage/PortraitImageDialog";
 import { SheetImageDrop } from "@features/portraitImage/SheetImageDrop";
 import { usePortraitDrop } from "@features/portraitImage/usePortraitDrop";
@@ -205,7 +206,12 @@ export default function SheetShell() {
           }
         >
           {activeTab.id === TabIds.ACTIONS ? (
-            <ActionsView actor={actor} />
+            <ActionsView
+              actor={actor}
+              encumbrance={encumbrance}
+              onOpenEffects={() => setEffectsOpen(true)}
+              effectCount={countEffects(actor)}
+            />
           ) : activeTab.id === TabIds.INVENTORY ? (
             <InventoryView
               inventory={selectInventory(invItems as OseItem[])}

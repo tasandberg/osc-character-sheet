@@ -93,7 +93,7 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
       <Identity identity={identity} />
       {/* minmax(0,…) so a wide value can't auto-expand a track past its share
           and shove the sibling card out of the container. */}
-      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*10.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-stretch tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
+      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*8.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-stretch tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
         <div className={`${VITAL} hp`}>
           <span className="vm-key">HP</span>
           <div className={VV_ROW}>
