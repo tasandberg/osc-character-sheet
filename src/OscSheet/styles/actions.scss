@@ -20,9 +20,21 @@
 .osc-head {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  grid-template-areas: "portrait ident vitals";
-  gap: 0 var(--spacer-3);
+  grid-template-areas:
+    "portrait ident vitals"
+    "stats    stats stats";
+  gap: var(--spacer-3);
+  margin-bottom: var(--spacer-5);
   align-items: start;
+  --osc-portrait-size: var(--osc-ident-height, calc(var(--spacer-12) * 2));
+}
+@container sheet (min-width: 620px) {
+  .osc-head {
+    grid-template-areas:
+      "portrait ident vitals"
+      "portrait stats stats";
+    --osc-portrait-size: var(--osc-head-height, calc(var(--spacer-12) * 2));
+  }
 }
 // Only `grid-area` stays on the header's children: the areas are what let medium,
 // XS and the rail arrange the same markup three ways, and a named area has no
@@ -30,6 +42,9 @@
 // tiers of it — is utilities in HeaderBand.tsx.
 .osc-portrait-wrap {
   grid-area: portrait;
+}
+.osc-head-stats {
+  grid-area: stats;
 }
 .osc-retainer-tag.vm-tag-teal {
   background: var(--teal);
@@ -86,31 +101,6 @@
   }
 }
 // XS-only editable input (hidden by default; toggled in the XS block)
-.osc-vital .vv-input {
-  display: none;
-  width: 100%; // fill the box; never widen it
-  min-width: 0;
-  text-align: center;
-  cursor: text;
-  border: 1px solid transparent; // plain value until focused
-  border-radius: var(--r-sm, 4px);
-  padding: 1px 0;
-}
-// active/edit: full crimson box + darker sunken bg around the value (prototype)
-.osc-vital .vv-input:focus {
-  border-color: var(--crimson);
-  background: var(--bg, #181612);
-}
-// no number spinners
-.osc-vital .vv-input::-webkit-inner-spin-button,
-.osc-vital .vv-input::-webkit-outer-spin-button {
-  appearance: none;
-  margin: 0;
-}
-.osc-vital .vv-input {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
 
 // The movement popover — shared by the header Move row and the inventory
 // encumbrance line — is wholly utilities in MovePop.tsx, which is also the single
@@ -263,7 +253,9 @@
   // header: portrait | name | compact HP/AC
   .osc-head {
     grid-template-columns: auto 1fr auto;
-    grid-template-areas: "portrait ident vitals";
+    grid-template-areas:
+      "portrait ident vitals"
+      "stats    stats stats";
     gap: 11px; // header row gap (prototype)
     align-items: center; // portrait + name centered against the taller HP/AC
   }
@@ -273,24 +265,8 @@
   .osc-name {
     font-size: calc(var(--fs-2xl, 21px) * var(--fit-scale, 1));
   }
-  // HP value becomes an editable input (steppers/static value are medium+ only).
-  // These three stay SCSS with `.vv-step`/`.vv-input` (see their base rules): the
-  // hover reveal and the spin-button pseudo-elements have no utility form, and a
-  // base utility for `display` here would out-rank the read-only override below.
   .osc-vital .vv-step {
     display: none;
-  }
-  .osc-vital .vv-value {
-    display: none;
-  }
-  .osc-vital .vv-input {
-    display: inline-block;
-  }
-  // Read-only sheets render no .vv-input (onSetHp is undefined), so the input
-  // can't stand in for the hidden static value — keep .vv-value shown or the HP
-  // number vanishes entirely at XS.
-  .osc-sheet-app.is-readonly .osc-vital .vv-value {
-    display: block;
   }
   // attacks: two columns — weapon info (icon/name/tags) left; the roll stack
   // right: Hit and Dmg as horizontal label·value roll rows over a full-width

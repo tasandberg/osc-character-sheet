@@ -94,7 +94,7 @@ export function MetaEyebrow({
   return (
     <section
       aria-label="Statistics"
-      className="tw:grid tw:grid-cols-3 tw:gap-x-5"
+      className="tw:grid tw:grid-cols-[repeat(3,minmax(max-content,1fr))] tw:gap-x-5 tw:@md/app:gap-x-10 tw:@twopane/sheet:grid-cols-1"
     >
       <Meta
         label={
@@ -108,7 +108,12 @@ export function MetaEyebrow({
           tabIndex={0}
           className={`tw:relative tw:cursor-default ${DOTTED}`}
         >
-          {moveBands.explore}'({moveBands.encounter}')
+          <span className="tw:@max-md/app:hidden">
+            {moveBands.explore}'({moveBands.encounter}')
+          </span>
+          <span className="tw:hidden tw:@max-md/app:inline">
+            {moveBands.explore}ft
+          </span>
           <MoveTooltip
             bands={moveBands}
             tier={enc?.tier}

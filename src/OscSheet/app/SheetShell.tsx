@@ -21,6 +21,8 @@ import { ActionsView, SavesExploration } from "@features/actions";
 import { InventoryView } from "@features/inventory";
 import { selectTopbar } from "@domain/topbar";
 import { selectSaves } from "@features/actions/saves";
+import { selectLoyalty, rollLoyalty } from "@features/actions/loyalty";
+import { MetaEyebrow } from "@features/actions/MetaEyebrow";
 import {
   selectExploration,
   rollExploration,
@@ -172,6 +174,31 @@ export default function SheetShell() {
               identity={identity}
               vitals={vitals}
               onSetHp={onSetHp}
+              stats={
+                <MetaEyebrow
+                  moveBands={vitals.moveBands}
+                  hitDice={
+                    vitals.hdParts?.map((part) => part.hd).join(" / ") ??
+                    vitals.hd
+                  }
+                  onRollHitDice={
+                    canEdit
+                      ? (event) => actor.rollHitDice({ event })
+                      : undefined
+                  }
+                  encumbrance={encumbrance}
+                  retainer={selectLoyalty(actor)}
+                  onRollLoyalty={(event) => rollLoyalty(actor, event)}
+                  onSetWage={
+                    canEdit
+                      ? (wage) =>
+                          void updateActor({ "system.retainer.wage": wage })
+                      : undefined
+                  }
+                  onOpenEffects={() => setEffectsOpen(true)}
+                  effectCount={countEffects(actor)}
+                />
+              }
               baseMaxHp={actor._source?.system?.hp?.max}
               onSetMaxHp={onSetMaxHp}
               // Intentionally gated on canEdit (= Foundry `sheet.isEditable`), not
@@ -206,12 +233,7 @@ export default function SheetShell() {
           }
         >
           {activeTab.id === TabIds.ACTIONS ? (
-            <ActionsView
-              actor={actor}
-              encumbrance={encumbrance}
-              onOpenEffects={() => setEffectsOpen(true)}
-              effectCount={countEffects(actor)}
-            />
+            <ActionsView actor={actor} />
           ) : activeTab.id === TabIds.INVENTORY ? (
             <InventoryView
               inventory={selectInventory(invItems as OseItem[])}

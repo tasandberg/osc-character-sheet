@@ -3,7 +3,7 @@ import { Identity } from "@layout/Identity";
 import { Portrait } from "@layout/Portrait";
 import { Button } from "@ui/Button";
 import { InlineEditValue } from "@ui/InlineEditValue";
-import { useId, useLayoutEffect, useRef } from "react";
+import { useId, useLayoutEffect, useRef, type ReactNode } from "react";
 import { HoverPop } from "@ui/HoverPop";
 import { useHpInput } from "@ui/useHpInput";
 
@@ -47,17 +47,23 @@ const VV_ROW = "vv-row tw:flex tw:items-center tw:justify-center tw:gap-1";
 // flanking − / + steppers as HP changes; tabular-nums keeps digit widths uniform.
 const VV_VALUE = "vv-value tw:min-w-[1.2em] tw:text-center tw:tabular-nums";
 
-function useIdentityHeight() {
+function useHeaderHeight() {
   const ref = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const head = ref.current;
     const ident = head?.querySelector<HTMLElement>(".osc-ident");
     if (!head || !ident) return;
-    const measure = () =>
-      head.style.setProperty("--osc-head-height", `${ident.offsetHeight}px`);
+    const stats = head.querySelector<HTMLElement>(".osc-head-stats");
+    const measure = () => {
+      const top = ident.getBoundingClientRect().top;
+      const bottom = (stats ?? ident).getBoundingClientRect().bottom;
+      head.style.setProperty("--osc-ident-height", `${ident.offsetHeight}px`);
+      head.style.setProperty("--osc-head-height", `${bottom - top}px`);
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(ident);
+    if (stats) observer.observe(stats);
     return () => observer.disconnect();
   }, []);
   return ref;
@@ -74,12 +80,13 @@ type Props = {
   /** Right-click on the portrait (e.g. Token Variant Art's picker). */
   onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
   canEditPortrait?: boolean;
+  stats?: ReactNode;
 };
 
 /** Header band. Grid areas (see actions.scss) place portrait · name · HP/AC in
  *  medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, onPortraitClick, onPortraitContextMenu, canEditPortrait }: Props) {
-  const headRef = useIdentityHeight();
+export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, stats }: Props) {
+  const headRef = useHeaderHeight();
   const acPopId = useId();
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   return (
@@ -93,23 +100,20 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
       <Identity identity={identity} />
       {/* minmax(0,…) so a wide value can't auto-expand a track past its share
           and shove the sibling card out of the container. */}
-      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*8.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-stretch tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
+      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*10)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-stretch tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
         <div className={`${VITAL} hp`}>
           <span className="vm-key">HP</span>
           <div className={VV_ROW}>
-            {/* medium+: − / + steppers around the value; XS: an editable input (toggled in CSS) */}
             {onSetHp && (
               <Button variant="link" className="vv-step" aria-label="Lose 1 HP" onClick={hp.dec}>−</Button>
             )}
-            <div className={`${VITAL_BIG} ${VV_VALUE} tw:text-crimson`}>{vitals.hp.value}</div>
-            {onSetHp && (
-              <input
-                className={`${VITAL_BIG} vv-input tw:text-crimson`}
-                aria-label="Current HP"
-                key={hp.key}
-                {...hp.inputProps}
-              />
-            )}
+            <InlineEditValue
+              label="Current HP"
+              parse="int"
+              value={String(vitals.hp.value)}
+              className={`${VITAL_BIG} ${VV_VALUE} tw:text-crimson`}
+              onCommit={onSetHp}
+            />
             {onSetHp && (
               <Button variant="link" className="vv-step" aria-label="Heal 1 HP" onClick={hp.inc}>+</Button>
             )}
@@ -133,9 +137,9 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
             <span
               tabIndex={vitals.ac.parts ? 0 : undefined}
               aria-describedby={vitals.ac.parts ? acPopId : undefined}
-              className="tw:relative tw:cursor-default"
+              className="tw:relative tw:block tw:cursor-default"
             >
-              <span className={`${VITAL_BIG} tw:text-teal-accent`} data-testid="ac-value">{vitals.ac.value}</span>
+              <span className={`${VITAL_BIG} tw:block tw:text-teal-accent`} data-testid="ac-value">{vitals.ac.value}</span>
               {vitals.ac.parts && (
                 <HoverPop id={acPopId} align="center" className={POP}>
                   <span className={POP_HEAD}>AC {vitals.ac.value}</span>
@@ -155,6 +159,7 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
           </div>
         </div>
       </div>
+      {stats && <div className="osc-head-stats">{stats}</div>}
     </div>
   );
 }

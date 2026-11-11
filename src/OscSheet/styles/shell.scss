@@ -226,10 +226,13 @@
   // a (0,2,0) utility imported after it. `.osc-head` is safe to keep because its
   // base is still SCSS — grid areas have no utility form.
   .osc-twopane .osc-head {
-    grid-template-columns: 1fr;
-    grid-template-areas: "portrait" "ident" "vitals";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "portrait" "ident" "vitals" "stats";
     justify-items: center;
     gap: var(--spacer-3);
+  }
+  .osc-twopane .osc-head-stats {
+    justify-self: stretch;
   }
 }
 
