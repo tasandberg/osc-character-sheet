@@ -130,11 +130,7 @@ describe("MetaEyebrow", () => {
     let rolls = 0;
     act(() =>
       root.render(
-        <MetaEyebrow
-          moveBands={moveBands}
-          retainer={retainer}
-          onRollLoyalty={() => rolls++}
-        />,
+        <MetaEyebrow moveBands={moveBands} retainer={retainer} onRollLoyalty={() => rolls++} />,
       ),
     );
     act(() => loyaltyRoll()!.click());

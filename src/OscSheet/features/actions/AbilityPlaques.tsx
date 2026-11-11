@@ -82,7 +82,7 @@ function AbilityCell({
         ) : (
           <span className={VALUE}>{ability.value}</span>
         )}
-        <span className="tw:absolute tw:top-0 tw:left-full tw:ml-1 tw:flex tw:@max-md/app:static tw:@max-md/app:ml-0">
+        <span className="tw:absolute tw:-top-2 tw:left-full tw:-ml-px tw:flex tw:@max-md/app:static tw:@max-md/app:ml-0">
           <button
             type="button"
             className={MOD}

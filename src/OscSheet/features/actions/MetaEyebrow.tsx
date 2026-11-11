@@ -50,7 +50,7 @@ function Meta({
             <span className="vm-key u-text-mute">{label}</span>
           )
         }
-        valueClassName="tw:inline-flex tw:items-baseline tw:gap-1 tw:text-(length:--fs-sm) u-text-dim"
+        valueClassName="tw:inline-flex tw:items-baseline tw:gap-1 tw:text-(length:--fs-xs) u-text-dim"
       >
         {children}
       </LeaderRow>
@@ -94,7 +94,7 @@ export function MetaEyebrow({
   return (
     <section
       aria-label="Statistics"
-      className="tw:grid tw:grid-cols-[repeat(3,minmax(max-content,1fr))] tw:gap-x-5 tw:@md/app:gap-x-10 tw:@twopane/sheet:grid-cols-1"
+      className="tw:grid tw:grid-cols-2 tw:gap-x-5 tw:@min-[320px]/stats:grid-cols-[repeat(3,minmax(max-content,1fr))] tw:@min-[480px]/stats:gap-x-10 tw:@twopane/sheet:grid-cols-1"
     >
       <Meta
         label={

@@ -7,7 +7,7 @@ const SAVE_META: { key: OSESave; label: string; icon: string }[] = [
   { key: "wand", label: "Magic Wands", icon: "fas fa-magic" },
   { key: "paralysis", label: "Paralysis / Petrify", icon: "fas fa-bolt" },
   { key: "breath", label: "Breath Attacks", icon: "fas fa-wind" },
-  { key: "spell", label: "Spells / Rods / Staves", icon: "fas fa-hat-wizard" },
+  { key: "spell", label: "Spells / Rods", icon: "fas fa-hat-wizard" },
 ];
 
 export function selectSaves(actor: OSEActor): SaveVM[] {

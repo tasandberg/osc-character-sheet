@@ -68,6 +68,7 @@ export default function SheetShell() {
   // Layout-slot props built inline from the actor (HeaderBand + Minibar share the shape).
   const { hp, aac, ac, movement, init } = actor.system;
   const identity = selectIdentity(actor);
+  const retainer = selectLoyalty(actor);
   const isAscending = usesAscendingAC();
   const equippedArmor = invItems.filter(
     (i) => i.type === "armor" && i.system.equipped,
@@ -187,7 +188,7 @@ export default function SheetShell() {
                       : undefined
                   }
                   encumbrance={encumbrance}
-                  retainer={selectLoyalty(actor)}
+                  retainer={retainer}
                   onRollLoyalty={(event) => rollLoyalty(actor, event)}
                   onSetWage={
                     canEdit

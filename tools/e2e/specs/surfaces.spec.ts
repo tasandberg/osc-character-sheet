@@ -189,7 +189,7 @@ test.describe("narrower layouts", () => {
     gamePage,
     fighter,
   }) => {
-    const sheet = await openCharacterSheet(gamePage, fighter.name, { width: 500 });
+    const sheet = await openCharacterSheet(gamePage, fighter.name, { width: 460 });
     await expect(sheet.locator('[data-testid="bottom-bar"]')).toBeVisible();
     await expect(sheet.locator('[data-testid="tab-rail"]')).toBeHidden();
   });

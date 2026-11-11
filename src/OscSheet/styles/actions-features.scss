@@ -108,7 +108,7 @@
 // The column template stayed in actions.scss; only the grid itself was lost.
 .fvtt-explore {
   display: grid;
-  gap: 0 var(--spacer-4);
+  gap: 0 var(--spacer-2);
 }
 .fvtt-skill {
   display: flex;

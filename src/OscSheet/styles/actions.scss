@@ -23,17 +23,20 @@
   grid-template-areas:
     "portrait ident vitals"
     "stats    stats stats";
-  gap: var(--spacer-3);
+  gap: var(--spacer-1) var(--spacer-3);
   margin-bottom: var(--spacer-5);
   align-items: start;
   --osc-portrait-size: var(--osc-ident-height, calc(var(--spacer-12) * 2));
 }
-@container sheet (min-width: 620px) {
+@container sheet (min-width: 480px) {
   .osc-head {
     grid-template-areas:
       "portrait ident vitals"
       "portrait stats stats";
-    --osc-portrait-size: var(--osc-head-height, calc(var(--spacer-12) * 2));
+    --osc-portrait-size: min(
+      var(--osc-head-height, calc(var(--spacer-12) * 2)),
+      calc(var(--spacer-12) * 2.5)
+    );
   }
 }
 // Only `grid-area` stays on the header's children: the areas are what let medium,
@@ -45,10 +48,6 @@
 }
 .osc-head-stats {
   grid-area: stats;
-}
-.osc-retainer-tag.vm-tag-teal {
-  background: var(--teal);
-  color: var(--stamp-text);
 }
 // Overlay anchor for module-injected portrait controls (see HeaderBand +
 // osc-sheet.js renderActorSheet forwarding). Class is exactly
@@ -92,7 +91,7 @@
 .osc-sheet-app .osc-vital .vv-step {
   min-width: 0;
   padding-inline: 0;
-  color: var(--text-dim);
+  color: var(--text-mute);
   font-size: var(--fs-lg);
 
   &:hover:not(:disabled) {
@@ -100,7 +99,6 @@
     text-decoration: none;
   }
 }
-// XS-only editable input (hidden by default; toggled in the XS block)
 
 // The movement popover — shared by the header Move row and the inventory
 // encumbrance line — is wholly utilities in MovePop.tsx, which is also the single
@@ -112,11 +110,17 @@
 // Nav + tabs are in actions-features.scss; SavesExploration.tsx is NOT converted.
 
 // --- saves & exploration grid ---
-// Exploration: up to 2-up grid, dropping to one column under ~240px cells.
+// Exploration: up to 2-up grid, dropping to one column under ~200px cells.
 .fvtt-explore {
   grid-template-columns: repeat(
     auto-fill,
-    minmax(max(240px, calc((100% - var(--spacer-4)) / 2)), 1fr)
+    minmax(max(200px, calc((100% - var(--spacer-2)) / 2)), 1fr)
+  );
+}
+.fvtt-explore.osc-fav-abilities {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(240px, calc((100% - var(--spacer-2)) / 2)), 1fr)
   );
 }
 // In the narrow left rail (large view), 2-up is too tight — labels wrap to 3

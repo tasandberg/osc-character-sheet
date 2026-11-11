@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef } from "react";
 import type { IdentityVM } from "@domain/vm-types";
-import { Tag } from "@ui/Tag";
 
 function useFitText(text: string, min = 0.6) {
   const ref = useRef<HTMLDivElement>(null);
@@ -31,6 +30,7 @@ export function Identity({
 }) {
   const nameRef = useFitText(identity.name);
   const standing = identity.title;
+  const retainer = identity.isRetainer;
   return (
     <div className="osc-ident tw:flex tw:min-w-0 tw:flex-col tw:gap-[calc(var(--spacer-1)*1.5)] tw:@max-md/app:overflow-hidden tw:@twopane/sheet:w-full tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
       {/* padding + equal negative margin: layout unchanged, clip box grows so the display face's J survives */}
@@ -46,7 +46,7 @@ export function Identity({
             {identity.race && <>{identity.race} </>}
             <span className="tw:font-medium">{identity.classLevels}</span>
           </div>
-          {(standing || identity.alignment || identity.isRetainer) && (
+          {(standing || identity.alignment || retainer) && (
             <div className="u-text-dim tw:text-(length:--fs-sm) tw:@max-md/app:text-(length:--fs-xs)">
               {standing && (
                 <span className="tw:font-serif tw:not-italic">{standing}</span>
@@ -57,11 +57,9 @@ export function Identity({
                   {identity.alignment}
                 </span>
               )}
-              {identity.isRetainer && (standing || identity.alignment) && " · "}
-              {identity.isRetainer && (
-                <Tag intent="teal" size="xs" className="osc-retainer-tag">
-                  Retainer
-                </Tag>
+              {retainer && (standing || identity.alignment) && " · "}
+              {retainer && (
+                <span className="tw:text-teal-accent">Retainer</span>
               )}
             </div>
           )}

@@ -32,6 +32,8 @@ const VITAL_SUB =
 /** Full label by default; the short form takes over at XS, where the card is 52px wide. */
 const SUB_FULL = "full tw:@max-md/app:hidden";
 const SUB_SHORT = "short tw:hidden tw:@max-md/app:inline";
+const AC_FULL = "full tw:hidden tw:@min-[600px]/sheet:inline";
+const AC_SHORT = "short tw:@min-[600px]/sheet:hidden";
 
 const POP =
   "tw:grid tw:min-w-[150px] tw:grid-cols-[minmax(max-content,1fr)_max-content] tw:gap-x-3 tw:gap-y-[3px] tw:text-left";
@@ -52,18 +54,22 @@ function useHeaderHeight() {
   useLayoutEffect(() => {
     const head = ref.current;
     const ident = head?.querySelector<HTMLElement>(".osc-ident");
-    if (!head || !ident) return;
+    const vitals = head?.querySelector<HTMLElement>(".osc-vitals");
+    if (!head || !ident || !vitals) return;
     const stats = head.querySelector<HTMLElement>(".osc-head-stats");
     const measure = () => {
       const top = ident.getBoundingClientRect().top;
-      const bottom = (stats ?? ident).getBoundingClientRect().bottom;
-      head.style.setProperty("--osc-ident-height", `${ident.offsetHeight}px`);
+      const rowBottom = Math.max(
+        ident.getBoundingClientRect().bottom,
+        vitals.getBoundingClientRect().bottom,
+      );
+      const bottom = stats?.getBoundingClientRect().bottom ?? rowBottom;
+      head.style.setProperty("--osc-ident-height", `${rowBottom - top}px`);
       head.style.setProperty("--osc-head-height", `${bottom - top}px`);
     };
     measure();
     const observer = new ResizeObserver(measure);
-    observer.observe(ident);
-    if (stats) observer.observe(stats);
+    for (const el of [ident, vitals, stats]) if (el) observer.observe(el);
     return () => observer.disconnect();
   }, []);
   return ref;
@@ -100,7 +106,7 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
       <Identity identity={identity} />
       {/* minmax(0,…) so a wide value can't auto-expand a track past its share
           and shove the sibling card out of the container. */}
-      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*10)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-stretch tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
+      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*9)] tw:@min-[600px]/sheet:w-[calc(var(--fs-base)*10)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-stretch tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
         <div className={`${VITAL} hp`}>
           <span className="vm-key">HP</span>
           <div className={VV_ROW}>
@@ -154,12 +160,12 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
             </span>
           </div>
           <div className={VITAL_SUB}>
-            <span className={SUB_FULL}>{vitals.ac.ascending ? "Ascending" : "Descending"}</span>
-            <span className={SUB_SHORT}>{vitals.ac.ascending ? "asc" : "desc"}</span>
+            <span className={AC_FULL}>{vitals.ac.ascending ? "Ascending" : "Descending"}</span>
+            <span className={AC_SHORT}>{vitals.ac.ascending ? "asc" : "desc"}</span>
           </div>
         </div>
       </div>
-      {stats && <div className="osc-head-stats">{stats}</div>}
+      {stats && <div className="osc-head-stats tw:@container/stats">{stats}</div>}
     </div>
   );
 }

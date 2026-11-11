@@ -42,7 +42,7 @@ class OscSheet extends ReactActorSheetV2 {
     tag: "div",
     classes: ["osc-sheet"],
     position: {
-      width: 625,
+      width: 550,
       height: 750,
     },
     actions: {
