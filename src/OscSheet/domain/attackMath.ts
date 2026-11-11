@@ -21,11 +21,13 @@ export interface AttackInput {
   thac0?: { bba?: number; mod?: { melee?: number; missile?: number } };
   /** Per-actor Tweaks flag `system.config.ignoreBonusDamage`. */
   ignoreBonusDamage: boolean;
+  /** Actor `system.damage.mod` (OSE ≥ 3.3): per-range damage bonus from Tweaks or effects. */
+  damageMod?: { melee?: number; missile?: number };
 }
 
 /** One contributing part of a roll. */
 export interface AttackTerm {
-  /** `"die"`, or the name of the modifier: `str` / `dex` / `weapon` / `tweaks` / `ab`. */
+  /** `"die"`, or the name of the modifier: `str` / `dex` / `weapon` / `tweaks` / `ab` / `damage`. */
   label: string;
   /** The dice expression for the die term, a signed integer for every other. */
   value: string | number;
@@ -90,14 +92,19 @@ export function computeAttack(input: AttackInput, settings: AttackSettings): Att
 
   const dmgBonus =
     settings.ignoreAttackBonusOnDamageRoll || input.ignoreBonusDamage ? 0 : bonus;
+  const dmgMod = (ranged ? input.damageMod?.missile : input.damageMod?.melee) ?? 0;
   const dmg = compose(
     die,
     ranged
-      ? [{ label: "weapon", value: dmgBonus }]
+      ? [
+          { label: "weapon", value: dmgBonus },
+          { label: "damage", value: dmgMod },
+        ]
       : [
           { label: "weapon", value: dmgBonus },
           { label: "str", value: input.strMod },
           { label: "tweaks", value: tweak },
+          { label: "damage", value: dmgMod },
         ],
   );
 
