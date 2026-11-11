@@ -24,7 +24,7 @@
     "portrait ident vitals"
     "stats    stats stats";
   gap: var(--spacer-1) var(--spacer-3);
-  margin-bottom: var(--spacer-5);
+  margin-bottom: var(--spacer-6);
   align-items: start;
   --osc-portrait-size: var(--osc-ident-height, calc(var(--spacer-12) * 2));
 }
