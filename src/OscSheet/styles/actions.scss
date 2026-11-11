@@ -114,13 +114,13 @@
 .fvtt-explore {
   grid-template-columns: repeat(
     auto-fill,
-    minmax(max(200px, calc((100% - var(--spacer-2)) / 2)), 1fr)
+    minmax(max(200px, calc((100% - var(--spacer-4)) / 2)), 1fr)
   );
 }
 .fvtt-explore.osc-fav-abilities {
   grid-template-columns: repeat(
     auto-fill,
-    minmax(max(240px, calc((100% - var(--spacer-2)) / 2)), 1fr)
+    minmax(max(240px, calc((100% - var(--spacer-4)) / 2)), 1fr)
   );
 }
 // In the narrow left rail (large view), 2-up is too tight — labels wrap to 3
@@ -142,8 +142,7 @@
 // Favorited abilities reuse the exploration row but show name, target and
 // formula at one size. (0,3,0) is required: the base sizes are UNLAYERED, so a
 // `tw:` utility on the element would lose to them regardless of specificity.
-.fvtt-skill.osc-fav-ability .skv,
-.fvtt-skill.osc-fav-ability .skv i {
+.fvtt-skill.osc-fav-ability .skv {
   font-size: var(--fs-md);
 }
 

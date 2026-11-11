@@ -108,7 +108,7 @@
 // The column template stayed in actions.scss; only the grid itself was lost.
 .fvtt-explore {
   display: grid;
-  gap: 0 var(--spacer-2);
+  gap: 0 var(--spacer-4);
 }
 .fvtt-skill {
   display: flex;
@@ -137,6 +137,7 @@
   color: var(--text-dim, #b5ad97);
   flex: 1;
   min-width: 0;
+  align-self: center;
 }
 .fvtt-skill .skv {
   // value at the name's size — no pill.
@@ -144,7 +145,7 @@
   align-items: center;
   gap: var(--spacer-1);
   font-size: var(--fs-md);
-  color: var(--text);
+  color: var(--text-dim);
   white-space: nowrap;
   flex: none;
   align-self: center;

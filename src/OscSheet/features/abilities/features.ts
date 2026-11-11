@@ -87,7 +87,7 @@ export function selectFeatures(actor: OSEActor): FeatureVM[] {
       rollTag: rollable ? composeTag(s.roll!, s.rollType, rollTarget) : undefined,
       rollFormula: rollable ? s.roll! : undefined,
       rollTargetTag:
-        rollable && rollTarget ? `${rollSymbol(s.rollType)}${rollTarget}` : undefined,
+        rollable && rollTarget ? `${rollSymbol(s.rollType)} ${rollTarget}` : undefined,
       favorite: isFavorite(item),
       onRoll: rollable ? activate : undefined,
       onActivate: activate,
