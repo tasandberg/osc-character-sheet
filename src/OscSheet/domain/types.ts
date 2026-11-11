@@ -129,6 +129,8 @@ export type OSEActor = Actor & {
     /** To-hit: `value` = THAC0 (descending), `bba` = base attack bonus (ascending),
      *  `mod` = the Tweaks per-range attack bonuses. */
     thac0: { value: number; bba: number; mod?: { melee?: number; missile?: number } };
+    /** OSE ≥ 3.3: per-range damage bonus from Tweaks or Active Effects. */
+    damage?: { mod?: { melee?: number; missile?: number } };
     updatedAt?: string;
     weapons: OseWeapon[];
     classes?: OseClassItem[];
