@@ -11,6 +11,12 @@ import {
   runExplorationConvergence,
   runWorldMigration,
 } from "@domain/migrations";
+import {
+  repairActorSlots,
+  reportSlotRepair,
+  runSlotAdjustmentRepair,
+  type RepairActor,
+} from "@domain/migrationRepair";
 import logger from "@src/util/logger";
 import { preloadSheetFonts } from "@src/OscSheet/styles/vellum/preloadFonts";
 
@@ -32,11 +38,23 @@ export function initialize() {
       onRenderChatMessage(message, html),
   );
 
+  // OSE's later Migrate/Convert creates the migration effect; the creating client repairs it.
+  foundry.helpers.Hooks.on(
+    "createActiveEffect",
+    (effect: ActiveEffect, _options: unknown, userId: string) => {
+      if (userId !== game.user?.id || !(effect.parent instanceof Actor)) return;
+      repairActorSlots(effect.parent as unknown as RepairActor)
+        .then(reportSlotRepair)
+        .catch((err) => console.error(`${MODULE_ID} | spell slot repair failed`, err));
+    },
+  );
+
   foundry.helpers.Hooks.once("ready", async () => {
     logger("Initializing React application");
     migrateLocalStorage(); // every user; independent of the GM world pass
     await runWorldMigration();
     await runExplorationConvergence(); // after the rename pass — it reads new-scope flags
+    reportSlotRepair(await runSlotAdjustmentRepair());
     await installAdvancedClasses();
     registerSendItemSocket(); // GM relay for cross-owner "Send Item" transfers
 
