@@ -35,7 +35,7 @@ import {
 import { useInventoryActions } from "@features/inventory/useInventoryActions";
 import { showTokenVariantsPortraitPicker } from "@domain/tokenVariants";
 import { selectAc } from "@domain/vitals";
-import { selectHitDice } from "@domain/classRules";
+import { selectHdParts, selectHitDice } from "@domain/classRules";
 import { selectIdentity } from "@domain/identity";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import { useToast } from "@ui/toastContext";
@@ -175,6 +175,7 @@ export default function SheetShell() {
                 <MetaEyebrow
                   moveBands={vitals.moveBands}
                   hitDice={selectHitDice(actor)}
+                  hitDiceParts={selectHdParts(actor)}
                   onRollHitDice={
                     canEdit
                       ? (event) => actor.rollHitDice({ event })

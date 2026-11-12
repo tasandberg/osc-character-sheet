@@ -1,9 +1,10 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import type { EncumbranceVM, LoyaltyVM, MoveBands } from "@domain/vm-types";
 import { armorTierLabel } from "@domain/format";
 import { effectsLabel } from "@features/effects/effects";
 import { LeaderRow } from "@ui/LeaderRow";
 import { MoveTooltip } from "@ui/MovePop";
+import { HoverTip } from "@ui/HoverTip";
 import { RollLabel } from "@ui/RollLabel";
 import { RollDieButton } from "@ui/RollDieButton";
 import { InlineEditValue } from "@ui/InlineEditValue";
@@ -12,6 +13,7 @@ import type { ActivateEvent } from "@ui/rollable";
 type Props = {
   moveBands: MoveBands;
   hitDice?: string;
+  hitDiceParts?: { name: string; hd: string }[];
   onRollHitDice?: (event: ActivateEvent) => void;
   encumbrance?: EncumbranceVM;
   retainer?: LoyaltyVM | null;
@@ -20,9 +22,6 @@ type Props = {
   effectCount?: number;
   onSetWage?: (wage: string) => void;
 };
-
-const DOTTED =
-  "tw:underline tw:decoration-(--text-dim) tw:decoration-dotted tw:underline-offset-[2px]";
 
 function Meta({
   label,
@@ -62,6 +61,7 @@ function Meta({
 export function MetaEyebrow({
   moveBands,
   hitDice,
+  hitDiceParts,
   onRollHitDice,
   encumbrance,
   retainer,
@@ -85,10 +85,7 @@ export function MetaEyebrow({
           </>
         }
       >
-        <span
-          tabIndex={0}
-          className={`tw:relative tw:cursor-default ${DOTTED}`}
-        >
+        <span tabIndex={0} className="tw:relative tw:cursor-default">
           <span className="tw:@max-md/app:hidden">
             {moveBands.explore}'({moveBands.encounter}')
           </span>
@@ -105,7 +102,21 @@ export function MetaEyebrow({
       </Meta>
       {hitDice !== undefined && (
         <Meta label="HD">
-          {hitDice || "—"}
+          {hitDiceParts
+            ? hitDiceParts.map((part, i) => (
+                <Fragment key={part.name}>
+                  {i > 0 && " / "}
+                  <span
+                    tabIndex={0}
+                    aria-label={`${part.name}: ${part.hd}`}
+                    className="tw:relative tw:cursor-default"
+                  >
+                    {part.hd}
+                    <HoverTip>{part.name}</HoverTip>
+                  </span>
+                </Fragment>
+              ))
+            : hitDice || "—"}
           {hitDice && onRollHitDice && (
             <RollDieButton label="Hit Dice" onRoll={onRollHitDice} />
           )}

@@ -15,6 +15,7 @@ import {
 } from "@domain/classRules";
 import type { OSEActor, OseClassItem, OseRaceItem } from "@domain/types";
 import { classFace } from "./classFace";
+import { grantLevel } from "@features/abilities/grantedAbilities";
 
 const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${n}%`;
 const fmtNum = (n: number) => n.toLocaleString();
@@ -41,20 +42,31 @@ type Item = OseClassItem | OseRaceItem;
 const INFO =
   "u-row u-gap-2 tw:col-start-1 tw:min-w-0 tw:@max-md/app:col-end-5 tw:@max-md/app:row-start-1";
 
-function ItemInfo({ item, aside }: { item: Item; aside?: ReactNode }) {
+function ItemInfo({
+  item,
+  aside,
+  below,
+}: {
+  item: Item;
+  aside?: ReactNode;
+  below?: ReactNode;
+}) {
   return (
     <div className={INFO}>
       <RowIcon large img={item.img} name={item.name ?? ""} />
-      <div className="u-row u-gap-2 u-flex-1 tw:min-w-0">
-        <button
-          type="button"
-          className={NAME}
-          title={`Open ${item.name}`}
-          onClick={() => void item.sheet?.render(true)}
-        >
-          {item.name}
-        </button>
-        {aside}
+      <div className="u-flex-1 tw:min-w-0">
+        <div className="u-row u-gap-2 tw:min-w-0 tw:flex-wrap tw:gap-y-1">
+          <button
+            type="button"
+            className={`${NAME} tw:shrink-0`}
+            title={`Open ${item.name}`}
+            onClick={() => void item.sheet?.render(true)}
+          >
+            {item.name}
+          </button>
+          {aside}
+        </div>
+        {below}
       </div>
     </div>
   );
@@ -207,7 +219,6 @@ function DeleteButton({ item, actor }: { item: Item; actor: OSEActor }) {
     <span className={COL.remove}>
       <IconButton
         variant="danger"
-        size="sm"
         title={`Remove ${item.name}`}
         aria-label={`Remove ${item.name}`}
         onClick={() => void actor.removeGrantingItem(item)}
@@ -255,10 +266,10 @@ function AddAbilitiesButton({
   item,
 }: {
   actor: OSEActor;
-  item: OseClassItem;
+  item: OseClassItem | OseRaceItem;
 }) {
   const { offerAbilities } = actor;
-  const { level } = item.system;
+  const level = grantLevel(item);
   if (!offerAbilities) return null;
   return (
     <InlineButton
@@ -288,7 +299,11 @@ function KindTag({ children }: { children: ReactNode }) {
 }
 
 function LevelText({ children }: { children: ReactNode }) {
-  return <span className="u-nowrap u-fs-md u-text-dim">Level {children}</span>;
+  return (
+    <span className="u-nowrap u-flex-none u-fs-md u-text-dim">
+      Level {children}
+    </span>
+  );
 }
 
 function ClassRow({
@@ -336,10 +351,11 @@ function ClassRow({
                 onLevelUp={() => void actor.levelUp(item)}
               />
             )}
-            {canEdit && missingAbilities && (
-              <AddAbilitiesButton actor={actor} item={item} />
-            )}
           </>
+        }
+        below={
+          canEdit &&
+          missingAbilities && <AddAbilitiesButton actor={actor} item={item} />
         }
       />
       <Stat label="XP" className={COL.xp}>
@@ -385,16 +401,22 @@ function RaceRow({
   actor,
   race,
   canEdit,
+  missingAbilities = false,
 }: {
   actor: OSEActor;
   race: OseRaceItem;
   canEdit: boolean;
+  missingAbilities?: boolean;
 }) {
   return (
     <div className={ROW}>
       <ItemInfo
         item={race}
         aside={<KindTag>{game.i18n.localize("OSC.details.race")}</KindTag>}
+        below={
+          canEdit &&
+          missingAbilities && <AddAbilitiesButton actor={actor} item={race} />
+        }
       />
       {canEdit && <DeleteButton item={race} actor={actor} />}
     </div>
@@ -504,10 +526,20 @@ export function GrantingItemHeader({
     void updateActor({ [key]: value });
   const label = `${expanded ? "Collapse" : "Expand"} ${item.name} abilities`;
   return (
-    <DisclosureRow label={label} expanded={expanded} onToggle={onToggle}>
+    <DisclosureRow
+      label={label}
+      expanded={expanded}
+      onToggle={onToggle}
+      spacious
+    >
       <div className={`${LIST} u-flex-1`}>
         {item.type === "race" ? (
-          <RaceRow actor={actor} race={item as OseRaceItem} canEdit={canEdit} />
+          <RaceRow
+            actor={actor}
+            race={item as OseRaceItem}
+            canEdit={canEdit}
+            missingAbilities={missingAbilities}
+          />
         ) : (
           <ClassRow
             actor={actor}

@@ -29,6 +29,7 @@ export function DisclosureRow({
   expanded,
   onToggle,
   onClick,
+  spacious = false,
   className = "",
   children,
 }: {
@@ -36,12 +37,13 @@ export function DisclosureRow({
   expanded: boolean;
   onToggle: () => void;
   onClick?: MouseEventHandler<HTMLDivElement>;
+  spacious?: boolean;
   className?: string;
   children: ReactNode;
 }) {
   return (
     <div
-      className={`u-flex u-items-center u-gap-2 u-py-1 ${className}`}
+      className={`u-flex u-items-center u-gap-2 ${spacious ? "u-py-2" : "u-py-1"} ${className}`}
       onClick={onClick}
     >
       <IconButton

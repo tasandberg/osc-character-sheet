@@ -116,7 +116,7 @@ export function FavoriteAbilities({ features, dragData }: Props) {
 
   return (
     <section className="osc-section">
-      <SectionTitle hint="favorites — click to roll">Abilities</SectionTitle>
+      <SectionTitle>Abilities</SectionTitle>
       <div className="fvtt-explore osc-fav-abilities osc-ruled-grid">
         {features.map((feature) => (
           <AbilityCard key={feature.id} feature={feature} dragData={dragData} />

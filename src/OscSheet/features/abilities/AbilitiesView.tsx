@@ -24,7 +24,6 @@ import {
 } from "@features/abilities/grantedAbilities";
 import type { FeatureVM } from "@features/abilities/features";
 import { useState, type ReactNode } from "react";
-import type { OseClassItem } from "@domain/types";
 
 function FeatureList({ features }: { features: FeatureVM[] }) {
   if (features.length === 0)
@@ -66,12 +65,11 @@ function GrantingSection({
 }) {
   const { actor } = useOscSheetContext();
   const [expanded, setExpanded] = useState(true);
-  const cls = item.type === "class" ? (item as OseClassItem) : null;
   return (
     <section className="osc-section" aria-label={item.name}>
       <GrantingItemHeader
         item={item}
-        missingAbilities={!!cls && hasMissingAbilities(actor, cls, links)}
+        missingAbilities={hasMissingAbilities(actor, item, links)}
         expanded={expanded}
         onToggle={() => setExpanded((e) => !e)}
       />
@@ -109,7 +107,28 @@ export default function Abilities() {
   ) : undefined;
 
   return (
-    <div data-testid="abilities-tab">
+    <div data-testid="abilities-tab" className="tw:space-y-8">
+      <AbilitySection title="Abilities" controls={addButton}>
+        {!items.length && <IdentitySection />}
+        {items.map((item) => (
+          <GrantingSection
+            key={itemKey(item)}
+            item={item}
+            links={links}
+            features={pick(byItem[itemKey(item)])}
+          />
+        ))}
+        {!items.length ? (
+          <FeatureList features={features} />
+        ) : (
+          ungranted.length > 0 && (
+            <section aria-label="Other abilities">
+              <FeatureList features={pick(ungranted)} />
+            </section>
+          )
+        )}
+      </AbilitySection>
+      <LanguagesSection />
       <DetailsBlock
         initMod={actor.system.init}
         hitDice={selectHitDice(actor)}
@@ -117,22 +136,6 @@ export default function Abilities() {
           canEdit ? (event) => actor.rollHitDice({ event }) : undefined
         }
       />
-      {!items.length && <IdentitySection />}
-      {items.map((item) => (
-        <GrantingSection
-          key={itemKey(item)}
-          item={item}
-          links={links}
-          features={pick(byItem[itemKey(item)])}
-        />
-      ))}
-      <AbilitySection
-        title={items.length ? "Other abilities" : "Abilities"}
-        controls={addButton}
-      >
-        <FeatureList features={items.length ? pick(ungranted) : features} />
-      </AbilitySection>
-      <LanguagesSection />
     </div>
   );
 }

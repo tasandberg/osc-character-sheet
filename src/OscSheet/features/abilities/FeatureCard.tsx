@@ -50,7 +50,7 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
         <div className="ft-main tw:flex tw:min-w-0 tw:flex-1 tw:flex-col tw:items-start u-gap-1 tw:@md/app:flex-row tw:@md/app:flex-wrap tw:@md/app:items-center tw:@md/app:gap-x-2">
           <button
             type="button"
-            className="ft-title tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
+            className="ft-title tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-normal tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
             title={`Open ${feature.name}`}
             onClick={(e) => {
               e.stopPropagation();

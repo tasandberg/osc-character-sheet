@@ -55,6 +55,29 @@ describe("MetaEyebrow", () => {
     expect(text("effect-count")).toBe("0");
   });
 
+  it("names the class behind each part of a multiclass HD", () => {
+    act(() =>
+      root.render(
+        <MetaEyebrow
+          moveBands={moveBands}
+          hitDice="2d8 / 1d4"
+          hitDiceParts={[
+            { name: "Fighter", hd: "2d8" },
+            { name: "Magic-User", hd: "1d4" },
+          ]}
+        />,
+      ),
+    );
+    expect(
+      container.querySelector('[aria-label="Fighter: 2d8"]'),
+    ).not.toBeNull();
+    expect(
+      [...container.querySelectorAll('[role="tooltip"]')].map(
+        (t) => t.textContent,
+      ),
+    ).toEqual(expect.arrayContaining(["Fighter", "Magic-User"]));
+  });
+
   it("rolls hit dice", () => {
     let rolls = 0;
     act(() =>
@@ -130,7 +153,11 @@ describe("MetaEyebrow", () => {
     let rolls = 0;
     act(() =>
       root.render(
-        <MetaEyebrow moveBands={moveBands} retainer={retainer} onRollLoyalty={() => rolls++} />,
+        <MetaEyebrow
+          moveBands={moveBands}
+          retainer={retainer}
+          onRollLoyalty={() => rolls++}
+        />,
       ),
     );
     act(() => loyaltyRoll()!.click());
