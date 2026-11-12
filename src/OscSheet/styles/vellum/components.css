@@ -360,6 +360,20 @@ button.inline-edit {
   display: inline;
   font-size: 0.75em;
 }
+button.osc-roll-die {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  cursor: pointer;
+}
+button.osc-roll-die > i {
+  margin: 0;
+}
+button.osc-roll-die:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
 
 .field.hairline {
   gap: 3px;

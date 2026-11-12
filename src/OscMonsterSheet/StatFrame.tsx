@@ -1,7 +1,8 @@
-import { useState, type MouseEvent, type ReactNode } from "react";
+import { useState } from "react";
 import { Button } from "@ui/Button";
 import { DividedRow } from "@ui/DividedRow";
 import { LeaderRow } from "@ui/LeaderRow";
+import { RollLeaderRow } from "@ui/RollLeaderRow";
 import { RuleFrame } from "@ui/RuleFrame";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import { MovementPopover } from "./parts/MovementPopover";
@@ -18,45 +19,6 @@ type Props = {
   commit?: Commit;
   onGenerateSaves?: () => void;
 };
-
-function RollRow({
-  label,
-  prefix,
-  onRoll,
-  children,
-}: {
-  label: string;
-  prefix?: ReactNode;
-  onRoll?: (event: MouseEvent<HTMLButtonElement>) => void;
-  children: ReactNode;
-}) {
-  return (
-    <LeaderRow
-      label={
-        <>
-          {prefix}
-          <span className="vm-key">{label}</span>
-        </>
-      }
-    >
-      {children}
-      {onRoll && (
-        <button
-          type="button"
-          className="osc-roll-die"
-          aria-label={`Roll ${label}`}
-          title={`Roll ${label}`}
-          onClick={onRoll}
-        >
-          <i
-            className="fa-solid fa-dice-d20 roll-label-die"
-            aria-hidden="true"
-          />
-        </button>
-      )}
-    </LeaderRow>
-  );
-}
 
 export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
   const [movementAnchor, setMovementAnchor] = useState<DOMRect | null>(null);
@@ -82,7 +44,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               onCommit={commit?.number(view.armourClass.path)}
             />
           </LeaderRow>
-          <RollRow
+          <RollLeaderRow
             label="Hit Dice"
             onRoll={
               view.hitDice.rollable
@@ -96,8 +58,8 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               placeholder="—"
               onCommit={commit?.text("system.hp.hd")}
             />
-          </RollRow>
-          <RollRow
+          </RollLeaderRow>
+          <RollLeaderRow
             label={view.attack.label}
             onRoll={(event) => rollBareAttack(actor, event)}
           >
@@ -108,8 +70,8 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               placeholder="—"
               onCommit={commit?.number(view.attack.path)}
             />
-          </RollRow>
-          <RollRow
+          </RollLeaderRow>
+          <RollLeaderRow
             label="Appearing"
             onRoll={
               appearing.rollableDungeon
@@ -123,8 +85,8 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               placeholder="—"
               onCommit={commit?.loose("system.details.appearing.d")}
             />
-          </RollRow>
-          <RollRow
+          </RollLeaderRow>
+          <RollLeaderRow
             prefix={
               <span aria-hidden="true" className="vm-key">
                 ↳
@@ -143,17 +105,17 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
               placeholder="—"
               onCommit={commit?.loose("system.details.appearing.w")}
             />
-          </RollRow>
+          </RollLeaderRow>
         </div>
         <div className="osc-monster-stat-column">
-          <RollRow
+          <RollLeaderRow
             label="Reaction"
             onRoll={(event) => actor.rollReaction({ event })}
           >
             2d6
-          </RollRow>
+          </RollLeaderRow>
           {view.morale && (
-            <RollRow
+            <RollLeaderRow
               label="Morale"
               onRoll={
                 view.morale.rollable
@@ -167,10 +129,10 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
                 placeholder="—"
                 onCommit={commit?.loose("system.details.morale")}
               />
-            </RollRow>
+            </RollLeaderRow>
           )}
           {view.loyalty != null && (
-            <RollRow
+            <RollLeaderRow
               label="Loyalty"
               onRoll={(event) => actor.rollLoyalty({ event })}
             >
@@ -180,7 +142,7 @@ export function StatFrame({ actor, view, commit, onGenerateSaves }: Props) {
                 placeholder="—"
                 onCommit={commit?.number("system.retainer.loyalty")}
               />
-            </RollRow>
+            </RollLeaderRow>
           )}
           <LeaderRow label={<span className="vm-key">Treasure</span>}>
             <TreasureValue

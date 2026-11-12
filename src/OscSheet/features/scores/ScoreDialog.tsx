@@ -4,8 +4,8 @@ import { Modal } from "@ui";
 import { Button } from "@ui/Button";
 import { NumberInput } from "@ui/NumberInput";
 import {
+  contributionAmount,
   selectScoreBreakdown,
-  type ScoreContribution,
   type ScoreKey,
 } from "./scoreBreakdown";
 
@@ -17,13 +17,6 @@ const ROW_VALUE =
   "tw:justify-self-end tw:pl-3 u-fs-md u-nowrap tw:tabular-nums u-text";
 
 const localize = (key: string) => game.i18n.localize(key);
-
-const amountText = (contribution: ScoreContribution) =>
-  contribution.type === "add"
-    ? contribution.amount
-    : game.i18n.format(`OSC.scores.types.${contribution.type}`, {
-        value: contribution.amount,
-      });
 
 export function ScoreDialog({
   scoreKey,
@@ -41,7 +34,7 @@ export function ScoreDialog({
   return (
     <Modal
       open
-      title={name}
+      title={`Edit ${name}`}
       onClose={onClose}
       className="modal-inset osc-score-modal"
       footer={
@@ -84,7 +77,7 @@ export function ScoreDialog({
                 <span className="tw:min-w-0 tw:truncate u-fs-md u-text">
                   {contribution.name}
                 </span>
-                <span className={ROW_VALUE}>{amountText(contribution)}</span>
+                <span className={ROW_VALUE}>{contributionAmount(contribution)}</span>
               </li>
             ))}
           </ul>
@@ -95,13 +88,13 @@ export function ScoreDialog({
           <span className="u-fs-xl tw:font-semibold u-text">
             {game.i18n.format("OSC.scores.Total", {
               score: localize(`OSE.scores.${scoreKey}.short`),
-            })}{" "}
-            <span className="u-fs-md u-text-dim tw:font-normal">
-              {localize("OSE.Modifier")} {breakdown.mod}
-            </span>
+            })}
           </span>
           <span className="tw:justify-self-end tw:pl-3 u-fs-xl tw:font-semibold u-nowrap tw:tabular-nums u-text">
             {breakdown.total}
+          </span>
+          <span className="tw:col-span-full tw:justify-self-end u-fs-md u-text-dim">
+            {localize("OSE.Modifier")} {breakdown.mod}
           </span>
         </div>
         {breakdown.limited && (

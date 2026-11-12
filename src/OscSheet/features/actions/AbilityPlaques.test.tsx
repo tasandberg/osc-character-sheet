@@ -3,8 +3,9 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { AbilityPlaques } from "@features/actions/AbilityPlaques";
+import { HeaderBand } from "@layout/HeaderBand";
 import { Identity } from "@layout/Identity";
-import type { AbilityVM, IdentityVM } from "@domain/vm-types";
+import type { AbilityVM, IdentityVM, VitalsVM } from "@domain/vm-types";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -88,6 +89,29 @@ describe("AbilityPlaques", () => {
     );
   });
 
+  it("derives the score from its base and adjustments in the mod tooltip", () => {
+    act(() =>
+      root.render(
+        <AbilityPlaques
+          abilities={[
+            {
+              ...abilities[0],
+              breakdown: {
+                base: 7,
+                contributions: [
+                  { id: "belt", name: "Belt", type: "add", amount: "+2" },
+                ],
+              },
+            },
+          ]}
+        />,
+      ),
+    );
+    expect(container.querySelector('[role="tooltip"]')!.textContent).toContain(
+      "OSC.scores.Base7Belt+2",
+    );
+  });
+
   it("opens the score's breakdown from its value", () => {
     const opened: string[] = [];
     act(() =>
@@ -125,8 +149,53 @@ describe("Identity standing line", () => {
     expect(container.textContent).not.toContain("Wage");
   });
 
+  it("badges a retainer", () => {
+    act(() => root.render(<Identity identity={identity} />));
+    expect(container.textContent).not.toContain("Retainer");
+    act(() =>
+      root.render(<Identity identity={{ ...identity, isRetainer: true }} />),
+    );
+    expect(container.textContent).toContain("Veteran · Lawful · Retainer");
+  });
+
   it("drops the slot entirely when there is no title", () => {
     act(() => root.render(<Identity identity={{ ...identity, title: "" }} />));
     expect(container.textContent).toContain("Fighter 1Lawful");
+  });
+});
+
+describe("HeaderBand max HP", () => {
+  const vitals: VitalsVM = {
+    hp: { value: 5, max: 12 },
+    ac: { value: 7, ascending: false },
+    moveBands: { encounter: 40, explore: 120, travel: 24 },
+  };
+
+  it("edits the stored max, not the effect-adjusted one", () => {
+    const committed: number[] = [];
+    act(() =>
+      root.render(
+        <HeaderBand
+          identity={identity}
+          vitals={vitals}
+          baseMaxHp={10}
+          onSetMaxHp={(n) => committed.push(n)}
+        />,
+      ),
+    );
+    act(() =>
+      container
+        .querySelector<HTMLElement>('[aria-label="Edit Max HP"]')!
+        .click(),
+    );
+    const field = container.querySelector<HTMLElement>('[role="textbox"]')!;
+    expect(field.textContent).toBe("10");
+    act(() => {
+      field.textContent = "14";
+      field.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      );
+    });
+    expect(committed).toEqual([14]);
   });
 });

@@ -52,9 +52,12 @@ const abilitySource = (ability: OseAbility) => {
 const ownedKey = (name: string, requirements: string) =>
   `${name}|${requirements}`.toLocaleLowerCase().trim();
 
+export const grantLevel = (item: GrantingItem) =>
+  item.type === "race" ? 1 : (item as OseClassItem).system.level;
+
 export function hasMissingAbilities(
   actor: OSEActor,
-  item: OseClassItem,
+  item: GrantingItem,
   links: GrantLinks,
 ): boolean {
   const resolved = links[itemKey(item)];
@@ -67,7 +70,7 @@ export function hasMissingAbilities(
     source: abilitySource(a),
   }));
   return resolved
-    .filter((l) => l.level <= item.system.level)
+    .filter((l) => l.level <= grantLevel(item))
     .some(
       (l) =>
         !owned.some(

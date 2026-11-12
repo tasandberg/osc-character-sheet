@@ -60,7 +60,7 @@ test.describe("read-only sheet (non-owner)", () => {
     // --- Persistent header + topbar: no character-edit affordances ---
     // HP steppers / editable HP input (owner-only; static value stays).
     await expect(sheet.locator(".vv-step")).toHaveCount(0);
-    await expect(sheet.locator("input.vv-input")).toHaveCount(0);
+    await expect(sheet.getByRole("button", { name: "Edit Current HP" })).toHaveCount(0);
     await expect(sheet.locator(".osc-mb-hp-btn")).toHaveCount(0);
     await expect(sheet.locator("input.osc-mb-hp-input")).toHaveCount(0);
     // Portrait click-to-edit action is not wired for non-owners.

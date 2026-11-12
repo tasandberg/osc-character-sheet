@@ -33,6 +33,10 @@ const LINKED: Record<string, { name: string; system: object }> = {
     name: "Climb Sheer Surfaces",
     system: { requirements: "Thief" },
   },
+  "Compendium.ose.abilities.Item.infravision": {
+    name: "Infravision",
+    system: { requirements: "Elf" },
+  },
 };
 
 const g = globalThis as Record<string, unknown>;
@@ -243,6 +247,37 @@ describe("Add missing abilities", () => {
     await act(async () => (addLink() as HTMLButtonElement).click());
 
     expect(a.offerAbilities).toHaveBeenCalledWith(a.system.classes![0], 1, {
+      upTo: true,
+      confirm: true,
+    });
+  });
+
+  it("offers a race's missing abilities at level 1", async () => {
+    const race = withLinks(elf(), [
+      "Compendium.ose.abilities.Item.infravision",
+    ]);
+    const a = Object.assign(
+      actor(
+        [thief()],
+        [
+          ability("Back-stab", { requirements: "Thief" }),
+          ability("Climb Sheer Surfaces", { requirements: "Thief" }),
+        ],
+        race,
+      ),
+      { offerAbilities: vi.fn(async () => undefined) },
+    );
+    await render(a);
+
+    await act(async () =>
+      (
+        container.querySelector(
+          '[aria-label="Add missing abilities for Elf"]',
+        ) as HTMLButtonElement
+      ).click(),
+    );
+
+    expect(a.offerAbilities).toHaveBeenCalledWith(race, 1, {
       upTo: true,
       confirm: true,
     });

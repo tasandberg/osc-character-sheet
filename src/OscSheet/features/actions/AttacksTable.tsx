@@ -289,10 +289,9 @@ export function AttacksTable({
     <section className="osc-section" data-testid="attacks">
       <SectionTitle>
         Attacks
-        <span className="hint">click to roll</span>
         {targeting &&
           (targeting.current ? (
-            <span className="osc-attack-target-current u-row u-nowrap u-gap-1 u-fs-xs tw:self-center tw:font-sans">
+            <span className="osc-attack-target-current u-row u-nowrap u-gap-1 u-fs-xs tw:ml-auto tw:self-center tw:font-sans">
               <i
                 className="fa-solid fa-crosshairs u-text-dim"
                 aria-hidden="true"
@@ -309,7 +308,7 @@ export function AttacksTable({
             </span>
           ) : (
             <IconButton
-              className="osc-attack-target-btn tw:self-center"
+              className="osc-attack-target-btn tw:ml-auto tw:self-center"
               onClick={() => openPrompt()}
             >
               <i className="fa-solid fa-crosshairs" aria-hidden="true" />

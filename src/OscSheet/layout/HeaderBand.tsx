@@ -1,16 +1,10 @@
-import type { EncumbranceVM, IdentityVM, VitalsVM } from "@domain/vm-types";
-import { armorTierLabel, formatMod } from "@domain/format";
+import type { IdentityVM, VitalsVM } from "@domain/vm-types";
 import { Identity } from "@layout/Identity";
 import { Portrait } from "@layout/Portrait";
-import { Stamp } from "@ui/Stamp";
 import { Button } from "@ui/Button";
-import { InlineButton } from "@ui/InlineButton";
-import { Tag } from "@ui/Tag";
-import { effectsLabel } from "@features/effects/effects";
-import { rollable, type ActivateEvent } from "@ui/rollable";
-import { MoveTooltip } from "@ui/MovePop";
-import { HoverTip } from "@ui/HoverTip";
-import { Fragment } from "react";
+import { InlineEditValue } from "@ui/InlineEditValue";
+import { useId, useLayoutEffect, useRef, type ReactNode } from "react";
+import { HoverPop } from "@ui/HoverPop";
 import { useHpInput } from "@ui/useHpInput";
 
 // Tiers are container queries: `app` for the XS compact header, `sheet` for the
@@ -20,35 +14,33 @@ import { useHpInput } from "@ui/useHpInput";
 // than the `tw:text-*` scale: the tokens are `calc(<rem> * var(--fs-scale))` and
 // follow the sheet's font-size setting, the Tailwind scale is the raw rem.
 
-// Init / HD / Move: key + value inline, hairline-divided.
-const TILE =
-  "osc-tile tw:relative tw:flex tw:min-w-0 tw:flex-col tw:items-stretch tw:gap-1 tw:text-center tw:whitespace-nowrap";
-
-const STAT_BUTTON = "osc-stat-button vm-bevel rollable";
-
-const TILE_V =
-  "osc-tile-v tw:text-(length:--fs-md) tw:tabular-nums tw:text-text-dim";
-
 // HP/AC column, hairline-divided. At XS it becomes a 52×76 narrow-tall column.
 const VITAL =
-  "osc-vital tw:relative tw:px-[6px] tw:pt-[2px] tw:pb-[2px] tw:text-center" +
-  " tw:@max-md/app:flex tw:@max-md/app:min-h-[76px] tw:@max-md/app:flex-col tw:@max-md/app:items-center" +
-  " tw:@max-md/app:justify-start tw:@max-md/app:gap-[1px]" +
+  "osc-vital tw:relative tw:flex tw:flex-col tw:justify-start tw:gap-1 tw:text-center" +
+  " tw:@max-md/app:min-h-[76px] tw:@max-md/app:items-center tw:@max-md/app:gap-[1px]" +
   " tw:@max-md/app:px-[4px] tw:@max-md/app:pt-[5px] tw:@max-md/app:pb-[6px]";
 
-const VITAL_L = "vv-l tw:flex";
-
-// The hero numeral. Colour is per-card, as above.
 const VITAL_BIG =
-  "vv-big tw:-mt-1 tw:font-display tw:text-(length:--fs-6xl) tw:leading-none" +
-  " tw:@max-md/app:text-(length:--fs-3xl)";
+  "vv-big tw:font-mono tw:font-medium tw:text-(length:--fs-3xl) tw:leading-none tw:tabular-nums" +
+  " tw:@max-md/app:text-(length:--fs-2xl)";
 
 const VITAL_SUB =
-  "vv-sub tw:mt-3 tw:text-(length:--fs-xs) tw:text-text-dim tw:@max-md/app:text-(length:--fs-2xs)";
+  "vv-sub tw:flex tw:items-baseline tw:justify-center tw:gap-1 tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:text-text-mute" +
+  " tw:@max-md/app:gap-0 tw:@max-md/app:text-(length:--fs-2xs)";
 
 /** Full label by default; the short form takes over at XS, where the card is 52px wide. */
 const SUB_FULL = "full tw:@max-md/app:hidden";
 const SUB_SHORT = "short tw:hidden tw:@max-md/app:inline";
+const AC_FULL = "full tw:hidden tw:@min-[600px]/sheet:inline";
+const AC_SHORT = "short tw:@min-[600px]/sheet:hidden";
+
+const POP =
+  "tw:grid tw:min-w-[150px] tw:grid-cols-[minmax(max-content,1fr)_max-content] tw:gap-x-3 tw:gap-y-[3px] tw:text-left";
+const POP_HEAD =
+  "vm-key tw:col-span-full tw:mb-[2px] tw:border-b tw:border-border-soft tw:pb-[3px]";
+const POP_KEY = "tw:text-(length:--fs-xs) tw:text-text-dim";
+const POP_VALUE =
+  "tw:text-right tw:text-(length:--fs-xs) tw:whitespace-nowrap tw:text-text";
 
 const VV_ROW = "vv-row tw:flex tw:items-center tw:justify-center tw:gap-1";
 
@@ -56,31 +48,54 @@ const VV_ROW = "vv-row tw:flex tw:items-center tw:justify-center tw:gap-1";
 // flanking − / + steppers as HP changes; tabular-nums keeps digit widths uniform.
 const VV_VALUE = "vv-value tw:min-w-[1.2em] tw:text-center tw:tabular-nums";
 
+function useHeaderHeight(hasStats: boolean) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const head = ref.current;
+    const ident = head?.querySelector<HTMLElement>(".osc-ident");
+    const vitals = head?.querySelector<HTMLElement>(".osc-vitals");
+    if (!head || !ident || !vitals) return;
+    const stats = head.querySelector<HTMLElement>(".osc-head-stats");
+    const measure = () => {
+      const top = ident.getBoundingClientRect().top;
+      const rowBottom = Math.max(
+        ident.getBoundingClientRect().bottom,
+        vitals.getBoundingClientRect().bottom,
+      );
+      const bottom = stats?.getBoundingClientRect().bottom ?? rowBottom;
+      head.style.setProperty("--osc-ident-height", `${rowBottom - top}px`);
+      head.style.setProperty("--osc-head-height", `${bottom - top}px`);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    for (const el of [ident, vitals, stats]) if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasStats]);
+  return ref;
+}
+
 type Props = {
   identity: IdentityVM;
   vitals: VitalsVM;
-  /** Drives the encumbrance line in the MOVE hover — why the rates are what they are. */
-  encumbrance?: EncumbranceVM;
   /** Commit a new current-HP value; when provided, HP renders an editable input. */
   onSetHp?: (value: number) => void;
+  baseMaxHp?: number;
+  onSetMaxHp?: (value: number) => void;
   onPortraitClick?: React.MouseEventHandler<HTMLImageElement>;
   /** Right-click on the portrait (e.g. Token Variant Art's picker). */
   onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
   canEditPortrait?: boolean;
-  onRollHd?: (event: ActivateEvent) => void;
-  onOpenEffects?: () => void;
-  activeTemporaryEffectCount?: number;
+  stats?: ReactNode;
 };
 
-/** Header band. Grid areas (see actions.scss) place: portrait · name+Init/HD/Move
- *  · HP/AC in medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, onRollHd, onOpenEffects, activeTemporaryEffectCount = 0 }: Props) {
-  const m = vitals.moveBands;
+/** Header band. Grid areas (see actions.scss) place portrait · name · HP/AC in
+ *  medium, and stack them in the rail. */
+export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, stats }: Props) {
+  const headRef = useHeaderHeight(!!stats);
+  const acPopId = useId();
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
-  const rollHd = vitals.hd ? onRollHd : undefined;
-  const hdLabel = rollHd ? game.i18n.localize("OSE.roll.hd") : undefined;
   return (
-    <div className="osc-head">
+    <div className="osc-head" ref={headRef}>
       <Portrait
         identity={identity}
         canEdit={canEditPortrait}
@@ -88,115 +103,68 @@ export function HeaderBand({ identity, vitals, encumbrance, onSetHp, onPortraitC
         onContextMenu={onPortraitContextMenu}
       />
       <Identity identity={identity} />
-      <div className="osc-substats tw:grid tw:grid-cols-[repeat(3,minmax(max-content,1fr))] tw:gap-2 tw:self-start">
-        <div className={TILE}>
-<Stamp ink>INIT</Stamp>
-          <span className={TILE_V}>{formatMod(vitals.initMod)}</span>
-        </div>
-        <div className={TILE}>
-          <Stamp
-            className={rollHd ? STAT_BUTTON : "ink"}
-            title={hdLabel}
-            aria-label={hdLabel}
-            {...rollable(rollHd)}
-          >
-            HD
-          </Stamp>
-          <span className={TILE_V}>
-            {vitals.hdParts
-              ? vitals.hdParts.map((part, i) => (
-                  <Fragment key={part.name}>
-                    {i > 0 && " / "}
-                    <span
-                      tabIndex={0}
-                      aria-label={`${part.name}: ${part.hd}`}
-                      className="tw:cursor-default tw:underline tw:decoration-(--text-dim) tw:decoration-dotted tw:underline-offset-[2px]"
-                    >
-                      {part.hd}
-                      <HoverTip>
-                        {part.name}
-                      </HoverTip>
-                    </span>
-                  </Fragment>
-                ))
-              : vitals.hd}
-          </span>
-        </div>
-        <div className={`${TILE} tw:cursor-default`}>
-          <Stamp ink>MOVE</Stamp>
-          {/* dotted underline hints at the hover breakdown (all three rates + enc) */}
-          <span className={`${TILE_V} tw:underline tw:decoration-(--text-dim) tw:decoration-dotted tw:underline-offset-[2px]`}>
-            {vitals.move}ft
-          </span>
-          <MoveTooltip
-            bands={m}
-            tier={encumbrance?.enabled ? encumbrance.tier : undefined}
-            status={encumbrance?.enabled ? encumbrance.status : undefined}
-            armor={
-              encumbrance?.enabled && encumbrance.armorTier
-                ? armorTierLabel(encumbrance.armorTier)
-                : undefined
-            }
-          />
-        </div>
-      </div>
       {/* minmax(0,…) so a wide value can't auto-expand a track past its share
           and shove the sibling card out of the container. */}
-      <div className="osc-vitals tw:grid tw:w-[calc(var(--fs-base)*10.5)] tw:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
-        <div className={`${VITAL} hp`}>
-          <Stamp ink className={VITAL_L}>HP</Stamp>
+      <div className="osc-vitals tw:grid tw:grid-cols-2 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
+        <div className={`${VITAL} hp tw:pr-3`}>
+          <span className="vm-key">HP</span>
           <div className={VV_ROW}>
-            {/* medium+: − / + steppers around the value; XS: an editable input (toggled in CSS) */}
             {onSetHp && (
               <Button variant="link" className="vv-step" aria-label="Lose 1 HP" onClick={hp.dec}>−</Button>
             )}
-            <div className={`${VITAL_BIG} ${VV_VALUE} tw:text-crimson`}>{vitals.hp.value}</div>
-            {onSetHp && (
-              <input
-                className={`${VITAL_BIG} vv-input tw:text-crimson`}
-                aria-label="Current HP"
-                key={hp.key}
-                {...hp.inputProps}
-              />
-            )}
+            <InlineEditValue
+              label="Current HP"
+              parse="int"
+              value={String(vitals.hp.value)}
+              className={`${VITAL_BIG} ${VV_VALUE} tw:text-crimson`}
+              onCommit={onSetHp}
+            />
             {onSetHp && (
               <Button variant="link" className="vv-step" aria-label="Heal 1 HP" onClick={hp.inc}>+</Button>
             )}
           </div>
           <div className={VITAL_SUB}>
-            <span className={SUB_FULL}>Max {vitals.hp.max}</span>
-            <span className={SUB_SHORT}>/{vitals.hp.max}</span>
+            <span className={SUB_FULL}>of</span>
+            <span className={SUB_SHORT}>/</span>
+            <InlineEditValue
+              label="Max HP"
+              parse="int"
+              value={String(vitals.hp.max)}
+              editValue={String(baseMaxHp ?? vitals.hp.max)}
+              className="tw:font-mono"
+              onCommit={onSetMaxHp}
+            />
           </div>
         </div>
-        <div className={`${VITAL} ac tw:border-l tw:border-(--hair-soft)`}>
-          <Stamp ink className={VITAL_L}>AC</Stamp>
+        <div className={`${VITAL} ac tw:border-l tw:border-(--hair-soft) tw:pl-3`}>
+          <span className="vm-key">AC</span>
           <div className={VV_ROW}>
-            <div className={`${VITAL_BIG} tw:text-teal-accent`} data-testid="ac-value">{vitals.ac.value}</div>
+            <span
+              tabIndex={vitals.ac.parts ? 0 : undefined}
+              aria-describedby={vitals.ac.parts ? acPopId : undefined}
+              className="tw:relative tw:block tw:cursor-default"
+            >
+              <span className={`${VITAL_BIG} tw:block tw:text-teal-accent`} data-testid="ac-value">{vitals.ac.value}</span>
+              {vitals.ac.parts && (
+                <HoverPop id={acPopId} align="center" className={POP}>
+                  <span className={POP_HEAD}>AC {vitals.ac.value}</span>
+                  {vitals.ac.parts.map((part) => (
+                    <span key={part.label} className="tw:contents">
+                      <span className={POP_KEY}>{part.label}</span>
+                      <span className={POP_VALUE}>{part.value}</span>
+                    </span>
+                  ))}
+                </HoverPop>
+              )}
+            </span>
           </div>
           <div className={VITAL_SUB}>
-            <span className={SUB_FULL}>{vitals.ac.ascending ? "Ascending" : "Descending"}</span>
-            <span className={SUB_SHORT}>{vitals.ac.ascending ? "asc" : "desc"}</span>
+            <span className={AC_FULL}>{vitals.ac.ascending ? "Ascending" : "Descending"}</span>
+            <span className={AC_SHORT}>{vitals.ac.ascending ? "asc" : "desc"}</span>
           </div>
         </div>
-        {onOpenEffects && (
-          <div className="tw:col-span-2 u-row u-gap-1 u-justify-center u-pt-1">
-            <InlineButton variant="link" size="xs" onClick={onOpenEffects}>
-              {effectsLabel("OSE.category.effects")}
-            </InlineButton>
-            {activeTemporaryEffectCount > 0 && (
-              <Tag
-                intent="count"
-                size="xs"
-                role="status"
-                aria-label={`${activeTemporaryEffectCount} ${effectsLabel("OSE.effects.temporary")}`}
-                title={effectsLabel("OSE.effects.temporary")}
-              >
-                {activeTemporaryEffectCount}
-              </Tag>
-            )}
-          </div>
-        )}
       </div>
+      {stats && <div className="osc-head-stats tw:@container/stats">{stats}</div>}
     </div>
   );
 }

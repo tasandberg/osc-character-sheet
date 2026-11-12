@@ -2,6 +2,7 @@ import { useOscSheetContext } from "@app/context";
 import { selectFeatures } from "@features/abilities/features";
 import { SectionHeader } from "@ui/SectionHeader";
 import { IconButton } from "@ui/IconButton";
+import { DISCLOSURE_INDENT } from "@ui/DisclosureRow";
 import { createAbility } from "@features/abilities/createAbility";
 import { FeatureCard } from "@features/abilities/FeatureCard";
 import { LanguagesSection } from "@features/abilities/LanguagesSection";
@@ -21,7 +22,6 @@ import {
 } from "@features/abilities/grantedAbilities";
 import type { FeatureVM } from "@features/abilities/features";
 import { useState, type ReactNode } from "react";
-import type { OseClassItem } from "@domain/types";
 
 function FeatureList({ features }: { features: FeatureVM[] }) {
   if (features.length === 0)
@@ -63,17 +63,16 @@ function GrantingSection({
 }) {
   const { actor } = useOscSheetContext();
   const [expanded, setExpanded] = useState(true);
-  const cls = item.type === "class" ? (item as OseClassItem) : null;
   return (
     <section className="osc-section" aria-label={item.name}>
       <GrantingItemHeader
         item={item}
-        missingAbilities={!!cls && hasMissingAbilities(actor, cls, links)}
+        missingAbilities={hasMissingAbilities(actor, item, links)}
         expanded={expanded}
         onToggle={() => setExpanded((e) => !e)}
       />
       {expanded && (
-        <div className="tw:pl-[calc(var(--spacer-6)+var(--spacer-2)+var(--spacer-8)+var(--spacer-3))]">
+        <div className={DISCLOSURE_INDENT}>
           <FeatureList features={features} />
         </div>
       )}
@@ -106,21 +105,26 @@ export default function Abilities() {
   ) : undefined;
 
   return (
-    <div data-testid="abilities-tab">
-      {!items.length && <IdentitySection />}
-      {items.map((item) => (
-        <GrantingSection
-          key={itemKey(item)}
-          item={item}
-          links={links}
-          features={pick(byItem[itemKey(item)])}
-        />
-      ))}
-      <AbilitySection
-        title={items.length ? "Other abilities" : "Abilities"}
-        controls={addButton}
-      >
-        <FeatureList features={items.length ? pick(ungranted) : features} />
+    <div data-testid="abilities-tab" className="tw:space-y-8">
+      <AbilitySection title="Abilities" controls={addButton}>
+        {!items.length && <IdentitySection />}
+        {items.map((item) => (
+          <GrantingSection
+            key={itemKey(item)}
+            item={item}
+            links={links}
+            features={pick(byItem[itemKey(item)])}
+          />
+        ))}
+        {!items.length ? (
+          <FeatureList features={features} />
+        ) : (
+          ungranted.length > 0 && (
+            <section aria-label="Other abilities">
+              <FeatureList features={pick(ungranted)} />
+            </section>
+          )
+        )}
       </AbilitySection>
       <LanguagesSection />
     </div>

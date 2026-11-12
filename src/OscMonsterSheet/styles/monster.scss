@@ -36,6 +36,9 @@
   }
 
   .osc-monster-scroll {
+    background-color: var(--bg);
+    background-image: var(--vellum-grain);
+    background-attachment: local;
     flex: 1;
     min-height: 0;
     overflow-y: auto;

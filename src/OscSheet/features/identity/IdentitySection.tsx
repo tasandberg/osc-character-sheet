@@ -4,7 +4,7 @@ import { IconButton } from "@ui/IconButton";
 import { InlineButton } from "@ui/InlineButton";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import { Combobox } from "@ui/Combobox";
-import { Monogram } from "@ui/Monogram";
+import { DisclosureRow, RowIcon } from "@ui/DisclosureRow";
 import { Tag } from "@ui/Tag";
 import { effectsLabel } from "@features/effects/effects";
 import {
@@ -15,13 +15,14 @@ import {
 } from "@domain/classRules";
 import type { OSEActor, OseClassItem, OseRaceItem } from "@domain/types";
 import { classFace } from "./classFace";
+import { grantLevel } from "@features/abilities/grantedAbilities";
 
 const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${n}%`;
 const fmtNum = (n: number) => n.toLocaleString();
 
 const LIST = "tw:grid tw:grid-cols-[minmax(0,1fr)_repeat(4,auto)]";
 const ROW =
-  "tw:col-span-full tw:grid tw:grid-cols-subgrid tw:items-center u-gap-y-1 u-py-2 tw:not-first:border-t tw:border-t-border-soft";
+  "tw:col-span-full tw:grid tw:grid-cols-subgrid tw:items-center u-gap-y-1 tw:not-first:border-t tw:border-t-border-soft";
 const CELL = "tw:pl-3 tw:@max-md/app:pl-2 tw:@max-md/app:row-start-2";
 const COL = {
   xp: `${CELL} tw:col-start-2 tw:justify-self-end`,
@@ -30,40 +31,42 @@ const COL = {
   remove:
     "tw:pl-3 tw:col-start-5 tw:justify-self-end tw:@max-md/app:row-start-1",
 };
-const ICON =
-  "tw:grid tw:size-8 tw:flex-none tw:place-items-center tw:bg-ink tw:font-semibold tw:text-(length:--fs-md) tw:text-stamp-text";
 const NAME =
-  "tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold";
+  "tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-semibold tw:text-(length:--fs-lg) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold";
 const STAT = "u-inline-flex u-items-baseline u-gap-1 u-nowrap u-fs-md";
 const STACKED = "tw:col-start-1 tw:row-start-1";
 const SIZER = `${STACKED} tw:invisible`;
 
 type Item = OseClassItem | OseRaceItem;
 
-const monogram = (name: string) => (name.trim().charAt(0) || "?").toUpperCase();
-
 const INFO =
-  "u-row u-gap-3 tw:col-start-1 tw:min-w-0 tw:@max-md/app:col-end-5 tw:@max-md/app:row-start-1";
+  "u-row u-gap-2 tw:col-start-1 tw:min-w-0 tw:@max-md/app:col-end-5 tw:@max-md/app:row-start-1";
 
-function ItemInfo({ item, aside }: { item: Item; aside?: ReactNode }) {
+function ItemInfo({
+  item,
+  aside,
+  below,
+}: {
+  item: Item;
+  aside?: ReactNode;
+  below?: ReactNode;
+}) {
   return (
     <div className={INFO}>
-      <Monogram
-        img={item.img}
-        monogram={monogram(item.name ?? "")}
-        className={ICON}
-        imgClassName="tw:object-cover"
-      />
-      <div className="u-row u-gap-2 u-flex-1 tw:min-w-0">
-        <button
-          type="button"
-          className={NAME}
-          title={`Open ${item.name}`}
-          onClick={() => void item.sheet?.render(true)}
-        >
-          {item.name}
-        </button>
-        {aside}
+      <RowIcon large img={item.img} name={item.name ?? ""} />
+      <div className="u-flex-1 tw:min-w-0">
+        <div className="u-row u-gap-2 tw:min-w-0 tw:flex-wrap tw:gap-y-1">
+          <button
+            type="button"
+            className={`${NAME} tw:shrink-0`}
+            title={`Open ${item.name}`}
+            onClick={() => void item.sheet?.render(true)}
+          >
+            {item.name}
+          </button>
+          {aside}
+        </div>
+        {below}
       </div>
     </div>
   );
@@ -216,7 +219,6 @@ function DeleteButton({ item, actor }: { item: Item; actor: OSEActor }) {
     <span className={COL.remove}>
       <IconButton
         variant="danger"
-        size="sm"
         title={`Remove ${item.name}`}
         aria-label={`Remove ${item.name}`}
         onClick={() => void actor.removeGrantingItem(item)}
@@ -264,10 +266,10 @@ function AddAbilitiesButton({
   item,
 }: {
   actor: OSEActor;
-  item: OseClassItem;
+  item: OseClassItem | OseRaceItem;
 }) {
   const { offerAbilities } = actor;
-  const { level } = item.system;
+  const level = grantLevel(item);
   if (!offerAbilities) return null;
   return (
     <InlineButton
@@ -297,7 +299,11 @@ function KindTag({ children }: { children: ReactNode }) {
 }
 
 function LevelText({ children }: { children: ReactNode }) {
-  return <span className="u-nowrap u-fs-md u-text-dim">Level {children}</span>;
+  return (
+    <span className="u-nowrap u-flex-none u-fs-md u-text-dim">
+      Level {children}
+    </span>
+  );
 }
 
 function ClassRow({
@@ -345,10 +351,11 @@ function ClassRow({
                 onLevelUp={() => void actor.levelUp(item)}
               />
             )}
-            {canEdit && missingAbilities && (
-              <AddAbilitiesButton actor={actor} item={item} />
-            )}
           </>
+        }
+        below={
+          canEdit &&
+          missingAbilities && <AddAbilitiesButton actor={actor} item={item} />
         }
       />
       <Stat label="XP" className={COL.xp}>
@@ -394,16 +401,22 @@ function RaceRow({
   actor,
   race,
   canEdit,
+  missingAbilities = false,
 }: {
   actor: OSEActor;
   race: OseRaceItem;
   canEdit: boolean;
+  missingAbilities?: boolean;
 }) {
   return (
     <div className={ROW}>
       <ItemInfo
         item={race}
         aside={<KindTag>{game.i18n.localize("OSC.details.race")}</KindTag>}
+        below={
+          canEdit &&
+          missingAbilities && <AddAbilitiesButton actor={actor} item={race} />
+        }
       />
       {canEdit && <DeleteButton item={race} actor={actor} />}
     </div>
@@ -427,9 +440,7 @@ function ActorClassRow({
   return (
     <div className={ROW}>
       <div className={INFO}>
-        <span className={ICON} aria-hidden="true">
-          {monogram(details.class)}
-        </span>
+        <RowIcon large name={details.class} />
         {canEdit && isGM ? (
           <label className="u-flex-1 tw:min-w-0">
             <span className="tw:sr-only">Class</span>
@@ -448,7 +459,7 @@ function ActorClassRow({
             />
           </label>
         ) : (
-          <span className="u-row u-gap-2 tw:min-w-0 tw:font-semibold u-fs-md u-text">
+          <span className="u-row u-gap-2 tw:min-w-0 tw:font-semibold u-fs-lg u-text">
             {classFace(details.class)}
           </span>
         )}
@@ -499,29 +510,6 @@ function ActorClassRow({
   );
 }
 
-function CollapseChevron({
-  name,
-  expanded,
-  onToggle,
-}: {
-  name: string;
-  expanded: boolean;
-  onToggle: () => void;
-}) {
-  const label = `${expanded ? "Collapse" : "Expand"} ${name} abilities`;
-  return (
-    <IconButton
-      className="ft-chev tw:text-(length:--fs-md)"
-      aria-expanded={expanded}
-      aria-label={label}
-      title={label}
-      onClick={onToggle}
-    >
-      <i className="fa-solid fa-chevron-right" aria-hidden="true" />
-    </IconButton>
-  );
-}
-
 export function GrantingItemHeader({
   item,
   missingAbilities = false,
@@ -536,18 +524,22 @@ export function GrantingItemHeader({
   const { actor, updateActor, canEdit } = useOscSheetContext();
   const set = (key: string, value: string | number) =>
     void updateActor({ [key]: value });
+  const label = `${expanded ? "Collapse" : "Expand"} ${item.name} abilities`;
   return (
-    <div className="u-flex u-items-start u-gap-2">
-      <span className="u-flex-none u-pt-3">
-        <CollapseChevron
-          name={item.name}
-          expanded={expanded}
-          onToggle={onToggle}
-        />
-      </span>
+    <DisclosureRow
+      label={label}
+      expanded={expanded}
+      onToggle={onToggle}
+      spacious
+    >
       <div className={`${LIST} u-flex-1`}>
         {item.type === "race" ? (
-          <RaceRow actor={actor} race={item as OseRaceItem} canEdit={canEdit} />
+          <RaceRow
+            actor={actor}
+            race={item as OseRaceItem}
+            canEdit={canEdit}
+            missingAbilities={missingAbilities}
+          />
         ) : (
           <ClassRow
             actor={actor}
@@ -558,7 +550,7 @@ export function GrantingItemHeader({
           />
         )}
       </div>
-    </div>
+    </DisclosureRow>
   );
 }
 
@@ -570,7 +562,7 @@ export function IdentitySection() {
 
   return (
     <section className="osc-section" aria-label="Class">
-      <div className={LIST}>
+      <div className={`${LIST} tw:*:py-1`}>
         <ActorClassRow actor={actor} canEdit={canEdit} set={set} />
         {race && <RaceRow actor={actor} race={race} canEdit={canEdit} />}
       </div>

@@ -30,8 +30,9 @@ export function Identity({
 }) {
   const nameRef = useFitText(identity.name);
   const standing = identity.title;
+  const retainer = identity.isRetainer;
   return (
-    <div className="osc-ident tw:flex tw:min-w-0 tw:flex-col tw:gap-[calc(var(--spacer-1)*1.5)] tw:@max-md/app:overflow-hidden tw:@twopane/sheet:w-full tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
+    <div className="osc-ident tw:flex tw:min-w-0 tw:flex-col tw:gap-[calc(var(--spacer-1)*2.25)] tw:@max-md/app:overflow-hidden tw:@twopane/sheet:w-full tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
       {/* padding + equal negative margin: layout unchanged, clip box grows so the display face's J survives */}
       <div
         className="osc-name tw:overflow-hidden tw:p-[0.14em] tw:-mx-[0.14em] tw:-mb-[0.14em] tw:mt-[calc(var(--spacer-1)-0.26em)] tw:font-display tw:leading-[0.95] tw:tracking-[0.01em] tw:whitespace-nowrap tw:text-text tw:@max-md/app:text-ellipsis tw:@twopane/sheet:self-stretch tw:@twopane/sheet:text-center"
@@ -40,13 +41,13 @@ export function Identity({
         {identity.name}
       </div>
       {showClassLine && (
-        <div className="tw:flex tw:flex-col tw:gap-[calc(var(--spacer-1)/2)] tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
-          <div className="tw:text-(length:--fs-md) tw:text-gold-dim">
+        <div className="tw:flex tw:flex-col tw:gap-1 tw:@twopane/sheet:items-center tw:@twopane/sheet:text-center">
+          <div className="tw:text-(length:--fs-md) tw:text-gold-dim tw:@max-md/app:text-(length:--fs-sm)">
             {identity.race && <>{identity.race} </>}
             <span className="tw:font-medium">{identity.classLevels}</span>
           </div>
-          {(standing || identity.alignment) && (
-            <div className="u-text-dim tw:text-(length:--fs-sm)">
+          {(standing || identity.alignment || retainer) && (
+            <div className="u-text-dim tw:text-(length:--fs-sm) tw:@max-md/app:text-(length:--fs-xs)">
               {standing && (
                 <span className="tw:font-serif tw:not-italic">{standing}</span>
               )}
@@ -55,6 +56,10 @@ export function Identity({
                 <span className="tw:font-sans tw:text-(length:--fs-xs)">
                   {identity.alignment}
                 </span>
+              )}
+              {retainer && (standing || identity.alignment) && " · "}
+              {retainer && (
+                <span className="tw:text-teal-accent">Retainer</span>
               )}
             </div>
           )}
