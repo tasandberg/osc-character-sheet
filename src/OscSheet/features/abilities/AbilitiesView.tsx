@@ -7,7 +7,7 @@ import { createAbility } from "@features/abilities/createAbility";
 import { FeatureCard } from "@features/abilities/FeatureCard";
 import { LanguagesSection } from "@features/abilities/LanguagesSection";
 import { DetailsBlock } from "@features/abilities/DetailsBlock";
-import { selectHdParts } from "@domain/classRules";
+import { selectHitDice } from "@domain/classRules";
 import { FLAVOUR } from "@features/abilities/classes";
 import {
   GrantingItemHeader,
@@ -92,10 +92,6 @@ export default function Abilities() {
   // with the rest; the create flow opens the sheet to fill in the details.
   const onAdd = () => createAbility(actor, actor.system.details.class || "");
 
-  const hitDice =
-    selectHdParts(actor)
-      ?.map((part) => part.hd)
-      .join(" / ") ?? actor.system.hp.hd;
   const links = useGrantLinks(actor);
   const items = grantingItems(actor);
   const { byItem, ungranted } = groupAbilities(actor, links);
@@ -116,7 +112,7 @@ export default function Abilities() {
     <div data-testid="abilities-tab">
       <DetailsBlock
         initMod={actor.system.init}
-        hitDice={hitDice}
+        hitDice={selectHitDice(actor)}
         onRollHitDice={
           canEdit ? (event) => actor.rollHitDice({ event }) : undefined
         }

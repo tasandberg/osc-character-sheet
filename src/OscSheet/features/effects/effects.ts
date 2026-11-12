@@ -117,10 +117,9 @@ export function selectEffectGroups(actor: OSEActor): EffectGroup[] {
 }
 
 export const countEffects = (actor: OSEActor) =>
-  selectEffectGroups(actor).reduce(
-    (total, group) => total + group.effects.length,
-    0,
-  );
+  selectEffectGroups(actor)
+    .filter((group) => group.key !== "inactive")
+    .reduce((total, group) => total + group.effects.length, 0);
 
 type EffectDocument = {
   name: string;

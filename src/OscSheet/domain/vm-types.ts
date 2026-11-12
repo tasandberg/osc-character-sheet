@@ -29,10 +29,6 @@ export interface VitalsVM {
   hp: { value: number; max: number };
   /** Resolved AC for display: value matching the ascendingAC setting + the mode. */
   ac: { value: number; ascending: boolean; parts?: AcPart[] };
-  initMod: number;
-  hd: string;
-  hdParts?: { name: string; hd: string }[];
-  move: number;
   /** Movement bands for the MOVE pill popover (per-round / per-turn / per-day). */
   moveBands: MoveBands;
 }

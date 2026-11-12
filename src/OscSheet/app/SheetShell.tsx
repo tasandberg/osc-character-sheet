@@ -35,7 +35,7 @@ import {
 import { useInventoryActions } from "@features/inventory/useInventoryActions";
 import { showTokenVariantsPortraitPicker } from "@domain/tokenVariants";
 import { selectAc } from "@domain/vitals";
-import { selectHdParts } from "@domain/classRules";
+import { selectHitDice } from "@domain/classRules";
 import { selectIdentity } from "@domain/identity";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import { useToast } from "@ui/toastContext";
@@ -66,7 +66,7 @@ export default function SheetShell() {
   const portraitDropZone = usePortraitDrop({ enabled: canEdit });
 
   // Layout-slot props built inline from the actor (HeaderBand + Minibar share the shape).
-  const { hp, aac, ac, movement, init } = actor.system;
+  const { hp, aac, ac, movement } = actor.system;
   const identity = selectIdentity(actor);
   const retainer = selectLoyalty(actor);
   const isAscending = usesAscendingAC();
@@ -76,10 +76,6 @@ export default function SheetShell() {
   const vitals: VitalsVM = {
     hp: { value: hp.value, max: hp.max },
     ac: selectAc(aac, ac, equippedArmor, isAscending),
-    initMod: init,
-    hd: hp.hd,
-    hdParts: selectHdParts(actor),
-    move: Math.floor(movement.base),
     moveBands: {
       encounter: Math.floor(movement.encounter),
       explore: Math.floor(movement.base),
@@ -178,10 +174,7 @@ export default function SheetShell() {
               stats={
                 <MetaEyebrow
                   moveBands={vitals.moveBands}
-                  hitDice={
-                    vitals.hdParts?.map((part) => part.hd).join(" / ") ??
-                    vitals.hd
-                  }
+                  hitDice={selectHitDice(actor)}
                   onRollHitDice={
                     canEdit
                       ? (event) => actor.rollHitDice({ event })

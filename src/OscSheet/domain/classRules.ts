@@ -229,3 +229,11 @@ export function selectHdParts(
   );
   return parts.length > 1 ? parts : undefined;
 }
+
+export function selectHitDice(actor: OSEActor): string {
+  return (
+    selectHdParts(actor)
+      ?.map((part) => part.hd)
+      .join(" / ") ?? actor.system.hp.hd
+  );
+}

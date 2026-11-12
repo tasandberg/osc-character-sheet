@@ -168,9 +168,6 @@ describe("HeaderBand max HP", () => {
   const vitals: VitalsVM = {
     hp: { value: 5, max: 12 },
     ac: { value: 7, ascending: false },
-    initMod: 0,
-    hd: "1d8",
-    move: 120,
     moveBands: { encounter: 40, explore: 120, travel: 24 },
   };
 

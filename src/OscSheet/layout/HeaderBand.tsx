@@ -17,8 +17,7 @@ import { useHpInput } from "@ui/useHpInput";
 // HP/AC column, hairline-divided. At XS it becomes a 52×76 narrow-tall column.
 const VITAL =
   "osc-vital tw:relative tw:flex tw:flex-col tw:justify-start tw:gap-1 tw:text-center" +
-  " tw:@max-md/app:flex tw:@max-md/app:min-h-[76px] tw:@max-md/app:flex-col tw:@max-md/app:items-center" +
-  " tw:@max-md/app:justify-start tw:@max-md/app:gap-[1px]" +
+  " tw:@max-md/app:min-h-[76px] tw:@max-md/app:items-center tw:@max-md/app:gap-[1px]" +
   " tw:@max-md/app:px-[4px] tw:@max-md/app:pt-[5px] tw:@max-md/app:pb-[6px]";
 
 const VITAL_BIG =
@@ -49,7 +48,7 @@ const VV_ROW = "vv-row tw:flex tw:items-center tw:justify-center tw:gap-1";
 // flanking − / + steppers as HP changes; tabular-nums keeps digit widths uniform.
 const VV_VALUE = "vv-value tw:min-w-[1.2em] tw:text-center tw:tabular-nums";
 
-function useHeaderHeight() {
+function useHeaderHeight(hasStats: boolean) {
   const ref = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const head = ref.current;
@@ -71,7 +70,7 @@ function useHeaderHeight() {
     const observer = new ResizeObserver(measure);
     for (const el of [ident, vitals, stats]) if (el) observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [hasStats]);
   return ref;
 }
 
@@ -92,7 +91,7 @@ type Props = {
 /** Header band. Grid areas (see actions.scss) place portrait · name · HP/AC in
  *  medium, and stack them in the rail. */
 export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, stats }: Props) {
-  const headRef = useHeaderHeight();
+  const headRef = useHeaderHeight(!!stats);
   const acPopId = useId();
   const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   return (
@@ -106,7 +105,7 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
       <Identity identity={identity} />
       {/* minmax(0,…) so a wide value can't auto-expand a track past its share
           and shove the sibling card out of the container. */}
-      <div className="osc-vitals tw:grid tw:grid-cols-[1fr_1fr] tw:self-start tw:@twopane/sheet:grid-cols-2 tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
+      <div className="osc-vitals tw:grid tw:grid-cols-2 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
         <div className={`${VITAL} hp tw:pr-3`}>
           <span className="vm-key">HP</span>
           <div className={VV_ROW}>

@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactNode } from "react";
 import { LeaderRow } from "./LeaderRow";
+import { RollDieButton } from "./RollDieButton";
 
 export function RollLeaderRow({
   label,
@@ -22,20 +23,7 @@ export function RollLeaderRow({
       }
     >
       {children}
-      {onRoll && (
-        <button
-          type="button"
-          className="osc-roll-die"
-          aria-label={`Roll ${label}`}
-          title={`Roll ${label}`}
-          onClick={onRoll}
-        >
-          <i
-            className="fa-solid fa-dice-d20 roll-label-die"
-            aria-hidden="true"
-          />
-        </button>
-      )}
+      {onRoll && <RollDieButton label={label} onRoll={onRoll} />}
     </LeaderRow>
   );
 }

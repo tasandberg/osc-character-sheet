@@ -31,7 +31,7 @@
   background-color: color-mix(in srgb, var(--bg) 50%, transparent);
   border: 1px solid var(--hairline);
   outline: 1px solid var(--hair-soft);
-  outline-offset: -4px;
+  outline-offset: calc(var(--spacer-1) * -1);
 }
 @container sheet (min-width: 470px) {
   .osc-abilities {

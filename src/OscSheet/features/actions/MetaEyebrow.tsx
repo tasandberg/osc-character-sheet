@@ -5,6 +5,7 @@ import { effectsLabel } from "@features/effects/effects";
 import { LeaderRow } from "@ui/LeaderRow";
 import { MoveTooltip } from "@ui/MovePop";
 import { RollLabel } from "@ui/RollLabel";
+import { RollDieButton } from "@ui/RollDieButton";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import type { ActivateEvent } from "@ui/rollable";
 
@@ -58,26 +59,6 @@ function Meta({
   );
 }
 
-function RollDie({
-  label,
-  onRoll,
-}: {
-  label: string;
-  onRoll: (event: ActivateEvent) => void;
-}) {
-  return (
-    <button
-      type="button"
-      className="osc-roll-die"
-      aria-label={`Roll ${label}`}
-      title={`Roll ${label}`}
-      onClick={onRoll}
-    >
-      <i className="fa-solid fa-dice-d20 roll-label-die" aria-hidden="true" />
-    </button>
-  );
-}
-
 export function MetaEyebrow({
   moveBands,
   hitDice,
@@ -126,7 +107,7 @@ export function MetaEyebrow({
         <Meta label="HD">
           {hitDice || "—"}
           {hitDice && onRollHitDice && (
-            <RollDie label="Hit Dice" onRoll={onRollHitDice} />
+            <RollDieButton label="Hit Dice" onRoll={onRollHitDice} />
           )}
         </Meta>
       )}
@@ -147,7 +128,7 @@ export function MetaEyebrow({
         <Meta label="Loyalty">
           <span data-testid="loyalty">{retainer.value ?? "—"}</span>
           {retainer.value != null && onRollLoyalty && (
-            <RollDie label="Loyalty" onRoll={onRollLoyalty} />
+            <RollDieButton label="Loyalty" onRoll={onRollLoyalty} />
           )}
         </Meta>
       )}
