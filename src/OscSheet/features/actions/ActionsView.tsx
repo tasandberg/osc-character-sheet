@@ -13,6 +13,8 @@ import {
 import { postRollCard } from "@domain/chat/attackCard";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { AbilityPlaques } from "@features/actions/AbilityPlaques";
+import { InitiativeButton } from "@features/actions/InitiativeButton";
+import { individualInitiative } from "@domain/initiative";
 import { AttacksTable } from "@features/actions/AttacksTable";
 import {
   clearUserTarget,
@@ -85,6 +87,16 @@ export function ActionsView({ actor }: Props) {
             onRoll={onAbility}
             onOpen={(key) => setOpenScore(key as ScoreKey)}
           />
+          {individualInitiative() && (
+            <InitiativeButton
+              mod={actor.system.init}
+              onRoll={
+                canEdit
+                  ? () => actor.rollInitiative({ createCombatants: true })
+                  : undefined
+              }
+            />
+          )}
         </div>
         <AttacksTable
           attacks={attacks}

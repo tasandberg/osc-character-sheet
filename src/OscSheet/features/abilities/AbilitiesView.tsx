@@ -6,8 +6,6 @@ import { DISCLOSURE_INDENT } from "@ui/DisclosureRow";
 import { createAbility } from "@features/abilities/createAbility";
 import { FeatureCard } from "@features/abilities/FeatureCard";
 import { LanguagesSection } from "@features/abilities/LanguagesSection";
-import { DetailsBlock } from "@features/abilities/DetailsBlock";
-import { selectHitDice } from "@domain/classRules";
 import { FLAVOUR } from "@features/abilities/classes";
 import {
   GrantingItemHeader,
@@ -129,13 +127,6 @@ export default function Abilities() {
         )}
       </AbilitySection>
       <LanguagesSection />
-      <DetailsBlock
-        initMod={actor.system.init}
-        hitDice={selectHitDice(actor)}
-        onRollHitDice={
-          canEdit ? (event) => actor.rollHitDice({ event }) : undefined
-        }
-      />
     </div>
   );
 }
