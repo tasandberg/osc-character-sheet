@@ -14,7 +14,7 @@ import { useHpInput } from "@ui/useHpInput";
 // than the `tw:text-*` scale: the tokens are `calc(<rem> * var(--fs-scale))` and
 // follow the sheet's font-size setting, the Tailwind scale is the raw rem.
 
-// HP/AC column, hairline-divided. At XS it becomes a 52×76 narrow-tall column.
+// HP/AC column. At XS it becomes a 52×76 narrow-tall column.
 const VITAL =
   "osc-vital tw:relative tw:flex tw:flex-col tw:justify-start tw:gap-1 tw:text-center" +
   " tw:@max-md/app:min-h-[76px] tw:@max-md/app:items-center tw:@max-md/app:gap-[1px]" +
@@ -31,8 +31,6 @@ const VITAL_SUB =
 /** Full label by default; the short form takes over at XS, where the card is 52px wide. */
 const SUB_FULL = "full tw:@max-md/app:hidden";
 const SUB_SHORT = "short tw:hidden tw:@max-md/app:inline";
-const AC_FULL = "full tw:hidden tw:@min-[600px]/sheet:inline";
-const AC_SHORT = "short tw:@min-[600px]/sheet:hidden";
 
 const POP =
   "tw:grid tw:min-w-[150px] tw:grid-cols-[minmax(max-content,1fr)_max-content] tw:gap-x-3 tw:gap-y-[3px] tw:text-left";
@@ -105,8 +103,8 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
       <Identity identity={identity} />
       {/* minmax(0,…) so a wide value can't auto-expand a track past its share
           and shove the sibling card out of the container. */}
-      <div className="osc-vitals tw:grid tw:grid-cols-2 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
-        <div className={`${VITAL} hp tw:pr-3`}>
+      <div className="osc-vitals tw:grid tw:grid-cols-[auto_auto] tw:gap-x-4 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:gap-x-0 tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full tw:@twopane/sheet:grid-cols-2">
+        <div className={`${VITAL} hp`}>
           <span className="vm-key">HP</span>
           <div className={VV_ROW}>
             {onSetHp && (
@@ -136,7 +134,7 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
             />
           </div>
         </div>
-        <div className={`${VITAL} ac tw:border-l tw:border-(--hair-soft) tw:pl-3`}>
+        <div className={`${VITAL} ac`}>
           <span className="vm-key">AC</span>
           <div className={VV_ROW}>
             <span
@@ -159,8 +157,7 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
             </span>
           </div>
           <div className={VITAL_SUB}>
-            <span className={AC_FULL}>{vitals.ac.ascending ? "Ascending" : "Descending"}</span>
-            <span className={AC_SHORT}>{vitals.ac.ascending ? "asc" : "desc"}</span>
+            <span>{vitals.ac.ascending ? "asc" : "desc"}</span>
           </div>
         </div>
       </div>
