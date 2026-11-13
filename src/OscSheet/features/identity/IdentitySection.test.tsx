@@ -293,10 +293,25 @@ it("names the race in the sheet header", () => {
   expect(container.textContent).toContain("Elf Fighter 1");
 });
 
+it("opens the race and class items from the sheet header", () => {
+  const actor = makeActor({ classes: [fighter()], race: elf() }) as unknown as OSEActor;
+  const opened: string[] = [];
+  act(() =>
+    root.render(
+      <Identity identity={selectIdentity(actor)} onOpenItem={(id) => opened.push(id)} />,
+    ),
+  );
+
+  act(() => button("Fighter 1")?.click());
+  act(() => button("Elf")?.click());
+
+  expect(opened).toHaveLength(2);
+});
+
 it("gives each class its own level in the sheet header", () => {
   const thief = ownedItem(classItem("Thief", 2, 0, ROWS) as object);
   const actor = makeActor({ classes: [fighter(), thief] }) as unknown as OSEActor;
   act(() => root.render(<Identity identity={selectIdentity(actor)} />));
 
-  expect(container.textContent).toContain("Fighter 1 / Thief 2Veteran");
+  expect(container.textContent).toContain("Fighter 1 / Thief 2 · Veteran");
 });

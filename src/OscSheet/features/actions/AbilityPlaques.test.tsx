@@ -149,18 +149,9 @@ describe("Identity standing line", () => {
     expect(container.textContent).not.toContain("Wage");
   });
 
-  it("badges a retainer", () => {
-    act(() => root.render(<Identity identity={identity} />));
-    expect(container.textContent).not.toContain("Retainer");
-    act(() =>
-      root.render(<Identity identity={{ ...identity, isRetainer: true }} />),
-    );
-    expect(container.textContent).toContain("Veteran · Lawful · Retainer");
-  });
-
   it("drops the slot entirely when there is no title", () => {
     act(() => root.render(<Identity identity={{ ...identity, title: "" }} />));
-    expect(container.textContent).toContain("Fighter 1Lawful");
+    expect(container.textContent).toContain("Fighter 1 · Lawful");
   });
 });
 

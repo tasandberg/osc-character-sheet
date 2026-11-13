@@ -13,7 +13,12 @@ export function selectIdentity(actor: OSEActor): IdentityVM {
     img: actor.img,
     classLabel: details.class,
     classLevels,
+    classes: classes.map((c) => ({
+      id: c.id ?? c._id,
+      label: `${c.name} ${c.system.level}`,
+    })),
     race: actor.system.race?.name,
+    raceId: actor.system.race?.id ?? actor.system.race?._id,
     level: details.level,
     alignment: details.alignment,
     title: details.title,

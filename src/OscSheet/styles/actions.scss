@@ -88,17 +88,6 @@
 .osc-vitals {
   grid-area: vitals;
 }
-.osc-sheet-app .osc-vital .vv-step {
-  min-width: 0;
-  padding-inline: 0;
-  color: var(--text-mute);
-  font-size: var(--fs-lg);
-
-  &:hover:not(:disabled) {
-    color: var(--text);
-    text-decoration: none;
-  }
-}
 
 // The movement popover — shared by the header Move row and the inventory
 // encumbrance line — is wholly utilities in MovePop.tsx, which is also the single
@@ -267,9 +256,6 @@
   // Only the name's SIZE stays (see the note on `.osc-name` above).
   .osc-name {
     font-size: calc(var(--fs-2xl, 21px) * var(--fit-scale, 1));
-  }
-  .osc-vital .vv-step {
-    display: none;
   }
   // attacks: two columns — weapon info (icon/name/tags) left; the roll stack
   // right: Hit and Dmg as horizontal label·value roll rows over a full-width
