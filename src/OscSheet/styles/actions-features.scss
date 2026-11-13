@@ -21,17 +21,48 @@
 // existed only to beat `:is(button,…) { all: unset }`, and that reset now sits in
 // `@layer base`, which any unlayered rule out-ranks.
 
-// --- abilities: each score in its own double-hairline box ---
+// --- abilities: each score in a framed box with corner brackets ---
 .osc-abilities {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: calc(var(--spacer-1) * 1.5);
+  gap: var(--spacer-3);
 }
 .osc-ability {
-  background-color: color-mix(in srgb, var(--bg) 50%, transparent);
+  position: relative;
+  background: linear-gradient(180deg, var(--surface-2-solid), var(--surface-solid));
   border: 1px solid var(--hairline);
-  outline: 1px solid var(--hair-soft);
-  outline-offset: calc(var(--spacer-1) * -1);
+}
+[data-theme="cream"] .osc-ability {
+  background: linear-gradient(
+    180deg,
+    var(--surface-solid),
+    color-mix(in srgb, var(--surface-solid) 75%, var(--surface-2-solid))
+  );
+}
+.osc-ability::before,
+.osc-ability::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  pointer-events: none;
+}
+.osc-ability::before {
+  border: 1px solid var(--hairline);
+  opacity: 0.5;
+}
+.osc-ability::after {
+  $cap: linear-gradient(var(--hairline), var(--hairline));
+
+  opacity: 0.85;
+  background:
+    $cap 0 0 / 9px 1.5px no-repeat,
+    $cap 0 0 / 1.5px 9px no-repeat,
+    $cap 100% 0 / 9px 1.5px no-repeat,
+    $cap 100% 0 / 1.5px 9px no-repeat,
+    $cap 0 100% / 9px 1.5px no-repeat,
+    $cap 0 100% / 1.5px 9px no-repeat,
+    $cap 100% 100% / 9px 1.5px no-repeat,
+    $cap 100% 100% / 1.5px 9px no-repeat;
 }
 @container sheet (min-width: 470px) {
   .osc-abilities {
@@ -41,6 +72,14 @@
 @container app (width < #{bp.$md}) {
   .osc-abilities {
     grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: calc(var(--spacer-1) * 1.5);
+  }
+  .osc-ability {
+    border-color: var(--border-soft);
+  }
+  .osc-ability::before,
+  .osc-ability::after {
+    display: none;
   }
 }
 .osc-ability-mod {
@@ -51,15 +90,10 @@
     content: "";
     position: absolute;
     top: 0;
-    left: 0;
+    left: 50%;
     width: 44px;
     height: 44px;
-  }
-  @container app (width < #{bp.$md}) {
-    .osc-ability-mod::after {
-      left: 50%;
-      transform: translateX(-50%);
-    }
+    transform: translateX(-50%);
   }
 }
 

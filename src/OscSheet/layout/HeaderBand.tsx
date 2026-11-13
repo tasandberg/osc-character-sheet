@@ -26,7 +26,6 @@ const VITAL_SUB =
   "vv-sub tw:flex tw:items-baseline tw:justify-center tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:leading-none tw:text-text-mute" +
   " tw:@max-md/app:text-(length:--fs-2xs)";
 
-
 const POP =
   "tw:grid tw:min-w-[150px] tw:grid-cols-[minmax(max-content,1fr)_max-content] tw:gap-x-3 tw:gap-y-[3px] tw:text-left";
 const POP_HEAD =
@@ -94,8 +93,6 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
         onContextMenu={onPortraitContextMenu}
       />
       <Identity identity={identity} onOpenItem={onOpenItem} />
-      {/* minmax(0,…) so a wide value can't auto-expand a track past its share
-          and shove the sibling card out of the container. */}
       <div className="osc-vitals tw:grid tw:grid-cols-[auto_auto] tw:gap-x-4 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:gap-x-0 tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full tw:@twopane/sheet:grid-cols-2">
         <div className={`${VITAL} hp`}>
           <span className="vm-key">HP</span>

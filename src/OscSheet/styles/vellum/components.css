@@ -349,12 +349,15 @@ button.inline-edit {
 .roll-label {
   display: inline;
   cursor: pointer;
-  border-bottom: 2px dotted transparent;
+  transition: color 120ms;
 }
 .roll-label:hover,
 .roll-label:focus-visible {
-  color: var(--text);
-  border-bottom-color: currentColor;
+  color: var(--osc-link-hover, var(--gold));
+}
+.roll-label:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 .roll-label-die {
   display: inline;
