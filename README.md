@@ -4,7 +4,7 @@ A fresh, responsive character sheet for **[Old-School Essentials](https://necrot
 
 > **Requires the [Old-School Essentials](https://foundryvtt.com/packages/ose) game system.** The OSC Character Sheet replaces the default sheet; your actors, items, and data are untouched.
 
-![Foundry v13](https://img.shields.io/badge/Foundry-v13%E2%80%93v14-informational) ![System: OSE](https://img.shields.io/badge/system-OSE-orange)
+![Foundry v13–v14](https://img.shields.io/badge/Foundry-v13%E2%80%93v14-informational) ![System: OSE](https://img.shields.io/badge/system-OSE-orange)
 
 Part of the **Old-School Chronicle** toolset, more to come on that soon! https://old-school-chronicle.com
 
@@ -14,7 +14,7 @@ Part of the **Old-School Chronicle** toolset, more to come on that soon! https:/
 
 In Foundry, open **Add-on Modules → Install Module**, search **Enhanced Character Sheet for Old-School Essentials**, and click **Install**. Then launch your OSE world and enable it under **Game Settings → Manage Modules**.
 
-Character and NPC actors use the OSC Character Sheet by default.
+Character and NPC actors use the OSC Character Sheet by default, and monster actors use the OSC Monster Sheet.
 
 **Beta channel (recommended for developers only):**
 
@@ -24,7 +24,7 @@ Install from the rolling beta manifest (Foundry auto-updates through every build
 https://github.com/tasandberg/osc-character-sheet/releases/download/beta/module.json
 ```
 
-Paste it into the **Manifest URL** field of the Install Module dialog. It installs as **… [Beta]** and shares the stable module's id, so run one or the other — never both.
+Paste it into the **Manifest URL** field of the Install Module dialog. It installs as **[BETA] …** under its own module id, so it sits alongside the stable module instead of replacing it — enable one or the other in a world, never both.
 
 ## Why OSC Character Sheet
 
@@ -49,12 +49,17 @@ Send the sheet to its own browser window and treat it like a proper play surface
 
 Coins, encumbrance, weapon tags, attacks, and inventory are modeled on the OSE data system — drag an item to the macro hotbar to spin up an attack macro, equip from the inventory, and keep your numbers in sync with the actor.
 
+- **Attack targeting** — pick a target from the Attacks section; GMs can have Hit, Damage, and Attack rolls prompt for one.
+- **Class and race items (OSE 3.2+)** — class, race, level, and XP sit on the Abilities tab with the abilities each one grants, and **Level up** appears when a class has the XP.
+- **Effects** — view, toggle, and edit a character's Active Effects from the sheet header.
+- **Ability score breakdown** — click a score to see its base value and what adjusts it.
+
 ## Compatibility
 
 | | |
 |---|---|
 | **Foundry VTT** | v13 minimum · v14 verified |
-| **Game system** | Old-School Essentials (`ose`) |
+| **Game system** | Old-School Essentials (`ose`) 2.2.2 or later · class and race item features need OSE 3.2+ |
 
 ## Feedback & issues
 
