@@ -37,6 +37,7 @@ export type HoverPopAlign = "start" | "center";
 export function HoverPop({
   className,
   align = "start",
+  anchorSelector,
   role = "tooltip",
   children,
   ...rest
@@ -44,6 +45,7 @@ export function HoverPop({
   className?: string;
   /** `start` = card's left edge on the trigger's; `center` = centred under it. */
   align?: HoverPopAlign;
+  anchorSelector?: string;
   role?: string;
   children: ReactNode;
 } & HTMLAttributes<HTMLSpanElement>) {
@@ -56,7 +58,7 @@ export function HoverPop({
     if (!pop || !trigger) return;
     let open = false;
     const place = () => {
-      const r = trigger.getBoundingClientRect();
+      const r = ((anchorSelector && trigger.closest(anchorSelector)) || trigger).getBoundingClientRect();
       pop.style.display = "";
       const w = pop.offsetWidth;
       const wanted = align === "center" ? r.left + r.width / 2 - w / 2 : r.left;
@@ -98,7 +100,7 @@ export function HoverPop({
       window.removeEventListener("scroll", reposition, true);
       window.removeEventListener("resize", reposition);
     };
-  }, [align]);
+  }, [align, anchorSelector]);
 
   return (
     <span

@@ -1,11 +1,9 @@
 import type { IdentityVM, VitalsVM } from "@domain/vm-types";
 import { Identity } from "@layout/Identity";
 import { Portrait } from "@layout/Portrait";
-import { Button } from "@ui/Button";
 import { InlineEditValue } from "@ui/InlineEditValue";
 import { useId, useLayoutEffect, useRef, type ReactNode } from "react";
 import { HoverPop } from "@ui/HoverPop";
-import { useHpInput } from "@ui/useHpInput";
 
 // Tiers are container queries: `app` for the XS compact header, `sheet` for the
 // narrow left rail in the two-pane view. The two can never both match — `sheet`
@@ -14,9 +12,9 @@ import { useHpInput } from "@ui/useHpInput";
 // than the `tw:text-*` scale: the tokens are `calc(<rem> * var(--fs-scale))` and
 // follow the sheet's font-size setting, the Tailwind scale is the raw rem.
 
-// HP/AC column, hairline-divided. At XS it becomes a 52×76 narrow-tall column.
+// HP/AC column. At XS it becomes a 52×76 narrow-tall column.
 const VITAL =
-  "osc-vital tw:relative tw:flex tw:flex-col tw:justify-start tw:gap-1 tw:text-center" +
+  "osc-vital tw:relative tw:flex tw:flex-col tw:justify-start tw:gap-0.5 tw:text-center" +
   " tw:@max-md/app:min-h-[76px] tw:@max-md/app:items-center tw:@max-md/app:gap-[1px]" +
   " tw:@max-md/app:px-[4px] tw:@max-md/app:pt-[5px] tw:@max-md/app:pb-[6px]";
 
@@ -25,14 +23,8 @@ const VITAL_BIG =
   " tw:@max-md/app:text-(length:--fs-2xl)";
 
 const VITAL_SUB =
-  "vv-sub tw:flex tw:items-baseline tw:justify-center tw:gap-1 tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:text-text-mute" +
-  " tw:@max-md/app:gap-0 tw:@max-md/app:text-(length:--fs-2xs)";
-
-/** Full label by default; the short form takes over at XS, where the card is 52px wide. */
-const SUB_FULL = "full tw:@max-md/app:hidden";
-const SUB_SHORT = "short tw:hidden tw:@max-md/app:inline";
-const AC_FULL = "full tw:hidden tw:@min-[600px]/sheet:inline";
-const AC_SHORT = "short tw:@min-[600px]/sheet:hidden";
+  "vv-sub tw:flex tw:items-baseline tw:justify-center tw:whitespace-nowrap tw:text-(length:--fs-xs) tw:leading-none tw:text-text-mute" +
+  " tw:@max-md/app:text-(length:--fs-2xs)";
 
 const POP =
   "tw:grid tw:min-w-[150px] tw:grid-cols-[minmax(max-content,1fr)_max-content] tw:gap-x-3 tw:gap-y-[3px] tw:text-left";
@@ -44,8 +36,6 @@ const POP_VALUE =
 
 const VV_ROW = "vv-row tw:flex tw:items-center tw:justify-center tw:gap-1";
 
-// Reserve width for the digits so the value's digit count never shifts the
-// flanking − / + steppers as HP changes; tabular-nums keeps digit widths uniform.
 const VV_VALUE = "vv-value tw:min-w-[1.2em] tw:text-center tw:tabular-nums";
 
 function useHeaderHeight(hasStats: boolean) {
@@ -85,15 +75,15 @@ type Props = {
   /** Right-click on the portrait (e.g. Token Variant Art's picker). */
   onPortraitContextMenu?: React.MouseEventHandler<HTMLImageElement>;
   canEditPortrait?: boolean;
+  onOpenItem?: (id: string) => void;
   stats?: ReactNode;
 };
 
 /** Header band. Grid areas (see actions.scss) place portrait · name · HP/AC in
  *  medium, and stack them in the rail. */
-export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, stats }: Props) {
+export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, onOpenItem, stats }: Props) {
   const headRef = useHeaderHeight(!!stats);
   const acPopId = useId();
-  const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   return (
     <div className="osc-head" ref={headRef}>
       <Portrait
@@ -102,16 +92,11 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
         onClick={onPortraitClick}
         onContextMenu={onPortraitContextMenu}
       />
-      <Identity identity={identity} />
-      {/* minmax(0,…) so a wide value can't auto-expand a track past its share
-          and shove the sibling card out of the container. */}
-      <div className="osc-vitals tw:grid tw:grid-cols-2 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full">
-        <div className={`${VITAL} hp tw:pr-3`}>
+      <Identity identity={identity} onOpenItem={onOpenItem} />
+      <div className="osc-vitals tw:grid tw:grid-cols-[auto_auto] tw:gap-x-4 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:gap-x-0 tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full tw:@twopane/sheet:grid-cols-2">
+        <div className={`${VITAL} hp`}>
           <span className="vm-key">HP</span>
           <div className={VV_ROW}>
-            {onSetHp && (
-              <Button variant="link" className="vv-step" aria-label="Lose 1 HP" onClick={hp.dec}>−</Button>
-            )}
             <InlineEditValue
               label="Current HP"
               parse="int"
@@ -119,13 +104,9 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
               className={`${VITAL_BIG} ${VV_VALUE} tw:text-crimson`}
               onCommit={onSetHp}
             />
-            {onSetHp && (
-              <Button variant="link" className="vv-step" aria-label="Heal 1 HP" onClick={hp.inc}>+</Button>
-            )}
           </div>
           <div className={VITAL_SUB}>
-            <span className={SUB_FULL}>of</span>
-            <span className={SUB_SHORT}>/</span>
+            <span>/</span>
             <InlineEditValue
               label="Max HP"
               parse="int"
@@ -136,7 +117,7 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
             />
           </div>
         </div>
-        <div className={`${VITAL} ac tw:border-l tw:border-(--hair-soft) tw:pl-3`}>
+        <div className={`${VITAL} ac`}>
           <span className="vm-key">AC</span>
           <div className={VV_ROW}>
             <span
@@ -159,12 +140,11 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
             </span>
           </div>
           <div className={VITAL_SUB}>
-            <span className={AC_FULL}>{vitals.ac.ascending ? "Ascending" : "Descending"}</span>
-            <span className={AC_SHORT}>{vitals.ac.ascending ? "asc" : "desc"}</span>
+            <span>{vitals.ac.ascending ? "asc" : "desc"}</span>
           </div>
         </div>
       </div>
-      {stats && <div className="osc-head-stats tw:@container/stats">{stats}</div>}
+      {stats && <div className="osc-head-stats tw:mt-2 tw:@container/stats tw:@max-md/app:mt-0 tw:@twopane/sheet:mt-0">{stats}</div>}
     </div>
   );
 }

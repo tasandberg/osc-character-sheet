@@ -10,7 +10,9 @@ export interface IdentityVM {
   img: string;
   classLabel: string;
   classLevels: string;
+  classes?: { id: string; label: string }[];
   race?: string;
+  raceId?: string;
   level: number;
   alignment: string;
   title: string;

@@ -169,6 +169,7 @@ export default function SheetShell() {
           header={
             <HeaderBand
               identity={identity}
+              onOpenItem={(id) => void actor.items.get(id)?.sheet?.render(true)}
               vitals={vitals}
               onSetHp={onSetHp}
               stats={
