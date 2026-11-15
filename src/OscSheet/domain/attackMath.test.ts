@@ -111,6 +111,26 @@ describe("computeAttack", () => {
     expect(missile.dmg.formula).toBe("1d8");
   });
 
+  it("adds OSE 3.3's per-range damage bonus to damage only", () => {
+    const damageMod = { melee: 1, missile: 2 };
+    const melee = computeAttack(input({ strMod: 1, damageMod }), settings());
+    expect(melee.hit.formula).toBe("1d20+1");
+    expect(melee.dmg.formula).toBe("1d8+1+1");
+    expect(melee.dmg.terms).toContainEqual({ label: "damage", value: 1 });
+
+    const missile = computeAttack(input({ kind: "missile", damageMod }), settings());
+    expect(missile.hit.formula).toBe("1d20");
+    expect(missile.dmg.formula).toBe("1d8+2");
+  });
+
+  it("keeps the damage bonus when the weapon-bonus opt-outs are on", () => {
+    const { dmg } = computeAttack(
+      input({ weaponBonus: 1, ignoreBonusDamage: true, damageMod: { melee: 2 } }),
+      settings({ ignoreAttackBonusOnDamageRoll: true }),
+    );
+    expect(dmg.formula).toBe("1d8+2");
+  });
+
   it("adds the base attack bonus only under ascending AC", () => {
     const thac0 = { bba: 2, mod: { melee: 0, missile: 0 } };
     expect(computeAttack(input({ thac0 }), settings()).hit.formula).toBe("1d20");

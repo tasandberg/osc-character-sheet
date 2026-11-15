@@ -59,6 +59,10 @@
     line-height: 1.4;
   }
 
+  .ed-field .lab .hint {
+    line-height: 0;
+  }
+
   // Overrides `.check`'s own font-size + colour for the in-field checkbox.
   .ed-field .ed-movecalc {
     margin-top: 2px;

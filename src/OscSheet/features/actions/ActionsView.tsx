@@ -1,11 +1,10 @@
-import type { MouseEvent } from "react";
+import { useState, type MouseEvent } from "react";
 import type { AttackKind, OSEActor, OSESave, OseItem } from "@domain/types";
 import { skipRollDialog } from "@domain/rolls/skipRollDialog";
 import { buildWeaponAttack } from "@domain/rolls/weaponAttack";
 import type { RollSpec } from "@domain/vm-types";
 import { selectAbilities } from "@features/actions/abilities";
 import { selectAttacks } from "@features/actions/attacks";
-import { selectLoyalty, rollLoyalty } from "@features/actions/loyalty";
 import { selectSaves } from "@features/actions/saves";
 import {
   selectExploration,
@@ -14,7 +13,8 @@ import {
 import { postRollCard } from "@domain/chat/attackCard";
 import { buildItemMacroDragData } from "@features/inventory/dragToMacro";
 import { AbilityPlaques } from "@features/actions/AbilityPlaques";
-import { RetainerRow } from "@features/actions/RetainerRow";
+import { InitiativeButton } from "@features/actions/InitiativeButton";
+import { individualInitiative } from "@domain/initiative";
 import { AttacksTable } from "@features/actions/AttacksTable";
 import {
   clearUserTarget,
@@ -26,11 +26,13 @@ import { useSetting } from "@src/OscSheet/settings";
 import { FavoriteAbilities } from "@features/actions/FavoriteAbilities";
 import { selectFavoriteAbilities } from "@features/abilities/features";
 import { MemorizedSpells } from "@features/actions/MemorizedSpells";
-import { SavesBand, ExplorationGrid } from "@features/actions/SavesExploration";
+import { SavesList, ExplorationGrid } from "@features/actions/SavesExploration";
 import { SectionTitle } from "@ui/SectionTitle";
 import type { ActivateEvent } from "@ui/rollable";
 import { useOscSheetContext } from "@app/context";
 import SavesModTag from "@src/OscSheet/components/ui/SavesModTag";
+import { ScoreDialog } from "@features/scores/ScoreDialog";
+import type { ScoreKey } from "@features/scores/scoreBreakdown";
 
 type Props = { actor: OSEActor };
 
@@ -42,6 +44,7 @@ export function ActionsView({ actor }: Props) {
   // stay available even read-only; the composite Attack can write (missile ammo
   // decrement), so it's gated on the global edit permission.
   const { canEdit } = useOscSheetContext();
+  const [openScore, setOpenScore] = useState<ScoreKey | null>(null);
   const promptForTarget = useSetting("promptForTarget");
   const currentTarget = useUserTarget();
   const onAbility = (key: string, event: ActivateEvent) =>
@@ -66,7 +69,6 @@ export function ActionsView({ actor }: Props) {
     actor.rollSave(key, { event });
   const onExploration = (key: string, event: ActivateEvent) =>
     rollExploration(actor, key, event);
-  const onLoyalty = (event: ActivateEvent) => rollLoyalty(actor, event);
   // Drag a weapon card onto the macro hotbar → OSE's hotbarDrop creates an attack
   // macro, same as dragging the item's inventory row.
   const dragData = (itemId: string) => {
@@ -80,11 +82,21 @@ export function ActionsView({ actor }: Props) {
     <>
       <div className="tw:space-y-8 tw:mb-8">
         <div className="tw:space-y-2">
-          <RetainerRow
-            retainer={selectLoyalty(actor)}
-            onRollLoyalty={onLoyalty}
+          <AbilityPlaques
+            abilities={abilities}
+            onRoll={onAbility}
+            onOpen={(key) => setOpenScore(key as ScoreKey)}
           />
-          <AbilityPlaques abilities={abilities} onRoll={onAbility} />
+          {individualInitiative() && (
+            <InitiativeButton
+              mod={actor.system.init}
+              onRoll={
+                canEdit
+                  ? () => actor.rollInitiative({ createCombatants: true })
+                  : undefined
+              }
+            />
+          )}
         </div>
         <AttacksTable
           attacks={attacks}
@@ -113,7 +125,7 @@ export function ActionsView({ actor }: Props) {
             <span className="hint">Roll d20 ≥ score</span>
             <SavesModTag wisdomAbility={abilities[2]} />
           </SectionTitle>
-          <SavesBand saves={selectSaves(actor)} onRoll={onSave} />
+          <SavesList saves={selectSaves(actor)} onRoll={onSave} />
         </section>
         <section className="u-foundry-lg-display-none">
           <SectionTitle hint="1-in-6">Exploration</SectionTitle>
@@ -123,6 +135,7 @@ export function ActionsView({ actor }: Props) {
           />
         </section>
       </div>
+      <ScoreDialog scoreKey={openScore} onClose={() => setOpenScore(null)} />
     </>
   );
 }

@@ -1,7 +1,5 @@
+import type { Save } from "@ose-foundry-core/types";
 import type { OseRollType, RollEvent } from "@domain/types";
-
-export type MonsterSaveKey =
-  "death" | "wand" | "paralysis" | "breath" | "spell";
 
 export type MonsterItem = {
   id: string;
@@ -47,7 +45,7 @@ export type MonsterActor = {
     ac: { value: number | null } | null;
     aac: { value: number | null } | null;
     thac0: { value: number | null; bba: number | null };
-    saves: Record<MonsterSaveKey, { value: number | null }>;
+    saves: Record<Save, { value: number | null }>;
     movement: { base: number | null; encounter?: number | null };
     details: {
       alignment?: string;
@@ -85,7 +83,7 @@ export type MonsterActor = {
     event?: RollEvent;
     check?: "dungeon" | "wilderness";
   }) => void;
-  rollSave: (save: MonsterSaveKey, options?: { event?: RollEvent }) => void;
+  rollSave: (save: Save, options?: { event?: RollEvent }) => void;
   targetAttack: (
     data: { roll: Record<string, unknown> },
     type: undefined,

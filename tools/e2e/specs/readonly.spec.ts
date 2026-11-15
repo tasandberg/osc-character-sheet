@@ -58,14 +58,13 @@ test.describe("read-only sheet (non-owner)", () => {
     await expect(observerPage.locator(".osc-sheet-app.is-readonly")).toHaveCount(1);
 
     // --- Persistent header + topbar: no character-edit affordances ---
-    // HP steppers / editable HP input (owner-only; static value stays).
-    await expect(sheet.locator(".vv-step")).toHaveCount(0);
-    await expect(sheet.locator("input.vv-input")).toHaveCount(0);
+    // Editable HP input (owner-only; static value stays).
+    await expect(sheet.getByRole("button", { name: "Edit Current HP" })).toHaveCount(0);
     await expect(sheet.locator(".osc-mb-hp-btn")).toHaveCount(0);
     await expect(sheet.locator("input.osc-mb-hp-input")).toHaveCount(0);
     // Portrait click-to-edit action is not wired for non-owners.
     await expect(sheet.locator('img[data-action="editImage"]')).toHaveCount(0);
-    // Topbar character actions (Rest / Level Up / Edit + overflow) are gone;
+    // Topbar character actions (Rest / Edit + overflow) are gone;
     // the theme toggle (.osc-tb-btn.icon) stays for everyone.
     await expect(sheet.locator('[data-testid="topbar-actions"] .osc-tb-btn')).toHaveCount(0);
     await expect(sheet.locator(".osc-tb-menu-wrap")).toHaveCount(0);
@@ -142,8 +141,8 @@ test.describe("read-only sheet (non-owner)", () => {
     // Owner sheet is editable → no read-only marker.
     await expect(sheet.locator(".osc-sheet-app.is-readonly")).toHaveCount(0);
 
-    // Owner keeps HP steppers + the Edit action.
-    await expect(sheet.locator(".vv-step").first()).toBeVisible();
+    // Owner keeps editable HP + the Edit action.
+    await expect(sheet.getByRole("button", { name: "Edit Current HP" }).first()).toBeVisible();
     await expect(sheet.locator('[data-testid="topbar-actions"] .osc-tb-btn')).not.toHaveCount(0);
 
     // Actions tab: the writing Attack button is present for the owner.

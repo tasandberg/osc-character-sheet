@@ -134,6 +134,25 @@
     cursor: default;
   }
 
+  .osc-btn-stamp {
+    letter-spacing: 0.09em;
+    transition:
+      background-color 0.12s,
+      box-shadow 0.12s;
+
+    &:is(:hover, :focus-visible):not(:active, :disabled) {
+      background-color: var(--btn-face);
+    }
+
+    &:not(:hover, :focus-visible, :active, :disabled) {
+      border-color: transparent;
+      background-color: transparent;
+      box-shadow: none;
+      color: var(--text-dim);
+      transition: none;
+    }
+  }
+
   .vm-tag {
     font-size: var(--fs-xs);
     font-weight: 400;

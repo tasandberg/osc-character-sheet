@@ -36,7 +36,7 @@ export function ThemedRoot({
   return (
     <div
       className={cx(
-        "osc-sheet-app u-paper",
+        "osc-sheet-app",
         !canEdit && "is-readonly",
         !canViewFullSheet && "is-limited",
         className,

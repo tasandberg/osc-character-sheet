@@ -3,8 +3,6 @@
 // wired, so re-enabling is a one-line change. Tracked in OLD-19.
 
 export const FEATURES = {
-  /** Topbar "Level Up" — no advancement flow yet (GH #22). */
-  levelUp: false,
   /** Inventory "Send Item" to another actor (GH #16). */
   sendItem: true,
 } as const;

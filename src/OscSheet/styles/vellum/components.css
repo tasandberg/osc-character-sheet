@@ -349,16 +349,33 @@ button.inline-edit {
 .roll-label {
   display: inline;
   cursor: pointer;
-  border-bottom: 2px dotted transparent;
+  transition: color 120ms;
 }
 .roll-label:hover,
 .roll-label:focus-visible {
-  color: var(--text);
-  border-bottom-color: currentColor;
+  color: var(--osc-link-hover, var(--gold));
+}
+.roll-label:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 .roll-label-die {
   display: inline;
   font-size: 0.75em;
+}
+button.osc-roll-die {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  cursor: pointer;
+}
+button.osc-roll-die > i {
+  margin: 0;
+}
+button.osc-roll-die:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .field.hairline {
@@ -691,8 +708,37 @@ button.pattern-pip.triangle:focus-visible {
   pointer-events: none;
   transition: color 120ms ease;
 }
+.combobox:has(.combobox-input:disabled) .combobox-chip,
+.combobox:has(.combobox-input:disabled) .combobox-caret {
+  opacity: 0.5;
+}
+.combobox-input:disabled {
+  cursor: not-allowed;
+}
 .combobox.is-open .combobox-caret {
   color: var(--text-dim);
+}
+.combobox.inline .combobox-input,
+.combobox.inline .combobox-input:focus {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  font-weight: 600;
+}
+.combobox.inline .combobox-input:focus-visible {
+  outline: 1px dotted var(--text-dim);
+  outline-offset: 2px;
+}
+.combobox.inline .combobox-chip {
+  left: 0;
+  font-weight: 600;
+}
+.combobox.inline .combobox-caret {
+  opacity: 0;
+}
+.combobox.inline:hover .combobox-caret,
+.combobox.inline.is-open .combobox-caret {
+  opacity: 1;
 }
 .combobox-opt.combobox-hint {
   color: var(--text-mute);
@@ -1428,6 +1474,10 @@ button.pip:hover {
 .ed-cell .num:focus {
   border-color: var(--teal);
   background: var(--bg);
+}
+.ed-cell .num:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .ed-cell .cm {
   font-family: var(--mono);

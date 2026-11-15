@@ -16,7 +16,7 @@ function feature(partial: Partial<FeatureVM> = {}): FeatureVM {
     rollable: true,
     rollTag: "1d6 ≤2",
     rollFormula: "1d6",
-    rollTargetTag: "≤2",
+    rollTargetTag: "≤ 2",
     favorite: true,
     onRoll: vi.fn(),
     onActivate: vi.fn(),
@@ -59,7 +59,7 @@ describe("FavoriteAbilities", () => {
         <FavoriteAbilities
           features={[
             feature(),
-            feature({ id: "listen", name: "Listen", rollFormula: "1d6", rollTargetTag: "≤1" }),
+            feature({ id: "listen", name: "Listen", rollFormula: "1d6", rollTargetTag: "≤ 1" }),
           ]}
         />,
       ),
@@ -69,13 +69,10 @@ describe("FavoriteAbilities", () => {
       "Hide in Shadows",
     );
     expect(container.querySelector('[data-testid="fav-ability-target-hide"]')!.textContent).toBe(
-      "≤2",
+      "≤ 2",
     );
-    expect(container.querySelector('[data-testid="fav-ability-roll-listen"]')!.textContent).toContain(
+    expect(container.querySelector('[data-testid="fav-ability-roll-listen"]')!.textContent).toBe(
       "1d6",
-    );
-    expect(container.querySelector('[data-testid="fav-ability-roll-listen"]')!.textContent).not.toContain(
-      "≤1",
     );
   });
 
@@ -87,10 +84,11 @@ describe("FavoriteAbilities", () => {
         />,
       ),
     );
-    const btn = container.querySelector('[data-testid="fav-ability-roll-magic"]')!;
-    expect(btn.textContent).toContain("chat");
-    const row = container.querySelector('[data-testid="fav-ability-magic"]')!;
-    expect(row.getAttribute("title")).toBe("Print Read Magic to chat");
+    const value = container.querySelector('[data-testid="fav-ability-roll-magic"]')!;
+    expect(value.textContent).toContain("chat");
+    expect(
+      container.querySelector('button[aria-label="Print Read Magic to chat"]'),
+    ).not.toBeNull();
   });
 
   it("the roll button calls onActivate for both rollable and passive abilities", () => {
@@ -104,8 +102,16 @@ describe("FavoriteAbilities", () => {
     });
     act(() => root.render(<FavoriteAbilities features={[rollable, passive]} />));
 
-    click("fav-ability-roll-hide");
-    click("fav-ability-roll-magic");
+    act(() =>
+      container
+        .querySelector<HTMLElement>(`button[aria-label="Roll ${rollable.rollTag}"]`)!
+        .click(),
+    );
+    act(() =>
+      container
+        .querySelector<HTMLElement>('button[aria-label="Print Read Magic to chat"]')!
+        .click(),
+    );
 
     expect(rollable.onActivate).toHaveBeenCalledOnce();
     expect(passive.onActivate).toHaveBeenCalledOnce();

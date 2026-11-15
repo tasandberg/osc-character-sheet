@@ -153,15 +153,12 @@ describe("selectSpellLevels — slot capacity", () => {
     expect(lvl1.defaultMax).toBe(2);
   });
 
-  it("honours a stored zero — a house rule can take slots away", () => {
+  it("treats OSE's stored zero as unset, so the class default applies", () => {
     withClasses();
-    const actor = caster(
-      "Cleric",
-      3,
-      { 1: [known("a", 1, "Cure")] },
-      { 1: { max: 0 } },
-    );
-    expect(selectSpellLevels(actor, false)[0].slots.max).toBe(0);
+    const actor = caster("Cleric", 3, {}, { 1: { max: 0 }, 2: { max: 0 } });
+    expect(selectSpellLevels(actor, false).map((l) => l.slots.max)).toEqual([
+      2, 1,
+    ]);
   });
 
   it("has no default for a custom class, so a stored maximum is the only source", () => {
