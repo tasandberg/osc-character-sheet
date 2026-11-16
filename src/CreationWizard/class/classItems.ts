@@ -1,45 +1,35 @@
-import { enrich, packs, TOME } from "../compendium";
 import type {
-  ClassDetail,
-  ClassStats,
-  ClassTable,
-  CreationClass,
-} from "../rules";
+  ClassItemData,
+  ClassLevelRow,
+} from "@ose-foundry-core/types";
+import { enrich, packs, TOME } from "../compendium";
+import type { ClassDetail, ClassStats, CreationClass } from "../rules";
 import {
   ABILITIES,
   type Ability,
   type AbilityScores,
 } from "../scores/scoresDraft";
-import { classRequirementGaps } from "../upstreamGaps";
 
 const SAVE_KEYS = ["death", "wand", "paralysis", "breath", "spell"];
 const SPELL_LEVELS = ["1", "2", "3", "4", "5", "6"];
 
-type LevelRow = {
-  xp: number;
-  hd: string;
-  hdcon: boolean;
-  thac0: number;
-  bba: number;
-  saves: Record<string, number>;
-  spellSlots: Record<string, number>;
-};
+type LevelRow = ClassLevelRow;
 
-export type ClassItemSystem = {
-  key: string;
-  description: string;
-  requirements: string;
-  primeReqs: { ability: string }[];
-  maxLevel: number;
-  hitDie: string;
-  languages: string[];
-  levels: LevelRow[];
-  tables: ClassTable[];
-  abilities: { uuid: string; level: number }[];
-  armourText: string;
-  weaponsText: string;
-  demihuman: boolean;
-};
+export type ClassItemSystem = Pick<
+  ClassItemData,
+  | "key"
+  | "description"
+  | "requirements"
+  | "maxLevel"
+  | "hitDie"
+  | "languages"
+  | "levels"
+  | "tables"
+  | "abilities"
+  | "armourText"
+  | "weaponsText"
+  | "demihuman"
+> & { primeReqs: { ability: string }[] };
 
 export type ClassItemDoc = {
   uuid: string;
@@ -77,13 +67,12 @@ type EmbeddedClass = {
 const isAbility = (key: string): key is Ability =>
   (ABILITIES as readonly string[]).includes(key);
 
-export function parseRequirements(text: string) {
+function minimumScores(
+  requirements: ClassItemData["requirements"] | undefined,
+) {
   const out: Partial<Record<Ability, number>> = {};
-  for (const [, ability, value] of text.matchAll(
-    /\bmin(?:imum)?\s+(str|int|wis|dex|con|cha)\s+(\d+)/gi,
-  )) {
-    const key = ability.toLowerCase();
-    if (isAbility(key)) out[key] = Number(value);
+  for (const [ability, bound] of Object.entries(requirements ?? {})) {
+    if (isAbility(ability) && bound?.min) out[ability] = bound.min;
   }
   return out;
 }
@@ -94,10 +83,7 @@ export function creationClassFrom(doc: ClassItemDoc): CreationClass {
     uuid: doc.uuid,
     key: s.key || doc.name,
     name: doc.name,
-    requirements: {
-      ...classRequirementGaps({ key: s.key, name: doc.name }),
-      ...parseRequirements(s.requirements ?? ""),
-    },
+    requirements: minimumScores(s.requirements),
     primeRequisites: [
       ...new Set(s.primeReqs.map((r) => r.ability.toLowerCase())),
     ].filter(isAbility),

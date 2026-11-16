@@ -22,7 +22,11 @@ const halfling: ClassItemDoc = {
   system: {
     key: "halfling",
     description: "<p>Small folk.</p>",
-    requirements: "Minimum CON 9, minimum DEX 9",
+    requirements: {
+      con: { min: 9, max: null },
+      dex: { min: 9, max: null },
+      cha: { min: null, max: null },
+    },
     primeReqs: [
       { ability: "dex" },
       { ability: "str" },

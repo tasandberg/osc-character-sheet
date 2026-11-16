@@ -79,9 +79,14 @@ export function formatModifiers(modifiers: AbilityScores): string {
     .join(", ");
 }
 
+const limitFor = (race: CreationRace, cls: ClassRef) =>
+  race.classLimits.find((limit) => limit.classKey === classKeyOf(cls));
+
 export const maxLevel = (race: CreationRace, cls: ClassRef) =>
-  race.classLimits.find((limit) => limit.classKey === classKeyOf(cls))
-    ?.maxLevel;
+  limitFor(race, cls)?.maxLevel;
+
+export const isNpcOnly = (race: CreationRace, cls: ClassRef) =>
+  !!limitFor(race, cls)?.npcOnly;
 
 export function raceRestrictions(
   race: CreationRace,

@@ -1,3 +1,4 @@
+import type { RaceItemData, RaceSaveBonus } from "@ose-foundry-core/types";
 import {
   ABILITIES,
   type Ability,
@@ -8,7 +9,7 @@ export type ItemSource = Record<string, unknown>;
 
 export type ScoreBound = { min: number | null; max: number | null };
 
-export type ClassLimit = { classKey: string; maxLevel: number };
+export type ClassLimit = { classKey: string; maxLevel: number; npcOnly: boolean };
 
 export type GrantedAbility = { uuid: string; level: number };
 
@@ -21,6 +22,8 @@ export type CreationRace = {
   modifiers: AbilityScores;
   classLimits: ClassLimit[];
   languages: string[];
+  infravision: number | null;
+  saveBonuses: RaceSaveBonus[];
   abilities: GrantedAbility[];
   source: ItemSource;
 };
@@ -35,13 +38,8 @@ type RawEffect = {
 
 export type RaceItemSource = {
   name: string;
-  system: {
-    key?: string;
-    description?: string;
-    requirements?: Partial<Record<string, Partial<ScoreBound>>>;
-    languages?: string[];
-    classLimits?: ClassLimit[];
-    abilities?: GrantedAbility[];
+  system: Partial<Omit<RaceItemData, "classAccess" | "classLimits">> & {
+    classLimits?: Partial<ClassLimit>[];
   };
   effects?: RawEffect[];
 };
@@ -94,9 +92,54 @@ export function raceFromItem(
     description: system.description ?? "",
     requirements: requirements(system.requirements),
     modifiers: raceModifiers(source.effects ?? [], systemId),
-    classLimits: system.classLimits ?? [],
+    classLimits: (system.classLimits ?? []).map((limit) => ({
+      classKey: limit.classKey ?? "",
+      maxLevel: limit.maxLevel ?? 1,
+      npcOnly: !!limit.npcOnly,
+    })),
     languages: system.languages ?? [],
+    infravision: system.infravision ?? null,
+    saveBonuses: system.saveBonuses ?? [],
     abilities: system.abilities ?? [],
     source: source as unknown as ItemSource,
   };
 }
+
+const CON_SAVE_BONUS = [
+  { min: 3, bonus: 0 },
+  { min: 7, bonus: 2 },
+  { min: 11, bonus: 3 },
+  { min: 15, bonus: 4 },
+  { min: 18, bonus: 5 },
+];
+
+const conSaveBonus = (con: number) =>
+  [...CON_SAVE_BONUS].reverse().find(({ min }) => con >= min)?.bonus ?? 0;
+
+export type RaceSaveNote = { bonus: number; summary: string; basis?: string };
+
+export function raceSaveNotes(
+  race: CreationRace,
+  scores: AbilityScores,
+): RaceSaveNote[] {
+  const notes: RaceSaveNote[] = [];
+  for (const entry of race.saveBonuses) {
+    const scaled = entry.bonus === null;
+    if (scaled && scores.con === undefined) continue;
+    const bonus = entry.bonus ?? conSaveBonus(scores.con!);
+    const target = entry.against
+      ? `vs ${entry.against}`
+      : entry.saves.length
+        ? `vs ${entry.saves.join(", ")}`
+        : "on all saves";
+    notes.push({
+      bonus,
+      summary: bonus ? `+${bonus} ${target}` : `No bonus ${target}`,
+      ...(scaled && { basis: `CON ${scores.con}` }),
+    });
+  }
+  return notes;
+}
+
+export const formatSaveNote = ({ summary, basis }: RaceSaveNote) =>
+  basis ? `${summary} (${basis})` : summary;

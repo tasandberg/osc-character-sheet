@@ -4,12 +4,16 @@ import { MoreBelow } from "../MoreBelow";
 import type { ClassRestrictions, CreationClass, CreationRules } from "../rules";
 import { ScoreLine } from "../scores/ScoreLine";
 import { abbreviation, type AbilityScores } from "../scores/scoresDraft";
-import { formatMaxLevel, maxLevel, type CreationRace } from "../race/raceDraft";
+import {
+  formatMaxLevel,
+  isNpcOnly,
+  maxLevel,
+  type CreationRace,
+} from "../race/raceDraft";
 import { ClassDetails } from "./ClassDetails";
 import { ChoiceIcon } from "../ChoiceIcon";
 import { ineligibleReason, isEligible, requirementList } from "./classDraft";
 import { XpAdjustmentText } from "./XpAdjustmentText";
-import { isNpcOnly } from "../upstreamGaps";
 
 type Props = {
   classes: CreationClass[];

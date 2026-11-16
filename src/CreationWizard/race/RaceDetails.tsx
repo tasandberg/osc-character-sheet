@@ -9,7 +9,6 @@ import {
   type AbilityScores,
 } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
-import { isNpcOnly, racialAbilityValue } from "../upstreamGaps";
 import {
   classKeyOf,
   formatMaxLevel,
@@ -19,6 +18,7 @@ import {
   requirementText,
   type CreationRace,
 } from "./raceDraft";
+import { formatSaveNote, raceSaveNotes } from "./raceItems";
 
 type Props = {
   race: CreationRace;
@@ -40,22 +40,14 @@ function changedScores(
     : "unchanged";
 }
 
-function RacialAbility({
-  ability,
-  value,
-}: {
-  ability: RaceAbility;
-  value?: string;
-}) {
+function RacialAbility({ ability }: { ability: RaceAbility }) {
   const [open, setOpen] = useState(false);
   const textId = useId();
   return (
     <>
       <dt className="vm-key tw:whitespace-normal">{ability.name}</dt>
       <dd className="vm-mono">
-        {[value, ability.level > 1 && `from ${ordinal(ability.level)} level`]
-          .filter(Boolean)
-          .join(", ")}
+        {ability.level > 1 ? `from ${ordinal(ability.level)} level` : ""}
       </dd>
       <dd>
         <button
@@ -91,13 +83,14 @@ export function RaceDetails({ race, classes, scores, rules }: Props) {
   const adjusted = rules.raceScores(scores, race);
   const className = (key: string) =>
     classes.find((cls) => classKeyOf(cls) === key)?.name ?? key;
-  const npcOnly = (classKey: string) =>
-    isNpcOnly(race, { key: classKey, name: classKey });
+  const saves = raceSaveNotes(race, adjusted).map(formatSaveNote);
 
   const facts: [string, ReactNode][] = [
     ["Requires", requirementText(race) || "None"],
     ["Ability mods", formatModifiers(race.modifiers)],
     ["Your scores", changedScores(race, scores, adjusted)],
+    ["Infravision", race.infravision ? `${race.infravision}′` : "None"],
+    ["Saves", saves.join(" · ") || "No racial bonus"],
     ["Languages", race.languages.join(", ") || "None"],
   ];
 
@@ -126,11 +119,11 @@ export function RaceDetails({ race, classes, scores, rules }: Props) {
         <h3 className="vm-section-title-hairline">Classes and max level</h3>
         {race.classLimits.length ? (
           <dl className="u-grid tw:grid-cols-[repeat(2,max-content_minmax(0,1fr))] u-gap-x-4 u-gap-y-2 u-items-baseline">
-            {race.classLimits.map(({ classKey, maxLevel }) => (
+            {race.classLimits.map(({ classKey, maxLevel, npcOnly }) => (
               <div key={classKey} className="tw:contents">
                 <dt className="vm-key">
                   {className(classKey)}
-                  {npcOnly(classKey) && "*"}
+                  {npcOnly && "*"}
                 </dt>
                 <dd>{formatMaxLevel(maxLevel)}</dd>
               </div>
@@ -139,7 +132,7 @@ export function RaceDetails({ race, classes, scores, rules }: Props) {
         ) : (
           <p className="vm-help">Any class, with no level limit.</p>
         )}
-        {race.classLimits.some(({ classKey }) => npcOnly(classKey)) && (
+        {race.classLimits.some(({ npcOnly }) => npcOnly) && (
           <p className="vm-help">
             * The referee may allow this class for NPCs only.
           </p>
@@ -154,11 +147,7 @@ export function RaceDetails({ race, classes, scores, rules }: Props) {
         ) : loaded.detail.abilities.length ? (
           <dl className="u-grid tw:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_var(--spacer-6)] u-gap-x-3 u-gap-y-2 u-items-center">
             {loaded.detail.abilities.map((ability) => (
-              <RacialAbility
-                key={ability.name}
-                ability={ability}
-                value={racialAbilityValue(race, ability.name, adjusted)}
-              />
+              <RacialAbility key={ability.name} ability={ability} />
             ))}
           </dl>
         ) : (

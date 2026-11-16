@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { raceStanding } from "./raceDraft";
-import { raceFromItem } from "./raceItems";
+import { raceFromItem, raceSaveNotes } from "./raceItems";
 
 const dwarf = {
   name: "Dwarf",
@@ -9,7 +9,12 @@ const dwarf = {
     description: "<p>Stout folk.</p>",
     requirements: { con: { min: 9, max: null }, cha: { min: null, max: 17 } },
     languages: ["Common", "Dwarvish"],
-    classLimits: [{ classKey: "fighter", maxLevel: 10 }],
+    classLimits: [
+      { classKey: "fighter", maxLevel: 10, npcOnly: false },
+      { classKey: "cleric", maxLevel: 8, npcOnly: true },
+    ],
+    infravision: 60,
+    saveBonuses: [{ saves: [], bonus: null, against: "poison, spells, wands" }],
     abilities: [{ uuid: "Compendium.abilities.infravision", level: 1 }],
   },
 };
@@ -41,8 +46,12 @@ describe("raceFromItem", () => {
       key: "dwarf",
       requirements: { con: { min: 9, max: null }, cha: { min: null, max: 17 } },
       modifiers: { con: 1, cha: -1 },
-      classLimits: [{ classKey: "fighter", maxLevel: 10 }],
+      classLimits: [
+        { classKey: "fighter", maxLevel: 10, npcOnly: false },
+        { classKey: "cleric", maxLevel: 8, npcOnly: true },
+      ],
       languages: ["Common", "Dwarvish"],
+      infravision: 60,
     });
   });
 
@@ -64,6 +73,20 @@ describe("raceFromItem", () => {
       "ose",
     );
     expect(race.modifiers).toEqual({ con: 1 });
+  });
+});
+
+describe("raceSaveNotes", () => {
+  const race = raceFromItem("Item.dwarf", dwarf, "ose");
+
+  it("scales a Constitution-based bonus and waits for an unknown CON", () => {
+    expect(raceSaveNotes(race, { con: 11 })).toEqual([
+      { bonus: 3, summary: "+3 vs poison, spells, wands", basis: "CON 11" },
+    ]);
+    expect(raceSaveNotes(race, { con: 5 })[0].summary).toBe(
+      "No bonus vs poison, spells, wands",
+    );
+    expect(raceSaveNotes(race, {})).toEqual([]);
   });
 });
 

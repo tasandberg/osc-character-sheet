@@ -17,7 +17,7 @@ import type { AbilityScores } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
 import { ChoiceIcon } from "../ChoiceIcon";
 import { XpAdjustmentText } from "./XpAdjustmentText";
-import { infravision, raceSaveBonus } from "../upstreamGaps";
+import { raceSaveNotes } from "../race/raceItems";
 
 type Props = {
   cls: CreationClass;
@@ -35,20 +35,25 @@ function raceFacts(
   race: CreationRace,
   scores: AbilityScores,
 ): [string, ReactNode][] {
-  const save = raceSaveBonus(race, scores);
-  const sight = infravision(race);
+  const saves = raceSaveNotes(race, scores);
   return [
     [
       "Saves",
-      save ? (
-        <>
-          {save.summary} <span className="vm-help">({save.basis})</span>
-        </>
-      ) : (
-        "No racial bonus"
-      ),
+      saves.length
+        ? saves.map((note) => (
+            <span key={note.summary}>
+              {note.summary}
+              {note.basis && (
+                <>
+                  {" "}
+                  <span className="vm-help">({note.basis})</span>
+                </>
+              )}
+            </span>
+          ))
+        : "No racial bonus",
     ],
-    ["Infravision", sight ? `${sight}′` : "None"],
+    ["Infravision", race.infravision ? `${race.infravision}′` : "None"],
     ["Languages", race.languages.join(", ") || "None"],
   ];
 }

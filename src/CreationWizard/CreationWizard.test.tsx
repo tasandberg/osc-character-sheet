@@ -98,6 +98,8 @@ const race = (name: string, props: Partial<CreationRace>): CreationRace => ({
   modifiers: {},
   classLimits: [],
   languages: [],
+  infravision: null,
+  saveBonuses: [],
   abilities: [],
   source: { name, type: "race" },
   ...props,
@@ -108,11 +110,13 @@ const races: CreationRace[] = [
     requirements: { con: { min: 9, max: null } },
     modifiers: { con: 1, cha: -1 },
     classLimits: [
-      { classKey: "cleric", maxLevel: 8 },
-      { classKey: "fighter", maxLevel: 10 },
-      { classKey: "thief", maxLevel: 9 },
+      { classKey: "cleric", maxLevel: 8, npcOnly: true },
+      { classKey: "fighter", maxLevel: 10, npcOnly: false },
+      { classKey: "thief", maxLevel: 9, npcOnly: false },
     ],
     languages: ["Common", "Dwarvish", "Gnomish"],
+    infravision: 60,
+    saveBonuses: [{ saves: [], bonus: null, against: "poison, spells, wands" }],
     abilities: [{ uuid: "Compendium.abilities.infravision", level: 1 }],
   }),
   race("Half-Elf", {
@@ -121,10 +125,11 @@ const races: CreationRace[] = [
   race("Half-Orc", {
     modifiers: { str: 1, con: 1, cha: -2 },
     classLimits: [
-      { classKey: "fighter", maxLevel: 10 },
-      { classKey: "thief", maxLevel: 8 },
+      { classKey: "fighter", maxLevel: 10, npcOnly: false },
+      { classKey: "thief", maxLevel: 8, npcOnly: false },
     ],
     languages: ["Common", "Orcish"],
+    infravision: 60,
   }),
   race("Human", {}),
 ];
@@ -717,9 +722,8 @@ describe("CreationWizard", () => {
     expect(racePanel()).toContain("cleric*8thFighter10thThief9th");
     expect(racePanel()).toContain("referee may allow this class for NPCs only");
     expect(racePanel()).toContain("Infravision60′");
-    expect(racePanel()).toContain(
-      "Resilience+3 saves (CON 11), from 3rd level",
-    );
+    expect(racePanel()).toContain("Saves+3 vs poison, spells, wands (CON 11)");
+    expect(racePanel()).toContain("Resiliencefrom 3rd level");
     const resilience = button("Resilience details")!;
     act(() => resilience.click());
     expect(
@@ -738,7 +742,7 @@ describe("CreationWizard", () => {
     )!.textContent;
     expect(classPanel).toContain("Max level9th, as a dwarf");
     expect(classPanel).toContain(
-      "Saves+3 vs poison, spells, wands (Resilience, CON 11)",
+      "Saves+3 vs poison, spells, wands (CON 11)",
     );
     expect(classPanel).toContain("Infravision60′");
     expect(classPanel).toContain("LanguagesCommon, Dwarvish, Gnomish");
@@ -973,7 +977,7 @@ describe("CreationWizard review", () => {
     expect(text).toContain("AlignmentNeutral");
     expect(text).toContain("XP bonus+5% from DEX 15");
     expect(text).toContain("STR13+1");
-    expect(text).toContain("LanguagesAlignment, Common");
+    expect(text).toContain("LanguagesNeutral, Common");
     expect(text).toContain("HP3");
     expect(text).toContain("AC7");
     expect(previewedScores.at(-1)).toMatchObject({ dex: 15 });
@@ -996,7 +1000,6 @@ describe("CreationWizard review", () => {
           },
           details: { alignment: "Neutral" },
           hp: { value: 3, max: 3 },
-          languages: { value: ["Alignment", "Common"] },
         },
         gear: [{ uuid: "Compendium.gear.Sword", quantity: 1 }],
         gold: 15,
@@ -1005,7 +1008,7 @@ describe("CreationWizard review", () => {
     expect(finished).toBe(true);
   });
 
-  it("embeds the chosen race item with unmodified scores and speaks its languages", async () => {
+  it("embeds the chosen race item with unmodified scores", async () => {
     openSeparate();
     goldRolls = [{ total: 30, dice: [1, 1, 1] }];
     enterScores(["13", "8", "7", "15", "10", "11"]);
@@ -1021,18 +1024,17 @@ describe("CreationWizard review", () => {
     await pressAsync("Roll starting gold");
     await act(async () => next().click());
 
+    expect(host.textContent).toContain(
+      "LanguagesCommon, Dwarvish, Gnomish, Lawful",
+    );
     await act(async () => createButton().click());
     const [created] = createdCharacters;
-    const { languages } = created.system as {
-      languages: { value: string[] };
-    };
     expect(created.class.uuid).toBe("Compendium.classes.Thief");
     expect(created.race?.source).toEqual({ name: "Dwarf", type: "race" });
     expect(created.system.scores).toMatchObject({
       con: { value: 10 },
       cha: { value: 11 },
     });
-    expect(languages.value).toContain("Dwarvish");
   });
 
   it("creates the character with the portrait chosen on Details or changed on Review", async () => {
