@@ -123,27 +123,17 @@ export function MetaEyebrow({
         </Meta>
       )}
       {onOpenEffects && effects && (
-        <Meta
-          label={
-            <>
-              {effects}
-              <i
-                className="fa-solid fa-arrow-up-right-from-square tw:ml-1 tw:text-[0.8em]"
-                aria-hidden="true"
-              />
-            </>
-          }
-          onLabelClick={onOpenEffects}
-        >
-          <RollLabel
-            glyph={false}
+        <Meta label={effects} onLabelClick={onOpenEffects}>
+          <span data-testid="effect-count">{effectCount}</span>
+          <button
+            type="button"
+            className="osc-roll-die"
             aria-label={effects}
-            title={effects}
-            data-testid="effect-count"
-            onRoll={onOpenEffects}
+            title={`View ${effects}`}
+            onClick={onOpenEffects}
           >
-            {effectCount}
-          </RollLabel>
+            <i className="fa-solid fa-eye roll-label-die" aria-hidden="true" />
+          </button>
         </Meta>
       )}
       {retainer && (
