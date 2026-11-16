@@ -1,5 +1,6 @@
 import type { OSEActor } from "@domain/types";
-import { TOME } from "../class/foundryClasses";
+import type { ClassItems, ItemSource } from "../class/classItems";
+import { TOME } from "../compendium";
 import {
   PortraitUploadReportedError,
   portraitImageUploader,
@@ -12,7 +13,6 @@ const COIN_PACKS = [
   `${TOME}.equipment`,
 ];
 
-type ItemSource = Record<string, unknown>;
 type CoinDocument = {
   name: string;
   system: { treasure?: boolean };
@@ -21,12 +21,22 @@ type CoinDocument = {
 type CoinPacks = {
   get(id: string): { getDocuments(): Promise<CoinDocument[]> } | undefined;
 };
-type WritableActor = OSEActor & {
+type EmbeddedItem = { id: string };
+type GrantingItem = Parameters<NonNullable<OSEActor["offerAbilities"]>>[0];
+type WritableActor = Omit<OSEActor, "items"> & {
   id: string;
-  items: { map<T>(fn: (item: { id: string }) => T): T[] };
+  items: { map<T>(fn: (item: EmbeddedItem) => T): T[] };
   update(data: object): Promise<unknown>;
   createEmbeddedDocuments(type: "Item", data: ItemSource[]): Promise<unknown>;
   deleteEmbeddedDocuments(type: "Item", ids: string[]): Promise<unknown>;
+  addClass(
+    data: ItemSource,
+    options: { level: number; rollHp: boolean },
+  ): Promise<GrantingItem | undefined>;
+  setRace(
+    data: ItemSource,
+    options: { modifiersIncluded: boolean },
+  ): Promise<GrantingItem | undefined>;
   sheet?: { render(force: boolean): unknown } | null;
 };
 type ActorDocumentClass = {
@@ -109,7 +119,25 @@ const create = (character: NewCharacter, items: ItemSource[], images: Images) =>
     items,
   });
 
-export function createCharacter(existing?: OSEActor) {
+async function grantClassAndRace(
+  actor: WritableActor,
+  classItems: ClassItems,
+  { class: cls, race }: NewCharacter,
+) {
+  const embeddedRace = race
+    ? await actor.setRace(race.source, { modifiersIncluded: false })
+    : undefined;
+  const embeddedClass = await actor.addClass(classItems.source(cls), {
+    level: cls.level,
+    rollHp: false,
+  });
+  const grant = (item: GrantingItem | undefined, level: number) =>
+    item && actor.offerAbilities?.(item, level, { upTo: true, confirm: false });
+  await grant(embeddedClass, cls.level);
+  await grant(embeddedRace, 1);
+}
+
+export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
   return async (character: NewCharacter) => {
     try {
       const [items, images] = await Promise.all([
@@ -117,9 +145,15 @@ export function createCharacter(existing?: OSEActor) {
         imageData(character),
       ]);
       const actor = existing
-        ? await fill(existing as WritableActor, character, items, images)
+        ? await fill(
+            existing as unknown as WritableActor,
+            character,
+            items,
+            images,
+          )
         : await create(character, items, images);
       if (!actor) throw new Error("Foundry didn’t create the actor.");
+      await grantClassAndRace(actor, classItems, character);
       actor.sheet?.render(true);
       return true;
     } catch (error) {

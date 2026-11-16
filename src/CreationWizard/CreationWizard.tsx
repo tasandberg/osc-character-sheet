@@ -11,7 +11,6 @@ import {
 import { GearFooter } from "./gear/GearFooter";
 import { GearStep } from "./gear/GearStep";
 import type { HouseRule } from "./houseRuleSettings";
-import { RACES } from "./race/raceDraft";
 import { RaceStep } from "./race/RaceStep";
 import { newCharacter } from "./review/newCharacter";
 import { ReviewStep } from "./review/ReviewStep";
@@ -41,7 +40,7 @@ export function CreationWizard({
   const { step, draft } = wizard;
   const [creating, setCreating] = useState(false);
   const scores = useMemo(() => finalScores(draft.scores), [draft.scores]);
-  const race = chosenRace(draft);
+  const race = chosenRace(draft, rules);
   const details = classDetails(draft, rules);
   const name = draft.details.name.trim();
   useEffect(() => {
@@ -78,7 +77,7 @@ export function CreationWizard({
           <GearFooter
             draft={draft.gear}
             rules={rules}
-            scores={classScores(draft)}
+            scores={classScores(draft, rules)}
           />
         )
       }
@@ -98,10 +97,11 @@ export function CreationWizard({
         />
       ) : step === "race" ? (
         <RaceStep
-          races={RACES}
+          races={rules.races}
+          classes={rules.classes}
           scores={scores}
           chosen={draft.race}
-          loadDetail={rules.raceDetail}
+          rules={rules}
           onChoose={(choice) =>
             wizard.setDraft((d) => ({ ...d, race: choice }))
           }
@@ -109,11 +109,11 @@ export function CreationWizard({
       ) : step === "class" ? (
         <ClassStep
           classes={rules.classes}
-          scores={classScores(draft)}
+          scores={classScores(draft, rules)}
           chosen={draft.class}
           race={race}
-          restrictions={classRestrictions(draft)}
-          loadDetail={rules.classDetail}
+          restrictions={classRestrictions(draft, rules)}
+          rules={rules}
           onChoose={(cls) => wizard.setDraft((d) => ({ ...d, class: cls }))}
         />
       ) : step === "details" && draft.class && details ? (
@@ -122,7 +122,7 @@ export function CreationWizard({
           details={details}
           cls={draft.class}
           race={race}
-          scores={classScores(draft)}
+          scores={classScores(draft, rules)}
           rules={rules}
           onChange={(update) =>
             wizard.setDraft((d) => ({ ...d, details: update(d.details) }))
@@ -144,7 +144,7 @@ export function CreationWizard({
             character={details}
             cls={draft.class}
             race={race}
-            scores={classScores(draft)}
+            scores={classScores(draft, rules)}
             gear={draft.gear}
             rules={rules}
             onChangeGear={() => wizard.goTo("gear")}

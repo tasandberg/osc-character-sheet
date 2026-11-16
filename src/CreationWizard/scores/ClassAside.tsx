@@ -1,22 +1,22 @@
 import { useRef, type ReactNode } from "react";
 import { cx } from "@ui/cx";
+import { xpAdjustment } from "../class/classDraft";
 import { XpAdjustmentText } from "../class/XpAdjustmentText";
 import { MoreBelow } from "../MoreBelow";
-import type { CreationClass } from "../rules";
-import { xpAdjustment } from "../rules/xpAdjustment";
+import type { CreationRules } from "../rules";
 import { classStanding } from "./classStanding";
 import { ABILITIES, abbreviation, type AbilityScores } from "./scoresDraft";
 
 type Props = {
-  classes: CreationClass[];
+  rules: CreationRules;
   scores: AbilityScores;
   children?: ReactNode;
 };
 
-export function ClassAside({ classes, scores, children }: Props) {
+export function ClassAside({ rules, scores, children }: Props) {
   const asideRef = useRef<HTMLElement>(null);
   const known = ABILITIES.filter((a) => scores[a] !== undefined);
-  const standings = classes.map((cls) => ({
+  const standings = rules.classes.map((cls) => ({
     cls,
     ...classStanding(cls, scores),
   }));
@@ -44,7 +44,7 @@ export function ClassAside({ classes, scores, children }: Props) {
         <ul className="osc-creation-class-list">
           {standings.map(({ cls, name, status, note }) => (
             <li
-              key={name}
+              key={cls.uuid}
               className={cx(
                 "osc-creation-class-row",
                 `osc-creation-class-${status}`,
@@ -53,9 +53,13 @@ export function ClassAside({ classes, scores, children }: Props) {
             >
               <span className="osc-creation-class-name u-fs-base">{name}</span>
               {status === "open" ? (
-                xpAdjustment(cls, scores) && (
+                xpAdjustment(cls, scores, rules.xpBonus) && (
                   <span className="osc-creation-class-note vm-mono u-fs-2xs">
-                    <XpAdjustmentText cls={cls} scores={scores} />
+                    <XpAdjustmentText
+                      cls={cls}
+                      scores={scores}
+                      xpBonus={rules.xpBonus}
+                    />
                   </span>
                 )
               ) : (
@@ -72,7 +76,7 @@ export function ClassAside({ classes, scores, children }: Props) {
           each one’s XP adjustment.
         </p>
       )}
-      <MoreBelow scroller={asideRef} contentKey={classes} />
+      <MoreBelow scroller={asideRef} contentKey={rules.classes} />
     </aside>
   );
 }

@@ -1,6 +1,6 @@
 import type { OSEActor } from "@domain/types";
 import { selectEncumbrance } from "@features/inventory/encumbrance";
-import { TOME, activeClassSet, squash } from "../class/foundryClasses";
+import { TOME, activeClassSet, squash } from "../compendium";
 import { ABILITIES } from "../scores/scoresDraft";
 import type {
   GearCategory,

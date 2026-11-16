@@ -6,9 +6,9 @@ test.describe("creation wizard", () => {
   test.beforeEach(async ({ gamePage }) => {
     const supported = await gamePage.evaluate(() => {
       const g = globalThis as any;
-      return !g.foundry.utils.isNewerVersion("3.1.0", g.game.system.version);
+      return !g.foundry.utils.isNewerVersion("3.2.0", g.game.system.version);
     });
-    test.skip(!supported, "the creation wizard needs OSE 3.1.0 or later");
+    test.skip(!supported, "the creation wizard needs OSE 3.2.0 or later");
   });
 
   test("opens a themed New Character window from the Actors sidebar", async ({ gamePage }) => {

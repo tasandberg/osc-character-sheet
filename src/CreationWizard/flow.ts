@@ -7,7 +7,6 @@ import {
   type DetailsDraft,
 } from "./details/detailsDraft";
 import {
-  adjustedScores,
   raceBlockedReason,
   raceRestrictions,
   raceSummary,
@@ -48,39 +47,53 @@ export type CreationDraft = {
 
 export type FlowRules = Pick<
   CreationRules,
-  | "separateRaces"
+  | "classes"
+  | "races"
+  | "raceScores"
   | "modifiers"
   | "maxHitPointsAtFirstLevel"
   | "maximumHitPoints"
+  | "classStats"
+  | "xpBonus"
 >;
 
 const CLASS_ONLY_STEPS = CREATION_STEPS.filter((step) => step !== "race");
 
-export const chosenRace = (draft: CreationDraft) =>
-  draft.raceMode === "separate" ? draft.race : undefined;
+export const separatesRace = (draft: CreationDraft, rules: FlowRules) =>
+  rules.races.length > 0 &&
+  draft.raceMode === "separate" &&
+  !draft.class?.demihuman;
 
-export const classScores = (draft: CreationDraft) =>
-  adjustedScores(finalScores(draft.scores), chosenRace(draft));
+export const chosenRace = (draft: CreationDraft, rules: FlowRules) =>
+  separatesRace(draft, rules) ? draft.race : undefined;
 
-export const classRestrictions = (draft: CreationDraft) => {
-  const race = chosenRace(draft);
-  return race && raceRestrictions(race);
+export const classScores = (draft: CreationDraft, rules: FlowRules) =>
+  rules.raceScores(finalScores(draft.scores), chosenRace(draft, rules));
+
+export const classRestrictions = (draft: CreationDraft, rules: FlowRules) => {
+  const race = chosenRace(draft, rules);
+  return race && raceRestrictions(race, rules.classes);
 };
 
-export const classDetails = (draft: CreationDraft, rules: FlowRules) =>
-  draft.class &&
-  characterDetails({
-    draft: draft.details,
-    cls: draft.class,
-    restrictions: classRestrictions(draft),
-    conMod: rules.modifiers(classScores(draft)).con ?? 0,
-    maximum: rules.maxHitPointsAtFirstLevel
-      ? rules.maximumHitPoints
-      : undefined,
-  });
+export function classDetails(draft: CreationDraft, rules: FlowRules) {
+  const cls = draft.class;
+  return (
+    cls &&
+    characterDetails({
+      draft: draft.details,
+      cls,
+      restrictions: classRestrictions(draft, rules),
+      conMod: rules.modifiers(classScores(draft, rules)).con ?? 0,
+      maximum: rules.maxHitPointsAtFirstLevel
+        ? rules.maximumHitPoints
+        : undefined,
+      statsAt: (level) => rules.classStats(cls, level),
+    })
+  );
+}
 
-const steps = (draft: CreationDraft) =>
-  draft.raceMode === "separate" ? CREATION_STEPS : CLASS_ONLY_STEPS;
+const steps = (draft: CreationDraft, rules: FlowRules) =>
+  separatesRace(draft, rules) ? CREATION_STEPS : CLASS_ONLY_STEPS;
 
 function blockedReason(
   draft: CreationDraft,
@@ -93,8 +106,8 @@ function blockedReason(
   if (step === "class")
     return classBlockedReason(
       draft.class,
-      classScores(draft),
-      classRestrictions(draft),
+      classScores(draft, rules),
+      classRestrictions(draft, rules),
     );
   if (step === "details") {
     const details = classDetails(draft, rules);
@@ -103,7 +116,7 @@ function blockedReason(
       : "Choose a class to continue";
   }
   if (step === "gear") return gearBlockedReason(draft.gear);
-  return steps(draft).every(
+  return steps(draft, rules).every(
     (s) => s === "review" || !blockedReason(draft, s, rules),
   )
     ? undefined
@@ -115,11 +128,11 @@ export const creationFlow = (
 ): CreationFlow<CreationDraft> => ({
   emptyDraft: () => ({
     scores: emptyScoresDraft(),
-    raceMode: rules.separateRaces ? "separate" : "asClass",
+    raceMode: "separate",
     details: emptyDetailsDraft(),
     gear: emptyGearDraft(),
   }),
-  steps,
+  steps: (draft) => steps(draft, rules),
   status: (draft) =>
     Object.fromEntries(
       CREATION_STEPS.map((step) => {
@@ -145,8 +158,9 @@ export const creationFlow = (
         : step === "class"
           ? classSummary(
               draft.class,
-              classScores(draft),
-              classRestrictions(draft),
+              classScores(draft, rules),
+              classRestrictions(draft, rules),
+              rules.xpBonus,
             )
           : undefined;
   },

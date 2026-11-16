@@ -1,4 +1,4 @@
-import { TOME, activeClassSet, journalPageHtml } from "../class/foundryClasses";
+import { TOME, activeClassSet, journalPageHtml } from "../compendium";
 import type { AlignmentText } from "../rules";
 import { parseAlignmentPage } from "./alignmentPage";
 import type { RolledScore } from "../scores/scoresDraft";

@@ -167,7 +167,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm build
 
-      - name: Assemble Foundry data directory (OSE + osc-character-sheet + world)
+      - name: Assemble Foundry data directory (OSE + compendium + osc-character-sheet + world)
         run: |
           mkdir -p "${DATA_DIR}"
           tools/e2e/setup-data-dir.sh "${DATA_DIR}" "${GITHUB_WORKSPACE}"
