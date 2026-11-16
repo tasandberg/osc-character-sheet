@@ -2,7 +2,9 @@ import { chromium, type FullConfig } from "@playwright/test";
 import { joinAsGM, gmUserName, observerUserName } from "./helpers";
 
 const URL = (process.env.FOUNDRY_URL || "http://localhost:30000").replace(/\/$/, "");
-const MODULE_IDS = ["osc-character-sheet", "classicfantasycompendium"];
+const SHEET_MODULE = "osc-character-sheet";
+const CONTENT_MODULE = "classicfantasycompendium";
+const CONTENT_MIN_OSE = "3.2.0";
 
 /**
  * Before any spec runs: enable the osc-character-sheet module (the world fixture ships
@@ -19,6 +21,12 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   try {
     await joinAsGM(page);
+
+    const wantsContent = await page.evaluate((min) => {
+      const g = globalThis as any;
+      return !g.foundry.utils.isNewerVersion(min, g.game.system.version);
+    }, CONTENT_MIN_OSE);
+    const MODULE_IDS = wantsContent ? [SHEET_MODULE, CONTENT_MODULE] : [SHEET_MODULE];
 
     // Enable the modules + reload so the sheet's `ready` hook registers the sheet class.
     const active = await page.evaluate(
