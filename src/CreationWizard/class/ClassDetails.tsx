@@ -98,8 +98,8 @@ function FirstLevelTable({ table }: { table: ClassTable }) {
   const row = table.rows[0];
   if (!row) return null;
   return (
-    <section className="u-stack u-gap-2" aria-label={table.label}>
-      <h4 className="vm-key">{table.label}</h4>
+    <section className="u-stack u-gap-3" aria-label={table.label}>
+      <h3 className="vm-section-title-hairline">{table.label}</h3>
       <dl className="u-grid u-grid-2 u-gap-y-3 u-gap-x-4">
         {table.columns.map(({ key, name }) => (
           <div key={key} className="u-flex tw:flex-col u-gap-1">
@@ -175,21 +175,19 @@ export function ClassDetails({ cls, scores, race, rules }: Props) {
           <Facts facts={raceFacts(race, scores)} />
         </section>
       )}
-      {((detail && detail.abilities.length > 0) || cls.tables.length > 0) && (
+      {detail && detail.abilities.length > 0 && (
         <section className="u-stack u-gap-3" aria-label="Abilities">
           <h3 className="vm-section-title-hairline">Abilities</h3>
-          {detail && detail.abilities.length > 0 && (
-            <ul className="u-flex tw:flex-col">
-              {detail.abilities.map((ability) => (
-                <AbilityDisclosure key={ability.name} ability={ability} />
-              ))}
-            </ul>
-          )}
-          {cls.tables.map((table) => (
-            <FirstLevelTable key={table.key} table={table} />
-          ))}
+          <ul className="u-flex tw:flex-col">
+            {detail.abilities.map((ability) => (
+              <AbilityDisclosure key={ability.name} ability={ability} />
+            ))}
+          </ul>
         </section>
       )}
+      {cls.tables.map((table) => (
+        <FirstLevelTable key={table.key} table={table} />
+      ))}
     </>
   );
 }
