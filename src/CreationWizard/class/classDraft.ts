@@ -84,5 +84,12 @@ export function classSummary(
 
 export const characterLanguages = (
   cls: CreationClass,
-  extra: string[] = [],
-) => [...new Set([...cls.languages, ...extra])];
+  raceLanguages: string[],
+  alignment?: string,
+) => [
+  ...new Set(
+    [...raceLanguages, ...cls.languages].map((name) =>
+      name === "Alignment" && alignment ? alignment : name,
+    ),
+  ),
+];

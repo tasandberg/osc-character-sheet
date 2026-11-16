@@ -1,5 +1,4 @@
 import type { ImageDrop } from "@features/portraitImage/parseImageDrop";
-import { characterLanguages } from "../class/classDraft";
 import { ALIGNMENTS, parseHitPoints } from "../details/detailsDraft";
 import { isChosen, livePortrait } from "../portrait/portraitDraft";
 import {
@@ -51,9 +50,6 @@ export function newCharacter(
           .label,
       },
       hp: { value: hp, max: hp },
-      languages: {
-        value: characterLanguages(cls, race?.languages ?? []),
-      },
     },
     ...(race && { race }),
     gear: cartLines(draft.gear.cart),

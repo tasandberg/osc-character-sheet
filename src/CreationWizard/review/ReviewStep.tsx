@@ -231,7 +231,11 @@ export function ReviewStep({
   const xp = xpAdjustment(cls, scores, rules.xpBonus);
   const { stats, level } = character;
   const alignment = ALIGNMENTS.find((a) => a.value === details.alignment);
-  const languages = characterLanguages(cls, race?.languages ?? []).join(", ");
+  const languages = characterLanguages(
+    cls,
+    race?.languages ?? [],
+    alignment?.label,
+  ).join(", ");
   const hitPoints = parseHitPoints(character.hitPoints?.value) ?? "—";
   const hpTitle = character.hitPoints?.dice
     ? `Rolled ${stats.hd}`
