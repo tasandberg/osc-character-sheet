@@ -211,6 +211,7 @@ export function WealthSection({
             <SortHeader
               label="Item"
               className="osc-inv-th-item"
+              caret="end"
               active={sort.key === "item"}
               dir={sort.dir}
               onClick={() => onSort("item")}

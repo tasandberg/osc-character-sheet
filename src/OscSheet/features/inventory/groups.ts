@@ -1,6 +1,10 @@
 // Groups <-> VM helpers, group-key helpers, and small shared label formatters.
 import type { InventoryItemVM } from "@domain/vm-types";
-import { loadValue, sortInventory } from "@features/inventory/inventory";
+import {
+  loadValue,
+  rowLoad,
+  sortInventory,
+} from "@features/inventory/inventory";
 import type { SortState, Groups } from "@features/inventory/types";
 
 export const ROOT = "root";
@@ -25,15 +29,28 @@ export function countedLoad(
   item: InventoryItemVM,
   variant?: string,
 ): CountedLoad {
-  if (variant !== "itembased") return weightLoad(item.weight);
+  if (variant !== "itembased") return weightLoad(rowLoad(item, variant));
   // Coins/gems carry no per-row slot figure (see slotsOf) — the section totals them.
   // Other valuables take ordinary slots, so they show a real number.
   if (item.coinsOrGems) return { value: "—", unit: "" };
   return { value: String(item.slots), unit: "" };
 }
 
+const roundWeight = (cn: number) => Math.round(cn * 100) / 100;
+
 const weightLoad = (cn: number): CountedLoad =>
-  cn > 0 ? { value: String(cn), unit: "cn" } : { value: "—", unit: "" };
+  cn > 0
+    ? { value: String(roundWeight(cn)), unit: "cn" }
+    : { value: "—", unit: "" };
+
+export function containerLoadBreakdown(
+  item: InventoryItemVM,
+  variant?: string,
+): string | undefined {
+  const contents = item.contentsWeight ?? 0;
+  if (variant === "itembased" || contents <= 0) return undefined;
+  return `Contents ${roundWeight(contents)} cn + container ${roundWeight(item.weight)} cn`;
+}
 
 export const loadText = (l: CountedLoad) =>
   l.unit ? `${l.value} ${l.unit}` : l.value;

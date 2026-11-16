@@ -123,7 +123,18 @@ export function MetaEyebrow({
         </Meta>
       )}
       {onOpenEffects && effects && (
-        <Meta label={effects} onLabelClick={onOpenEffects}>
+        <Meta
+          label={
+            <>
+              {effects}
+              <i
+                className="fa-solid fa-arrow-up-right-from-square tw:ml-1 tw:text-[0.8em]"
+                aria-hidden="true"
+              />
+            </>
+          }
+          onLabelClick={onOpenEffects}
+        >
           <RollLabel
             glyph={false}
             aria-label={effects}

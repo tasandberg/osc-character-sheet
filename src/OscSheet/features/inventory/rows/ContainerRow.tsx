@@ -4,6 +4,7 @@ import { ItemImage } from "@features/inventory/ItemImage";
 import { RowEquip } from "@features/inventory/EquippedTray";
 import { NameCell, SortableRow } from "@features/inventory/rows/SortableRow";
 import {
+  containerLoadBreakdown,
   countedLoad,
   loadText,
   gkey,
@@ -111,7 +112,13 @@ export function ContainerRow({
           trailing={caret}
         />
         <span className={INV_ROWCAT}>{item.category}</span>
-        <span className={INV_WT} data-testid="inv-load">{loadText(countedLoad(item, variant))}</span>
+        <span
+          className={INV_WT}
+          data-testid="inv-load"
+          title={containerLoadBreakdown(item, variant)}
+        >
+          {loadText(countedLoad(item, variant))}
+        </span>
         <RowEquip item={item} onEquip={onEquip} />
       </div>
 
