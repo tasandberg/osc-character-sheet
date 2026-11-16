@@ -25,7 +25,11 @@ export function significantTreasure(): number {
 type EncumbranceCtor = new (
   max: number,
   items: OseItem[],
-  options: { significantTreasure: number; scores: unknown },
+  options: {
+    significantTreasure: number;
+    scores: unknown;
+    packedMax?: number;
+  },
 ) => CharacterEncumbrance;
 
 /** The item-based scheme's own derived figures, which the shared `CharacterEncumbrance`
@@ -52,12 +56,44 @@ function itemBasedReadout(e: ItemBasedEncumbrance): {
   const equipped = e.usingEquippedEncumbrance;
   const pct = equipped ? e.equippedPct : e.packedPct;
   const label = equipped ? e.equippedLabel : e.packedLabel;
-  // equippedLabel is "value/max" — the only place the equipped cap is exposed.
-  const cap = Number(e.equippedLabel?.split("/")[1]);
+  const cap = labelCap(e.equippedLabel);
   return {
     pct: Number.isFinite(pct) ? Math.min(1, pct / 100) : undefined,
     label: label?.replace("/", " / "),
     equippedMax: Number.isFinite(cap) ? cap : undefined,
+  };
+}
+
+// The labels are "value/max" — the only place the two item-based caps are exposed.
+const labelCap = (label?: string) => Number(label?.split("/")[1]);
+
+function itemStrengthMod(actor: OSEActor): number {
+  try {
+    const settings = game.settings as { get(ns: string, key: string): unknown };
+    if (!settings.get(game.system.id, "encumbranceItemStrengthMod")) return 0;
+    return Math.max(0, actor.system.scores?.str?.mod ?? 0);
+  } catch {
+    return 0;
+  }
+}
+
+function storedCaps(
+  actor: OSEActor,
+  live: CharacterEncumbrance,
+): { max: number; packedMax?: number } {
+  if (live.variant !== "itembased") return { max: live.max };
+  const e = live as ItemBasedEncumbrance;
+  const equipped = labelCap(e.equippedLabel);
+  const packed = labelCap(e.packedLabel) - itemStrengthMod(actor);
+  if (!Number.isFinite(equipped)) return { max: live.max };
+  const { baseEncumbranceCap = 9, alternateBaseEncumbranceCap = 16 } =
+    live.constructor as unknown as {
+      baseEncumbranceCap?: number;
+      alternateBaseEncumbranceCap?: number;
+    };
+  return {
+    max: equipped === baseEncumbranceCap ? alternateBaseEncumbranceCap : equipped,
+    packedMax: Number.isFinite(packed) ? packed : undefined,
   };
 }
 
@@ -82,17 +118,15 @@ export function selectEncumbrance(actor: OSEActor, items?: OseItem[]): Encumbran
       bands: [],
     };
   }
+  const caps = storedCaps(actor, live);
   const e =
     items === undefined
       ? live
-      : new (live.constructor as unknown as EncumbranceCtor)(
-          live.max,
-          items,
-          {
-            significantTreasure: significantTreasure(),
-            scores: actor.system.scores,
-          },
-        );
+      : new (live.constructor as unknown as EncumbranceCtor)(caps.max, items, {
+          significantTreasure: significantTreasure(),
+          scores: actor.system.scores,
+          packedMax: caps.packedMax,
+        });
   const movement = actor.system.movement;
   const sigTreasure = significantTreasure();
   const immobile = e.variant === "basic" && e.value >= e.max;

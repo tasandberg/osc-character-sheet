@@ -20,10 +20,12 @@ export function SortHeaderRow({
     col: InventorySortKey,
     label: React.ReactNode,
     className?: string,
+    caret?: "start" | "end",
   ) => (
     <SortHeader
       label={label}
       className={className}
+      caret={caret}
       active={sort.key === col}
       dir={sort.dir}
       onClick={() => onSort(col)}
@@ -33,18 +35,18 @@ export function SortHeaderRow({
     <div className={INV_HEADROW} data-testid="inv-headrow" role="row">
       <span aria-hidden="true" /> {/* drag */}
       {/* "Item" spans the image + name columns so it left-aligns to the image */}
-      {th("name", "Item", "osc-inv-th-item")}
-      {/* right-aligned data columns: shrink the header to the cell edge so the
-          label sits over its own column. Type is dropped at xs with the data. */}
+      {th("name", "Item", "osc-inv-th-item", "end")}
+      {/* Type is dropped at xs with the data. */}
       {th(
         "category",
         "Type",
         "osc-inv-th-cat tw:justify-self-start tw:@max-md/app:hidden",
+        "end",
       )}
       {th(
         "weight",
         loadHeading(variant).column,
-        "osc-inv-th-wt tw:justify-self-center",
+        "osc-inv-th-wt tw:justify-self-end",
       )}
       <span
         className={cx(
