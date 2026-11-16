@@ -1,4 +1,4 @@
-const MIN_OSE_VERSION = "3.1.0";
+const MIN_OSE_VERSION = "3.2.0";
 
 type Globals = {
   game?: { system?: { version?: string } };

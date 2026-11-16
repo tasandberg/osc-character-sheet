@@ -14,10 +14,10 @@ const withSystem = (version?: string) => {
 };
 
 describe("creationWizardSupported", () => {
-  it("needs OSE 3.1.0 or later", () => {
-    expect(withSystem("3.0.1")).toBe(false);
-    expect(withSystem("3.1.0")).toBe(true);
-    expect(withSystem("3.1.0-beta.2")).toBe(true);
+  it("needs OSE 3.2.0 or later", () => {
+    expect(withSystem("3.1.0")).toBe(false);
+    expect(withSystem("3.2.0")).toBe(true);
+    expect(withSystem("3.3.0")).toBe(true);
     expect(withSystem("999.0.0-dev")).toBe(true);
     expect(withSystem(undefined)).toBe(false);
   });
