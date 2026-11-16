@@ -32,32 +32,29 @@ function natD20(roll: Roll): number | null {
 }
 
 /** Pure hit/miss rule (B/X). `nat` = natural d20 face (1 always misses, 20 always
- *  hits); `total` already includes the cell's ability mod. Ascending: total + the
- *  attacker's base attack bonus (bba) ≥ target AAC. Descending: attacker THAC0 −
- *  total ≤ target AC. Exported for unit testing. */
+ *  hits); `total` is the full rolled formula, attack bonus included. Ascending:
+ *  total ≥ target AAC. Descending: attacker THAC0 − total ≤ target AC. */
 export function evaluateHit(opts: {
   nat: number | null;
   total: number;
   ascending: boolean;
-  bba: number;
   thac0: number;
   target: Pick<TargetInfo, "aac" | "ac">;
 }): boolean {
   if (opts.nat === 1) return false;
   if (opts.nat === 20) return true;
   return opts.ascending
-    ? opts.total + opts.bba >= opts.target.aac
+    ? opts.total >= opts.target.aac
     : opts.thac0 - opts.total <= opts.target.ac;
 }
 
 /** Resolve hit vs miss for an evaluated d20 roll against a target. */
 function resolveHit(roll: Roll, attacker: OSEActor, target: TargetInfo): boolean {
-  const sys = attacker.system as { thac0?: { value: number; bba: number } };
+  const sys = attacker.system as { thac0?: { value: number } };
   return evaluateHit({
     nat: natD20(roll),
     total: roll.total ?? 0,
     ascending: usesAscendingAC(),
-    bba: sys.thac0?.bba ?? 0,
     thac0: sys.thac0?.value ?? 19,
     target,
   });

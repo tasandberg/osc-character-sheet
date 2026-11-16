@@ -15,6 +15,7 @@ type Props = {
   /** Absent → no rail, tab bar or bottom bar. */
   nav?: Nav;
   topbar?: ReactNode;
+  banner?: ReactNode;
   header?: ReactNode;
   railExtra?: ReactNode;
   minibar?: ReactNode;
@@ -24,6 +25,7 @@ export function Frame({
   nav,
   children,
   topbar,
+  banner,
   header,
   railExtra,
   minibar,
@@ -35,6 +37,7 @@ export function Frame({
           {topbar}
         </div>
       )}
+      {banner}
       <div className="osc-body tw:relative tw:flex tw:min-h-0 tw:flex-1">
         <div className="osc-sheet-body">
           {minibar}

@@ -37,6 +37,7 @@ export function storedSkills(actor: { flags?: unknown }): ExplorationSkill[] {
 }
 
 function storedTarget(actor: OSEActor, key: string): number | undefined {
+  if (actor.system.classes?.length) return undefined;
   return storedSkills(actor).find((s) => s.key === key)?.inSix;
 }
 

@@ -57,7 +57,7 @@ export function Minibar({ identity, vitals, onSetHp }: Props) {
           {identity.name}
         </div>
         <div className="tw:truncate tw:text-(length:--fs-xs) tw:text-text-dim">
-          {identity.classLabel} {identity.level}
+          {identity.classLevels}
         </div>
       </div>
       <div className="tw:flex tw:flex-none tw:items-center tw:gap-2">

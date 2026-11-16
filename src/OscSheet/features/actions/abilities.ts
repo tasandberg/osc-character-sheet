@@ -1,3 +1,4 @@
+import { selectScoreBreakdown } from "@features/scores/scoreBreakdown";
 import type { OSEActor } from "@domain/types";
 import type { AbilityDetailVM, AbilityVM } from "@domain/vm-types";
 import { formatMod } from "@domain/format";
@@ -64,6 +65,7 @@ export function selectAbilities(actor: OSEActor): AbilityVM[] {
       mod: s.mod,
       modLabel: formatMod(s.mod),
       details: selectDetails(scores, key),
+      breakdown: selectScoreBreakdown(actor, key),
     };
   });
 }

@@ -4,5 +4,46 @@
   },
   "TYPES.Actor.character": "Character",
   "TYPES.Actor.monster": "Monster",
-  "OSE.category.actions": "Actions"
+  "OSE.category.actions": "Actions",
+  "OSC": {
+    "details": {
+      "race": "Race"
+    },
+    "category": {
+      "effects": "Effects"
+    },
+    "effects": {
+      "temporary": "Temporary Effects",
+      "passive": "Passive Effects",
+      "inactive": "Inactive Effects",
+      "Source": "Source",
+      "Duration": "Duration",
+      "Actor": "Actor",
+      "None": "None",
+      "New": "New Effect",
+      "Create": "Create effect",
+      "Edit": "Edit effect",
+      "Enable": "Enable effect",
+      "Disable": "Disable effect",
+      "Delete": "Delete effect",
+      "DeleteConfirm": "Delete the effect \"{name}\"?",
+      "ClassXp": "Prime requisite XP {bonus}%",
+      "Fixed": "Worked out from the class and ability scores.",
+      "FromItem": "Granted by an item. Remove the item instead."
+    },
+    "scores": {
+      "Base": "Base score",
+      "Adjustments": "Adjustments",
+      "Total": "Total {score}",
+      "Limited": "Race adjustments can't take a score past 3 or 18.",
+      "types": {
+        "override": "Set to {value}",
+        "multiply": "× {value}",
+        "upgrade": "At least {value}",
+        "downgrade": "At most {value}",
+        "custom": "Custom {value}"
+      },
+      "Close": "Close"
+    }
+  }
 }

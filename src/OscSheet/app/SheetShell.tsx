@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Frame, Topbar, HeaderBand, Minibar, type TabItem } from "@layout";
 import { useOscSheetContext } from "@app/context";
 import { EditModal } from "@features/edit/EditModal";
+import { EffectsModal } from "@features/effects/EffectsModal";
+import { countEffects } from "@features/effects/effects";
 import { PortraitImageDialog } from "@features/portraitImage/PortraitImageDialog";
 import { SheetImageDrop } from "@features/portraitImage/SheetImageDrop";
 import { usePortraitDrop } from "@features/portraitImage/usePortraitDrop";
@@ -13,11 +15,14 @@ import {
 import type { PortraitImageDrop } from "@features/portraitImage/portraitImageState";
 import { tabs, TabIds } from "@app/tabs";
 import { selectTabCounts } from "@app/tabCounts";
+import { WarningsStrip } from "@features/warnings/WarningsStrip";
 import getLabel from "@src/util/getLabel";
 import { ActionsView, SavesExploration } from "@features/actions";
 import { InventoryView } from "@features/inventory";
 import { selectTopbar } from "@domain/topbar";
 import { selectSaves } from "@features/actions/saves";
+import { selectLoyalty, rollLoyalty } from "@features/actions/loyalty";
+import { MetaEyebrow } from "@features/actions/MetaEyebrow";
 import {
   selectExploration,
   rollExploration,
@@ -30,6 +35,7 @@ import {
 import { useInventoryActions } from "@features/inventory/useInventoryActions";
 import { showTokenVariantsPortraitPicker } from "@domain/tokenVariants";
 import { selectAc } from "@domain/vitals";
+import { selectHdParts, selectHitDice } from "@domain/classRules";
 import { selectIdentity } from "@domain/identity";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import { useToast } from "@ui/toastContext";
@@ -57,6 +63,7 @@ export default function SheetShell() {
   } = useOscSheetContext();
   const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
+  const [effectsOpen, setEffectsOpen] = useState(false);
   const [portraitImage, setPortraitImage] = useState<{
     drop?: PortraitImageDrop;
   } | null>(null);
@@ -64,8 +71,9 @@ export default function SheetShell() {
   const creationWizard = useSetting("creationWizard");
 
   // Layout-slot props built inline from the actor (HeaderBand + Minibar share the shape).
-  const { hp, aac, ac, movement, init } = actor.system;
+  const { hp, aac, ac, movement } = actor.system;
   const identity = selectIdentity(actor);
+  const retainer = selectLoyalty(actor);
   const isAscending = usesAscendingAC();
   const equippedArmor = invItems.filter(
     (i) => i.type === "armor" && i.system.equipped,
@@ -73,16 +81,13 @@ export default function SheetShell() {
   const vitals: VitalsVM = {
     hp: { value: hp.value, max: hp.max },
     ac: selectAc(aac, ac, equippedArmor, isAscending),
-    initMod: init,
-    hd: hp.hd,
-    move: Math.floor(movement.base),
     moveBands: {
       encounter: Math.floor(movement.encounter),
       explore: Math.floor(movement.base),
       travel: Math.floor(movement.overland),
     },
   };
-  // One encumbrance VM for both consumers — the header MOVE hover and the inventory
+  // One encumbrance VM for both consumers — the header Move hover and the inventory
   // rates line must never disagree about the tier.
   const encumbrance = selectEncumbrance(actor, invItems as OseItem[]);
   // Read-only sheets get no HP stepper/input (undefined onSetHp → static value).
@@ -92,6 +97,15 @@ export default function SheetShell() {
         const next = Math.max(0, Math.min(vitals.hp.max, value));
         if (next === vitals.hp.value) return;
         const update = { "system.hp.value": next };
+        if (optimisticUpdate)
+          optimisticUpdate("actor", update, () => updateActor(update));
+        else void updateActor(update);
+      };
+
+  const onSetMaxHp = !canEdit
+    ? undefined
+    : (value: number) => {
+        const update = { "system.hp.max": Math.max(1, value) };
         if (optimisticUpdate)
           optimisticUpdate("actor", update, () => updateActor(update));
         else void updateActor(update);
@@ -116,6 +130,10 @@ export default function SheetShell() {
       <EditModal
         open={editOpen && canEdit}
         onClose={() => setEditOpen(false)}
+      />
+      <EffectsModal
+        open={effectsOpen}
+        onClose={() => setEffectsOpen(false)}
       />
       {portraitImage && canEdit && (
         <PortraitImageDialog
@@ -144,26 +162,46 @@ export default function SheetShell() {
               if (next) setCurrentTab(next.id);
             },
           }}
+          banner={<WarningsStrip />}
           topbar={
             <Topbar
               vm={selectTopbar(actor)}
               canEdit={canEdit}
               onEdit={() => setEditOpen(true)}
-              onLevelUp={() =>
-                toast({
-                  intent: "warning",
-                  title: "Level Up",
-                  message: "Coming soon ;)",
-                })
-              }
+              onLevelUpClass={(classItem) => actor.levelUp(classItem)}
             />
           }
           header={
             <HeaderBand
               identity={identity}
+              onOpenItem={(id) => void actor.items.get(id)?.sheet?.render(true)}
               vitals={vitals}
-              encumbrance={encumbrance}
               onSetHp={onSetHp}
+              stats={
+                <MetaEyebrow
+                  moveBands={vitals.moveBands}
+                  hitDice={selectHitDice(actor)}
+                  hitDiceParts={selectHdParts(actor)}
+                  onRollHitDice={
+                    canEdit
+                      ? (event) => actor.rollHitDice({ event })
+                      : undefined
+                  }
+                  encumbrance={encumbrance}
+                  retainer={retainer}
+                  onRollLoyalty={(event) => rollLoyalty(actor, event)}
+                  onSetWage={
+                    canEdit
+                      ? (wage) =>
+                          void updateActor({ "system.retainer.wage": wage })
+                      : undefined
+                  }
+                  onOpenEffects={() => setEffectsOpen(true)}
+                  effectCount={countEffects(actor)}
+                />
+              }
+              baseMaxHp={actor._source?.system?.hp?.max}
+              onSetMaxHp={onSetMaxHp}
               // Intentionally gated on canEdit (= Foundry `sheet.isEditable`), not
               // raw actor.isOwner: a locked/compendium sheet legitimately shouldn't
               // expose write affordances even to an owner. Same rationale for the
@@ -177,9 +215,6 @@ export default function SheetShell() {
                   : undefined
               }
               canEditPortrait={canEdit}
-              onRollHd={
-                canEdit ? (event) => actor.rollHitDice({ event }) : undefined
-              }
             />
           }
           minibar={

@@ -10,20 +10,19 @@ import {
   NumberInput,
   ValidatedInput,
   Combobox,
-  Tag,
   Check,
   Monogram,
 } from "@src/OscSheet/components/ui";
 import { useOscSheetContext } from "@app/context";
 import {
   selectClassDefaults,
-  availableClassNames,
-  classSource,
+  selectDerivation,
+  selectProgression,
 } from "@domain/classRules";
+import { DerivedHint } from "./DerivedHint";
 import { usesAscendingAC } from "@domain/chat/targeting";
 import type { OSESave } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath, readFlag } from "@domain/flags";
-import { HitDiceField } from "./HitDiceField";
 import { ExplorationSection } from "./ExplorationSection";
 import {
   type EmployerOption,
@@ -35,32 +34,11 @@ import {
   ED_FIELD,
   ED_HINT,
   LAB_ID,
-  SPAN_2,
-  SPAN_3,
   SPAN_4,
   SPAN_6,
   SPAN_COMBO,
   SPAN_FULL,
 } from "./classes";
-
-const SOURCE_TAG = {
-  advanced: ["ADV", "teal", "Advanced Fantasy"],
-  classic: ["SRD", "brass", "Classic Fantasy SRD"],
-  custom: ["CUS", "mustard", "Custom"],
-} as const;
-
-// One face for both dropdown rows and the at-rest chip, so they stay identical.
-function classFace(name: string): ReactNode {
-  const [text, intent, title] = SOURCE_TAG[classSource(name)];
-  return (
-    <>
-      <span className="combobox-optlabel">{name.replace(/-/g, " ")}</span>
-      <Tag intent={intent} size="xs" title={title}>
-        {text}
-      </Tag>
-    </>
-  );
-}
 
 function employerFace({ name, img }: EmployerOption): ReactNode {
   return (
@@ -79,9 +57,6 @@ const fmtMod = (n: number) => (n >= 0 ? "+" : "") + n;
 const clamp = (n: number, lo: number, hi: number) =>
   Math.max(lo, Math.min(hi, n));
 
-// Mirrors the sheet's plaque order (features/actions/abilities.ts) — editing scores in a
-// different order than they're displayed invites typing a value into the wrong field.
-const ABIL_ORDER = ["str", "int", "wis", "dex", "con", "cha"] as const;
 const ALIGNMENTS = ["Lawful", "Neutral", "Chaotic"];
 const SAVE_DEFS: { k: OSESave; n: string }[] = [
   { k: "death", n: "Death / Poison" },
@@ -122,13 +97,12 @@ export function EditModal({
   if (!open) return null;
 
   const sys = actor.system;
+  const stored = actor._source?.system;
   const defaults = selectClassDefaults(actor);
   const set = (key: string, value: string | number | boolean) =>
     void updateActor({ [key]: value });
 
   // --- Identity / progression ---
-  // GMs can re-class a character; players see the class as static header text.
-  const isGM = game.user?.isGM ?? false;
   const isRetainer = sys.retainer?.enabled === true;
   const loyalty = sys.retainer?.loyalty ?? 0;
   const allActors = isRetainer ? worldActors() : [];
@@ -146,25 +120,27 @@ export function EditModal({
         ? { [flagPath(FLAGS.employer)]: id }
         : { [flagDeletePath(FLAGS.employer)]: null },
     );
-  const classNames = availableClassNames();
-  const level = sys.details.level;
+  const { derived } = selectProgression(actor);
+  const breakdown = selectDerivation(actor);
   const dexInit = sys.scores.dex.init;
   const initMod = sys.initiative?.mod ?? 0;
-  const initEff = dexInit + initMod;
-  const nextXp = defaults.nextXp;
-
-  // --- Hit Dice (freeform formula string, e.g. "4d8+1") ---
-  const hdVal = sys.hp.hd || defaults.hd || `${level}d8`;
-  const hdDefault = defaults.hd;
-  const hdOverridden = !!hdDefault && hdVal !== hdDefault;
+  const storedInitMod = actor._source?.system?.initiative?.mod ?? initMod;
+  const effectInit = initMod - storedInitMod;
+  const initBase = dexInit + effectInit;
+  const initEff = initBase + storedInitMod;
+  const initBaseText =
+    `DEX ${fmtMod(dexInit)}` +
+    (effectInit ? `, effects ${fmtMod(effectInit)}` : "");
 
   // --- Attack (THAC0 descending / Attack Bonus ascending) ---
   const ascendingAC = usesAscendingAC();
   const atkLabel = ascendingAC ? "Attack Bonus" : "THAC0";
   const atkKey = ascendingAC ? "system.thac0.bba" : "system.thac0.value";
-  const atkVal = ascendingAC ? sys.thac0.bba : sys.thac0.value;
+  const atkShown = ascendingAC ? sys.thac0.bba : sys.thac0.value;
+  const atkStored = ascendingAC ? stored?.thac0?.bba : stored?.thac0?.value;
+  const atkVal = derived ? atkShown : (atkStored ?? atkShown);
   const atkDefault =
-    defaults.thac0 == null
+    derived || defaults.thac0 == null
       ? null
       : ascendingAC
         ? 19 - defaults.thac0
@@ -178,7 +154,9 @@ export function EditModal({
   // render as e.g. 82.5; editing (auto off) writes the raw base.
   const movementAuto = sys.config?.movementAuto ?? true;
   const rawMoveBase = actor._source?.system?.movement?.base ?? 120;
-  const moveShown = Math.floor(sys.movement?.base ?? rawMoveBase);
+  const moveShown = movementAuto
+    ? Math.floor(sys.movement?.base ?? rawMoveBase)
+    : rawMoveBase;
 
   const footer = (
     <Button variant="primary" onClick={onClose}>
@@ -205,7 +183,7 @@ export function EditModal({
             </em>
           </SectionTitle>
           <div className="ed-id-grid tw:flex-auto tw:min-w-0 tw:grid tw:grid-cols-12 tw:gap-[14px] tw:content-start">
-            <label className={`${ED_FIELD} ${SPAN_3}`}>
+            <label className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>Name</span>
               <ValidatedInput
                 className="input"
@@ -214,34 +192,7 @@ export function EditModal({
                 onCommit={(v) => set("name", v)}
               />
             </label>
-            <label className={`${ED_FIELD} ${SPAN_COMBO}`}>
-              <span className={LAB_ID}>
-                Class <span className={ED_HINT}>GM</span>
-              </span>
-              <Combobox
-                disabled={!isGM}
-                value={sys.details.class}
-                options={(classNames ?? []).map((c) => ({
-                  value: c,
-                  label: c.replace(/-/g, " "),
-                  node: classFace(c),
-                }))}
-                onCommit={(v) => set("system.details.class", v)}
-                renderValue={classFace}
-                createHint="Type to set a custom class"
-                newOptionLabel={(q) => `Custom: “${q}”`}
-              />
-            </label>
-            <label className={`${ED_FIELD} ${SPAN_2}`}>
-              <span className={LAB_ID}>Level</span>
-              <NumberInput
-                className="input mono"
-                value={level}
-                min={1}
-                onCommit={(n) => set("system.details.level", n)}
-              />
-            </label>
-            <label className={`${ED_FIELD} ${SPAN_3}`}>
+            <label className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>Title</span>
               <ValidatedInput
                 className="input"
@@ -262,52 +213,6 @@ export function EditModal({
             </label>
 
             <label className={`${ED_FIELD} ${SPAN_4}`}>
-              <span className={LAB_ID}>Current XP</span>
-              <NumberInput
-                className="input mono"
-                value={sys.details.xp.value}
-                min={0}
-                onCommit={(n) => set("system.details.xp.value", n)}
-              />
-            </label>
-            <label className={`${ED_FIELD} ${SPAN_4}`}>
-              <span className={LAB_ID}>Next Level</span>
-              <NumberInput
-                className="input mono"
-                value={sys.details.xp.next ?? 0}
-                min={0}
-                onCommit={(n) => set("system.details.xp.next", n)}
-              />
-              {nextXp != null && (
-                <OverrideValue
-                  overridden={sys.details.xp.next !== nextXp}
-                  defaultText={`default · ${nextXp.toLocaleString()}`}
-                  onResetRequest={() =>
-                    requestConfirm(
-                      "Reset Next Level?",
-                      `Revert to the class default of ${nextXp.toLocaleString()} XP.`,
-                      () => set("system.details.xp.next", nextXp),
-                    )
-                  }
-                />
-              )}
-            </label>
-            <HitDiceField
-              className={SPAN_4}
-              actor={actor}
-              hdVal={hdVal}
-              hdDefault={hdDefault}
-              hdOverridden={hdOverridden}
-              onCommit={(v) => set("system.hp.hd", v)}
-              onResetRequest={() =>
-                requestConfirm(
-                  "Reset Hit Dice?",
-                  `Revert to the class default of ${hdDefault}.`,
-                  () => set("system.hp.hd", hdDefault!),
-                )
-              }
-            />
-            <label className={`${ED_FIELD} ${SPAN_4}`}>
               <span className={LAB_ID}>Current HP</span>
               <NumberInput
                 className="input mono"
@@ -321,7 +226,7 @@ export function EditModal({
               <span className={LAB_ID}>Max HP</span>
               <NumberInput
                 className="input mono"
-                value={sys.hp.max}
+                value={stored?.hp?.max ?? sys.hp.max}
                 min={1}
                 onCommit={(n) => set("system.hp.max", n)}
               />
@@ -332,15 +237,15 @@ export function EditModal({
               <NumberInput
                 className="input mono"
                 value={initEff}
-                onCommit={(n) => set("system.initiative.mod", n - dexInit)}
+                onCommit={(n) => set("system.initiative.mod", n - initBase)}
               />
               <OverrideValue
-                overridden={initMod !== 0}
-                defaultText={`DEX ${fmtMod(dexInit)}`}
+                overridden={storedInitMod !== 0}
+                defaultText={initBaseText}
                 onResetRequest={() =>
                   requestConfirm(
                     "Reset Initiative?",
-                    `Revert to the rule default of DEX ${fmtMod(dexInit)}.`,
+                    `Revert to the rule default of ${initBaseText}.`,
                     () => set("system.initiative.mod", 0),
                   )
                 }
@@ -352,8 +257,15 @@ export function EditModal({
               <NumberInput
                 className="input mono"
                 value={atkVal}
+                disabled={derived}
                 onCommit={(n) => set(atkKey, n)}
               />
+              {derived && (
+                <DerivedHint
+                  className="hint"
+                  breakdown={breakdown[ascendingAC ? "bba" : "thac0"]}
+                />
+              )}
               {atkDefault != null && (
                 <OverrideValue
                   overridden={atkOverridden}
@@ -470,47 +382,19 @@ export function EditModal({
           </div>
         </div>
 
-        {/* Ability Scores */}
-        <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
-          <SectionTitle hint="raw scores">Ability Scores</SectionTitle>
-          <div className="ed-cells ed-abil tw:grid tw:gap-2 tw:grid-cols-6 tw:@max-[520px]/fwin:grid-cols-3">
-            {ABIL_ORDER.map((k) => {
-              const req = defaults.requirements[k];
-              const below = req != null && sys.scores[k].value < req;
-              return (
-                <StampCell
-                  key={k}
-                  stampKey={k.toUpperCase()}
-                  value={sys.scores[k].value}
-                  onChange={(n) =>
-                    set(`system.scores.${k}.value`, clamp(n, 1, 20))
-                  }
-                  min={1}
-                  max={20}
-                  warn={below}
-                  warnTitle={
-                    below
-                      ? `${sys.details.class} requires ${k.toUpperCase()} ${req}+`
-                      : undefined
-                  }
-                  caption={
-                    below ? `needs ${req}+` : `mod ${fmtMod(sys.scores[k].mod)}`
-                  }
-                />
-              );
-            })}
-          </div>
-        </div>
-
         {/* Saving Throws */}
         <div className="ed-sec tw:flex tw:flex-col tw:gap-3">
-          <SectionTitle hint="roll ≥ target · default shown">
+          <SectionTitle
+            hint={derived ? "roll ≥ target" : "roll ≥ target · default shown"}
+          >
             Saving Throws
           </SectionTitle>
           <div className="ed-cells ed-save tw:grid tw:gap-2 tw:grid-cols-5">
             {SAVE_DEFS.map(({ k, n }) => {
-              const def = defaults.saves?.[k] ?? null;
-              const value = sys.saves[k].value;
+              const def = derived ? null : (defaults.saves?.[k] ?? null);
+              const value = derived
+                ? sys.saves[k].value
+                : (stored?.saves?.[k]?.value ?? sys.saves[k].value);
               const overridden = def != null && value !== def;
               return (
                 <StampCell
@@ -521,7 +405,16 @@ export function EditModal({
                   onChange={(v) => set(`system.saves.${k}.value`, v)}
                   min={1}
                   max={20}
-                  caption={def != null ? `default ${def}` : ""}
+                  disabled={derived}
+                  caption={
+                    derived ? (
+                      <DerivedHint breakdown={breakdown[`saves.${k}`]} />
+                    ) : def != null ? (
+                      `default ${def}`
+                    ) : (
+                      ""
+                    )
+                  }
                   overridden={overridden}
                   onResetRequest={
                     def != null

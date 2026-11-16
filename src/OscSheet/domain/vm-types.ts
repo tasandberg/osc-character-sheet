@@ -1,9 +1,18 @@
-import type { AttackKind, OSESave, OseSpell } from "@domain/types";
+import type {
+  AttackKind,
+  OSESave,
+  OseClassItem,
+  OseSpell,
+} from "@domain/types";
 
 export interface IdentityVM {
   name: string;
   img: string;
   classLabel: string;
+  classLevels: string;
+  classes?: { id: string; label: string }[];
+  race?: string;
+  raceId?: string;
   level: number;
   alignment: string;
   title: string;
@@ -21,10 +30,7 @@ export interface MoveBands {
 export interface VitalsVM {
   hp: { value: number; max: number };
   /** Resolved AC for display: value matching the ascendingAC setting + the mode. */
-  ac: { value: number; ascending: boolean };
-  initMod: number;
-  hd: string;
-  move: number;
+  ac: { value: number; ascending: boolean; parts?: AcPart[] };
   /** Movement bands for the MOVE pill popover (per-round / per-turn / per-day). */
   moveBands: MoveBands;
 }
@@ -35,6 +41,18 @@ export interface AbilityDetailVM {
   localizeValue?: boolean;
 }
 
+export interface AcPart {
+  label: string;
+  value: string;
+}
+
+export interface ScoreContribution {
+  id: string;
+  name: string;
+  type: string;
+  amount: string;
+}
+
 export interface AbilityVM {
   key: string;
   label: string;
@@ -43,6 +61,7 @@ export interface AbilityVM {
   mod: number;
   modLabel: string;
   details: AbilityDetailVM[];
+  breakdown?: { base: number; contributions: ScoreContribution[] };
 }
 
 export interface LoyaltyVM {
@@ -105,6 +124,7 @@ export interface SaveVM {
   label: string;
   icon: string;
   target: number;
+  breakdown?: string;
 }
 
 export interface ExplorationVM {
@@ -121,6 +141,16 @@ export interface TopbarVM {
    *  next-level XP — the two ends of the band the bar fills. */
   xp: { value: number; floor: number; next: number | null };
   /** Progress through the current level's XP band, 0–100. */
+  pct: number;
+  levelUps: { label: string; classItem: OseClassItem }[];
+  classTracks: XpTrackVM[];
+}
+
+export interface XpTrackVM {
+  name: string;
+  level: number;
+  nextLevel: number | null;
+  xp: { value: number; floor: number; next: number | null };
   pct: number;
 }
 

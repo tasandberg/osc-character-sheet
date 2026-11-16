@@ -1,5 +1,6 @@
 import { composeTag } from "@features/abilities/features";
-import type { MonsterActor, MonsterItem, MonsterSaveKey } from "./types";
+import type { Save } from "@ose-foundry-core/types";
+import type { MonsterActor, MonsterItem } from "./types";
 
 export type MonsterSettings = { ascendingAC: boolean; morale: boolean };
 
@@ -39,9 +40,9 @@ export type AbilityEntry = {
   pattern: string;
 };
 
-export type SaveEntry = { key: MonsterSaveKey; label: string; value: string };
+export type SaveEntry = { key: Save; label: string; value: string };
 
-export const SAVE_LABELS: Record<MonsterSaveKey, string> = {
+export const SAVE_LABELS: Record<Save, string> = {
   death: "Death",
   wand: "Wand",
   paralysis: "Paralysis",
@@ -49,13 +50,7 @@ export const SAVE_LABELS: Record<MonsterSaveKey, string> = {
   spell: "Spell",
 };
 
-const SAVE_ORDER: MonsterSaveKey[] = [
-  "death",
-  "wand",
-  "paralysis",
-  "breath",
-  "spell",
-];
+const SAVE_ORDER: Save[] = ["death", "wand", "paralysis", "breath", "spell"];
 
 const UNGROUPED_PATTERNS = new Set(["white", "transparent"]);
 
@@ -124,9 +119,7 @@ function movement(actor: MonsterActor) {
 }
 
 const saveLabel = (save: string | undefined) =>
-  save
-    ? `save vs ${(SAVE_LABELS[save as MonsterSaveKey] ?? save).toLowerCase()}`
-    : null;
+  save ? `save vs ${(SAVE_LABELS[save as Save] ?? save).toLowerCase()}` : null;
 
 function attackRow(item: MonsterItem, pattern: string): AttackRow {
   const max = Number(item.system.counter?.max) || 0;

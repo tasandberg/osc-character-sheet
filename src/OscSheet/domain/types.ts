@@ -3,10 +3,12 @@ import type {
   CharacterAC,
   CharacterEncumbrance,
   CharacterMove,
+  ClassItemData,
   ContainerItemData,
   ExplorationSkills,
   MiscItemData,
   PhysicalItemData,
+  RaceItemData,
   RollType,
   Save,
   SpellItemData,
@@ -127,8 +129,17 @@ export type OSEActor = Actor & {
     /** To-hit: `value` = THAC0 (descending), `bba` = base attack bonus (ascending),
      *  `mod` = the Tweaks per-range attack bonuses. */
     thac0: { value: number; bba: number; mod?: { melee?: number; missile?: number } };
+    /** OSE ≥ 3.3: per-range damage bonus from Tweaks or Active Effects. */
+    damage?: { mod?: { melee?: number; missile?: number } };
     updatedAt?: string;
     weapons: OseWeapon[];
+    classes?: OseClassItem[];
+    race?: OseRaceItem | null;
+    derivedFromClasses?: boolean;
+    classXpBonus?: (classItem: OseClassItem) => number;
+    xpBonusFromEffects?: number;
+    warnings?: OseWarning[];
+    warningContext?: string;
   };
   _source: OSEActor;
   targetAttack: (
@@ -154,7 +165,21 @@ export type OSEActor = Actor & {
   ) => void;
   rollLoyalty: (options: { event?: RollEvent }) => void;
   rollHitDice: (options: { event?: RollEvent }) => void;
+  levelUp: (classItem: OseClassItem) => Promise<void>;
+  removeGrantingItem: (item: OseClassItem | OseRaceItem) => Promise<void>;
+  offerAbilities?: (
+    item: OseClassItem | OseRaceItem,
+    level: number,
+    options?: { upTo?: boolean; confirm?: boolean }
+  ) => Promise<void>;
   update: (updateData: Record<string, unknown>) => Promise<OSEActor>;
+};
+
+export type OseWarning = {
+  key: string;
+  itemId: string;
+  message: string;
+  data: Record<string, string | number>;
 };
 
 export type OseItem = Omit<Item, "type"> & {
@@ -164,6 +189,7 @@ export type OseItem = Omit<Item, "type"> & {
     Partial<Pick<MiscItemData, "cumulativeItemslots" | "isCoinsOrGems">> &
     Partial<Pick<ContainerItemData, "contents" | "totalWeight">>;
   rollWeapon: (options: { skipDialog: boolean }) => void;
+  dismissWarning?: (key: string, context: string) => Promise<unknown>;
   update: (updateData: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: string | number | Record<any, any>;
@@ -172,11 +198,15 @@ export type OseItem = Omit<Item, "type"> & {
 
 export type OseWeapon = OseItem & { system: WeaponItemData };
 
+export type OseClassItem = OseItem & { system: ClassItemData };
+
+export type OseRaceItem = OseItem & { system: RaceItemData };
+
 /** Roll-comparison key, sourced from the OSE system's CONFIG (`roll_type`). */
 export type OseRollType = RollType;
 
 export type OseAbility = OseItem & {
-  system: AbilityItemData;
+  system: AbilityItemData & { readonly effectiveTarget?: number | null };
   /** OSE item roll dispatcher — for abilities, rolls the formula + posts to chat. */
   roll: (options?: { event?: Event }) => void;
 };

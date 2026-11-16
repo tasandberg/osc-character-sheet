@@ -6,6 +6,7 @@ import OscSheetProvider from "@app/OscSheetProvider";
 import { EditModal } from "./EditModal";
 import type { OSEActor } from "@domain/types";
 import { FLAGS, flagDeletePath, flagPath } from "@domain/flags";
+import { classItem as fixtureClassItem } from "@src/OscSheet/__fixtures__/classItem";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -51,7 +52,14 @@ type ActorOpts = {
   scaledBase?: number;
   retainer?: Partial<Retainer>;
   flags?: Record<string, unknown>;
+  classes?: unknown[];
+  derivedFromClasses?: boolean;
 };
+
+const classItem = (name: string, level: number, xp: number) =>
+  Object.assign(fixtureClassItem(name, level, xp, []), {
+    update: vi.fn(async () => undefined),
+  });
 
 function makeActor({
   movementAuto = false,
@@ -59,6 +67,8 @@ function makeActor({
   scaledBase = DERIVED_BASE,
   retainer,
   flags,
+  classes,
+  derivedFromClasses,
 }: ActorOpts = {}): OSEActor {
   const movement = { encounter: 30, overland: 18 };
   // Mirror OSE's getter: scaled by encumbrance when auto, raw #moveBase when manual.
@@ -104,6 +114,8 @@ function makeActor({
       exploration: { ld: 1, od: 2, sd: 1, ft: 1 },
       initiative: { mod: 0 },
       retainer: { enabled: false, loyalty: 0, wage: "", ...retainer },
+      classes,
+      derivedFromClasses,
     },
     _source: { system: { movement: { base: rawBase } } },
     items: { contents: [] },
@@ -208,23 +220,7 @@ async function pickOption(match: (text: string) => boolean) {
   });
 }
 
-describe("EditModal class and alignment", () => {
-  it("reflects the selected class after commit", async () => {
-    const actor = makeActor();
-    await renderModal(actor);
-
-    expect(inputByLabel("Class").value).toBe("fighter");
-
-    act(() => inputByLabel("Class").focus());
-    await pickOption((t) => t.includes("cleric"));
-
-    expect(updateOf(actor)).toHaveBeenCalledWith({
-      "system.details.class": "cleric",
-    });
-    expect(actor.system.details.class).toBe("cleric");
-    expect(inputByLabel("Class").value).toBe("cleric");
-  });
-
+describe("EditModal alignment", () => {
   it("commits a preset B/X alignment on selection", async () => {
     const actor = makeActor();
     await renderModal(actor);
@@ -279,25 +275,126 @@ describe("EditModal THAC0 / Attack Bonus", () => {
   });
 });
 
-describe("EditModal identity fields", () => {
-  it("leaves the Hit Dice hint empty when the class has no default", async () => {
-    const actor = makeActor();
-    actor.system.details.class = "homebrew";
-    await renderModal(actor);
+describe("EditModal fields OSE derives from class tables", () => {
+  const derivedActor = () =>
+    makeActor({
+      classes: [classItem("Fighter", 1, 0)],
+      derivedFromClasses: true,
+    });
 
-    expect(fieldByLabel("Hit Dice")!.textContent).not.toContain("null");
-    expect(resetLink("Hit Dice")).toBeNull();
+  it("shows THAC0 read-only with no class-default reset", async () => {
+    await renderModal(derivedActor());
+
+    expect(inputByLabel("THAC0").disabled).toBe(true);
+    expect(fieldByLabel("THAC0")!.textContent).toContain("from class");
+    expect(resetLink("THAC0")).toBeNull();
   });
 
-  it("puts no ceiling on Level, so a level past the class table is typable", async () => {
+  it("shows every saving throw read-only", async () => {
+    await renderModal(derivedActor());
+
+    const saves = container.querySelectorAll<HTMLInputElement>(
+      ".ed-save input",
+    );
+    expect(saves).toHaveLength(5);
+    for (const input of saves) expect(input.disabled).toBe(true);
+    expect(container.querySelector(".ed-save")!.textContent).toContain(
+      "from class",
+    );
+  });
+
+  it("explains THAC0 and each save with OSE's derivation breakdown", async () => {
+    (g.game as Record<string, unknown>).ose = {
+      describeDerivation: (
+        _classes: unknown,
+        finals: { thac0: number; saves: Record<string, number> },
+      ) => ({
+        thac0: `Fighter 1: 19 → ${finals.thac0}`,
+        bba: "",
+        ...Object.fromEntries(
+          Object.entries(finals.saves).map(([k, v]) => [
+            `saves.${k}`,
+            `Fighter 1: ${v} → ${v}`,
+          ]),
+        ),
+      }),
+    };
+    try {
+      await renderModal(derivedActor());
+      const tips = [
+        ...container.querySelectorAll('[role="tooltip"]'),
+      ].map((t) => t.textContent);
+      expect(tips).toEqual([
+        "Fighter 1: 19 → 17",
+        "Fighter 1: 12 → 12",
+        "Fighter 1: 13 → 13",
+        "Fighter 1: 14 → 14",
+        "Fighter 1: 15 → 15",
+        "Fighter 1: 16 → 16",
+      ]);
+    } finally {
+      delete (g.game as Record<string, unknown>).ose;
+    }
+  });
+
+  it("keeps THAC0 editable for a class item with no table", async () => {
+    await renderModal(
+      makeActor({ classes: [classItem("Hangman", 1, 0)] }),
+    );
+
+    expect(inputByLabel("THAC0").disabled).toBe(false);
+  });
+});
+
+describe("EditModal initiative modifier", () => {
+  // Prepared mod = stored mod + Active Effect deltas (e.g. OSE 3.2's migrated Tweaks).
+  const withInit = (dexInit: number, stored: number, prepared: number) => {
     const actor = makeActor();
+    const sys = actor.system as unknown as {
+      scores: { dex: { init: number } };
+      initiative: { mod: number };
+    };
+    sys.scores.dex.init = dexInit;
+    sys.initiative.mod = prepared;
+    (actor._source.system as unknown as Record<string, unknown>).initiative = {
+      mod: stored,
+    };
+    return actor;
+  };
+
+  it("commits the stored mod net of DEX and effects", async () => {
+    const actor = withInit(1, 0, 2);
     await renderModal(actor);
 
-    expect(inputByLabel("Level").hasAttribute("max")).toBe(false);
-    await commit(inputByLabel("Level"), "20");
+    expect(inputByLabel("Initiative Mod").value).toBe("3");
+    await commit(inputByLabel("Initiative Mod"), "4");
 
     expect(updateOf(actor)).toHaveBeenCalledWith({
-      "system.details.level": 20,
+      "system.initiative.mod": 1,
+    });
+  });
+
+  it("counts an effect-only modifier as the default, not an override", async () => {
+    await renderModal(withInit(1, 0, 2));
+
+    expect(resetLink("Initiative Mod")).toBeNull();
+    expect(fieldByLabel("Initiative Mod")!.textContent).toContain(
+      "DEX +1, effects +2",
+    );
+  });
+
+  it("offers a reset that clears only the stored mod", async () => {
+    const actor = withInit(0, 3, 5);
+    await renderModal(actor);
+
+    await click(resetLink("Initiative Mod") as HTMLButtonElement);
+    const confirm = Array.from(document.querySelectorAll("button")).find(
+      (b) => b.textContent === "Reset",
+    )!;
+    await click(confirm);
+
+    expect(updateOf(actor)).toHaveBeenCalledWith({
+      "system.initiative.mod": 0,
     });
   });
 });

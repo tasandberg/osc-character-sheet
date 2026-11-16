@@ -17,6 +17,7 @@ export function StampCell({
   warn,
   warnTitle,
   onResetRequest,
+  disabled,
 }: {
   stampKey: string;
   fullName?: string;
@@ -31,11 +32,12 @@ export function StampCell({
   /** Tooltip explaining the warning. */
   warnTitle?: string;
   onResetRequest?: () => void;
+  disabled?: boolean;
 }) {
   return (
     <div className={cx("ed-cell", warn && "warn")} title={warn ? warnTitle : undefined}>
       <span className="ck" title={fullName} aria-label={fullName}>{stampKey}</span>
-      <NumberInput className="num" value={value} min={min} max={max} onCommit={onChange} />
+      <NumberInput className="num" value={value} min={min} max={max} onCommit={onChange} disabled={disabled} />
       {onResetRequest != null ? (
         <OverrideValue
           overridden={!!overridden}

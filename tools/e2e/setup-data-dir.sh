@@ -14,7 +14,7 @@ REPO="${2:?usage: setup-data-dir.sh <data-dir> <repo-root>}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # NecroticGnome OSE release tag, and the Foundry major the data dir is for.
-OSE_VERSION="${OSE_VERSION:-2.2.2}"
+OSE_VERSION="${OSE_VERSION:-3.2.0}"
 FOUNDRY_VERSION="${FOUNDRY_VERSION:-14}"
 OSE_ZIP="https://github.com/NecroticGnome/ose-foundry-core/releases/download/${OSE_VERSION}/system.zip"
 

@@ -21,38 +21,72 @@
 // existed only to beat `:is(button,…) { all: unset }`, and that reset now sits in
 // `@layer base`, which any unlayered rule out-ranks.
 
-// --- abilities: 3-up (6-up wide) grid of ability columns ---
+// --- abilities: each score in a framed box with corner brackets ---
 .osc-abilities {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacer-2);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacer-3);
+}
+.osc-ability {
+  position: relative;
+  background: linear-gradient(180deg, var(--surface-2-solid), var(--surface-solid));
+  border: 1px solid var(--hairline);
+}
+[data-theme="cream"] .osc-ability {
+  background: linear-gradient(
+    180deg,
+    var(--surface-solid),
+    color-mix(in srgb, var(--surface-solid) 75%, var(--surface-2-solid))
+  );
+}
+.osc-ability::before,
+.osc-ability::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  pointer-events: none;
+}
+.osc-ability::before {
+  border: 1px solid var(--hairline);
+  opacity: 0.5;
+}
+.osc-ability::after {
+  $cap: linear-gradient(var(--hairline), var(--hairline));
+
+  opacity: 0.85;
+  background:
+    $cap 0 0 / 9px 1.5px no-repeat,
+    $cap 0 0 / 1.5px 9px no-repeat,
+    $cap 100% 0 / 9px 1.5px no-repeat,
+    $cap 100% 0 / 1.5px 9px no-repeat,
+    $cap 0 100% / 9px 1.5px no-repeat,
+    $cap 0 100% / 1.5px 9px no-repeat,
+    $cap 100% 100% / 9px 1.5px no-repeat,
+    $cap 100% 100% / 1.5px 9px no-repeat;
 }
 @container sheet (min-width: 470px) {
   .osc-abilities {
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: var(--spacer-4);
-    max-width: 600px;
-    margin-inline: auto;
-  }
-  .osc-abilities > * {
-    aspect-ratio: 1;
   }
 }
-.osc-ability-roll {
-  position: relative;
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    top: -17px;
-    bottom: -9px;
+@container app (width < #{bp.$md}) {
+  .osc-abilities {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: calc(var(--spacer-1) * 1.5);
+  }
+  .osc-ability {
+    border-color: var(--border-soft);
+  }
+  .osc-ability::before,
+  .osc-ability::after {
+    display: none;
   }
 }
 .osc-ability-mod {
   position: relative;
-
-  &::after {
+}
+@media (pointer: coarse) {
+  .osc-ability-mod::after {
     content: "";
     position: absolute;
     top: 0;
@@ -120,11 +154,14 @@
     background 0.12s;
 }
 .fvtt-skill .skic {
-  color: var(--gold-dim);
+  align-self: center;
   font-size: var(--fs-md, 14px);
   width: 18px;
   text-align: center;
   flex: none;
+}
+.fvtt-skill i.skic {
+  color: var(--text-dim);
 }
 .fvtt-skill .skn {
   font-size: var(--fs-md);
@@ -134,13 +171,14 @@
   color: var(--text-dim, #b5ad97);
   flex: 1;
   min-width: 0;
+  align-self: center;
 }
 .fvtt-skill .skv {
-  // muted "N-in-6" with a trailing d6 glyph — no pill.
+  // value at the name's size — no pill.
   display: inline-flex;
   align-items: center;
   gap: var(--spacer-1);
-  font-size: var(--fs-xs);
+  font-size: var(--fs-md);
   color: var(--text-dim);
   white-space: nowrap;
   flex: none;

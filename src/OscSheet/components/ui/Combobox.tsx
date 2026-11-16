@@ -33,6 +33,7 @@ export type ComboboxProps = {
   renderValue?: (value: string) => ReactNode;
   placeholder?: string;
   disabled?: boolean;
+  variant?: "inline";
   className?: string;
 };
 
@@ -56,6 +57,7 @@ export function Combobox({
   renderValue,
   placeholder,
   disabled,
+  variant,
   className,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
@@ -177,6 +179,7 @@ export function Combobox({
       ref={wrapRef}
       className={cx(
         "combobox",
+        variant,
         open && "is-open",
         dirty && "is-typing",
         className,
