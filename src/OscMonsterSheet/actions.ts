@@ -40,6 +40,8 @@ export async function rollMonsterHit(actor: MonsterActor, item: MonsterItem) {
     flavor: `${actor.name} attacks with ${item.name}`,
     kind: "hit",
     weapon: item.name,
+    img: item.img,
+    terms: hit.terms,
   });
 }
 
@@ -51,6 +53,8 @@ export function rollMonsterDamage(actor: MonsterActor, item: MonsterItem) {
     flavor: `${actor.name} deals damage with ${item.name}`,
     kind: "damage",
     weapon: item.name,
+    img: item.img,
+    terms: dmg.terms,
   });
 }
 

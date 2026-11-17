@@ -32,6 +32,16 @@ describe("scopeVellum", () => {
     );
   });
 
+  it("also gives the package tokens to the chat card, cream under the nearest light Foundry theme", () => {
+    const from = "/proj/node_modules/@old-school-chronicle/vellum/tokens.css";
+    expect(run(":root { --bg: #181612; }", from)).toBe(
+      ".osc-sheet, .osc-message { --bg: #181612; }"
+    );
+    expect(run("[data-theme=cream] { --bg: #efe9d8; }", from)).toBe(
+      ".osc-sheet[data-theme=cream], body.theme-light .osc-message:not(.themed *), .themed.theme-light .osc-message:not(.themed.theme-light .themed.theme-dark *) { --bg: #efe9d8; }"
+    );
+  });
+
   it("leaves non-Vellum files untouched", () => {
     const css = ".btn { color: red; }";
     expect(run(css, "/proj/src/OscSheet/styles/styles.scss")).toBe(css);

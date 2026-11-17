@@ -19,6 +19,7 @@ export type AttackTargeting = {
 
 type Props = {
   attacks: AttackVM[];
+  hint?: { label: string; value: string };
   /** Roll a hit/damage formula (custom roll). */
   onRoll?: (spec: RollSpec) => void;
   /** Composite attack roll for the active mode. Event carries ctrl/meta (skip dialog). */
@@ -248,6 +249,7 @@ function WeaponRow({
  *  tall brass Attack button (full hit + damage for the active mode). */
 export function AttacksTable({
   attacks,
+  hint,
   onRoll,
   onAttack,
   onOpen,
@@ -289,6 +291,11 @@ export function AttacksTable({
     <section className="osc-section" data-testid="attacks">
       <SectionTitle>
         Attacks
+        {hint && (
+          <span className="hint">
+            <span className="tw:[font-variant-caps:all-small-caps]">{hint.label}</span> {hint.value}
+          </span>
+        )}
         {targeting &&
           (targeting.current ? (
             <span className="osc-attack-target-current u-row u-nowrap u-gap-1 u-fs-xs tw:ml-auto tw:self-center tw:font-sans">
