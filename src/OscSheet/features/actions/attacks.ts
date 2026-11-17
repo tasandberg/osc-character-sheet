@@ -19,6 +19,18 @@ export function readAttackSettings(): AttackSettings {
   };
 }
 
+/** Helper text for the Attacks heading: the attack bonus in ascending-AC worlds
+ *  (omitted at +0), otherwise the actor's THAC0. */
+export function selectAttackHint(
+  actor: OSEActor,
+  settings: AttackSettings = readAttackSettings(),
+): { label: string; value: string } | undefined {
+  const thac0 = actor.system.thac0 as OSEActor["system"]["thac0"] | undefined;
+  if (!thac0) return undefined;
+  if (!settings.ascendingAC) return { label: "THAC0", value: String(thac0.value) };
+  return thac0.bba ? { label: "Attack Bonus", value: formatMod(thac0.bba) } : undefined;
+}
+
 /** Equipped weapons → one row each. A melee+missile weapon carries both modes
  *  (melee first) so the row can toggle between them. */
 export function selectAttacks(

@@ -4,7 +4,7 @@ import { skipRollDialog } from "@domain/rolls/skipRollDialog";
 import { buildWeaponAttack } from "@domain/rolls/weaponAttack";
 import type { RollSpec } from "@domain/vm-types";
 import { selectAbilities } from "@features/actions/abilities";
-import { selectAttacks } from "@features/actions/attacks";
+import { selectAttackHint, selectAttacks } from "@features/actions/attacks";
 import { selectSaves } from "@features/actions/saves";
 import {
   selectExploration,
@@ -100,6 +100,7 @@ export function ActionsView({ actor }: Props) {
         </div>
         <AttacksTable
           attacks={attacks}
+          hint={selectAttackHint(actor)}
           onRoll={onRoll}
           onAttack={canEdit ? onAttack : undefined}
           onOpen={onOpenWeapon}
