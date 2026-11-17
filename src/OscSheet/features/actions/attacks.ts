@@ -58,6 +58,7 @@ export function selectAttacks(
         flavor: `${actor.name} attacks with ${w.name}${tail}`,
         kind: "hit",
         weapon: w.name as string,
+        img: w.img as string,
       };
       const dmg: RollSpec = {
         label: math.dmg.label,
@@ -65,6 +66,7 @@ export function selectAttacks(
         flavor: `${actor.name} deals damage with ${w.name}${tail}`,
         kind: "damage",
         weapon: w.name as string,
+        img: w.img as string,
       };
       return {
         kind,

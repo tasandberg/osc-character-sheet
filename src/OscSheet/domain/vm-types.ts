@@ -83,6 +83,7 @@ export interface RollSpec {
   kind?: "hit" | "damage";
   /** Weapon name, for the chat card header. */
   weapon?: string;
+  img?: string;
 }
 
 /** One attack mode (melee or missile) of a weapon: its hit/damage rolls + displays. */
