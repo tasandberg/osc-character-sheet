@@ -109,6 +109,8 @@ function toVM(
     tags: itemTags(item),
     monogram: monogram(item.name as string),
     weight: s.cumulativeWeight ?? s.weight ?? 0,
+    contentsWeight:
+      item.type === "container" ? (s.totalWeight ?? 0) : undefined,
     slots: slotsOf(item),
     cost: (s as { cost?: number }).cost ?? 0,
     armorClass: armorClassOf(item),
@@ -219,6 +221,12 @@ export function loadValue(item: InventoryItemVM, variant?: string): number {
   return variant === "itembased" ? item.slots : item.weight;
 }
 
+export function rowLoad(item: InventoryItemVM, variant?: string): number {
+  return variant === "itembased"
+    ? item.slots
+    : item.weight + (item.contentsWeight ?? 0);
+}
+
 /** Pure sort — by `key`/`dir`. Returns a new array, recurses into children.
  *  `variant` keeps the load column sorting by whatever it displays. */
 export function sortInventory(
@@ -241,7 +249,7 @@ export function sortInventory(
       case "name":
         return a.name.localeCompare(b.name) * f;
       case "weight":
-        return (loadValue(a, variant) - loadValue(b, variant)) * f;
+        return (rowLoad(a, variant) - rowLoad(b, variant)) * f;
     }
   });
   return sorted.map((it) =>

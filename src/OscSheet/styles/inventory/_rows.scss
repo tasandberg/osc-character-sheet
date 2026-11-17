@@ -67,8 +67,8 @@
 //   1. drag handle    18px  fixed
 //   2. item image     30px  thumbnail / monogram
 //   3. name           1fr   name (+count/qty) with tags beneath
-//   4. item type      3.25em small-caps category badge
-//   5. weight         2.75em "N cn" or "—"
+//   4. item type      5em small-caps category badge
+//   5. weight         3.25em "N cn" or "—"
 //   6. equip toggle   2.75em
 //
 // Only the template lives here — spacing, rule and hover transition are
@@ -81,8 +81,8 @@
   display: grid;
   grid-template-columns:
     18px 30px 1fr
+    calc(var(--fs-base, 16px) * 5)
     calc(var(--fs-base, 16px) * 3.25)
-    calc(var(--fs-base, 16px) * 2.75)
     calc(var(--fs-base, 16px) * 2.75);
 
   // Fade the row's content, not the row element itself — the drop insertion line

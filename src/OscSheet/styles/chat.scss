@@ -1,11 +1,10 @@
 // Vellum-themed chat cards for osc-sheet attack/damage rolls.
 //
-// The chat log lives OUTSIDE the .osc-sheet scope, and the sidebar follows
-// FOUNDRY's color scheme (body/.themed `theme-light` | `theme-dark`), independent of
-// our sheet theme. So: everything here is gated under `.osc-message` (the marker
-// our renderChatMessageHTML handler adds to the message <li>) / `.osc-card`, the
-// card palette is set via local custom props that flip between a dark and a cream
-// variant by the Foundry theme ancestor, and we never leak onto other modules' cards.
+// The chat log lives OUTSIDE the .osc-sheet scope, so everything here is gated under
+// `.osc-message` (the marker our renderChatMessageHTML handler adds to the message
+// <li>) / `.osc-card`, and we never leak onto other modules' cards. The Vellum tokens
+// reach `.osc-message` through tools/postcss/scope-vellum.mjs, which also picks the
+// dark or cream set from the nearest Foundry theme ancestor.
 //
 // NOTHING here can become a `tw:` utility, for two independent reasons. The
 // utilities are emitted scoped to `.osc-sheet` (postcss.config.mjs), and a chat
@@ -14,54 +13,48 @@
 // (`@source` covers features/, components/, layout/, app/ — not domain/), so the
 // classes would emit nothing and fail silently. This file stays SCSS.
 
-// ─── Card palette (dark default; cream variant below) ──────────────────────
-.osc-message {
-  --rc-bg: #211e18;
-  --rc-text: #e5dec8;
-  --rc-text-dim: #b5ad97;
-  --rc-border: #3a342c;
-  --rc-head-bg: #070605;
-  --rc-head-text: #e5dec8;
-  --rc-surface: #2a261f;
-}
-
-// Foundry light mode → parchment/cream card. Match either ancestor scope Foundry
-// uses (body-level scheme or a .themed region wrapper). :where() keeps it low-spec.
-:where(body.theme-light, .themed.theme-light) .osc-message {
-  --rc-bg: #efe9d8;
-  --rc-text: #2a2620;
-  --rc-text-dim: #6a6354;
-  --rc-border: #cabfa3;
-  --rc-head-bg: #1f1c17;
-  --rc-head-text: #e5dec8;
-  --rc-surface: #e3dbc4;
-}
-
 // ─── Take over the whole message box ───────────────────────────────────────
 // Strip Foundry's default message styling so our card frame IS the message; keep the
 // header (sender · timestamp · delete) but theme it; hide the redundant flavor line.
 .chat-message.osc-message {
-  padding: 0;
-  border: 1px solid var(--rc-border);
-  border-radius: var(--r-md, 6px);
-  overflow: hidden;
-  background: var(--rc-bg);
-  color: var(--rc-text);
+  padding: var(--spacer-2);
+  border: 1px solid var(--btn-wall);
+  border-radius: 0;
+  position: relative;
+  background-color: var(--bg);
+  background-image: var(--vellum-grain);
+  color: var(--text);
+  font-family: var(--sans);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 var(--spacer-6) var(--seam);
+    pointer-events: none;
+  }
 
   .message-header {
-    padding: var(--spacer-1, 4px) var(--spacer-3, 12px);
-    background: var(--rc-head-bg);
-    color: var(--rc-head-text);
-    border-bottom: 1px solid var(--rc-border);
-    font-family: var(--serif, Georgia, serif);
+    align-items: center;
+    padding: 0 0 var(--spacer-2);
+    color: var(--text-dim);
+    font-family: var(--sans);
+    font-size: var(--fs-xs);
   }
-  .message-sender { color: var(--rc-head-text); }
+  .message-sender {
+    font-family: var(--sans);
+    font-weight: 600;
+    color: var(--text);
+  }
   .message-metadata,
-  .message-timestamp { color: color-mix(in srgb, var(--rc-head-text) 60%, transparent); }
+  .message-timestamp {
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
   .message-delete,
   .message-dismiss {
-    color: color-mix(in srgb, var(--rc-head-text) 60%, transparent);
-    &:hover { color: var(--crimson, #c75044); }
+    color: var(--text-dim);
+    &:hover { color: var(--danger-ink); }
   }
   // Default flavor duplicates our header title; hide it.
   .flavor-text { display: none; }
@@ -71,109 +64,190 @@
 
 // ─── Card body ─────────────────────────────────────────────────────────────
 .osc-card {
-  font-family: var(--serif, Georgia, serif);
-  color: var(--rc-text);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacer-2);
+  background-color: var(--bg);
+  background-image: var(--vellum-grain);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: var(--fs-sm);
 
   .rc-head {
     display: flex;
-    align-items: baseline;
-    gap: var(--spacer-2, 8px);
-    padding: var(--spacer-2, 8px) var(--spacer-4, 16px);
-    background: var(--rc-head-bg);
-    color: var(--rc-head-text);
+    align-items: center;
+    gap: var(--spacer-2);
+    padding: var(--spacer-1);
+    border: 1px solid var(--edge);
+    background: var(--surface-3);
+    color: var(--text);
+  }
+  .rc-weapon-image,
+  .rc-portrait {
+    flex: none;
+    width: var(--spacer-8);
+    height: var(--spacer-8);
+    border: 1px solid var(--edge);
+    border-radius: 0;
+    object-fit: cover;
   }
   .rc-title {
-    font-family: var(--display, "IM Fell English SC", Georgia, serif);
-    font-size: var(--fs-xl, 18px);
+    flex: 1;
+    min-width: 0;
+    padding-inline: var(--spacer-1);
+    font-family: var(--display);
+    font-size: var(--fs-lg);
+    line-height: var(--lh-tight);
     letter-spacing: 0.04em;
-  }
-  .rc-weapon {
-    margin-left: auto;
-    font-size: var(--fs-sm, 13px);
-    color: color-mix(in srgb, var(--rc-head-text) 70%, transparent);
+    color: var(--text);
   }
 
   .rc-body {
     display: flex;
     flex-direction: column;
-    gap: var(--spacer-3, 12px);
-    padding: var(--spacer-4, 16px);
-  }
-
-  // ONE clean roll readout: formula label · big total.
-  .rc-roll {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--spacer-3, 12px);
-    padding: var(--spacer-2, 8px) var(--spacer-3, 12px);
-    border-radius: var(--r-sm, 4px);
-    background: var(--rc-surface);
-  }
-  .rc-formula {
-    font-family: var(--mono, monospace);
-    font-size: var(--fs-sm, 13px);
-    color: var(--rc-text-dim);
-  }
-  .rc-total {
-    font-family: var(--display, "IM Fell English SC", Georgia, serif);
-    font-size: var(--fs-4xl, 28px);
-    line-height: var(--lh-flush, 1);
-  }
-
-  // Expandable per-die breakdown (Foundry's .dice-tooltip lives inside).
-  .rc-dice {
-    font-size: var(--fs-xs, 12px);
-    color: var(--rc-text-dim);
-    summary { cursor: pointer; list-style: revert; }
-    .dice-tooltip { margin-top: var(--spacer-2, 8px); }
-  }
-
-  // HIT / MISS verdict stamp.
-  .rc-verdict {
-    font-family: var(--display, "IM Fell English SC", Georgia, serif);
-    font-size: var(--fs-2xl, 21px);
-    letter-spacing: 0.08em;
-    text-align: center;
-    padding: var(--spacer-2, 8px) 0;
-    border-radius: var(--r-sm, 4px);
-  }
-  .rc-verdict.is-hit {
-    color: var(--ink, #070605);
-    background: var(--hit, #7a9272);
-  }
-  .rc-verdict.is-miss {
-    color: var(--rc-text-dim);
-    background: color-mix(in srgb, var(--miss, #8a8270) 22%, transparent);
-  }
-  .rc-vs {
-    font-size: var(--fs-sm, 13px);
-    letter-spacing: 0.02em;
+    gap: var(--spacer-2);
   }
 
   .rc-target {
-    font-size: var(--fs-md, 14px);
-    color: var(--rc-text-dim);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacer-1);
   }
+  .rc-vs {
+    font-size: var(--fs-sm);
+    text-align: right;
+    color: var(--text-dim);
+  }
+  .rc-verdict {
+    font-family: var(--display);
+    font-size: var(--fs-xl);
+    font-weight: 700;
+    text-align: center;
+    line-height: var(--lh-tight);
+    letter-spacing: 0.04em;
+  }
+  .rc-verdict.is-hit { color: var(--forest); }
+  .rc-verdict.is-miss { color: var(--danger-ink); }
+
+  // ONE clean roll readout: big total · verdict.
+  .rc-roll {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacer-1);
+    font-variant-numeric: tabular-nums;
+  }
+  .rc-total {
+    font-size: var(--fs-5xl);
+    font-weight: 500;
+    line-height: var(--lh-flush);
+    color: var(--text);
+  }
+  .rc-foot {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  // Formula · dice rolled (Foundry's .dice-tooltip) + modifiers added.
+  .rc-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacer-1) var(--spacer-3);
+    padding: var(--spacer-2) var(--spacer-1) 0;
+    border-top: 1px solid var(--hair-soft);
+    font-variant-numeric: tabular-nums;
+
+    .rc-formula {
+      display: flex;
+      align-items: center;
+      gap: var(--spacer-1);
+      font-family: var(--mono);
+      font-size: var(--fs-sm);
+      white-space: nowrap;
+      color: var(--text-dim);
+    }
+    .rc-rolled {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--spacer-1);
+      margin-left: auto;
+    }
+
+    .dice-tooltip {
+      flex: none;
+      margin: 0;
+      color: var(--text);
+    }
+    .dice-tooltip .wrapper {
+      display: flex;
+      gap: var(--spacer-1);
+    }
+    .part-header { display: none; }
+    .dice-rolls { margin: 0; }
+    .roll.discarded,
+    .roll.rerolled {
+      color: var(--ink);
+      filter: sepia(0.5) contrast(0.75);
+      text-decoration: line-through;
+    }
+  }
+  .rc-operator,
+  .rc-modifier {
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+    color: var(--text);
+  }
+  .rc-modifier-label { color: var(--text-dim); }
 
   // GM apply-damage button.
   .rc-apply {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacer-2);
+    width: auto;
+    height: calc(var(--spacer-6) + var(--spacer-1));
+    min-height: 0;
+    margin: 0;
+    padding: 0 var(--spacer-2);
+    border: 1px solid var(--btn-wall);
+    border-radius: 0;
+    background: var(--btn-face);
+    box-shadow:
+      inset 1px 1px 0 var(--btn-lit),
+      inset -1px -1px 0 var(--btn-shade),
+      1px 1px 0 var(--btn-wall);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
     cursor: pointer;
-    font-family: var(--display, "IM Fell English SC", Georgia, serif);
-    font-size: var(--fs-md, 14px);
-    letter-spacing: 0.03em;
-    padding: var(--spacer-2, 8px) var(--spacer-3, 12px);
-    border-radius: var(--r-sm, 4px);
-    border: 1px solid var(--crimson-dim, #a83a2a);
-    color: var(--stamp-text, #e5dec8);
-    background: var(--damage, #c75044);
   }
-  .rc-apply:hover { background: var(--crimson-dim, #a83a2a); }
+  .rc-apply:hover { background: var(--btn-face-hi); }
+  .rc-apply:active {
+    border-color: var(--stamp-wall);
+    background: var(--btn-pressed);
+    box-shadow:
+      inset 3px 3px 0 var(--btn-press-shade),
+      1px 1px 0 var(--stamp-wall);
+  }
+  .rc-apply:focus-visible {
+    outline: 2px solid var(--accent-alt);
+    outline-offset: 2px;
+  }
   .rc-apply.is-spent {
-    cursor: default;
-    opacity: 0.6;
-    border-color: var(--rc-border);
-    background: var(--rc-surface);
-    color: var(--rc-text-dim);
+    border-color: var(--hair);
+    background: transparent;
+    box-shadow: none;
+    color: var(--text-mute);
+    cursor: not-allowed;
   }
 }

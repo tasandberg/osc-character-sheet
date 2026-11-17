@@ -27,11 +27,11 @@ export const INV_HEADROW = `${ROW_BASE} tw:pt-0 tw:pb-1 tw:border-b-2 tw:border-
 export const MICRO_LABEL = "vm-key";
 
 /** Per-row category badge (col 4). Dropped at xs to buy the name column width. */
-export const INV_ROWCAT = `${MICRO_LABEL} tw:text-text-dim tw:whitespace-nowrap tw:text-left tw:@max-md/app:hidden`;
+export const INV_ROWCAT = `${MICRO_LABEL} tw:text-text-dim tw:whitespace-nowrap tw:text-left tw:overflow-hidden tw:text-ellipsis tw:@max-md/app:hidden`;
 
 /** Load cell (col 5) — "N cn" / "N slots" / "—". */
 export const INV_WT =
-  "tw:text-(length:--fs-xs) tw:text-text-dim tw:text-center tw:whitespace-nowrap";
+  "tw:text-(length:--fs-xs) tw:text-text-dim tw:text-right tw:whitespace-nowrap";
 
 /** Inline meta suffix after the item name — weapon damage, stack quantity. */
 export const INV_QTYTAG =
