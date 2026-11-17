@@ -4,6 +4,7 @@ import type {
   OseClassItem,
   OseSpell,
 } from "@domain/types";
+import type { AttackTerm } from "@domain/attackMath";
 
 export interface IdentityVM {
   name: string;
@@ -84,6 +85,7 @@ export interface RollSpec {
   /** Weapon name, for the chat card header. */
   weapon?: string;
   img?: string;
+  terms?: AttackTerm[];
 }
 
 /** One attack mode (melee or missile) of a weapon: its hit/damage rolls + displays. */

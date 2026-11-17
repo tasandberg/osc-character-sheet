@@ -128,60 +128,65 @@
   .rc-verdict.is-hit { color: var(--forest); }
   .rc-verdict.is-miss { color: var(--danger-ink); }
 
-  // ONE clean roll readout: formula label · big total; toggles the dice breakdown.
+  // ONE clean roll readout: big total · verdict.
   .rc-roll {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: var(--spacer-3);
-    list-style: none;
-    cursor: pointer;
-    padding: var(--spacer-1) var(--spacer-3);
-    border: 1px solid var(--edge);
-    background: var(--well);
+    gap: var(--spacer-1);
     font-variant-numeric: tabular-nums;
   }
-  .rc-roll::-webkit-details-marker { display: none; }
-  .rc-roll:focus-visible {
-    outline: 2px solid var(--accent-alt);
-    outline-offset: 2px;
-  }
-  .rc-die {
-    flex: none;
-    margin-right: calc(var(--spacer-1) * -1);
-    font-size: var(--fs-md);
-    color: var(--text-dim);
-  }
-  .rc-formula {
-    flex: 1;
-    min-width: 0;
-    font-size: var(--fs-sm);
-    color: var(--text-dim);
-  }
   .rc-total {
-    font-size: var(--fs-2xl);
+    font-size: var(--fs-5xl);
     font-weight: 500;
-    line-height: var(--lh-snug);
+    line-height: var(--lh-flush);
     color: var(--text);
   }
-
   .rc-foot {
     display: flex;
     justify-content: flex-end;
   }
 
-  // Expandable per-die breakdown (Foundry's .dice-tooltip lives inside).
-  .rc-dice {
+  // Formula · dice rolled (Foundry's .dice-tooltip) + modifiers added.
+  .rc-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacer-1) var(--spacer-3);
+    padding: var(--spacer-2) var(--spacer-1) 0;
+    border-top: 1px solid var(--hair-soft);
+    font-variant-numeric: tabular-nums;
+
+    .rc-formula {
+      display: flex;
+      align-items: center;
+      gap: var(--spacer-1);
+      font-family: var(--mono);
+      font-size: var(--fs-sm);
+      white-space: nowrap;
+      color: var(--text-dim);
+    }
+    .rc-rolled {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--spacer-1);
+      margin-left: auto;
+    }
+
     .dice-tooltip {
-      margin: var(--spacer-2) var(--spacer-3) 0;
+      flex: none;
+      margin: 0;
       color: var(--text);
-      font-variant-numeric: tabular-nums;
     }
-    .part-header { border-bottom-color: var(--edge); }
-    .part-flavor { color: var(--text-dim); }
-    .part-total {
-      border-color: var(--edge);
-      background: var(--surface-3);
+    .dice-tooltip .wrapper {
+      display: flex;
+      gap: var(--spacer-1);
     }
+    .part-header { display: none; }
+    .dice-rolls { margin: 0; }
     .roll.discarded,
     .roll.rerolled {
       color: var(--ink);
@@ -189,6 +194,13 @@
       text-decoration: line-through;
     }
   }
+  .rc-operator,
+  .rc-modifier {
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+    color: var(--text);
+  }
+  .rc-modifier-label { color: var(--text-dim); }
 
   // GM apply-damage button.
   .rc-apply {

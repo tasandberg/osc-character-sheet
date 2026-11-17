@@ -59,6 +59,7 @@ export function selectAttacks(
         kind: "hit",
         weapon: w.name as string,
         img: w.img as string,
+        terms: math.hit.terms,
       };
       const dmg: RollSpec = {
         label: math.dmg.label,
@@ -67,6 +68,7 @@ export function selectAttacks(
         kind: "damage",
         weapon: w.name as string,
         img: w.img as string,
+        terms: math.dmg.terms,
       };
       return {
         kind,

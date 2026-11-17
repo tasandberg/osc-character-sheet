@@ -80,15 +80,31 @@ function dieIcon(formula: string): string {
   return sides && DIE_SIDES.has(sides) ? `fa-dice-d${sides}` : "fa-dice";
 }
 
-/** ONE clean roll readout: formula label + big total, which toggles the per-die
- *  breakdown (Foundry's tooltip markup, no duplication). */
-function rollResult(roll: Roll, tooltip: string): string {
+const TERM_LABELS: Record<string, string> = { ab: "attack bonus" };
+
+/** The named modifiers added to the dice, e.g. `+ 2 (attack bonus)`. */
+function modifiers(terms: RollSpec["terms"]): string {
+  return (terms ?? [])
+    .filter((t): t is { label: string; value: number } => typeof t.value === "number")
+    .map(
+      (m) =>
+        `<span class="rc-operator">${m.value < 0 ? "−" : "+"}</span>` +
+        `<span class="rc-modifier">${Math.abs(m.value)} ` +
+        `<span class="rc-modifier-label">(${esc(TERM_LABELS[m.label] ?? m.label)})</span></span>`,
+    )
+    .join("");
+}
+
+/** ONE clean roll readout: big total + verdict, above the formula and, beside it, the
+ *  dice rolled (Foundry's tooltip markup, no duplication) with the modifiers added. */
+function rollResult(roll: Roll, tooltip: string, verdict: string, terms: RollSpec["terms"]): string {
+  const dice = String(terms?.find((t) => t.label === "die")?.value ?? roll.formula);
   return (
-    `<details class="rc-dice"><summary class="rc-roll">` +
-    `<i class="fa-solid ${dieIcon(roll.formula)} rc-die" aria-hidden="true"></i>` +
-    `<span class="rc-formula">${esc(roll.formula)}</span>` +
-    `<span class="rc-total">${roll.total ?? 0}</span>` +
-    `</summary>${tooltip}</details>`
+    `<div class="rc-roll"><span class="rc-total">${roll.total ?? 0}</span>${verdict}</div>` +
+    `<div class="rc-breakdown"><span class="rc-formula">` +
+    `<i class="fa-solid ${dieIcon(dice)} rc-die" aria-hidden="true"></i>` +
+    `${esc(dice)}</span>` +
+    `<span class="rc-rolled">${tooltip}${modifiers(terms)}</span></div>`
   );
 }
 
@@ -103,17 +119,16 @@ export async function postRollCard(actor: OSEActor, spec: RollSpec): Promise<voi
 
   const tooltip = await roll.getTooltip();
   let lead = "";
+  let verdict = "";
   let action = "";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const flags: Record<string, any> = {};
 
   if (target) {
     const hit = spec.kind === "hit" ? resolveHit(roll, actor, target) : null;
-    const verdict =
-      hit === null
-        ? ""
-        : `<span class="rc-verdict ${hit ? "is-hit" : "is-miss"}">${hit ? "Hit" : "Miss"}</span>`;
-    lead = `<div class="rc-target"><span class="rc-vs">vs ${esc(target.name)}</span>${verdict}</div>`;
+    if (hit !== null)
+      verdict = `<span class="rc-verdict ${hit ? "is-hit" : "is-miss"}">${hit ? "Hit" : "Miss"}</span>`;
+    lead = `<div class="rc-target"><span class="rc-vs">vs ${esc(target.name)}</span></div>`;
   }
   if (spec.kind === "damage" && target) {
     // GM-only apply button; hydrated/guarded by the renderChatMessageHTML hook.
@@ -125,7 +140,7 @@ export async function postRollCard(actor: OSEActor, spec: RollSpec): Promise<voi
   }
 
   const body =
-    lead + rollResult(roll, tooltip) + (action ? `<div class="rc-foot">${action}</div>` : "");
+    lead + rollResult(roll, tooltip, verdict, spec.terms) + (action ? `<div class="rc-foot">${action}</div>` : "");
 
   const title = spec.weapon
     ? spec.kind === "damage"
