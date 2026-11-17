@@ -78,15 +78,16 @@
     align-items: center;
     gap: var(--spacer-2);
     padding: var(--spacer-1);
-    background: var(--ink);
-    color: var(--stamp-text);
+    border: 1px solid var(--edge);
+    background: var(--surface-3);
+    color: var(--text);
   }
   .rc-weapon-image,
   .rc-portrait {
     flex: none;
     width: var(--spacer-8);
     height: var(--spacer-8);
-    border: 1px solid color-mix(in srgb, var(--stamp-text) 15%, transparent);
+    border: 1px solid var(--edge);
     border-radius: 0;
     object-fit: cover;
   }
@@ -98,7 +99,7 @@
     font-size: var(--fs-lg);
     line-height: var(--lh-tight);
     letter-spacing: 0.04em;
-    color: var(--stamp-text);
+    color: var(--text);
   }
 
   .rc-body {
