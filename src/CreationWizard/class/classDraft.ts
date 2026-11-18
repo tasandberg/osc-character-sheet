@@ -23,16 +23,20 @@ export const ineligibleReason = (
   cls: CreationClass,
   restrictions?: ClassRestrictions,
 ) =>
-  isAllowed(cls, restrictions)
-    ? `${cls.name} requires ${listed(requirementList(cls))}`
-    : `${cls.name} isn’t open to this character`;
+  cls.unusable
+    ? `${cls.name} ${cls.unusable}`
+    : isAllowed(cls, restrictions)
+      ? `${cls.name} requires ${listed(requirementList(cls))}`
+      : `${cls.name} isn’t open to this character`;
 
 export const isEligible = (
   cls: CreationClass,
   scores: AbilityScores,
   restrictions?: ClassRestrictions,
 ) =>
-  isAllowed(cls, restrictions) && classStanding(cls, scores).status === "open";
+  !cls.unusable &&
+  isAllowed(cls, restrictions) &&
+  classStanding(cls, scores).status === "open";
 
 export function classBlockedReason(
   cls: CreationClass | undefined,
@@ -40,6 +44,7 @@ export function classBlockedReason(
   restrictions?: ClassRestrictions,
 ): string | undefined {
   if (!cls) return "Choose a class to continue";
+  if (cls.unusable) return `${cls.name} ${cls.unusable}; choose another class`;
   if (!isAllowed(cls, restrictions))
     return `${cls.name} isn’t open to this character; choose another class`;
   if (!isEligible(cls, scores, restrictions))

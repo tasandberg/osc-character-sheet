@@ -20,6 +20,7 @@ import {
   formatXpModifier,
   xpAdjustment,
 } from "../class/classDraft";
+import { attackRow } from "../class/attackRow";
 import { formatModifier } from "../scores/scoreFace";
 import {
   ABILITIES,
@@ -261,7 +262,7 @@ export function ReviewStep({
     ],
     ["Max level", ordinal(character.cap)],
     ["Hit dice", stats.hd],
-    ["THAC0", `${stats.thac0} [${formatModifier(stats.bba)}]`],
+    attackRow(stats, rules.ascendingAC),
     ...(cls.casts
       ? ([
           [

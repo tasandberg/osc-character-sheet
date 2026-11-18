@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { cx } from "@ui/cx";
 import { VellumSegmented } from "@features/settings/controls";
+import { attackRow } from "../class/attackRow";
 import { MoreBelow } from "../MoreBelow";
 import { RecordRows, type RecordRow } from "../RecordRows";
 import { PortraitPicker } from "../portrait/PortraitPicker";
@@ -132,9 +133,10 @@ function HitPointsSection({
   const { stats, formula, hitPoints } = details;
   const text = hitPoints?.value ?? "";
   const invalid = text.trim() !== "" && parseHitPoints(text) === undefined;
+  const fixed = rules.maxHitPointsAtFirstLevel && details.level === 1;
 
   const roll = async () => {
-    if (rolling) return;
+    if (rolling || fixed) return;
     setRolling(true);
     try {
       const result = await rules.rollHitPoints(
@@ -184,7 +186,7 @@ function HitPointsSection({
             "vm-btn vm-btn-sm osc-creation-nowrap",
             text ? "vm-btn-secondary" : "vm-btn-primary",
           )}
-          aria-disabled={rolling || undefined}
+          aria-disabled={rolling || fixed || undefined}
           onClick={roll}
         >
           {text ? `Reroll ${stats.hd}` : `Roll ${stats.hd}`}
@@ -242,7 +244,7 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
     ],
     ["Max level", ordinal(details.cap)],
     ["Hit dice", stats.hd],
-    ["THAC0", `${stats.thac0} [${formatModifier(stats.bba)}]`],
+    attackRow(stats, rules.ascendingAC),
     ...(cls.casts
       ? ([
           [

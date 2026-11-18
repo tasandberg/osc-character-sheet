@@ -45,7 +45,7 @@ import { selectAbilities } from "../features/actions/abilities";
 import { useSetting } from "@src/OscSheet/settings";
 import { isBlankCharacter } from "@features/creation/blankCharacter";
 import { CreateCharacterCallout } from "@features/creation/CreateCharacterCallout";
-import { creationWizardSupported } from "@src/CreationWizard/support";
+import { creationWizardAvailable } from "@src/CreationWizard/support";
 
 /**
  * Foundry-aware container: computes view-models, fills the Shell layout slots,
@@ -162,7 +162,17 @@ export default function SheetShell() {
               if (next) setCurrentTab(next.id);
             },
           }}
-          banner={<WarningsStrip />}
+          banner={
+            <>
+              {creationWizard &&
+                creationWizardAvailable() &&
+                canEdit &&
+                isBlankCharacter(actor) && (
+                  <CreateCharacterCallout actor={actor} />
+                )}
+              <WarningsStrip />
+            </>
+          }
           topbar={
             <Topbar
               vm={selectTopbar(actor)}
@@ -233,10 +243,6 @@ export default function SheetShell() {
             />
           }
         >
-          {creationWizard &&
-            creationWizardSupported() &&
-            canEdit &&
-            isBlankCharacter(actor) && <CreateCharacterCallout actor={actor} />}
           {activeTab.id === TabIds.ACTIONS ? (
             <ActionsView actor={actor} />
           ) : activeTab.id === TabIds.INVENTORY ? (

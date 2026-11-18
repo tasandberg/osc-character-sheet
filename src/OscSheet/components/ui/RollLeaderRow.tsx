@@ -15,6 +15,7 @@ export function RollLeaderRow({
 }) {
   return (
     <LeaderRow
+      valueClassName="u-inline-flex u-items-baseline u-gap-1"
       label={
         <>
           {prefix}

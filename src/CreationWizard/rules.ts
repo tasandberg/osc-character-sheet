@@ -1,7 +1,13 @@
 import type { LoadGearCatalog, PreviewLoad } from "./gear/gearTypes";
 import type { NewCharacter } from "./review/newCharacter";
+import type { RaceMode } from "./race/raceDraft";
 import type { CreationRace } from "./race/raceItems";
-import type { Ability, AbilityScores, RolledScore } from "./scores/scoresDraft";
+import type {
+  Ability,
+  AbilityScores,
+  RolledScore,
+  ScoreMethod,
+} from "./scores/scoresDraft";
 
 export type ClassTable = {
   key: string;
@@ -25,6 +31,7 @@ export type CreationClass = {
   armour?: string;
   weapons?: string;
   tables: ClassTable[];
+  unusable?: string;
 };
 
 export type ClassStats = {
@@ -69,11 +76,15 @@ export type CreationRules = {
   raceScores(scores: AbilityScores, race?: CreationRace): AbilityScores;
   modifiers(scores: AbilityScores): AbilityScores;
   rollScore(label: string): Promise<RolledScore>;
+  scoreMethods: ScoreMethod[];
   maxHitPointsAtFirstLevel: boolean;
+  raceMode: RaceMode;
   maximumHitPoints(formula: string): number;
   rollHitPoints(formula: string, label: string): Promise<RolledScore>;
   alignmentText(): Promise<AlignmentText>;
   saveNames: string[];
+  ascendingAC: boolean;
+  startingName?: string;
   rollStartingGold(formula: string, label: string): Promise<RolledScore>;
   loadGearCatalog: LoadGearCatalog;
   previewLoad: PreviewLoad;

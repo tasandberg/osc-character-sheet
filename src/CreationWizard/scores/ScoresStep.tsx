@@ -1,12 +1,10 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { VellumSegmented } from "@features/settings/controls";
-import type { RaceMode } from "../race/raceDraft";
 import type { CreationRules } from "../rules";
 import { ArrangeScores } from "./ArrangeScores";
-import { ClassAside } from "./ClassAside";
 import { InOrderScores } from "./InOrderScores";
 import { ManualScores } from "./ManualScores";
-import { RaceAside } from "./RaceAside";
+import { ScoresAside } from "./ScoresAside";
 import {
   ABILITY_NAMES,
   finalScores,
@@ -15,101 +13,41 @@ import {
   type ScoresDraft,
 } from "./scoresDraft";
 
-const svgProps = {
-  className: "vm-choice-card-icon",
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 1.6,
-  strokeLinecap: "round",
-  strokeLinejoin: "round",
-  "aria-hidden": true,
-} as const;
-
-const METHODS: {
-  method: ScoreMethod;
-  title: string;
-  body: string;
-  icon: ReactNode;
-}[] = [
-  {
-    method: "inOrder",
+const METHODS: Record<
+  ScoreMethod,
+  { title: string; heading: string; help: string }
+> = {
+  inOrder: {
     title: "3d6 in order",
-    body: "STR to CHA, kept as they fall.",
-    icon: (
-      <svg {...svgProps}>
-        <path d="M12 2l8.66 5v10L12 22l-8.66-5V7z" />
-        <path d="M12 7l4.5 8h-9z" />
-      </svg>
-    ),
+    heading: "Roll 3d6 in order",
+    help: "STR to CHA, kept as they fall, a.k.a. 3d6 down the line.",
   },
-  {
-    method: "arrange",
+  arrange: {
     title: "Roll and arrange",
-    body: "Roll six totals, then place them where you like.",
-    icon: (
-      <svg {...svgProps}>
-        <path d="M7 4v16M4 17l3 3 3-3M17 20V4M14 7l3-3 3 3" />
-      </svg>
-    ),
+    heading: "Roll and arrange",
+    help: "Roll six totals, then place them where you like.",
   },
-  {
-    method: "manual",
+  manual: {
     title: "Enter manually",
-    body: "Type in scores rolled at the table.",
-    icon: (
-      <svg {...svgProps}>
-        <path d="M4 20l4-1 11-11-3-3L5 16z" />
-      </svg>
-    ),
+    heading: "Enter scores manually",
+    help: "Type in scores rolled at the table.",
   },
-];
+};
 
 const QUESTION = "How will you roll ability scores?";
-
-const RACE_MODES: { value: RaceMode; label: string }[] = [
-  { value: "separate", label: "Separate" },
-  { value: "asClass", label: "As class" },
-];
-
-function RaceModeSwitch({
-  value,
-  onChange,
-}: {
-  value: RaceMode;
-  onChange: (mode: RaceMode) => void;
-}) {
-  return (
-    <VellumSegmented
-      label="How race is chosen"
-      options={RACE_MODES}
-      value={value}
-      onChange={onChange}
-      full
-    />
-  );
-}
 
 type Props = {
   draft: ScoresDraft;
   rules: CreationRules;
-  worldName: string;
-  raceMode: RaceMode;
-  onRaceMode: (mode: RaceMode) => void;
   onChange: (update: (draft: ScoresDraft) => ScoresDraft) => void;
 };
 
-export function ScoresStep({
-  draft,
-  rules,
-  worldName,
-  raceMode,
-  onRaceMode,
-  onChange,
-}: Props) {
+export function ScoresStep({ draft, rules, onChange }: Props) {
   const [rolling, setRolling] = useState(false);
   const scores = useMemo(() => finalScores(draft), [draft]);
   const mods = useMemo(() => rules.modifiers(scores), [rules, scores]);
+  const choice = rules.scoreMethods.length > 1;
+  const separate = rules.races.length > 0 && rules.raceMode === "separate";
 
   const rollEach = async <K,>(
     keys: K[],
@@ -130,34 +68,27 @@ export function ScoresStep({
   return (
     <div className="osc-creation-split">
       <div className="osc-creation-pane">
-        <div className="u-stack u-gap-3">
+        <div className="u-stack u-gap-2">
           <div className="vm-sheet-head">
-            <h2 className="vm-sheet-head-title">{QUESTION}</h2>
+            <h2 className="vm-sheet-head-title">
+              {choice ? QUESTION : METHODS[draft.method].heading}
+            </h2>
           </div>
-          <div
-            className="vm-choice-cards"
-            role="radiogroup"
-            aria-label={QUESTION}
-          >
-            <div className="vm-choice-cards-grid">
-              {METHODS.map(({ method, title, body, icon }) => (
-                <button
-                  key={method}
-                  type="button"
-                  role="radio"
-                  className="vm-choice-card vm-choice-card-compact"
-                  aria-checked={draft.method === method}
-                  onClick={() => onChange((d) => ({ ...d, method }))}
-                >
-                  {icon}
-                  <span className="vm-choice-card-title">{title}</span>
-                  <span className="vm-choice-card-mark" aria-hidden="true">
-                    <span className="vm-choice-card-dot" />
-                  </span>
-                  <span className="vm-choice-card-body">{body}</span>
-                </button>
-              ))}
-            </div>
+          <div className="u-stack u-gap-2">
+            {choice && (
+              <div className="osc-creation-method-chooser">
+                <VellumSegmented
+                  label={QUESTION}
+                  options={rules.scoreMethods.map((method) => ({
+                    value: method,
+                    label: METHODS[method].title,
+                  }))}
+                  value={draft.method}
+                  onChange={(method) => onChange((d) => ({ ...d, method }))}
+                />
+              </div>
+            )}
+            <span className="vm-help">{METHODS[draft.method].help}</span>
           </div>
         </div>
         {draft.method === "inOrder" ? (
@@ -209,21 +140,16 @@ export function ScoresStep({
           />
         )}
       </div>
-      {rules.races.length > 0 && raceMode === "separate" ? (
-        <RaceAside races={rules.races} scores={scores}>
-          <RaceModeSwitch value={raceMode} onChange={onRaceMode} />
-          <p className="vm-help">
-            {worldName} offers races. Pick a race in its own step, then a class
-            it allows.
-          </p>
-        </RaceAside>
-      ) : (
-        <ClassAside rules={rules} scores={scores}>
-          {rules.races.length > 0 && (
-            <RaceModeSwitch value={raceMode} onChange={onRaceMode} />
-          )}
-        </ClassAside>
-      )}
+      <ScoresAside
+        races={separate ? rules.races : []}
+        classes={
+          separate
+            ? rules.classes.filter((cls) => !cls.demihuman)
+            : rules.classes
+        }
+        scores={scores}
+        xpBonus={rules.xpBonus}
+      />
     </div>
   );
 }

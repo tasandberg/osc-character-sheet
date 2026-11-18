@@ -16,6 +16,7 @@ export type Pack = {
   documentName: string;
   metadata: { label: string; packageName: string };
   folders: { contents: { id: string; name: string }[] };
+  index: { some(fn: (entry: IndexEntry) => boolean): boolean };
   getIndex(options?: { fields: string[] }): Promise<Iterable<IndexEntry>>;
   getDocument(
     id: string,
@@ -46,17 +47,10 @@ export const enrich = (html: string) =>
       })
     : Promise.resolve("");
 
-export async function journalPageHtml(
-  packId: string,
-  entryName: RegExp,
-  name: string,
-) {
+export async function journalPageHtml(packId: string, name: string) {
   const pack = packs().get(packId);
   if (!pack) return undefined;
-  const entries = [...(await pack.getIndex())].filter((e) =>
-    entryName.test(e.name),
-  );
-  for (const entry of entries) {
+  for (const entry of await pack.getIndex()) {
     const doc = await pack.getDocument(entry._id);
     const page = doc?.pages.contents.find(
       (p) => squash(p.name) === squash(name),

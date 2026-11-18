@@ -12,10 +12,14 @@ import {
   maximumHitPoints,
   rollHitPoints,
 } from "./details/foundryDetails";
-import { loadGearCatalog, previewLoad } from "./gear/foundryGear";
+import { ascendingAC, loadGearCatalog, previewLoad } from "./gear/foundryGear";
 import { createCharacter } from "./review/foundryCreate";
 import type { CreationRules } from "./rules";
-import { ABILITIES, type AbilityScores } from "./scores/scoresDraft";
+import {
+  ABILITIES,
+  allowedScoreMethods,
+  type AbilityScores,
+} from "./scores/scoresDraft";
 
 const known = (scores: AbilityScores) =>
   ABILITIES.filter((a) => scores[a] !== undefined);
@@ -83,11 +87,19 @@ export async function foundryCreationRules(
     raceScores,
     modifiers,
     rollScore,
+    scoreMethods: allowedScoreMethods({
+      inOrder: getSetting("allowScoresInOrder"),
+      arrange: getSetting("allowScoresArrange"),
+      manual: getSetting("allowScoresManual"),
+    }),
     maxHitPointsAtFirstLevel: getSetting("maxHitPointsAtFirstLevel"),
+    raceMode: getSetting("raceMode"),
     maximumHitPoints,
     rollHitPoints,
     alignmentText: foundryAlignmentText(),
     saveNames: saveNames(),
+    ascendingAC: ascendingAC(),
+    startingName: actor?.name ?? undefined,
     rollStartingGold: rollHitPoints,
     loadGearCatalog: cachedGearCatalog(),
     previewLoad,

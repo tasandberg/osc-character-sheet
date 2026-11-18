@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  ClassItems,
   creationClassFrom,
   loadClassItems,
   type ClassItemDoc,
@@ -64,6 +65,15 @@ describe("creationClassFrom", () => {
       tables: [],
     });
   });
+
+  it("marks a class item without level rows as unusable", () => {
+    expect(
+      creationClassFrom({
+        ...halfling,
+        system: { ...halfling.system, levels: [] },
+      }).unusable,
+    ).toBe("has no level table");
+  });
 });
 
 const classDoc = (pack: string | null, name: string, key = name.toLowerCase()) =>
@@ -108,6 +118,36 @@ describe("loadClassItems", () => {
       tomeCleric.uuid,
       classicFighter.uuid,
       worldThief.uuid,
+    ]);
+  });
+});
+
+describe("ClassItems stats", () => {
+  it("reads spell slots per spell level from the actor OSE derives", () => {
+    vi.stubGlobal("CONFIG", {
+      Actor: {
+        documentClass: class {
+          items = [{ type: "class", system: { levels: [], nextRow: null } }];
+          system = {
+            details: { xp: { value: 4000 } },
+            hp: { hd: "3d6" },
+            thac0: { value: 19, bba: 0 },
+            saves: {},
+            spells: {
+              enabled: true,
+              slots: {
+                0: { used: 0, max: 0 },
+                1: { used: 0, max: 2 },
+                2: { used: 0, max: 1 },
+              },
+            },
+          };
+        },
+      },
+    });
+    const items = new ClassItems([halfling]);
+    expect(items.stats(items.classes[0], 3).spellSlots).toEqual([
+      2, 1, 0, 0, 0, 0,
     ]);
   });
 });

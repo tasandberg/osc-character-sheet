@@ -11,7 +11,6 @@ import {
   raceRestrictions,
   raceSummary,
   type CreationRace,
-  type RaceMode,
 } from "./race/raceDraft";
 import {
   emptyGearDraft,
@@ -38,7 +37,6 @@ export interface CreationFlow<D> {
 
 export type CreationDraft = {
   scores: ScoresDraft;
-  raceMode: RaceMode;
   race?: CreationRace;
   class?: CreationClass;
   details: DetailsDraft;
@@ -49,19 +47,22 @@ export type FlowRules = Pick<
   CreationRules,
   | "classes"
   | "races"
+  | "raceMode"
+  | "scoreMethods"
   | "raceScores"
   | "modifiers"
   | "maxHitPointsAtFirstLevel"
   | "maximumHitPoints"
   | "classStats"
   | "xpBonus"
+  | "startingName"
 >;
 
 const CLASS_ONLY_STEPS = CREATION_STEPS.filter((step) => step !== "race");
 
 export const separatesRace = (draft: CreationDraft, rules: FlowRules) =>
   rules.races.length > 0 &&
-  draft.raceMode === "separate" &&
+  rules.raceMode === "separate" &&
   !draft.class?.demihuman;
 
 export const chosenRace = (draft: CreationDraft, rules: FlowRules) =>
@@ -127,9 +128,8 @@ export const creationFlow = (
   rules: FlowRules,
 ): CreationFlow<CreationDraft> => ({
   emptyDraft: () => ({
-    scores: emptyScoresDraft(),
-    raceMode: "separate",
-    details: emptyDetailsDraft(),
+    scores: emptyScoresDraft(rules.scoreMethods[0]),
+    details: { ...emptyDetailsDraft(), name: rules.startingName ?? "" },
     gear: emptyGearDraft(),
   }),
   steps: (draft) => steps(draft, rules),

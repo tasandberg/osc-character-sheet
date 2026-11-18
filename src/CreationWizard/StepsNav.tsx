@@ -55,7 +55,7 @@ export function StepsNav({
               {phase === "done" ? (
                 <button
                   type="button"
-                  className="osc-creation-step osc-creation-step-done u-row u-gap-3"
+                  className="osc-creation-step osc-creation-step-done u-row u-gap-3 u-pb-2"
                   onClick={() => onSelect(step)}
                 >
                   {content}
@@ -63,7 +63,7 @@ export function StepsNav({
               ) : (
                 <span
                   className={cx(
-                    "osc-creation-step u-row u-gap-3",
+                    "osc-creation-step u-row u-gap-3 u-pb-2",
                     `osc-creation-step-${phase}`,
                   )}
                   aria-current={phase === "current" ? "step" : undefined}
