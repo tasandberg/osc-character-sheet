@@ -4,6 +4,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import OscSheetProvider from "@app/OscSheetProvider";
 import { WarningsStrip } from "./WarningsStrip";
+import { MODULE_ID } from "@domain/flags";
 import type { OSEActor } from "@domain/types";
 
 (
@@ -40,7 +41,18 @@ const plate = {
 const migrationEffect = {
   flags: { ose: { migration: true } },
   sheet: { render: vi.fn() },
+  setFlag: vi.fn(async () => undefined),
+  deleteDialog: vi.fn(async () => undefined),
 };
+
+const fighter = { name: "Fighter", system: { level: 3 } };
+
+const clickButton = (label: string) =>
+  act(() =>
+    [...container.querySelectorAll("button")]
+      .find((b) => b.textContent === label)!
+      .click(),
+  );
 
 const makeActor = (
   warnings: unknown[],
@@ -123,17 +135,32 @@ describe("WarningsStrip", () => {
     );
   });
 
-  it("flags migration adjustments and opens the effect for review", () => {
-    render(makeActor([], { effects: [migrationEffect], classes: [{}] }));
+  it("explains migration adjustments for the character's class and level", () => {
+    render(makeActor([], { effects: [migrationEffect], classes: [fighter] }));
     expect(container.textContent).toContain(
-      "bakes this character's old stored saves",
+      "The Migration Adjustments effect was added to preserve this character's non-standard values. Remove it to use the standard values for a level 3 Fighter.",
     );
-    act(() =>
-      [...container.querySelectorAll("button")]
-        .find((b) => b.textContent === "Open Migration Adjustments")!
-        .click(),
-    );
+  });
+
+  it("opens the migration effect for review", () => {
+    render(makeActor([], { effects: [migrationEffect], classes: [fighter] }));
+    clickButton("Review Effects");
     expect(migrationEffect.sheet.render).toHaveBeenCalledWith(true);
+  });
+
+  it("asks Foundry to confirm removing the migration adjustments", () => {
+    render(makeActor([], { effects: [migrationEffect], classes: [fighter] }));
+    clickButton("Remove");
+    expect(migrationEffect.deleteDialog).toHaveBeenCalled();
+  });
+
+  it("hides the migration warning once the adjustments are kept", () => {
+    const kept = {
+      ...migrationEffect,
+      flags: { ose: { migration: true }, [MODULE_ID]: { migrationKept: true } },
+    };
+    render(makeActor([], { effects: [kept], classes: [fighter] }));
+    expect(container.textContent).toBe("");
   });
 
   it("warns that migration adjustments apply twice without a class item", () => {
