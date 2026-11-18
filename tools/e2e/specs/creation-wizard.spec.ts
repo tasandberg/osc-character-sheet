@@ -36,7 +36,7 @@ const createBlankCharacter = (page: Page, name: string) =>
 const nextButton = (wizard: Locator) => wizard.getByRole("button", { name: /^Next/ });
 
 async function chooseScoresAndClass(wizard: Locator) {
-  await wizard.getByRole("radio", { name: /^Enter manually/ }).click();
+  await wizard.getByRole("radio", { name: /^Enter manually/ }).check({ force: true });
   for (const [ability, value] of [
     ["Strength", "13"],
     ["Intelligence", "10"],
@@ -99,7 +99,7 @@ test.describe("creation wizard", () => {
     try {
       await gamePage.locator("#actors").getByRole("button", { name: "New Character" }).click();
       const wizard = gamePage.locator("#osc-creation-wizard");
-      await wizard.getByRole("radio", { name: /Roll and arrange/ }).click();
+      await wizard.getByRole("radio", { name: /Roll and arrange/ }).check({ force: true });
       await wizard.getByRole("button", { name: "Roll six totals" }).click();
 
       const rolls = wizard.getByRole("group", { name: "Rolls" });
