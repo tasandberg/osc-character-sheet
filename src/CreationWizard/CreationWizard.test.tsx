@@ -415,12 +415,12 @@ const saves = () =>
 describe("CreationWizard", () => {
   it("holds Next until the current step is complete, then advances", () => {
     open();
-    expect(currentStep()).toBe("1Scores");
+    expect(currentStep()).toBe("1Ability Scores");
     expect(next().getAttribute("aria-disabled")).toBe("true");
     expect(host.textContent).toContain("Roll your scores to continue");
 
     act(() => next().click());
-    expect(currentStep()).toBe("1Scores");
+    expect(currentStep()).toBe("1Ability Scores");
 
     enterScores(["13", "8", "7", "15", "8", "11"]);
     expect(next().getAttribute("aria-disabled")).toBe("false");
@@ -434,8 +434,8 @@ describe("CreationWizard", () => {
     act(() => next().click());
 
     expect(button("3Details")).toBeUndefined();
-    press("1Scores13 8 7 15 8 11");
-    expect(currentStep()).toBe("1Scores");
+    press("1Ability Scores13 8 7 15 8 11");
+    expect(currentStep()).toBe("1Ability Scores");
   });
 
   it("shows Back only after the first step", () => {
@@ -445,7 +445,7 @@ describe("CreationWizard", () => {
     enterScores(["13", "8", "7", "15", "8", "11"]);
     act(() => next().click());
     press("Back");
-    expect(currentStep()).toBe("1Scores");
+    expect(currentStep()).toBe("1Ability Scores");
   });
 
   it("starts fresh when the window is reopened", () => {
@@ -455,8 +455,8 @@ describe("CreationWizard", () => {
     close();
 
     open();
-    expect(currentStep()).toBe("1Scores");
-    expect(button("1Scores")).toBeUndefined();
+    expect(currentStep()).toBe("1Ability Scores");
+    expect(button("1Ability Scores")).toBeUndefined();
   });
 
   it("rolls 3d6 in order one score at a time, then the rest together", async () => {
@@ -488,8 +488,8 @@ describe("CreationWizard", () => {
   it("names the only allowed score method instead of asking", () => {
     open({ ...rules, scoreMethods: ["manual"] });
     expect(host.querySelector("[role=radiogroup]")).toBeNull();
-    expect(host.querySelector("h2")!.textContent).toBe("Enter scores manually");
-    expect(host.textContent).toContain("Type in scores rolled at the table.");
+    expect(host.textContent).toContain("Enter manually");
+    expect(host.textContent).toContain("Type in scores rolled at the table");
     type("Strength", "13");
     expect(host.textContent).toContain("Enter INT, WIS, DEX, CON, CHA");
   });
@@ -653,7 +653,7 @@ describe("CreationWizard", () => {
     openSeparate();
     enterScores(["13", "8", "7", "15", "8", "11"]);
     expect(stepNames()).toEqual([
-      "1Scores",
+      "1Ability Scores",
       "2Race",
       "3Class",
       "4Details",
@@ -803,9 +803,7 @@ describe("CreationWizard", () => {
       'aside[aria-label="Thief at first level"]',
     )!.textContent;
     expect(classPanel).toContain("Max level9th, as a dwarf");
-    expect(classPanel).toContain(
-      "Saves+3 vs poison, spells, wands (CON 11)",
-    );
+    expect(classPanel).toContain("Saves+3 vs poison, spells, wands (CON 11)");
     expect(classPanel).toContain("Infravision60′");
     expect(classPanel).toContain("LanguagesCommon, Dwarvish, Gnomish");
   });
@@ -1153,6 +1151,16 @@ describe("CreationWizard review", () => {
       portrait: chosen,
       token: chosen,
     });
+    vi.unstubAllGlobals();
+  });
+
+  it("offers no portrait to a user who can neither browse nor upload", async () => {
+    setWorld(undefined, { canUpload: false, canBrowse: false });
+    open();
+    await toGear(25);
+    await act(async () => button("Back")!.click());
+    expect(host.textContent).toContain("Character Details");
+    expect(button("Choose portrait and token")).toBeUndefined();
     vi.unstubAllGlobals();
   });
 

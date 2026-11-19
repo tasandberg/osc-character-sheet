@@ -13,28 +13,20 @@ import {
   type ScoresDraft,
 } from "./scoresDraft";
 
-const METHODS: Record<
-  ScoreMethod,
-  { title: string; heading: string; help: string }
-> = {
+const METHODS: Record<ScoreMethod, { title: string; help: string }> = {
   inOrder: {
     title: "3d6 in order",
-    heading: "Roll 3d6 in order",
     help: "STR to CHA, kept as they fall, a.k.a. 3d6 down the line.",
   },
   arrange: {
     title: "Roll and arrange",
-    heading: "Roll and arrange",
     help: "Roll six totals, then place them where you like.",
   },
   manual: {
     title: "Enter manually",
-    heading: "Enter scores manually",
-    help: "Type in scores rolled at the table.",
+    help: "Type in scores rolled at the table, 3 to 18.",
   },
 };
-
-const QUESTION = "How will you roll ability scores?";
 
 type Props = {
   draft: ScoresDraft;
@@ -70,15 +62,18 @@ export function ScoresStep({ draft, rules, onChange }: Props) {
       <div className="osc-creation-pane">
         <div className="u-stack u-gap-2">
           <div className="vm-sheet-head">
-            <h2 className="vm-sheet-head-title">
-              {choice ? QUESTION : METHODS[draft.method].heading}
-            </h2>
+            <h2 className="vm-sheet-head-title">Roll Ability Scores</h2>
+            {!choice && (
+              <span className="vm-sheet-head-hint">
+                {METHODS[draft.method].title}
+              </span>
+            )}
           </div>
           <div className="u-stack u-gap-2">
             {choice && (
               <div className="osc-creation-method-chooser">
                 <VellumSegmented
-                  label={QUESTION}
+                  label="Roll method"
                   options={rules.scoreMethods.map((method) => ({
                     value: method,
                     label: METHODS[method].title,

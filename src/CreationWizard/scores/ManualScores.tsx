@@ -19,10 +19,6 @@ export function ManualScores({ draft, mods, onEnter }: Props) {
   return (
     <>
       <section className="u-stack u-gap-4">
-        <div className="vm-sheet-head">
-          <h2 className="vm-sheet-head-title">Ability Scores</h2>
-          <span className="vm-sheet-head-hint">type each score, 3 to 18</span>
-        </div>
         <ScoreGrid>
           {ABILITIES.map((ability) => {
             const invalid = isInvalidManualScore(draft.manual[ability]);

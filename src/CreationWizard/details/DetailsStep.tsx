@@ -5,6 +5,7 @@ import { attackRow } from "../class/attackRow";
 import { MoreBelow } from "../MoreBelow";
 import { RecordRows, type RecordRow } from "../RecordRows";
 import { PortraitPicker } from "../portrait/PortraitPicker";
+import { useCanChoosePortrait } from "../portrait/useCanChoosePortrait";
 import { ordinal, type CreationRace } from "../race/raceDraft";
 import type {
   Alignment,
@@ -286,6 +287,7 @@ function ClassStats({ details, cls, race, scores, rules }: Props) {
 export function DetailsStep(props: Props) {
   const { draft, details, cls, rules, onChange } = props;
   const paneRef = useRef<HTMLDivElement>(null);
+  const canChoosePortrait = useCanChoosePortrait();
   return (
     <div className="osc-creation-split osc-creation-class-step">
       <div
@@ -295,15 +297,23 @@ export function DetailsStep(props: Props) {
         <div className="vm-sheet-head">
           <h2 className="vm-sheet-head-title">Character Details</h2>
         </div>
-        <div className="osc-creation-identity u-grid u-gap-5 u-items-start">
-          <div className="vm-field u-gap-1">
-            <span className="vm-key">Portrait</span>
-            <PortraitPicker
-              draft={draft.portrait}
-              onChange={(portrait) => onChange((d) => ({ ...d, portrait }))}
-            />
-          </div>
-          <div className="u-flex tw:flex-col u-gap-3 tw:min-w-0">
+        <div
+          className={
+            canChoosePortrait
+              ? "osc-creation-identity u-grid u-gap-5 u-items-start"
+              : undefined
+          }
+        >
+          {canChoosePortrait && (
+            <div className="vm-field u-gap-1">
+              <span className="vm-key">Portrait</span>
+              <PortraitPicker
+                draft={draft.portrait}
+                onChange={(portrait) => onChange((d) => ({ ...d, portrait }))}
+              />
+            </div>
+          )}
+          <div className="u-flex tw:flex-col u-gap-5 tw:min-w-0">
             <label className="vm-field u-gap-1">
               <span className="vm-key">Name</span>
               <input
@@ -316,26 +326,28 @@ export function DetailsStep(props: Props) {
                 }
               />
             </label>
-            <div className="osc-creation-identity-row u-grid u-gap-8">
-              <div className="vm-field u-gap-1">
-                <span className="vm-key" aria-hidden="true">
-                  Level
-                </span>
-                <div className="osc-creation-identity-control u-flex u-flex-1 u-items-center">
-                  <LevelStepper
-                    level={details.level}
-                    cap={details.cap}
-                    onLevel={(level) => onChange((d) => ({ ...d, level }))}
-                  />
+            <div className="u-stack u-gap-3">
+              <div className="osc-creation-identity-row u-grid u-gap-8">
+                <div className="vm-field u-gap-1">
+                  <span className="vm-key" aria-hidden="true">
+                    Level
+                  </span>
+                  <div className="osc-creation-identity-control u-flex u-flex-1 u-items-center">
+                    <LevelStepper
+                      level={details.level}
+                      cap={details.cap}
+                      onLevel={(level) => onChange((d) => ({ ...d, level }))}
+                    />
+                  </div>
                 </div>
+                <HitPointsSection
+                  details={details}
+                  rules={rules}
+                  onChange={onChange}
+                />
               </div>
-              <HitPointsSection
-                details={details}
-                rules={rules}
-                onChange={onChange}
-              />
+              <HitPointsHelp details={details} cls={cls} />
             </div>
-            <HitPointsHelp details={details} cls={cls} />
           </div>
         </div>
         <AlignmentSection

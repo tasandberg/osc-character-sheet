@@ -22,7 +22,7 @@ export function StepsNav({
   onSelect,
 }: Props) {
   return (
-    <nav aria-label="Creation steps" className="osc-creation-steps-nav">
+    <nav aria-label="Creation steps" className="osc-creation-steps-nav u-pt-1">
       <ol className="vm-steps">
         {steps.map((step, index) => {
           const phase = stepPhase(step, current, statuses);
