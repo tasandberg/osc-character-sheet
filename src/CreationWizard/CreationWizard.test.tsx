@@ -226,7 +226,10 @@ const rules: CreationRules = {
       ]),
     ) as AbilityScores,
   rollScore: async () => rolls.shift()!,
+  scoreMethods: ["inOrder", "arrange", "manual"],
   maxHitPointsAtFirstLevel: false,
+  ascendingAC: false,
+  raceMode: "separate",
   saveNames: [
     "Death Poison",
     "Wands",
@@ -320,9 +323,7 @@ const buttons = () => [...host.querySelectorAll("button")];
 const button = (name: string) =>
   buttons().find(
     (b) =>
-      b.getAttribute("aria-label") === name ||
-      b.textContent?.trim() === name ||
-      (b.getAttribute("role") === "radio" && b.textContent?.startsWith(name)),
+      b.getAttribute("aria-label") === name || b.textContent?.trim() === name,
   );
 const press = (name: string) => act(() => button(name)!.click());
 const pressAsync = (name: string) =>
@@ -391,7 +392,7 @@ const stepNames = () =>
 const openSeparate = () => open({ ...rules, races });
 
 function enterScores(values: string[]) {
-  press("Enter manually");
+  choose("Enter manually");
   values.forEach((value, i) => type(ABILITY_LABELS[i], value));
 }
 
@@ -414,12 +415,12 @@ const saves = () =>
 describe("CreationWizard", () => {
   it("holds Next until the current step is complete, then advances", () => {
     open();
-    expect(currentStep()).toBe("1Scores");
+    expect(currentStep()).toBe("1Ability Scores");
     expect(next().getAttribute("aria-disabled")).toBe("true");
     expect(host.textContent).toContain("Roll your scores to continue");
 
     act(() => next().click());
-    expect(currentStep()).toBe("1Scores");
+    expect(currentStep()).toBe("1Ability Scores");
 
     enterScores(["13", "8", "7", "15", "8", "11"]);
     expect(next().getAttribute("aria-disabled")).toBe("false");
@@ -433,8 +434,8 @@ describe("CreationWizard", () => {
     act(() => next().click());
 
     expect(button("3Details")).toBeUndefined();
-    press("1Scores13 8 7 15 8 11");
-    expect(currentStep()).toBe("1Scores");
+    press("1Ability Scores13 8 7 15 8 11");
+    expect(currentStep()).toBe("1Ability Scores");
   });
 
   it("shows Back only after the first step", () => {
@@ -444,7 +445,7 @@ describe("CreationWizard", () => {
     enterScores(["13", "8", "7", "15", "8", "11"]);
     act(() => next().click());
     press("Back");
-    expect(currentStep()).toBe("1Scores");
+    expect(currentStep()).toBe("1Ability Scores");
   });
 
   it("starts fresh when the window is reopened", () => {
@@ -454,8 +455,8 @@ describe("CreationWizard", () => {
     close();
 
     open();
-    expect(currentStep()).toBe("1Scores");
-    expect(button("1Scores")).toBeUndefined();
+    expect(currentStep()).toBe("1Ability Scores");
+    expect(button("1Ability Scores")).toBeUndefined();
   });
 
   it("rolls 3d6 in order one score at a time, then the rest together", async () => {
@@ -474,9 +475,28 @@ describe("CreationWizard", () => {
     expect(next().getAttribute("aria-disabled")).toBe("false");
   });
 
+  it("offers only the score methods the referee allows, starting on the first", () => {
+    open({ ...rules, scoreMethods: ["arrange", "manual"] });
+    expect(
+      [...host.querySelectorAll("input[type=radio]")].map(
+        (input) => input.closest("label")!.textContent,
+      ),
+    ).toEqual(["Roll and arrange", "Enter manually"]);
+    expect(button("Roll six totals")).toBeDefined();
+  });
+
+  it("names the only allowed score method instead of asking", () => {
+    open({ ...rules, scoreMethods: ["manual"] });
+    expect(host.querySelector("[role=radiogroup]")).toBeNull();
+    expect(host.textContent).toContain("Enter manually");
+    expect(host.textContent).toContain("Type in scores rolled at the table");
+    type("Strength", "13");
+    expect(host.textContent).toContain("Enter INT, WIS, DEX, CON, CHA");
+  });
+
   it("places rolled totals on abilities and returns them to the pool", async () => {
     open();
-    press("Roll and arrange");
+    choose("Roll and arrange");
     await pressAsync("Roll six totals");
     expect(host.textContent).toContain("6 to place");
 
@@ -495,7 +515,7 @@ describe("CreationWizard", () => {
 
   it("swaps a picked-up score with another ability and announces it", async () => {
     open();
-    press("Roll and arrange");
+    choose("Roll and arrange");
     await pressAsync("Roll six totals");
     press("Place the rest in order");
 
@@ -510,7 +530,7 @@ describe("CreationWizard", () => {
 
   it("drops a picked-up roll with Escape", async () => {
     open();
-    press("Roll and arrange");
+    choose("Roll and arrange");
     await pressAsync("Roll six totals");
 
     press("15, rolled 13 1 1");
@@ -539,31 +559,30 @@ describe("CreationWizard", () => {
     expect(host.textContent).toContain("Fix DEX and enter CHA to continue");
   });
 
-  it("lists classes by what the scores allow so far", async () => {
+  it("lists classes by what the scores allow so far", () => {
     open();
-    expect(aside()).toContain("after you roll");
-    expect(aside()).not.toContain("Dwarf");
+    expect(aside()).toBe(
+      "Available optionsRoll or enter scores to see your options.",
+    );
 
     enterScores(["13", "8", "7", "15"]);
     expect(aside()).toContain("waiting on CON, CHA");
     expect(aside()).toContain("DwarfCON 9+");
 
     type("Constitution", "8");
-    expect(aside()).toContain("DwarfCON 9");
-    expect(aside()).toContain("HalflingCON 9, DEX 9");
     expect(
       [...host.querySelectorAll("aside li")]
         .filter((row) => row.getAttribute("aria-disabled") === "true")
         .map((row) => row.textContent),
-    ).toEqual(["DwarfCON 9", "HalflingCON 9, DEX 9"]);
+    ).toEqual(["DwarfRequires CON 9", "HalflingRequires CON 9, DEX 9"]);
   });
 
   it("shows the XP adjustment of each class the scores allow", () => {
     open();
     enterScores(["7", "8", "7", "15", "8", "11"]);
+    expect(aside()).toContain("Classes (2/4)");
     expect(aside()).toContain("Fighter−10% XP");
     expect(aside()).toContain("Thief+5% XP");
-    expect(aside()).toContain("DwarfCON 9");
   });
 
   it("offers only the classes the scores allow, then summarises the choice", async () => {
@@ -628,22 +647,37 @@ describe("CreationWizard", () => {
 
   it("adds a Race step by default when the world has race items", () => {
     open();
-    expect(host.textContent).not.toContain("How race is chosen");
+    expect(stepNames()).toHaveLength(5);
     close();
 
     openSeparate();
     enterScores(["13", "8", "7", "15", "8", "11"]);
     expect(stepNames()).toEqual([
-      "1Scores",
+      "1Ability Scores",
       "2Race",
       "3Class",
       "4Details",
       "5Gear",
       "6Review",
     ]);
-    expect(aside()).toContain("2 of 4 open");
-    expect(aside()).toContain("Half-Orc+1 CON, +1 STR, −2 CHA");
-    expect(aside()).toContain("Half-ElfCON 9");
+    const tabs = () =>
+      [...host.querySelectorAll<HTMLElement>('aside [role="tab"]')].map(
+        (tab) => [tab.textContent, tab.getAttribute("aria-selected")],
+      );
+    const panel = () => host.querySelector('aside [role="tabpanel"]')!;
+    expect(tabs()).toEqual([
+      ["Races (2/4)", "true"],
+      ["Classes (2/2)", "false"],
+    ]);
+    expect(panel().textContent).toBe(
+      "DwarfRequires CON 9Half-ElfRequires CON 9Half-Orc+1 CON, +1 STR, −2 CHAHumanno modifiers",
+    );
+
+    act(() =>
+      host.querySelectorAll<HTMLElement>('aside [role="tab"]')[1].click(),
+    );
+    expect(tabs().map(([, selected]) => selected)).toEqual(["false", "true"]);
+    expect(panel().textContent).toBe("Fighter+5% XPThief+5% XP");
 
     act(() => next().click());
     expect(currentStep()).toBe("2Race");
@@ -659,9 +693,11 @@ describe("CreationWizard", () => {
       "Needs CON 9",
     );
 
-    press("Back");
-    choose("As class");
+    close();
+    open({ ...rules, races, raceMode: "asClass" });
+    enterScores(["13", "8", "7", "15", "8", "11"]);
     expect(stepNames()).toHaveLength(5);
+    expect(aside()).toContain("Classes (2/4)");
   });
 
   it("applies the race’s modifiers, then offers only the classes it allows", async () => {
@@ -694,6 +730,32 @@ describe("CreationWizard", () => {
     expect(rows().map((r) => r.text)).toEqual([
       "FighterSTR1d8—+5% from STR 13",
       "ThiefDEX1d4—+5% from DEX 15",
+    ]);
+  });
+
+  it("leaves out infravision and saves for a race item that sets neither", () => {
+    openSeparate();
+    enterScores(["13", "8", "7", "15", "10", "11"]);
+    act(() => next().click());
+    act(() => radio("Human").click());
+
+    expect(aside()).toContain("Languages");
+    expect(aside()).not.toContain("Infravision");
+    expect(aside()).not.toContain("Saves");
+  });
+
+  it("won't offer a class item that has no level table", () => {
+    open({
+      ...rules,
+      classes: [
+        classItem("Bard", { maxLevel: 1, unusable: "has no level table" }),
+      ],
+    });
+    enterScores(["13", "8", "7", "15", "8", "11"]);
+    act(() => next().click());
+
+    expect(rows()).toEqual([
+      { text: "Bard——1d8Bard has no level table", disabled: true },
     ]);
   });
 
@@ -741,15 +803,18 @@ describe("CreationWizard", () => {
       'aside[aria-label="Thief at first level"]',
     )!.textContent;
     expect(classPanel).toContain("Max level9th, as a dwarf");
-    expect(classPanel).toContain(
-      "Saves+3 vs poison, spells, wands (CON 11)",
-    );
+    expect(classPanel).toContain("Saves+3 vs poison, spells, wands (CON 11)");
     expect(classPanel).toContain("Infravision60′");
     expect(classPanel).toContain("LanguagesCommon, Dwarvish, Gnomish");
   });
 });
 
 describe("CreationWizard details", () => {
+  it("starts with the name of the character it was opened from", () => {
+    open({ ...rules, startingName: "Wren Ashdown" });
+    expect(titles.at(-1)).toBe("New Character: Wren Ashdown");
+  });
+
   it("names the character, sets alignment and rolls hit points before Gear", async () => {
     open();
     await toDetails();
@@ -820,6 +885,16 @@ describe("CreationWizard details", () => {
     expect(button("Raise level")!.getAttribute("aria-disabled")).toBe("true");
   });
 
+  it("shows the attack bonus in place of THAC0 under ascending AC", async () => {
+    open({ ...rules, ascendingAC: true });
+    await toDetails();
+    press("Raise level");
+    press("Raise level");
+
+    expect(aside()).toContain("Attack Bonus+2");
+    expect(aside()).not.toContain("THAC0");
+  });
+
   it("caps the level by race when race is separate", async () => {
     openSeparate();
     enterScores(["13", "8", "7", "15", "10", "11"]);
@@ -842,6 +917,8 @@ describe("CreationWizard details", () => {
     expect(host.textContent).toContain(
       "Maximum of 1d4 for Thief, −1 for Constitution, by house rule.",
     );
+    await pressAsync("Reroll 1d4");
+    expect(hitPoints()).toBe("8");
 
     press("Raise level");
     expect(hitPoints()).toBe("");
@@ -1074,6 +1151,16 @@ describe("CreationWizard review", () => {
       portrait: chosen,
       token: chosen,
     });
+    vi.unstubAllGlobals();
+  });
+
+  it("offers no portrait to a user who can neither browse nor upload", async () => {
+    setWorld(undefined, { canUpload: false, canBrowse: false });
+    open();
+    await toGear(25);
+    await act(async () => button("Back")!.click());
+    expect(host.textContent).toContain("Character Details");
+    expect(button("Choose portrait and token")).toBeUndefined();
     vi.unstubAllGlobals();
   });
 

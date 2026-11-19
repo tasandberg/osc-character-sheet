@@ -10,12 +10,14 @@ export function SortHeader({
   className,
   active,
   dir,
+  caret = "start",
   onClick,
 }: {
   label: ReactNode;
   className?: string;
   active: boolean;
   dir: SortDir;
+  caret?: "start" | "end";
   onClick: () => void;
 }) {
   // A click bakes this order into the manual baseline; clicking the active header
@@ -41,13 +43,13 @@ export function SortHeader({
       title={title}
       onClick={onClick}
     >
-      {/* Caret sits to the LEFT of the label (shared by the items + wealth tables)
-          so it never crowds the next column on a right-aligned header. */}
+      {/* Caret sits on the side away from the label's aligned edge. */}
       <i
         className={cx(
           "osc-inv-th-caret",
           // 0.8em tracks the --fs-2xs header so it scales with the font setting
           "tw:text-[0.8em] tw:w-[6px]",
+          caret === "end" && "tw:order-last",
           "fa-solid",
           active && (dir === "asc" ? "fa-caret-up" : "fa-caret-down"),
         )}

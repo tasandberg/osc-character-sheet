@@ -4,6 +4,7 @@ import type {
   OseClassItem,
   OseSpell,
 } from "@domain/types";
+import type { AttackTerm } from "@domain/attackMath";
 
 export interface IdentityVM {
   name: string;
@@ -83,6 +84,8 @@ export interface RollSpec {
   kind?: "hit" | "damage";
   /** Weapon name, for the chat card header. */
   weapon?: string;
+  img?: string;
+  terms?: AttackTerm[];
 }
 
 /** One attack mode (melee or missile) of a weapon: its hit/damage rolls + displays. */
@@ -175,6 +178,7 @@ export interface InventoryItemVM {
   /** Short monogram for the grid card when the item has no real art. */
   monogram: string;
   weight: number;
+  contentsWeight?: number;
   /** Carried item slots under Item-Based Encumbrance — the stored GM value, folded
    *  with quantity for item/container types only (weapon/armor count once). 0 when unset. */
   slots: number;

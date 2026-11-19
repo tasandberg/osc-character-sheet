@@ -147,7 +147,7 @@ export function ArrangeScores({
       </p>
       <section className="u-stack u-gap-3">
         <div className="vm-sheet-head">
-          <h2 className="vm-sheet-head-title">Your Six Rolls</h2>
+          <h3 className="vm-sheet-head-title">Your Six Rolls</h3>
           <span className="vm-sheet-head-hint">
             {anyRolled
               ? "drag a roll onto an ability, or tap one then the other"
@@ -240,7 +240,7 @@ export function ArrangeScores({
       </section>
       <section className="u-stack u-gap-3">
         <div className="vm-sheet-head">
-          <h2 className="vm-sheet-head-title">Ability Scores</h2>
+          <h3 className="vm-sheet-head-title">Place Your Rolls</h3>
           <span className="vm-sheet-head-hint">{empty.length} to place</span>
           {anyRolled && (
             <div className="u-row u-gap-3 u-ml-auto tw:-my-1 tw:self-center">

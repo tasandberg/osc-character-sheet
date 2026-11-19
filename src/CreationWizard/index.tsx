@@ -16,8 +16,18 @@ export default function CreationWizardApp({
   onTitle?: (title: string) => void;
   onCreated?: () => void;
 }) {
-  const rules = useMemo(() => houseRules(readHouseRuleSettings()), []);
   const [creationRules, setCreationRules] = useState<CreationRules>();
+  const rules = useMemo(
+    () =>
+      houseRules({
+        ...readHouseRuleSettings(),
+        raceMode: creationRules?.races.length
+          ? creationRules.raceMode
+          : undefined,
+        scoreMethods: creationRules?.scoreMethods,
+      }),
+    [creationRules],
+  );
   useEffect(() => {
     let live = true;
     void foundryCreationRules(actor).then(

@@ -24,10 +24,6 @@ export function InOrderScores({ draft, mods, rolling, onRoll }: Props) {
 
   return (
     <section className="u-stack u-gap-4">
-      <div className="vm-sheet-head">
-        <h2 className="vm-sheet-head-title">Ability Scores</h2>
-        <span className="vm-sheet-head-hint">rolled in order, STR to CHA</span>
-      </div>
       <ScoreGrid>
         {ABILITIES.map((ability) => {
           const rolled = draft.inOrder[ability];

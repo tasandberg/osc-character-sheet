@@ -8,10 +8,15 @@ export function useScrollsFurther(
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const update = () =>
-      setScrollsFurther(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
+    let reachedBottom = false;
+    const further = () => el.scrollTop + el.clientHeight < el.scrollHeight - 1;
+    const update = () => setScrollsFurther(!reachedBottom && further());
+    const onScroll = () => {
+      if (!further()) reachedBottom = true;
+      update();
+    };
     update();
-    el.addEventListener("scroll", update, { passive: true });
+    el.addEventListener("scroll", onScroll, { passive: true });
     const observer =
       typeof ResizeObserver === "undefined"
         ? undefined
@@ -24,7 +29,7 @@ export function useScrollsFurther(
         : new MutationObserver(update);
     mutations?.observe(el, { childList: true, subtree: true });
     return () => {
-      el.removeEventListener("scroll", update);
+      el.removeEventListener("scroll", onScroll);
       observer?.disconnect();
       mutations?.disconnect();
     };

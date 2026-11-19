@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { selectAttacks } from "@features/actions/attacks";
+import { selectAttackHint, selectAttacks } from "@features/actions/attacks";
 import type { OSEActor } from "@domain/types";
 import { raistlin } from "@src/OscSheet/__fixtures__/raistlin";
 
@@ -80,5 +80,21 @@ describe("selectAttacks", () => {
       ignoreAttackBonusOnDamageRoll: false,
     })[0].modes[0];
     expect(actorOptOut.dmg.formula).toBe("1d4");
+  });
+});
+
+describe("selectAttackHint", () => {
+  const off = { ascendingAC: false, ignoreAttackBonusOnDamageRoll: false };
+  const on = { ...off, ascendingAC: true };
+
+  it("shows THAC0 in descending-AC worlds", () => {
+    expect(selectAttackHint(withMagicDagger(), off)).toEqual({ label: "THAC0", value: "19" });
+  });
+
+  it("shows the attack bonus in ascending-AC worlds, and nothing at +0", () => {
+    expect(selectAttackHint(withMagicDagger(), on)).toEqual({ label: "Attack Bonus", value: "+1" });
+    const noBonus = withMagicDagger();
+    noBonus.system.thac0.bba = 0;
+    expect(selectAttackHint(noBonus, on)).toBeUndefined();
   });
 });

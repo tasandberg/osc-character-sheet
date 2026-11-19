@@ -230,4 +230,87 @@ describe("previewLoad", () => {
       tier: "Unencumbered",
     });
   });
+
+  it("counts unspent gold in the load, as the created character will", async () => {
+    stubFoundry({});
+    const gold = {
+      name: "Gold (gp)",
+      system: { treasure: true },
+      toObject: () => ({
+        type: "item",
+        system: { treasure: true, weight: 1, quantity: { value: 0 } },
+      }),
+    };
+    vi.stubGlobal("game", {
+      packs: {
+        get: (id: string) =>
+          id === "classicfantasycompendium.equipment-coins"
+            ? { getDocuments: async () => [gold] }
+            : undefined,
+      },
+      system: { id: "ose" },
+      settings: { get: () => false },
+    });
+    vi.stubGlobal("fromUuid", async () => ({
+      toObject: () => ({
+        type: "weapon",
+        system: { weight: 60, quantity: { value: 1 } },
+      }),
+    }));
+    vi.stubGlobal("foundry", {
+      utils: {
+        setProperty: (
+          source: { system: { quantity: { value: number } } },
+          path: string,
+          value: number,
+        ) => {
+          if (path === "system.quantity.value")
+            source.system.quantity.value = value;
+        },
+      },
+    });
+    type Carried = { system: { weight: number; quantity: { value: number } } };
+    vi.stubGlobal("CONFIG", {
+      Actor: {
+        documentClass: class {
+          system;
+          constructor({ items }: { items: Carried[] }) {
+            const value = items.reduce(
+              (sum, { system }) => sum + system.weight * system.quantity.value,
+              0,
+            );
+            this.system = {
+              encumbrance: {
+                enabled: true,
+                variant: "complete",
+                value,
+                max: 1600,
+                steps: [],
+                encumbered: false,
+              },
+              movement: { base: 120, encounter: 40, overland: 24 },
+              scores: {},
+              ac: { value: 9 },
+              aac: { value: 10 },
+            };
+          }
+        },
+      },
+    });
+    const sword = {
+      uuid: "Compendium.gear.Item.Sword",
+      name: "Sword",
+      img: "",
+      category: "weapons" as const,
+      cost: 10,
+      weight: 60,
+    };
+    const preview = await previewLoad(
+      [{ uuid: sword.uuid, quantity: 1 }],
+      [sword],
+      {},
+      80,
+    );
+    expect(preview.label).toBe("140 / 1600 cn");
+  });
 });

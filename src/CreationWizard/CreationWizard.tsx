@@ -86,11 +86,6 @@ export function CreationWizard({
         <ScoresStep
           draft={draft.scores}
           rules={rules}
-          worldName={worldName}
-          raceMode={draft.raceMode}
-          onRaceMode={(raceMode) =>
-            wizard.setDraft((d) => ({ ...d, raceMode }))
-          }
           onChange={(update) =>
             wizard.setDraft((d) => ({ ...d, scores: update(d.scores) }))
           }

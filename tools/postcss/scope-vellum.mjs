@@ -8,6 +8,18 @@ const scope = vellumScope({ root: ROOT });
 // <li> on purpose, outside .osc-sheet, and scoping it would delete the chat card.
 const SCOPED = ["/styles/vellum/", "/@old-school-chronicle/vellum/"];
 
+const TOKENS = "/@old-school-chronicle/vellum/tokens.css";
+const CHAT_CARD = ".osc-message";
+const CHAT_CARD_CREAM = [
+  `body.theme-light ${CHAT_CARD}:not(.themed *)`,
+  `.themed.theme-light ${CHAT_CARD}:not(.themed.theme-light .themed.theme-dark *)`,
+];
+const chatCardSelectors = (sel) => {
+  if (sel === ROOT) return [sel, CHAT_CARD];
+  if (/^\.osc-sheet\[data-theme="?cream"?\]$/.test(sel)) return [sel, ...CHAT_CARD_CREAM];
+  return [sel];
+};
+
 export const scopeVellum = {
   postcssPlugin: "scope-vellum",
   Rule(rule) {
@@ -18,5 +30,6 @@ export const scopeVellum = {
     // would nest it onto a descendant that never exists.
     rule.selectors = rule.selectors.map((sel) => (sel.trim() === "body" ? ROOT : sel));
     scope.Rule(rule);
+    if (file.endsWith(TOKENS)) rule.selectors = rule.selectors.flatMap(chatCardSelectors);
   },
 };

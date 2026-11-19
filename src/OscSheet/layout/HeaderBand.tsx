@@ -1,7 +1,9 @@
 import type { IdentityVM, VitalsVM } from "@domain/vm-types";
 import { Identity } from "@layout/Identity";
 import { Portrait } from "@layout/Portrait";
+import { IconButton } from "@ui/IconButton";
 import { InlineEditValue } from "@ui/InlineEditValue";
+import { useHpInput } from "@ui/useHpInput";
 import { useId, useLayoutEffect, useRef, type ReactNode } from "react";
 import { HoverPop } from "@ui/HoverPop";
 
@@ -84,6 +86,7 @@ type Props = {
 export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, onPortraitClick, onPortraitContextMenu, canEditPortrait, onOpenItem, stats }: Props) {
   const headRef = useHeaderHeight(!!stats);
   const acPopId = useId();
+  const hp = useHpInput({ value: vitals.hp.value, max: vitals.hp.max, onSet: onSetHp ?? (() => {}) });
   return (
     <div className="osc-head" ref={headRef}>
       <Portrait
@@ -94,27 +97,39 @@ export function HeaderBand({ identity, vitals, onSetHp, baseMaxHp, onSetMaxHp, o
       />
       <Identity identity={identity} onOpenItem={onOpenItem} />
       <div className="osc-vitals tw:grid tw:grid-cols-[auto_auto] tw:gap-x-4 tw:self-start tw:@max-md/app:w-[112px] tw:@max-md/app:grid-cols-[repeat(2,52px)] tw:@max-md/app:gap-x-0 tw:@max-md/app:items-stretch tw:@twopane/sheet:w-full tw:@twopane/sheet:grid-cols-2">
-        <div className={`${VITAL} hp`}>
-          <span className="vm-key">HP</span>
-          <div className={VV_ROW}>
-            <InlineEditValue
-              label="Current HP"
-              parse="int"
-              value={String(vitals.hp.value)}
-              className={`${VITAL_BIG} ${VV_VALUE} tw:text-crimson`}
-              onCommit={onSetHp}
-            />
-          </div>
-          <div className={VITAL_SUB}>
-            <span>/</span>
-            <InlineEditValue
-              label="Max HP"
-              parse="int"
-              value={String(vitals.hp.max)}
-              editValue={String(baseMaxHp ?? vitals.hp.max)}
-              className="tw:font-mono"
-              onCommit={onSetMaxHp}
-            />
+        <div className="tw:group tw:relative">
+          {onSetHp && (
+            <div className="tw:pointer-events-none tw:absolute tw:top-1/2 tw:right-full tw:flex tw:-translate-y-1/2 tw:flex-col tw:gap-1 tw:pr-2 tw:origin-right tw:scale-50 tw:opacity-0 tw:transition-[opacity,scale] tw:duration-200 tw:ease-[cubic-bezier(0.34,1.56,0.64,1)] tw:group-has-focus-visible:pointer-events-auto tw:group-has-focus-visible:scale-100 tw:group-has-focus-visible:opacity-100 tw:group-hover:pointer-events-auto tw:group-hover:scale-100 tw:group-hover:opacity-100 tw:motion-reduce:transition-none tw:@max-md/app:hidden">
+              <IconButton variant="raised" className="tw:disabled:bg-(--bg)!" aria-label="Increase HP" disabled={vitals.hp.value >= vitals.hp.max} onClick={hp.inc}>
+                <i className="fa-solid fa-plus" aria-hidden="true" />
+              </IconButton>
+              <IconButton variant="raised" className="tw:disabled:bg-(--bg)!" aria-label="Decrease HP" disabled={vitals.hp.value <= 0} onClick={hp.dec}>
+                <i className="fa-solid fa-minus" aria-hidden="true" />
+              </IconButton>
+            </div>
+          )}
+          <div className={`${VITAL} hp`}>
+            <span className="vm-key">HP</span>
+            <div className={VV_ROW}>
+              <InlineEditValue
+                label="Current HP"
+                parse="int"
+                value={String(vitals.hp.value)}
+                className={`${VITAL_BIG} ${VV_VALUE} tw:text-crimson`}
+                onCommit={onSetHp}
+              />
+            </div>
+            <div className={VITAL_SUB}>
+              <span>/</span>
+              <InlineEditValue
+                label="Max HP"
+                parse="int"
+                value={String(vitals.hp.max)}
+                editValue={String(baseMaxHp ?? vitals.hp.max)}
+                className="tw:font-mono"
+                onCommit={onSetMaxHp}
+              />
+            </div>
           </div>
         </div>
         <div className={`${VITAL} ac`}>

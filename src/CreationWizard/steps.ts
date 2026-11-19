@@ -9,7 +9,7 @@ export const CREATION_STEPS = [
 export type CreationStep = (typeof CREATION_STEPS)[number];
 
 export const STEP_LABELS: Record<CreationStep, string> = {
-  scores: "Scores",
+  scores: "Ability Scores",
   race: "Race",
   class: "Class",
   details: "Details",

@@ -4,7 +4,7 @@ import { Check } from "@ui/Check";
 import { cx } from "@ui/cx";
 import { Field } from "@ui/Field";
 import { InlineButton } from "@ui/InlineButton";
-import { openImagePicker } from "@ui/imagePicker";
+import { canBrowseFiles, openImagePicker } from "@ui/imagePicker";
 import { Modal } from "@ui/Modal";
 import { PortraitField } from "@ui/PortraitField";
 import { PortraitUploadReportedError } from "./applyPortraitImage";
@@ -71,6 +71,7 @@ export function PortraitImageDialog({
   const previewOf = useStagedPreview();
   const dirty = dirtyPortraitImageKeys(state, current);
   const canDropImages = usePortraitUploadGate().ready;
+  const canBrowse = canBrowseFiles();
   const dropZone = usePortraitDrop({ enabled: !busy });
   const zones = dropZone?.status === "ready" ? dropZone : null;
   const blocked = dropZone?.status === "blocked" ? dropZone.message : null;
@@ -113,7 +114,7 @@ export function PortraitImageDialog({
           <PortraitField
             label={`Change ${noun}`}
             src={preview}
-            onPick={onPick}
+            onPick={canBrowse ? onPick : undefined}
           />
           {zones && (
             <ImageDropZone
@@ -124,13 +125,15 @@ export function PortraitImageDialog({
             />
           )}
         </div>
-        <InlineButton
-          className="osc-portrait-image-browse u-mx-auto u-fs-xs"
-          aria-label={`Browse for a ${noun}`}
-          onClick={() => openImagePicker({ current: preview, onPick })}
-        >
-          Browse
-        </InlineButton>
+        {canBrowse && (
+          <InlineButton
+            className="osc-portrait-image-browse u-mx-auto u-fs-xs"
+            aria-label={`Browse for a ${noun}`}
+            onClick={() => openImagePicker({ current: preview, onPick })}
+          >
+            Browse
+          </InlineButton>
+        )}
       </Field>
     );
   };
@@ -178,9 +181,13 @@ export function PortraitImageDialog({
         <Field
           className="osc-portrait-image-group"
           hint={
-            canDropImages
-              ? "Browse, drag from the file browser, or drop a file here."
-              : "Browse, or drag from the file browser."
+            canBrowse
+              ? canDropImages
+                ? "Browse, drag from the file browser, or drop a file here."
+                : "Browse, or drag from the file browser."
+              : canDropImages
+                ? "Drop an image file here."
+                : "Ask your GM for permission to browse or upload images."
           }
         >
           <div

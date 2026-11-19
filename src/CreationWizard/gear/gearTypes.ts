@@ -34,4 +34,5 @@ export type PreviewLoad = (
   cart: CartLine[],
   catalog: GearItem[],
   scores: AbilityScores,
+  gold?: number,
 ) => Promise<LoadPreview>;

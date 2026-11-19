@@ -16,6 +16,7 @@ import type {
 import type { AbilityScores } from "../scores/scoresDraft";
 import { useCompendiumDetail } from "../useCompendiumDetail";
 import { ChoiceIcon } from "../ChoiceIcon";
+import { attackRow } from "./attackRow";
 import { XpAdjustmentText } from "./XpAdjustmentText";
 import { raceSaveNotes } from "../race/raceItems";
 
@@ -29,31 +30,33 @@ type Props = {
 const withArticle = (noun: string) =>
   `${/^[aeiou]/i.test(noun) ? "an" : "a"} ${noun}`;
 
-const signed = (n: number) => (n < 0 ? `−${-n}` : `+${n}`);
-
 function raceFacts(
   race: CreationRace,
   scores: AbilityScores,
 ): [string, ReactNode][] {
   const saves = raceSaveNotes(race, scores);
   return [
-    [
-      "Saves",
-      saves.length
-        ? saves.map((note) => (
-            <span key={note.summary}>
-              {note.summary}
-              {note.basis && (
-                <>
-                  {" "}
-                  <span className="vm-help">({note.basis})</span>
-                </>
-              )}
-            </span>
-          ))
-        : "No racial bonus",
-    ],
-    ["Infravision", race.infravision ? `${race.infravision}′` : "None"],
+    ...(saves.length
+      ? ([
+          [
+            "Saves",
+            saves.map((note) => (
+              <span key={note.summary}>
+                {note.summary}
+                {note.basis && (
+                  <>
+                    {" "}
+                    <span className="vm-help">({note.basis})</span>
+                  </>
+                )}
+              </span>
+            )),
+          ],
+        ] as [string, ReactNode][])
+      : []),
+    ...(race.infravision
+      ? ([["Infravision", `${race.infravision}′`]] as [string, ReactNode][])
+      : []),
     ["Languages", race.languages.join(", ") || "None"],
   ];
 }
@@ -145,7 +148,7 @@ export function ClassDetails({ cls, scores, race, rules }: Props) {
     ],
     ["Armour", cls.armour ?? "—"],
     ["Weapons", cls.weapons ?? "—"],
-    ["THAC0", `${stats.thac0} [${signed(stats.bba)}]`],
+    attackRow(stats, rules.ascendingAC),
     [
       "Next level",
       stats.nextXp === null ? "—" : `${stats.nextXp.toLocaleString()} xp`,

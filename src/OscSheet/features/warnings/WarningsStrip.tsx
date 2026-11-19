@@ -46,10 +46,24 @@ export function WarningsStrip() {
       <ul className="tw:m-0 tw:list-none tw:p-0">
         {migration && (
           <WarningLine>
-            {migration.text}{" "}
-            <InlineButton variant="link" onClick={migration.open}>
-              Open Migration Adjustments
-            </InlineButton>
+            The{" "}
+            <strong className="tw:font-semibold">Migration Adjustments</strong>{" "}
+            effect {migration.text}{" "}
+            <span className="u-inline-flex u-gap-3">
+              {canEdit && !migration.doubled && (
+                <InlineButton variant="link" onClick={migration.keep}>
+                  Keep and dismiss
+                </InlineButton>
+              )}
+              {canEdit && (
+                <InlineButton variant="link" onClick={migration.remove}>
+                  Remove
+                </InlineButton>
+              )}
+              <InlineButton variant="link" onClick={migration.open}>
+                Review Effects
+              </InlineButton>
+            </span>
           </WarningLine>
         )}
         {warnings.map((w) => (

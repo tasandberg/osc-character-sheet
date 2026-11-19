@@ -1,16 +1,30 @@
-import type { RefObject } from "react";
+import { useState, type RefObject } from "react";
+import { cx } from "@ui/cx";
 import { useScrollsFurther } from "./useScrollsFurther";
 
-type Props = { scroller: RefObject<HTMLElement | null>; contentKey: unknown };
+const BOUNCE_SECONDS = 1.6;
 
-export function MoreBelow({ scroller, contentKey }: Props) {
+type Props = {
+  scroller: RefObject<HTMLElement | null>;
+  contentKey: unknown;
+  docked?: boolean;
+};
+
+export function MoreBelow({ scroller, contentKey, docked }: Props) {
   const scrollsFurther = useScrollsFurther(scroller, contentKey);
+  const [offset] = useState(() => Math.random() * BOUNCE_SECONDS);
   if (!scrollsFurther) return null;
   return (
-    <div className="osc-creation-more-below">
+    <div
+      className={cx(
+        "osc-creation-more-below",
+        docked && "osc-creation-more-below-docked",
+      )}
+    >
       <button
         type="button"
-        className="vm-btn vm-btn-secondary"
+        className="osc-creation-more-below-button"
+        aria-label="More below"
         onClick={() =>
           scroller.current?.scrollBy({
             top: scroller.current.clientHeight * 0.8,
@@ -18,8 +32,11 @@ export function MoreBelow({ scroller, contentKey }: Props) {
           })
         }
       >
-        More below
-        <i className="fa-solid fa-chevron-down" aria-hidden="true" />
+        <i
+          className="fa-solid fa-hand-point-down u-fs-lg osc-creation-more-below-hand"
+          aria-hidden="true"
+          style={{ animationDelay: `${-offset}s` }}
+        />
       </button>
     </div>
   );

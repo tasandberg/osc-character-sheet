@@ -1,4 +1,6 @@
 import { getSetting } from "@src/OscSheet/settings";
+import type { RaceMode } from "./race/raceDraft";
+import { SCORE_METHODS, type ScoreMethod } from "./scores/scoresDraft";
 
 export type HouseRule = { name: string; tag: string; detail: string };
 
@@ -6,6 +8,48 @@ export type HouseRuleSettings = {
   encumbranceOption: unknown;
   ascendingAC: unknown;
   maxHitPointsAtFirstLevel?: boolean;
+  raceMode?: RaceMode;
+  scoreMethods?: ScoreMethod[];
+};
+
+const SCORE_METHOD: Record<ScoreMethod, { only: string; none: string }> = {
+  inOrder: { only: "3d6 in order only", none: "No 3d6 in order" },
+  arrange: { only: "Roll and arrange only", none: "No roll and arrange" },
+  manual: { only: "Manual scores only", none: "No manual scores" },
+};
+
+const SCORE_METHOD_DETAIL: Record<ScoreMethod, string> = {
+  inOrder: "3d6 in order",
+  arrange: "roll and arrange",
+  manual: "entered manually",
+};
+
+function scoreMethodRule(methods: ScoreMethod[] = []): HouseRule[] {
+  const allowed = SCORE_METHODS.filter((method) => methods.includes(method));
+  const barred = SCORE_METHODS.filter((method) => !methods.includes(method));
+  if (!allowed.length || !barred.length) return [];
+  const detail = allowed.map((method) => SCORE_METHOD_DETAIL[method]);
+  return [
+    {
+      name: "Ability scores",
+      tag:
+        allowed.length === 1
+          ? SCORE_METHOD[allowed[0]].only
+          : barred.map((method) => SCORE_METHOD[method].none).join(", "),
+      detail: `${detail[0][0].toUpperCase()}${detail.join(" or ").slice(1)}`,
+    },
+  ];
+}
+
+const RACE_MODE: Record<RaceMode, { tag: string; detail: string }> = {
+  separate: {
+    tag: "Separate race",
+    detail: "Separate — pick a race, then a class it allows",
+  },
+  asClass: {
+    tag: "Race as class",
+    detail: "Race as class — demihumans are classes of their own",
+  },
 };
 
 const ENCUMBRANCE: Record<string, { tag: string; detail: string }> = {
@@ -33,6 +77,8 @@ export function houseRules({
   encumbranceOption,
   ascendingAC,
   maxHitPointsAtFirstLevel,
+  raceMode,
+  scoreMethods,
 }: HouseRuleSettings): HouseRule[] {
   const encumbrance =
     ENCUMBRANCE[String(encumbranceOption)] ?? ENCUMBRANCE.disabled;
@@ -59,6 +105,8 @@ export function houseRules({
           },
         ]
       : []),
+    ...(raceMode ? [{ name: "Race", ...RACE_MODE[raceMode] }] : []),
+    ...scoreMethodRule(scoreMethods),
   ];
 }
 

@@ -89,8 +89,12 @@ export function RaceDetails({ race, classes, scores, rules }: Props) {
     ["Requires", requirementText(race) || "None"],
     ["Ability mods", formatModifiers(race.modifiers)],
     ["Your scores", changedScores(race, scores, adjusted)],
-    ["Infravision", race.infravision ? `${race.infravision}′` : "None"],
-    ["Saves", saves.join(" · ") || "No racial bonus"],
+    ...(race.infravision
+      ? ([["Infravision", `${race.infravision}′`]] as [string, ReactNode][])
+      : []),
+    ...(saves.length
+      ? ([["Saves", saves.join(" · ")]] as [string, ReactNode][])
+      : []),
     ["Languages", race.languages.join(", ") || "None"],
   ];
 

@@ -156,6 +156,11 @@ describe("selectInventory — container tree", () => {
     expect(vm.count).toBe(4);
   });
 
+  it("a container's contents weight is the system's own totalWeight", () => {
+    const pack = mk("container", "Pack", { weight: 20, totalWeight: 160 }, { id: "pack" });
+    expect(selectInventory([pack]).items[0]).toMatchObject({ weight: 20, contentsWeight: 160 });
+  });
+
   it("orphan containerId (container not in list) → top-level", () => {
     const orphan = mk("item", "Orphan", { weight: 1, containerId: "nonexistent" }, { id: "orphan" });
     const vm2 = selectInventory([orphan]);
@@ -495,6 +500,72 @@ describe("item-based encumbrance: the STR modifier", () => {
     const e = selectEncumbrance(actor);
     expect(e.label).toBe("800 / 1600 cn");
     expect(e.pct).toBeCloseTo(0.5);
+  });
+});
+
+describe("item-based encumbrance: separate equipped and packed limits", () => {
+  class FakeItemBased {
+    variant = "itembased";
+    enabled = true;
+    encumbered = false;
+    steps = [62.5, 75, 87.5];
+    usingEquippedEncumbrance = false;
+    equippedMax: number;
+    packedMax: number;
+    value: number;
+    constructor(max: number, its: OseItem[], options: { packedMax?: number }) {
+      const isDefault = max === 16;
+      this.equippedMax = isDefault ? 9 : max;
+      this.packedMax = this.packedCap(isDefault ? 16 : max, options.packedMax);
+      this.value = its.length;
+    }
+    packedCap(fallback: number, packedMax?: number) {
+      return packedMax ?? fallback;
+    }
+    get max() {
+      return this.packedMax;
+    }
+    get packedPct() {
+      return (this.value / this.packedMax) * 100;
+    }
+    get equippedPct() {
+      return 0;
+    }
+    get packedLabel() {
+      return `${this.value}/${this.packedMax}`;
+    }
+    get equippedLabel() {
+      return `0/${this.equippedMax}`;
+    }
+  }
+
+  class FakeLegacyItemBased extends FakeItemBased {
+    packedCap(fallback: number) {
+      return fallback;
+    }
+  }
+
+  const actorWith = (encumbrance: FakeItemBased) =>
+    ({
+      system: {
+        encumbrance,
+        movement: { base: 120, encounter: 40, overland: 24 },
+        scores: { str: { mod: 0 } },
+      },
+    }) as unknown as OSEActor;
+
+  it("keeps the equipped limit distinct from the packed limit", () => {
+    const actor = actorWith(new FakeItemBased(16, [], { packedMax: 20 }));
+    const e = selectEncumbrance(actor, [mk("item", "Rope", {})]);
+    expect(e.label).toBe("1 / 20 items");
+    expect(e.equippedMax).toBe(9);
+  });
+
+  it("keeps the default limits on an OSE version with a single stored cap", () => {
+    const actor = actorWith(new FakeLegacyItemBased(16, [], {}));
+    const e = selectEncumbrance(actor, [mk("item", "Rope", {})]);
+    expect(e.label).toBe("1 / 16 items");
+    expect(e.equippedMax).toBe(9);
   });
 });
 

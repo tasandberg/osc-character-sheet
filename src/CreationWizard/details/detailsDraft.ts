@@ -84,7 +84,7 @@ export function characterDetails({
     stats,
     conBonus,
     formula,
-    hitPoints: kept ?? maxed,
+    hitPoints: maxed && kept?.dice ? maxed : (kept ?? maxed),
   };
 }
 

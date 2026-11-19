@@ -1,3 +1,5 @@
+import { hasClassItems } from "./class/classItems";
+
 const MIN_OSE_VERSION = "3.2.0";
 
 type Globals = {
@@ -14,4 +16,8 @@ export function creationWizardSupported(): boolean {
     !!isNewerVersion &&
     !isNewerVersion(MIN_OSE_VERSION, version)
   );
+}
+
+export function creationWizardAvailable(): boolean {
+  return creationWizardSupported() && hasClassItems();
 }

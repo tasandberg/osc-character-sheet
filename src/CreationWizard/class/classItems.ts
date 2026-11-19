@@ -54,7 +54,7 @@ type TransientActor = {
     hp: { hd: string };
     thac0: { value: number; bba: number };
     saves: Record<string, { value: number }>;
-    spells: Record<string, { max?: number } | undefined>;
+    spells: { slots?: Record<string, { max?: number } | undefined> };
     classXpBonus(cls: EmbeddedClass): number;
   };
 };
@@ -97,6 +97,7 @@ export function creationClassFrom(doc: ClassItemDoc): CreationClass {
     armour: s.armourText || undefined,
     weapons: s.weaponsText || undefined,
     tables: s.tables ?? [],
+    ...(s.levels.length === 0 && { unusable: "has no level table" }),
   };
 }
 
@@ -121,23 +122,34 @@ export function transientCharacter(
 
 type WorldItems = {
   filter(fn: (item: ClassItemDoc) => boolean): ClassItemDoc[];
+  some(fn: (item: ClassItemDoc) => boolean): boolean;
 };
 
-export async function loadClassItems(): Promise<ClassItemDoc[]> {
-  const world = (game.items as unknown as WorldItems).filter(
-    (item) => item.type === "class",
+const isClass = (entry: { type?: string }) => entry.type === "class";
+
+const worldItems = () => game.items as unknown as WorldItems | undefined;
+
+const itemPacks = () =>
+  (packs()?.contents ?? []).filter((pack) => pack.documentName === "Item");
+
+export function hasClassItems(): boolean {
+  return (
+    !!worldItems()?.some(isClass) ||
+    itemPacks().some((pack) => pack.index.some(isClass))
   );
+}
+
+export async function loadClassItems(): Promise<ClassItemDoc[]> {
+  const world = worldItems()?.filter(isClass) ?? [];
   const fromPacks = await Promise.all(
-    packs()
-      .contents.filter((pack) => pack.documentName === "Item")
-      .map(async (pack) => {
-        const ids = [...(await pack.getIndex())]
-          .filter((entry) => entry.type === "class")
-          .map((entry) => entry._id);
-        return ids.length
-          ? ((await pack.getDocuments({ _id__in: ids })) as ClassItemDoc[])
-          : [];
-      }),
+    itemPacks().map(async (pack) => {
+      const ids = [...(await pack.getIndex())]
+        .filter(isClass)
+        .map((entry) => entry._id);
+      return ids.length
+        ? ((await pack.getDocuments({ _id__in: ids })) as ClassItemDoc[])
+        : [];
+    }),
   );
   const tome = (doc: ClassItemDoc) => doc.pack?.startsWith(`${TOME}.`);
   const byKey = new Map<string, ClassItemDoc>();
@@ -208,7 +220,7 @@ export class ClassItems {
         thac0: thac0.value,
         bba: thac0.bba,
         saves: SAVE_KEYS.map((k) => saves[k]?.value ?? 0),
-        spellSlots: SPELL_LEVELS.map((lvl) => spells[lvl]?.max ?? 0),
+        spellSlots: SPELL_LEVELS.map((lvl) => spells.slots?.[lvl]?.max ?? 0),
         conLevels: item.system.levels.slice(0, level).filter((r) => r.hdcon)
           .length,
       };

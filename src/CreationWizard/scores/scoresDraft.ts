@@ -13,7 +13,15 @@ export const ABILITY_NAMES: Record<Ability, string> = {
 
 export const abbreviation = (ability: Ability) => ability.toUpperCase();
 
-export type ScoreMethod = "inOrder" | "arrange" | "manual";
+export const SCORE_METHODS = ["inOrder", "arrange", "manual"] as const;
+export type ScoreMethod = (typeof SCORE_METHODS)[number];
+
+export function allowedScoreMethods(
+  allowed: Record<ScoreMethod, boolean>,
+): ScoreMethod[] {
+  const methods = SCORE_METHODS.filter((method) => allowed[method]);
+  return methods.length ? methods : [...SCORE_METHODS];
+}
 export type RolledScore = { total: number; dice: number[] };
 
 export type ScoresDraft = {
@@ -27,8 +35,10 @@ export type ScoresDraft = {
 export const MIN_SCORE = 3;
 export const MAX_SCORE = 18;
 
-export const emptyScoresDraft = (): ScoresDraft => ({
-  method: "inOrder",
+export const emptyScoresDraft = (
+  method: ScoreMethod = "inOrder",
+): ScoresDraft => ({
+  method,
   inOrder: {},
   pool: ABILITIES.map(() => null),
   placed: {},

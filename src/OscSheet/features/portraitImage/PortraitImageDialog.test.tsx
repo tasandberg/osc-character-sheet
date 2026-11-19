@@ -99,6 +99,16 @@ it.each([
   expect(dom.container.textContent).toContain(hint);
 });
 
+it.each([
+  [READY, "Drop an image file here."],
+  [OFF, "Ask your GM for permission to browse or upload images."],
+])("offers no Browse to a user who cannot browse files", (settings, hint) => {
+  setWorld(settings, { canBrowse: false });
+  open();
+  expect(dom.container.textContent).toContain(hint);
+  expect(dom.container.textContent).not.toContain("Browse");
+});
+
 it("links and unlinks the slots, enabling the placed-token box once the token changes", async () => {
   open(DIFFER);
   expect(check(PLACED).disabled).toBe(true);

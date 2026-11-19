@@ -114,7 +114,7 @@ describe("blocked file drags", () => {
       READY,
       { canUpload: false },
       png,
-      "Ask your GM to set an upload target for OSC Sheet portraits",
+      "Ask your GM for permission to upload files",
     ],
     [
       "the file is not an image",

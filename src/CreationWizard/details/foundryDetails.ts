@@ -11,11 +11,9 @@ const RULE_BOOKS = {
 export function foundryAlignmentText() {
   let load: Promise<AlignmentText> | undefined;
   return () => {
-    load ??= journalPageHtml(
-      RULE_BOOKS[activeClassSet()],
-      /player characters|alignment/i,
-      "Alignment",
-    ).then((html) => parseAlignmentPage(html ?? ""));
+    load ??= journalPageHtml(RULE_BOOKS[activeClassSet()], "Alignment").then(
+      (html) => parseAlignmentPage(html ?? ""),
+    );
     load.catch(() => (load = undefined));
     return load;
   };

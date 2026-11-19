@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CreationRules } from "../rules";
 import { useCompendiumDetail } from "../useCompendiumDetail";
-import { cartLines, type GearDraft } from "./gearDraft";
+import { cartLines, goldLeft, type GearDraft } from "./gearDraft";
 import type { LoadPreview } from "./gearTypes";
 import type { AbilityScores } from "../scores/scoresDraft";
 
@@ -18,16 +18,17 @@ export function useLoadPreview({
   const [preview, setPreview] = useState<LoadPreview>();
   const { cart } = draft;
   const lines = useMemo(() => cartLines(cart), [cart]);
+  const gold = goldLeft(draft);
   useEffect(() => {
     if (catalog.status !== "ready") return;
     let live = true;
-    rules.previewLoad(lines, catalog.detail, scores).then(
+    rules.previewLoad(lines, catalog.detail, scores, gold).then(
       (next) => live && setPreview(next),
       () => undefined,
     );
     return () => {
       live = false;
     };
-  }, [lines, catalog, rules, scores]);
+  }, [lines, catalog, rules, scores, gold]);
   return preview;
 }

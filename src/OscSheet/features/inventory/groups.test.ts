@@ -28,6 +28,11 @@ describe("countedLoad", () => {
     expect(loadText(countedLoad(mkVM({ slots: 0, weight: 50 }), "itembased"))).toBe("0");
   });
 
+  it("a container's cn figure is its own weight plus its contents; slots are untouched", () => {
+    const pack = mkVM({ isContainer: true, weight: 20, contentsWeight: 160, slots: 1 });
+    expect(loadText(countedLoad(pack, "complete"))).toBe("180 cn");
+    expect(loadText(countedLoad(pack, "itembased"))).toBe("1");
+  });
   it("itembased: coins/gems have no honest per-row figure (counted per section)", () => {
     expect(
       loadText(countedLoad(mkVM({ treasure: true, coinsOrGems: true, slots: 0 }), "itembased")),
