@@ -65,7 +65,7 @@ export function InOrderScores({ draft, mods, rolling, onRoll }: Props) {
         })}
       </ScoreGrid>
       {remaining.length > 0 && (
-        <div className="u-row u-gap-4">
+        <div className="u-row">
           <button
             type="button"
             className="vm-btn vm-btn-primary vm-btn-sm"
@@ -76,11 +76,6 @@ export function InOrderScores({ draft, mods, rolling, onRoll }: Props) {
               ? "Roll all six"
               : `Roll remaining ${remaining.length}`}
           </button>
-          <span className="vm-help vm-mono">
-            {remaining.length === ABILITIES.length
-              ? "3d6 for each score, kept as they fall"
-              : `Fills ${remaining.map(abbreviation).join(", ")} in order`}
-          </span>
         </div>
       )}
     </section>
