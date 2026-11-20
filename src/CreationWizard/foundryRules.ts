@@ -1,6 +1,5 @@
 import { getSetting } from "@src/OscSheet/settings";
 import { foundryRaceDetail, loadRaces } from "./race/foundryRaces";
-import type { CreationRace } from "./race/raceItems";
 import type { OSEActor } from "@domain/types";
 import {
   ClassItems,
@@ -24,22 +23,54 @@ import {
 const known = (scores: AbilityScores) =>
   ABILITIES.filter((a) => scores[a] !== undefined);
 
-function modifiers(scores: AbilityScores): AbilityScores {
-  const abilities = known(scores);
-  if (!abilities.length) return {};
-  const actor = transientCharacter(scores);
-  return Object.fromEntries(
-    abilities.map((a) => [a, actor.system.scores[a].mod]),
-  ) as AbilityScores;
+const CACHE_LIMIT = 64;
+
+const scoresKey = (scores: AbilityScores) =>
+  ABILITIES.map((a) => scores[a] ?? "").join(",");
+
+function remembered(
+  cache: Map<string, AbilityScores>,
+  scores: AbilityScores,
+  compute: () => AbilityScores,
+) {
+  const key = scoresKey(scores);
+  let result = cache.get(key);
+  if (!result) {
+    if (cache.size >= CACHE_LIMIT) cache.clear();
+    result = compute();
+    cache.set(key, result);
+  }
+  return result;
 }
 
-function raceScores(scores: AbilityScores, race?: CreationRace): AbilityScores {
-  const abilities = known(scores);
-  if (!race || !abilities.length) return scores;
-  const actor = transientCharacter(scores, [race.source]);
-  return Object.fromEntries(
-    abilities.map((a) => [a, actor.system.scores[a].value]),
-  ) as AbilityScores;
+function scoreRules(): Pick<CreationRules, "modifiers" | "raceScores"> {
+  const modifiersByScores = new Map<string, AbilityScores>();
+  const scoresByRace = new WeakMap<object, Map<string, AbilityScores>>();
+  return {
+    modifiers(scores) {
+      const abilities = known(scores);
+      if (!abilities.length) return {};
+      return remembered(modifiersByScores, scores, () => {
+        const actor = transientCharacter(scores);
+        return Object.fromEntries(
+          abilities.map((a) => [a, actor.system.scores[a].mod]),
+        ) as AbilityScores;
+      });
+    },
+    raceScores(scores, race) {
+      const abilities = known(scores);
+      if (!race || !abilities.length) return scores;
+      const { source } = race;
+      let cache = scoresByRace.get(source);
+      if (!cache) scoresByRace.set(source, (cache = new Map()));
+      return remembered(cache, scores, () => {
+        const actor = transientCharacter(scores, [source]);
+        return Object.fromEntries(
+          abilities.map((a) => [a, actor.system.scores[a].value]),
+        ) as AbilityScores;
+      });
+    },
+  };
 }
 
 const SAVE_KEYS = ["death", "wand", "paralysis", "breath", "spell"];
@@ -84,8 +115,7 @@ export async function foundryCreationRules(
     xpBonus: (cls, scores) => classItems.xpBonus(cls, scores),
     races,
     raceDetail: foundryRaceDetail(races),
-    raceScores,
-    modifiers,
+    ...scoreRules(),
     rollScore,
     scoreMethods: allowedScoreMethods({
       inOrder: getSetting("allowScoresInOrder"),
