@@ -241,4 +241,42 @@ describe("createCharacter", () => {
       "Couldn’t create Brom: this character already has scores or items, so the wizard won’t overwrite it.",
     );
   });
+
+  it("finishes the same actor on a second try when the player can't delete it", async () => {
+    stubFill();
+    const world: object[] = [];
+    let attempts = 0;
+    const actor = {
+      ...blankActor({
+        addClass: async () => {
+          if (!attempts++) throw new Error("no such class");
+          return undefined;
+        },
+      }),
+      delete: async () => {
+        throw new Error("lacks permission");
+      },
+    };
+    vi.stubGlobal("foundry", {
+      utils: {
+        expandObject: (o: Source) => o,
+        flattenObject: (o: Source) => o,
+      },
+    });
+    vi.stubGlobal("CONFIG", {
+      Actor: {
+        documentClass: {
+          create: async () => {
+            world.push(actor);
+            return actor;
+          },
+        },
+      },
+    });
+    const create = createCharacter(new ClassItems([thief]));
+
+    expect(await create(character)).toBe(false);
+    expect(await create(character)).toBe(true);
+    expect(world).toEqual([actor]);
+  });
 });

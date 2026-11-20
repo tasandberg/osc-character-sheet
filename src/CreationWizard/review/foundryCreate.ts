@@ -100,7 +100,7 @@ async function grantClassAndRace(
 }
 
 export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
-  let filling = false;
+  let started: WritableActor | undefined;
   return async (character: NewCharacter) => {
     let created: WritableActor | undefined;
     try {
@@ -108,20 +108,20 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
         itemSources(character),
         imageData(character),
       ]);
-      if (existing && !filling && !isBlankCharacter(existing))
+      const target =
+        started ?? (existing as unknown as WritableActor | undefined);
+      if (
+        target &&
+        !started &&
+        !isBlankCharacter(target as unknown as OSEActor)
+      )
         throw new Error(
           "this character already has scores or items, so the wizard won’t overwrite it.",
         );
-      const actor = existing
-        ? await fill(
-            existing as unknown as WritableActor,
-            character,
-            items,
-            images,
-            () => {
-              filling = true;
-            },
-          )
+      const actor = target
+        ? await fill(target, character, items, images, () => {
+            started = target;
+          })
         : (created = await create(character, items, images));
       if (!actor) throw new Error("Foundry didn’t create the actor.");
       await grantClassAndRace(actor, classItems, character);
@@ -129,7 +129,15 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
       return true;
     } catch (error) {
       console.error(error);
-      await created?.delete().catch(console.error);
+      const leftover = created;
+      if (leftover)
+        started = await leftover.delete().then(
+          () => undefined,
+          (deleteError) => {
+            console.error(deleteError);
+            return leftover;
+          },
+        );
       if (error instanceof PortraitUploadReportedError) return false;
       ui.notifications?.error(
         `Couldn’t create ${character.name}: ${(error as Error).message}`,
