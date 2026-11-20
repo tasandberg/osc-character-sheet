@@ -357,8 +357,7 @@
 
 .osc-creation-drag-ghost {
   position: fixed;
-  inset: 0 auto auto 0;
-  z-index: 2;
+  inset: -100vh auto auto -100vw;
   pointer-events: none;
   background-color: var(--surface);
 }
