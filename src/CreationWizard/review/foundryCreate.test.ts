@@ -178,6 +178,7 @@ describe("createCharacter", () => {
 
   const blankActor = (grants: { addClass(): Promise<undefined> }) => {
     const actor = {
+      id: "actor",
       type: "character",
       name: "New Actor",
       system: { scores: {} as Record<string, { value: number }> },
@@ -196,11 +197,12 @@ describe("createCharacter", () => {
     return actor;
   };
 
-  const stubFill = () => {
+  const stubFill = (world: { id: string }[] = []) => {
     const notifyError = vi.fn();
     vi.stubGlobal("game", {
       system: { id: "ose" },
       items: { fromCompendium: (doc: { toObject(): Source }) => doc.toObject() },
+      actors: { get: (id: string) => world.find((actor) => actor.id === id) },
     });
     vi.stubGlobal("foundry", { utils: { flattenObject: (o: Source) => o } });
     vi.stubGlobal("ui", { notifications: { error: notifyError } });
@@ -243,8 +245,8 @@ describe("createCharacter", () => {
   });
 
   it("finishes the same actor on a second try when the player can't delete it", async () => {
-    stubFill();
-    const world: object[] = [];
+    const world: { id: string }[] = [];
+    stubFill(world);
     let attempts = 0;
     const actor = {
       ...blankActor({
@@ -321,5 +323,45 @@ describe("createCharacter", () => {
     expect(await create(character)).toBe(false);
     expect(await create({ ...character, race: undefined })).toBe(true);
     expect(languages).toEqual([]);
+  });
+
+  it("creates a fresh actor when the one it couldn't delete has since been removed", async () => {
+    const world: { id: string }[] = [];
+    stubFill(world);
+    const unfinished = {
+      ...blankActor({
+        addClass: async () => {
+          throw new Error("no such class");
+        },
+      }),
+      delete: async () => {
+        throw new Error("lacks permission");
+      },
+    };
+    const fresh = { ...blankActor({ addClass: async () => undefined }), id: "fresh" };
+    const made = [unfinished, fresh];
+    vi.stubGlobal("foundry", {
+      utils: {
+        expandObject: (o: Source) => o,
+        flattenObject: (o: Source) => o,
+      },
+    });
+    vi.stubGlobal("CONFIG", {
+      Actor: {
+        documentClass: {
+          create: async () => {
+            const actor = made.shift();
+            if (actor) world.push(actor);
+            return actor;
+          },
+        },
+      },
+    });
+    const create = createCharacter(new ClassItems([thief]));
+
+    expect(await create(character)).toBe(false);
+    world.length = 0;
+    expect(await create(character)).toBe(true);
+    expect(world).toEqual([fresh]);
   });
 });

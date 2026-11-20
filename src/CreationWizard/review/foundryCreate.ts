@@ -100,7 +100,11 @@ async function grantClassAndRace(
   await grant(embeddedRace, 1);
 }
 
+const inWorld = (actor: WritableActor) =>
+  !!(game.actors as { get(id: string): unknown } | undefined)?.get(actor.id);
+
 export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
+  const given = existing as unknown as WritableActor | undefined;
   let started: WritableActor | undefined;
   return async (character: NewCharacter) => {
     let created: WritableActor | undefined;
@@ -110,8 +114,9 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
         itemSources(character),
         imageData(character),
       ]);
-      const target =
-        started ?? (existing as unknown as WritableActor | undefined);
+      if (started && started !== given && !inWorld(started))
+        started = undefined;
+      const target = started ?? given;
       if (
         target &&
         !started &&
