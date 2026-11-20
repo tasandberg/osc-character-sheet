@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadGearCatalog, previewLoad } from "./foundryGear";
+import { coinSources, loadGearCatalog, previewLoad } from "./foundryGear";
 
 type Entry = {
   name: string;
@@ -233,21 +233,7 @@ describe("previewLoad", () => {
 
   it("counts unspent gold in the load, as the created character will", async () => {
     stubFoundry({});
-    const gold = {
-      name: "Gold (gp)",
-      system: { treasure: true },
-      toObject: () => ({
-        type: "item",
-        system: { treasure: true, weight: 1, quantity: { value: 0 } },
-      }),
-    };
     vi.stubGlobal("game", {
-      packs: {
-        get: (id: string) =>
-          id === "classicfantasycompendium.equipment-coins"
-            ? { getDocuments: async () => [gold] }
-            : undefined,
-      },
       system: { id: "ose" },
       settings: { get: () => false },
     });
@@ -312,5 +298,25 @@ describe("previewLoad", () => {
       80,
     );
     expect(preview.label).toBe("140 / 1600 cn");
+  });
+});
+
+describe("coinSources", () => {
+  it("gives a full set of coins valued in gp, holding the gold as GP", () => {
+    const coins = coinSources(110) as {
+      name: string;
+      system: { treasure: boolean; cost: number; quantity: { value: number } };
+    }[];
+
+    expect(
+      coins.map(({ name, system }) => [name, system.cost, system.quantity.value]),
+    ).toEqual([
+      ["PP", 5, 0],
+      ["GP", 1, 110],
+      ["EP", 0.5, 0],
+      ["SP", 0.1, 0],
+      ["CP", 0.01, 0],
+    ]);
+    expect(coins.every((coin) => coin.system.treasure)).toBe(true);
   });
 });

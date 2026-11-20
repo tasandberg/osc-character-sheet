@@ -47,6 +47,7 @@ export function ClassStep({
         .map((cls) => cls.name)
     : [];
   const anyNpcOnly = race && shown.some((cls) => isNpcOnly(race, cls));
+  const shownKey = shown.map((cls) => cls.uuid).join(" ");
   return (
     <div className="osc-creation-split osc-creation-class-step">
       <div
@@ -181,7 +182,7 @@ export function ClassStep({
             separately.
           </p>
         )}
-        <MoreBelow scroller={paneRef} contentKey={shown} />
+        <MoreBelow scroller={paneRef} contentKey={shownKey} />
       </div>
       <aside
         ref={asideRef}

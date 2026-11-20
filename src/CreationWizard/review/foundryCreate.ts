@@ -4,6 +4,7 @@ import {
   PortraitUploadReportedError,
   portraitImageUploader,
 } from "@features/portraitImage/applyPortraitImage";
+import { isBlankCharacter } from "@features/creation/blankCharacter";
 import { cartItemSource, coinSources } from "../gear/foundryGear";
 import type { NewCharacter } from "./newCharacter";
 
@@ -15,6 +16,7 @@ type WritableActor = Omit<OSEActor, "items"> & {
   update(data: object): Promise<unknown>;
   createEmbeddedDocuments(type: "Item", data: ItemSource[]): Promise<unknown>;
   deleteEmbeddedDocuments(type: "Item", ids: string[]): Promise<unknown>;
+  delete(): Promise<unknown>;
   addClass(
     data: ItemSource,
     options: { level: number; rollHp: boolean },
@@ -52,18 +54,21 @@ async function fill(
   character: NewCharacter,
   items: ItemSource[],
   images: Images,
+  onWritten: () => void,
 ) {
   await actor.deleteEmbeddedDocuments(
     "Item",
     actor.items.map((item) => item.id),
   );
   await actor.update({
+    "system.languages.value": [],
     ...foundry.utils.flattenObject({
       name: character.name,
       system: character.system,
     }),
     ...images,
   });
+  onWritten();
   await actor.createEmbeddedDocuments("Item", items);
   return actor;
 }
@@ -95,32 +100,56 @@ async function grantClassAndRace(
   await grant(embeddedRace, 1);
 }
 
+const inWorld = (actor: WritableActor) =>
+  !!(game.actors as { get(id: string): unknown } | undefined)?.get(actor.id);
+
 export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
+  const given = existing as unknown as WritableActor | undefined;
+  let started: WritableActor | undefined;
   return async (character: NewCharacter) => {
+    let created: WritableActor | undefined;
+    let finished: WritableActor;
     try {
       const [items, images] = await Promise.all([
         itemSources(character),
         imageData(character),
       ]);
-      const actor = existing
-        ? await fill(
-            existing as unknown as WritableActor,
-            character,
-            items,
-            images,
-          )
-        : await create(character, items, images);
+      if (started && started !== given && !inWorld(started))
+        started = undefined;
+      const target = started ?? given;
+      if (
+        target &&
+        !started &&
+        !isBlankCharacter(target as unknown as OSEActor)
+      )
+        throw new Error(
+          "this character already has scores or items, so the wizard won’t overwrite it.",
+        );
+      const actor = target
+        ? await fill(target, character, items, images, () => {
+            started = target;
+          })
+        : (created = await create(character, items, images));
       if (!actor) throw new Error("Foundry didn’t create the actor.");
       await grantClassAndRace(actor, classItems, character);
-      actor.sheet?.render(true);
-      return true;
+      finished = actor;
     } catch (error) {
       console.error(error);
+      if (created) {
+        await created.delete().catch(console.error);
+        started = inWorld(created) ? created : undefined;
+      }
       if (error instanceof PortraitUploadReportedError) return false;
       ui.notifications?.error(
         `Couldn’t create ${character.name}: ${(error as Error).message}`,
       );
       return false;
     }
+    try {
+      finished.sheet?.render(true);
+    } catch (error) {
+      console.error(error);
+    }
+    return true;
   };
 }

@@ -1,5 +1,6 @@
 import type { OSEActor } from "@domain/types";
 import { selectEncumbrance } from "@features/inventory/encumbrance";
+import { COIN_DENOMS, GP_PER_COIN } from "@features/inventory/treasure";
 import { TOME, activeClassSet, squash } from "../compendium";
 import { ABILITIES } from "../scores/scoresDraft";
 import type {
@@ -139,47 +140,26 @@ export async function cartItemSource(uuid: string, quantity: number) {
   return [source];
 }
 
-const COIN_PACKS = [
-  "classicfantasycompendium.equipment-coins",
-  `${TOME}.equipment`,
-];
-
-type CoinDocument = {
-  name: string;
-  system: { treasure?: boolean };
-  toObject(): ItemSource;
-};
-type CoinPacks = {
-  get(id: string): { getDocuments(): Promise<CoinDocument[]> } | undefined;
+const COIN_ICONS: Record<string, string> = {
+  pp: "coins-assorted-mix-silver",
+  gp: "coins-assorted-mix-copper-silver-gold",
+  ep: "coins-assorted-mix-platinum",
+  sp: "coins-assorted-mix-silver",
+  cp: "coins-assorted-mix-copper",
 };
 
-const denomination = (name: string) =>
-  (name.match(/\((pp|gp|ep|sp|cp)\)/i) ??
-    name.match(/^\s*(pp|gp|ep|sp|cp)\s*$/i))?.[1]?.toLowerCase();
-
-async function packCoins() {
-  const coins = new Map<string, CoinDocument>();
-  for (const id of COIN_PACKS) {
-    const pack = (game.packs as unknown as CoinPacks).get(id);
-    for (const doc of (await pack?.getDocuments()) ?? []) {
-      const denom = doc.system.treasure && denomination(doc.name);
-      if (denom && !coins.has(denom)) coins.set(denom, doc);
-    }
-  }
-  return coins;
-}
-
-export async function coinSources(gold: number) {
-  return [...(await packCoins())].map(([denom, coin]) => {
-    const source = coin.toObject();
-    foundry.utils.setProperty(
-      source,
-      "system.quantity.value",
-      denom === "gp" ? gold : 0,
-    );
-    return source;
-  });
-}
+export const coinSources = (gold: number): ItemSource[] =>
+  COIN_DENOMS.map((denom) => ({
+    name: denom.toUpperCase(),
+    type: "item",
+    img: `icons/commodities/currency/${COIN_ICONS[denom]}.webp`,
+    system: {
+      treasure: true,
+      cost: GP_PER_COIN[denom],
+      weight: 1,
+      quantity: { value: denom === "gp" ? gold : 0 },
+    },
+  }));
 
 export const previewLoad: PreviewLoad = async (
   cart,
