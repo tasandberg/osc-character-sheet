@@ -144,4 +144,35 @@ describe("createCharacter", () => {
       "Couldn’t create Brom: no such class",
     );
   });
+
+  it("refuses to overwrite an existing actor that is no longer blank", async () => {
+    const sword = { id: "sword" };
+    const existing = {
+      type: "character",
+      name: "New Actor",
+      system: { scores: {} },
+      items: [sword],
+      deleteEmbeddedDocuments: async () => {
+        existing.items.length = 0;
+      },
+    };
+    const notifyError = vi.fn();
+    vi.stubGlobal("game", {
+      system: { id: "ose" },
+      packs: { get: () => undefined },
+    });
+    vi.stubGlobal("ui", { notifications: { error: notifyError } });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const ok = await createCharacter(
+      new ClassItems([thief]),
+      existing as never,
+    )(character);
+
+    expect(ok).toBe(false);
+    expect(existing.items).toEqual([sword]);
+    expect(notifyError).toHaveBeenCalledWith(
+      "Couldn’t create Brom: this character already has scores or items, so the wizard won’t overwrite it.",
+    );
+  });
 });

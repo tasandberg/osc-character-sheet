@@ -4,6 +4,7 @@ import {
   PortraitUploadReportedError,
   portraitImageUploader,
 } from "@features/portraitImage/applyPortraitImage";
+import { isBlankCharacter } from "@features/creation/blankCharacter";
 import { cartItemSource, coinSources } from "../gear/foundryGear";
 import type { NewCharacter } from "./newCharacter";
 
@@ -97,6 +98,7 @@ async function grantClassAndRace(
 }
 
 export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
+  let filling = false;
   return async (character: NewCharacter) => {
     let created: WritableActor | undefined;
     try {
@@ -104,6 +106,11 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
         itemSources(character),
         imageData(character),
       ]);
+      if (existing && !filling && !isBlankCharacter(existing))
+        throw new Error(
+          "this character already has scores or items, so the wizard won’t overwrite it.",
+        );
+      filling = !!existing;
       const actor = existing
         ? await fill(
             existing as unknown as WritableActor,
