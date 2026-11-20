@@ -61,6 +61,7 @@ async function fill(
     actor.items.map((item) => item.id),
   );
   await actor.update({
+    "system.languages.value": [],
     ...foundry.utils.flattenObject({
       name: character.name,
       system: character.system,

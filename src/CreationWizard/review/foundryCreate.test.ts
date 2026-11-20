@@ -296,4 +296,30 @@ describe("createCharacter", () => {
 
     expect(ok).toBe(true);
   });
+
+  it("drops the first try's race languages when the retry has no race", async () => {
+    stubFill();
+    const languages: string[] = [];
+    const existing = {
+      ...blankActor({
+        addClass: async () => {
+          if (languages.length) throw new Error("no such class");
+          return undefined;
+        },
+      }),
+      update: async (data: Record<string, unknown>) => {
+        existing.system.scores.str = { value: 12 };
+        languages.splice(0, languages.length, ...(data["system.languages.value"] as string[]));
+      },
+      setRace: async () => {
+        languages.push("Dwarvish");
+        return undefined;
+      },
+    };
+    const create = createCharacter(new ClassItems([thief]), existing as never);
+
+    expect(await create(character)).toBe(false);
+    expect(await create({ ...character, race: undefined })).toBe(true);
+    expect(languages).toEqual([]);
+  });
 });
