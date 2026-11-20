@@ -165,9 +165,9 @@ export default function SheetShell() {
           banner={
             <>
               {creationWizard &&
-                creationWizardAvailable() &&
                 canEdit &&
-                isBlankCharacter(actor) && (
+                isBlankCharacter(actor) &&
+                creationWizardAvailable() && (
                   <CreateCharacterCallout actor={actor} />
                 )}
               <WarningsStrip />
