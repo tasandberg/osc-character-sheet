@@ -48,6 +48,7 @@ export type CharacterDetails = {
   conBonus: number;
   formula: string;
   hitPoints?: HitPoints;
+  hitPointsFixed: boolean;
 };
 
 type DetailsInput = {
@@ -85,6 +86,7 @@ export function characterDetails({
     conBonus,
     formula,
     hitPoints: maxed && kept?.dice ? maxed : (kept ?? maxed),
+    hitPointsFixed: !!maxed,
   };
 }
 
@@ -100,7 +102,10 @@ export function detailsBlockedReason(
   if (!draft.name.trim()) return "Name your character to continue";
   if (!draft.alignment) return "Choose an alignment to continue";
   const text = details.hitPoints?.value.trim();
-  if (!text) return "Roll hit points to continue";
+  if (!text)
+    return details.hitPointsFixed
+      ? "Enter hit points to continue"
+      : "Roll hit points to continue";
   if (parseHitPoints(text) === undefined) return "Hit points start at 1";
   return undefined;
 }
