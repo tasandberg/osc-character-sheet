@@ -54,7 +54,10 @@ const character: NewCharacter = {
   gold: 0,
 };
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
 describe("createCharacter", () => {
   it("adds the class at its level and the race, granting their abilities without a prompt", async () => {
@@ -96,5 +99,49 @@ describe("createCharacter", () => {
       ["offerAbilities", "Thief", 2, { upTo: true, confirm: false }],
       ["offerAbilities", "Dwarf", 1, { upTo: true, confirm: false }],
     ]);
+  });
+
+  it("leaves no actor behind when a new character can't be finished", async () => {
+    const world: object[] = [];
+    const actor = {
+      items: [] as Source[],
+      sheet: null,
+      setRace: async () => undefined,
+      addClass: async () => {
+        throw new Error("no such class");
+      },
+      delete: async () => {
+        world.splice(world.indexOf(actor), 1);
+      },
+    };
+    const notifyError = vi.fn();
+    vi.stubGlobal("game", {
+      system: { id: "ose" },
+      packs: { get: () => undefined },
+      items: { fromCompendium: (doc: { toObject(): Source }) => doc.toObject() },
+    });
+    vi.stubGlobal("foundry", {
+      utils: { expandObject: (o: Source) => o, setProperty: () => true },
+    });
+    vi.stubGlobal("CONFIG", {
+      Actor: {
+        documentClass: {
+          create: async () => {
+            world.push(actor);
+            return actor;
+          },
+        },
+      },
+    });
+    vi.stubGlobal("ui", { notifications: { error: notifyError } });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const ok = await createCharacter(new ClassItems([thief]))(character);
+
+    expect(ok).toBe(false);
+    expect(world).toEqual([]);
+    expect(notifyError).toHaveBeenCalledWith(
+      "Couldn’t create Brom: no such class",
+    );
   });
 });

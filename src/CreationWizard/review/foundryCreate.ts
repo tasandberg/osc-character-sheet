@@ -15,6 +15,7 @@ type WritableActor = Omit<OSEActor, "items"> & {
   update(data: object): Promise<unknown>;
   createEmbeddedDocuments(type: "Item", data: ItemSource[]): Promise<unknown>;
   deleteEmbeddedDocuments(type: "Item", ids: string[]): Promise<unknown>;
+  delete(): Promise<unknown>;
   addClass(
     data: ItemSource,
     options: { level: number; rollHp: boolean },
@@ -97,6 +98,7 @@ async function grantClassAndRace(
 
 export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
   return async (character: NewCharacter) => {
+    let created: WritableActor | undefined;
     try {
       const [items, images] = await Promise.all([
         itemSources(character),
@@ -109,13 +111,14 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
             items,
             images,
           )
-        : await create(character, items, images);
+        : (created = await create(character, items, images));
       if (!actor) throw new Error("Foundry didn’t create the actor.");
       await grantClassAndRace(actor, classItems, character);
       actor.sheet?.render(true);
       return true;
     } catch (error) {
       console.error(error);
+      await created?.delete().catch(console.error);
       if (error instanceof PortraitUploadReportedError) return false;
       ui.notifications?.error(
         `Couldn’t create ${character.name}: ${(error as Error).message}`,
