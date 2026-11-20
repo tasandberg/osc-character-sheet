@@ -103,6 +103,7 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
   let started: WritableActor | undefined;
   return async (character: NewCharacter) => {
     let created: WritableActor | undefined;
+    let finished: WritableActor;
     try {
       const [items, images] = await Promise.all([
         itemSources(character),
@@ -125,8 +126,7 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
         : (created = await create(character, items, images));
       if (!actor) throw new Error("Foundry didn’t create the actor.");
       await grantClassAndRace(actor, classItems, character);
-      actor.sheet?.render(true);
-      return true;
+      finished = actor;
     } catch (error) {
       console.error(error);
       const leftover = created;
@@ -144,5 +144,11 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
       );
       return false;
     }
+    try {
+      finished.sheet?.render(true);
+    } catch (error) {
+      console.error(error);
+    }
+    return true;
   };
 }

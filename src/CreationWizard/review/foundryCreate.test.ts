@@ -279,4 +279,21 @@ describe("createCharacter", () => {
     expect(await create(character)).toBe(true);
     expect(world).toEqual([actor]);
   });
+
+  it("keeps a finished character whose sheet fails to open", async () => {
+    stubFill();
+    const existing = {
+      ...blankActor({ addClass: async () => undefined }),
+      get sheet(): null {
+        throw new Error("sheet unavailable");
+      },
+    };
+
+    const ok = await createCharacter(
+      new ClassItems([thief]),
+      existing as never,
+    )(character);
+
+    expect(ok).toBe(true);
+  });
 });
