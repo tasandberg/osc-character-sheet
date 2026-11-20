@@ -135,15 +135,10 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
       finished = actor;
     } catch (error) {
       console.error(error);
-      const leftover = created;
-      if (leftover)
-        started = await leftover.delete().then(
-          () => undefined,
-          (deleteError) => {
-            console.error(deleteError);
-            return leftover;
-          },
-        );
+      if (created) {
+        await created.delete().catch(console.error);
+        started = inWorld(created) ? created : undefined;
+      }
       if (error instanceof PortraitUploadReportedError) return false;
       ui.notifications?.error(
         `Couldn’t create ${character.name}: ${(error as Error).message}`,

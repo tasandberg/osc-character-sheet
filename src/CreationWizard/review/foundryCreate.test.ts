@@ -364,4 +364,40 @@ describe("createCharacter", () => {
     expect(await create(character)).toBe(true);
     expect(world).toEqual([fresh]);
   });
+
+  it("finishes the same actor on a second try when a module blocks its deletion", async () => {
+    const world: { id: string }[] = [];
+    stubFill(world);
+    let attempts = 0;
+    const actor = {
+      ...blankActor({
+        addClass: async () => {
+          if (!attempts++) throw new Error("no such class");
+          return undefined;
+        },
+      }),
+      delete: async () => undefined,
+    };
+    vi.stubGlobal("foundry", {
+      utils: {
+        expandObject: (o: Source) => o,
+        flattenObject: (o: Source) => o,
+      },
+    });
+    vi.stubGlobal("CONFIG", {
+      Actor: {
+        documentClass: {
+          create: async () => {
+            world.push(actor);
+            return actor;
+          },
+        },
+      },
+    });
+    const create = createCharacter(new ClassItems([thief]));
+
+    expect(await create(character)).toBe(false);
+    expect(await create(character)).toBe(true);
+    expect(world).toEqual([actor]);
+  });
 });
