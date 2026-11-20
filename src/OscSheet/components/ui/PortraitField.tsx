@@ -12,11 +12,18 @@ export function PortraitField({
   label = "Change portrait",
 }: {
   src?: string;
-  onPick: (path: string) => void;
+  onPick?: (path: string) => void;
   placeholder?: string;
   className?: string;
   label?: string;
 }) {
+  const content = src ? (
+    <img src={src} alt="" />
+  ) : (
+    <span className="ed-portrait-ph">{placeholder}</span>
+  );
+  if (!onPick)
+    return <span className={cx("ed-portrait", className)}>{content}</span>;
   return (
     <button
       type="button"
@@ -25,11 +32,7 @@ export function PortraitField({
       title={label}
       aria-label={label}
     >
-      {src ? (
-        <img src={src} alt="" />
-      ) : (
-        <span className="ed-portrait-ph">{placeholder}</span>
-      )}
+      {content}
     </button>
   );
 }

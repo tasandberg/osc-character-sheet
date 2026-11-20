@@ -1507,18 +1507,11 @@ button.pip:hover {
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
   overflow: hidden;
-  background: linear-gradient(
-    160deg,
-    oklch(0.34 0.018 60),
-    oklch(0.2 0.012 60)
-  );
+  background: var(--surface-2);
   display: grid;
   place-items: center;
   cursor: pointer;
   padding: 0;
-}
-[data-theme="cream"] .ed-portrait {
-  background: linear-gradient(160deg, var(--surface-3), var(--surface-2));
 }
 .ed-portrait::before,
 .ed-portrait::after {

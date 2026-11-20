@@ -16,7 +16,6 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
@@ -36,6 +35,7 @@ env:
     14
   OSE_VERSIONS: |
     latest-release
+    3.2.0
     3.0.1
 
 jobs:
@@ -168,7 +168,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm build
 
-      - name: Assemble Foundry data directory (OSE + osc-character-sheet + world)
+      - name: Assemble Foundry data directory (OSE + compendium + osc-character-sheet + world)
         run: |
           mkdir -p "${DATA_DIR}"
           tools/e2e/setup-data-dir.sh "${DATA_DIR}" "${GITHUB_WORKSPACE}"

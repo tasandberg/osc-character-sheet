@@ -21,7 +21,7 @@ export const notify = { error: vi.fn(), warn: vi.fn() };
 
 export function setWorld(
   settings: Record<string, unknown> = READY,
-  { isGM = false, canUpload = true } = {},
+  { isGM = false, canUpload = true, canBrowse = true } = {},
 ) {
   const store = new Map(Object.entries(settings));
   vi.stubGlobal("game", {
@@ -29,7 +29,12 @@ export function setWorld(
       get: (_ns: string, key: string) => store.get(key),
       set: vi.fn(),
     },
-    user: { isGM, can: (perm: string) => canUpload && perm === "FILES_UPLOAD" },
+    user: {
+      isGM,
+      can: (perm: string) =>
+        (canUpload && perm === "FILES_UPLOAD") ||
+        (canBrowse && perm === "FILES_BROWSE"),
+    },
   });
   vi.stubGlobal("ui", { notifications: notify });
 }

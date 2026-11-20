@@ -12,6 +12,7 @@ type PortraitDropGateInputs = {
 const NOT_ENABLED = "Portrait uploads not enabled for this world";
 const GM_SET_PATH = "Please set an upload target for OSC Sheet portraits";
 const ASK_GM = "Ask your GM to set an upload target for OSC Sheet portraits";
+const NO_PERMISSION = "Ask your GM for permission to upload files";
 
 export function resolvePortraitDropState({
   isGM,
@@ -22,6 +23,6 @@ export function resolvePortraitDropState({
   if (!uploadsEnabled) return { ready: false, message: NOT_ENABLED };
   if (!uploadPath.trim())
     return { ready: false, message: isGM ? GM_SET_PATH : ASK_GM };
-  if (!canUpload) return { ready: false, message: ASK_GM };
+  if (!canUpload) return { ready: false, message: NO_PERMISSION };
   return { ready: true };
 }

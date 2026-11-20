@@ -4,7 +4,7 @@ import { Check } from "@ui/Check";
 import { cx } from "@ui/cx";
 import { Field } from "@ui/Field";
 import { InlineButton } from "@ui/InlineButton";
-import { openImagePicker } from "@ui/imagePicker";
+import { canBrowseFiles, openImagePicker } from "@ui/imagePicker";
 import { Modal } from "@ui/Modal";
 import { PortraitField } from "@ui/PortraitField";
 import { PortraitUploadReportedError } from "./applyPortraitImage";
@@ -50,18 +50,28 @@ function useStagedPreview(): (slot: ImageDrop) => string | undefined {
 type Props = {
   current: ActorImages;
   drop?: PortraitImageDrop;
+  staged?: PortraitImageState;
+  placedTokens?: boolean;
   onClose: () => void;
   onSave: (state: PortraitImageState) => Promise<void>;
 };
 
-export function PortraitImageDialog({ current, drop, onClose, onSave }: Props) {
-  const [state, setState] = useState<PortraitImageState>(() =>
-    initialPortraitImageState(current, drop),
+export function PortraitImageDialog({
+  current,
+  drop,
+  staged,
+  placedTokens = true,
+  onClose,
+  onSave,
+}: Props) {
+  const [state, setState] = useState<PortraitImageState>(
+    () => staged ?? initialPortraitImageState(current, drop),
   );
   const [busy, setBusy] = useState(false);
   const previewOf = useStagedPreview();
   const dirty = dirtyPortraitImageKeys(state, current);
   const canDropImages = usePortraitUploadGate().ready;
+  const canBrowse = canBrowseFiles();
   const dropZone = usePortraitDrop({ enabled: !busy });
   const zones = dropZone?.status === "ready" ? dropZone : null;
   const blocked = dropZone?.status === "blocked" ? dropZone.message : null;
@@ -104,7 +114,7 @@ export function PortraitImageDialog({ current, drop, onClose, onSave }: Props) {
           <PortraitField
             label={`Change ${noun}`}
             src={preview}
-            onPick={onPick}
+            onPick={canBrowse ? onPick : undefined}
           />
           {zones && (
             <ImageDropZone
@@ -115,13 +125,15 @@ export function PortraitImageDialog({ current, drop, onClose, onSave }: Props) {
             />
           )}
         </div>
-        <InlineButton
-          className="osc-portrait-image-browse u-mx-auto u-fs-xs"
-          aria-label={`Browse for a ${noun}`}
-          onClick={() => openImagePicker({ current: preview, onPick })}
-        >
-          Browse
-        </InlineButton>
+        {canBrowse && (
+          <InlineButton
+            className="osc-portrait-image-browse u-mx-auto u-fs-xs"
+            aria-label={`Browse for a ${noun}`}
+            onClick={() => openImagePicker({ current: preview, onPick })}
+          >
+            Browse
+          </InlineButton>
+        )}
       </Field>
     );
   };
@@ -169,9 +181,13 @@ export function PortraitImageDialog({ current, drop, onClose, onSave }: Props) {
         <Field
           className="osc-portrait-image-group"
           hint={
-            canDropImages
-              ? "Browse, drag from the file browser, or drop a file here."
-              : "Browse, or drag from the file browser."
+            canBrowse
+              ? canDropImages
+                ? "Browse, drag from the file browser, or drop a file here."
+                : "Browse, or drag from the file browser."
+              : canDropImages
+                ? "Drop an image file here."
+                : "Ask your GM for permission to browse or upload images."
           }
         >
           <div
@@ -211,20 +227,22 @@ export function PortraitImageDialog({ current, drop, onClose, onSave }: Props) {
             )}
           </div>
         </Field>
-        <Field hint="Unlinked tokens already on scenes keep their image.">
-          <Check
-            checked={state.updatePlaced}
-            disabled={busy || !dirty.token}
-            onChange={(event) =>
-              setState((prev) => ({
-                ...prev,
-                updatePlaced: event.target.checked,
-              }))
-            }
-          >
-            Update tokens already on scenes
-          </Check>
-        </Field>
+        {placedTokens && (
+          <Field hint="Unlinked tokens already on scenes keep their image.">
+            <Check
+              checked={state.updatePlaced}
+              disabled={busy || !dirty.token}
+              onChange={(event) =>
+                setState((prev) => ({
+                  ...prev,
+                  updatePlaced: event.target.checked,
+                }))
+              }
+            >
+              Update tokens already on scenes
+            </Check>
+          </Field>
+        )}
       </div>
     </Modal>
   );

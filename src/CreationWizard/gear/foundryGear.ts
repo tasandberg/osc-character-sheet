@@ -1,0 +1,209 @@
+import type { OSEActor } from "@domain/types";
+import { selectEncumbrance } from "@features/inventory/encumbrance";
+import { COIN_DENOMS, GP_PER_COIN } from "@features/inventory/treasure";
+import { TOME, activeClassSet, squash } from "../compendium";
+import { ABILITIES } from "../scores/scoresDraft";
+import type {
+  GearCategory,
+  GearItem,
+  LoadGearCatalog,
+  PreviewLoad,
+} from "./gearTypes";
+
+type GearDocument = {
+  uuid: string;
+  name: string;
+  img?: string | null;
+  type: string;
+  folder?: { id: string } | null;
+  system: {
+    cost?: number | null;
+    weight?: number | null;
+    treasure?: boolean;
+    damage?: string;
+    type?: string;
+    ac?: { value?: number };
+    aac?: { value?: number };
+  };
+};
+type GearPack = {
+  folders: { contents: { id: string; name: string }[] };
+  getDocuments(): Promise<GearDocument[]>;
+};
+type GearPacks = { get(id: string): GearPack | undefined };
+
+const CLASSIC_PACKS: [string, GearCategory][] = [
+  ["classicfantasycompendium.equipment-weapons", "weapons"],
+  ["classicfantasycompendium.equipment-armour", "armour"],
+  ["classicfantasycompendium.equipment-adventuring-gear", "gear"],
+  ["classicfantasycompendium.equipment-ammunition", "ammunition"],
+];
+const TOME_EQUIPMENT = `${TOME}.equipment`;
+const TOME_FOLDERS: Record<string, GearCategory> = {
+  weapons: "weapons",
+  armour: "armour",
+  adventuringgear: "gear",
+  ammunition: "ammunition",
+};
+
+const gearPacks = () => game.packs as unknown as GearPacks;
+
+export function ascendingAC() {
+  const settings = game.settings as unknown as {
+    get(ns: string, key: string): unknown;
+  };
+  return !!settings.get(game.system.id, "ascendingAC");
+}
+
+function armourDetail({ type, ac, aac }: GearDocument["system"]) {
+  const descending = ac?.value ?? 0;
+  const ascending = aac?.value ?? 0;
+  if (type === "shield") return `+${ascending} AC`;
+  return ascendingAC() ? `AC ${ascending}` : `AC ${descending} [${ascending}]`;
+}
+
+function detailOf(doc: GearDocument) {
+  if (doc.type === "weapon") return doc.system.damage || undefined;
+  if (doc.type === "armor") return armourDetail(doc.system);
+  return undefined;
+}
+
+const toGearItem = (doc: GearDocument, category: GearCategory): GearItem => ({
+  uuid: doc.uuid,
+  name: doc.name,
+  img: doc.img ?? "",
+  category,
+  cost: doc.system.cost ?? 0,
+  weight: doc.system.weight ?? 0,
+  detail: detailOf(doc),
+});
+
+const notTreasure = (doc: GearDocument) => !doc.system.treasure;
+
+async function classicGear() {
+  const lists = await Promise.all(
+    CLASSIC_PACKS.map(async ([id, category]) => {
+      const pack = gearPacks().get(id);
+      if (!pack) return [];
+      return (await pack.getDocuments())
+        .filter(notTreasure)
+        .map((doc) => toGearItem(doc, category));
+    }),
+  );
+  return lists.flat();
+}
+
+async function tomeGear() {
+  const pack = gearPacks().get(TOME_EQUIPMENT);
+  if (!pack) return [];
+  const categories = new Map(
+    pack.folders.contents.flatMap((f) => {
+      const category = TOME_FOLDERS[squash(f.name)];
+      return category ? [[f.id, category] as const] : [];
+    }),
+  );
+  return (await pack.getDocuments()).flatMap((doc) => {
+    const category = categories.get(doc.folder?.id ?? "");
+    return category && notTreasure(doc) ? [toGearItem(doc, category)] : [];
+  });
+}
+
+export const loadGearCatalog: LoadGearCatalog = async () => {
+  const sources =
+    activeClassSet() === "advanced"
+      ? [tomeGear, classicGear]
+      : [classicGear, tomeGear];
+  for (const source of sources) {
+    const items = await source();
+    if (items.length) return items.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  return [];
+};
+
+type ItemSource = {
+  type?: string;
+  system?: { quantity?: { value?: number | null } };
+};
+
+export async function cartItemSource(uuid: string, quantity: number) {
+  const doc = (await fromUuid(uuid)) as { toObject(): ItemSource } | null;
+  if (!doc) return [];
+  const source = doc.toObject();
+  const perUnit = source.system?.quantity?.value || 1;
+  foundry.utils.setProperty(
+    source,
+    "system.quantity.value",
+    perUnit * quantity,
+  );
+  if (source.type === "armor")
+    foundry.utils.setProperty(source, "system.equipped", true);
+  return [source];
+}
+
+const COIN_ICONS: Record<string, string> = {
+  pp: "coins-assorted-mix-silver",
+  gp: "coins-assorted-mix-copper-silver-gold",
+  ep: "coins-assorted-mix-platinum",
+  sp: "coins-assorted-mix-silver",
+  cp: "coins-assorted-mix-copper",
+};
+
+export const coinSources = (gold: number): ItemSource[] =>
+  COIN_DENOMS.map((denom) => ({
+    name: denom.toUpperCase(),
+    type: "item",
+    img: `icons/commodities/currency/${COIN_ICONS[denom]}.webp`,
+    system: {
+      treasure: true,
+      cost: GP_PER_COIN[denom],
+      weight: 1,
+      quantity: { value: denom === "gp" ? gold : 0 },
+    },
+  }));
+
+export const previewLoad: PreviewLoad = async (
+  cart,
+  catalog,
+  scores,
+  gold = 0,
+) => {
+  const known = new Set(catalog.map((item) => item.uuid));
+  const [bought, coins] = await Promise.all([
+    Promise.all(
+      cart
+        .filter((line) => line.quantity > 0 && known.has(line.uuid))
+        .map((line) => cartItemSource(line.uuid, line.quantity)),
+    ),
+    gold > 0 ? coinSources(gold) : [],
+  ]);
+  const items = [...bought.flat(), ...coins];
+  const ActorClass = CONFIG.Actor.documentClass as unknown as new (
+    data: object,
+  ) => OSEActor;
+  const actor = new ActorClass({
+    name: "New character",
+    type: "character",
+    system: {
+      scores: Object.fromEntries(
+        ABILITIES.map((a) => [a, { value: scores[a] ?? 0 }]),
+      ),
+    },
+    items,
+  });
+  const load = selectEncumbrance(actor);
+  const { movement, ac, aac } = actor.system;
+  return {
+    armourClass: (ascendingAC() ? aac : ac).value,
+    enabled: load.enabled,
+    value: load.value,
+    max: load.max,
+    pct: load.pct,
+    label: load.label,
+    tier: load.enabled ? load.status : null,
+    movement: {
+      base: movement.base,
+      encounter: movement.encounter,
+      overland: movement.overland,
+    },
+  };
+};

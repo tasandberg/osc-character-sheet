@@ -1,0 +1,167 @@
+import { classBlockedReason, classSummary } from "./class/classDraft";
+import {
+  characterDetails,
+  detailsBlockedReason,
+  detailsSummary,
+  emptyDetailsDraft,
+  type DetailsDraft,
+} from "./details/detailsDraft";
+import {
+  raceBlockedReason,
+  raceRestrictions,
+  raceSummary,
+  type CreationRace,
+} from "./race/raceDraft";
+import {
+  emptyGearDraft,
+  gearBlockedReason,
+  gearSummary,
+  type GearDraft,
+} from "./gear/gearDraft";
+import type { CreationClass, CreationRules } from "./rules";
+import {
+  emptyScoresDraft,
+  finalScores,
+  scoresBlockedReason,
+  scoresSummary,
+  type ScoresDraft,
+} from "./scores/scoresDraft";
+import { CREATION_STEPS, type CreationStep, type StepStatuses } from "./steps";
+
+export interface CreationFlow<D> {
+  emptyDraft(): D;
+  steps(draft: D): readonly CreationStep[];
+  status(draft: D): StepStatuses;
+  summary(draft: D, step: CreationStep): string | undefined;
+}
+
+export type CreationDraft = {
+  scores: ScoresDraft;
+  race?: CreationRace;
+  class?: CreationClass;
+  details: DetailsDraft;
+  gear: GearDraft;
+};
+
+export type FlowRules = Pick<
+  CreationRules,
+  | "classes"
+  | "races"
+  | "raceMode"
+  | "scoreMethods"
+  | "raceScores"
+  | "modifiers"
+  | "maxHitPointsAtFirstLevel"
+  | "maximumHitPoints"
+  | "classStats"
+  | "xpBonus"
+  | "startingName"
+>;
+
+const CLASS_ONLY_STEPS = CREATION_STEPS.filter((step) => step !== "race");
+
+export const separatesRace = (draft: CreationDraft, rules: FlowRules) =>
+  rules.races.length > 0 &&
+  rules.raceMode === "separate" &&
+  !draft.class?.demihuman;
+
+export const chosenRace = (draft: CreationDraft, rules: FlowRules) =>
+  separatesRace(draft, rules) ? draft.race : undefined;
+
+export const classScores = (draft: CreationDraft, rules: FlowRules) =>
+  rules.raceScores(finalScores(draft.scores), chosenRace(draft, rules));
+
+export const classRestrictions = (draft: CreationDraft, rules: FlowRules) => {
+  const race = chosenRace(draft, rules);
+  return race && raceRestrictions(race, rules.classes);
+};
+
+export function classDetails(draft: CreationDraft, rules: FlowRules) {
+  const cls = draft.class;
+  return (
+    cls &&
+    characterDetails({
+      draft: draft.details,
+      cls,
+      restrictions: classRestrictions(draft, rules),
+      conMod: rules.modifiers(classScores(draft, rules)).con ?? 0,
+      maximum: rules.maxHitPointsAtFirstLevel
+        ? rules.maximumHitPoints
+        : undefined,
+      statsAt: (level) => rules.classStats(cls, level),
+    })
+  );
+}
+
+const steps = (draft: CreationDraft, rules: FlowRules) =>
+  separatesRace(draft, rules) ? CREATION_STEPS : CLASS_ONLY_STEPS;
+
+function blockedReason(
+  draft: CreationDraft,
+  step: CreationStep,
+  rules: FlowRules,
+): string | undefined {
+  if (step === "scores") return scoresBlockedReason(draft.scores);
+  if (step === "race")
+    return raceBlockedReason(draft.race, finalScores(draft.scores));
+  if (step === "class")
+    return classBlockedReason(
+      draft.class,
+      classScores(draft, rules),
+      classRestrictions(draft, rules),
+    );
+  if (step === "details") {
+    const details = classDetails(draft, rules);
+    return details
+      ? detailsBlockedReason(draft.details, details)
+      : "Choose a class to continue";
+  }
+  if (step === "gear") return gearBlockedReason(draft.gear);
+  return steps(draft, rules).every(
+    (s) => s === "review" || !blockedReason(draft, s, rules),
+  )
+    ? undefined
+    : "Finish every step to create the character";
+}
+
+export const creationFlow = (
+  rules: FlowRules,
+): CreationFlow<CreationDraft> => ({
+  emptyDraft: () => ({
+    scores: emptyScoresDraft(rules.scoreMethods[0]),
+    details: { ...emptyDetailsDraft(), name: rules.startingName ?? "" },
+    gear: emptyGearDraft(),
+  }),
+  steps: (draft) => steps(draft, rules),
+  status: (draft) =>
+    Object.fromEntries(
+      CREATION_STEPS.map((step) => {
+        const reason = blockedReason(draft, step, rules);
+        return [
+          step,
+          reason
+            ? { complete: false, blockedReason: reason }
+            : { complete: true },
+        ];
+      }),
+    ) as StepStatuses,
+  summary: (draft, step) => {
+    if (step === "details") {
+      const details = classDetails(draft, rules);
+      return details && detailsSummary(draft.details, details);
+    }
+    if (step === "gear") return gearSummary(draft.gear);
+    return step === "scores"
+      ? scoresSummary(draft.scores)
+      : step === "race"
+        ? raceSummary(draft.race, finalScores(draft.scores))
+        : step === "class"
+          ? classSummary(
+              draft.class,
+              classScores(draft, rules),
+              classRestrictions(draft, rules),
+              rules.xpBonus,
+            )
+          : undefined;
+  },
+});

@@ -1,3 +1,10 @@
+export function canBrowseFiles(): boolean {
+  const user = (
+    globalThis as { game?: { user?: { can?(permission: string): boolean } } }
+  ).game?.user;
+  return user?.can?.("FILES_BROWSE") !== false;
+}
+
 export function openImagePicker({
   current,
   onPick,

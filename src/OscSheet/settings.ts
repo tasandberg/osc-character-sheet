@@ -13,6 +13,7 @@ import {
   resolveMonsterTheme,
   SAME_AS_CHARACTER_SHEET,
 } from "@src/OscSheet/appearance";
+import { creationWizardSupported } from "@src/CreationWizard/support";
 
 type SettingScope = "world" | "user";
 
@@ -24,6 +25,7 @@ type SettingDefinition<T> = {
   readonly type: typeof String | typeof Boolean;
   readonly choices?: Readonly<Record<string, string>>;
   readonly filePicker?: "folder";
+  readonly requires?: () => boolean;
   readonly default: T;
   readonly resolve: (value: unknown) => T;
 };
@@ -114,6 +116,71 @@ export const SETTINGS = {
     config: true,
     type: Boolean,
     default: true,
+    resolve: resolveBoolean(true),
+  },
+  creationWizard: {
+    name: "Character creation wizard",
+    hint: "Show a New Character button in the Actors sidebar and a Create Character prompt on blank character sheets. Needs class items, from an enabled compendium module or the world's Items.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    requires: creationWizardSupported,
+    resolve: resolveBoolean(false),
+  },
+  maxHitPointsAtFirstLevel: {
+    name: "Maximum hit points at 1st level",
+    hint: "Characters made at 1st level in the creation wizard start with the most hit points their Hit Die allows.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    requires: creationWizardSupported,
+    resolve: resolveBoolean(false),
+  },
+  raceMode: {
+    name: "Race and class",
+    hint: "How the creation wizard handles race. Separate adds a Race step before Class; race as class offers demihumans as classes. Only matters when the world has race items.",
+    scope: "world",
+    config: true,
+    type: String,
+    choices: {
+      separate: "Separate race and class",
+      asClass: "Race as class",
+    },
+    default: "separate",
+    requires: creationWizardSupported,
+    resolve: (value: unknown): "separate" | "asClass" =>
+      value === "asClass" ? "asClass" : "separate",
+  },
+  allowScoresInOrder: {
+    name: "Allow 3d6 in order",
+    hint: "Players may roll ability scores 3d6 in order in the creation wizard.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+    requires: creationWizardSupported,
+    resolve: resolveBoolean(true),
+  },
+  allowScoresArrange: {
+    name: "Allow roll and arrange",
+    hint: "Players may roll six totals and assign them to abilities in the creation wizard.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+    requires: creationWizardSupported,
+    resolve: resolveBoolean(true),
+  },
+  allowScoresManual: {
+    name: "Allow manual score entry",
+    hint: "Players may type in ability scores rolled at the table in the creation wizard.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+    requires: creationWizardSupported,
     resolve: resolveBoolean(true),
   },
   portraitUploads: {
@@ -261,14 +328,15 @@ export function settingRegistrations(
 ): { key: SettingKey; data: SettingRegistration }[] {
   const defs: Record<SettingKey, SettingDefinition<unknown>> = SETTINGS;
   return (Object.keys(defs) as SettingKey[]).map((key) => {
-    const { name, hint, scope, config, type, choices, filePicker } = defs[key];
+    const { name, hint, scope, config, type, choices, filePicker, requires } =
+      defs[key];
     return {
       key,
       data: {
         name,
         hint,
         scope,
-        config,
+        config: config && (requires?.() ?? true),
         type,
         default: registrationDefault(key),
         onChange: () => {

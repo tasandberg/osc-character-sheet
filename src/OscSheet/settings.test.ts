@@ -210,6 +210,12 @@ describe("settings snapshot", () => {
   it("reports every registry key, defaulted with no game global", () => {
     expect(getSettingsSnapshot()).toEqual({
       theme: "system",
+      creationWizard: false,
+      maxHitPointsAtFirstLevel: false,
+      raceMode: "separate",
+      allowScoresInOrder: true,
+      allowScoresArrange: true,
+      allowScoresManual: true,
       disableMemorization: false,
       promptForTarget: false,
       fontScale: "medium",

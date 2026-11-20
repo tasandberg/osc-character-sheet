@@ -9,7 +9,7 @@ import type {
 import { monogram } from "./monogram";
 import { bucketsAsCoinsOrGems, slotsOf } from "./slots";
 
-const COIN_DENOMS = ["pp", "gp", "ep", "sp", "cp"] as const;
+export const COIN_DENOMS = ["pp", "gp", "ep", "sp", "cp"] as const;
 
 const COIN_METAL_DENOM: Record<string, string> = {
   gold: "gp",
@@ -20,7 +20,7 @@ const COIN_METAL_DENOM: Record<string, string> = {
 };
 
 // Standard OSE gp value per coin — fallback when an item's system.cost is unset.
-const GP_PER_COIN: Record<string, number> = {
+export const GP_PER_COIN: Record<string, number> = {
   pp: 5,
   gp: 1,
   ep: 0.5,
