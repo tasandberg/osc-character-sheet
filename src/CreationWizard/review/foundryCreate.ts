@@ -54,6 +54,7 @@ async function fill(
   character: NewCharacter,
   items: ItemSource[],
   images: Images,
+  onWritten: () => void,
 ) {
   await actor.deleteEmbeddedDocuments(
     "Item",
@@ -66,6 +67,7 @@ async function fill(
     }),
     ...images,
   });
+  onWritten();
   await actor.createEmbeddedDocuments("Item", items);
   return actor;
 }
@@ -110,13 +112,15 @@ export function createCharacter(classItems: ClassItems, existing?: OSEActor) {
         throw new Error(
           "this character already has scores or items, so the wizard won’t overwrite it.",
         );
-      filling = !!existing;
       const actor = existing
         ? await fill(
             existing as unknown as WritableActor,
             character,
             items,
             images,
+            () => {
+              filling = true;
+            },
           )
         : (created = await create(character, items, images));
       if (!actor) throw new Error("Foundry didn’t create the actor.");

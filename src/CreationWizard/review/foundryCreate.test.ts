@@ -175,4 +175,70 @@ describe("createCharacter", () => {
       "Couldn’t create Brom: this character already has scores or items, so the wizard won’t overwrite it.",
     );
   });
+
+  const blankActor = (grants: { addClass(): Promise<undefined> }) => {
+    const actor = {
+      type: "character",
+      name: "New Actor",
+      system: { scores: {} as Record<string, { value: number }> },
+      items: [] as { id: string }[],
+      sheet: null,
+      update: async () => {
+        actor.system.scores.str = { value: 12 };
+      },
+      deleteEmbeddedDocuments: async () => {
+        actor.items.length = 0;
+      },
+      createEmbeddedDocuments: async () => {},
+      setRace: async () => undefined,
+      ...grants,
+    };
+    return actor;
+  };
+
+  const stubFill = () => {
+    const notifyError = vi.fn();
+    vi.stubGlobal("game", {
+      system: { id: "ose" },
+      items: { fromCompendium: (doc: { toObject(): Source }) => doc.toObject() },
+    });
+    vi.stubGlobal("foundry", { utils: { flattenObject: (o: Source) => o } });
+    vi.stubGlobal("ui", { notifications: { error: notifyError } });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    return notifyError;
+  };
+
+  it("finishes an existing actor on a second try after the first stopped partway", async () => {
+    stubFill();
+    let attempts = 0;
+    const existing = blankActor({
+      addClass: async () => {
+        if (!attempts++) throw new Error("no such class");
+        return undefined;
+      },
+    });
+    const create = createCharacter(new ClassItems([thief]), existing as never);
+
+    expect(await create(character)).toBe(false);
+    expect(await create(character)).toBe(true);
+  });
+
+  it("still refuses a filled-in actor when an earlier try wrote nothing to it", async () => {
+    const notifyError = stubFill();
+    const sword = { id: "sword" };
+    const existing = blankActor({ addClass: async () => undefined });
+    existing.update = async () => {
+      throw new Error("connection lost");
+    };
+    const create = createCharacter(new ClassItems([thief]), existing as never);
+
+    expect(await create(character)).toBe(false);
+    existing.items.push(sword);
+    expect(await create(character)).toBe(false);
+
+    expect(existing.items).toEqual([sword]);
+    expect(notifyError).toHaveBeenLastCalledWith(
+      "Couldn’t create Brom: this character already has scores or items, so the wizard won’t overwrite it.",
+    );
+  });
 });
