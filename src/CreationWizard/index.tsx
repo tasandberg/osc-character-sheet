@@ -33,7 +33,11 @@ export default function CreationWizardApp({
   useEffect(() => {
     let live = true;
     void foundryCreationRules(actor).then(
-      (loaded) => live && setCreationRules(loaded),
+      (loaded) => {
+        if (!live) return;
+        setCreationRules(loaded);
+        setFailed(false);
+      },
       (error) => {
         console.error(error);
         if (live) setFailed(true);
