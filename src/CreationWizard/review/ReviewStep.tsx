@@ -150,11 +150,11 @@ function ClassBlurb({
 
 function Inventory({
   gear,
-  rules,
-  scores,
+  preview,
   onChangeGear,
-}: Pick<Props, "gear" | "rules" | "scores" | "onChangeGear">) {
-  const preview = useLoadPreview({ draft: gear, rules, scores });
+}: Pick<Props, "gear" | "onChangeGear"> & {
+  preview: ReturnType<typeof useLoadPreview>;
+}) {
   const count = itemCount(gear);
   const load = preview?.enabled
     ? `${preview.label}${preview.tier ? `, ${preview.tier.toLowerCase()}` : ""}`
@@ -342,8 +342,7 @@ export function ReviewStep({
         </section>
         <Inventory
           gear={gear}
-          rules={rules}
-          scores={scores}
+          preview={preview}
           onChangeGear={onChangeGear}
         />
         <MoreBelow scroller={paneRef} contentKey={gear.cart.length} />
