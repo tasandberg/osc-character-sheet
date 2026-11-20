@@ -13,6 +13,7 @@ type RaceDocument = {
   toObject(): RaceItemSource;
 };
 type ItemPack = {
+  collection: string;
   documentName: string;
   getIndex(): Promise<Iterable<{ _id: string; type?: string }>>;
   getDocuments(query: object): Promise<RaceDocument[]>;
@@ -34,10 +35,15 @@ async function packRaces() {
     packs
       .filter((pack) => pack.documentName === "Item")
       .map(async (pack) => {
-        const ids = [...(await pack.getIndex())]
-          .filter((entry) => entry.type === "race")
-          .map((entry) => entry._id);
-        return ids.length ? pack.getDocuments({ _id__in: ids }) : [];
+        try {
+          const ids = [...(await pack.getIndex())]
+            .filter((entry) => entry.type === "race")
+            .map((entry) => entry._id);
+          return ids.length ? await pack.getDocuments({ _id__in: ids }) : [];
+        } catch (error) {
+          console.warn(`Skipped ${pack.collection}`, error);
+          return [];
+        }
       }),
   );
   return docs.flat();

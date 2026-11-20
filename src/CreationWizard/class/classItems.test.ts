@@ -120,6 +120,27 @@ describe("loadClassItems", () => {
       worldThief.uuid,
     ]);
   });
+
+  it("still loads the other packs when one can't be read", async () => {
+    const fighter = classDoc("classicfantasycompendium.classes", "Fighter");
+    vi.stubGlobal("game", {
+      items: { filter: () => [] },
+      packs: {
+        contents: [
+          {
+            ...itemPack("broken.classes", []),
+            getIndex: async () => {
+              throw new Error("unreadable");
+            },
+          },
+          itemPack("classicfantasycompendium.classes", [fighter]),
+        ],
+      },
+    });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect((await loadClassItems()).map((d) => d.uuid)).toEqual([fighter.uuid]);
+    warn.mockRestore();
+  });
 });
 
 describe("ClassItems stats", () => {

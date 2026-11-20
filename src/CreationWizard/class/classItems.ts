@@ -143,12 +143,17 @@ export async function loadClassItems(): Promise<ClassItemDoc[]> {
   const world = worldItems()?.filter(isClass) ?? [];
   const fromPacks = await Promise.all(
     itemPacks().map(async (pack) => {
-      const ids = [...(await pack.getIndex())]
-        .filter(isClass)
-        .map((entry) => entry._id);
-      return ids.length
-        ? ((await pack.getDocuments({ _id__in: ids })) as ClassItemDoc[])
-        : [];
+      try {
+        const ids = [...(await pack.getIndex())]
+          .filter(isClass)
+          .map((entry) => entry._id);
+        return ids.length
+          ? ((await pack.getDocuments({ _id__in: ids })) as ClassItemDoc[])
+          : [];
+      } catch (error) {
+        console.warn(`Skipped ${pack.collection}`, error);
+        return [];
+      }
     }),
   );
   const tome = (doc: ClassItemDoc) => doc.pack?.startsWith(`${TOME}.`);
