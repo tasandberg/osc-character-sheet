@@ -717,7 +717,7 @@ describe("CreationWizard", () => {
     expect(panel().textContent).toContain("Hear noise1-2");
   });
 
-  it("drops the Race step when the GM switches to race as class in Wizard settings", () => {
+  it("drops the Race step and moves on to Class when the GM switches to race as class", async () => {
     stubLiveSettingsAsGM();
     open({ ...rules, races }, (props) => (
       <CreationWizard
@@ -725,12 +725,17 @@ describe("CreationWizard", () => {
         rules={{ ...props.rules, ...settingRules(useOscSettings()) }}
       />
     ));
-    expect(stepNames()).toContain("2Race");
+    await pressAsync("Roll all six");
+    act(() => next().click());
+    expect(currentStep()).toBe("2Race");
 
     press("Wizard settings");
     choose("Race as class");
     expect(stepNames()).not.toContain("2Race");
     expect(stepNames()).toHaveLength(5);
+    expect(currentStep()).toBe("2Class");
+    expect(next().textContent).toBe("Next: Details");
+    expect(button("Back")).toBeDefined();
     vi.unstubAllGlobals();
   });
 

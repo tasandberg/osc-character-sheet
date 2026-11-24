@@ -12,16 +12,19 @@ export function useWizard<D>(flow: CreationFlow<D>) {
   });
   const statuses = useMemo(() => flow.status(state.draft), [flow, state.draft]);
   const steps = flow.steps(state.draft);
+  const step = steps.includes(state.step)
+    ? state.step
+    : firstIncompleteStep(steps, statuses);
 
   const setStep = (step: CreationStep) => setState((s) => ({ ...s, step }));
   const goTo = (step: CreationStep) => {
     if (statuses[step].complete) setStep(step);
   };
-  const next = adjacentStep(steps, state.step, 1);
-  const previous = adjacentStep(steps, state.step, -1);
+  const next = adjacentStep(steps, step, 1);
+  const previous = adjacentStep(steps, step, -1);
 
   return {
-    step: state.step,
+    step,
     steps,
     draft: state.draft,
     statuses,
@@ -30,7 +33,7 @@ export function useWizard<D>(flow: CreationFlow<D>) {
     goTo,
     summary: (step: CreationStep) => flow.summary(state.draft, step),
     goNext: () => {
-      if (statuses[state.step].complete && next) setStep(next);
+      if (statuses[step].complete && next) setStep(next);
     },
     goBack: () => {
       if (previous) setStep(previous);
