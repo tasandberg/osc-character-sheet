@@ -57,11 +57,13 @@ export async function loadRaces(): Promise<CreationRace[]> {
     ...worldItems().filter((item) => item.type === "race"),
     ...(await packRaces()),
   ];
+  const seen = new Set<string>();
   return docs
     .map((doc) => ({
       ...raceFromItem(doc.uuid, doc.toObject(), game.system.id),
       source: embeddable(doc),
     }))
+    .filter(({ key, name }) => !seen.has(key || name) && seen.add(key || name))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
