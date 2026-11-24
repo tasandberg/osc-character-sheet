@@ -13,3 +13,11 @@
   letter-spacing: normal;
   text-transform: none;
 }
+
+.osc-creation-wizard-app .vm-btn-link.vm-btn-link-muted {
+  color: var(--text-mute);
+
+  &:hover {
+    color: var(--text);
+  }
+}

@@ -1,7 +1,8 @@
 import "./wizard.scss";
 import "./vellum-candidates.scss";
 import { useEffect, useMemo, useState } from "react";
-import { foundryCreationRules } from "./foundryRules";
+import { useOscSettings } from "@src/OscSheet/settings";
+import { foundryCreationRules, settingRules } from "./foundryRules";
 import { houseRules, readHouseRuleSettings } from "./houseRuleSettings";
 import { CreationWizard } from "./CreationWizard";
 import type { CreationRules } from "./rules";
@@ -16,15 +17,20 @@ export default function CreationWizardApp({
   onTitle?: (title: string) => void;
   onCreated?: () => void;
 }) {
-  const [creationRules, setCreationRules] = useState<CreationRules>();
+  const [loadedRules, setCreationRules] = useState<CreationRules>();
+  const settings = useOscSettings();
+  const creationRules = useMemo(
+    () => loadedRules && { ...loadedRules, ...settingRules(settings) },
+    [loadedRules, settings],
+  );
   const rules = useMemo(
     () =>
       houseRules({
         ...readHouseRuleSettings(),
+        maxHitPointsAtFirstLevel: creationRules?.maxHitPointsAtFirstLevel,
         raceMode: creationRules?.races.length
           ? creationRules.raceMode
           : undefined,
-        scoreMethods: creationRules?.scoreMethods,
       }),
     [creationRules],
   );

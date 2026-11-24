@@ -1,6 +1,7 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { cx } from "@ui/cx";
 import { MoreBelow } from "../MoreBelow";
+import { warmCompendiumDetail } from "../useCompendiumDetail";
 import type { ClassRestrictions, CreationClass, CreationRules } from "../rules";
 import { ScoreLine } from "../scores/ScoreLine";
 import { abbreviation, type AbilityScores } from "../scores/scoresDraft";
@@ -48,6 +49,11 @@ export function ClassStep({
     : [];
   const anyNpcOnly = race && shown.some((cls) => isNpcOnly(race, cls));
   const shownKey = shown.map((cls) => cls.uuid).join(" ");
+  const { classDetail } = rules;
+  useEffect(() => {
+    for (const uuid of shownKey.split(" ").filter(Boolean))
+      warmCompendiumDetail(uuid, classDetail);
+  }, [shownKey, classDetail]);
   return (
     <div className="osc-creation-split osc-creation-class-step">
       <div
@@ -55,7 +61,9 @@ export function ClassStep({
         className="osc-creation-pane osc-creation-class-pane u-gap-3"
       >
         <div className="vm-sheet-head">
-          <h2 className="vm-sheet-head-title">Choose a Class</h2>
+          <h2 className={cx("vm-sheet-head-title", !chosen && "u-text-brass")}>
+            Choose a Class
+          </h2>
           {race && <span className="vm-sheet-head-hint">as {race.name}</span>}
           <ScoreLine
             scores={scores}

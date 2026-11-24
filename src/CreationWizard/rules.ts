@@ -6,7 +6,7 @@ import type {
   Ability,
   AbilityScores,
   RolledScore,
-  ScoreMethod,
+  ScoreChoice,
 } from "./scores/scoresDraft";
 
 export type ClassTable = {
@@ -75,8 +75,8 @@ export type CreationRules = {
   raceDetail(uuid: string): Promise<RaceDetail>;
   raceScores(scores: AbilityScores, race?: CreationRace): AbilityScores;
   modifiers(scores: AbilityScores): AbilityScores;
-  rollScore(label: string): Promise<RolledScore>;
-  scoreMethods: ScoreMethod[];
+  rollScore(label: string, formula: string): Promise<RolledScore>;
+  scoreMethods: ScoreChoice[];
   maxHitPointsAtFirstLevel: boolean;
   raceMode: RaceMode;
   maximumHitPoints(formula: string): number;

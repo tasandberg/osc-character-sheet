@@ -1,8 +1,10 @@
-import { useRef, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { HouseRules } from "./HouseRules";
 import { MoreBelow } from "./MoreBelow";
 import type { HouseRule } from "./houseRuleSettings";
 import { StepsNav } from "./StepsNav";
+import { isGM } from "./support";
+import { WizardSettings } from "./WizardSettings";
 import { STEP_LABELS, type CreationStep, type StepStatuses } from "./steps";
 
 type Props = {
@@ -39,6 +41,8 @@ export function WizardShell({
   children,
 }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null);
+  const [configuring, setConfiguring] = useState(false);
+  const gm = isGM();
   const status = statuses[step];
   const canAdvance =
     status.complete &&
@@ -50,10 +54,19 @@ export function WizardShell({
     <div className="osc-sheet-app osc-creation-wizard-app vm-paper">
       <header className="u-flex-none u-px-5 u-pt-2">
         <div className="osc-creation-top u-row u-gap-4 u-pb-1">
-          <span className="osc-creation-crumb vm-heading vm-heading-sm u-text-brass">
+          <span className="osc-creation-crumb vm-heading u-text-brass">
             Character Creation
           </span>
-          <HouseRules worldName={worldName} rules={houseRules} />
+          <HouseRules worldName={worldName} rules={houseRules} compact={gm} />
+          {gm && (
+            <button
+              type="button"
+              className="vm-btn vm-btn-secondary vm-btn-sm"
+              onClick={() => setConfiguring(true)}
+            >
+              Wizard settings
+            </button>
+          )}
         </div>
         <StepsNav
           steps={steps}
@@ -102,6 +115,10 @@ export function WizardShell({
           )}
         </button>
       </footer>
+      <WizardSettings
+        open={configuring}
+        onClose={() => setConfiguring(false)}
+      />
     </div>
   );
 }

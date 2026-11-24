@@ -97,7 +97,10 @@ function AlignmentSection({
       className="osc-creation-alignment vm-field u-gap-2 u-pt-4"
       aria-labelledby="osc-creation-al"
     >
-      <span className="vm-key" id="osc-creation-al">
+      <span
+        className={cx("vm-key", !draft.alignment && "u-text-brass")}
+        id="osc-creation-al"
+      >
         Alignment
       </span>
       <VellumSegmented
@@ -155,7 +158,10 @@ function HitPointsSection({
 
   return (
     <section className="vm-field u-gap-1" aria-labelledby="osc-creation-hp">
-      <span className="vm-key" id="osc-creation-hp">
+      <span
+        className={cx("vm-key", !text.trim() && "u-text-brass")}
+        id="osc-creation-hp"
+      >
         Hit Points
       </span>
       <div className="u-flex u-flex-1 u-items-center u-gap-3">
@@ -315,7 +321,11 @@ export function DetailsStep(props: Props) {
           )}
           <div className="u-flex tw:flex-col u-gap-5 tw:min-w-0">
             <label className="vm-field u-gap-1">
-              <span className="vm-key">Name</span>
+              <span
+                className={cx("vm-key", !draft.name.trim() && "u-text-brass")}
+              >
+                Name
+              </span>
               <input
                 className="vm-input vm-input-underline vm-input-title"
                 type="text"

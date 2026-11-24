@@ -3,7 +3,10 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { setWorld } from "@features/portraitImage/__fixtures__/dragWorld";
+import { useOscSettings } from "@src/OscSheet/settings";
 import { CreationWizard } from "./CreationWizard";
+import { stubLiveSettingsAsGM } from "./__fixtures__/liveSettings";
+import { settingRules } from "./foundryRules";
 import type { CartLine, GearItem } from "./gear/gearTypes";
 import type { CreationRace } from "./race/raceItems";
 import type { NewCharacter } from "./review/newCharacter";
@@ -14,7 +17,12 @@ import type {
   CreationRules,
   RaceDetail,
 } from "./rules";
-import { ABILITIES, type AbilityScores } from "./scores/scoresDraft";
+import {
+  ABILITIES,
+  ARRANGE,
+  IN_ORDER,
+  type AbilityScores,
+} from "./scores/scoresDraft";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -23,6 +31,7 @@ import { ABILITIES, type AbilityScores } from "./scores/scoresDraft";
 let host: HTMLDivElement;
 let root: Root;
 let rolls: { total: number; dice: number[] }[];
+let rolledFormulas: string[];
 let details: Map<string, (detail: ClassDetail) => void>;
 let raceDetails: Map<string, (detail: RaceDetail) => void>;
 let hitPointRolls: string[];
@@ -225,8 +234,11 @@ const rules: CreationRules = {
         value! >= 13 ? 1 : value! <= 8 ? -1 : 0,
       ]),
     ) as AbilityScores,
-  rollScore: async () => rolls.shift()!,
-  scoreMethods: ["inOrder", "arrange", "manual"],
+  rollScore: async (_label, formula) => {
+    rolledFormulas.push(formula);
+    return rolls.shift()!;
+  },
+  scoreMethods: [IN_ORDER, ARRANGE, "manual"],
   maxHitPointsAtFirstLevel: false,
   ascendingAC: false,
   raceMode: "separate",
@@ -279,9 +291,10 @@ const rules: CreationRules = {
   },
 };
 
-function open(wizardRules = rules) {
+function open(wizardRules = rules, Wizard = CreationWizard) {
   details = new Map();
   raceDetails = new Map();
+  rolledFormulas = [];
   hitPointRolls = [];
   goldRolls = [];
   goldFormulas = [];
@@ -301,7 +314,7 @@ function open(wizardRules = rules) {
   root = createRoot(host);
   act(() =>
     root.render(
-      <CreationWizard
+      <Wizard
         worldName="Hollow Fen"
         houseRules={[]}
         rules={wizardRules}
@@ -459,7 +472,7 @@ describe("CreationWizard", () => {
     expect(button("1Ability Scores")).toBeUndefined();
   });
 
-  it("rolls 3d6 in order one score at a time, then the rest together", async () => {
+  it("rolls 3d6 down the line one score at a time, then the rest together", async () => {
     open();
     expect(button("Roll INT")).toBeUndefined();
 
@@ -476,12 +489,12 @@ describe("CreationWizard", () => {
   });
 
   it("offers only the score methods the referee allows, starting on the first", () => {
-    open({ ...rules, scoreMethods: ["arrange", "manual"] });
+    open({ ...rules, scoreMethods: [ARRANGE, "manual"] });
     expect(
       [...host.querySelectorAll("input[type=radio]")].map(
         (input) => input.closest("label")!.textContent,
       ),
-    ).toEqual(["Roll and arrange", "Enter manually"]);
+    ).toEqual(["3d6 and arrange", "Enter manually"]);
     expect(button("Roll six totals")).toBeDefined();
   });
 
@@ -494,9 +507,68 @@ describe("CreationWizard", () => {
     expect(host.textContent).toContain("Enter INT, WIS, DEX, CON, CHA");
   });
 
+  it("names a lone custom method and rolls its formula down the line", async () => {
+    open({
+      ...rules,
+      scoreMethods: [
+        {
+          id: "a1",
+          label: "Heroic",
+          formula: "4d6dl",
+          arrange: false,
+          enabled: true,
+        },
+      ],
+    });
+    expect(host.querySelector("[role=radiogroup]")).toBeNull();
+    expect(host.textContent).toContain("Heroic");
+    expect(host.textContent).toContain("Roll 4d6dl per score");
+
+    await pressAsync("Roll STR");
+    expect(rolledFormulas).toEqual(["4d6dl"]);
+    expect(host.textContent).toContain("12+0");
+  });
+
+  it("offers a custom arrange method beside 3d6 down the line, rolling its formula", async () => {
+    open({
+      ...rules,
+      scoreMethods: [
+        IN_ORDER,
+        {
+          id: "a1",
+          label: "Heroic",
+          formula: "4d6dl",
+          arrange: true,
+          enabled: true,
+        },
+      ],
+    });
+    choose("Heroic");
+    await pressAsync("Roll six totals");
+    expect(rolledFormulas).toEqual(Array(6).fill("4d6dl"));
+  });
+
+  it("shows the wizard settings and roll methods to the GM only", () => {
+    setWorld({}, { isGM: false });
+    open();
+    expect(button("Wizard settings")).toBeUndefined();
+    expect(button("Roll methods")).toBeUndefined();
+    close();
+
+    setWorld({}, { isGM: true });
+    open();
+    expect(button("House rules · 0")).toBeDefined();
+    expect(
+      host.querySelector('[aria-label="Campaign house rules"]'),
+    ).toBeNull();
+    expect(button("Wizard settings")).toBeDefined();
+    press("Roll methods");
+    expect(host.textContent).toContain("Roll methods offered");
+  });
+
   it("places rolled totals on abilities and returns them to the pool", async () => {
     open();
-    choose("Roll and arrange");
+    choose("3d6 and arrange");
     await pressAsync("Roll six totals");
     expect(host.textContent).toContain("6 to place");
 
@@ -515,7 +587,7 @@ describe("CreationWizard", () => {
 
   it("swaps a picked-up score with another ability and announces it", async () => {
     open();
-    choose("Roll and arrange");
+    choose("3d6 and arrange");
     await pressAsync("Roll six totals");
     press("Place the rest in order");
 
@@ -530,7 +602,7 @@ describe("CreationWizard", () => {
 
   it("drops a picked-up roll with Escape", async () => {
     open();
-    choose("Roll and arrange");
+    choose("3d6 and arrange");
     await pressAsync("Roll six totals");
 
     press("15, rolled 13 1 1");
@@ -643,6 +715,28 @@ describe("CreationWizard", () => {
     expect(backStabText().textContent).toBe("+4 to hit and double damage.");
     expect(panel().textContent).toContain("Climb sheer surfaces87");
     expect(panel().textContent).toContain("Hear noise1-2");
+  });
+
+  it("drops the Race step and moves on to Class when the GM switches to race as class", async () => {
+    stubLiveSettingsAsGM();
+    open({ ...rules, races }, (props) => (
+      <CreationWizard
+        {...props}
+        rules={{ ...props.rules, ...settingRules(useOscSettings()) }}
+      />
+    ));
+    await pressAsync("Roll all six");
+    act(() => next().click());
+    expect(currentStep()).toBe("2Race");
+
+    press("Wizard settings");
+    choose("Race as class");
+    expect(stepNames()).not.toContain("2Race");
+    expect(stepNames()).toHaveLength(5);
+    expect(currentStep()).toBe("2Class");
+    expect(next().textContent).toBe("Next: Details");
+    expect(button("Back")).toBeDefined();
+    vi.unstubAllGlobals();
   });
 
   it("adds a Race step by default when the world has race items", () => {

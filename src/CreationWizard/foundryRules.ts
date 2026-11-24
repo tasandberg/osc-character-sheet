@@ -1,4 +1,4 @@
-import { getSetting } from "@src/OscSheet/settings";
+import { getSettingsSnapshot, type OscSettings } from "@src/OscSheet/settings";
 import { foundryRaceDetail, loadRaces } from "./race/foundryRaces";
 import type { OSEActor } from "@domain/types";
 import {
@@ -80,15 +80,18 @@ const saveNames = () => {
   return SAVE_KEYS.map((key) => game.i18n?.localize(names[key] ?? key) ?? key);
 };
 
-async function rollScore(label: string) {
-  const roll = await new Roll("3d6").evaluate();
+async function rollScore(label: string, formula: string) {
+  const roll = await new Roll(formula).evaluate();
+  const flavor = `${label} (${formula})`;
   await roll.toMessage(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { speaker: { alias: game.user?.name }, flavor: `${label} (3d6)` } as any,
+    { speaker: { alias: game.user?.name }, flavor } as any,
   );
   return {
     total: roll.total ?? 0,
-    dice: roll.dice.flatMap((die) => die.results.map((r) => r.result)),
+    dice: roll.dice.flatMap((die) =>
+      die.results.filter((r) => r.active).map((r) => r.result),
+    ),
   };
 }
 
@@ -100,6 +103,24 @@ function cachedGearCatalog() {
     return load;
   };
 }
+
+export const settingRules = (
+  settings: OscSettings,
+): Pick<
+  CreationRules,
+  "scoreMethods" | "maxHitPointsAtFirstLevel" | "raceMode"
+> => ({
+  scoreMethods: allowedScoreMethods(
+    {
+      inOrder: settings.allowScoresInOrder,
+      arrange: settings.allowScoresArrange,
+      manual: settings.allowScoresManual,
+    },
+    settings.customScoreMethods,
+  ),
+  maxHitPointsAtFirstLevel: settings.maxHitPointsAtFirstLevel,
+  raceMode: settings.raceMode,
+});
 
 export async function foundryCreationRules(
   actor?: OSEActor,
@@ -117,13 +138,7 @@ export async function foundryCreationRules(
     raceDetail: foundryRaceDetail(races),
     ...scoreRules(),
     rollScore,
-    scoreMethods: allowedScoreMethods({
-      inOrder: getSetting("allowScoresInOrder"),
-      arrange: getSetting("allowScoresArrange"),
-      manual: getSetting("allowScoresManual"),
-    }),
-    maxHitPointsAtFirstLevel: getSetting("maxHitPointsAtFirstLevel"),
-    raceMode: getSetting("raceMode"),
+    ...settingRules(getSettingsSnapshot()),
     maximumHitPoints,
     rollHitPoints,
     alignmentText: foundryAlignmentText(),
