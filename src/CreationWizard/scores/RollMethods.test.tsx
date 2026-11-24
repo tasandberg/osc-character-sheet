@@ -2,8 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { notifySettingChanged, useOscSettings } from "@src/OscSheet/settings";
-import type { SettingKey } from "@src/OscSheet/settings";
+import { useOscSettings } from "@src/OscSheet/settings";
+import { stubLiveSettingsAsGM } from "../__fixtures__/liveSettings";
 import { settingRules } from "../foundryRules";
 import type { CreationRules } from "../rules";
 import { ScoresStep } from "./ScoresStep";
@@ -39,17 +39,7 @@ function Wizard() {
 }
 
 beforeEach(() => {
-  const store = new Map<string, unknown>();
-  vi.stubGlobal("game", {
-    user: { isGM: true },
-    settings: {
-      get: (_namespace: string, key: string) => store.get(key),
-      set: async (_namespace: string, key: SettingKey, value: unknown) => {
-        store.set(key, value);
-        notifySettingChanged(key);
-      },
-    },
-  });
+  stubLiveSettingsAsGM();
   vi.stubGlobal("Roll", { validate: (formula: string) => formula === "3d6" });
   host = document.body.appendChild(document.createElement("div"));
   root = createRoot(host);

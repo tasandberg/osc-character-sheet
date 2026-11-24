@@ -3,7 +3,10 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { setWorld } from "@features/portraitImage/__fixtures__/dragWorld";
+import { useOscSettings } from "@src/OscSheet/settings";
 import { CreationWizard } from "./CreationWizard";
+import { stubLiveSettingsAsGM } from "./__fixtures__/liveSettings";
+import { settingRules } from "./foundryRules";
 import type { CartLine, GearItem } from "./gear/gearTypes";
 import type { CreationRace } from "./race/raceItems";
 import type { NewCharacter } from "./review/newCharacter";
@@ -288,7 +291,7 @@ const rules: CreationRules = {
   },
 };
 
-function open(wizardRules = rules) {
+function open(wizardRules = rules, Wizard = CreationWizard) {
   details = new Map();
   raceDetails = new Map();
   rolledFormulas = [];
@@ -311,7 +314,7 @@ function open(wizardRules = rules) {
   root = createRoot(host);
   act(() =>
     root.render(
-      <CreationWizard
+      <Wizard
         worldName="Hollow Fen"
         houseRules={[]}
         rules={wizardRules}
@@ -712,6 +715,23 @@ describe("CreationWizard", () => {
     expect(backStabText().textContent).toBe("+4 to hit and double damage.");
     expect(panel().textContent).toContain("Climb sheer surfaces87");
     expect(panel().textContent).toContain("Hear noise1-2");
+  });
+
+  it("drops the Race step when the GM switches to race as class in Wizard settings", () => {
+    stubLiveSettingsAsGM();
+    open({ ...rules, races }, (props) => (
+      <CreationWizard
+        {...props}
+        rules={{ ...props.rules, ...settingRules(useOscSettings()) }}
+      />
+    ));
+    expect(stepNames()).toContain("2Race");
+
+    press("Wizard settings");
+    choose("Race as class");
+    expect(stepNames()).not.toContain("2Race");
+    expect(stepNames()).toHaveLength(5);
+    vi.unstubAllGlobals();
   });
 
   it("adds a Race step by default when the world has race items", () => {
