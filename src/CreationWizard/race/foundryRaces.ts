@@ -57,12 +57,13 @@ export async function loadRaces(): Promise<CreationRace[]> {
     ...worldItems().filter((item) => item.type === "race"),
     ...(await packRaces()),
   ];
-  return docs
-    .map((doc) => ({
-      ...raceFromItem(doc.uuid, doc.toObject(), game.system.id),
-      source: embeddable(doc),
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const byKey = new Map<string, CreationRace>();
+  for (const doc of docs) {
+    const race = raceFromItem(doc.uuid, doc.toObject(), game.system.id);
+    const key = race.key || race.name;
+    if (!byKey.has(key)) byKey.set(key, { ...race, source: embeddable(doc) });
+  }
+  return [...byKey.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 async function loadRaceDetail(race: CreationRace): Promise<RaceDetail> {
