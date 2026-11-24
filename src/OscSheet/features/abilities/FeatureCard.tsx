@@ -48,17 +48,27 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
       >
         <RowIcon img={feature.img} name={feature.name} />
         <div className="ft-main tw:flex tw:min-w-0 tw:flex-1 tw:flex-col tw:items-start u-gap-1 tw:@md/app:flex-row tw:@md/app:flex-wrap tw:@md/app:items-center tw:@md/app:gap-x-2">
-          <button
-            type="button"
-            className="ft-title tw:max-w-full tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-normal tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
-            title={`Open ${feature.name}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              feature.onOpen();
-            }}
-          >
-            {feature.name}
-          </button>
+          <div className="ft-name tw:flex tw:max-w-full tw:min-w-0 tw:items-center u-gap-1">
+            <button
+              type="button"
+              className="ft-title tw:min-w-0 tw:cursor-pointer tw:truncate tw:p-0 tw:text-left tw:font-normal tw:text-(length:--fs-md) tw:text-text tw:transition-[color] tw:duration-[120ms] tw:hover:text-gold tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-gold"
+              title={`Open ${feature.name}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                feature.onOpen();
+              }}
+            >
+              {feature.name}
+            </button>
+            {canEdit && (
+              <FavoriteStar
+                className="ft-fav"
+                name={feature.name}
+                favorite={feature.favorite}
+                onToggle={feature.onToggleFavorite}
+              />
+            )}
+          </div>
           {(feature.requiresLabel || feature.rollTag) && (
             <div className="ft-tags tw:flex tw:flex-wrap tw:gap-1">
               {feature.requiresLabel && (
@@ -81,29 +91,22 @@ export function FeatureCard({ feature }: { feature: FeatureVM }) {
           )}
         </div>
         {canEdit && (
-          <FavoriteStar
-            className="ft-fav"
-            name={feature.name}
-            favorite={feature.favorite}
-            onToggle={feature.onToggleFavorite}
-          />
+          <IconButton
+            variant="danger"
+            title={`Delete ${feature.name}`}
+            aria-label={`Delete ${feature.name}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              feature.onDelete();
+            }}
+          >
+            <i className="fa-solid fa-trash-can u-fs-3xs" aria-hidden="true" />
+          </IconButton>
         )}
       </DisclosureRow>
       {open && (
         <div className={`ft-body u-pb-2 ${DISCLOSURE_INDENT}`}>
           <RichText html={desc} />
-          {canEdit && (
-            <div className="ft-actions u-mt-2 u-flex u-items-center u-justify-end u-gap-3">
-              <IconButton
-                variant="danger"
-                title="Delete ability"
-                aria-label="Delete ability"
-                onClick={feature.onDelete}
-              >
-                <i className="fas fa-trash" aria-hidden="true" />
-              </IconButton>
-            </div>
-          )}
         </div>
       )}
     </div>
