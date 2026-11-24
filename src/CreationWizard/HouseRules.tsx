@@ -3,9 +3,9 @@ import { Popover } from "@ui/Popover";
 import type { Anchor } from "@ui/useFixedAnchor";
 import type { HouseRule } from "./houseRuleSettings";
 
-type Props = { worldName: string; rules: HouseRule[] };
+type Props = { worldName: string; rules: HouseRule[]; compact?: boolean };
 
-export function HouseRules({ worldName, rules }: Props) {
+export function HouseRules({ worldName, rules, compact }: Props) {
   const [anchor, setAnchor] = useState<Anchor | null>(null);
   const toggle = (event: MouseEvent<HTMLButtonElement>) =>
     setAnchor((open) =>
@@ -13,21 +13,27 @@ export function HouseRules({ worldName, rules }: Props) {
     );
   return (
     <>
-      <div
-        role="group"
-        aria-label="Campaign house rules"
-        className="osc-creation-house-rules u-row u-gap-1 u-ml-auto"
-      >
-        <span className="vm-key">House rules</span>
-        {rules.map((rule) => (
-          <span key={rule.name} className="vm-tag vm-tag-xs">
-            {rule.tag}
-          </span>
-        ))}
-      </div>
+      {!compact && (
+        <div
+          role="group"
+          aria-label="Campaign house rules"
+          className="osc-creation-house-rules u-row u-gap-1 u-ml-auto"
+        >
+          <span className="vm-key">House rules</span>
+          {rules.map((rule) => (
+            <span key={rule.name} className="vm-tag vm-tag-xs">
+              {rule.tag}
+            </span>
+          ))}
+        </div>
+      )}
       <button
         type="button"
-        className="osc-creation-house-rules-button vm-btn vm-btn-secondary u-ml-auto"
+        className={
+          compact
+            ? "vm-btn vm-btn-secondary vm-btn-sm u-ml-auto"
+            : "osc-creation-house-rules-button vm-btn vm-btn-secondary u-ml-auto"
+        }
         aria-expanded={anchor !== null}
         onPointerDown={(event) => event.stopPropagation()}
         onClick={toggle}
@@ -47,8 +53,7 @@ export function HouseRules({ worldName, rules }: Props) {
             <h2 className="vm-sheet-head-title">Set by {worldName}</h2>
           </div>
           <p className="vm-help">
-            Your referee chose these. They’re already applied; change them in
-            the system settings.
+            Your referee chose these. They’re already applied.
           </p>
           <dl className="u-grid tw:grid-cols-[max-content_minmax(0,1fr)] u-gap-x-4 u-gap-y-2 u-items-baseline">
             {rules.map((rule) => (

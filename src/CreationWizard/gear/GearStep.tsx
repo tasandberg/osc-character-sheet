@@ -296,7 +296,7 @@ function GoldRoll({ draft, rules, onChange }: Props) {
         </>
       ) : (
         <>
-          <dt className="vm-key">Starting gold</dt>
+          <dt className="vm-key u-text-brass">Starting gold</dt>
           <dd>
             <button
               type="button"

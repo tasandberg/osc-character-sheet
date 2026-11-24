@@ -15,10 +15,20 @@ const enableWizard = (page: Page) =>
   page.evaluate(async (mod) => {
     const g = globalThis as any;
     await g.game.settings.set(mod, "creationWizard", true);
+    await g.game.settings.set(mod, "allowScoresArrange", true);
+    await g.game.settings.set(mod, "allowScoresManual", true);
     g.ui.sidebar.expand();
     g.ui.actors.activate();
     await g.ui.actors.render();
   }, MODULE_ID);
+
+test.afterEach(async ({ gamePage }) => {
+  await gamePage.evaluate(async (mod) => {
+    const g = globalThis as any;
+    await g.game.settings.set(mod, "allowScoresArrange", false);
+    await g.game.settings.set(mod, "allowScoresManual", false);
+  }, MODULE_ID);
+});
 
 const createBlankCharacter = (page: Page, name: string) =>
   page.evaluate(
@@ -99,7 +109,7 @@ test.describe("creation wizard", () => {
     try {
       await gamePage.locator("#actors").getByRole("button", { name: "New Character" }).click();
       const wizard = gamePage.locator("#osc-creation-wizard");
-      await wizard.getByRole("radio", { name: /Roll and arrange/ }).check({ force: true });
+      await wizard.getByRole("radio", { name: /3d6 and arrange/ }).check({ force: true });
       await wizard.getByRole("button", { name: "Roll six totals" }).click();
 
       const rolls = wizard.getByRole("group", { name: "Rolls" });
@@ -119,6 +129,65 @@ test.describe("creation wizard", () => {
         await g.foundry.applications.instances.get("osc-creation-wizard")?.close();
         await g.game.settings.set(mod, "creationWizard", false);
       }, MODULE_ID);
+    }
+  });
+
+  test("a GM adds a custom roll method that players can roll and that persists", async ({
+    gamePage,
+  }) => {
+    const label = "4d6 drop lowest";
+    await enableWizard(gamePage);
+    const openWizard = async () => {
+      await gamePage.locator("#actors").getByRole("button", { name: "New Character" }).click();
+      return gamePage.locator("#osc-creation-wizard");
+    };
+
+    try {
+      const wizard = await openWizard();
+      await wizard.getByRole("button", { name: "Roll methods" }).click();
+      await wizard.getByRole("button", { name: "Add a roll method" }).click();
+      await wizard.getByRole("textbox", { name: "Roll method label" }).fill(label);
+      await wizard.getByRole("textbox", { name: "Roll formula" }).fill("4d6dl");
+      await wizard.getByRole("button", { name: "Add", exact: true }).click();
+      await expect(wizard.getByRole("checkbox", { name: new RegExp(label) })).toBeChecked();
+      await wizard.getByRole("button", { name: "Close" }).last().click();
+
+      await wizard.getByRole("radio", { name: label }).check({ force: true });
+      await wizard.getByRole("button", { name: "Roll all six" }).click();
+
+      const dice = wizard.getByRole("img", { name: /^Dice / });
+      await expect(dice).toHaveCount(6);
+      for (const name of await dice.evaluateAll((els) =>
+        els.map((el) => el.getAttribute("aria-label")!),
+      )) {
+        const kept = name.replace("Dice ", "").split(", ").map(Number);
+        expect(kept).toHaveLength(3);
+        const total = kept.reduce((sum, die) => sum + die, 0);
+        expect(total).toBeGreaterThanOrEqual(3);
+        expect(total).toBeLessThanOrEqual(18);
+        await expect(wizard.getByText(String(total), { exact: true }).first()).toBeVisible();
+      }
+
+      await gamePage.reload({ waitUntil: "domcontentloaded" });
+      await gamePage.waitForFunction(() => (globalThis as any).game?.ready === true, null, {
+        timeout: 120_000,
+      });
+      await enableWizard(gamePage);
+      await expect((await openWizard()).getByRole("radio", { name: label })).toBeVisible();
+    } finally {
+      await gamePage.evaluate(
+        async ([mod, methodLabel]) => {
+          const g = globalThis as any;
+          await g.foundry.applications.instances.get("osc-creation-wizard")?.close();
+          await g.game.settings.set(
+            mod,
+            "customScoreMethods",
+            g.game.settings.get(mod, "customScoreMethods").filter((m: any) => m.label !== methodLabel),
+          );
+          await g.game.settings.set(mod, "creationWizard", false);
+        },
+        [MODULE_ID, label],
+      );
     }
   });
 

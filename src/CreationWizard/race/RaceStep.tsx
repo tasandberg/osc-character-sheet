@@ -44,7 +44,9 @@ export function RaceStep({
         className="osc-creation-pane osc-creation-class-pane u-gap-3"
       >
         <div className="vm-sheet-head">
-          <h2 className="vm-sheet-head-title">Choose a Race</h2>
+          <h2 className={cx("vm-sheet-head-title", !chosen && "u-text-brass")}>
+            Choose a Race
+          </h2>
           <ScoreLine scores={scores} label="Your scores" />
         </div>
         <fieldset>

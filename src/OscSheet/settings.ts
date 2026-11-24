@@ -14,6 +14,7 @@ import {
   SAME_AS_CHARACTER_SHEET,
 } from "@src/OscSheet/appearance";
 import { creationWizardSupported } from "@src/CreationWizard/support";
+import { resolveCustomScoreMethods } from "@src/CreationWizard/scores/scoresDraft";
 
 type SettingScope = "world" | "user";
 
@@ -22,7 +23,7 @@ type SettingDefinition<T> = {
   readonly hint: string;
   readonly scope: SettingScope;
   readonly config: boolean;
-  readonly type: typeof String | typeof Boolean;
+  readonly type: typeof String | typeof Boolean | typeof Array;
   readonly choices?: Readonly<Record<string, string>>;
   readonly filePicker?: "folder";
   readonly requires?: () => boolean;
@@ -154,8 +155,8 @@ export const SETTINGS = {
       value === "asClass" ? "asClass" : "separate",
   },
   allowScoresInOrder: {
-    name: "Allow 3d6 in order",
-    hint: "Players may roll ability scores 3d6 in order in the creation wizard.",
+    name: "Allow 3d6 down the line",
+    hint: "Players may roll ability scores 3d6 down the line, STR to CHA, in the creation wizard.",
     scope: "world",
     config: true,
     type: Boolean,
@@ -164,14 +165,14 @@ export const SETTINGS = {
     resolve: resolveBoolean(true),
   },
   allowScoresArrange: {
-    name: "Allow roll and arrange",
+    name: "Allow 3d6 and arrange",
     hint: "Players may roll six totals and assign them to abilities in the creation wizard.",
     scope: "world",
     config: true,
     type: Boolean,
-    default: true,
+    default: false,
     requires: creationWizardSupported,
-    resolve: resolveBoolean(true),
+    resolve: resolveBoolean(false),
   },
   allowScoresManual: {
     name: "Allow manual score entry",
@@ -179,9 +180,18 @@ export const SETTINGS = {
     scope: "world",
     config: true,
     type: Boolean,
-    default: true,
+    default: false,
     requires: creationWizardSupported,
-    resolve: resolveBoolean(true),
+    resolve: resolveBoolean(false),
+  },
+  customScoreMethods: {
+    name: "Custom roll methods",
+    hint: "Extra ability score roll methods offered in the creation wizard.",
+    scope: "world",
+    config: false,
+    type: Array,
+    default: [],
+    resolve: resolveCustomScoreMethods,
   },
   portraitUploads: {
     name: "Portrait image uploads",

@@ -113,8 +113,8 @@
   color: var(--text);
   cursor: pointer;
 
-  &:hover .vm-heading,
-  &:focus-visible .vm-heading {
+  &:hover .osc-creation-step-name,
+  &:focus-visible .osc-creation-step-name {
     color: var(--gold);
   }
 }
