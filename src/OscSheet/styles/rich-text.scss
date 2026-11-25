@@ -7,6 +7,16 @@
 }
 .osc-rich-text-body :is(h1, h2, h3, h4, h5, h6) { font-family: var(--display); color: var(--text, #e7e0cc); }
 .osc-rich-text-body :is(a.content-link, a.inline-roll) { font-family: var(--sans); }
+.osc-sheet-app a.content-link {
+  padding: calc(var(--spacer-1) / 2) var(--spacer-2);
+  background: var(--well);
+  border: 0;
+  border-radius: 0;
+  color: var(--text);
+  [data-theme="cream"] & { background: var(--surface-3); }
+  > i { color: var(--accent-alt); }
+  &:hover { text-decoration: underline; text-shadow: none; }
+}
 .osc-rich-text-body [style*="color"] { color: inherit !important; }
 // Accent bar follows the active --gold (flips teal by data-kind).
 .osc-rich-text-body blockquote {

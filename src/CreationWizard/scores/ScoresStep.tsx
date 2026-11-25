@@ -5,7 +5,6 @@ import type { CreationRules } from "../rules";
 import { ArrangeScores } from "./ArrangeScores";
 import { InOrderScores } from "./InOrderScores";
 import { ManualScores } from "./ManualScores";
-import { RollMethodsButton, RollMethodsModal } from "./RollMethods";
 import { ScoresAside } from "./ScoresAside";
 import {
   ABILITY_NAMES,
@@ -35,7 +34,6 @@ type Props = {
 
 export function ScoresStep({ draft, rules, onChange }: Props) {
   const [rolling, setRolling] = useState(false);
-  const [settingsHost, setSettingsHost] = useState<Element | null>(null);
   const scores = useMemo(() => finalScores(draft), [draft]);
   const mods = useMemo(() => rules.modifiers(scores), [rules, scores]);
   const choice = rules.scoreMethods.length > 1;
@@ -85,37 +83,34 @@ export function ScoresStep({ draft, rules, onChange }: Props) {
               Roll Ability Scores
             </h2>
             {!choice && (
-              <>
-                <span className="vm-sheet-head-hint">
-                  {scoreChoiceLabel(method)}
-                </span>
-                <RollMethodsButton onOpen={setSettingsHost} />
-              </>
+              <span className="vm-sheet-head-hint">
+                {scoreChoiceLabel(method)}
+              </span>
             )}
           </div>
           <div className="u-stack u-gap-2">
             {choice && (
-              <div className="u-row u-gap-2">
-                <div className="osc-creation-method-chooser">
-                  <VellumSegmented
-                    label="Roll method"
-                    options={rules.scoreMethods.map((other) => ({
-                      value: scoreChoiceId(other),
-                      label: scoreChoiceLabel(other),
-                    }))}
-                    value={scoreChoiceId(method)}
-                    onChange={choose}
-                  />
-                </div>
-                <RollMethodsButton onOpen={setSettingsHost} />
+              <div className="osc-creation-method-chooser">
+                <VellumSegmented
+                  label="Roll method"
+                  options={rules.scoreMethods.map((other) => ({
+                    value: scoreChoiceId(other),
+                    label: (
+                      <span
+                        className="tw:truncate"
+                        title={scoreChoiceLabel(other)}
+                      >
+                        {scoreChoiceLabel(other)}
+                      </span>
+                    ),
+                  }))}
+                  value={scoreChoiceId(method)}
+                  onChange={choose}
+                />
               </div>
             )}
             <span className="vm-help">{helpFor(method)}</span>
           </div>
-          <RollMethodsModal
-            host={settingsHost}
-            onClose={() => setSettingsHost(null)}
-          />
         </div>
         {method === "manual" ? (
           <ManualScores

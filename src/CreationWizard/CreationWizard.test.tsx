@@ -548,11 +548,10 @@ describe("CreationWizard", () => {
     expect(rolledFormulas).toEqual(Array(6).fill("4d6dl"));
   });
 
-  it("shows the wizard settings and roll methods to the GM only", () => {
+  it("shows the wizard settings to the GM only", () => {
     setWorld({}, { isGM: false });
     open();
     expect(button("Wizard settings")).toBeUndefined();
-    expect(button("Roll methods")).toBeUndefined();
     close();
 
     setWorld({}, { isGM: true });
@@ -561,9 +560,8 @@ describe("CreationWizard", () => {
     expect(
       host.querySelector('[aria-label="Campaign house rules"]'),
     ).toBeNull();
-    expect(button("Wizard settings")).toBeDefined();
-    press("Roll methods");
-    expect(host.textContent).toContain("Roll methods offered");
+    press("Wizard settings");
+    expect(button("Custom")).toBeDefined();
   });
 
   it("places rolled totals on abilities and returns them to the pool", async () => {
