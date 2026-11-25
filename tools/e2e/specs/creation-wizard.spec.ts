@@ -144,8 +144,8 @@ test.describe("creation wizard", () => {
 
     try {
       const wizard = await openWizard();
-      await wizard.getByRole("button", { name: "Roll methods" }).click();
-      await wizard.getByRole("button", { name: "Add a roll method" }).click();
+      await wizard.getByRole("button", { name: "Wizard settings" }).click();
+      await wizard.getByRole("tab", { name: "Custom" }).click();
       await wizard.getByRole("textbox", { name: "Roll method label" }).fill(label);
       await wizard.getByRole("textbox", { name: "Roll formula" }).fill("4d6dl");
       await wizard.getByRole("button", { name: "Add", exact: true }).click();

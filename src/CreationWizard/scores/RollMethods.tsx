@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { createPortal } from "react-dom";
-import { IconButton, Modal } from "@ui";
-import { VellumCheckbox, VellumField } from "@features/settings/controls";
+import { IconButton, Tabs } from "@ui";
+import { VellumCheckbox } from "@features/settings/controls";
 import { setSetting, useOscSettings } from "@src/OscSheet/settings";
-import { isGM } from "../support";
 import { scoreFormulaError } from "./scoreFormula";
 import {
   ARRANGE,
@@ -18,7 +16,7 @@ const BUILT_IN_SETTINGS = {
   [ARRANGE.id]: "allowScoresArrange",
 } as Record<string, "allowScoresInOrder" | "allowScoresArrange" | undefined>;
 
-function RollMethods({ onClose }: { onClose: () => void }) {
+export function RollMethodsSettings() {
   const settings = useOscSettings();
   const custom = settings.customScoreMethods;
   const methods = rollMethods(
@@ -45,7 +43,7 @@ function RollMethods({ onClose }: { onClose: () => void }) {
     if (!blocked) apply();
   };
 
-  const closeForm = () => {
+  const resetForm = () => {
     setAdding(false);
     setLabel("");
     setFormula("");
@@ -69,27 +67,63 @@ function RollMethods({ onClose }: { onClose: () => void }) {
         enabled: true,
       },
     ]);
-    closeForm();
+    resetForm();
   };
 
   return (
-    <Modal
-      open
-      title={<span className="vm-heading">Roll methods</span>}
-      onClose={onClose}
-      footer={
-        <button
-          type="button"
-          className="vm-btn vm-btn-secondary"
-          onClick={onClose}
-        >
-          Close
-        </button>
-      }
-      className="modal-inset osc-settings-modal"
-    >
-      <div className="u-stack u-gap-6">
-        <VellumField label="Roll methods offered">
+    <div className="u-stack u-gap-4">
+      <Tabs
+        variant="folder"
+        className="osc-wizard-settings-tabs"
+        tabs={[
+          { id: "methods", label: "Roll methods" },
+          { id: "custom", label: "Custom" },
+        ]}
+        active={adding ? "custom" : "methods"}
+        onSelect={(id) => setAdding(id === "custom")}
+      />
+      {adding ? (
+        <div className="vm-field">
+          <div className="vm-field-helper">
+            Add a custom roll method for ability scores. Use a Foundry roll
+            formula, such as 4d6dl or 2d6+6.
+          </div>
+          <div className="u-row u-gap-2">
+            <input
+              className="vm-input u-flex-1 tw:h-8 tw:px-2 tw:text-(length:--fs-sm)"
+              aria-label="Roll method label"
+              placeholder="Label"
+              value={label}
+              onChange={(event) => setLabel(event.target.value)}
+            />
+            <input
+              className="vm-input u-flex-1 tw:h-8 tw:px-2 tw:text-(length:--fs-sm)"
+              aria-label="Roll formula"
+              placeholder="Formula"
+              value={formula}
+              onChange={(event) => setFormula(event.target.value)}
+            />
+            <button
+              type="button"
+              className="vm-btn vm-btn-secondary vm-btn-sm u-flex-none"
+              onClick={() => void add()}
+            >
+              Add
+            </button>
+          </div>
+          {error && (
+            <p role="alert" className="vm-field-error">
+              {error}
+            </p>
+          )}
+          <VellumCheckbox
+            label="Players arrange the totals"
+            checked={arrange}
+            onChange={setArrange}
+          />
+        </div>
+      ) : (
+        <div className="vm-field">
           {methods.map((method) => {
             const setting = BUILT_IN_SETTINGS[method.id];
             return (
@@ -146,95 +180,8 @@ function RollMethods({ onClose }: { onClose: () => void }) {
               At least one roll method is required
             </p>
           )}
-        </VellumField>
-        {adding ? (
-          <VellumField label="Add a roll method">
-            <div className="vm-field-helper">
-              A Foundry formula for one score, such as 4d6dl or 2d6+6.
-            </div>
-            <div className="u-row u-gap-2">
-              <input
-                className="vm-input u-flex-1"
-                aria-label="Roll method label"
-                placeholder="Label"
-                value={label}
-                onChange={(event) => setLabel(event.target.value)}
-              />
-              <input
-                className="vm-input u-flex-1"
-                aria-label="Roll formula"
-                placeholder="Formula"
-                value={formula}
-                onChange={(event) => setFormula(event.target.value)}
-              />
-            </div>
-            {error && (
-              <p role="alert" className="vm-field-error">
-                {error}
-              </p>
-            )}
-            <VellumCheckbox
-              label="Players arrange the totals"
-              checked={arrange}
-              onChange={setArrange}
-            />
-            <div className="u-row u-gap-3 u-justify-end">
-              <button
-                type="button"
-                className="vm-btn vm-btn-link vm-btn-link-muted"
-                onClick={closeForm}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="vm-btn vm-btn-secondary vm-btn-sm"
-                onClick={() => void add()}
-              >
-                Add
-              </button>
-            </div>
-          </VellumField>
-        ) : (
-          <div className="u-row">
-            <button
-              type="button"
-              className="vm-btn vm-btn-secondary vm-btn-sm"
-              onClick={() => setAdding(true)}
-            >
-              <i className="fa-solid fa-plus" aria-hidden="true" />
-              Add a roll method
-            </button>
-          </div>
-        )}
-      </div>
-    </Modal>
+        </div>
+      )}
+    </div>
   );
-}
-
-export function RollMethodsButton({
-  onOpen,
-}: {
-  onOpen: (host: Element | null) => void;
-}) {
-  if (!isGM()) return null;
-  return (
-    <IconButton
-      aria-label="Roll methods"
-      title="Roll methods"
-      onClick={(event) => onOpen(event.currentTarget.closest(".osc-sheet-app"))}
-    >
-      <i className="fa-solid fa-gear u-fs-md" aria-hidden="true" />
-    </IconButton>
-  );
-}
-
-export function RollMethodsModal({
-  host,
-  onClose,
-}: {
-  host: Element | null;
-  onClose: () => void;
-}) {
-  return host && createPortal(<RollMethods onClose={onClose} />, host);
 }

@@ -39,4 +39,50 @@
       background: none;
     }
   }
+
+  .osc-wizard-settings-modal {
+    max-width: calc(var(--spacer-12) * 16);
+  }
+  .osc-wizard-settings-tabs.tabs.folder {
+    align-items: flex-end;
+    margin: 0;
+    padding: 0;
+    border-top: 0;
+    border-bottom: 1px solid var(--hairline);
+    box-shadow: none;
+
+    .tab {
+      margin: 0 0 -1px;
+      padding: var(--spacer-2) var(--spacer-3) calc(var(--spacer-2) + 1px);
+      font-size: var(--fs-xs);
+      border: 1px solid transparent;
+      border-bottom: 0;
+      border-radius: var(--r-sm) var(--r-sm) 0 0;
+    }
+    .tab.active {
+      border-color: var(--hairline);
+      background: var(--surface-solid);
+    }
+  }
+  .osc-wizard-settings-columns {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(calc(var(--spacer-12) * 5), 1fr)
+    );
+    gap: var(--spacer-6) var(--spacer-8);
+    overflow: clip;
+    overflow-clip-margin: var(--spacer-1);
+
+    > * {
+      position: relative;
+    }
+    > *::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      left: calc(var(--spacer-8) / -2);
+      border-left: 1px solid var(--hair);
+    }
+  }
 }

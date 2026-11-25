@@ -239,7 +239,12 @@
   }
 }
 
+.osc-creation-method-chooser .vm-segmented {
+  max-width: 100%;
+}
+
 .osc-creation-method-chooser .vm-segment {
+  min-width: 0;
   height: var(--spacer-10);
   padding-inline: var(--spacer-4);
   font-size: var(--fs-sm);

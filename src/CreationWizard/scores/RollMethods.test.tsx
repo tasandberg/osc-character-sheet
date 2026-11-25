@@ -6,6 +6,7 @@ import { useOscSettings } from "@src/OscSheet/settings";
 import { stubLiveSettingsAsGM } from "../__fixtures__/liveSettings";
 import { settingRules } from "../foundryRules";
 import type { CreationRules } from "../rules";
+import { WizardSettings } from "../WizardSettings";
 import { ScoresStep } from "./ScoresStep";
 import { emptyScoresDraft } from "./scoresDraft";
 
@@ -34,6 +35,7 @@ function Wizard() {
         rules={{ ...staticRules, ...settingRules(settings) } as CreationRules}
         onChange={setDraft}
       />
+      <WizardSettings open onClose={() => {}} />
     </div>
   );
 }
@@ -44,7 +46,6 @@ beforeEach(() => {
   host = document.body.appendChild(document.createElement("div"));
   root = createRoot(host);
   act(() => root.render(<Wizard />));
-  press("Roll methods");
 });
 
 afterEach(() => {
@@ -90,12 +91,16 @@ function type(label: string, value: string) {
 describe("Roll methods", () => {
   it("stays open while the offered methods go from one to two and back", () => {
     toggle("3d6 and arrange");
-    expect(host.querySelector("[role=radiogroup]")).not.toBeNull();
-    expect(host.textContent).toContain("Roll methods offered");
+    expect(
+      host.querySelector('[role=radiogroup][aria-label="Roll method"]'),
+    ).not.toBeNull();
+    expect(button("Custom")).toBeDefined();
 
     toggle("3d6 and arrange");
-    expect(host.querySelector("[role=radiogroup]")).toBeNull();
-    expect(host.textContent).toContain("Roll methods offered");
+    expect(
+      host.querySelector('[role=radiogroup][aria-label="Roll method"]'),
+    ).toBeNull();
+    expect(button("Custom")).toBeDefined();
   });
 
   it("keeps the last offered method ticked and says one is required", () => {
@@ -106,8 +111,7 @@ describe("Roll methods", () => {
 
   it("adds nothing when the label is missing or the formula is invalid", async () => {
     const offered = checkboxes().map((box) => box.label);
-    press("Add a roll method");
-
+    press("Custom");
     await pressAsync("Add");
     expect(alerts()).toEqual(["Give the roll method a label"]);
 
@@ -115,10 +119,7 @@ describe("Roll methods", () => {
     type("Roll formula", "lots of dice");
     await pressAsync("Add");
     expect(alerts()[0]).toContain("roll formula");
-    expect(
-      checkboxes()
-        .map((box) => box.label)
-        .filter((label) => label !== "Players arrange the totals"),
-    ).toEqual(offered);
+    press("Roll methods");
+    expect(checkboxes().map((box) => box.label)).toEqual(offered);
   });
 });
